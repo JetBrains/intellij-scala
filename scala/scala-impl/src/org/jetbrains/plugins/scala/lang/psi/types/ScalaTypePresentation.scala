@@ -4,6 +4,7 @@ package psi
 package types
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider.parseParameters
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
@@ -227,6 +228,19 @@ trait ScalaTypePresentation extends api.TypePresentation {
       }
     }
 
+    object TypeLambda {
+      def unapply(proj: ScProjectionType): Option[String] = proj match {
+        case ScProjectionType.withActual(alias: ScTypeAliasDefinition, _) if alias.kindProjectorPluginEnabled =>
+          proj.projected match {
+            case ScCompoundType(comps, sigs, aliases) if
+            comps.isEmpty && sigs.isEmpty && aliases.contains(alias.name) =>
+              Option(KindProjectorSimplifyTypeProjectionInspection.convertToKindProjIectorSyntax(alias))
+            case _ => None
+          }
+        case _ => None
+      }
+    }
+
     def parameterizedTypeText(p: ParameterizedType)(printArgsFun: ScType => String): String = p match {
       case ParameterizedType(InfixDesignator(op), Seq(left, right)) =>
         infixTypeText(op, left, right, printArgsFun(_))
@@ -256,6 +270,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
+      case TypeLambda(text)          => text
       case FunctionType(ret, params) if t.isAliasType.isEmpty =>
         val paramsText = params match {
           case Seq(fun @ FunctionType(_, _)) => innerTypeText(fun).parenthesize()

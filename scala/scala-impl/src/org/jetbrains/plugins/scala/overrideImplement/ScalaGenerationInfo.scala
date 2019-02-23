@@ -12,7 +12,6 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
-import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorTypeLambdaUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -22,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
@@ -200,7 +197,6 @@ object ScalaGenerationInfo {
 
     val added = td.addMember(m, Option(anchor))
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(added, typeAnnotationsPolicy)
-    KindProjectorTypeLambdaUtil.simplifyTypeLambdasIn(added)
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
   }

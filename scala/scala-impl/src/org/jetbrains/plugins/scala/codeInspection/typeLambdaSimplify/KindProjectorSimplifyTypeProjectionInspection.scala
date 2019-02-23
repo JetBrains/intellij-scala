@@ -85,8 +85,8 @@ object KindProjectorSimplifyTypeProjectionInspection {
   private[this] def tryConvertToInlineSyntax(alias: ScTypeAliasDefinition): Option[String] = {
     def simpleTypeArgumentOccurences(tpe: ScParameterizedType): Map[String, Int] =
       tpe.typeArguments.collect { case tpt: TypeParameterType => tpt.name }
-      .groupBy(identity)
-      .mapValues(_.size)
+        .groupBy(identity)
+        .mapValues(_.size)
 
     alias.aliasedType match {
       case Right(paramType: ScParameterizedType) =>
@@ -111,7 +111,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
           }
 
           (!typeParamIt.hasNext && currentTypeParam.isEmpty).option(
-            s"${paramType.designator}${newTypeArgs.mkString(start = "[", sep = ", ", end = "]")}"
+            s"${paramType.designator.presentableText(alias)}${newTypeArgs.mkString(start = "[", sep = ", ", end = "]")}"
           )
         } else None
       case _ => None

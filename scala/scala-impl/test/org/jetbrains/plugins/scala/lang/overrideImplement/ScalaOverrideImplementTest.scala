@@ -1337,4 +1337,41 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val methodName = "monad"
     runTest(methodName, text, expected, isImplement = true)
   }
+
+  def testImplementTypeLambdaInInfixType(): Unit = {
+    val text =
+      """
+        |trait ~>[F[_], G[_]]
+        |trait Monad[F[_]]
+        |type ReaderT[F[_], A, B] = F
+        |
+        |trait Unlift[F[_], G[_]] {
+        |  self =>
+        |  def unlift: G[G ~> F]
+        |}
+        |
+        |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
+        |    new Unlift[F, ReaderT[F, R, ?]] {
+        |      <caret>
+        |    }
+      """.stripMargin
+    val expected =
+      """
+        |trait ~>[F[_], G[_]]
+        |trait Monad[F[_]]
+        |type ReaderT[F[_], A, B] = F
+        |
+        |trait Unlift[F[_], G[_]] {
+        |  self =>
+        |  def unlift: G[G ~> F]
+        |}
+        |
+        |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
+        |    new Unlift[F, ReaderT[F, R, ?]] {
+        |      def unlift: ReaderT[F, R, ReaderT[F, R, ?] ~> F] = ???
+        |    }
+      """.stripMargin
+    val methodName = "unlift"
+    runTest(methodName, text, expected, isImplement = true)
+  }
 }

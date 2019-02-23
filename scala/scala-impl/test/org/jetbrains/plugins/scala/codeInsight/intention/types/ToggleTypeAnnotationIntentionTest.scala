@@ -5,11 +5,20 @@ package types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
 
   override def familyName: String             = ToggleTypeAnnotation.FamilyName
   override implicit val version: ScalaVersion = Scala_2_12
+
+  override def setUp(): Unit = {
+    super.setUp()
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
+    val newSettings = defaultProfile.getSettings
+    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    defaultProfile.setSettings(newSettings)
+  }
 
   def testCollectionFactorySimplification(): Unit = doTest(
     "val v = Seq.empty[String]",
@@ -30,7 +39,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
     "val v = Option.empty[String].to[Option]",
     "val v: Option[String] = Option.empty[String].to[Option]"
   )
-   
+
   def testCompoundType(): Unit = doTest(
     """
       |val foo = new Runnable {
@@ -45,7 +54,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
       |  override def run(): Unit = ???
       |}""".stripMargin
   )
-  
+
   def testCompoundTypeWithTypeMember(): Unit = doTest(
     s"""
        |trait Foo {
@@ -54,7 +63,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |
        |val f${caretTag}oo = new Foo {
        |  override type X = Int
-       |  
+       |
        |  def helper(x: X): Unit = ???
        |}
      """.stripMargin,
@@ -72,7 +81,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |}
      """.stripMargin
   )
-  
+
   def testInfixType(): Unit = doTest(
     s"""
        |trait A
@@ -91,7 +100,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |val ba${caretTag}r: A =:= (B <:< (B =:= B =:= A)) = foo()
      """.stripMargin
   )
-  
+
   def testInfixDifferentAssociativity(): Unit = doTest(
     s"""
        |trait +[A, B]
@@ -149,5 +158,27 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |  }
        |}
      """
+  )
+
+  def testTypeLambdaInline(): Unit = doTest(
+    s"""
+       |def foo: ({type L[A] = Either[String, A]})#L
+       |val ${caretTag}v = foo
+     """.stripMargin,
+    s"""
+       |def foo: ({type L[A] = Either[String, A]})#L
+       |val ${caretTag}v: Either[String, ?] = foo
+     """.stripMargin
+  )
+
+  def testTypeLambda(): Unit = doTest(
+    s"""
+       |def foo: ({type L[F[_]] = F[Int]})#L
+       |val ${caretTag}v = foo
+     """.stripMargin,
+    s"""
+       |def foo: ({type L[F[_]] = F[Int]})#L
+       |val ${caretTag}v: Lambda[F[_] => F[Int]] = foo
+     """.stripMargin
   )
 }
