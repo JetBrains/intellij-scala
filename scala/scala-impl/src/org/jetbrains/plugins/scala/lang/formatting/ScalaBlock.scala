@@ -159,7 +159,9 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
   }
 
   private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
-    val configOpt = ScalafmtDynamicConfigManager.configForFile(parent.getContainingFile, failSilent = true)
+    val file = parent.getContainingFile
+    val configManager = ScalafmtDynamicConfigManager.instanceIn(file.getProject)
+    val configOpt = configManager.configForFile(file, failSilent = true, resolveFast = true)
     val (indentDefn, indentCall) = configOpt match {
       case Some(config) => (config.continuationIndentDefnSite, config.continuationIndentCallSite)
       case None => (2, 2)

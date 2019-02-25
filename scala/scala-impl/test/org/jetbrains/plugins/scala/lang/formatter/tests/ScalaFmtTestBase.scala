@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -28,12 +29,12 @@ object ScalaFmtTestBase {
   // using val to emulate java static initializer,
   val initDefaultScalafmtVersion: Unit = {
     val log: Any => Unit = println
-    val downloadingMessage = s"Downloading default scalafmt version ${ScalafmtDynamicService.DefaultVersion}"
+    val downloadingMessage = s"Downloading default scalafmt version $DefaultVersion"
     log(s"[START] $downloadingMessage")
     val stringToUnit: DownloadProgressListener = progressMessage => {
       log(progressMessage)
     }
-    ScalafmtDynamicService.instance.ensureDefaultVersionIsResolved(stringToUnit)
+    ScalafmtDynamicService.instance.ensureVersionIsResolved(DefaultVersion, stringToUnit)
     log(s"[END] $downloadingMessage")
   }
 }

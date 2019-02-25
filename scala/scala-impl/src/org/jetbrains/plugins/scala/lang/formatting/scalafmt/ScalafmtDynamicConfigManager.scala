@@ -27,19 +27,26 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
 
   private val configsCache: mutable.Map[String, CachedConfig] = ScalaCollectionsUtil.newConcurrentMap
 
-  def clearCaches(): Unit = {
-    configsCache.clear()
-  }
-
   override def projectOpened(): Unit = {
-    val isScalafmtEnabled = ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER
-    if (isScalafmtEnabled) {
-      ScalafmtDynamicService.instance.ensureDefaultVersionIsResolvedAsync(project)
-    }
+    init()
   }
 
   override def projectClosed(): Unit = {
     clearCaches()
+  }
+
+  def init(): Unit = {
+    val scalaSettings = ScalaCodeStyleSettings.getInstance(project)
+    val isScalafmtEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
+    if (isScalafmtEnabled) {
+      val configFile = scalafmtProjectConfigFile(scalaSettings.SCALAFMT_CONFIG_PATH)
+      val version = configFile.flatMap(readVersion(_).toOption.flatten).getOrElse(DefaultVersion)
+      ScalafmtDynamicService.instance.ensureVersionIsResolvedAsync(version, project)
+    }
+  }
+
+  def clearCaches(): Unit = {
+    configsCache.clear()
   }
 
   def resolveConfigAsync(configFile: VirtualFile,
@@ -49,11 +56,17 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
       override def run(indicator: ProgressIndicator): Unit = {
         refreshFileModificationTimestamp(configFile)
         indicator.setFraction(0.0)
-        val configOrError = resolveConfig(configFile, Some(version), downloadScalafmtIfMissing = true)
+        val configOrError = resolveConfig(
+          configFile, Some(version),
+          downloadScalafmtIfMissing = true,
+          failSilent = false,
+          resolveFast = false
+        )
         onResolveFinished(configOrError)
         indicator.setFraction(1.0)
       }
     }
+    // TODO: this is not actually stoppable, see how it is implemented in ScalafmtDynamicService
     ProgressManager.getInstance().run(backgroundTask)
   }
 
@@ -61,17 +74,16 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     invokeAndWait(inWriteAction(vFile.refresh(false, false)))
   }
 
-  def configForFile(psiFile: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] = {
+  def configForFile(psiFile: PsiFile, failSilent: Boolean = false, resolveFast: Boolean = false): Option[ScalafmtDynamicConfig] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
     val config = scalafmtProjectConfigFile(configPath) match {
       case Some(file) =>
-        resolveConfig(file, Some(DefaultVersion), downloadScalafmtIfMissing = false, failSilent).toOption
+        resolveConfig(file, Some(DefaultVersion), downloadScalafmtIfMissing = false, failSilent, resolveFast).toOption
       case None =>
         intellijDefaultConfig
     }
-
     if (psiFile.isInstanceOf[SbtFileImpl]) {
       config.map(_.withSbtDialect)
     } else {
@@ -86,7 +98,8 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   private def resolveConfig(configFile: VirtualFile,
                             defaultVersion: Option[ScalafmtVersion],
                             downloadScalafmtIfMissing: Boolean,
-                            failSilent: Boolean = false): ConfigResolveResult = {
+                            failSilent: Boolean,
+                            resolveFast: Boolean): ConfigResolveResult = {
     val configPath = configFile.getPath
 
     val currentVFileTimestamp: Long = configFile.getModificationStamp
@@ -99,7 +112,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
           docLastModified == currentDocTimestamp =>
         Right(config)
       case _ =>
-        resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing, failSilent) match {
+        resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing, failSilent, resolveFast) match {
           case Right(config) =>
             notifyConfigChanges(config, cachedConfig)
             configsCache(configPath) = CachedConfig(config, currentVFileTimestamp, currentDocTimestamp)
@@ -117,7 +130,8 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   private def resolvingConfigWithScalafmt(configFile: VirtualFile,
                                           defaultVersion: Option[ScalafmtVersion],
                                           downloadScalafmtIfMissing: Boolean,
-                                          failSilent: Boolean = false): ConfigResolveResult = {
+                                          failSilent: Boolean,
+                                          resolveFast: Boolean): ConfigResolveResult = {
     val configPath = configFile.getPath
     for {
       _ <- Option(configFile).filter(_.exists).toRight {
@@ -131,9 +145,9 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
         case Left(e) =>
           Left(ConfigResolveError.ConfigParseError(configPath, e))
       }
-      fmtReflect <- ScalafmtDynamicService.instance.resolve(version, downloadScalafmtIfMissing, failSilent).left.map { error =>
-        ConfigResolveError.ConfigScalafmtResolveError(error)
-      }
+      fmtReflect <- ScalafmtDynamicService.instance
+        .resolve(version, downloadScalafmtIfMissing, failSilent, resolveFast)
+        .left.map(ConfigResolveError.ConfigScalafmtResolveError)
       config <- parseConfig(configFile, fmtReflect)
     } yield config
   }
@@ -142,7 +156,8 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
     val configText = document.getText()
     Try(fmtReflect.parseConfigFromString(configText)).toEither.left.map {
-      case e: ScalafmtConfigException => ConfigResolveError.ConfigParseError(configFile.getPath, e)
+      case e: ScalafmtConfigException =>
+        ConfigResolveError.ConfigParseError(configFile.getPath, e)
       case e =>
         Log.error(e)
         ConfigResolveError.UnknownError(e)
@@ -209,9 +224,6 @@ object ScalafmtDynamicConfigManager {
 
   def instanceIn(project: Project): ScalafmtDynamicConfigManager =
     project.getComponent(classOf[ScalafmtDynamicConfigManager])
-
-  def configForFile(file: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] =
-    instanceIn(file.getProject).configForFile(file, failSilent)
 
   def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
     instanceIn(file.getProject).isIncludedInProject(file, config)

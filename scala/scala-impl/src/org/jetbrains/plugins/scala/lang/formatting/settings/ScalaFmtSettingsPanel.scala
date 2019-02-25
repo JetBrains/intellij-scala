@@ -9,12 +9,14 @@ import com.intellij.application.options.CodeStyleAbstractPanel
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter
 import com.intellij.openapi.editor.highlighter.EditorHighlighter
-import com.intellij.openapi.editor.{Editor, EditorFactory, EditorSettings}
+import com.intellij.openapi.editor.{EditorFactory, EditorSettings}
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.{FileType, SyntaxHighlighterFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui._
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
@@ -34,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConf
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
 
-  override val getEditor: Editor = createConfigEditor
+  override val getEditor: EditorEx = createConfigEditor
 
   override def getRightMargin = 0
 
@@ -109,7 +111,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def ensureDefaultScalafmtResolved(): Unit = {
     if (project.isEmpty) return
-    ScalafmtDynamicService.instance.ensureDefaultVersionIsResolvedAsync(project.get)
+    ScalafmtDynamicService.instance.ensureVersionIsResolvedAsync(DefaultVersion, project.get)
     updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
   }
 
@@ -318,11 +320,12 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   //copied from CodeStyleAbstractPanel
   //using non-null getPreviewText breaks setting saving (!!!)
-  private def createConfigEditor: Editor = {
+  private def createConfigEditor: EditorEx = {
     val editorFactory = EditorFactory.getInstance
     val editorDocument = editorFactory.createDocument("")
     val editor = editorFactory.createEditor(editorDocument).asInstanceOf[EditorEx]
     fillEditorSettings(editor.getSettings)
+    attachHighlighter(editor)
     editor
   }
 
@@ -338,8 +341,19 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     editorSettings.setSoftMargins(emptyList[Integer])
   }
 
+  private def attachHighlighter(editor: EditorEx): Unit = {
+    LanguageExt.findLanguageByIdIgnoreCase("hocon") match {
+      case Some(lang) =>
+        editor.getSettings.setLanguage(lang)
+        val syntaxHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(lang, null, null)
+        val highlighter = new LayeredLexerEditorHighlighter(syntaxHighlighter, new DefaultColorsScheme())
+        editor.setHighlighter(highlighter)
+      case _ =>
+    }
+  }
+
   private var project: Option[Project] = None
-  private var configText: Option[String] = None
+  private var configText: Option[CharSequence] = None
   private var scalafmtVersionLabel: JLabel = _
   private var noConfigLabel: JLabel = _
   private var previewPanel: JPanel = _

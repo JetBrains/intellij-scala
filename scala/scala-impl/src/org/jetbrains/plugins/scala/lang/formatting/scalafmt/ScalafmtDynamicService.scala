@@ -28,7 +28,8 @@ import scala.util.Try
 class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicService.ServiceState] {
   private val Log = Logger.getInstance(this.getClass)
 
-  private val formattersCache: mutable.Map[ScalafmtVersion, ResolveStatus] = ScalaCollectionsUtil.newConcurrentMap
+  private val formattersCache: mutable.Map[ScalafmtVersion, ResolveStatus] =
+    ScalaCollectionsUtil.newConcurrentMap.withDefaultValue(ResolveStatus.Missing)
 
   private val state: ServiceState = new ServiceState
   override def getState: ServiceState = state
@@ -52,11 +53,13 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
               failSilent: Boolean = false,
+              resolveFast: Boolean = false,
               progressListener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
-    val resolveResult = formattersCache.get(version) match {
-      case Some(ResolveStatus.Resolved(scalaFmt)) => Right(scalaFmt)
-      case Some(ResolveStatus.DownloadInProgress) => Left(ScalafmtResolveError.DownloadInProgress(version))
-      case _ =>
+    val resolveResult = formattersCache(version) match {
+      case ResolveStatus.Resolved(scalaFmt) => Right(scalaFmt)
+      case _ if resolveFast => Left(ScalafmtResolveError.NotFound(version))
+      case ResolveStatus.DownloadInProgress => Left(ScalafmtResolveError.DownloadInProgress(version))
+      case ResolveStatus.Missing =>
         if (state.resolvedVersions.containsKey(version)) {
           val jarUrls = state.resolvedVersions.get(version).map(new URL(_))
           resolveClassPath(version, jarUrls)
@@ -145,16 +148,19 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
     }
   }
 
-  def resolveAsync(version: ScalafmtVersion, project: Project,
+  def resolveAsync(version: ScalafmtVersion,
+                   project: Project,
                    onDownloadFinished: Either[ScalafmtResolveError, ScalafmtReflect] => Unit = _ => ()): Unit = {
     if (formattersCache.contains(version)) return
 
-    val backgroundTask = new Task.Backgroundable(project, s"Downloading scalafmt version $version", true) {
+    val isDownloaded = state.resolvedVersions.containsKey(DefaultVersion)
+    val titlePrefix = s"${if (isDownloaded) "Resolving" else "Downloading"} scalafmt"
+    val backgroundTask = new Task.Backgroundable(project, s"$titlePrefix version $version", true) {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setIndeterminate(true)
-        val progressListener = new ProgressIndicatorDownloadListener(indicator, "Downloading scalafmt: ")
+        val progressListener = new ProgressIndicatorDownloadListener(indicator, s"$titlePrefix: ")
         val result = try {
-          resolve(version, downloadIfMissing = true, failSilent = false, progressListener)
+          resolve(version, downloadIfMissing = true, progressListener = progressListener)
         } catch {
           case pce: ProcessCanceledException =>
             Left(DownloadError(version, pce))
@@ -168,15 +174,15 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
       .queue()
   }
 
-  def ensureDefaultVersionIsResolvedAsync(project: Project): Unit = {
-    if (!state.resolvedVersions.containsKey(DefaultVersion)) {
-      resolveAsync(DefaultVersion, project)
+  def ensureVersionIsResolvedAsync(version: ScalafmtVersion, project: Project): Unit = {
+    if (!formattersCache.contains(version)) {
+      resolveAsync(version, project)
     }
   }
 
-  def ensureDefaultVersionIsResolved(progressListener: DownloadProgressListener): Unit = {
-    if (!state.resolvedVersions.containsKey(DefaultVersion)) {
-      resolve(DefaultVersion, downloadIfMissing = true, progressListener = progressListener)
+  def ensureVersionIsResolved(version: ScalafmtVersion, progressListener: DownloadProgressListener): Unit = {
+    if (!formattersCache.contains(version)) {
+      resolve(version, downloadIfMissing = true, progressListener = progressListener)
     }
   }
 }
@@ -192,6 +198,7 @@ object ScalafmtDynamicService {
 
   private sealed trait ResolveStatus
   private object ResolveStatus {
+    object Missing extends ResolveStatus
     object DownloadInProgress extends ResolveStatus
     case class Resolved(instance: ScalafmtReflect) extends ResolveStatus
   }
@@ -223,7 +230,8 @@ object ScalafmtDynamicService {
                                                   prefix: String = "") extends DownloadProgressListener {
     @throws[ProcessCanceledException]
     override def progressUpdate(message: String): Unit = {
-      indicator.setText(s"$prefix$message")
+      if (!message.isEmpty)
+        indicator.setText(s"$prefix$message")
       indicator.checkCanceled()
     }
     @throws[ProcessCanceledException]

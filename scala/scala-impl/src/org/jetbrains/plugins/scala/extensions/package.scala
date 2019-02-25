@@ -6,6 +6,7 @@ import java.util.concurrent.{Callable, Future}
 import java.util.regex.Pattern
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.lang.Language
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
@@ -819,6 +820,14 @@ package object extensions {
           if (race != null) race
           else newValue
       }
+    }
+  }
+
+  object LanguageExt {
+    def findLanguageByIdIgnoreCase(ID: String): Option[Language] = {
+      import scala.collection.JavaConverters._
+      val registeredLanguages = Language.getRegisteredLanguages.asScala
+      registeredLanguages.find(_.getID.compareToIgnoreCase(ID) == 0)
     }
   }
 

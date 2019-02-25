@@ -323,7 +323,7 @@ object ScalaFmtPreFormatProcessor {
     if (document == null) return None
     implicit val fileText: String = file.getText
 
-    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigManager.configForFile(file).orNull
+    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigManager.instanceIn(project).configForFile(file).orNull
     if (config == null) return None
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)

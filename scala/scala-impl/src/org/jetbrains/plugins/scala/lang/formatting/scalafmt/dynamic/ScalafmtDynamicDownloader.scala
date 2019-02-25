@@ -79,7 +79,7 @@ object ScalafmtDynamicDownloader {
 
     @inline
     private def format(str: String): String = {
-      firstLine(str)
+      firstLine(str).trim
     }
 
     private def firstLine(str: String): String = {

@@ -54,7 +54,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     newSettings.SCALAFMT_CONFIG_PATH = ""
     codeStyleSchemesModel.apply()
 
-    ScalafmtDynamicService.instance.ensureDefaultVersionIsResolvedAsync(project)
+    ScalafmtDynamicConfigManager.instanceIn(project).init()
   }
 
   private def createNotification: Notification = {
@@ -83,11 +83,6 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
   private val enableProjectText = "Use scalafmt formatter"
   private val dontShowDescription = "dont show"
   private val dontShowText = "Continue using IntelliJ formatter"
-
-  private def isProjectLevelConfiguration: Boolean = {
-    val schemesModel = new CodeStyleSchemesModel(project)
-    schemesModel.isUsePerProjectSettings
-  }
 }
 
 object ScalaFmtSuggesterComponent {
