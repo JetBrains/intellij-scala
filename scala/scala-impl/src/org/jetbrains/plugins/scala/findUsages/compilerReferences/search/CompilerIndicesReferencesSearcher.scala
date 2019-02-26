@@ -26,12 +26,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.CompilerMode
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCompilerIndices
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitUsagesSearchDialogs._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.UsageToPsiElements._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
-import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.UsageToPsiElements._
 
 import scala.collection.JavaConverters._
 
@@ -189,7 +189,7 @@ object CompilerIndicesReferencesSearcher {
         if (success) {
           if (targetModuleNames.isEmpty) {
             val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
-            val handler     = new ScalaFindUsagesHandler(target, ScalaFindUsagesHandlerFactory.getInstance(project))
+            val handler     = new CompilerIndicesFindUsagesHandler(target, ScalaFindUsagesHandlerFactory.getInstance(project))
             lock.locked(indexingFinishedCondition.signal())
 
             val runnable: Runnable = () =>

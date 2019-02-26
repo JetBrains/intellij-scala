@@ -8,7 +8,7 @@ import java.util.regex.Pattern
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.BitUtil.isSet
-import org.jetbrains.org.objectweb.asm.Opcodes.{ACC_STATIC, ACC_SYNTHETIC, ASM6}
+import org.jetbrains.org.objectweb.asm.Opcodes._
 import org.jetbrains.org.objectweb.asm._
 import org.jetbrains.plugins.scala.decompiler.Decompiler.{BYTES_VALUE, SCALA_LONG_SIG_ANNOTATION, SCALA_SIG_ANNOTATION}
 import org.jetbrains.plugins.scala.decompiler.scalasig._
@@ -167,16 +167,21 @@ private[compilerReferences] object ClassfileParser {
     override def visitInnerClass(name: String, outerName: String, innerName: String, access: Int): Unit =
       if (name == internalName) isAnon = innerName == null
 
+    /**
+      * There are a few static entities in bytecode generated from scala:
+      * 1. Static forwarders for object and trait methods   (not indexed)
+      * 2. Callsites to anonymous functions (scala >= 2.12) (not indexed)
+      * 3. Static initializer in objects and traits         (indexed)
+      */
     private[this] def isStaticForwarder(access: Int, name: String): Boolean =
-      isSet(access, ACC_STATIC) &&
+      isSet(access, ACC_STATIC) && isSet(access, ACC_PUBLIC) && !isSet(access, ACC_SYNTHETIC) &&
         name != "<clinit>" &&
         name != "$init$"
 
-    private[this] def isSynthetic(access: Int, name: String): Boolean =
-      isSet(access, ACC_SYNTHETIC) || {
-        val simpleClassName = className.split("\\.").lastOption.getOrElse("")
-        synthetics.contains(s"$simpleClassName.$name")
-      }
+    private[this] def isSynthetic(access: Int, name: String): Boolean = {
+      val simpleClassName = className.split("\\.").lastOption.getOrElse("")
+      synthetics.contains(s"$simpleClassName.$name")
+    }
 
     override def visitMethod(
       access:     Int,

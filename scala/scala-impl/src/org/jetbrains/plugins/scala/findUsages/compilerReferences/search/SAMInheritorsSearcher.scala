@@ -14,7 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.UsageToPsiElements._
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-/* WIP */
+/**
+  * Allows to search for inheritors of potentially SAMable traits & clases
+  */
 class SAMInheritorsSearcher extends QueryExecutorBase[PsiElement, DefinitionsScopedSearch.SearchParameters](true) {
   import SAMInheritorsSearcher._
 
@@ -25,7 +27,7 @@ class SAMInheritorsSearcher extends QueryExecutorBase[PsiElement, DefinitionsSco
     case aClass: PsiClass =>
       val project = aClass.getProject
       val service = ScalaCompilerReferenceService(project)
-      val usages = service.SAMInheritorsOf(aClass)
+      val usages = service.SAMInheritorsOf(aClass, params.isCheckDeep)
 //        getSAMInheritors(usages.unwrap, aClass, project).foreach(processor.process)
     case _ => ()
   }

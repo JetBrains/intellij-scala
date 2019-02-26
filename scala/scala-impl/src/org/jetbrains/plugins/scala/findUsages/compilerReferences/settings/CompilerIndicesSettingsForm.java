@@ -52,7 +52,7 @@ public class CompilerIndicesSettingsForm {
     settings.setEnabledForImplicitDefs(implicitDefinitionsCB.isSelected());
     settings.setEnabledForApplyUnapply(applyMethodCB.isSelected());
     settings.setEnabledForSAMTypes(samTypesCB.isSelected());
-    settings.setEnabledForForCompMethods(forCompMethodCB.isSelected());
+    settings.setEnabledForForComprehensionMethods(forCompMethodCB.isSelected());
   }
 
   void from(CompilerIndicesSettings settings) {
@@ -60,7 +60,7 @@ public class CompilerIndicesSettingsForm {
     implicitDefinitionsCB.setSelected(settings.isEnabledForImplicitDefs());
     applyMethodCB.setSelected(settings.isEnabledForApplyUnapply());
     samTypesCB.setSelected(settings.isEnabledForSAMTypes());
-    forCompMethodCB.setSelected(settings.isEnabledForForCompMethods());
+    forCompMethodCB.setSelected(settings.isEnabledForForComprehensionMethods());
   }
 
   {
@@ -94,7 +94,7 @@ public class CompilerIndicesSettingsForm {
     mainPanel.add(jBLabel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 3, false));
     final JPanel panel2 = new JPanel();
     panel2.setLayout(new GridLayoutManager(1, 3, new Insets(4, 0, 0, 0), -1, -1));
-    mainPanel.add(panel2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    mainPanel.add(panel2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
     this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.settings.invalidate.label"));
     panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -124,7 +124,7 @@ public class CompilerIndicesSettingsForm {
     forCompMethodCB.setText("For-comprehension methods (map/flatMap/withFilter)");
     panel3.add(forCompMethodCB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
-    mainPanel.add(spacer2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    mainPanel.add(spacer2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
   }
 
   /**
