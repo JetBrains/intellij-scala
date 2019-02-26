@@ -4,6 +4,7 @@ package annotator
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
+import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
@@ -73,7 +74,7 @@ trait ConstructorInvocationAnnotator extends ApplicationAnnotator {
     }
   }
 
-  private def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ScConstructorInvocation, holder: AnnotationHolder): Unit = {
+  def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike, holder: AnnotationHolder): Unit = {
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
     def signature = signatureOf(element)
@@ -138,7 +139,7 @@ trait ConstructorInvocationAnnotator extends ApplicationAnnotator {
     }
   }
 
-  private def parameterToArgClause(p: Parameter, constr: ScMethodLike, argClauses: Seq[ScArgumentExprList]): Option[ScArgumentExprList] = {
+  def parameterToArgClause(p: Parameter, constr: ScMethodLike, argClauses: Seq[ScArgumentExprList]): Option[ScArgumentExprList] = {
     p.psiParam.flatMap { param =>
       // look into every parameter list and find param
       val idx = constr.parameterList.clauses.indexWhere( clause =>
@@ -148,16 +149,18 @@ trait ConstructorInvocationAnnotator extends ApplicationAnnotator {
     }
   }
 
-  private def isConstructorMalformed(r: ScalaResolveResult): Boolean =
+  def isConstructorMalformed(r: ScalaResolveResult): Boolean =
     r.problems.exists { case MalformedDefinition() => true; case _ => false }
 
-  private def argsElementsTextRange(constrInvocation: ScConstructorInvocation): TextRange = constrInvocation.arguments match {
+  def argsElementsTextRange(constrInvocation: ConstructorInvocationLike): TextRange = constrInvocation.arguments match {
     case head +: tail => tail.foldLeft(head.getTextRange)(_ union _.getTextRange)
     case _ => constrInvocation.getTextRange
   }
 
-  private object ScConstructorResolveResult {
+  object ScConstructorResolveResult {
     def unapply(res: ScalaResolveResult): Option[ScMethodLike] =
       Some(res.element).collect { case constr: ScMethodLike => constr }
   }
 }
+
+object ConstructorInvocationAnnotator extends ConstructorInvocationAnnotator

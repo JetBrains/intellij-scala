@@ -5,7 +5,7 @@ package api
 package base
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -18,20 +18,16 @@ import scala.collection.Seq
 * Date: 22.02.2008
 */
 
-trait ScConstructorInvocation extends ScalaPsiElement with ImplicitArgumentsOwner {
+trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike with ImplicitArgumentsOwner {
   def typeElement: ScTypeElement
 
   def simpleTypeElement: Option[ScSimpleTypeElement]
 
-  def typeArgList: Option[ScTypeArgs] = typeElement match {
-    case x: ScParameterizedTypeElement => Some(x.typeArgList)
-    case _ => None
-  }
+  def typeArgList: Option[ScTypeArgs]
 
-  def args: Option[ScArgumentExprList] = findChild(classOf[ScArgumentExprList])
+  def args: Option[ScArgumentExprList]
 
-  def arguments: Seq[ScArgumentExprList] =
-    Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
+  def arguments: Seq[ScArgumentExprList]
 
   def expectedType: Option[ScType]
 

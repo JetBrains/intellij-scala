@@ -10,8 +10,9 @@ import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
@@ -443,7 +444,7 @@ object Compatibility {
     }
   }
 
-  def checkConstructorConformance(constrInvocation: ScConstructorInvocation,
+  def checkConstructorConformance(constrInvocation: ConstructorInvocationLike,
                                   substitutor: ScSubstitutor,
                                   argClauses: Seq[ScArgumentExprList],
                                   paramClauses: Seq[ScParameterClause])
@@ -466,7 +467,7 @@ object Compatibility {
           case res if eligibleForAutoTupling && res.problems.nonEmpty =>
             // try autotupling. If the conformance check succeeds without problems we use that result
             ScalaPsiUtil
-              .tupled(args, constrInvocation.typeElement)
+              .tupled(args, constrInvocation)
               .map(checkConformanceExt(checkNames = true, params, _, checkWithImplicits = true, isShapesResolve = true))
               .filter(_.problems.isEmpty)
               .getOrElse(res)

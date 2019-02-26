@@ -4,13 +4,13 @@ package psi
 package impl
 package expr
 
-import scala.collection.Seq
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScSelfInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -21,17 +21,32 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+
+import scala.collection.Seq
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
 class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node)
-  with ScSelfInvocation with ScSelfInvocationAnnotator{
+  with ScSelfInvocation with ScSelfInvocationAnnotator {
 
-  def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
+  override def args: Option[ScArgumentExprList] =
+    findChild(classOf[ScArgumentExprList])
+
+  override def arguments: Seq[ScArgumentExprList] =
+    findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq
+
+  override def typeArgList: Option[ScTypeArgs] = None
+
+  override def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
+
+  //@Cached(ModCount.getBlockModificationCount, this)
+  override def multiResolve: Seq[ScalaResolveResult] = {
+    multiResolveInternal(shapeResolve = false)
+  }
 
   private def bindInternal(shapeResolve: Boolean): Option[PsiElement] =
     bindMultiInternal(shapeResolve) match {
@@ -39,7 +54,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node)
       case _ => None
     }
 
-  private def bindMultiInternal(shapeResolve: Boolean): Array[PsiElement] = {
+  private def multiResolveInternal(shapeResolve: Boolean): Array[ScalaResolveResult] = {
     val psiClass = PsiTreeUtil.getContextOfType(this, classOf[PsiClass])
     if (psiClass == null) return Array.empty
     if (!psiClass.isInstanceOf[ScClass]) return Array.empty
@@ -60,7 +75,11 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node)
       case Some(constr) => proc.execute(constr, ResolveState.initial())
       case _ =>
     }
-    proc.candidates.map(_.element)
+    proc.candidates
+  }
+
+  private def bindMultiInternal(shapeResolve: Boolean): Array[PsiElement] = {
+    multiResolveInternal(shapeResolve).map(_.element)
   }
 
   private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult = {
