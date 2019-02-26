@@ -9,8 +9,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -39,7 +39,19 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructorInvocation {
 
-  def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
+  override def typeElement: ScTypeElement =
+    findNotNullChildByClass(classOf[ScTypeElement])
+
+  def typeArgList: Option[ScTypeArgs] = typeElement match {
+    case x: ScParameterizedTypeElement => Some(x.typeArgList)
+    case _ => None
+  }
+
+  override def args: Option[ScArgumentExprList] =
+    findChild(classOf[ScArgumentExprList])
+
+  override def arguments: Seq[ScArgumentExprList] =
+    Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
 
   override protected def updateImplicitArguments(): Unit =
     if (explicitImplicitArgList.isEmpty) {
