@@ -16,6 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.testFramework.LightIdeaTestCase;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -32,8 +33,7 @@ import java.util.Map;
  * @author Denis Zhdanov
  * @since Apr 27, 2010 6:26:29 PM
  */
-
-//todo: almost duplicate from Java
+// NOTE: initially was almost duplicate from Java
 public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   protected enum Action {REFORMAT, INDENT}
@@ -70,7 +70,6 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private static final String BASE_PATH = TestUtils.getTestDataPath() + "/psi/formatter";
 
   public List<TextRange> myTextRanges = new LinkedList<TextRange>();
-  public TextRange myLineRange;
 
   public CommonCodeStyleSettings getCommonSettings() {
       return getSettings().getCommonSettings(ScalaLanguage.INSTANCE);
@@ -96,94 +95,62 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(Action.REFORMAT, loadFile(fileNameBefore), loadFile(fileNameAfter));
   }
 
-  public void doTextTest(final String text, String textAfter) throws IncorrectOperationException {
-    doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter));
+  public void doTextTest(final String text, final String textAfter) throws IncorrectOperationException {
+    doTextTest(text, textAfter, 1);
+  }
+
+  public void doTextTest(final String text, final String textAfter, int repeats) throws IncorrectOperationException {
+    doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter), repeats);
   }
 
   public void doTextTest(String value) {
     doTextTest(value, value);
   }
 
-  public void doTextTest(final Action action, final String text, String textAfter) throws IncorrectOperationException {
-    final PsiFile file = createFile("A.scala", text);
+  private void doTextTest(final Action action, final String text, final String textAfter) throws IncorrectOperationException {
+    doTextTest(action, text, textAfter, 1);
+  }
 
-    if (myLineRange != null) {
-      final DocumentImpl document = new DocumentImpl(text);
-      myTextRanges = new LinkedList<TextRange>();
-      myTextRanges.add(new TextRange(document.getLineStartOffset(myLineRange.getStartOffset()), document.getLineEndOffset(myLineRange.getEndOffset())));
+  private void doTextTest(final Action action, final String text, final String textAfter, int actionRepeats) throws IncorrectOperationException {
+    assertTrue("action should be applied at least once", actionRepeats >= 1);
+    if(actionRepeats > 1 && !myTextRanges.isEmpty()) {
+      fail("for now an action can not be applied multiple times for selection");
     }
 
-    /*
-    CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            performFormatting(file);
-          }
-        });
-      }
-    }, null, null);
-
-    assertEquals(prepareText(textAfter), prepareText(file.getText()));
-
-
-    */
+    final PsiFile file = createFile("A.scala", text);
 
     final PsiDocumentManager manager = PsiDocumentManager.getInstance(getProject());
     final Document document = manager.getDocument(file);
 
+    if (document == null) {
+      fail("Don't expect the document to be null");
+    }
 
-    CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            document.replaceString(0, document.getTextLength(), text);
-            manager.commitDocument(document);
-            try {
-              if (myTextRanges.size() > 1) {
-                ACTIONS.get(action).run(file, myTextRanges);
-              } else {
-                TextRange rangeToUse = myTextRanges.isEmpty() ? file.getTextRange() : myTextRanges.get(0);
-                ACTIONS.get(action).run(file, rangeToUse.getStartOffset(), rangeToUse.getEndOffset());
-              }
-            }
-            catch (IncorrectOperationException e) {
-              assertTrue(e.getLocalizedMessage(), false);
-            }
+    runCommandInWriteAction(() -> {
+      document.replaceString(0, document.getTextLength(), text);
+      manager.commitDocument(document);
+      for (int actionNumber = 0; actionNumber < actionRepeats; actionNumber++) {
+        try {
+          if (myTextRanges.size() > 1) {
+            ACTIONS.get(action).run(file, myTextRanges);
+          } else {
+            TextRange rangeToUse = myTextRanges.isEmpty() ? file.getTextRange() : myTextRanges.get(0);
+            ACTIONS.get(action).run(file, rangeToUse.getStartOffset(), rangeToUse.getEndOffset());
           }
-        });
+        }
+        catch (IncorrectOperationException e) {
+          fail(e.getLocalizedMessage());
+        }
       }
     }, "", "");
 
-
-    if (document == null) {
-      fail("Don't expect the document to be null");
-      return;
-    }
     assertEquals(prepareText(textAfter), prepareText(document.getText()));
     manager.commitDocument(document);
     assertEquals(prepareText(textAfter), prepareText(file.getText()));
-
   }
 
-  //todo: was unused, should be deleted (??)
-/*  public void doMethodTest(final String before, final String after) throws Exception {
-    doTextTest(
-      Action.REFORMAT,
-      "class Foo{\n" + "    void foo() {\n" + before + '\n' + "    }\n" + "}",
-      "class Foo {\n" + "    void foo() {\n" + shiftIndentInside(after, 8, false) + '\n' + "    }\n" + "}"
-    );
-  }
-
-  public void doClassTest(final String before, final String after) throws Exception {
-    doTextTest(
-      Action.REFORMAT,
-      "class Foo{\n" + before + '\n' + "}",
-      "class Foo {\n" + shiftIndentInside(after, 4, false) + '\n' + "}"
-    );
-  }*/
-
-  private static String prepareText(String actual) {
+  @NotNull
+  private static String prepareText(@NotNull String actual) {
     if (actual.startsWith("\n")) {
       actual = actual.substring(1);
     }
@@ -193,16 +160,9 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
     // Strip trailing spaces
     final Document doc = EditorFactory.getInstance().createDocument(actual);
-    CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            ((DocumentImpl)doc).stripTrailingSpaces(getProject());
-          }
-        });
-      }
+    runCommandInWriteAction(() -> {
+      ((DocumentImpl) doc).stripTrailingSpaces(getProject());
     }, "formatting", null);
-
     return doc.getText().trim();
   }
 
@@ -217,6 +177,13 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   protected void setUp() throws Exception {
     super.setUp();
     TestUtils.disableTimerThread();
+  }
+
+  private static void runCommandInWriteAction(final Runnable runnable,
+                                       final String name,
+                                       final String groupId) {
+    Runnable writableRunnable = () -> ApplicationManager.getApplication().runWriteAction(runnable);;
+    CommandProcessor.getInstance().executeCommand(getProject(), writableRunnable, name, groupId);
   }
 }
 

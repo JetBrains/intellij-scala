@@ -16,6 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -159,8 +160,7 @@ object getDummyBlocks {
             arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap), block.getSettings, context))
         }
         return subBlocks
-      case _
-        if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
+      case _ if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
 
         @tailrec
@@ -320,9 +320,15 @@ object getDummyBlocks {
       }
     }
 
-    if (ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(node.getElementType) ||
-            (node.getTreeParent != null && node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
-                    node.getPsi.isInstanceOf[PsiErrorElement])) {
+    val insideScalaDocComment: Boolean = {
+      val insideIncompleteScalaDocTag =
+        node.getTreeParent.nullSafe.exists(_.getElementType == ScalaDocElementTypes.DOC_TAG) &&
+          node.getPsi.isInstanceOf[PsiErrorElement]
+
+      ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(node.getElementType) || insideIncompleteScalaDocTag
+    }
+
+    if (insideScalaDocComment) {
       val children = ArrayBuffer[ASTNode]()
       var scaladocNode = node.getElementType match {
         case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN =>
@@ -343,29 +349,36 @@ object getDummyBlocks {
 
       val normalAlignment = block.myParentBlock.subBlocksContext.flatMap(_.alignment).getOrElse(Alignment.createAlignment(true))
 
-      children.foreach { child =>
-        val indent = ScalaIndentProcessor.getChildIndent(block, child)
+      children.view.filter(isCorrectBlock).foreach { child =>
+        val firstSibling = node.getTreeParent.getFirstChildNode
 
-        if (isCorrectBlock(child)) {
-          val firstSibling = node.getTreeParent.getFirstChildNode
-          val (childAlignment, childWrap) = if ( node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
-                  child.getElementType != ScalaDocTokenType.DOC_WHITESPACE &&
-                  child.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
-                  child != firstSibling &&
-                  firstSibling.getElementType == ScalaDocTokenType.DOC_TAG_NAME &&
-                  child.getText.trim().length() > 0) {
-          val wrap = Wrap.createWrap(WrapType.NONE, false)
-            (firstSibling.getText match {
+        val isDataInsideDocTag =
+          node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
+            child.getElementType != ScalaDocTokenType.DOC_WHITESPACE &&
+            child.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
+            child != firstSibling &&
+            firstSibling.getElementType == ScalaDocTokenType.DOC_TAG_NAME &&
+            child.getText.trim.length > 0
+
+        val (childAlignment, childWrap) =
+          if (isDataInsideDocTag) {
+            val docTagName = firstSibling.getText
+            val alignment = docTagName match {
               case "@param" | "@tparam" => if (scalaSettings.SD_ALIGN_PARAMETERS_COMMENTS) normalAlignment else null
               case "@return" => if (scalaSettings.SD_ALIGN_RETURN_COMMENTS) normalAlignment else null
               case "@throws" => if (scalaSettings.SD_ALIGN_EXCEPTION_COMMENTS) normalAlignment else null
+              case _ if child.getElementType == ScalaDocTokenType.DOC_INNER_CODE => null
+              case _ if child.getElementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => null
               case _ => if (scalaSettings.SD_ALIGN_OTHER_TAGS_COMMENTS) normalAlignment else null
-            }, wrap)
-          } else
+            }
+            val noWrap = Wrap.createWrap(WrapType.NONE, false)
+            (alignment, noWrap)
+          } else {
             (null, arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap))
+          }
 
-          subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
-        }
+        val indent = ScalaIndentProcessor.getChildIndent(block, child)
+        subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       }
     } else {
       var child = node

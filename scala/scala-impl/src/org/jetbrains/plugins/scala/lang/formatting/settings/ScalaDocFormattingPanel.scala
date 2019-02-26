@@ -68,8 +68,9 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
       |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
       |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
       |  * @throws RuntimeException whenever it feels like it
+      |  * @throws IndexOutOfBoundsException when index is out of bound
       |  */
-      |def foo(x: Int, yy: Iny, longParamName: Int): Int
+      |def foo(x: Int, yy: Int, longParamName: Int): Int
     """.stripMargin.replace("\r", "")
 
   private def update() {

@@ -1558,6 +1558,24 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL5444_ScaladocCodeSnippetAsTagValue(): Unit = {
+    val before =
+      """/** @example      {{{
+        |  * val x = 2
+        |  *      }}}
+        |  */
+        |class A
+      """.stripMargin
+    val after =
+      """/** @example {{{
+        |  * val x = 2
+        |  * }}}
+        |  */
+        |class A
+      """.stripMargin
+    doTextTest(before, after, 3)
+  }
+
   def testSpaceInsideClosureBracesDisabled(): Unit = {
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
 

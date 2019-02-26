@@ -46,7 +46,8 @@ object ScalaFormattingModelBuilder {
           extends PsiBasedFormattingModel(file, rootBlock, documentModel) {
     protected override def replaceWithPsiInLeaf(textRange: TextRange, whiteSpace: String, leafElement: ASTNode): String = {
       if (!myCanModifyAllWhiteSpaces) {
-        if (ScalaTokenTypes.WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(leafElement.getElementType)) return null
+        if (ScalaTokenTypes.WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(leafElement.getElementType))
+          return null
       }
       var elementTypeToUse: IElementType = TokenType.WHITE_SPACE
       val prevNode: ASTNode = TreeUtil.prevLeaf(leafElement)
