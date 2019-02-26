@@ -117,9 +117,9 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           }
         }
 
-        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
-          this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
-        }
+        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o)(
+          node => this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
+        )
       case _ =>
     }
     res.toArray
@@ -147,14 +147,13 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
         } else baseText
       }).mkString("[", ", ", "]")
     }).getOrElse("")
-    val parametersText = constr.parameterList.clauses.map {
-      case clause: ScParameterClause => clause.parameters.map {
-        case parameter: ScParameter =>
-          val paramText = s"${parameter.name} : ${parameter.typeElement.map(_.getText).getOrElse("Nothing")}"
-          parameter.getDefaultExpression match {
-            case Some(expr) => s"$paramText = ${expr.getText}"
-            case _ => paramText
-          }
+    val parametersText = constr.parameterList.clauses.map { clause =>
+      clause.parameters.map { parameter =>
+        val paramText = s"${parameter.name} : ${parameter.typeElement.map(_.getText).getOrElse("Nothing")}"
+        parameter.getDefaultExpression match {
+          case Some(expr) => s"$paramText = ${expr.getText}"
+          case _          => paramText
+        }
       }.mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
     }.mkString
     val accessModifier = getModifierList.accessModifier.map(am => accessModifierText(am) + " ").getOrElse("")

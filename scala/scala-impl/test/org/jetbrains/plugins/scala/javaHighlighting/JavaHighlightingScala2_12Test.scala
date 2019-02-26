@@ -36,4 +36,25 @@ class JavaHighlightingScala2_12Test extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testSCL15021(): Unit = {
+    val java =
+      """
+        |public class Test {
+        |  public static void main(String[] args) {
+        |    String s = A.methodOnCompanion();
+        |  }
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |trait A
+        |object A {
+        |  def methodOnCompanion(): String = ???
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "Test"))
+  }
 }

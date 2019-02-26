@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
 import scala.collection.mutable
 
@@ -52,9 +53,8 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
   override def isInterface: Boolean = true
 
-  override def psiMethods: Array[PsiMethod] = {
+  override def psiMethods: Array[PsiMethod] =
     getAllMethods.filter(_.containingClass == this)
-  }
 
   override def hasModifierProperty(name: String): Boolean = name match {
     case PsiModifier.ABSTRACT if isInterface => true
@@ -64,9 +64,22 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
   override def getAllMethods: Array[PsiMethod] = {
     val res = mutable.ArrayBuffer.empty[PsiMethod]
     res ++= getConstructors
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
+
+    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this)(node =>
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)
+    )
+
+    if (this.scalaLanguageLevelOrDefault >= Scala_2_12) {
+      /** static forwarders for trait companion objects are only generated starting with scala 2.12 */
+      ScalaPsiUtil
+        .getCompanionModule(this)
+        .foreach(companion =>
+          TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(companion)(node =>
+            this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(res += _)
+          )
+        )
     }
+
     res.toArray
   }
 

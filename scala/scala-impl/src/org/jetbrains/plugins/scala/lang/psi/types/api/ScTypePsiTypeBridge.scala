@@ -25,17 +25,17 @@ trait PsiTypeBridge {
                paramTopLevel: Boolean): ScType = `type` match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
-    case PsiType.VOID => Unit
+    case PsiType.VOID    => Unit
     case PsiType.BOOLEAN => Boolean
-    case PsiType.CHAR => Char
-    case PsiType.BYTE => Byte
-    case PsiType.SHORT => Short
-    case PsiType.INT => Int
-    case PsiType.LONG => Long
-    case PsiType.FLOAT => Float
-    case PsiType.DOUBLE => Double
-    case PsiType.NULL => Null
-    case null => Any
+    case PsiType.CHAR    => Char
+    case PsiType.BYTE    => Byte
+    case PsiType.SHORT   => Short
+    case PsiType.INT     => Int
+    case PsiType.LONG    => Long
+    case PsiType.FLOAT   => Float
+    case PsiType.DOUBLE  => Double
+    case PsiType.NULL    => Null
+    case null            => Any
     case diamondType: PsiDiamondType =>
       diamondType.resolveInferredTypes().getInferredTypes.asScala.toList.map {
         toScType(_, treatJavaObjectAsAny)
@@ -65,23 +65,23 @@ trait PsiTypeBridge {
       if (noPrimitives) javaObject else primitive
 
     std match {
-      case Any => javaObject
+      case Any    => javaObject
       case AnyRef => javaObject
       case Unit if noPrimitives =>
         Option(createTypeByFqn("scala.runtime.BoxedUnit"))
           .getOrElse(javaObject)
-      case Unit => PsiType.VOID
+      case Unit    => PsiType.VOID
       case Boolean => primitiveOrObject(PsiType.BOOLEAN)
-      case Char => primitiveOrObject(PsiType.CHAR)
-      case Byte => primitiveOrObject(PsiType.BYTE)
-      case Short => primitiveOrObject(PsiType.SHORT)
-      case Int => primitiveOrObject(PsiType.INT)
-      case Long => primitiveOrObject(PsiType.LONG)
-      case Float => primitiveOrObject(PsiType.FLOAT)
-      case Double => primitiveOrObject(PsiType.DOUBLE)
-      case Null => javaObject
+      case Char    => primitiveOrObject(PsiType.CHAR)
+      case Byte    => primitiveOrObject(PsiType.BYTE)
+      case Short   => primitiveOrObject(PsiType.SHORT)
+      case Int     => primitiveOrObject(PsiType.INT)
+      case Long    => primitiveOrObject(PsiType.LONG)
+      case Float   => primitiveOrObject(PsiType.FLOAT)
+      case Double  => primitiveOrObject(PsiType.DOUBLE)
+      case Null    => javaObject
       case Nothing => javaObject
-      case _ => javaObject
+      case _       => javaObject
     }
   }
 
