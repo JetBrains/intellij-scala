@@ -41,7 +41,6 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] val projectFileIndex          = ProjectRootManager.getInstance(project).getFileIndex
   private[this] val lock                      = new ReentrantReadWriteLock()
   private[this] val openCloseLock             = lock.writeLock()
-  private[this] val indexingFinishedCondition = openCloseLock.newCondition()
   private[this] val readDataLock              = lock.readLock()
 
   private[this] val dirtyScopeHolder = new ScalaDirtyScopeHolder(
@@ -120,7 +119,6 @@ private[findUsages] class ScalaCompilerReferenceService(
     indexerScheduler.schedule("Index invalidation callback", () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
       activeIndexingPhases.set(0)
-      transactionManager.inTransaction(_ => indexingFinishedCondition.signalAll())
       failedToParse.clear()
     })
   }
@@ -153,7 +151,6 @@ private[findUsages] class ScalaCompilerReferenceService(
           onIndexCorruption()
         } else {
           reader = ScalaCompilerReferenceReaderFactory(project)
-          indexingFinishedCondition.signalAll()
           messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingFinished(indexingSuccessful)
         }
       }
@@ -249,11 +246,6 @@ private[findUsages] class ScalaCompilerReferenceService(
     //FIXME
     GlobalSearchScope.EMPTY_SCOPE
   }
-
-  def awaitIndexingUnderProgressTask: Task.Backgroundable =
-    task(project, ScalaBundle.message("scala.compiler.indices.progress.title")) { _ =>
-      inTransaction(_ => indexingFinishedCondition.awaitUninterruptibly())
-    }
 }
 
 object ScalaCompilerReferenceService {

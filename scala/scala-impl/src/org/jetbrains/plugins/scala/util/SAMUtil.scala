@@ -86,31 +86,26 @@ object SAMUtil {
     }
   }
 
-  implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
-    def singleAbstractMethod: Option[PsiMethod] = cls match {
-      case _: ScTemplateDefinition => singleAbstractMethodScala.map(_._1)
-      case _                       => singleAbstractMethodJava.map(_._1)
-    }
+  def singleAbstractMethod(cls: PsiClass): Option[PsiMethod] = cls match {
+    case _: ScTemplateDefinition => cls.singleAbstractMethodScala.map(_._1)
+    case _                       => cls.singleAbstractMethodJava.map(_._1)
+  }
 
-    @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    def isSAMable: Boolean =
-      hasValidConstructorAndSelfType(cls) && singleAbstractMethod.isDefined
-
-    /**
+  /**
     * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
     *
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-    def toSAM(expected: ScType, element: PsiElement): Option[ScType] ={
-      implicit val scope: ElementScope = cls.elementScope
+    def toSAMType(expected: ScType, element: PsiElement): Option[ScType] ={
+      implicit val scope: ElementScope = element.elementScope
       val languageLevel                = element.scalaLanguageLevelOrDefault
 
       expected.extractClassType.flatMap {
         case (templDef: ScTemplateDefinition, subst) =>
           if (!hasValidConstructorAndSelfType(templDef)) None
           else {
-            val methodWithSubst = singleAbstractMethodScala
+            val methodWithSubst = templDef.singleAbstractMethodScala
 
             for {
               (fun, methodSubst) <- methodWithSubst
@@ -120,8 +115,8 @@ object SAMUtil {
               extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse(substituted)
             }
           }
-        case (_, subst) =>
-          val methodWithSubst = singleAbstractMethodJava
+        case (cls, subst) =>
+          val methodWithSubst = cls.singleAbstractMethodJava
 
           if (!hasValidConstructorAndSelfType(cls)) None
           else methodWithSubst.map { case (method, methodSubst) =>
@@ -142,8 +137,15 @@ object SAMUtil {
       }
     }
 
+
+  implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    private[this] def singleAbstractMethodJava: Option[(PsiMethod, PsiSubstitutor)] = {
+    def isSAMable: Boolean =
+      hasValidConstructorAndSelfType(cls) && singleAbstractMethod(cls).isDefined
+
+
+    @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
+    private[SAMUtil] def singleAbstractMethodJava: Option[(PsiMethod, PsiSubstitutor)] = {
       import scala.collection.JavaConverters._
 
       def isAbstract(m: HierarchicalMethodSignature): Boolean =
@@ -160,7 +162,7 @@ object SAMUtil {
     }
 
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    private[this] def singleAbstractMethodScala: Option[(ScFunction, ScSubstitutor)] = cls match {
+    private[SAMUtil] def singleAbstractMethodScala: Option[(ScFunction, ScSubstitutor)] = cls match {
       case tdef: ScTemplateDefinition =>
         val abstractMembers = tdef.allSignatures.filter(SignatureStrategy.signature.isAbstract)
         abstractMembers match {

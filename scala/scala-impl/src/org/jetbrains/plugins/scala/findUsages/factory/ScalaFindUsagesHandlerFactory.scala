@@ -64,9 +64,9 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       } else Option((unwrapped, false))
 
     replaced match {
-      case Some((e, isImplicit)) =>
-        if (isImplicit) new CompilerIndicesFindUsageHandler(e, this)
-        else            new ScalaFindUsagesHandler(e, this)
+      case Some((e, userCompilerIndices)) =>
+        if (userCompilerIndices) new CompilerIndicesFindUsagesHandler(e, this)
+        else                     new ScalaFindUsagesHandler(e, this)
       case None    => FindUsagesHandler.NULL_HANDLER
     }
   }

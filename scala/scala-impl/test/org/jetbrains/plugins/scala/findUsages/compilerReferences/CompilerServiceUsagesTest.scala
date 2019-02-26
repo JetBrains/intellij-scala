@@ -238,15 +238,106 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.isEmpty)
   }
 
-  def testInstanceApplyUnapply(): Unit = {
+  def testInstanceUnapply(): Unit =
+    runSearchTest(
+      "InstanceUnapply.scala" ->
+      s"""
+         |class Foo(val x: Int) {
+         |  def unapply(s: String): Option[Int] = Option(x)
+         |}
+       """.stripMargin,
+      "UsesInstanceUnapply.scala" ->
+      s"""
+         |object Example {
+         |  val foo = new Foo(123)
+         |  "456" match {
+         |    case foo(num) => num
+         |    case _        => 123
+         |  }
+         |}
+       """.stripMargin
+    )("UsesInstanceUnapply.scala" -> Seq(5))
 
-  }
+  def testInstanceApply(): Unit =
+    runSearchTest(
+      "InstanceApply.scala" ->
+      s"""
+         |class MyFunction[T, R](val f: T => R) {
+         |  def ap${CARET}ply(t: T): R = f(t)
+         |}
+       """.stripMargin,
+      "UsesInstalceApply.scala" ->
+      s"""
+         |object Example {
+         | val fun = new MyFunction[String, Int] = _.length
+         | fun("a string")
+         |}
+       """.stripMargin
+    )("UsesInstanceApply.scala" -> Seq(4))
 
-  def testForCompMethods(): Unit = {
+  def testFlatMap(): Unit =
+    runSearchTest(
+      "FlatMap.scala" ->
+      s"""
+         |object A {
+         |  final case class IO[A] {
+         |    def map[B](f: A => B): IO[B] = ???
+         |    def flatMap[B](f: A => IO[B]): IO[B] = ???
+         |    def withFilter(pred: A => Boolean): IO[A] = ???
+         |  }
+         |  val a = new IO(123)
+         |  val b = new IO(456)
+         |
+         |  for {
+         |     ai <- a
+         |     bi <- b
+         |  } yield a + b
+         |}
+       """.stripMargin,
+    )("FlatMap.scala" -> Seq(12, 13))
 
-  }
+  def testMap(): Unit =
+    runSearchTest(
+      "Map.scala" ->
+        s"""
+           |object A {
+           |  final case class IO[A] {
+           |    def map[B](f: A => B): IO[B] = ???
+           |    def flatMap[B](f: A => IO[B]): IO[B] = ???
+           |    def withFilter(pred: A => Boolean): IO[A] = ???
+           |  }
+           |  val a = new IO(123)
+           |  val b = new IO(456)
+           |
+           |  for {
+           |     ai <- a
+           |     bi <- b
+           |  } yield a + b
+           |}
+       """.stripMargin,
+    )("Map.scala" -> Seq(14))
 
-  def testSAM(): Unit = {
+  def testWithFilter(): Unit =
+    runSearchTest(
+      "WithFilter.scala" ->
+        s"""
+           |object A {
+           |  final case class IO[A] {
+           |    def map[B](f: A => B): IO[B] = ???
+           |    def flatMap[B](f: A => IO[B]): IO[B] = ???
+           |    def withFilter(pred: A => Boolean): IO[A] = ???
+           |  }
+           |  val a = new IO((123, 123))
+           |  val b = new IO((456, 456))
+           |
+           |  for {
+           |     ai <- a
+           |     if ai._1 > 10
+           |     (bi1, bi2) <- b
+           |  } yield ???
+           |}
+       """.stripMargin,
+    )("WithFilter.scala" -> Seq(13, 14))
 
-  }
+  def testSAM(): Unit = ()
 }

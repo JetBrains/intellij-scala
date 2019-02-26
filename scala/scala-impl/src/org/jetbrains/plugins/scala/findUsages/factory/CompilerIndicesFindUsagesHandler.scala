@@ -4,13 +4,18 @@ import java.util
 import java.util.Collections
 
 import com.intellij.find.findUsages.FindUsagesOptions
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch
 
-class CompilerIndicesFindUsageHandler(
+/**
+  * Find usages handler, which relies solely on compiler indices.
+  *
+  * See also: [[org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService]]
+  */
+class CompilerIndicesFindUsagesHandler(
   e:       PsiElement,
   factory: ScalaFindUsagesHandlerFactory
 ) extends ScalaFindUsagesHandlerBase(e, factory) {
@@ -19,10 +24,13 @@ class CompilerIndicesFindUsageHandler(
     element:   PsiElement,
     processor: Processor[UsageInfo],
     options:   FindUsagesOptions
-  ): Boolean =
-    CompilerIndicesReferencesSearch
-      .search(element)
-      .forEach(ref => processor.process(new UsageInfo(ref)))
+  ): Boolean = element match {
+    case named: PsiNamedElement =>
+      CompilerIndicesReferencesSearch
+        .search(named)
+        .forEach(ref => processor.process(new UsageInfo(ref)))
+    case _ => false
+  }
 
   override def processUsagesInText(
     element:     PsiElement,
