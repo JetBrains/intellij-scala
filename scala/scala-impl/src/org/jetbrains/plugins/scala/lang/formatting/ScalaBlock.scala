@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -161,7 +162,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
   private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
     val file = parent.getContainingFile
     val configManager = ScalafmtDynamicConfigManager.instanceIn(file.getProject)
-    val configOpt = configManager.configForFile(file, failSilent = true, resolveFast = true)
+    val configOpt = configManager.configForFile(file, FmtVerbosity.FailSilent, resolveFast = true)
     val (indentDefn, indentCall) = configOpt match {
       case Some(config) => (config.continuationIndentDefnSite, config.continuationIndentCallSite)
       case None => (2, 2)

@@ -57,7 +57,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       super.apply(settings)
     }
 
-    syncPanels(scalaSettings)
+    syncPanels(scalaSettings.USE_SCALAFMT_FORMATTER)
   }
 
   override def resetImpl(settings: CodeStyleSettings): Unit = {
@@ -74,7 +74,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       super.resetImpl(settings)
     }
 
-    syncPanels(scalaSettings)
+    syncPanels(scalaSettings.USE_SCALAFMT_FORMATTER)
   }
 
   private def initOuterFormatterPanel(): Unit = {
@@ -86,7 +86,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       scalaSettings.FORMATTER = getSelectedFormatterId
       if (scalaSettings.FORMATTER != oldFormatter) {
         toggleSettingsVisibility(scalaSettings.USE_SCALAFMT_FORMATTER)
-        syncPanels(scalaSettings)
+        syncPanels(scalaSettings.USE_SCALAFMT_FORMATTER)
       }
     })
 
@@ -119,9 +119,9 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     scalaFmtSettingsPanel.setModel(model)
   }
 
-  private def syncPanels(scalaSettings: ScalaCodeStyleSettings): Unit = {
+  private def syncPanels(useExternalFormatter: Boolean): Unit = {
     val tempSettings = settings.clone()
-    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
+    if (useExternalFormatter) {
       shortenedPanel.exposeApply(tempSettings)
       // we need to invoke applySettingsToModel, which is done inside onSomethingChanged
       shortenedPanel.onSomethingChanged()

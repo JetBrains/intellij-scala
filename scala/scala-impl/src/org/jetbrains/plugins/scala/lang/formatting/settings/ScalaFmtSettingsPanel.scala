@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
@@ -52,10 +53,11 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val editorText = getEditor.getDocument.getText
     val configTextChangedInEditor = configText.exists(_ != editorText)
 
-    val modified = isModified(settings) || configTextChangedInEditor
-    if (!modified) return
-
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val panelWasJustEnabled = isPanelEnabled != scalaSettings.USE_SCALAFMT_FORMATTER
+
+    val modified = isModified(settings) || configTextChangedInEditor || panelWasJustEnabled
+    if (!modified) return
 
     scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
     scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = useIntellijFormatterForRangeFormat.isSelected
@@ -67,7 +69,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
     projectConfigFile(configPathNew) match {
       case Some(vFile) =>
-        if (configPathChanged) {
+        if (configPathChanged || panelWasJustEnabled) {
           scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
           updateConfigTextFromFile(vFile)
         } else if (configTextChangedInEditor) {
@@ -85,7 +87,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
-  private def updateScalafmtVersionLabel(version: String, isDefault: Boolean): Unit = {
+  private def updateScalafmtVersionLabel(version: String, isDefault: Boolean = false): Unit = {
     if (scalafmtVersionLabel == null) return
     scalafmtVersionLabel.setText(version + (if (isDefault) " (default)" else ""))
   }
@@ -100,12 +102,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         return
     }
     val version = versionOpt.getOrElse(DefaultVersion)
-    ScalafmtDynamicConfigManager.instanceIn(project.get).resolveConfigAsync(configFile, version, onResolveFinished = {
+    val configManager = ScalafmtDynamicConfigManager.instanceIn(project.get)
+    configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
       case Right(config) =>
         updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
       case Left(error) =>
         reportConfigResolveError(error)
-        updateScalafmtVersionLabel("", isDefault = false)
+        updateScalafmtVersionLabel("")
     })
   }
 
@@ -180,17 +183,21 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
     useIntellijFormatterForRangeFormat.setSelected(scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
     reformatOnFileSaveCheckBox.setSelected(scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE)
-    projectConfigFile(configPath).foreach { vFile =>
-      updateConfigTextFromFile(vFile)
-    }
-    updateConfigVisibility()
-    updateUseIntellijWarningVisibility(scalaSettings)
     externalFormatterSettingsPath.getButton.grabFocus()
 
-    projectConfigFile(configPath) match {
-      case Some(vFile) => ensureScalafmtResolved(vFile)
-      case None => ensureDefaultScalafmtResolved()
+    isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
+    if (isPanelEnabled) {
+      projectConfigFile(configPath) match {
+        case Some(vFile) =>
+          updateConfigTextFromFile(vFile)
+          ensureScalafmtResolved(vFile)
+        case None =>
+          ensureDefaultScalafmtResolved()
+      }
     }
+
+    updateConfigVisibility()
+    updateUseIntellijWarningVisibility(scalaSettings)
   }
 
   override def getPanel: JComponent = {
@@ -307,7 +314,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private def updateUseIntellijWarningVisibility(settings: ScalaCodeStyleSettings): Unit = {
-    Option(useIntellijWarning).foreach(_.setVisible(!settings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT))
+    if (useIntellijWarning == null) return
+    useIntellijWarning.setVisible(!settings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
   }
 
   private def updateConfigVisibility(): Unit = {
@@ -352,6 +360,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     }
   }
 
+  private var isPanelEnabled: Boolean = false
   private var project: Option[Project] = None
   private var configText: Option[CharSequence] = None
   private var scalafmtVersionLabel: JLabel = _

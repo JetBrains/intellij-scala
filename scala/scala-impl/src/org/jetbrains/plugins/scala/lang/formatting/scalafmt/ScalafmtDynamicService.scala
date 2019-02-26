@@ -11,6 +11,7 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
@@ -52,7 +53,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
   // NOTE: maybe we should set project in dummy state while downloading formatter?
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
-              failSilent: Boolean = false,
+              verbosity: FmtVerbosity = FmtVerbosity.FailSilent,
               resolveFast: Boolean = false,
               progressListener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
     val resolveResult = formattersCache(version) match {
@@ -70,7 +71,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
         }
     }
 
-    if (!failSilent)
+    if (verbosity == FmtVerbosity.Verbose)
       resolveResult.left.foreach(reportResolveError)
 
     resolveResult

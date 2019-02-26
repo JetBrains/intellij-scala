@@ -74,4 +74,11 @@ object ScalafmtNotifications {
     displayNotification(message, NotificationType.ERROR, actions, listener)
   }
 
+  sealed trait FmtVerbosity
+
+  object FmtVerbosity {
+    object Silent extends FmtVerbosity // do not show any notifications
+    object FailSilent extends FmtVerbosity // show only info notifications
+    object Verbose extends FmtVerbosity // show all notifications
+  }
 }

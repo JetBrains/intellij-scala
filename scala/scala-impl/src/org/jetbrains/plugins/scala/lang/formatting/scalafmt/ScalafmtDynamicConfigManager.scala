@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtResolveError, ScalafmtVersion}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -51,6 +52,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
 
   def resolveConfigAsync(configFile: VirtualFile,
                          version: ScalafmtVersion,
+                         verbosity: FmtVerbosity,
                          onResolveFinished: ConfigResolveResult => Unit): Unit = {
     val backgroundTask = new Task.Backgroundable(project, "Resolving scalafmt config", true) {
       override def run(indicator: ProgressIndicator): Unit = {
@@ -59,7 +61,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
         val configOrError = resolveConfig(
           configFile, Some(version),
           downloadScalafmtIfMissing = true,
-          failSilent = false,
+          verbosity,
           resolveFast = false
         )
         onResolveFinished(configOrError)
@@ -74,13 +76,15 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     invokeAndWait(inWriteAction(vFile.refresh(false, false)))
   }
 
-  def configForFile(psiFile: PsiFile, failSilent: Boolean = false, resolveFast: Boolean = false): Option[ScalafmtDynamicConfig] = {
+  def configForFile(psiFile: PsiFile,
+                    verbosity: FmtVerbosity = FmtVerbosity.FailSilent,
+                    resolveFast: Boolean = false): Option[ScalafmtDynamicConfig] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
     val config = scalafmtProjectConfigFile(configPath) match {
       case Some(file) =>
-        resolveConfig(file, Some(DefaultVersion), downloadScalafmtIfMissing = false, failSilent, resolveFast).toOption
+        resolveConfig(file, Some(DefaultVersion), downloadScalafmtIfMissing = false, verbosity, resolveFast).toOption
       case None =>
         intellijDefaultConfig
     }
@@ -98,7 +102,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   private def resolveConfig(configFile: VirtualFile,
                             defaultVersion: Option[ScalafmtVersion],
                             downloadScalafmtIfMissing: Boolean,
-                            failSilent: Boolean,
+                            verbosity: FmtVerbosity,
                             resolveFast: Boolean): ConfigResolveResult = {
     val configPath = configFile.getPath
 
@@ -112,15 +116,17 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
           docLastModified == currentDocTimestamp =>
         Right(config)
       case _ =>
-        resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing, failSilent, resolveFast) match {
+        resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing, verbosity, resolveFast) match {
           case Right(config) =>
-            notifyConfigChanges(config, cachedConfig)
+            if(verbosity != FmtVerbosity.Silent) {
+              notifyConfigChanges(config, cachedConfig)
+            }
             configsCache(configPath) = CachedConfig(config, currentVFileTimestamp, currentDocTimestamp)
             Right(config)
           case Left(error: ConfigResolveError.ConfigScalafmtResolveError) =>
             Left(error) // do not report, rely on ScalafmtDynamicUtil resolve error reporting
           case Left(error: ConfigResolveError.ConfigError) =>
-            if (!failSilent)
+            if (verbosity == FmtVerbosity.Verbose)
               reportConfigResolveError(configFile, error)
             Left(error)
         }
@@ -130,7 +136,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   private def resolvingConfigWithScalafmt(configFile: VirtualFile,
                                           defaultVersion: Option[ScalafmtVersion],
                                           downloadScalafmtIfMissing: Boolean,
-                                          failSilent: Boolean,
+                                          verbosity: FmtVerbosity,
                                           resolveFast: Boolean): ConfigResolveResult = {
     val configPath = configFile.getPath
     for {
@@ -146,7 +152,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
           Left(ConfigResolveError.ConfigParseError(configPath, e))
       }
       fmtReflect <- ScalafmtDynamicService.instance
-        .resolve(version, downloadScalafmtIfMissing, failSilent, resolveFast)
+        .resolve(version, downloadScalafmtIfMissing, verbosity, resolveFast)
         .left.map(ConfigResolveError.ConfigScalafmtResolveError)
       config <- parseConfig(configFile, fmtReflect)
     } yield config
