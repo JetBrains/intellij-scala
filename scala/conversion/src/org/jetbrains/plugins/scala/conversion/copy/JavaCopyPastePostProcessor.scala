@@ -115,7 +115,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
       val shiftedAssociations = inWriteAction {
         performePaste(editor, bounds, text, project)
 
-        val markedAssociations = associations.toList.zipMapped { dependency =>
+        val markedAssociations = associations.toSeq.zipMapped { dependency =>
           editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
         }
 

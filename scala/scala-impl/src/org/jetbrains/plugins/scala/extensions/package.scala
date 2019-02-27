@@ -153,34 +153,33 @@ package object extensions {
   }
 
   implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
-    private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
-    def distinctBy[K](f: A => K)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
-      val b = cbf()
+    def distinctBy[K](f: A => K): Seq[A] = {
+      val buffer = new ArrayBuffer[A](value.size)
       var seen = Set[K]()
       for (x <- value) {
         val v = f(x)
         if (!(seen contains v)) {
-          b += x
+          buffer += x
           seen = seen + v
         }
       }
-      b.result()
+      buffer
     }
 
-    def mapWithIndex[B](f: (A, Int) => B)(implicit cbf: CanBuildTo[B, CC]): CC[B] = {
-      val b = cbf()
+    def mapWithIndex[B](f: (A, Int) => B): Seq[B] = {
+      val buffer = new ArrayBuffer[B](value.size)
       var i = 0
       for (x <- value) {
-        b += f(x, i)
+        buffer += f(x, i)
         i += 1
       }
-      b.result()
+      buffer
     }
 
     //may return same instance if no element was changed
-    def smartMapWithIndex(f: (A, Int) => A)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
-      val b = cbf()
+    def smartMapWithIndex(f: (A, Int) => A): Seq[A] = {
+      val buffer = new ArrayBuffer[A](value.size)
       val iterator = value.iterator
       var i = 0
       var updated = false
@@ -190,13 +189,39 @@ package object extensions {
         if (next ne fNext) {
           updated = true
         }
-        b += fNext
+        buffer += fNext
         i += 1
       }
-      if (updated) b.result()
+      if (updated) buffer
       else value
     }
 
+    //may return same instance if no element was changed
+    def smartMap(f: A => A): Seq[A] = {
+      val buffer = new ArrayBuffer[A](value.size)
+      val iterator = value.iterator
+      var updated = false
+      while (iterator.hasNext) {
+        val next = iterator.next()
+        val fNext = f(next)
+        if (next ne fNext) {
+          updated = true
+        }
+        buffer += fNext
+      }
+      if (updated) buffer
+      else value
+    }
+
+    def zipMapped[B](f: A => B): Seq[(A, B)] = {
+      val b = new ArrayBuffer[(A, B)](value.size)
+      val it = value.iterator
+      while (it.hasNext) {
+        val v = it.next()
+        b += ((v, f(v)))
+      }
+      b
+    }
 
     def foreachWithIndex[B](f: (A, Int) => B) {
       var i = 0
@@ -210,17 +235,6 @@ package object extensions {
   }
 
   implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
-    private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
-
-    def zipMapped[B](f: A => B)(implicit cbf: CanBuildTo[(A, B), CC]): CC[(A, B)] = {
-      val b = cbf()
-      val it = value.iterator
-      while (it.hasNext) {
-        val v = it.next()
-        b += ((v, f(v)))
-      }
-      b.result()
-    }
 
     def mapToArray[B <: AnyRef](f: A => B)(implicit factory: ArrayFactory[B]): Array[B] = {
       val size = value.size
@@ -232,23 +246,6 @@ package object extensions {
         idx += 1
       }
       array
-    }
-
-    //may return same instance if no element was changed
-    def smartMap(f: A => A)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
-      val b = cbf()
-      val iterator = value.iterator
-      var updated = false
-      while (iterator.hasNext) {
-        val next = iterator.next()
-        val fNext = f(next)
-        if (next ne fNext) {
-          updated = true
-        }
-        b += fNext
-      }
-      if (updated) b.result()
-      else value
     }
 
   }
