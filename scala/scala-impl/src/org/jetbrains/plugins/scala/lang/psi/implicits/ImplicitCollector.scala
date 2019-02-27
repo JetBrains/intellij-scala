@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import gnu.trove.TLongObjectHashMap
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -652,24 +653,26 @@ class ImplicitCollector(place: PsiElement,
     params: Set[ScParameter]
   ): (ScType, ScType => ScType) = {
     import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-    import scala.collection.mutable
 
-    val updates = mutable.Map.empty[UndefinedType, ScProjectionType]
+    val updates = new TLongObjectHashMap[ScProjectionType](10)
 
     var uid = 0
     val updatedType = tpe.updateRecursively {
       case original @ ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
         val typeParam = TypeParameter.light(p.name ++ "$$dep" + uid, Seq.empty, Nothing, Any)
         val undef     = UndefinedType(typeParam)
-        updates += (undef -> original)
+        updates.put(typeParam.typeParamId, original)
         uid += 1
         undef
     }
 
     val reverter: ScType => ScType =
-      if (updates.nonEmpty)
+      if (!updates.isEmpty)
         (tpe: ScType) => tpe.updateLeaves {
-          case undef: UndefinedType if updates.contains(undef) => updates(undef)
+          case undef @ UndefinedType(tparam, _) =>
+            val replacement = updates.get(tparam.typeParamId)
+            if (replacement ne null) replacement
+            else                     undef
         }
       else identity
 
