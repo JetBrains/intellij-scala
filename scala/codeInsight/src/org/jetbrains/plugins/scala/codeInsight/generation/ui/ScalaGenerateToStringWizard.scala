@@ -24,7 +24,10 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
   */
 final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
                                        (implicit project: Project)
-  extends AbstractWizard[Step](ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.title"), project) {
+  extends AbstractWizard[Step](
+    ScalaCodeInsightBundle.message("generate.ui.toString.title"),
+    project
+  ) {
 
   import ScalaGenerateToStringWizard._
 
@@ -36,9 +39,7 @@ final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
   override def showAndGetOk(): AsyncResult[java.lang.Boolean] = {
     val result = super.showAndGetOk()
 
-    if (this.isOK) {
-      settings.setGenerateToStringWithFieldNames(toStringPanel.isSelected)
-    }
+    if (isOK) settings.setGenerateToStringWithPropertiesNames(toStringPanel.isSelected)
 
     result
   }
@@ -54,7 +55,7 @@ final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
     super.init()
     updateStep()
 
-    toStringPanel.isSelected = settings.isGenerateToStringWithFieldNames
+    toStringPanel.isSelected = settings.isGenerateToStringWithPropertiesNames
   }
 
   addStep(new ToStringStep(toStringPanel))
@@ -69,14 +70,14 @@ object ScalaGenerateToStringWizard {
   private final class Panel(members: Seq[ScNamedElement])
                            (listener: TableModelListener)
     extends ScalaMemberSelectionPanel(
-      ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.fields"),
+      ScalaCodeInsightBundle.message("generate.ui.toString.properties"),
       members,
       new AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo] {}
     ) {
 
     getTable.getModel.addTableModelListener(listener)
 
-    private val checkBox = new JCheckBox(ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.withFieldNames"))
+    private val checkBox = new JCheckBox(ScalaCodeInsightBundle.message("generate.ui.toString.withNames"))
 
     add(checkBox, BorderLayout.SOUTH)
 

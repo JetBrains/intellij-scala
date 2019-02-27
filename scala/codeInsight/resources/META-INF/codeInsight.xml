@@ -251,6 +251,7 @@
 
     <actions>
         <group id="ScalaGenerateGroup">
+            <separator/>
             <action id="Scala.GenerateEquals"
                     class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction"
                     text="equals() and hashCode()" description="Generate equals() and hashCode() methods"/>

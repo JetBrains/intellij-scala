@@ -455,10 +455,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     }
   }
 
-  public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
+  public boolean isGenerateToStringWithPropertiesNames() {
+    return GENERATE_TOSTRING_WITH_FIELD_NAMES;
+  }
 
-  public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
-    this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
+  public void setGenerateToStringWithPropertiesNames(boolean value) {
+    GENERATE_TOSTRING_WITH_FIELD_NAMES = value;
   }
   
   public TrailingCommasMode getTrailingCommasMode() {
