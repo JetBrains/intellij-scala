@@ -70,7 +70,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     projectConfigFile(configPathNew) match {
       case Some(vFile) =>
         if (configPathChanged || panelWasJustEnabled) {
-          scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
+          scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
           updateConfigTextFromFile(vFile)
         } else if (configTextChangedInEditor) {
           saveConfigChangesToFile(editorText, vFile)
@@ -78,7 +78,12 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         ensureScalafmtResolved(vFile)
       case None =>
         if (configPathChanged || configTextChangedInEditor) {
-          reportConfigFileNotFound(configPathNew)
+          if(configPathNew.isEmpty) {
+            scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
+            configText = None
+          } else {
+            reportConfigFileNotFound(configPathNew)
+          }
         }
         ensureDefaultScalafmtResolved()
     }
@@ -114,7 +119,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def ensureDefaultScalafmtResolved(): Unit = {
     if (project.isEmpty) return
-    ScalafmtDynamicService.instance.ensureVersionIsResolvedAsync(DefaultVersion, project.get)
+    ScalafmtDynamicService.instance.resolveAsync(DefaultVersion, project.get)
     updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
   }
 
