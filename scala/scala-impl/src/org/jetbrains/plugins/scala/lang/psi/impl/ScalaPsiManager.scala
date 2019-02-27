@@ -254,7 +254,6 @@ class ScalaPsiManager(val project: Project) {
 
     typeSystem.clearCache()
     ParameterizedType.substitutorCache.clear()
-    ScParameterizedType.cache.clear()
     PropertyMethods.clearCache()
     collectImplicitObjectsCache.clear()
     implicitCollectorCache.clear()

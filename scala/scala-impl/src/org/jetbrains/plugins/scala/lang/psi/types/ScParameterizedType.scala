@@ -165,37 +165,25 @@ final class ScParameterizedType private(val designator: ScType, val typeArgument
 
 object ScParameterizedType {
 
-  val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
-    ContainerUtil.newConcurrentMap[(ScType, Seq[ScType]), ValueType]()
-
-  //isAliasType uses substitution and it may create new ScParameterizedType in turn
-  //todo: can we avoid this?
-  private val currentComputations: ThreadLocal[Set[ScParameterizedType]] = ThreadLocal.withInitial(() => Set.empty)
-
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
-    def createCompoundProjectionParameterized(pt: ScParameterizedType): ValueType = {
-      val current = currentComputations.get
-
-      if (current.contains(pt))
-        pt
-      else {
-        currentComputations.set(current + pt)
-        try
-          pt.isAliasType match {
-            case Some(AliasType(_: ScTypeAliasDefinition, _, Right(upper: ValueType))) => upper
-            case _ => pt
-          }
-        finally {
-          currentComputations.set(current)
-        }
-      }
-    }
 
     val simple = new ScParameterizedType(designator, typeArgs)
     designator match {
-      case ScProjectionType(_: ScCompoundType, _) =>
-        cache.atomicGetOrElseUpdate((designator, typeArgs),
-          createCompoundProjectionParameterized(simple))
+
+      // Simplify application of "type-lambda-like" types
+      // ((Compound {type S[x] = Type[x]}))#S[A] is replaced with Type[A]
+      case ScProjectionType(ScCompoundType(_, _, aliasMap), _) && ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
+        if aliasMap.contains(alias.name) =>
+
+        val subst = ScSubstitutor.bind(alias.typeParameters, typeArgs)
+        val typeAliasSignature = aliasMap(alias.name)
+
+        subst(typeAliasSignature.upperBound) match {
+          case v: ValueType => v
+          case _ => simple
+        }
+
+      // Simplify application of ScTypePolymorphicType encoding of type lambdas
       case ScTypePolymorphicType(internalType, typeParameters) if internalType.isInstanceOf[ScParameterizedType] =>
         val internal = internalType.asInstanceOf[ScParameterizedType]
         new ScParameterizedType(internal.designator, internal.typeArguments.map {
