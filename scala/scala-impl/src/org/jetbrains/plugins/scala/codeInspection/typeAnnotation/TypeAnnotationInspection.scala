@@ -72,7 +72,7 @@ object TypeAnnotationInspection {
 
   private class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
-      DesktopUtils.browse("http://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
+      DesktopUtils.browse("https://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
   }
 
   private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {

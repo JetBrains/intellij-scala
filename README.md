@@ -1,4 +1,4 @@
-[![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![TC Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1)
 [![Travis Build Status](https://travis-ci.org/JetBrains/intellij-scala.svg)](https://travis-ci.org/JetBrains/intellij-scala) 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
@@ -20,7 +20,7 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
   tracker](https://youtrack.jetbrains.com/issues/SCL#newissue).
 
 - If you want to contribute, please see our [intro to the Scala plugin
-  internals](http://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/).
+  internals](https://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/).
 
 ## Setting up the project
 

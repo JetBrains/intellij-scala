@@ -4,7 +4,7 @@ object MyConv {
   }
 }
 
-// See http://lampsvn.epfl.ch/trac/scala/ticket/1931
+// See https://lampsvn.epfl.ch/trac/scala/ticket/1931
 
 import MyConv.StringTo
 

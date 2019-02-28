@@ -22,7 +22,7 @@ object ScalaType {
     * Expands type aliases, including those in a type projection. Type Alias Declarations are replaced by their upper
     * bound.
     *
-    * @see http://youtrack.jetbrains.net/issue/SCL-2872
+    * @see https://youtrack.jetbrains.net/issue/SCL-2872
     */
   // TODO This is all a bit ad-hoc. What can we learn from scalac?
   // TODO perhaps we need to choose the lower bound if we are in a contravariant position. We get away
@@ -57,7 +57,7 @@ object ScalaType {
     * Creates a type that designates `element`. Usually this will be a ScDesignatorType, except for the
     * special case when `element` represent a standard type, such as scala.Double.
     *
-    * @see http://youtrack.jetbrains.net/issue/SCL-2913
+    * @see https://youtrack.jetbrains.net/issue/SCL-2913
     */
   def designator(element: PsiNamedElement): ScType = {
     element match {

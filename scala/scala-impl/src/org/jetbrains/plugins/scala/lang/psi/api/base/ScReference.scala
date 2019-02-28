@@ -172,7 +172,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
    *
    * object Predef { type Throwable = java.lang.Throwable }
    *
-   * [[http://youtrack.jetbrains.net/issue/SCL-3132 SCL-3132]]
+   * [[https://youtrack.jetbrains.net/issue/SCL-3132 SCL-3132]]
    *
    * Corresponding references are used in FindUsages, but filtered from Rename
    */

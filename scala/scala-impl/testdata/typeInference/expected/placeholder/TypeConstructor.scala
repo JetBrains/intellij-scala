@@ -1,4 +1,4 @@
-// http://youtrack.jetbrains.net/issue/SCL-1771
+// https://youtrack.jetbrains.net/issue/SCL-1771
 trait MA[M[_]] {
 val mint: M[Int]
 }

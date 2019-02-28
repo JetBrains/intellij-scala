@@ -51,12 +51,12 @@ object ScalaPluginUpdater {
   private val knownVersions = Map(
     CASSIOPEIA_OLD   -> Map(
       Release -> "DUMMY",
-      EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
-      Nightly -> "http://www.jetbrains.com/idea/plugins/scala-nightly-cassiopeia.xml"
+      EAP     -> "https://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
+      Nightly -> "https://www.jetbrains.com/idea/plugins/scala-nightly-cassiopeia.xml"
     ),
     FOURTEEN_ONE_OLD -> Map(
       Release -> "DUMMY",
-      EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-14.1.xml",
+      EAP     -> "https://www.jetbrains.com/idea/plugins/scala-eap-14.1.xml",
       Nightly -> ""
     ),
     FOURTEEN_ONE -> Map(
