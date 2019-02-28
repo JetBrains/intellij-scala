@@ -61,7 +61,6 @@ abstract class MixinNodes[T: SignatureStrategy] {
            (implicit ctx: ProjectContext): Map = {
     var isPredef = false
     val map = new Map
-    val superTypesBuff = new ListBuffer[Map]
     val (superTypes, thisTypeSubst): (Seq[ScType], ScSubstitutor) = tp match {
       case cp: ScCompoundType =>
         processRefinement(cp, map)
@@ -120,6 +119,8 @@ abstract class MixinNodes[T: SignatureStrategy] {
           }
     }
     val iter = superTypes.iterator
+    val superTypesBuff = new ArrayBuffer[Map](superTypes.size)
+
     while (iter.hasNext) {
       val superType = iter.next()
       superType.extractClassType match {
@@ -156,7 +157,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
         case _ =>
       }
     }
-    map.setSupersMap(superTypesBuff.toList)
+    map.setSupersMap(superTypesBuff)
     map
   }
 
@@ -220,12 +221,12 @@ object MixinNodes {
     }
 
     @volatile
-    private var supersList: List[Map[T]] = List.empty
-    def setSupersMap(list: List[Map[T]]) {
+    private var superMaps: Seq[Map[T]] = Nil
+    def setSupersMap(list: Seq[Map[T]]) {
       for (m <- list) {
         implicitNames.addAll(m.implicitNames)
       }
-      supersList = list
+      superMaps = list
     }
 
     private val thisAndSupersMap = ContainerUtil.newConcurrentMap[String, (AllNodes[T], AllNodes[T])]()
@@ -234,7 +235,7 @@ object MixinNodes {
       val convertedName = ScalaNamesUtil.clean(name)
       def calculate: (AllNodes[T], AllNodes[T]) = {
         val thisMap: NodesMap[T] = publicsMap.getOrElse(convertedName, NodesMap.empty[T])
-        val maps: List[NodesMap[T]] = supersList.map(sup => sup.publicsMap.getOrElse(convertedName, NodesMap.empty))
+        val maps: Seq[NodesMap[T]] = superMaps.map(sup => sup.publicsMap.getOrElse(convertedName, NodesMap.empty))
         val supers = mergeWithSupers(thisMap, mergeSupers(maps))
         val supersPrivates = privatesFromSupersForName(convertedName)
         val thisPrivates = privatesMap.getOrElse(convertedName, PrivateNodesSet.empty)
@@ -250,9 +251,9 @@ object MixinNodes {
     }
 
     @volatile
-    private var forImplicitsCache: List[SigToNode[T]] = null
+    private var forImplicitsCache: Seq[SigToNode[T]] = null
 
-    def forImplicits(): List[SigToNode[T]] = {
+    def forImplicits(): Seq[SigToNode[T]] = {
       def implicitEntry(sigToSuper: SigToNode[T]): Option[SigToNode[T]] = {
         val (sig, primarySuper) = sigToSuper
 
@@ -267,13 +268,13 @@ object MixinNodes {
 
       if (forImplicitsCache != null) return forImplicitsCache
 
-      val res = new ArrayBuffer[SigToNode[T]]()
+      val res = new ArrayBuffer[SigToNode[T]](implicitNames.size)
       val iterator = implicitNames.iterator()
       while (iterator.hasNext) {
         val thisMap = forName(iterator.next)._1
         res ++= thisMap.flatMap(implicitEntry)
       }
-      forImplicitsCache = res.toList
+      forImplicitsCache = res
       forImplicitsCache
     }
 
@@ -281,7 +282,7 @@ object MixinNodes {
       val names = new mutable.HashSet[String]
       names ++= publicsMap.keySet
       names ++= privatesMap.keySet
-      for (sup <- supersList) {
+      for (sup <- superMaps) {
         names ++= sup.publicsMap.keySet
         names ++= sup.privatesMap.keySet
       }
@@ -290,7 +291,7 @@ object MixinNodes {
 
     private def privatesFromSupersForName(name: String): PrivateNodesSet[T] = {
       val result = PrivateNodesSet.empty
-      supersList.foreach { map =>
+      superMaps.foreach { map =>
         result.addAll(map.privatesMap.getOrElse(name, PrivateNodesSet.empty))
       }
       result.trimToSize()
@@ -317,7 +318,7 @@ object MixinNodes {
 
     private object MultiMap {def empty = new MultiMap}
 
-    private def mergeSupers(maps: List[NodesMap[T]]) : MultiMap = {
+    private def mergeSupers(maps: Seq[NodesMap[T]]) : MultiMap = {
       val res = MultiMap.empty
       val mapsIterator = maps.iterator
       while (mapsIterator.hasNext) {
@@ -338,7 +339,7 @@ object MixinNodes {
         ProgressManager.checkCanceled()
 
         val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
-          case None => nodes.toList.head
+          case None => nodes.head
           case Some(concrete) => concrete
         }
         primarySupers += ((key, primarySuper))
