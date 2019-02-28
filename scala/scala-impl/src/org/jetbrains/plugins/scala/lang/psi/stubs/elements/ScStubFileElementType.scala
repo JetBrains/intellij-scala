@@ -6,20 +6,18 @@ package elements
 
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
+import com.intellij.psi._
 import com.intellij.psi.stubs._
-import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
 
 /**
   * @author ilyas
   */
 class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
-  extends IStubFileElementType[ScFileStub](
+  extends tree.IStubFileElementType[ScFileStub](
     "file",
     language
   ) {
-
-  import impl.ScFileStubImpl
 
   override final def getStubVersion: Int = super.getStubVersion + decompiler.DECOMPILER_VERSION
 
@@ -53,10 +51,21 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
 
   private class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
-    protected override def createStubForFile(file: PsiFile) = new ScFileStubImpl(
-      file.getViewProvider.getPsi(ScalaLanguage.INSTANCE).asInstanceOf[api.ScalaFile],
-      ScStubFileElementType.this
-    )
+    protected override def createStubForFile(file: PsiFile): ScFileStubImpl = file match {
+      case ScStubFileElementType.ViewProvider(scalaFile: api.ScalaFile) =>
+        new ScFileStubImpl(scalaFile, ScStubFileElementType.this)
+    }
+  }
+
+}
+
+object ScStubFileElementType {
+
+  object ViewProvider {
+
+    def unapply(file: PsiFile): Option[PsiFile] =
+      Option(file.getViewProvider.getPsi(ScalaLanguage.INSTANCE))
+
   }
 
 }
