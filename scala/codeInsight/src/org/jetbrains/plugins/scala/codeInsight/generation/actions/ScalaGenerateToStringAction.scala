@@ -59,6 +59,8 @@ object ScalaGenerateToStringAction {
           case _: ScTrait => true
           case definition => !definition.isCase
         }
+
+    override def startInWriteAction(): Boolean = false
   }
 
   private object Handler {
