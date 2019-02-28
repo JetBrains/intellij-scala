@@ -66,7 +66,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   def sourceName: String = virtualFile match {
     case null => ""
-    case file => foldStub(decompiler.sourceName(file))(_.sourceName)
+    case file =>
+      import decompiler._
+      foldStub(file.sourceName) {
+        _.sourceName
+      }
   }
 
   override final def getName: String = virtualFile match {

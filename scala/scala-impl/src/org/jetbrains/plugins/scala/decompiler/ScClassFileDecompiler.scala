@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
-import java.io.IOException
-
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
@@ -12,28 +10,24 @@ import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.indexing.FileContent
 import org.jetbrains.plugins.scala.lang.psi.{impl, stubs}
 
-import scala.annotation.tailrec
-
 final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
   override def accepts(file: VirtualFile): Boolean =
-    isScalaFile(file) || file.canBeProcessed
+    file.isScalaFile || file.canBeProcessed
 
   override def getStubBuilder: ClsStubBuilder = ScClsStubBuilder
 
-  override def createFileViewProvider(file: VirtualFile, manager: PsiManager, physical: Boolean): ScSingleRootFileViewProvider = {
-    val maybeContents = try {
-      val decompilationResult = decompile(file)()
-      if (decompilationResult.isScala) Some(decompilationResult.sourceText)
-      else None
-    } catch {
-      case _: IOException => None
-    }
-
-    ScSingleRootFileViewProvider(physical, maybeContents)(file, manager)
-  }
+  override def createFileViewProvider(file: VirtualFile,
+                                      manager: PsiManager,
+                                      physical: Boolean): ScSingleRootFileViewProvider =
+    file.sourceContent
+      .fold(new NonScalaClassFileViewProvider(manager, file, physical): ScSingleRootFileViewProvider) { contents =>
+        new ScalaClassFileViewProvider(manager, file, physical) {
+          override val getContents: String = contents
+        }
+      }
 }
 
 object ScClassFileDecompiler {
@@ -60,125 +54,60 @@ object ScClassFileDecompiler {
             .getFileNodeType
             .getBuilder
             .buildStubTree {
-              file.createScalaFile(content.getContent)(content.getProject)
+              createScalaFile(file, content.getContent)(content.getProject)
             }
       }
 
+    private def createScalaFile(virtualFile: VirtualFile, content: Array[Byte])
+                               (implicit project: Project): ScalaFileImpl =
+      virtualFile.decompile(content) match {
+        case DecompilationResult(_, _, sourceText) =>
+          val result = ScalaPsiElementFactory.createScalaFileFromText(sourceText)
+            .asInstanceOf[ScalaFileImpl]
+          result.virtualFile = virtualFile
+          result
+      }
   }
 
-  sealed abstract class ScSingleRootFileViewProvider(physical: Boolean)
-                                                    (implicit file: VirtualFile, manager: PsiManager)
+  sealed abstract class ScSingleRootFileViewProvider(manager: PsiManager,
+                                                     file: VirtualFile,
+                                                     physical: Boolean)
     extends SingleRootFileViewProvider(manager, file, physical, ScalaLanguage.INSTANCE)
 
-  private object ScSingleRootFileViewProvider {
+  private class ScalaClassFileViewProvider protected(manager: PsiManager,
+                                                     file: VirtualFile,
+                                                     physical: Boolean)
+    extends ScSingleRootFileViewProvider(manager, file, physical) {
 
-    def apply(physical: Boolean, maybeContents: Option[String])
-             (implicit file: VirtualFile, manager: PsiManager): ScSingleRootFileViewProvider =
-      maybeContents.fold(new NonScalaClassFileViewProvider(physical): ScSingleRootFileViewProvider) {
-        new ScalaClassFileViewProvider(physical, _)
-      }
-
-    final class ScalaClassFileViewProvider(physical: Boolean, private val contents: String)
-                                          (implicit file: VirtualFile, manager: PsiManager)
-      extends ScSingleRootFileViewProvider(physical) {
-
-      override def createFile(project: Project, virtualFile: VirtualFile, fileType: FileType): PsiFile = {
-        val file = new ScalaFileImpl(this)
-        file.virtualFile = virtualFile
-        file
-      }
-
-      override def getContents: CharSequence = contents match {
-        case null => decompile(getVirtualFile)().sourceText
-        case _ => contents
-      }
-
-      override def createCopy(copy: VirtualFile): SingleRootFileViewProvider =
-        new ScalaClassFileViewProvider(false, null)(copy, getManager)
+    override def createFile(project: Project,
+                            virtualFile: VirtualFile,
+                            fileType: FileType): PsiFile = {
+      val file = new ScalaFileImpl(this)
+      file.virtualFile = virtualFile
+      file
     }
 
-    final class NonScalaClassFileViewProvider(physical: Boolean)
-                                             (implicit file: VirtualFile, manager: PsiManager)
-      extends ScSingleRootFileViewProvider(physical) {
-
-      override def createFile(project: Project, virtualFile: VirtualFile, fileType: FileType): PsiFile = null
-
-      override def getContents: CharSequence = ""
-
-      override def createCopy(copy: VirtualFile): SingleRootFileViewProvider =
-        new NonScalaClassFileViewProvider(false)(copy, getManager)
+    override def getContents: String = getVirtualFile.decompile() match {
+      case DecompilationResult(_, _, sourceText) => sourceText
     }
 
+    override def createCopy(copy: VirtualFile) =
+      new ScalaClassFileViewProvider(getManager, copy, false)
   }
 
-  private implicit class VirtualFileExt(private val virtualFile: VirtualFile) extends AnyVal {
+  private final class NonScalaClassFileViewProvider(manager: PsiManager,
+                                                    file: VirtualFile,
+                                                    physical: Boolean)
+    extends ScSingleRootFileViewProvider(manager, file, physical) {
 
-    import reflect.NameTransformer.decode
+    override def createFile(project: Project,
+                            virtualFile: VirtualFile,
+                            fileType: FileType): PsiFile = null
 
-    def createScalaFile(content: Array[Byte])
-                       (implicit project: Project): ScalaFileImpl =
-      ScalaPsiElementFactory.createScalaFileFromText {
-        decompile(virtualFile)(content).sourceText
-      } match {
-        case scalaFile: ScalaFileImpl =>
-          scalaFile.virtualFile = virtualFile
-          scalaFile
-      }
+    override def getContents = ""
 
-    def isInnerClass: Boolean =
-      virtualFile.getParent match {
-        case null => false
-        case parent => !isClass && parent.isInner(virtualFile.getNameWithoutExtension)
-      }
-
-    def isInner(name: String): Boolean = {
-      if (name.endsWith("$") && contains(name, name.length - 1)) {
-        return false //let's handle it separately to avoid giving it for Java.
-      }
-      isInner(decode(name), 0)
-    }
-
-    private def isInner(name: String, from: Int): Boolean = {
-      val index = name.indexOf('$', from)
-
-      val containsPart = index > 0 && contains(name, index)
-      index != -1 && (containsPart || isInner(name, index + 1))
-    }
-
-    private def contains(name: String, endIndex: Int): Boolean =
-      virtualFile.getChildren.exists { child =>
-        child.isClass &&
-          decode(child.getNameWithoutExtension) != name.substring(0, endIndex)
-      }
-
-    def isClass: Boolean = virtualFile.getExtension == "class"
-
-    def canBeProcessed: Boolean = {
-      val maybeParent = Option(virtualFile.getParent)
-
-      @tailrec
-      def go(prefix: String, suffix: String): Boolean = {
-        if (!prefix.endsWith("$")) {
-          if (maybeParent
-            .map(_.findChild(prefix + ".class"))
-            .exists(isScalaFile)) return true
-        }
-
-        split(suffix) match {
-          case Some((suffixPrefix, suffixSuffix)) => go(prefix + "$" + suffixPrefix, suffixSuffix)
-          case _ => false
-        }
-      }
-
-      split(virtualFile.getNameWithoutExtension) match {
-        case Some((prefix, suffix)) => go(prefix, suffix)
-        case _ => false
-      }
-    }
+    override def createCopy(copy: VirtualFile) =
+      new NonScalaClassFileViewProvider(getManager, copy, false)
   }
 
-  private[this] def split(string: String) = string.indexOf('$') match {
-    case -1 => None
-    case index => Some(string.substring(0, index), string.substring(index + 1))
-  }
 }
