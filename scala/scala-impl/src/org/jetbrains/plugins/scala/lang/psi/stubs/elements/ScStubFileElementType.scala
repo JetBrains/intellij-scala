@@ -6,20 +6,27 @@ package elements
 
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs._
 import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.psi.{PsiElement, StubBuilder}
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
+import com.intellij.psi.{PsiElement, PsiFile}
 
 /**
   * @author ilyas
   */
 class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
-  extends IStubFileElementType[ScFileStub]("file", language) {
+  extends IStubFileElementType[ScFileStub](
+    "file",
+    language
+  ) {
+
+  import impl.ScFileStubImpl
 
   override final def getStubVersion: Int = super.getStubVersion + decompiler.DECOMPILER_VERSION
 
-  override def getBuilder: StubBuilder = new ScalaFileStubBuilder
+  override def shouldBuildStubFor(file: VirtualFile): Boolean =
+    file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
+
+  override def getBuilder: DefaultStubBuilder = new ScFileStubBuilderImpl
 
   override def getExternalId = "scala.file"
 
@@ -30,19 +37,26 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   }
 
   override final def deserialize(dataStream: StubInputStream,
-                                 parentStub: StubElement[_ <: PsiElement]): ScFileStub =
-    new FileStubImpl(
-      isScript = dataStream.readBoolean,
-      sourceName = dataStream.readNameString
-    )
+                                 parentStub: StubElement[_ <: PsiElement]): ScFileStub = {
+    val isScriptImpl = dataStream.readBoolean
+    val sourceNameImpl = dataStream.readNameString
+
+    new ScFileStubImpl(null, this) {
+      override val isScript: Boolean = isScriptImpl
+
+      override val sourceName: String = sourceNameImpl
+    }
+  }
 
   override final def indexStub(stub: ScFileStub,
                                sink: IndexSink): Unit = {}
 
-  override def shouldBuildStubFor(file: VirtualFile): Boolean =
-    file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
+  private class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
-  private class FileStubImpl(val isScript: Boolean,
-                             val sourceName: String) extends AbstractFileStub(null)
+    protected override def createStubForFile(file: PsiFile) = new ScFileStubImpl(
+      file.getViewProvider.getPsi(ScalaLanguage.INSTANCE).asInstanceOf[api.ScalaFile],
+      ScStubFileElementType.this
+    )
+  }
 
 }

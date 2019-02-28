@@ -4,30 +4,18 @@ package psi
 package stubs
 package impl
 
-import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
-import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.psi.{PsiClass, PsiFile}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.psi._
 
-/**
-  * @author ilyas
-  */
-abstract class AbstractFileStub(file: ScalaFile)
-  extends PsiFileStubImpl[ScalaFile](file) with ScFileStub {
-  override def getClasses: Array[PsiClass] =
-    getChildrenByType(TokenSets.TYPE_DEFINITIONS, PsiClass.ARRAY_FACTORY)
-
-  override def getType: IStubFileElementType[Nothing] =
-    fileElementType.asInstanceOf[IStubFileElementType[Nothing]]
-
-  protected def fileElementType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
-    ScalaElementType.FILE
-}
-
-class ScFileStubImpl(file: ScalaFile) extends AbstractFileStub(file) {
+class ScFileStubImpl(file: api.ScalaFile,
+                     override val getType: tree.IStubFileElementType[ScFileStub])
+  extends stubs.PsiFileStubImpl(file) with ScFileStub {
 
   override def sourceName: String = file.sourceName
 
   override def isScript: Boolean = file.isScriptFileImpl
+
+  override final def getClasses: Array[PsiClass] = getChildrenByType(
+    TokenSets.TYPE_DEFINITIONS,
+    PsiClass.ARRAY_FACTORY
+  )
 }

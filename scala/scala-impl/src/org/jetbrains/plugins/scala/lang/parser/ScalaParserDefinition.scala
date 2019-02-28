@@ -5,12 +5,12 @@ package parser
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.stubs.PsiFileStub
-import com.intellij.psi.tree.{IStubFileElementType, TokenSet}
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{getInstance => ScalaProjectSettings}
 
 final class ScalaParserDefinition extends ParserDefinition {
@@ -21,7 +21,7 @@ final class ScalaParserDefinition extends ParserDefinition {
   override def createParser(project: Project) =
     new ScalaParser
 
-  override def getFileNodeType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
+  override def getFileNodeType: ScStubFileElementType =
     ScalaElementType.FILE
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {

@@ -3,8 +3,6 @@ package lang
 package parser
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiFile
-import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree._
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -69,8 +67,7 @@ object ScalaElementType {
   val SELF_TYPE = new ScSelfTypeElementElementType
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 
-  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
-    new ScStubFileElementType
+  val FILE = new ScStubFileElementType
 
   val CLASS_DEFINITION: ScTemplateDefinitionElementType[ScClass] = ClassDefinition
   val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
