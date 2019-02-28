@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.finder
 
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.fileTypes.{FileTypeManager, StdFileTypes}
+import com.intellij.openapi.fileTypes.{FileType, FileTypeManager, StdFileTypes}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.search.GlobalSearchScope.{getScopeRestrictedByFileTypes, projectScope}
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -82,10 +81,14 @@ class SourceFilterScope protected(elementScope: ElementScope) extends FilterScop
 
 object SourceFilterScope {
   def apply(project: Project): GlobalSearchScope =
-    apply(project, projectScope(project))
+    apply(project, GlobalSearchScope.projectScope(project))
 
   def apply(project: Project, scope: GlobalSearchScope): GlobalSearchScope = {
-    val updatedScope = getScopeRestrictedByFileTypes(scope, ScalaFileType.INSTANCE, JavaFileType.INSTANCE)
+    apply(project, scope, Seq(ScalaFileType.INSTANCE, JavaFileType.INSTANCE))
+  }
+
+  def apply(project: Project, scope: GlobalSearchScope, fileTypes: Seq[FileType]): GlobalSearchScope = {
+    val updatedScope = GlobalSearchScope.getScopeRestrictedByFileTypes(scope, fileTypes: _*)
     new SourceFilterScope(ElementScope(project, updatedScope))
   }
 }
