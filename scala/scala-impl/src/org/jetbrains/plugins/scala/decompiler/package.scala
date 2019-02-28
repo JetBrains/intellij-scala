@@ -3,14 +3,10 @@ package org.jetbrains.plugins.scala
 import java.io.{DataInputStream, DataOutputStream, IOException}
 
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
 package object decompiler {
-
-  val DECOMPILER_VERSION = 314
-  private[this] val DecompilerFileAttribute = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
 
   private[decompiler] class DecompilationResult(val isScala: Boolean, val sourceName: String)
                                                (implicit val timeStamp: Long) {
@@ -117,5 +113,5 @@ package object decompiler {
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
   private[this] def decompilerFileAttribute =
     if (ScalaLoader.isUnderUpsource) None
-    else Some(DecompilerFileAttribute)
+    else Some(ScClsStubBuilder.DecompilerFileAttribute)
 }

@@ -3,48 +3,44 @@ package decompiler
 
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs._
 import com.intellij.psi.compiled.ClsStubBuilder
-import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
 import com.intellij.util.indexing.FileContent
-import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.psi.{impl, stubs}
 
 object ScClsStubBuilder extends ClsStubBuilder {
 
-  override def getStubVersion: Int = DECOMPILER_VERSION
+  override val getStubVersion = 314
 
-  override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] =
+  private[decompiler] val DecompilerFileAttribute = new newvfs.FileAttribute(
+    "_is_scala_compiled_new_key_",
+    getStubVersion,
+    true
+  )
+
+  override def buildFileStub(content: FileContent): stubs.ScFileStub =
     content.getFile match {
       case file if isInnerClass(file) => null
       case file =>
-        val scalaFile = createScalaFile(file, content.getContent)(content.getProject)
-
-        val result = scalaBuilder.buildStubTree(scalaFile)
-          .asInstanceOf[PsiFileStubImpl[ScalaFile]]
-        result.clearPsi("Stub was built from decompiled file")
-        result
+        LanguageParserDefinitions.INSTANCE
+          .forLanguage(ScalaLanguage.INSTANCE)
+          .asInstanceOf[lang.parser.ScalaParserDefinition]
+          .getFileNodeType
+          .getBuilder
+          .buildStubTree {
+            createScalaFile(file, content.getContent)(content.getProject)
+          }
     }
 
   private def createScalaFile(file: VirtualFile, content: Array[Byte])
-                             (implicit project: Project) = {
-    val sourceText = decompile(file)(content).sourceText
-
-    val result = ScalaPsiElementFactory.createScalaFileFromText(sourceText)
-      .asInstanceOf[ScalaFileImpl]
-    result.virtualFile = file
-
-    result
-  }
-
-  private def scalaBuilder = {
-    val parserDefinition = LanguageParserDefinitions.INSTANCE
-      .forLanguage(ScalaLanguage.INSTANCE)
-      .asInstanceOf[ScalaParserDefinition]
-
-    parserDefinition.getFileNodeType.getBuilder
-  }
+                             (implicit project: Project) =
+    impl.ScalaPsiElementFactory.createScalaFileFromText {
+      decompile(file)(content).sourceText
+    } match {
+      case scalaFile: impl.ScalaFileImpl =>
+        scalaFile.virtualFile = file
+        scalaFile
+    }
 
   private def isInnerClass(file: VirtualFile): Boolean =
     file.getParent match {

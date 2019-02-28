@@ -18,7 +18,8 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
     language
   ) {
 
-  override final def getStubVersion: Int = super.getStubVersion + decompiler.DECOMPILER_VERSION
+  override final def getStubVersion: Int =
+    super.getStubVersion + decompiler.ScClsStubBuilder.getStubVersion
 
   override def shouldBuildStubFor(file: VirtualFile): Boolean =
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
@@ -66,9 +67,9 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
                                  override val getType: ScStubFileElementType = this)
     extends stubs.PsiFileStubImpl(file) with ScFileStub {
 
-    override def sourceName: String = file.sourceName
+    override def sourceName: String = getPsi.sourceName
 
-    override def isScript: Boolean = file.isScriptFileImpl
+    override def isScript: Boolean = getPsi.isScriptFileImpl
 
     override final def getClasses: Array[PsiClass] = getChildrenByType(
       TokenSets.TYPE_DEFINITIONS,
