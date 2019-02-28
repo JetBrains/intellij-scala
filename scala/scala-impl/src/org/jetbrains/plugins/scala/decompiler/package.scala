@@ -113,5 +113,5 @@ package object decompiler {
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
   private[this] def decompilerFileAttribute =
     if (ScalaLoader.isUnderUpsource) None
-    else Some(ScClsStubBuilder.DecompilerFileAttribute)
+    else Some(ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute)
 }

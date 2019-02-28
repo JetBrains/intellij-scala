@@ -3,12 +3,14 @@ package decompiler
 
 import java.io.IOException
 
+import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.compiled.ClassFileDecompilers
+import com.intellij.openapi.vfs.{VirtualFile, newvfs}
+import com.intellij.psi.compiled.{ClassFileDecompilers, ClsStubBuilder}
 import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import com.intellij.util.indexing.FileContent
+import org.jetbrains.plugins.scala.lang.psi.{impl, stubs}
 
 import scala.annotation.tailrec
 
@@ -17,9 +19,9 @@ final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
   import ScClassFileDecompiler._
 
   override def accepts(file: VirtualFile): Boolean =
-    isScalaFile(file) || canBeProcessed(file)
+    isScalaFile(file) || file.canBeProcessed
 
-  override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
+  override def getStubBuilder: ClsStubBuilder = ScClsStubBuilder
 
   override def createFileViewProvider(file: VirtualFile, manager: PsiManager, physical: Boolean): ScSingleRootFileViewProvider = {
     val maybeContents = try {
@@ -35,6 +37,34 @@ final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 }
 
 object ScClassFileDecompiler {
+
+  import impl.{ScalaFileImpl, ScalaPsiElementFactory}
+
+  object ScClsStubBuilder extends ClsStubBuilder {
+
+    override val getStubVersion = 314
+
+    private[decompiler] val DecompilerFileAttribute = new newvfs.FileAttribute(
+      "_is_scala_compiled_new_key_",
+      getStubVersion,
+      true
+    )
+
+    override def buildFileStub(content: FileContent): stubs.ScFileStub =
+      content.getFile match {
+        case file if file.isInnerClass => null
+        case file =>
+          LanguageParserDefinitions.INSTANCE
+            .forLanguage(ScalaLanguage.INSTANCE)
+            .asInstanceOf[lang.parser.ScalaParserDefinition]
+            .getFileNodeType
+            .getBuilder
+            .buildStubTree {
+              file.createScalaFile(content.getContent)(content.getProject)
+            }
+      }
+
+  }
 
   sealed abstract class ScSingleRootFileViewProvider(physical: Boolean)
                                                     (implicit file: VirtualFile, manager: PsiManager)
@@ -81,25 +111,69 @@ object ScClassFileDecompiler {
 
   }
 
-  private def canBeProcessed(file: VirtualFile): Boolean = {
-    val maybeParent = Option(file.getParent)
+  private implicit class VirtualFileExt(private val virtualFile: VirtualFile) extends AnyVal {
 
-    @tailrec
-    def go(prefix: String, suffix: String): Boolean = {
-      if (!prefix.endsWith("$")) {
-        val maybeChild = maybeParent.map(_.findChild(prefix + ".class"))
-        if (maybeChild.exists(isScalaFile)) return true
+    import reflect.NameTransformer.decode
+
+    def createScalaFile(content: Array[Byte])
+                       (implicit project: Project): ScalaFileImpl =
+      ScalaPsiElementFactory.createScalaFileFromText {
+        decompile(virtualFile)(content).sourceText
+      } match {
+        case scalaFile: ScalaFileImpl =>
+          scalaFile.virtualFile = virtualFile
+          scalaFile
       }
 
-      split(suffix) match {
-        case Some((suffixPrefix, suffixSuffix)) => go(prefix + "$" + suffixPrefix, suffixSuffix)
-        case _ => false
+    def isInnerClass: Boolean =
+      virtualFile.getParent match {
+        case null => false
+        case parent => !isClass && parent.isInner(virtualFile.getNameWithoutExtension)
       }
+
+    def isInner(name: String): Boolean = {
+      if (name.endsWith("$") && contains(name, name.length - 1)) {
+        return false //let's handle it separately to avoid giving it for Java.
+      }
+      isInner(decode(name), 0)
     }
 
-    split(file.getNameWithoutExtension) match {
-      case Some((prefix, suffix)) => go(prefix, suffix)
-      case _ => false
+    private def isInner(name: String, from: Int): Boolean = {
+      val index = name.indexOf('$', from)
+
+      val containsPart = index > 0 && contains(name, index)
+      index != -1 && (containsPart || isInner(name, index + 1))
+    }
+
+    private def contains(name: String, endIndex: Int): Boolean =
+      virtualFile.getChildren.exists { child =>
+        child.isClass &&
+          decode(child.getNameWithoutExtension) != name.substring(0, endIndex)
+      }
+
+    def isClass: Boolean = virtualFile.getExtension == "class"
+
+    def canBeProcessed: Boolean = {
+      val maybeParent = Option(virtualFile.getParent)
+
+      @tailrec
+      def go(prefix: String, suffix: String): Boolean = {
+        if (!prefix.endsWith("$")) {
+          if (maybeParent
+            .map(_.findChild(prefix + ".class"))
+            .exists(isScalaFile)) return true
+        }
+
+        split(suffix) match {
+          case Some((suffixPrefix, suffixSuffix)) => go(prefix + "$" + suffixPrefix, suffixSuffix)
+          case _ => false
+        }
+      }
+
+      split(virtualFile.getNameWithoutExtension) match {
+        case Some((prefix, suffix)) => go(prefix, suffix)
+        case _ => false
+      }
     }
   }
 

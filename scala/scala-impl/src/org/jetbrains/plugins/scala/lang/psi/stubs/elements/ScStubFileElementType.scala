@@ -19,7 +19,7 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   ) {
 
   override final def getStubVersion: Int =
-    super.getStubVersion + decompiler.ScClsStubBuilder.getStubVersion
+    super.getStubVersion + decompiler.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 
   override def shouldBuildStubFor(file: VirtualFile): Boolean =
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
