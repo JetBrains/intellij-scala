@@ -21,31 +21,28 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
 
   override def getBuilder: StubBuilder = new ScalaFileStubBuilder
 
-  override def getExternalId: String = "scala.file"
+  override def getExternalId = "scala.file"
 
-  override final def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
+  override final def serialize(stub: ScFileStub,
+                               dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isScript)
-    dataStream.writeBoolean(stub.isCompiled)
-    dataStream.writeName(stub.packageName)
     dataStream.writeName(stub.sourceName)
   }
 
-  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
-    new FileStubImpl(isScript = dataStream.readBoolean,
-      isCompiled = dataStream.readBoolean,
-      packageName = dataStream.readNameString,
-      sourceName = dataStream.readNameString)
+  override final def deserialize(dataStream: StubInputStream,
+                                 parentStub: StubElement[_ <: PsiElement]): ScFileStub =
+    new FileStubImpl(
+      isScript = dataStream.readBoolean,
+      sourceName = dataStream.readNameString
+    )
 
-  override final def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {}
+  override final def indexStub(stub: ScFileStub,
+                               sink: IndexSink): Unit = {}
 
-  override def shouldBuildStubFor(file: VirtualFile): Boolean = !isInSourceJar(file)
-
-  private def isInSourceJar(file: VirtualFile): Boolean =
-    file.getFileSystem.getProtocol == StandardFileSystems.JAR_PROTOCOL
+  override def shouldBuildStubFor(file: VirtualFile): Boolean =
+    file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
 
   private class FileStubImpl(val isScript: Boolean,
-                             val isCompiled: Boolean,
-                             val packageName: String,
-                             val sourceName: String)
-    extends AbstractFileStub(null)
+                             val sourceName: String) extends AbstractFileStub(null)
+
 }

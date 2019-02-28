@@ -4,18 +4,9 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.PsiClassHolderFileStub
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * @author ilyas
- */
-
-trait ScFileStub extends PsiClassHolderFileStub[ScalaFile] {
-  def packageName: String
-
+trait ScFileStub extends PsiClassHolderFileStub[api.ScalaFile] {
   def sourceName: String
-
-  def isCompiled: Boolean
 
   def isScript: Boolean
 }

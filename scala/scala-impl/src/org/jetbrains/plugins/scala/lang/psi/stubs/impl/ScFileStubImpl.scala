@@ -26,11 +26,8 @@ abstract class AbstractFileStub(file: ScalaFile)
 }
 
 class ScFileStubImpl(file: ScalaFile) extends AbstractFileStub(file) {
-  override def packageName: String = file.getPackageName
 
   override def sourceName: String = file.sourceName
-
-  override def isCompiled: Boolean = file.isCompiled
 
   override def isScript: Boolean = file.isScriptFileImpl
 }
