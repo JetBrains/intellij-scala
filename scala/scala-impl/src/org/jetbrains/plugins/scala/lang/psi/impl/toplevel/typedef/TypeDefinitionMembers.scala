@@ -48,19 +48,19 @@ object TypeDefinitionMembers {
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (inner <- clazz.getInnerClasses) {
-        addToMap(inner, new Node(inner, subst), map)
+        addToMap(inner, subst, map)
       }
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: TypeNodes.Map): Unit = {
       for (member <- template.members.filterBy[ScNamedElement]) {
-        addToMap(member, new Node(member, subst), map)
+        addToMap(member, subst, map)
       }
     }
 
     def processRefinement(cp: ScCompoundType, map: TypeNodes.Map): Unit = {
       for ((_, aliasSig) <- cp.typesMap) {
-        addToMap(aliasSig.typeAlias, new Node(aliasSig.typeAlias, aliasSig.substitutor), map)
+        addToMap(aliasSig.typeAlias, aliasSig.substitutor, map)
       }
     }
   }
@@ -90,12 +90,12 @@ object TypeDefinitionMembers {
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (method <- clazz.getMethods) {
         val phys = new PhysicalSignature(method, subst)
-        addToMap(phys, new Node(phys, subst), map)
+        addToMap(phys, subst, map)
       }
 
       for (field <- clazz.getFields) {
         val sig = Signature.withoutParams(field.getName, subst, field)
-        addToMap(sig, new Node(sig, subst), map)
+        addToMap(sig, subst, map)
       }
     }
 
@@ -103,7 +103,7 @@ object TypeDefinitionMembers {
       implicit val ctx: ProjectContext = template
 
       def addSignature(s: Signature) {
-        addToMap(s, new Node(s, subst), map)
+        addToMap(s, subst, map)
       }
 
       if (template.qualifiedName == "scala.AnyVal") {
@@ -132,7 +132,7 @@ object TypeDefinitionMembers {
 
     def processRefinement(cp: ScCompoundType, map: Map): Unit = {
       for ((sign, _) <- cp.signatureMap) {
-        addToMap(sign, new Node(sign, sign.substitutor), map)
+        addToMap(sign, sign.substitutor, map)
       }
     }
 

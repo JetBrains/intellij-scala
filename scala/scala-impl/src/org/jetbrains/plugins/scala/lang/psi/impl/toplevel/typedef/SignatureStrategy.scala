@@ -13,8 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.Signature
 
 trait SignatureStrategy[T] {
   def equiv(t1: T, t2: T): Boolean
-  def same(t1: T, t2: T): Boolean
   def computeHashCode(t: T): Int
+
+  def same(t1: T, t2: T): Boolean
+  def identityHashCode(t: T): Int
+
   def elemName(t: T): String
   def isAbstract(t: T): Boolean
   def isImplicit(t: T): Boolean
@@ -43,6 +46,8 @@ object SignatureStrategy {
     def same(t1: Signature, t2: Signature): Boolean = {
       t1.namedElement eq t2.namedElement
     }
+
+    override def identityHashCode(t: Signature): Int = t.namedElement.hashCode()
 
     def isPrivate(t: Signature): Boolean = isPrivateImpl(t.namedElement)
 
@@ -73,6 +78,8 @@ object SignatureStrategy {
     def same(t1: PsiNamedElement, t2: PsiNamedElement): Boolean = {
       t1 eq t2
     }
+
+    def identityHashCode(t: PsiNamedElement): Int = t.hashCode
 
     def isPrivate(t: PsiNamedElement): Boolean = isPrivateImpl(t)
 
