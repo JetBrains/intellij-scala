@@ -42,6 +42,8 @@ object TokenSets {
     VARIABLE_DEFINITION
   )
 
+  val LITERALS: TokenSet = STRING_LITERAL_TOKEN_SET + tFLOAT + tINTEGER + kTRUE + kFALSE
+
   val MEMBERS: TokenSet =
     FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++
       MemberElementTypesExtension.getAllElementTypes
