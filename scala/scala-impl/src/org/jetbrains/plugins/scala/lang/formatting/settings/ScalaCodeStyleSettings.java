@@ -93,7 +93,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_MATCH_LBRACE = true;
   public boolean KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false;
 
-  public boolean USE_SCALADOC2_FORMATTING = true;
+  /**
+   * NOTE! This setting is inferred:
+   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlign()}
+   */
+  public boolean USE_SCALADOC2_FORMATTING = false;
 
   public boolean PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false;
   public boolean SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false;

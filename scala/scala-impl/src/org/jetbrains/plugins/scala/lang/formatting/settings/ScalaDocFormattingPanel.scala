@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
   */
 class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTreeWithPreviewPanel(settings) {
 
-  private var myEnableCheckBox: JCheckBox = null
-  private var myAsteriskStyleCheckBox: JCheckBox = null
+  private var myEnableCheckBox: JCheckBox = _
+  private var myAsteriskStyleCheckBox: JCheckBox = _
   private val myScaladocPanel: JPanel = new JPanel(new BorderLayout)
 
   init()
@@ -31,7 +31,7 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
       override def actionPerformed(e: ActionEvent): Unit = update()
     })
 
-    myAsteriskStyleCheckBox = new JCheckBox("Use scaladoc indent for leading asterisk")
+    myAsteriskStyleCheckBox = new JCheckBox("Add additional space for leading asterisk")
 
     myPanel.setBorder(new CustomLineBorder(OnePixelDivider.BACKGROUND, 1, 0, 0, 0))
     myScaladocPanel.add(BorderLayout.CENTER, myPanel)
