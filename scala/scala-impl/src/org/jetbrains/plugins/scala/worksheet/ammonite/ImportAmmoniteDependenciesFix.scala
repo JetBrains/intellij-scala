@@ -154,7 +154,7 @@ object ImportAmmoniteDependenciesFix {
   }
   
   def loadAmmoniteVersion(forScala: MyScalaVersion, scalaVersion: String): Try[String] = {
-    Versions.loadLinesFrom(s"http://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
+    Versions.loadLinesFrom(s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
       lines =>
         val pattern = ("\\Q\"\\E" + THREE_DIGIT_PATTERN).r
 
@@ -165,7 +165,7 @@ object ImportAmmoniteDependenciesFix {
   }
   
   def loadScalaVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
-    Versions.loadLinesFrom("http://repo1.maven.org/maven2/com/lihaoyi/").map {
+    Versions.loadLinesFrom("https://repo1.maven.org/maven2/com/lihaoyi/").map {
       lines =>
         val pattern = s"\\Q$AMMONITE_PREFIX\\E$THREE_DIGIT_PATTERN".r
         lines.flatMap(line => pattern.findFirstIn(line))

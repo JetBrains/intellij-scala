@@ -38,7 +38,7 @@ object FunctionTypeFactory {
 
   @tailrec
   private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): Seq[ScType] = `type` match {
-    case _ if depth == 0 => Seq.empty //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
+    case _ if depth == 0 => Seq.empty //hack for https://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
     case AliasLowerBound(lower) => extractForPrefix(lower, prefix, depth - 1)
     case ParameterizedType(designator, arguments) if extractQualifiedName(designator).exists(_.startsWith(prefix)) => arguments
     case _ => Seq.empty

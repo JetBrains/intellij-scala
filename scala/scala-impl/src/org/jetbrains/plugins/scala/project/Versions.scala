@@ -62,7 +62,7 @@ object Versions  {
   }
 
   private object Entity {
-    val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
+    val Scala = Entity("https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("2.10.0"),
       Seq("2.10.7", "2.11.12", BuildInfo.scalaVersion).map(Version.apply))

@@ -25,8 +25,8 @@ class Specs2TestFramework extends AbstractTestFramework {
   }
 
   override protected def getLibraryResolvers(scalaVersion: Option[String]): Seq[String] = scalaVersion match {
-    case Some(v) if v.startsWith("2.11") => Seq("\"scalaz-bintray\" at \"http://dl.bintray.com/scalaz/releases\"")
-    case Some(v) if v.startsWith("2.10") => Seq("\"scalaz-bintray\" at \"http://dl.bintray.com/scalaz/releases\"")
+    case Some(v) if v.startsWith("2.11") => Seq("\"scalaz-bintray\" at \"https://dl.bintray.com/scalaz/releases\"")
+    case Some(v) if v.startsWith("2.10") => Seq("\"scalaz-bintray\" at \"https://dl.bintray.com/scalaz/releases\"")
     case _ => Seq()
   }
 

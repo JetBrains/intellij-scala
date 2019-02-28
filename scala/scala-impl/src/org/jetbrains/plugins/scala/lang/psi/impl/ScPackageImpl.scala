@@ -39,7 +39,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
         /**
          * Does the "scala" package already contain a class named `className`?
          *
-         * [[http://youtrack.jetbrains.net/issue/SCL-2913]]
+         * [[https://youtrack.jetbrains.net/issue/SCL-2913]]
          */
         def alreadyContains(className: String) = namesSet.contains(className)
 

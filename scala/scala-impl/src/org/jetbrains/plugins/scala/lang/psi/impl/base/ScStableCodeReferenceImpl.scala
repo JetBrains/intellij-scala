@@ -66,7 +66,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case contextRef: ScStableCodeReference =>
         //Since scala 2.11 it's possible macro implementations not only as static methods,
         //but also inside certain classes, so qualifier of a macro impl reference may resolve to a class
-        //see http://docs.scala-lang.org/overviews/macros/bundles.html
+        //see https://docs.scala-lang.org/overviews/macros/bundles.html
         if (isMacroImplReference(contextRef)) stableQualOrClass
         else stableQualRef
       case e: ScImportExpr => if (e.selectorSet.isDefined

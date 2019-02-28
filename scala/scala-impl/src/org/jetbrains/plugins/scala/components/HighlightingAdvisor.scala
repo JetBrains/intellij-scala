@@ -31,7 +31,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   private val AdviceMessage = """
   <html>
    <body>
-   <p><a href="http://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a>
+   <p><a href="https://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a>
     helps to discover type mismatches, unresolved symbols and many other type-related errors.</p>
    <br>
    <p>However, the feature is in beta and sometimes may report "false errors" in regular code.</p>
@@ -44,7 +44,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   private val EnabledMessage = """
   <html>
    <body>
-   <p><a href="http://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a> has been enabled.</p>
+   <p><a href="https://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a> has been enabled.</p>
    <!--<br>
    <a href="ftp://disable">Disable it again</a>-->
    </body>
@@ -54,7 +54,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   private val DisabledMessage = """
   <html>
    <body>
-   <p><a href="http://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a> has been disabled.</p>
+   <p><a href="https://confluence.jetbrains.net/display/SCA/Type-aware+highlighting">Type-aware highlighting</a> has been disabled.</p>
    <!--<br>
    <a href="ftp://enable">Enable it again</a>-->
    </body>

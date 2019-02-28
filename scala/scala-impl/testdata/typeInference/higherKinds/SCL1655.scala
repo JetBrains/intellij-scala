@@ -1,4 +1,4 @@
-// http://youtrack.jetbrains.net/issue/SCL-1655
+// https://youtrack.jetbrains.net/issue/SCL-1655
 sealed trait MA[M[_], A] {
   def ma1[M[_], A](a: M[A]): MA[M, A]
   /**

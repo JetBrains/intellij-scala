@@ -171,7 +171,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   def testNonFinalClass() = {
     //the reason this compiles without errors is that equals in A can be overridden.
-    //for more see http://stackoverflow.com/questions/33354987/stable-identifier-conformance-check/
+    //for more see https://stackoverflow.com/questions/33354987/stable-identifier-conformance-check/
     emptyMessages(
       """
         |object Test {

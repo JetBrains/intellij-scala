@@ -7,5 +7,5 @@ object testImplicit {
   }
   trait Bar { def baz: Unit }
 }
-// mentioned before: http://thread.gmane.org/gmane.comp.lang.scala/2038,
+// mentioned before: https://thread.gmane.org/gmane.comp.lang.scala/2038,
 // but couldn't find a bug report

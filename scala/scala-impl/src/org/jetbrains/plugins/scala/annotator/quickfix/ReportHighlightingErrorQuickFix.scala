@@ -24,7 +24,7 @@ object ReportHighlightingErrorQuickFix extends IntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile) {
-    DesktopUtils.browse("http://youtrack.jetbrains.net/issues/SCL#newissue=yes")
+    DesktopUtils.browse("https://youtrack.jetbrains.net/issues/SCL#newissue=yes")
   }
 
   override def getFamilyName: String = ScalaBundle.message("report.highlighting.error.fix")

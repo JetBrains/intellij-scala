@@ -3,13 +3,13 @@ import sbt._
 object BintrayJetbrains {
 
   def jbBintrayResolver(name: String, repo: String, patterns: Patterns): URLRepository =
-    Resolver.url(name, url(s"http://dl.bintray.com/jetbrains/$repo"))(patterns)
+    Resolver.url(name, url(s"https://dl.bintray.com/jetbrains/$repo"))(patterns)
 
   def jbSbtResolver(name: String, patterns: Patterns): URLRepository =
     jbBintrayResolver(name, "sbt-plugins", patterns)
 
   object Resolvers {
-    val mavenPatched  = "jb-maven-patched" at "http://dl.bintray.com/jetbrains/maven-patched/"
+    val mavenPatched  = "jb-maven-patched" at "https://dl.bintray.com/jetbrains/maven-patched/"
     val scalaTestFindersPatched  = jbBintrayResolver("scalatest-finders-patched", "scalatest", Resolver.ivyStylePatterns)
     val scalaPluginDeps  = jbBintrayResolver("scala-plugin-deps", "scala-plugin-deps", Resolver.ivyStylePatterns)
     val sonatypeReleases = Resolver.sonatypeRepo("releases")
