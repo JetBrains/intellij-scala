@@ -14,8 +14,7 @@ final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
-  override def accepts(file: VirtualFile): Boolean =
-    file.isScalaFile || file.canBeProcessed
+  override def accepts(file: VirtualFile): Boolean = file.isAcceptable
 
   override def getStubBuilder: ClsStubBuilder = ScClsStubBuilder
 
