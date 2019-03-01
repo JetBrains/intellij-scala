@@ -54,7 +54,6 @@ public class ScalaCompileServerForm implements Configurable {
         myCompilationServerSdk.insertItemAt(new JdkComboBox.NoneJdkComboBoxItem(), 0);
 
         mySdkPanel.add(myCompilationServerSdk, BorderLayout.CENTER);
-        mySdkPanel.setSize(mySdkPanel.getPreferredSize());
 
         myNote.setForeground(JBColor.GRAY);
         myProjectHomeNote.setForeground(JBColor.GRAY);
@@ -179,7 +178,7 @@ public class ScalaCompileServerForm implements Configurable {
         myCompilationServerJvmParameters = new RawCommandLineEditor();
         myCompilationServerJvmParameters.setDialogCaption("Compile server JVM command line parameters");
         myCompilationServerJvmParameters.setEnabled(true);
-        myCompilationServerPanel.add(myCompilationServerJvmParameters, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), new Dimension(989, 27), null, 0, false));
+        myCompilationServerPanel.add(myCompilationServerJvmParameters, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), new Dimension(544, 27), null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setEnabled(true);
         label2.setText("JVM maximum heap size, MB:");
@@ -267,4 +266,5 @@ public class ScalaCompileServerForm implements Configurable {
     public JComponent $$$getRootComponent$$$() {
         return myContentPanel;
     }
+
 }
