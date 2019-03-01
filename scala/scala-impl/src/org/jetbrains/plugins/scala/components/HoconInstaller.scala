@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.components
 
 import java.io.{File, IOException}
 
-import com.intellij.ide.plugins.{PluginManagerCore, PluginNode}
+import com.intellij.ide.plugins.{PluginManager, PluginManagerCore, PluginNode}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
@@ -73,7 +73,8 @@ class HoconInstaller(project: Project) extends ProjectComponent with Notificatio
     }
 
   override def initComponent(): Unit = {
-    connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, this)
+    if (PluginManager.getPlugin(PluginId.getId(hoconId)) == null)
+      connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, this)
   }
 
 }
