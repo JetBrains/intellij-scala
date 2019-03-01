@@ -31,9 +31,6 @@ import java.io.IOException;
 
 
 abstract public class AbstractEnterActionTestBase extends ActionTestBase {
-
-
-
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
   protected String newDocumentText;
@@ -49,16 +46,15 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
   @Override
   protected void setSettings() {
       super.setSettings();
-      getSettings().getIndentOptions().INDENT_SIZE = 2;
-      getSettings().getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
-      getSettings().getIndentOptions().TAB_SIZE = 2;
-      getSettings().INDENT_CASE_FROM_SWITCH = true;
+      getCommonSettings().getIndentOptions().INDENT_SIZE = 2;
+      getCommonSettings().getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
+      getCommonSettings().getIndentOptions().TAB_SIZE = 2;
+      getCommonSettings().INDENT_CASE_FROM_SWITCH = true;
   }
 
   protected EditorActionHandler getMyHandler() {
     return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER);
   }
-
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
     String result;
@@ -98,7 +94,5 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     return processFile(psiFile);
   }
-
-
 
 }

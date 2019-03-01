@@ -54,6 +54,12 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     super(path);
   }
 
+  @Override
+  protected void setSettings() {
+    super.setSettings();
+    getScalaSettings().USE_SCALADOC2_FORMATTING = true;
+  }
+
   protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
     TextRange myTextRange = file.getTextRange();
     CodeStyleManager.getInstance(project).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());

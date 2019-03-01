@@ -54,9 +54,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * b${START}lah b${END}lah
-         |  * blah blah blah
-         |  */""".stripMargin
+         | * b${START}lah b${END}lah
+         | * blah blah blah
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -64,9 +64,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/** blah lb${START}lah akfhsdhfsadhf
-         |  * skjgh dfsg shdfa hsdaf jhsad fsd
-         |  * dfgas dfhgsajdf sad${END}jfjsd
-         |  */""".stripMargin
+         | * skjgh dfsg shdfa hsdaf jhsad fsd
+         | * dfgas dfhgsajdf sad${END}jfjsd
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -74,10 +74,10 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * __blah blah
-         |  * dfgasdhgfjk ^ashgdfkjgds|   * ''aaaaaa''  sdkfhsadjkh^ ll
-         |  * sd${START}hfkhsa${END}dl__
-         |  */""".stripMargin
+         | * __blah blah
+         | * dfgasdhgfjk ^ashgdfkjgds|   * ''aaaaaa''  sdkfhsadjkh^ ll
+         | * sd${START}hfkhsa${END}dl__
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -85,10 +85,10 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * __blah blah
-         |  * blkjhsd${START}asdhajs ''sdfsddlk''
-         |  * shfg`sad`jhg${END}f__
-         |  */""".stripMargin
+         | * __blah blah
+         | * blkjhsd${START}asdhajs ''sdfsddlk''
+         | * shfg`sad`jhg${END}f__
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -96,8 +96,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * $START      datadatad${END}atadata
-         |  */""".stripMargin
+         | * $START      datadatad${END}atadata
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -105,8 +105,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * ${START}comment_data$END
-         |  */""".stripMargin
+         | * ${START}comment_data$END
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -114,9 +114,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * @param a aaa${START}aa
-         |  *          aaaaa${END}aaa
-         |  */""".stripMargin
+         | * @param a aaa${START}aa
+         | *          aaaaa${END}aaa
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -124,8 +124,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * @todo blah ${START}blah b${END}lah
-         |  */""".stripMargin
+         | * @todo blah ${START}blah b${END}lah
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -133,9 +133,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * blah $START^blah blah
-         |  * jhsdbjbhsafd^$END dajsdgf
-         |  */""".stripMargin
+         | * blah $START^blah blah
+         | * jhsdbjbhsafd^$END dajsdgf
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -143,9 +143,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * blah ,,${START}blah blha
-         |  * blah blah$END,, blah
-         |  */""".stripMargin
+         | * blah ,,${START}blah blha
+         | * blah blah$END,, blah
+         | */""".stripMargin
     performWithAllSurrounders(text)
   }
 
@@ -153,9 +153,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * aa${START}aa__sahdkljahskdhasd
-         |  * dajs${END}kjhd__kas
-         |  */""".stripMargin
+         | * aa${START}aa__sahdkljahskdhasd
+         | * dajs${END}kjhd__kas
+         | */""".stripMargin
     checkCannotBeSurrounded(text)
   }
 
@@ -163,10 +163,10 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * b${START}lah blah
-         |  *
-         |  * blah blah$END blah
-         |  */""".stripMargin
+         | * b${START}lah blah
+         | *
+         | * blah blah$END blah
+         | */""".stripMargin
     checkCannotBeSurrounded(text)
   }
 
@@ -174,9 +174,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * bla${START}h blah blah
-         |  * @see   some${END}thing
-         |  */""".stripMargin
+         | * bla${START}h blah blah
+         | * @see   some${END}thing
+         | */""".stripMargin
     checkCannotBeSurrounded(text)
   }
 
@@ -184,8 +184,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * blah${START}__blah${END}blah__
-         |  */""".stripMargin
+         | * blah${START}__blah${END}blah__
+         | */""".stripMargin
     checkCannotBeSurrounded(text)
   }
 
@@ -193,9 +193,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * blah blah ${START}__blah blah
-         |  *     blah bl${END}ah blah __
-         |  */""".stripMargin
+         | * blah blah ${START}__blah blah
+         | *     blah bl${END}ah blah __
+         | */""".stripMargin
     checkCannotBeSurrounded(text)
   }
 }
