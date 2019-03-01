@@ -31,7 +31,7 @@ public class MultiLineStringFormatterTest extends FormatterTest {
   @Override
   protected void setUp(Project project) {
     super.setUp(project);
-    CommonCodeStyleSettings settings = getSettings();
+    CommonCodeStyleSettings settings = getCommonSettings();
     ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
     scalaSettings.MULTILINE_STRING_SUPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;

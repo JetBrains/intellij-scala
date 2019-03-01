@@ -1012,10 +1012,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class A {
         |
         |  /**
-        |    * qwerty
-        |    *
-        |    * @return
-        |    */
+        |   * qwerty
+        |   *
+        |   * @return
+        |   */
         |  protected def foo(): Unit = {}
         |}
         |
@@ -1026,19 +1026,19 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class A {
         |
         |  /**
-        |    * qwerty
-        |    *
-        |    * @return
-        |    */
+        |   * qwerty
+        |   *
+        |   * @return
+        |   */
         |  protected def foo(): Unit = {}
         |}
         |
         |class B extends A {
         |  /**
-        |    * qwerty
-        |    *
-        |    * @return
-        |    */
+        |   * qwerty
+        |   *
+        |   * @return
+        |   */
         |  override protected def foo(): Unit = <selection>super.foo()</selection>
         |}
       """

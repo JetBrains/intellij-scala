@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
@@ -23,7 +22,7 @@ public class MultiLineStringMarginTest extends AbstractEnterActionTestBase {
   @Override
   protected void setSettings() {
     super.setSettings();
-    final CommonCodeStyleSettings settings = getSettings();
+    final CommonCodeStyleSettings settings = getCommonSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
     scalaSettings.MULTILINE_STRING_SUPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;

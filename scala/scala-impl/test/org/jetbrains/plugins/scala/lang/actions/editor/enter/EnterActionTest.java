@@ -28,6 +28,12 @@ public class EnterActionTest extends AbstractEnterActionTestBase {
   }
 
   @Override
+  protected void setSettings() {
+    super.setSettings();
+    getScalaSettings().USE_SCALADOC2_FORMATTING = true;
+  }
+
+  @Override
   protected void tearDown(Project project) {
     CodeInsightSettings.getInstance().JAVADOC_STUB_ON_ENTER = true;
 

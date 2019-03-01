@@ -61,8 +61,8 @@ class Foo {
   private val i = 0;
 
   /**
-    * @param p blah-blah-blah
-    */
+   * @param p blah-blah-blah
+   */
   def doSmth(p: Int) {}
 
   //comment
@@ -84,9 +84,9 @@ class A
     val after =
 """
 /**
-  * something{@link Foo}
-  * something
-  */
+ * something{@link Foo}
+ * something
+ */
 class A
 """
     doTextTest(before, after)
@@ -1206,13 +1206,13 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |/**
-        |  *    Pooly formatted scalaDoc.
-        |  *Will still be formatted poorly.
-        |  *
-        |  *                If formatting
-        |  *is disabled.
-        |  *Asterisks will be aligned and added though, like in java.
-        |  */
+        | *    Pooly formatted scalaDoc.
+        | *Will still be formatted poorly.
+        | *
+        | *                If formatting
+        | *is disabled.
+        | *Asterisks will be aligned and added though, like in java.
+        | */
       """.stripMargin
 
     doTextTest(before, after)
@@ -1236,12 +1236,12 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |/**
-        |  * Foos the given x, returning foo'ed x.
-        |  *
-        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  * eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @throws RuntimeException whenever it feels like it
-        |  */
+        | * Foos the given x, returning foo'ed x.
+        | *
+        | * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | * eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @throws RuntimeException whenever it feels like it
+        | */
       """.stripMargin
 
     doTextTest(before, after)
@@ -1268,16 +1268,16 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |/**
-        |  * Foos the given x, returning foo'ed x.
-        |  *
-        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  *
-        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  */
+        | * Foos the given x, returning foo'ed x.
+        | *
+        | * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | *
+        | * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | */
         |def foo(x: Int, longParamName: Int): Int
       """.stripMargin
 
@@ -1306,14 +1306,14 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |/**
-        |  * Foos the given x, returning foo'ed x.
-        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  */
+        | * Foos the given x, returning foo'ed x.
+        | * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | */
         |def foo(x: Int, longParamName: Int): Int
       """.stripMargin
 
@@ -1326,16 +1326,16 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |/**
-        |  * Foos the given x, returning foo'ed x.
-        |  *
-        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @throws RuntimeException whenever it feels like it
-        |  */
+        | * Foos the given x, returning foo'ed x.
+        | *
+        | * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        | *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        | * @throws RuntimeException whenever it feels like it
+        | */
         |def foo(x: Int, longParamName: Int): Int
       """.stripMargin
 
@@ -1509,12 +1509,12 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |/**
-        |  * @inheritdoc
-        |  * @param resource The photo resource.
-        |  *                 ara
-        |  *                 agara
-        |  * @return The saved photo.
-        |  */
+        | * @inheritdoc
+        | * @param resource The photo resource.
+        | *                 ara
+        | *                 agara
+        | * @return The saved photo.
+        | */
       """.stripMargin
 
     doTextTest(before)
@@ -1526,10 +1526,10 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |/**
-        |  * @param foo is foo
-        |  *
-        |  * @param bar is bar
-        |  */
+        | * @param foo is foo
+        | *
+        | * @param bar is bar
+        | */
       """.stripMargin
 
     doTextTest(before)
@@ -1549,10 +1549,10 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |/**
-        |  * @param foo is foo
-        |  *
-        |  * @param bar is bar
-        |  */
+        | * @param foo is foo
+        | *
+        | * @param bar is bar
+        | */
       """.stripMargin
 
     doTextTest(before, after)
@@ -1560,17 +1560,19 @@ bars foreach {case (x, y) => list.add(x + y)}
 
   def testSCL5444_ScaladocCodeSnippetAsTagValue(): Unit = {
     val before =
-      """/** @example      {{{
-        |  * val x = 2
-        |  *      }}}
-        |  */
+      """/**
+        | * @example      {{{
+        | * val x = 2
+        | *      }}}
+        | */
         |class A
       """.stripMargin
     val after =
-      """/** @example {{{
-        |  * val x = 2
-        |  * }}}
-        |  */
+      """/**
+        | * @example {{{
+        | * val x = 2
+        | * }}}
+        | */
         |class A
       """.stripMargin
     doTextTest(before, after, 3)
@@ -1657,66 +1659,66 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """"
         |/**
-        |  * Description
-        |  *
-        |  * == header ==
-        |  *
-        |  * - list item 1
-        |  *   line 2
-        |  *  - list item 1.1
-        |  *    line 2
-        |  *  - list item 1.2
-        |  *    line 2
-        |  * 1. 1
-        |  * line 2
-        |  *  1.1 1.1
-        |  *  line 2
-        |  * 2. 2
-        |  * i. 1
-        |  *    line 2
-        |  *  i. 1.1
-        |  * ii. 2
-        |  * A. 1
-        |  * B. 2
-        |  *   B. 3
-        |  *  line 2
-        |  * a. 1
-        |  *   c. 1.1
-        |  * b. 2
-        |  */
+        | * Description
+        | *
+        | * == header ==
+        | *
+        | * - list item 1
+        | *   line 2
+        | *  - list item 1.1
+        | *    line 2
+        | *  - list item 1.2
+        | *    line 2
+        | * 1. 1
+        | * line 2
+        | *  1.1 1.1
+        | *  line 2
+        | * 2. 2
+        | * i. 1
+        | *    line 2
+        | *  i. 1.1
+        | * ii. 2
+        | * A. 1
+        | * B. 2
+        | *   B. 3
+        | *  line 2
+        | * a. 1
+        | *   c. 1.1
+        | * b. 2
+        | */
         |val a = 42
       """.stripMargin
 
     val after =
       """"
         |/**
-        |  * Description
-        |  *
-        |  * == header ==
-        |  *
-        |  * - list item 1
-        |  * line 2
-        |  *  - list item 1.1
-        |  * line 2
-        |  *  - list item 1.2
-        |  * line 2
-        |  * 1. 1
-        |  * line 2
-        |  *  1.1 1.1
-        |  * line 2
-        |  * 2. 2
-        |  * i. 1
-        |  * line 2
-        |  *  i. 1.1
-        |  * ii. 2
-        |  * A. 1
-        |  * B. 2
-        |  *   B. 3
-        |  * line 2
-        |  * a. 1
-        |  *   c. 1.1
-        |  * b. 2
-        |  */
+        | * Description
+        | *
+        | * == header ==
+        | *
+        | * - list item 1
+        | * line 2
+        | *  - list item 1.1
+        | * line 2
+        | *  - list item 1.2
+        | * line 2
+        | * 1. 1
+        | * line 2
+        | *  1.1 1.1
+        | * line 2
+        | * 2. 2
+        | * i. 1
+        | * line 2
+        | *  i. 1.1
+        | * ii. 2
+        | * A. 1
+        | * B. 2
+        | *   B. 3
+        | * line 2
+        | * a. 1
+        | *   c. 1.1
+        | * b. 2
+        | */
         |val a = 42
       """.stripMargin
 
@@ -2149,6 +2151,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL10527(): Unit = {
+    getScalaSettings.USE_SCALADOC2_FORMATTING=true
     val before =
       """
         |def xyz(arg: String): String =
@@ -2184,6 +2187,41 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL10527_1(): Unit = {
+    val before =
+      """
+        |def xyz(arg: String): String =
+        |  "good formatting"
+        |
+        |/**
+        | *
+        | * @param arg
+        | * @return
+        | */
+        |def xyz1(arg: string): String =
+        |  "wrong formatting"
+        |
+        |val x =
+        |  42
+        |
+        |//someComment
+        |val x1 =
+        |  42
+        |
+        |var y =
+        |  42
+        |
+        |/*Other comment*/
+        |var y1 =
+        |  42
+        |
+        |//comment
+        |type T =
+        |  Int
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL10527_2(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =
       """
@@ -2195,7 +2233,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL10527_2(): Unit = {
+  def testSCL10527_3(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     val before =
       """
@@ -2528,30 +2566,30 @@ bars foreach {case (x, y) => list.add(x + y)}
         |*/
         |
         |/** Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas
-        |  * congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero
-        |  * egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.
-        |  *
-        |  *
-        |  * Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        |  * Aenean ut gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id dolor. Pellentesque auctor nisi id
-        |  * magna consequat sagittis. Curabitur dapibus enim sit amet elit pharetra tincidunt feugiat nisl imperdiet.
-        |  *
-        |  *
-        |  * @constructor does something
-        |  *
-        |  * @param p1 String. A parameter
-        |  *
-        |  * @param p2 String. A parameter
-        |  *
-        |  * @param p3 String. A parameter
-        |  *
-        |  * @return something
-        |  *
-        |  * @since 1.0
-        |  * @version 1.0
-        |  *
-        |  * @note a final remark.
-        |  */
+        | * congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero
+        | * egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.
+        | *
+        | *
+        | * Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        | * Aenean ut gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id dolor. Pellentesque auctor nisi id
+        | * magna consequat sagittis. Curabitur dapibus enim sit amet elit pharetra tincidunt feugiat nisl imperdiet.
+        | *
+        | *
+        | * @constructor does something
+        | *
+        | * @param p1 String. A parameter
+        | *
+        | * @param p2 String. A parameter
+        | *
+        | * @param p3 String. A parameter
+        | *
+        | * @return something
+        | *
+        | * @since 1.0
+        | * @version 1.0
+        | *
+        | * @note a final remark.
+        | */
         |class Demo(p1: String, p2: String, p3: String) {
         |
         |  def aMethod(): Unit = {}
@@ -2577,8 +2615,8 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    42
         |
         |  /**
-        |    * ScalaDoc
-        |    */
+        |   * ScalaDoc
+        |   */
         |  protected def foo2 =
         |    42
         |}
@@ -2590,8 +2628,8 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |/**
-        |  * @see [[com.example.MyClass#myMethod(String)]]
-        |  */
+        | * @see [[com.example.MyClass#myMethod(String)]]
+        | */
         |def myOtherMethod(s: String) = ???
       """.stripMargin
     doTextTest(before)
@@ -2601,8 +2639,8 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |/**
-        |  * smth
-        |  */
+        | * smth
+        | */
         |@throws(classOf[A])
         |def myMethod(p1: Int, p2: String): A =
         |  foo(p1, this)

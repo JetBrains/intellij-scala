@@ -79,10 +79,10 @@ class ScalaFormatSelectionTest extends SelectionTest {
       """
         |class MyClass {
         |  /**
-        |    * @param x
-        |    * @param y
-        |    * @return x+y
-        |    */
+        |   * @param x
+        |   * @param y
+        |   * @return x+y
+        |   */
         |def foo(x: Int, y: Int): Int = x+y
         |}
       """.stripMargin
@@ -107,10 +107,10 @@ class ScalaFormatSelectionTest extends SelectionTest {
       """
         |class MyClass {
         |  /**
-        |    * @param x
-        |    * @param y
-        |    * @return x+y
-        |    */
+        |   * @param x
+        |   * @param y
+        |   * @return x+y
+        |   */
         |def foo(x: Int, y: Int): Int = x+y
         |}
       """.stripMargin
