@@ -82,31 +82,11 @@ abstract class MixinNodes[T: SignatureStrategy] {
               if (template.qualifiedName == "scala.Predef") isPredef = true
               processScala(template, ScSubstitutor.empty, map)
               val lin = MixinNodes.linearization(template)
-              var zSubst = ScSubstitutor(ScThisType(template))
-              var placer = template.getContext
-              while (placer != null) {
-                placer match {
-                  case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    ScSubstitutor(ScThisType(t))
-                  )
-                  case _ =>
-                }
-                placer = placer.getContext
-              }
+              val zSubst = ScSubstitutor(ScThisType(template))
               (if (lin.nonEmpty) lin.tail else lin, zSubst)
             case template: ScTemplateDefinition =>
               processScala(template, ScSubstitutor.empty, map)
-              var zSubst = ScSubstitutor(ScThisType(template))
-              var placer = template.getContext
-              while (placer != null) {
-                placer match {
-                  case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    ScSubstitutor(ScThisType(t))
-                  )
-                  case _ =>
-                }
-                placer = placer.getContext
-              }
+              val zSubst = ScSubstitutor(ScThisType(template))
               (MixinNodes.linearization(template), zSubst)
             case syn: ScSyntheticClass =>
               (syn.getSuperTypes.map { psiType => psiType.toScType() }: Seq[ScType], ScSubstitutor.empty)
