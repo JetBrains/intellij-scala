@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
+import org.jetbrains.plugins.scala.util.SAMUtil.SAMTypeImplementation
 
 import scala.language.implicitConversions
 
@@ -39,7 +40,8 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
         case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
-        case (_: UnresolvedImplicitFakePsiElement, _) => Some(UnresolvedImplicit)
+        case (SAMTypeImplementation(_), _)            => Option(SAMImplementation)
+        case (_: UnresolvedImplicitFakePsiElement, _) => Option(UnresolvedImplicit)
         case (e, Array(target: PsiElementUsageTarget))
           if isImplicitUsageTarget(target) && isReferencedImplicitlyIn(target.getElement, e) =>
           Some(ImplicitConversionOrParam)
@@ -97,24 +99,24 @@ object ScalaUsageTypeProvider {
 
   implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
 
-  val Extractor: UsageType = "Extractor"
-  val ClassTypedPattern: UsageType = "Typed Pattern"
-  val TypedStatement: UsageType = "Typed Statement"
-  val MethodApply: UsageType = "Method `apply`"
-  val ThisReference: UsageType = "This Reference"
-  val AccessModifier: UsageType = "Access Modifier"
-  val PackageClause: UsageType = "Package Clause"
-  val FunctionExpression: UsageType = "Function expression"
-  val NamedParameter: UsageType = "Named parameter"
-  val PrefixInterpolatedString: UsageType = "Interpolated string prefix"
-  val ParameterInPattern: UsageType = "Parameter in pattern"
-  val SelfType: UsageType = "Self type"
-  val TypeBound: UsageType = "Type bound"
-  val TypeAlias: UsageType = "Type alias"
-  val SecondaryConstructor: UsageType = "Secondary constructor"
-  val ImplicitConversionOrParam: UsageType = "Implicit Conversion/Parameter"
-  val UnresolvedImplicit: UsageType = "Unresolved Implicit Conversion/Parameter"
-  val SAMInheritor: UsageType = "Anonymous Inheritor"
+  private val Extractor: UsageType                 = "Extractor"
+  private val ClassTypedPattern: UsageType         = "Typed Pattern"
+  private val TypedStatement: UsageType            = "Typed Statement"
+  private val MethodApply: UsageType               = "Method `apply`"
+  private val ThisReference: UsageType             = "This Reference"
+  private val AccessModifier: UsageType            = "Access Modifier"
+  private val PackageClause: UsageType             = "Package Clause"
+  private val FunctionExpression: UsageType        = "Function expression"
+  private val NamedParameter: UsageType            = "Named parameter"
+  private val PrefixInterpolatedString: UsageType  = "Interpolated string prefix"
+  private val ParameterInPattern: UsageType        = "Parameter in pattern"
+  private val SelfType: UsageType                  = "Self type"
+  private val TypeBound: UsageType                 = "Type bound"
+  private val TypeAlias: UsageType                 = "Type alias"
+  private val SecondaryConstructor: UsageType      = "Secondary constructor"
+  private val ImplicitConversionOrParam: UsageType = "Implicit Conversion/Parameter"
+  private val UnresolvedImplicit: UsageType        = "Unresolved Implicit Conversion/Parameter"
+  private val SAMImplementation: UsageType         = "SAM interface implementation"
 
   private def usageType(element: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element))
@@ -145,10 +147,10 @@ object ScalaUsageTypeProvider {
       case packaging: ScPackaging if existsAppropriate(packaging.reference) => PackageClause
       case assignment: ScAssignment if isAppropriate(assignment.leftExpression) =>
         if (assignment.isNamedParameter) NamedParameter else WRITE
-      case MethodValue(_) => FunctionExpression
-      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => READ
+      case MethodValue(_)                                                         => FunctionExpression
+      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions                 => READ
       case invocation: ScSelfInvocation if !isAppropriate(invocation.args.orNull) => SecondaryConstructor
-      case _ => null
+      case _                                                                      => null
     }
   }
 

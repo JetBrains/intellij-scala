@@ -11,7 +11,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesInheritorsSearch
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light._
-import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
+import org.jetbrains.plugins.scala.util.SAMUtil._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -141,6 +141,13 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           if (s.isSearchCompanionModule)
             definition.baseCompanionModule.foreach(companion => if (!addElementUsages(companion)) return false)
 
+          if (definition.isSAMable) {
+            val success =
+              CompilerIndicesInheritorsSearch.search(definition, options.searchScope)
+                .forEach((e: PsiElement) => processor.process(new UsageInfo(e)))
+            if (!success) return false
+          }
+
           if (s.isImplementingTypeDefinitions) {
             val success = ClassInheritorsSearch.search(definition, true).forEach((cls: PsiClass) => cls match {
               case _: PsiClassWrapper => true
@@ -156,14 +163,6 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
         case (named: ScNamedElement) && inNameContext(member: ScMember) if !member.isLocal =>
           ScalaOverridingMemberSearcher.search(named).foreach(e => if (!addElementUsages(e)) return false)
         case _ =>
-      }
-
-      element match {
-        case ImplicitSearchTarget(target) =>
-          val success =
-            CompilerIndicesReferencesSearch.search(target).forEach((e: PsiReference) => processor.process(new UsageInfo(e)))
-          if (!success) return false
-        case _ => ()
       }
     }
     true

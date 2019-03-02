@@ -84,7 +84,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
       case classRef: CompilerRef.CompilerClassHierarchyElementDef => Array(classRef)
       case member: CompilerRef.CompilerMember =>
         getHierarchy(member.getOwner, checkBaseClassAmbiguity = true, includeAnonymous = true, -1)
-          .map(identity) // scala arrays are invariant
+          .map(identity)
       case _ => throw new IllegalArgumentException(s"Should never happen. $ref")
     }
 

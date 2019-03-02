@@ -101,8 +101,8 @@ class ScalaLineMarkerProvider() extends LineMarkerProvider with ScalaSeparatorPr
 
   private[this] def funExprParent(element: PsiElement): Option[(ScExpression, PsiClass)] =
     element.parentsInFile.collectFirst {
-      case _: ScMember            => None
-      case e @ SAMTypeParent(sam) => Option(e -> sam)
+      case _: ScMember                    => None
+      case e @ SAMTypeImplementation(sam) => Option(e -> sam)
     }.flatten
 
   private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function")

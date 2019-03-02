@@ -9,7 +9,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Disposer, ModificationTracker}
@@ -18,7 +17,6 @@ import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
@@ -53,7 +51,9 @@ private[findUsages] class ScalaCompilerReferenceService(
   )
 
   private[this] val activeIndexingPhases = new AtomicInteger()
-  private[this] var reader               = Option.empty[ScalaCompilerReferenceReader] /** access only in [[transactionManager.inTransaction()]] */
+
+  /** access only in [[transactionManager.inTransaction()]] */
+  private[this] var reader = Option.empty[ScalaCompilerReferenceReader]
 
   private[this] val indexerScheduler =
     new CompilerReferenceIndexerScheduler(project, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
@@ -199,10 +199,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     } yield ref
   }
 
-  private[this] def withReader(
-    target:      PsiElement,
-    filterScope: Boolean
-  )(
+  private[this] def withReader(target: PsiElement)(
     builder: ScalaCompilerReferenceReader => CompilerRef => Set[UsagesInFile]
   ): Set[Timestamped[UsagesInFile]] = {
     val usages = Set.newBuilder[UsagesInFile]
@@ -212,27 +209,22 @@ private[findUsages] class ScalaCompilerReferenceService(
       r   <- reader
     } usages ++= builder(r)(ref)
 
-    val result =
-      if (filterScope) usages.result().filterNot(usage => dirtyScopeHolder.contains(usage.file))
-      else             usages.result()
-
-    result.map { usage =>
+    usages.result().map { usage =>
       val module = projectFileIndex.getModuleForFile(usage.file)
       val ts     = compilationTimestamps.getOrDefault(module.getName, -1)
       Timestamped(ts, usage)
     }
   }
 
-  def SAMInheritorsOf(aClass: PsiClass, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
-    readDataLock.locked(withReader(aClass, filterScope)(_.SAMInheritorsOf))
+  // @FIXME: for now only direct inheritors search is supported
+  def SAMInheritorsOf(aClass: PsiClass, checkDeep: Boolean): Set[Timestamped[UsagesInFile]] =
+    readDataLock.locked(withReader(aClass)(_.SAMInheritorsOf))
 
   /**
    * Returns usages only from up-to-date compiled scope.
    */
-  def usagesOf(target: PsiElement, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
-    readDataLock.locked(
-      withReader(target, filterScope)(_.usagesOf)
-    )
+  def usagesOf(target: PsiElement): Set[Timestamped[UsagesInFile]] =
+    readDataLock.locked(withReader(target)(_.usagesOf))
 
   def isIndexingInProgress: Boolean = activeIndexingPhases.get() != 0
 
