@@ -12,25 +12,31 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SignatureStrategy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{
+  PhysicalSignature,
+  ScExistentialArgument,
+  ScExistentialType,
+  ScParameterizedType,
+  ScType
+}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project._
 
 
 object SAMUtil {
   implicit class ScExpressionExt(val expr: ScExpression) extends AnyVal {
-    @CachedInUserData(expr, ModCount.getBlockModificationCount)
+    @CachedInUserData(expr, ModCount.getModificationCount)
     def samTypeParent: Option[PsiClass] =
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {
         for {
           pt  <- expr.expectedType(fromUnderscore = false)
           cls <- pt.extractClass
           if cls.isSAMable
-        } yield Option(cls)
+        } yield cls
       } else None
   }
 
-  object SAMTypeParent {
+  object SAMTypeImplementation {
     def unapply(e: ScExpression): Option[PsiClass] = e.samTypeParent
   }
 

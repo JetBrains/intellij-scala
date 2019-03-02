@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.findUsages.factory
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearcher._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -17,9 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,16 +58,16 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
         maybeSuper.flatMap {
           case shouldSearchInBytecode(target) =>
             val shouldProceed = doBeforeIndicesSearchAction(target)
-            shouldProceed.option((target, true))
+            shouldProceed.option((target, !target.isInstanceOf[PsiClass]))
           case other => (other, false).toOption
         }
       } else Option((unwrapped, false))
 
     replaced match {
-      case Some((e, userCompilerIndices)) =>
-        if (userCompilerIndices) new CompilerIndicesFindUsagesHandler(e, this)
-        else                     new ScalaFindUsagesHandler(e, this)
-      case None    => FindUsagesHandler.NULL_HANDLER
+      case Some((e, useCompilerIndices)) =>
+        if (useCompilerIndices) new CompilerIndicesFindUsagesHandler(e, this)
+        else                    new ScalaFindUsagesHandler(e, this)
+      case None => FindUsagesHandler.NULL_HANDLER
     }
   }
 

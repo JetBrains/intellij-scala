@@ -4,8 +4,8 @@ import java.util
 import java.util.Collections
 
 import com.intellij.find.findUsages.FindUsagesOptions
-import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch

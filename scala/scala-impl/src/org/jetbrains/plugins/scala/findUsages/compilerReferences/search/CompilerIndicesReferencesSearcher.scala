@@ -6,9 +6,7 @@ import java.util.concurrent.locks.ReentrantLock
 
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
-import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.application.{QueryExecutorBase, TransactionGuard}
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -23,12 +21,13 @@ import com.intellij.util.messages.MessageBusConnection
 import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.SAMType
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.CompilerMode
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCompilerIndices
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitUsagesSearchDialogs._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.UsageToPsiElements._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
-import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -36,7 +35,11 @@ import org.jetbrains.sbt.shell.SbtShellCommunication
 import scala.collection.JavaConverters._
 
 private class CompilerIndicesReferencesSearcher
-  extends QueryExecutorBase[PsiReference, CompilerIndicesReferencesSearch.SearchParameters](true) {
+  extends CompilerIndicesSearcher[
+    PsiNamedElement,
+    PsiReference,
+    CompilerIndicesReferencesSearch.SearchParameters
+  ](true) {
 
   override def processQuery(
     parameters: CompilerIndicesReferencesSearch.SearchParameters,
@@ -46,61 +49,35 @@ private class CompilerIndicesReferencesSearcher
     val project = target.getProject
     val service = ScalaCompilerReferenceService(project)
     val usages  = service.usagesOf(target)
-    processExtractedUsages(target, usages, consumer)
+    processResultsFromCompilerService(target, usages, project, consumer)
   }
 
-  private[this] def processExtractedUsages(
-    target:   PsiElement,
-    usages:   Set[Timestamped[UsagesInFile]],
-    consumer: Processor[_ >: PsiReference]
-  ): Unit = {
-    val project        = target.getProject
-    val fileDocManager = FileDocumentManager.getInstance()
-    val outdated       = Set.newBuilder[String]
+    override protected def processMatchingElements(
+      target:             PsiNamedElement,
+      usage:              UsagesInFile,
+      isPossiblyOutDated: Boolean,
+      candidates:         ElementsInContext,
+      processor:          Processor[_ >: PsiReference]
+    ): Boolean = {
+      val ElementsInContext(elements, file, doc) = candidates
 
-    def extractReferences(usage: Timestamped[UsagesInFile]): Unit =
-      for {
-        ElementsInContext(elements, file, doc) <- extractCandidatesFromUsage(project, usage.unwrap)
-      } yield {
-        val isOutdated = fileDocManager.isDocumentUnsaved(doc) ||
-          file.getVirtualFile.getTimeStamp > usage.timestamp
+      val refsWithLine = elements.flatMap { case (e, line) =>
+        val maybeRef = target.refOrImplicitRefIn(e)
+        maybeRef.foreach(ref => processor.process(ref))
+        maybeRef.map(_ -> line)
+      }.toList
 
-        val lineNumber = (e: PsiElement) => doc.getLineNumber(e.getTextOffset) + 1
+      val extraLines = usage.lines.diff(refsWithLine.map(_._2))
 
-        val refs = elements.flatMap { e =>
-          val maybeRef = target.refOrImplicitRefIn(e)
-          maybeRef.foreach(ref => consumer.process(ref))
-          maybeRef
-        }.toList
-
-        val extraLines = usage.unwrap.lines.diff(refs.map(r => lineNumber(r.getElement)))
-
-        extraLines.foreach { line =>
-          val offset = doc.getLineStartOffset(line - 1)
-          if (!isOutdated) {
-            val ref = UnresolvedImplicitReference(target, file, offset)
-            consumer.process(ref)
-          } else {
-            outdated += file.getVirtualFile.getPresentableName
-            None
-          }
-        }
+      extraLines.foldLeft(true) { case (isFullyProcessed, line) =>
+        val offset = doc.getLineStartOffset(line - 1)
+        if (!isPossiblyOutDated) {
+          val ref = UnresolvedImplicitReference(target, file, offset)
+          processor.process(ref)
+          isFullyProcessed
+        } else false
       }
-
-    usages.foreach(extractReferences)
-    val filesToNotify = outdated.result()
-
-    if (filesToNotify.nonEmpty) {
-      Notifications.Bus.notify(
-        new Notification(
-          ScalaBundle.message("find.usages.compiler.indices.dialog.title"),
-          "Usages Invalidated",
-          s"Some usages in the following files may have been invalidated, due to external changes: ${filesToNotify.mkString(",")}.",
-          NotificationType.WARNING
-        )
-      )
     }
-  }
 }
 
 object CompilerIndicesReferencesSearcher {
@@ -188,9 +165,14 @@ object CompilerIndicesReferencesSearcher {
       override def onIndexingFinished(success: Boolean): Unit = {
         if (success) {
           if (targetModuleNames.isEmpty) {
-            val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
-            val handler     = new CompilerIndicesFindUsagesHandler(target, ScalaFindUsagesHandlerFactory.getInstance(project))
             lock.locked(indexingFinishedCondition.signal())
+            val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
+            val factory     = ScalaFindUsagesHandlerFactory.getInstance(project)
+
+            val handler = target match {
+              case SAMType(_) => new ScalaFindUsagesHandler(target, factory)
+              case _          => new CompilerIndicesFindUsagesHandler(target, factory)
+            }
 
             val runnable: Runnable = () =>
               findManager.getFindUsagesManager.findUsages(
@@ -204,7 +186,10 @@ object CompilerIndicesReferencesSearcher {
             pendingConnection.disconnect()
             TransactionGuard.getInstance().submitTransactionAndWait(runnable)
           }
-        } else pendingConnection.disconnect()
+        } else {
+          lock.locked(indexingFinishedCondition.signal())
+          pendingConnection.disconnect()
+        }
       }
     })
   }

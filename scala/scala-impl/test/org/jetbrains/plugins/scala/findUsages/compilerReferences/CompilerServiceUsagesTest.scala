@@ -339,5 +339,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
        """.stripMargin,
     )("WithFilter.scala" -> Seq(13, 14))
 
-  def testSAM(): Unit = ()
+  def testSAMSimpleInheritor(): Unit = ()
+
+  def testSAMLambda(): Unit = ()
 }
