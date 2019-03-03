@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -44,10 +44,10 @@ object ImplicitUtil {
         .exists(matches)
 
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
-      case ref: ScReference if isTarget(ref.resolve())           => Option(ref)
-      case e: ScExpression if isImplicitConversionOrParameter(e) => Option(ImplicitReference(e, targetImplicit))
-      case c: ScConstructor if isImplicitParameterOf(c)          => Option(ImplicitReference(c, targetImplicit))
-      case _                                                     => None
+      case ref: ScReference if isTarget(ref.resolve())            => Option(ref)
+      case e: ScExpression if isImplicitConversionOrParameter(e)  => Option(ImplicitReference(e, targetImplicit))
+      case c: ScConstructorInvocation if isImplicitParameterOf(c) => Option(ImplicitReference(c, targetImplicit))
+      case _                                                      => None
     }
   }
 
@@ -72,10 +72,10 @@ object ImplicitUtil {
     def forTypeElem(typeElem: ScSimpleTypeElement) = {
       def newTd =
         Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScNewTemplateDefinition]))
-          .filter(_.constructor.flatMap(_.simpleTypeElement).contains(typeElem))
+          .filter(_.constructorInvocation.flatMap(_.simpleTypeElement).contains(typeElem))
 
       def constructor =
-        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructor]))
+        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructorInvocation]))
           .filter(_.simpleTypeElement.contains(typeElem))
 
       newTd
