@@ -75,6 +75,7 @@
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
         <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;spray-json_2.12-1.3.4.jar;scala-compiler-indices-protocol_2.12-0.1.0.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
+        <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
         <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMemberHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersHandler" order="first" id="scalaMoveMembersHandler" />
