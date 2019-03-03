@@ -217,8 +217,8 @@ private[findUsages] class ScalaCompilerReferenceService(
   }
 
   // @FIXME: for now only direct inheritors search is supported
-  def SAMInheritorsOf(aClass: PsiClass, checkDeep: Boolean): Set[Timestamped[UsagesInFile]] =
-    readDataLock.locked(withReader(aClass)(_.SAMInheritorsOf))
+  def SAMImplementationsOf(aClass: PsiClass, checkDeep: Boolean): Set[Timestamped[UsagesInFile]] =
+    readDataLock.locked(withReader(aClass)(_.anonymousSAMImplementations))
 
   /**
    * Returns usages only from up-to-date compiled scope.

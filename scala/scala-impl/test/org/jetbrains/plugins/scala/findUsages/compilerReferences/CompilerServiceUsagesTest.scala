@@ -1,23 +1,30 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import junit.framework.TestCase.fail
-import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
 import org.junit.Assert._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 
 
 class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
   import com.intellij.testFramework.fixtures.CodeInsightTestFixture.{CARET_MARKER => CARET}
 
-  private def implicitSearchTargetAtCaret: PsiElement =
-    myFixture.getElementAtCaret match {
-      case ImplicitSearchTarget(t) => t
-      case e                       => fail(s"Search target must be an implicit definition, but was $e"); ???
-    }
+  private def searchTarget: PsiElement = {
+    val targetExtractor = new ShouldBeSearchedInBytecode(new CompilerIndicesSettings(getProject))
 
-  private def runSearchTest(
-    files:    (String, String)*
-  )(expected: (String, Seq[Int])*)(target: => PsiElement = implicitSearchTargetAtCaret): Unit = {
+    myFixture.getElementAtCaret match {
+      case targetExtractor(t) => t
+      case e                  => fail(s"invalid search target, but was $e"); ???
+    }
+  }
+
+  private def runCompilerIndicesTest(
+    files:           Seq[(String, String)],
+    expectedResults: Seq[(String, Seq[Int])],
+    indicesQuery:    (ScalaCompilerReferenceService, PsiElement) => Set[Timestamped[UsagesInFile]],
+    target:          =>PsiElement = searchTarget,
+  ): Unit = {
     val (targetFile, rest) = (files.head, files.tail)
 
     val filesMap = rest.map {
@@ -29,12 +36,12 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
       targetFile._1 -> file.getVirtualFile
     }
 
-//    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
+//    com.intellij.compiler.server.BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
 //    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
     buildProject()
-    val usages = service.usagesOf(target).map(_.unwrap)
+    val usages = indicesQuery(service, target).map(_.unwrap)
 
-    expected.foreach {
+    expectedResults.foreach {
       case (filename, lines) =>
         val usage = UsagesInFile(filesMap(filename), lines)
         assertTrue(
@@ -43,6 +50,21 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
         )
     }
   }
+
+  private def runSearchTest(
+    files:    (String, String)*
+  )(expected: (String, Seq[Int])*)(target: => PsiElement = searchTarget): Unit =
+    runCompilerIndicesTest(files, expected, (service, e) => service.usagesOf(e), target)
+
+  private def runInheritorsTest(
+    files:    (String, String)*
+  )(expected: (String, Seq[Int])*)(target: => PsiElement = searchTarget): Unit =
+    runCompilerIndicesTest(
+      files,
+      expected,
+      (service, e) => service.SAMImplementationsOf(e.asInstanceOf[PsiClass], checkDeep = false),
+      target
+    )
 
   def testIndexUninitialized(): Unit = {
     val file =
@@ -56,10 +78,10 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |}
        """.stripMargin
       )
-    val dirtyUsages = service.usagesOf(implicitSearchTargetAtCaret)
+    val dirtyUsages = service.usagesOf(searchTarget)
     assertTrue("Should not find any usages if index does not exist", dirtyUsages.isEmpty)
     buildProject()
-    val usages   = service.usagesOf(implicitSearchTargetAtCaret).map(_.unwrap)
+    val usages   = service.usagesOf(searchTarget).map(_.unwrap)
     val expected = Set(UsagesInFile(file.getVirtualFile, Seq(5)))
     assertEquals(expected, usages)
   }
@@ -234,7 +256,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
        """.stripMargin
     )
     buildProject()
-    val usages   = service.usagesOf(implicitSearchTargetAtCaret)
+    val usages = service.usagesOf(searchTarget)
     assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.isEmpty)
   }
 
@@ -243,7 +265,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
       "InstanceUnapply.scala" ->
       s"""
          |class Foo(val x: Int) {
-         |  def unapply(s: String): Option[Int] = Option(x)
+         |  def una${CARET}pply(s: String): Option[Int] = Option(x)
          |}
        """.stripMargin,
       "UsesInstanceUnapply.scala" ->
@@ -256,7 +278,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
          |  }
          |}
        """.stripMargin
-    )("UsesInstanceUnapply.scala" -> Seq(5))
+    )("UsesInstanceUnapply.scala" -> Seq(5))()
 
   def testInstanceApply(): Unit =
     runSearchTest(
@@ -266,43 +288,45 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
          |  def ap${CARET}ply(t: T): R = f(t)
          |}
        """.stripMargin,
-      "UsesInstalceApply.scala" ->
+      "UsesInstanceApply.scala" ->
       s"""
          |object Example {
-         | val fun = new MyFunction[String, Int] = _.length
+         | val fun = new MyFunction[String, Int](_.length)
          | fun("a string")
          |}
        """.stripMargin
-    )("UsesInstanceApply.scala" -> Seq(4))
+    )("UsesInstanceApply.scala" -> Seq(4))()
 
   def testFlatMap(): Unit =
     runSearchTest(
       "FlatMap.scala" ->
       s"""
          |object A {
-         |  final case class IO[A] {
+         |  final case class IO[A](a: A) {
          |    def map[B](f: A => B): IO[B] = ???
-         |    def flatMap[B](f: A => IO[B]): IO[B] = ???
+         |    def flat${CARET}Map[B](f: A => IO[B]): IO[B] = ???
          |    def withFilter(pred: A => Boolean): IO[A] = ???
          |  }
          |  val a = new IO(123)
+         |  val c = new IO(678)
          |  val b = new IO(456)
          |
          |  for {
          |     ai <- a
+         |     ci <- c
          |     bi <- b
-         |  } yield a + b
+         |  } yield ai + bi + ci
          |}
        """.stripMargin,
-    )("FlatMap.scala" -> Seq(12, 13))
+    )("FlatMap.scala" -> Seq(13, 14))()
 
   def testMap(): Unit =
     runSearchTest(
       "Map.scala" ->
         s"""
            |object A {
-           |  final case class IO[A] {
-           |    def map[B](f: A => B): IO[B] = ???
+           |  final case class IO[A](a: A) {
+           |    def m${CARET}ap[B](f: A => B): IO[B] = ???
            |    def flatMap[B](f: A => IO[B]): IO[B] = ???
            |    def withFilter(pred: A => Boolean): IO[A] = ???
            |  }
@@ -312,21 +336,22 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |  for {
            |     ai <- a
            |     bi <- b
-           |  } yield a + b
+           |  } yield ai + bi
            |}
        """.stripMargin,
-    )("Map.scala" -> Seq(14))
+    )("Map.scala" -> Seq(13))()
 
   def testWithFilter(): Unit =
     runSearchTest(
       "WithFilter.scala" ->
         s"""
            |object A {
-           |  final case class IO[A] {
+           |  final case class IO[A](a: A) {
            |    def map[B](f: A => B): IO[B] = ???
            |    def flatMap[B](f: A => IO[B]): IO[B] = ???
-           |    def withFilter(pred: A => Boolean): IO[A] = ???
+           |    def with${CARET}Filter(pred: A => Boolean): IO[A] = ???
            |  }
+           |
            |  val a = new IO((123, 123))
            |  val b = new IO((456, 456))
            |
@@ -334,12 +359,34 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |     ai <- a
            |     if ai._1 > 10
            |     (bi1, bi2) <- b
-           |  } yield ???
+           |  } yield bi1 + ai._1
            |}
        """.stripMargin,
-    )("WithFilter.scala" -> Seq(13, 14))
+    )("WithFilter.scala" -> Seq(14, 15))()
 
-  def testSAMSimpleInheritor(): Unit = ()
+  def testSAMLambda(): Unit =
+    runInheritorsTest(
+      "SAMLambda.scala" ->
+      s"""
+         |trait Event
+         |trait O${CARET}nClick {
+         |  def onClick(event: Event): Unit
+         |}
+         |
+         |object SAMLambda {
+         |  def registerOnClickHandler(handler: OnClick): Unit = ()
+         |  registerOnClickHandler(event => println(123))
+         |}
+       """.stripMargin
+    )("SAMLambda.scala" -> Seq(9))()
 
-  def testSAMLambda(): Unit = ()
+  def testRunnable(): Unit =
+    runInheritorsTest(
+      "Runnable.scala" ->
+      s"""
+         |object Runnable {
+         |  val th = new Thread(() => println(123))
+         |}
+       """.stripMargin
+    )("Runnable.scala" -> Seq(3))(myFixture.findClass("java.lang.Runnable"))
 }

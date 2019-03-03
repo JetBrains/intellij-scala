@@ -27,10 +27,10 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
   override def getCompilableFileExtensions: util.List[String] = List("scala", "java").asJava
 
   override def buildStarted(context: CompileContext): Unit =
-    context.processMessage(CompilationStarted(!shouldBeIncremental))
+    context.processMessage(CompilationStarted(shouldBeNonIncremental))
 
   override def buildFinished(context: CompileContext): Unit = {
-    if (!shouldBeIncremental) {
+    if (shouldBeNonIncremental) {
       val pd                      = context.getProjectDescriptor
       val (allClasses, timestamp) = getAllClassesInfo(context)
       val allModules: Set[String] = pd.getProject.getModules.asScala.map(_.getName)(collection.breakOut)
@@ -54,7 +54,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       else            stamp
     }.min
 
-  private[this] val shouldBeIncremental: Boolean =
+  private[this] val shouldBeNonIncremental: Boolean =
     sys.props.get(propertyKey).exists(java.lang.Boolean.valueOf(_))
 
   override def build(
@@ -62,7 +62,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     chunk:            ModuleChunk,
     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
     outputConsumer:   ModuleLevelBuilder.OutputConsumer
-  ): ExitCode = if (shouldBeIncremental) {
+  ): ExitCode = if (!shouldBeNonIncremental) {
     val affectedModules: Set[String] = chunk.getModules.asScala.map(_.getName)(collection.breakOut)
 
     val compiledClasses =
@@ -136,21 +136,21 @@ object ScalaCompilerReferenceIndexBuilder {
   private val allJavaTargetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
 
   def compressCompilationInfo(data: JpsCompilationInfo): String = {
-    val baos     = new ByteArrayOutputStream(1024)
+    val baos     = new ByteArrayOutputStream(8191)
     val json     = data.toJson.compactPrint
 
-    tryWith(new DeflaterOutputStream(baos))(deflater =>
-      deflater.write(json.getBytes(StandardCharsets.UTF_8))
+    tryWith(new DeflaterOutputStream(baos))(
+      _.write(json.getBytes(StandardCharsets.UTF_8))
     )
 
     Base64.getEncoder.encodeToString(baos.toByteArray)
   }
 
-  def decompressCompilationInfo(compressed: String): Try[JpsCompilationInfo] = {
-    val decompressed = Base64.getDecoder.decode(compressed)
-    val bais         = new ByteArrayInputStream(decompressed)
+  def decompressCompilationInfo(b64encoded: String): Try[JpsCompilationInfo] = {
+    val decoded = Base64.getDecoder.decode(b64encoded)
+    val bais    = new ByteArrayInputStream(decoded)
 
-    val decode =
+    val inflated =
       tryWith(new InflaterInputStream(bais)) { inflater =>
         val out    = new ByteArrayOutputStream
         val buffer = new Array[Byte](8192)
@@ -164,14 +164,14 @@ object ScalaCompilerReferenceIndexBuilder {
       }
 
     for {
-      bytes   <- decode
+      bytes   <- inflated
       json    = new String(bytes, StandardCharsets.UTF_8)
       jpsInfo <- Try(json.parseJson.convertTo[JpsCompilationInfo])
     } yield jpsInfo
   }
 
   final case class ChunkCompilationInfo(data: JpsCompilationInfo)
-      extends CustomBuilderMessage(id, compilationDataType, data.toJson.compactPrint)
+      extends CustomBuilderMessage(id, compilationDataType, compressCompilationInfo(data))
 
   final case object CompilationFinished
       extends CustomBuilderMessage(id, compilationFinishedType, "")

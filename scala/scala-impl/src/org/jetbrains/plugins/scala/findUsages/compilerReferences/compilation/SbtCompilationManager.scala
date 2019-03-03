@@ -61,8 +61,10 @@ class SbtCompilationManager() extends BaseComponent {
             executeOnPooledThread(handleConnection(client))
           } catch {
             case e: IOException =>
-              logger.error(e)
-              onConnectionFailure(Unidentified, None)
+              if (!server.isClosed) {
+                logger.error(e)
+                onConnectionFailure(Unidentified, None)
+              }
           }
         }
       }

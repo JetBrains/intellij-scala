@@ -43,7 +43,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       setUpLibrariesFor(myModule)
       PsiTestUtil.addSourceRoot(myModule, myFixture.getTempDirFixture.findOrCreateDir("src"), true)
       val project = getProject
-      compiler = new CompilerTester(project, project.modules.asJava, project)
+      compiler = new CompilerTester(project, project.modules.asJava, null)
     } catch {
       case NonFatal(e) => fail(e.getMessage)
     }
@@ -52,8 +52,10 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   override def tearDown(): Unit =
     try {
       disposeLibraries()
+      compiler.tearDown()
       CompileServerUtil.stopAndWait(10.seconds)
     } finally {
+      compiler = null
       super.tearDown()
     }
 
@@ -74,11 +76,12 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
 
     myLoaders.clear()
   }
+
   protected def buildProject(): Unit = {
     getProject.getMessageBus
       .connect(getProject)
       .subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-        override def onIndexingFinished(): Unit = compilerIndexLock.locked {
+        override def onIndexingFinished(success: Boolean): Unit = compilerIndexLock.locked {
           indexReadyPredicate = true
           indexReady.signal()
         }

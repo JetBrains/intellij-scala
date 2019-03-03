@@ -9,7 +9,6 @@ import scala.reflect.ClassTag
 import org.junit.Assert._
 import org.junit.Test
 import org.hamcrest.CoreMatchers._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.ClassfileParser
 
 class ClassfileParserTest {
   private def loadClass[A](implicit tag: ClassTag[A]): InputStream = {

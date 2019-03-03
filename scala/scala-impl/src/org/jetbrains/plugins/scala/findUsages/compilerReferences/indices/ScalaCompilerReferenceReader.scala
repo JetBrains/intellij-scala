@@ -49,7 +49,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
       usages.result()
     }
 
-  def SAMInheritorsOf(classRef: CompilerRef): Set[UsagesInFile] =
+  def anonymousSAMImplementations(classRef: CompilerRef): Set[UsagesInFile] =
     rethrowStorageExceptionIn {
       val usages = Set.newBuilder[UsagesInFile]
 

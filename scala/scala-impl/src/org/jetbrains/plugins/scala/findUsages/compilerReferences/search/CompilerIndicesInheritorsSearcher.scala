@@ -24,7 +24,7 @@ class CompilerIndicesInheritorsSearcher
     val cls     = params.cls
     val project = cls.getProject
     val service = ScalaCompilerReferenceService(project)
-    val usages  = service.SAMInheritorsOf(cls, checkDeep = false)
+    val usages  = service.SAMImplementationsOf(cls, checkDeep = false)
     processResultsFromCompilerService(cls, usages, project, processor)
   }
 
