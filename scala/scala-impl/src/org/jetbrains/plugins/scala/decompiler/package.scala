@@ -60,12 +60,13 @@ package object decompiler {
 
     def decompile(bytes: => Array[Byte] = virtualFile.contentsToByteArray): DecompilationResult = virtualFile match {
       case _: VirtualFileWithId =>
+        import ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute
         implicit val timeStamp: Long = virtualFile.getTimeStamp
         var cached = DecompilationResult(virtualFile)
 
         if (cached == null || cached.timeStamp != timeStamp) {
           val maybeResult = for {
-            attribute <- decompilerFileAttribute
+            attribute <- DecompilerFileAttribute
             readAttribute <- Option(attribute.readAttribute(virtualFile))
 
             result <- DecompilationResult.readFrom(readAttribute)
@@ -89,7 +90,7 @@ package object decompiler {
                 }
 
               for {
-                attribute <- decompilerFileAttribute
+                attribute <- DecompilerFileAttribute
                 outputStream = attribute.writeAttribute(virtualFile)
               } result.writeTo(outputStream)
 
@@ -109,11 +110,6 @@ package object decompiler {
         case parent => parent.getChildren.toSeq.filter(predicate).map(_.getNameWithoutExtension)
       }
   }
-
-  // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-  private[this] def decompilerFileAttribute =
-    if (ScalaLoader.isUnderUpsource) None
-    else Some(ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute)
 
   private[this] object SplitAtDollar {
 

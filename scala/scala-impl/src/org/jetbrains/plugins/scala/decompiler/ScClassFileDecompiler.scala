@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package decompiler
 
 import com.intellij.lang.LanguageParserDefinitions
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, newvfs}
@@ -37,11 +38,20 @@ object ScClassFileDecompiler {
 
     override val getStubVersion = 314
 
-    private[decompiler] val DecompilerFileAttribute = new newvfs.FileAttribute(
-      "_is_scala_compiled_new_key_",
-      getStubVersion,
-      true
-    )
+    // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
+    private[decompiler] val DecompilerFileAttribute = ApplicationManager.getApplication match {
+      // The following check is hardly bulletproof, however (currently) there is no API to query that
+      case application if application.getClass.getSimpleName.contains("Upsource") => None
+      case application =>
+        debugger.ScalaJVMNameMapper(application)
+
+        val attribute = new newvfs.FileAttribute(
+          "_is_scala_compiled_new_key_",
+          getStubVersion,
+          true
+        )
+        Some(attribute)
+    }
 
     override def buildFileStub(content: FileContent): stubs.ScFileStub =
       content.getFile match {

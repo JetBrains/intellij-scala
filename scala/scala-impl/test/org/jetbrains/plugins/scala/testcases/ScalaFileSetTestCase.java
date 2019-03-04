@@ -20,7 +20,6 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.ScalaLoader;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   @NonNls
@@ -43,7 +42,6 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
 
   protected void setUp(Project project) {
     super.setUp(project);
-    ScalaLoader.loadScala();
     setSettings();
   }
 

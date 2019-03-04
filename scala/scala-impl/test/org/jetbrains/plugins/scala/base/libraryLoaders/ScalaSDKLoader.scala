@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.base.libraryLoaders
+package org.jetbrains.plugins.scala
+package base
+package libraryLoaders
 
 import java.io.File
 
@@ -6,11 +8,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versionOf
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaLoader}
 import org.junit.Assert._
 
 import scala.collection.JavaConverters._
@@ -21,7 +20,8 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     override protected val artifactBlackList: Set[String] = Set.empty
   }
 
-  override def init(implicit module: Module, version: ScalaVersion): Unit = {
+  override def init(implicit module: Module,
+                    version: debugger.ScalaVersion): Unit = {
 
     val deps = Seq(
       "org.scala-lang" % "scala-compiler" % version.minor,
@@ -52,8 +52,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       library.convertToScalaSdkWith(languageLevel(resolved.head.file), resolved.map(_.file))
       module.attach(library)
     }
-
-    ScalaLoader.loadScala()
   }
 
   private def languageLevel(compiler: File) =
