@@ -7,7 +7,6 @@ package synthetic
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
@@ -16,13 +15,12 @@ import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
@@ -214,7 +212,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
   override def projectClosed(): Unit = {
     if (classesInitialized) {
-      scriptSyntheticValues.clear()
       all.clear()
       numeric.clear()
       integer.clear()
@@ -222,7 +219,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     }
 
     stringPlusMethod = null
-    scriptSyntheticValues = null
     all = null
     numeric = null
     integer = null
@@ -235,7 +231,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def isClassesRegistered: Boolean = classesInitialized
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
-  var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
   var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
   var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
   var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
@@ -317,18 +312,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
         ic.addMethod(new ScSyntheticFunction(op, ret, Seq(Seq(Int))))
         ic.addMethod(new ScSyntheticFunction(op, ret, Seq(Seq(Long))))
       }
-    }
-    scriptSyntheticValues = new mutable.HashSet[ScSyntheticValue]
-    //todo: remove all scope => method value
-    //todo: handle process cancelled exception
-    try {
-      val stringClass = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), "java.lang.String")
-      stringClass.map { stringClass =>
-        scriptSyntheticValues += new ScSyntheticValue("args", JavaArrayType(ScDesignatorType(stringClass)))
-      }
-    }
-    catch {
-      case _: ProcessCanceledException =>
     }
     stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
 
@@ -525,8 +508,6 @@ object Unit
   }
 
   override def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
-
-  def getScriptSyntheticValues: Seq[ScSyntheticValue] = scriptSyntheticValues.toSeq
 }
 
 object SyntheticClasses {

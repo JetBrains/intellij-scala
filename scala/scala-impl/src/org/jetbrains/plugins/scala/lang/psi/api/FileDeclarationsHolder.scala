@@ -35,17 +35,13 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    val isScriptProcessed = isScriptFile && !isWorksheetFile
+    if (isScriptFile &&
+      !isWorksheetFile &&
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
-    if (isScriptProcessed && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
-      state, lastParent, place)) return false
+    if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)) return false
 
-    if (!super[ScImportsHolder].processDeclarations(processor,
-      state, lastParent, place)) return false
-
-    if (context != null) {
-      return true
-    }
+    if (context != null) return true
 
     if (place.kindProjectorPluginEnabled) {
       KindProjectorUtil(place.getProject)
@@ -107,15 +103,6 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
-    }
-
-    if (isScriptProcessed) {
-      val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
-      while (syntheticValueIterator.hasNext) {
-        val syntheticValue = syntheticValueIterator.next()
-        ProgressManager.checkCanceled()
-        if (!processor.execute(syntheticValue, state)) return false
-      }
     }
 
     FileDeclarationsContributor.getAllFor(this).foreach (
