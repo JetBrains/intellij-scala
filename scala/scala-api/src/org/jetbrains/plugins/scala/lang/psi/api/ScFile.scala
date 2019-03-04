@@ -15,6 +15,10 @@ trait ScFile extends PsiFileWithStubSupport
   private[scala] def virtualFile: VirtualFile
 
   private[scala] def virtualFile_=(virtualFile: VirtualFile): Unit
+
+  def sourceName: String
+
+  private[scala] def sourceName_=(sourceName: String): Unit
 }
 
 object ScFile {

@@ -46,18 +46,6 @@ package object decompiler {
         }
     }
 
-    def sourceContent: Option[String] =
-      try {
-        decompile() match {
-          case DecompilationResult(true, _, sourceText) => Some(sourceText)
-          case _ => None
-        }
-      } catch {
-        case _: IOException => None
-      }
-
-    def sourceName: String = decompile().sourceName
-
     def decompile(bytes: => Array[Byte] = virtualFile.contentsToByteArray): DecompilationResult = virtualFile match {
       case _: VirtualFileWithId =>
         implicit val timeStamp: Long = virtualFile.getTimeStamp
