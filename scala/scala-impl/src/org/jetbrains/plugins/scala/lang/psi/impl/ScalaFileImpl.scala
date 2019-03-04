@@ -56,6 +56,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   private[this] var _virtualFile: VirtualFile = _
+  private[this] var _sourceName: String = _
 
   override def toString: String = "ScalaFile:" + getName
 
@@ -63,15 +64,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
-
-  def sourceName: String = virtualFile match {
-    case null => ""
-    case file =>
-      import decompiler._
-      foldStub(file.sourceName) {
-        _.sourceName
-      }
-  }
 
   override final def getName: String = virtualFile match {
     case null => super.getName
@@ -89,6 +81,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     _virtualFile = virtualFile
   }
 
+  final def sourceName: String = _sourceName match {
+    case null => ""
+    case name => foldStub(name)(_.sourceName)
+  }
+
+  override final private[scala] def sourceName_=(sourceName: String): Unit = {
+    _sourceName = sourceName
+  }
+
   override def getNavigationElement: PsiElement =
     if (this.isCompiled) {
       findSourceForCompiledFile
@@ -104,8 +105,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
         (if (inner.length > 0) "." else "") + definition.name
       }
 
-    val sourceFile = sourceName
-    val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
+    val sourceName = this.sourceName
+    val relPath = if (pName.length == 0) sourceName
+    else pName.replace(".", "/") + "/" + sourceName
 
     // Look in libraries' sources
     val vFile = getContainingFile.getVirtualFile
@@ -137,7 +139,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }(_.qualifiedName)
     var result: Option[VirtualFile] = None
 
-    FilenameIndex.processFilesByName(sourceFile, false, new Processor[PsiFileSystemItem] {
+    FilenameIndex.processFilesByName(sourceName, false, new Processor[PsiFileSystemItem] {
       override def process(t: PsiFileSystemItem): Boolean = {
         val source = t.getVirtualFile
         getManager.findFile(source) match {

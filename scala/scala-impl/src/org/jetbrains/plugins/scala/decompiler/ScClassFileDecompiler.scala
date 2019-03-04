@@ -21,13 +21,13 @@ final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 
   override def createFileViewProvider(file: VirtualFile,
                                       manager: PsiManager,
-                                      physical: Boolean): ScSingleRootFileViewProvider =
-    file.sourceContent
-      .fold(new NonScalaClassFileViewProvider(manager, file, physical): ScSingleRootFileViewProvider) { contents =>
-        new ScalaClassFileViewProvider(manager, file, physical) {
-          override val getContents: String = contents
-        }
+                                      physical: Boolean): ScSingleRootFileViewProvider = file match {
+    case DecompilationResult(sourceName, sourceText) =>
+      new ScalaClassFileViewProvider(manager, file, physical, sourceName) {
+        override val getContents: String = sourceText
       }
+    case _ => new NonScalaClassFileViewProvider(manager, file, physical)
+  }
 }
 
 object ScClassFileDecompiler {
@@ -53,29 +53,26 @@ object ScClassFileDecompiler {
         Some(attribute)
     }
 
-    override def buildFileStub(content: FileContent): stubs.ScFileStub =
+    override def buildFileStub(content: FileContent): stubs.ScFileStub = {
+      implicit val bytes: Array[Byte] = content.getContent
+
       content.getFile match {
         case file if file.isInnerClass => null
-        case file =>
+        case file@DecompilationResult(sourceName, sourceText) =>
+          val scalaFile = ScalaPsiElementFactory.createScalaFileFromText(sourceText)(content.getProject)
+            .asInstanceOf[ScalaFileImpl]
+          scalaFile.sourceName = sourceName
+          scalaFile.virtualFile = file
+
           LanguageParserDefinitions.INSTANCE
             .forLanguage(ScalaLanguage.INSTANCE)
             .asInstanceOf[lang.parser.ScalaParserDefinition]
             .getFileNodeType
             .getBuilder
-            .buildStubTree {
-              createScalaFile(file, content.getContent)(content.getProject)
-            }
+            .buildStubTree(scalaFile)
+        case _ => null
       }
-
-    private def createScalaFile(virtualFile: VirtualFile, content: Array[Byte])
-                               (implicit project: Project): ScalaFileImpl =
-      virtualFile.decompile(content) match {
-        case DecompilationResult(_, _, sourceText) =>
-          val result = ScalaPsiElementFactory.createScalaFileFromText(sourceText)
-            .asInstanceOf[ScalaFileImpl]
-          result.virtualFile = virtualFile
-          result
-      }
+    }
   }
 
   sealed abstract class ScSingleRootFileViewProvider(manager: PsiManager,
@@ -85,23 +82,25 @@ object ScClassFileDecompiler {
 
   private class ScalaClassFileViewProvider protected(manager: PsiManager,
                                                      file: VirtualFile,
-                                                     physical: Boolean)
+                                                     physical: Boolean,
+                                                     sourceName: String)
     extends ScSingleRootFileViewProvider(manager, file, physical) {
 
     override def createFile(project: Project,
                             virtualFile: VirtualFile,
                             fileType: FileType): PsiFile = {
       val file = new ScalaFileImpl(this)
+      file.sourceName = sourceName
       file.virtualFile = virtualFile
       file
     }
 
-    override def getContents: String = getVirtualFile.decompile() match {
-      case DecompilationResult(_, _, sourceText) => sourceText
+    override def getContents: String = getVirtualFile match {
+      case DecompilationResult(_, sourceText) => sourceText
     }
 
     override def createCopy(copy: VirtualFile) =
-      new ScalaClassFileViewProvider(getManager, copy, false)
+      new ScalaClassFileViewProvider(getManager, copy, false, sourceName)
   }
 
   private final class NonScalaClassFileViewProvider(manager: PsiManager,

@@ -38,11 +38,15 @@ private[decompiler] object DecompilationResult {
       case data => data.get()
     }
 
-  def unapply(result: DecompilationResult): Some[(Boolean, String, String)] = Some(
-    result.isScala,
-    result.sourceName,
-    result.rawSourceText.replace("\r", "")
-  )
+  def unapply(file: VirtualFile)
+             (implicit content: Array[Byte] = file.contentsToByteArray): Option[(String, String)] =
+    try {
+      val result = file.decompile(content)
+      if (result.isScala) Some(result.sourceName, result.rawSourceText.replace("\r", ""))
+      else None
+    } catch {
+      case _: IOException => None
+    }
 
   def update(file: VirtualFile, result: DecompilationResult): Unit = {
     file.putUserData(Key, new SoftReference(result))
