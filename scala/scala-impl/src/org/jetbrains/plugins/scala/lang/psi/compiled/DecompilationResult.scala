@@ -9,59 +9,76 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.reference.SoftReference
 
-private[compiled] class DecompilationResult(val isScala: Boolean,
-                                            val sourceName: String)
-                                           (implicit val timeStamp: Long) {
-  protected def rawSourceText: String = ""
-
-  final def writeTo(outputStream: DataOutputStream): Unit = try {
-    outputStream.writeBoolean(isScala)
-    outputStream.writeUTF(sourceName)
-    outputStream.writeLong(timeStamp)
-    outputStream.close()
-  } catch {
-    case _: IOException =>
-  }
-
-}
+private[compiled] abstract sealed class DecompilationResult(implicit val timeStamp: Long)
 
 private[compiled] object DecompilationResult {
 
-  private[this] val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
+  object Cache {
 
-  def empty(implicit timeStamp: Long = 0L) = new DecompilationResult(
-    isScala = false,
-    sourceName = ""
-  )
+    private[this] val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
-  def apply(file: VirtualFile): DecompilationResult =
-    file.getUserData(Key) match {
-      case null => null
-      case data => data.get()
+    def apply(file: VirtualFile): DecompilationResult =
+      file.getUserData(Key) match {
+        case null => null
+        case data => data.get
+      }
+
+    def update(file: VirtualFile, result: DecompilationResult): Unit = {
+      file.putUserData(Key, new SoftReference(result))
+    }
+  }
+
+  final case class Empty()
+                        (implicit override val timeStamp: Long = 0L) extends DecompilationResult
+
+  final case class Compiled(fileName: String, sources: String)
+                           (implicit override val timeStamp: Long) extends DecompilationResult
+
+  def apply(maybeNameAndSources: Option[(String, String)])
+           (implicit timeStamp: Long): DecompilationResult =
+    maybeNameAndSources.fold(Empty(): DecompilationResult) {
+      case (fileName, sources) => Compiled(fileName, sources.replace("\r", ""))
     }
 
   def unapply(file: VirtualFile)
-             (implicit content: Array[Byte] = file.contentsToByteArray): Option[(String, String)] =
+             (implicit contents: Array[Byte] = if (file.isDirectory) null else file.contentsToByteArray): Option[(String, String)] =
     try {
-      val result = file.decompile(content)
-      if (result.isScala) Some(result.sourceName, result.rawSourceText.replace("\r", ""))
-      else None
+      for {
+        bytes <- Option(contents)
+        Compiled(fileName, sources) <- Some(file.decompile(bytes))
+      } yield (fileName, sources)
     } catch {
       case _: IOException => None
     }
-
-  def update(file: VirtualFile, result: DecompilationResult): Unit = {
-    file.putUserData(Key, new SoftReference(result))
-  }
 
   def readFrom(inputStream: DataInputStream): Option[DecompilationResult] =
     try {
-      val isScala = inputStream.readBoolean()
-      val sourceName = inputStream.readUTF()
-      val timeStamp = inputStream.readLong()
+      val maybeNameAndSources = if (inputStream.readBoolean())
+        Some((inputStream.readUTF(), ""))
+      else
+        None
 
-      Some(new DecompilationResult(isScala, sourceName)(timeStamp))
+      val result = apply(maybeNameAndSources)(inputStream.readLong())
+      Some(result)
     } catch {
       case _: IOException => None
     }
+
+  implicit class DecompilationResultExt(private val result: DecompilationResult) extends AnyVal {
+
+    def writeTo(outputStream: DataOutputStream): Unit = try {
+      val maybeFileName = result match {
+        case Compiled(fileName, _) => Some(fileName)
+        case _ => None
+      }
+
+      outputStream.writeBoolean(maybeFileName.isDefined)
+      maybeFileName.foreach(outputStream.writeUTF)
+      outputStream.writeLong(result.timeStamp)
+      outputStream.close()
+    } catch {
+      case _: IOException =>
+    }
+  }
+
 }
