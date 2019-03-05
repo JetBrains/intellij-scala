@@ -12,5 +12,5 @@ class CompilerIndicesBuildProcessParametersProvider(project: Project) extends Bu
   override def getVMArguments: util.List[String] =
     if (upToDateCompilerIndexExists(project, ScalaCompilerIndices.version))
       Collections.emptyList()
-    else Collections.singletonList(s"""-D${Builder.propertyKey}="true"""")
+    else Collections.singletonList(s"""-D${Builder.propertyKey}=true""")
 }

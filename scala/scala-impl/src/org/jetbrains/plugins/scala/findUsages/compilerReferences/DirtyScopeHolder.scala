@@ -132,10 +132,9 @@ abstract class DirtyScopeHolder[Scope](
     }
   }
 
-  private[this] def calcDirtyScope(): GlobalSearchScope = {
+  private[this] def calcDirtyScope(): GlobalSearchScope =
     if (dirtyScopes.isEmpty) GlobalSearchScope.EMPTY_SCOPE
-    else                     GlobalSearchScope.union(dirtyScopes.map(scopeToSearchScope)(collection.breakOut))
-  }
+    else                     GlobalSearchScope.union(dirtyScopes.map(scopeToSearchScope).asJavaCollection)
 
   def contains(file: VirtualFile): Boolean = dirtyScope.contains(file)
 

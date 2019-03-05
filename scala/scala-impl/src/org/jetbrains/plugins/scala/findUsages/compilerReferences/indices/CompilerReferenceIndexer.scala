@@ -112,7 +112,9 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
     private[this] def processInfo(progressIndicator: ProgressIndicator): Unit = {
       val start = System.currentTimeMillis()
       indexWriter match {
-        case None => log.warn("Failed to index compilation info due to index writer being disposed.")
+        case None =>
+          log.warn("Failed to index compilation info due to index writer being disposed.")
+          callback()
         case Some(writer) =>
           try {
             info.removedSources.iterator.map(ProcessRemovedSource).foreach(indexerJobQueue.add)
@@ -124,10 +126,9 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
             val tasks = (1 to nThreads).map(_ => toCallable(parseClassfiles(writer)))
 
             indexingExecutor.invokeAll(tasks.asJavaCollection)
-            if (fatalFailure.get().isEmpty) callback()
           } catch {
             case e: Throwable => onException(e, shouldClearIndex = true)
-          }
+          } finally callback()
       }
 
       indexerJobQueue.clear()
