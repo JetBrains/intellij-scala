@@ -6,7 +6,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings;
 
 import javax.swing.*;
 import java.awt.*;

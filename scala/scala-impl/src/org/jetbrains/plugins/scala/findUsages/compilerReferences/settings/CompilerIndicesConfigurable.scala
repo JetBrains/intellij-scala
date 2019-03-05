@@ -8,7 +8,7 @@ import javax.swing.JComponent
 class CompilerIndicesConfigurable(project: Project) extends Configurable {
   private[this] val panel = new CompilerIndicesSettingsForm(project)
 
-  override def getDisplayName: String        = "Compiler Indices"
+  override def getDisplayName: String        = "Bytecode Indices"
   override def createComponent(): JComponent = panel.mainPanel
   override def isModified: Boolean           = panel.isModified(CompilerIndicesSettings(project))
   override def apply(): Unit                 = panel.applyTo(CompilerIndicesSettings(project))

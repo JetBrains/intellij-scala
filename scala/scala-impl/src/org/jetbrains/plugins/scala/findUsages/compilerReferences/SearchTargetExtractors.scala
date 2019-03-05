@@ -16,13 +16,24 @@ import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
   * See also: [[ScalaCompilerReferenceService]]
   */
 object SearchTargetExtractors {
+  sealed trait UsageType
+  object UsageType {
+    case object SAMInterfaceImplementation extends UsageType
+    case object ForComprehensionMethods    extends UsageType
+    case object InstanceApplyUnapply       extends UsageType
+    case object ImplicitDefinitionUsages   extends UsageType
+  }
+
   class ShouldBeSearchedInBytecode(settings: CompilerIndicesSettings) {
-    def unapply(e: PsiNamedElement): Option[PsiNamedElement] = e match {
-      case ImplicitSearchTarget(idef)    if settings.isEnabledForImplicitDefs            => Option(idef)
-      case ForCompehensionMethod(method) if settings.isEnabledForForComprehensionMethods => Option(method)
-      case SAMType(cls)                  if settings.isEnabledForSAMTypes                => Option(cls)
-      case InstanceApplyUnapply(method)  if settings.isEnabledForApplyUnapply            => Option(method)
-      case _                                                                             => None
+    def unapply(e: PsiNamedElement): Option[(PsiNamedElement, UsageType)] = e match {
+      case ImplicitSearchTarget(idef) if settings.isEnabledForImplicitDefs =>
+        Option(idef -> UsageType.ImplicitDefinitionUsages)
+      case ForCompehensionMethod(method) if settings.isEnabledForForComprehensionMethods =>
+        Option(method -> UsageType.ForComprehensionMethods)
+      case SAMType(cls) if settings.isEnabledForSAMTypes => Option(cls -> UsageType.SAMInterfaceImplementation)
+      case InstanceApplyUnapply(method) if settings.isEnabledForApplyUnapply =>
+        Option(method -> UsageType.InstanceApplyUnapply)
+      case _ => None
     }
   }
 

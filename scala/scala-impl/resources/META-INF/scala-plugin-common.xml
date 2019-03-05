@@ -113,10 +113,10 @@
         <applicationConfigurable displayName="Scala Compile Server" parentId="Scala Compiler"
                                  instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings"/>
-        <projectConfigurable id="Compiler Indices" parentId="Scala Compiler"
+        <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings"/>
-        <applicationConfigurable parentId="Compiler Indices" instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtConfigurable"/>
+        <applicationConfigurable parentId="Bytecode Indices" instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtConfigurable"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>

@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.findUsages.factory
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.{ShouldBeSearchedInBytecode, UsageType}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearcher._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -56,9 +56,10 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
         val settings              = CompilerIndicesSettings(project)
         val shouldSearchInBytecode = new ShouldBeSearchedInBytecode(settings)
         maybeSuper.flatMap {
-          case shouldSearchInBytecode(target) =>
-            val shouldProceed = doBeforeIndicesSearchAction(target)
-            shouldProceed.option((target, !target.isInstanceOf[PsiClass]))
+          case shouldSearchInBytecode(target, usageType) =>
+            val shouldProceed = doBeforeIndicesSearchAction(target, usageType)
+            val isSAMSearch = usageType == UsageType.SAMInterfaceImplementation
+            shouldProceed.option((target, !isSAMSearch))
           case other => (other, false).toOption
         }
       } else Option((unwrapped, false))
@@ -71,8 +72,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
   }
 
-  private[this] def doBeforeIndicesSearchAction(target: PsiNamedElement): Boolean =
-    assertSearchScopeIsSufficient(target).forall(_.runAction())
+  private[this] def doBeforeIndicesSearchAction(target: PsiNamedElement, usageType: UsageType): Boolean =
+    assertSearchScopeIsSufficient(target, usageType).forall(_.runAction())
 
   private[this] def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {
     def needToAsk(named: PsiNamedElement): Boolean = named match {
