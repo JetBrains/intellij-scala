@@ -25,14 +25,14 @@ public class CompilerIndicesSettingsForm {
   private final Project myProject;
 
   private static final String promptText =
-          "You are about to delete scala compiler indices.\n" +
+          "You are about to delete scala bytecode indices.\n" +
                   "Are you sure you want to proceed?";
 
   public CompilerIndicesSettingsForm(Project project) {
     this.myProject = project;
     invalidateButton.addActionListener(e -> {
       final int confirmation = Messages.showOkCancelDialog(
-              project, promptText, "Invalidate Compiler Indices",
+              project, promptText, "Invalidate Bytecode Indices",
               "Invalidate", Messages.CANCEL_BUTTON, Messages.getQuestionIcon()
       );
       if (confirmation == Messages.OK) invalidateIndices();
@@ -106,7 +106,7 @@ public class CompilerIndicesSettingsForm {
     final JPanel panel3 = new JPanel();
     panel3.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
     mainPanel.add(panel3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    panel3.setBorder(BorderFactory.createTitledBorder("Use Compiler Indices For"));
+    panel3.setBorder(BorderFactory.createTitledBorder("Use Bytecode Indices For"));
     implicitDefinitionsCB = new JBCheckBox();
     implicitDefinitionsCB.setSelected(true);
     implicitDefinitionsCB.setText("Implicit definitions");

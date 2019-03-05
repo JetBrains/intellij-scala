@@ -65,9 +65,19 @@ private object ImplicitUsagesSearchDialogs {
 
   class ImplicitFindUsagesDialog(
     canBeParent: Boolean,
-    element:     PsiNamedElement
+    element:     PsiNamedElement,
+    title:       String
   ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT) {
-    private[this] val shouldCompileCB = new JBCheckBox("Compile related modules before searching", true)
+    private[this] val shouldCompileCB = new JBCheckBox("Pre-compile modules in use scope before searching", true)
+
+    private[this] val settingsLink =
+      new LinkLabel[AnyRef]("Settings", null) {
+        setListener({
+          case (_, _) =>
+            close(DialogWrapper.CANCEL_EXIT_CODE)
+            ShowSettingsUtil.getInstance().showSettingsDialog(element.getProject, classOf[CompilerIndicesConfigurable])
+        }, null)
+      }
 
     def shouldCompile: Boolean = shouldCompileCB.isSelected
 
@@ -75,12 +85,12 @@ private object ImplicitUsagesSearchDialogs {
       s"""|<html>
           |<body>
           |This search relies on the bytecode, which is not up-to-date. <br>
-          |Results may be incomplete.
+          |Results may be incomplete without a compilation.
           |</body>
           |</html>
           |""".stripMargin
 
-    setTitle(ScalaBundle.message("find.usages.compiler.indices.dialog.title"))
+    setTitle(ScalaBundle.message("find.usages.compiler.indices.dialog.title", title))
     setResizable(false)
     init()
 
@@ -89,6 +99,8 @@ private object ImplicitUsagesSearchDialogs {
         .createFormBuilder()
         .addComponent(new JLabel(indicesStatusMessage))
         .addComponent(shouldCompileCB)
+        .addVerticalGap(5)
+        .addComponent(settingsLink)
         .getPanel
   }
 }

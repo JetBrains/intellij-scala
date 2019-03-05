@@ -14,8 +14,8 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     val targetExtractor = new ShouldBeSearchedInBytecode(new CompilerIndicesSettings(getProject))
 
     myFixture.getElementAtCaret match {
-      case targetExtractor(t) => t
-      case e                  => fail(s"invalid search target, but was $e"); ???
+      case targetExtractor(t, _) => t
+      case e                     => fail(s"invalid search target, but was $e"); ???
     }
   }
 
