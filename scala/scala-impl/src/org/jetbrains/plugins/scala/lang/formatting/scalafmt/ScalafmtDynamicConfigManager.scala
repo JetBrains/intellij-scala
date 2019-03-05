@@ -163,9 +163,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   private def notifyConfigChanges(config: ScalafmtDynamicConfig, cachedConfig: Option[CachedConfig]): Unit = {
     val contentChanged = !cachedConfig.map(_.config).contains(config)
     if (contentChanged) {
-      val versionChanged = cachedConfig.nonEmpty && !cachedConfig.map(_.config.version).contains(config.version)
-      val versionChangeDetails = if (versionChanged) s" (v${config.version})" else ""
-      ScalafmtNotifications.displayInfo(s"Scalafmt picked up new style configuration$versionChangeDetails")
+      ScalafmtNotifications.displayInfo(s"Scalafmt picked up new style configuration (v${config.version})")
     }
   }
 
