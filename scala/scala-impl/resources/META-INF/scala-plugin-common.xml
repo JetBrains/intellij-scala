@@ -451,7 +451,7 @@
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStatementGroupSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaCodeBlockSelectioner"/>
 
-        <psi.classFileDecompiler implementation="org.jetbrains.plugins.scala.decompiler.ScClassFileDecompiler"/>
+        <psi.classFileDecompiler implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>

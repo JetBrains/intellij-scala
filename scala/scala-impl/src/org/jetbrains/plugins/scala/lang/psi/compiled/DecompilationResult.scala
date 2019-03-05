@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package decompiler
+package lang
+package psi
+package compiled
 
 import java.io.{DataInputStream, DataOutputStream, IOException}
 
@@ -7,9 +9,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.reference.SoftReference
 
-private[decompiler] class DecompilationResult(val isScala: Boolean,
-                                              val sourceName: String)
-                                             (implicit val timeStamp: Long) {
+private[compiled] class DecompilationResult(val isScala: Boolean,
+                                            val sourceName: String)
+                                           (implicit val timeStamp: Long) {
   protected def rawSourceText: String = ""
 
   final def writeTo(outputStream: DataOutputStream): Unit = try {
@@ -23,7 +25,7 @@ private[decompiler] class DecompilationResult(val isScala: Boolean,
 
 }
 
-private[decompiler] object DecompilationResult {
+private[compiled] object DecompilationResult {
 
   private[this] val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 

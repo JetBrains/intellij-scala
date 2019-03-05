@@ -1,4 +1,6 @@
 package org.jetbrains.plugins.scala
+package lang
+package psi
 
 import java.io.IOException
 
@@ -7,7 +9,7 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer.decode
 
-package object decompiler {
+package object compiled {
 
   private[this] type SiblingsNames = Seq[String]
 
@@ -66,10 +68,10 @@ package object decompiler {
             case Some(result) =>
               new DecompilationResult(result.isScala, result.sourceName) {
                 override protected lazy val rawSourceText: String =
-                  Decompiler(fileName, bytes).fold("")(_._2)
+                  decompiler.Decompiler(fileName, bytes).fold("")(_._2)
               }
             case _ =>
-              val result = Decompiler(fileName, bytes)
+              val result = decompiler.Decompiler(fileName, bytes)
                 .fold(DecompilationResult.empty) {
                   case (sourceFileName, decompiledSourceText) =>
                     new DecompilationResult(isScala = true, sourceFileName) {

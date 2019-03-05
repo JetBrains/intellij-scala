@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
-import com.intellij.psi._
+import com.intellij.psi.{PsiElement, PsiFile, PsiClass, tree}
 import com.intellij.psi.stubs._
 
 /**
@@ -19,7 +19,7 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   ) {
 
   override final def getStubVersion: Int =
-    super.getStubVersion + decompiler.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
+    super.getStubVersion + compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 
   override def shouldBuildStubFor(file: VirtualFile): Boolean =
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
@@ -65,7 +65,7 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
 
   protected class ScFileStubImpl(file: ScalaFile,
                                  override val getType: ScStubFileElementType = this)
-    extends stubs.PsiFileStubImpl(file) with ScFileStub {
+    extends PsiFileStubImpl(file) with ScFileStub {
 
     override def sourceName: String = getPsi.sourceName
 

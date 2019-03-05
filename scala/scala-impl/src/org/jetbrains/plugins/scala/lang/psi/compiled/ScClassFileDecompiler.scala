@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package decompiler
+package lang
+package psi
+package compiled
 
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.application.ApplicationManager
@@ -9,7 +11,6 @@ import com.intellij.openapi.vfs.{VirtualFile, newvfs}
 import com.intellij.psi.compiled.{ClassFileDecompilers, ClsStubBuilder}
 import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.indexing.FileContent
-import org.jetbrains.plugins.scala.lang.psi.{impl, stubs}
 
 final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 
@@ -39,7 +40,7 @@ object ScClassFileDecompiler {
     override val getStubVersion = 314
 
     // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-    private[decompiler] val DecompilerFileAttribute = ApplicationManager.getApplication match {
+    private[compiled] val DecompilerFileAttribute = ApplicationManager.getApplication match {
       // The following check is hardly bulletproof, however (currently) there is no API to query that
       case application if application.getClass.getSimpleName.contains("Upsource") => None
       case application =>
