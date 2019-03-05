@@ -82,7 +82,8 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
         changesSinceCompile = true
         lastChangeTimestamp = System.nanoTime()
         val module = fileIndex.getModuleForFile(file)
-        modulesToCompile.add(module)
+        if (module != null)
+          modulesToCompile.add(module)
       }
     }
 
