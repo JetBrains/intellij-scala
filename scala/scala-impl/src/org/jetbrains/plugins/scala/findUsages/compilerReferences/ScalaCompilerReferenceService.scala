@@ -35,11 +35,11 @@ private[findUsages] class ScalaCompilerReferenceService(
 ) extends ProjectComponent with ModificationTracker {
   import ScalaCompilerReferenceService._
 
-  private[this] val compilationCount          = new LongAdder
-  private[this] val projectFileIndex          = ProjectRootManager.getInstance(project).getFileIndex
-  private[this] val lock                      = new ReentrantReadWriteLock()
-  private[this] val openCloseLock             = lock.writeLock()
-  private[this] val readDataLock              = lock.readLock()
+  private[this] val compilationCount = new LongAdder
+  private[this] val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
+  private[this] val lock             = new ReentrantReadWriteLock()
+  private[this] val openCloseLock    = lock.writeLock()
+  private[this] val readDataLock     = lock.readLock()
 
   private[this] val dirtyScopeHolder = new ScalaDirtyScopeHolder(
     project,
@@ -58,10 +58,10 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] val indexerScheduler =
     new CompilerReferenceIndexerScheduler(project, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
 
-  private[this] val failedToParse         = ContainerUtil.newConcurrentSet[File]()
-  private[this] val compilationTimestamps = ContainerUtil.newConcurrentMap[String, Long]()
-  private[this] var currentCompilerMode   = CompilerMode.forProject(project)
-  private[this] val messageBus            = project.getMessageBus
+  private[this] val failedToParse                       = ContainerUtil.newConcurrentSet[File]()
+  private[this] val compilationTimestamps               = ContainerUtil.newConcurrentMap[String, Long]()
+  private[this] val messageBus                          = project.getMessageBus
+  private[this] var currentCompilerMode: CompilerMode   = CompilerMode.JPS
 
   private[this] val publisher = new CompilerIndicesEventPublisher {
     override def compilerModeChanged(mode: CompilerMode): Unit = {
@@ -173,6 +173,7 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   override def projectOpened(): Unit =
     if (CompilerIndicesSettings(project).isIndexingEnabled || ApplicationManager.getApplication.isUnitTestMode) {
+      inTransaction(_ => currentCompilerMode = CompilerMode.forProject(project))
       new JpsCompilationWatcher(project, transactionManager).start()
       new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 
@@ -216,7 +217,6 @@ private[findUsages] class ScalaCompilerReferenceService(
     }
   }
 
-  // @FIXME: for now only direct inheritors search is supported
   def SAMImplementationsOf(aClass: PsiClass, checkDeep: Boolean): Set[Timestamped[UsagesInFile]] =
     readDataLock.locked(withReader(aClass)(_.anonymousSAMImplementations))
 
