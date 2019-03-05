@@ -136,7 +136,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   }
 
   private[this] def openReader(indexingSuccessful: Boolean): Unit = transactionManager.inTransaction { _ =>
-    if (activeIndexingPhases.get() != 0) {
+    if (activeIndexingPhases.get() > 0) {
       compilationCount.increment()
       dirtyScopeHolder.indexingFinished()
       activeIndexingPhases.decrementAndGet()

@@ -19,6 +19,15 @@ private[compilerReferences] class JpsCompilationWatcher(
 ) extends CompilationWatcher[CompilerMode.JPS.type] { self =>
   import JpsCompilationWatcher._
 
+  /**
+    * Designed to workaround the up-to-date check, which triggers build started, but not any of the
+    * builders/compilations finished.
+    * Increment each time build is started, decrement each time builder reports indexing start,
+    * if build finishes and the value is greate than 0, invoke onCompilationFinish manually,
+    * to account for an up-to-date check.
+    */
+  @volatile var buildCompilationDiff = 0
+
   override def compilerMode: CompilerMode.JPS.type = CompilerMode.JPS
 
   private[this] def handleBuilderMessage(
@@ -41,6 +50,7 @@ private[compilerReferences] class JpsCompilationWatcher(
         )
       case Builder.compilationStartedType =>
         val isCleanBuild = java.lang.Boolean.valueOf(messageText)
+        buildCompilationDiff -= 1
         publisher.startIndexing(isCleanBuild)
       case Builder.compilationFinishedType => publisher.finishIndexing()
       case _                               => ()
@@ -78,13 +88,17 @@ private[compilerReferences] class JpsCompilationWatcher(
         val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
         val modules     = compileContext.getCompileScope.getAffectedModules.map(_.getName)
 
+        // @TODO: handle the following scenario:
+        // @TODO: no indices are present and all modules are up-to-date
+        // @TODO: currently it will simply do nothing
         processEventInTransaction { publisher =>
           if (wasUpToDate) {
-            publisher.onCompilationStart()
+            publisher.startIndexing(false)
+            buildCompilationDiff -= 1
             val info = JpsCompilationInfo(modules.toSet, Set.empty, Set.empty, timestamp)
             publisher.processCompilationInfo(info, offline = false)
             publisher.onCompilationFinish(success = true)
-          } else processEventInTransaction(_.onCompilationFinish(success = !aborted && errors == 0))
+          } else publisher.onCompilationFinish(success = !aborted && errors == 0)
         }
       }
     })
@@ -95,7 +109,28 @@ private[compilerReferences] class JpsCompilationWatcher(
         project:    Project,
         sessionId:  UUID,
         isAutomake: Boolean
-      ): Unit = if (project == self.project) processEventInTransaction(_.onCompilationStart())
+      ): Unit = if (project == self.project) {
+        processEventInTransaction { publisher =>
+          buildCompilationDiff += 1
+          publisher.onCompilationStart()
+        }
+      }
+
+      /**
+        * Important, because compilerManager.isUpToDate(scope)
+        * will trigger buildStarted, but not builders/compilation finished.
+        */
+      override def buildFinished(
+        project:    Project,
+        sessionId:  UUID,
+        isAutomake: Boolean
+      ): Unit = if (project == self.project)
+        processEventInTransaction { publisher =>
+          if (buildCompilationDiff > 0) {
+            buildCompilationDiff -= 1
+            publisher.onCompilationFinish(true)
+          }
+        }
     })
   }
 }

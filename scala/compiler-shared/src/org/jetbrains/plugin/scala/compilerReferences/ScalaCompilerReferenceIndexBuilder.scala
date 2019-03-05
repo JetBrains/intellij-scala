@@ -87,8 +87,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       timestamp
     )
 
-    if (removedSources.nonEmpty || compiledClasses.nonEmpty) context.processMessage(ChunkCompilationInfo(data))
-
+    context.processMessage(ChunkCompilationInfo(data))
     ExitCode.OK
   } else ExitCode.OK
 

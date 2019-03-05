@@ -21,7 +21,7 @@ import com.intellij.util.messages.MessageBusConnection
 import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.SAMType
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.{SAMType, UsageType}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.CompilerMode
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCompilerIndices
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitUsagesSearchDialogs._
@@ -146,7 +146,10 @@ object CompilerIndicesReferencesSearcher {
     project:       Project,
     target:        PsiElement
   ): Unit = {
-    if (pendingConnection ne null) pendingConnection.disconnect()
+    if (pendingConnection ne null) {
+      pendingConnection.disconnect()
+      lock.locked(indexingFinishedCondition.signal())
+    }
 
     pendingConnection = project.getMessageBus.connect(project)
 
@@ -194,7 +197,10 @@ object CompilerIndicesReferencesSearcher {
     })
   }
 
-  private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeIndicesSearchAction] = {
+  private[findUsages] def assertSearchScopeIsSufficient(
+    target:    PsiNamedElement,
+    usageType: UsageType
+  ): Option[BeforeIndicesSearchAction] = {
     val project = target.getProject
     val service = ScalaCompilerReferenceService(project)
 
@@ -212,7 +218,15 @@ object CompilerIndicesReferencesSearcher {
         var action: Option[BeforeIndicesSearchAction] = None
 
         val dialogAction =
-          () => action = showRebuildSuggestionDialog(project, dirtyModules, upToDateModules, validIndexExists, target)
+          () =>
+            action = showRebuildSuggestionDialog(
+              project,
+              dirtyModules,
+              upToDateModules,
+              validIndexExists,
+              target,
+              usageType
+          )
 
         inEventDispatchThread(dialogAction())
         action
@@ -244,11 +258,19 @@ object CompilerIndicesReferencesSearcher {
     dirtyModules:     Set[Module],
     upToDateModules:  Set[Module],
     validIndexExists: Boolean,
-    element:          PsiNamedElement
+    element:          PsiNamedElement,
+    usageType:        UsageType
   ): Option[BeforeIndicesSearchAction] = {
     import DialogWrapper.{CANCEL_EXIT_CODE, OK_EXIT_CODE}
 
-    val dialog = new ImplicitFindUsagesDialog(false, element)
+    val title = usageType match {
+      case UsageType.SAMInterfaceImplementation => "SAM type"
+      case UsageType.InstanceApplyUnapply       => "apply/unapply method"
+      case UsageType.ForComprehensionMethods    => "for-comprehension method"
+      case UsageType.ImplicitDefinitionUsages   => "implicit definition"
+    }
+
+    val dialog = new ImplicitFindUsagesDialog(false, element, title)
     dialog.show()
 
     dialog.getExitCode match {
