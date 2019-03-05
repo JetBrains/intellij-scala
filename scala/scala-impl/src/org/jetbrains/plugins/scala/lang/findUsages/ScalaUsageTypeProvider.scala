@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package findUsages
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
-import org.jetbrains.plugins.scala.util.SAMUtil.SAMTypeImplementation
+import org.jetbrains.plugins.scala.util.SAMUtil._
 
 import scala.language.implicitConversions
 
@@ -40,7 +40,8 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
         case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
-        case (SAMTypeImplementation(_), _)            => Option(SAMImplementation)
+        case (SAMTypeImplementation(_), _) if isSAMTypeUsageTarget(targets) =>
+          Option(SAMImplementation)
         case (_: UnresolvedImplicitFakePsiElement, _) => Option(UnresolvedImplicit)
         case (e, Array(target: PsiElementUsageTarget))
           if isImplicitUsageTarget(target) && isReferencedImplicitlyIn(target.getElement, e) =>
@@ -57,6 +58,13 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
 }
 
 object ScalaUsageTypeProvider {
+  private def isSAMTypeUsageTarget(t: Array[UsageTarget]): Boolean =
+    t.collect { case psiUsageTarget: PsiElementUsageTarget => psiUsageTarget.getElement }
+      .exists {
+        case cls: PsiClass => cls.isSAMable
+        case _             => false
+      }
+
   private def isImplicitUsageTarget(target: PsiElementUsageTarget): Boolean = target.getElement match {
     case ImplicitSearchTarget(_) => true
     case _                       => false
