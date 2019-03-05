@@ -15,39 +15,49 @@
 
 package org.jetbrains.plugins.scala.testcases;
 
+import com.intellij.application.options.CodeStyle;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
-  @NonNls
-  protected final static String TEMP_FILE = "temp.scala";
+    @NonNls
+    protected final static String TEMP_FILE = "temp.scala";
+    public ScalaFileSetTestCase(String path) {
+        super(path);
+    }
 
+    @NotNull
+    protected CodeStyleSettings getSettings() {
+        return CodeStyle.getSettings(getProject());
+    }
 
-  public ScalaFileSetTestCase(String path) {
-    super(path);
-  }
+    @NotNull
+    protected ScalaCodeStyleSettings getScalaSettings() {
+        return getSettings().getCustomSettings(ScalaCodeStyleSettings.class);
+    }
 
-  protected CommonCodeStyleSettings getSettings() {
-      return CodeStyleSettingsManager.getSettings(getProject()).getCommonSettings(ScalaLanguage.INSTANCE);
-  }
+    @NotNull
+    protected CommonCodeStyleSettings getCommonSettings() {
+        return getSettings().getCommonSettings(ScalaLanguage.INSTANCE);
+    }
 
-  protected void setSettings() {
-      getSettings().getIndentOptions().INDENT_SIZE = 2;
-      getSettings().getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
-      getSettings().getIndentOptions().TAB_SIZE = 2;
-  }
+    protected void setSettings() {
+        getCommonSettings().getIndentOptions().INDENT_SIZE = 2;
+        getCommonSettings().getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
+        getCommonSettings().getIndentOptions().TAB_SIZE = 2;
+    }
 
-  protected void setUp(Project project) {
-    super.setUp(project);
-    ScalaLoader.loadScala();
-    setSettings();
-  }
+    protected void setUp(Project project) {
+        super.setUp(project);
+        setSettings();
+    }
 
-  protected void tearDown(Project project) {
-    super.tearDown(project);
-  }
+    protected void tearDown(Project project) {
+        super.tearDown(project);
+    }
 }
