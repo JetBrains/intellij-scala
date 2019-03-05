@@ -6,10 +6,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -71,20 +72,31 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   def configForFile(psiFile: PsiFile,
                     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
                     resolveFast: Boolean = false): Option[ScalafmtDynamicConfig] = {
+    configForFileWithTimestamp(psiFile, verbosity, resolveFast).map(_._1)
+  }
+
+  def configForFileWithTimestamp(psiFile: PsiFile,
+                                 verbosity: FmtVerbosity = FmtVerbosity.Verbose,
+                                 resolveFast: Boolean = false): Option[(ScalafmtDynamicConfig, Option[Long])] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    val config = scalafmtProjectConfigFile(configPath) match {
+    val configFile = scalafmtProjectConfigFile(configPath)
+    val config = configFile match {
       case Some(file) =>
         resolveConfig(file, Some(DefaultVersion), verbosity, resolveFast).toOption
       case None =>
         intellijDefaultConfig
     }
-    if (psiFile.isInstanceOf[SbtFileImpl]) {
-      config.map(_.withSbtDialect)
-    } else {
-      config
-    }
+    val configWithDialect =
+      if (psiFile.isInstanceOf[SbtFileImpl]) {
+        config.map(_.withSbtDialect)
+      } else {
+        config
+      }
+
+    val timestamp = configFile.map(_.getPath).flatMap(configsCache.get).map(_.vFileModificationTimestamp)
+    configWithDialect.map((_, timestamp))
   }
 
   private def intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
@@ -218,6 +230,9 @@ object ScalafmtDynamicConfigManager {
 
   def instanceIn(project: Project): ScalafmtDynamicConfigManager =
     project.getComponent(classOf[ScalafmtDynamicConfigManager])
+
+  def instanceIn(file: PsiElement): ScalafmtDynamicConfigManager =
+    file.getProject.getComponent(classOf[ScalafmtDynamicConfigManager])
 
   def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
     instanceIn(file.getProject).isIncludedInProject(file, config)

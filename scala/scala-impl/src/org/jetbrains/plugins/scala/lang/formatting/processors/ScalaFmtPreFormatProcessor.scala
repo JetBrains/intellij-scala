@@ -101,14 +101,20 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
-    val (cachedRange, timeStamp) = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp))
+    val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
 
-    if (timeStamp == file.getModificationStamp && cachedRange.contains(range))
-      return
+    val (config, сonfigTimestamp) = ScalafmtDynamicConfigManager.instanceIn(file).configForFileWithTimestamp(file) match {
+      case Some(result) => result
+      case None => return
+    }
+    if (cachedFileTimeStamp == file.getModificationStamp &&
+      cachedRange.contains(range) &&
+      cachedConfigTimestamp == сonfigTimestamp
+    ) return
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
 
-    formatRange(file, rangeUpdated).foreach { delta: Int =>
+    formatRange(file, config, rangeUpdated).foreach { delta: Int =>
       def moveRanges(textRanges: TextRanges): TextRanges = {
         textRanges.ranges.map { otherRange =>
           if (otherRange.getEndOffset <= rangeUpdated.getStartOffset) otherRange
@@ -118,11 +124,12 @@ object ScalaFmtPreFormatProcessor {
       }
 
       val ranges =
-        if (timeStamp == file.getModificationStamp) moveRanges(cachedRange)
+        if (cachedFileTimeStamp == file.getModificationStamp) moveRanges(cachedRange)
         else new TextRanges
 
       if (rangeUpdated.getLength + delta > 0)
-        file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp))
+        file.putUserData(
+          FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp, сonfigTimestamp))
     }
   }
 
@@ -316,15 +323,12 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatRange(file: PsiFile, range: TextRange): Option[Int] = {
+  private def formatRange(file: PsiFile, config: ScalafmtDynamicConfig, range: TextRange): Option[Int] = {
     implicit val project: Project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
     val document = manager.getDocument(file)
     if (document == null) return None
     implicit val fileText: String = file.getText
-
-    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigManager.instanceIn(project).configForFile(file).orNull
-    if (config == null) return None
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
 
@@ -883,7 +887,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long)] = Key.create("scala.fmt.formatted.ranges")
+  private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long, Option[Long])] = Key.create("scala.fmt.formatted.ranges")
 
   private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.WeakHashMap[PsiFile, mutable.TreeSet[(Int, Int)]]()
 
