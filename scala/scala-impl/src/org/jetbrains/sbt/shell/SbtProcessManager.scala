@@ -19,8 +19,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
@@ -30,10 +30,9 @@ import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
+import org.jetbrains.sbt.shell.SbtProcessManager._
 
 import scala.collection.JavaConverters._
-
-import SbtProcessManager._
 /**
   * Manages the sbt shell process instance for the project.
   * Instantiates an sbt instance when initially requested.
@@ -127,6 +126,10 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     if (shouldUpgradeSbtVersion)
       vmParams.add(s"-Dsbt.version=$upgradedSbtVersion")
 
+    // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
+    if(SystemInfo.isWindows)
+      vmParams.add("-Dsbt.log.noformat=true")
+
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
@@ -190,7 +193,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   /** If a custom VM executable is configured, return it. If it's not a valid path, warn user. */
-  private def getCustomVMExecutableOrWarn(sbtSettings: SbtExecutionSettings) =
+  private def getCustomVMExecutableOrWarn(sbtSettings: SbtExecutionSettings): Option[File] =
     Option(sbtSettings.vmExecutable).filter { path =>
       if (path.isFile) true
       else {
@@ -287,7 +290,6 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     * SbtProcessManager is solely responsible for handling the running state.
     */
   private[shell] def acquireShellProcessHandler: ColoredProcessHandler = processData.synchronized {
-    processData.exists(_.processHandler.getProcess.isAlive)
     processData match {
       case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
         handler
