@@ -22,7 +22,6 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
