@@ -88,6 +88,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         ensureDefaultScalafmtResolved()
     }
 
+    isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     updateConfigVisibility()
     updateUseIntellijWarningVisibility(scalaSettings)
   }
