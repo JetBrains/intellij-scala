@@ -132,7 +132,7 @@ private[compilerReferences] class SbtCompilationWatcher(
   override def start(): Unit = executeOnPooledThread {
     try {
       val baseInfoDir            = compilationInfoBaseDir(projectBase.toFile).toFile
-      val moduleInfoDirs         = baseInfoDir.listFiles().toOption.getOrElse(Array.empty)
+      val moduleInfoDirs         = baseInfoDir.listFiles(_.isDirectory).toOption.getOrElse(Array.empty)
       val fileFilter: FileFilter = _.getName.startsWith(compilationInfoFilePrefix)
       val offlineInfos           = moduleInfoDirs.flatMap(_.listFiles(fileFilter).toOption.getOrElse(Array.empty))
 
@@ -147,14 +147,13 @@ private[compilerReferences] class SbtCompilationWatcher(
           processOfflineInfos(offlineInfos)
         } else offlineInfos.foreach(_.delete())
 
-        subscribeToSbtNotifications()
       } finally moduleInfoDirs.foreach(_.unlock(log = logger.info))
     } catch {
       case NonFatal(e) => processEventInTransaction { publisher =>
         logger.error(s"An error occured while trying to read sbt compilation info files.", e)
         publisher.onError()
       }
-    }
+    } finally subscribeToSbtNotifications()
   }
 }
 
