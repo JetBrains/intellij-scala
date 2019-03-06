@@ -99,7 +99,9 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   }
 
   private def intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
-    ScalafmtDynamicService.instance.resolve(DefaultVersion, downloadIfMissing = false).toOption.map(_.intellijScalaFmtConfig)
+    ScalafmtDynamicService.instance
+      .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent)
+      .toOption.map(_.intellijScalaFmtConfig)
   }
 
   private def resolveConfig(configFile: VirtualFile,
@@ -125,11 +127,10 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
             }
             configsCache(configPath) = CachedConfig(config, currentVFileTimestamp, currentDocTimestamp)
             Right(config)
-          case Left(error: ConfigResolveError.ConfigScalafmtResolveError) =>
-            Left(error) // do not report, rely on ScalafmtDynamicUtil resolve error reporting
-          case Left(error: ConfigResolveError.ConfigError) =>
-            if (verbosity == FmtVerbosity.Verbose)
+          case Left(error) =>
+            if (verbosity == FmtVerbosity.Verbose) {
               reportConfigResolveError(configFile, error)
+            }
             Left(error)
         }
     }
@@ -178,13 +179,16 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     }
   }
 
-  private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError.ConfigError): Unit = {
+  private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     val details = configError match {
       case ConfigFileNotFound(_) => s"file not found"
       case ConfigMissingVersion(_) => "missing version setting"
       case ConfigParseError(_, cause) => s"parse error: ${cause.getMessage}"
       case UnknownError(unknownMessage, _) => s"unknown error: $unknownMessage"
+      // do not report, rely on ScalafmtDynamicUtil resolve error reporting
+      case _: ConfigScalafmtResolveError =>
+        return
     }
     val errorMessage = s"Failed to load scalafmt config:<br>$details"
     // NOTE: ConfError does not provide any information about parsing error position, so setting offset to zero
@@ -260,7 +264,7 @@ object ScalafmtDynamicConfigManager {
     case class ConfigMissingVersion(configPath: String) extends ConfigError
     case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
-    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigError
+    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigResolveError
 
     object UnknownError {
       def apply(cause: Throwable): UnknownError = new UnknownError(cause.getMessage, Option(cause))

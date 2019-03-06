@@ -3014,7 +3014,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
 //  def testSCL12461(): Unit = {
-//    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+//    getSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
 //    val before =
 //      """
 //        |test("Some test") {

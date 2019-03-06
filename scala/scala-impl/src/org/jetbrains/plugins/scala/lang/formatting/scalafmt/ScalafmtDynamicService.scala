@@ -9,6 +9,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -21,7 +22,6 @@ import scala.beans.BeanProperty
 import scala.collection.mutable
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 import scala.util.Try
-import org.jetbrains.plugins.scala.extensions._
 
 @State(
   name = "ScalafmtDynamicService",
@@ -53,7 +53,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
   // NOTE: maybe we should set project in dummy state while downloading formatter?
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
-              verbosity: FmtVerbosity = FmtVerbosity.FailSilent,
+              verbosity: FmtVerbosity,
               resolveFast: Boolean = false,
               progressListener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
     val resolveResult = formattersCache.get(version) match {
@@ -165,7 +165,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
             indicator.setIndeterminate(true)
             val progressListener = new ProgressIndicatorDownloadListener(indicator, s"$titlePrefix: ")
             val result = try {
-              resolve(version, downloadIfMissing = true, progressListener = progressListener)
+              resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, progressListener = progressListener)
             } catch {
               case pce: ProcessCanceledException =>
                 Left(DownloadError(version, pce))
@@ -180,7 +180,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
 
   def ensureVersionIsResolved(version: ScalafmtVersion, progressListener: DownloadProgressListener): Unit = {
     if (!formattersCache.contains(version)) {
-      resolve(version, downloadIfMissing = true, progressListener = progressListener)
+      resolve(version, downloadIfMissing = true, FmtVerbosity.FailSilent, progressListener = progressListener)
     }
   }
 }

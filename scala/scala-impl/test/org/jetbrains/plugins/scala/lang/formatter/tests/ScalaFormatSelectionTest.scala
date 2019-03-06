@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
-
 /**
   * @author Roman.Shein
   *         Date: 27.11.2015
@@ -168,7 +164,7 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
 //  TODO: the odds of such behavior are extremely low, and fixing the issue involves extensive change of getDummyBlocks
 //  def testSCL10000WithGroupedVals(): Unit = {
-//    getCommonSettings.ALIGN_GROUP_FIELD_DECLARATIONS = true
+//    getSettings.ALIGN_GROUP_FIELD_DECLARATIONS = true
 //
 //    val before =
 //      s"""
