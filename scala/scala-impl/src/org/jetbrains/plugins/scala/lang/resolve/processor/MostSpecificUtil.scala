@@ -90,28 +90,24 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
                                 checkImplicits: Boolean): Boolean = {
-    def lastRepeated(params: Seq[Parameter]): Boolean = {
-      val lastOption: Option[Parameter] = params.lastOption
-      if (lastOption.isEmpty) return false
-      lastOption.get.isRepeated
-    }
-    (r1.element, r2.element) match {
-      case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
-        val (t1, t2) = (r1.substitutor(getType(m1, r1.implicitCase)), r2.substitutor(getType(m2, r2.implicitCase)))
-        def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
 
+    def lastRepeated(params: Seq[Parameter]): Boolean = params.lastOption.exists(_.isRepeated)
+
+    (r1.element, r2.element) match {
+      case (m1 @ (_: PsiMethod | _: ScFun), m2 @ (_: PsiMethod | _: ScFun)) =>
+        val (t1, t2) = (r1.substitutor(getType(m1, r1.implicitCase)), r2.substitutor(getType(m2, r2.implicitCase)))
+
+        def calcParams(tp: ScType, undefine: Boolean): Either[Seq[Parameter], ScType] = {
           def toExistentialArg(tp: TypeParameter) =
             ScExistentialArgument(tp.name, tp.typeParameters, tp.lowerType, tp.upperType)
 
           tp match {
             case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
-              if (!existential) {
-                val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
+              if (!undefine) Left(params)
+              else {
+                val s = ScSubstitutor.bind(typeParams)(UndefinedType(_))
                 Left(params.map(p => p.copy(paramType = s(p.paramType))))
-              } else {
-                val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-                Left(params.map(p => p.copy(paramType = ScExistentialType(s(p.paramType)))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
@@ -120,7 +116,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
         }
 
-        val conformance = (calcParams(t1, existential = true), calcParams(t2, existential = false)) match {
+        val conformance = (calcParams(t1, undefine = false), calcParams(t2, undefine = true)) match {
             case (Left(p1), Left(p2)) =>
               var (params1, params2) = (p1, p2)
               if ((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] ||

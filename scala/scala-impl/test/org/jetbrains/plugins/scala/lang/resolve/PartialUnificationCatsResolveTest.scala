@@ -91,4 +91,20 @@ class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTest
        |}
      """.stripMargin
   )
+
+  def testSCL15057(): Unit = doResolveTest(
+    s"""
+       |object example extends App {
+       |  implicit class InvariantMap[F[_], A](fa: F[A]) {
+       |    def map[B](f: A => B): F[B] = ???
+       |  }
+       |  implicit class CovariantMap[F[+_, _], E, A](fa: F[E, A]) {
+       |    def m${REFTGT}ap[B](f: A => B): F[E, B] = ???
+       |  }
+       |  def covariantUser[F[+_, _]](fa: F[Nothing, Int]): Unit = {
+       |    fa.m${REFSRC}ap(_.toString)
+       |  }
+       |}
+     """.stripMargin
+  )
 }
