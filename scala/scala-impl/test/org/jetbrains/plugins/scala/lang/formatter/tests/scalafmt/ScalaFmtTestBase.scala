@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatter.tests
+package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService
