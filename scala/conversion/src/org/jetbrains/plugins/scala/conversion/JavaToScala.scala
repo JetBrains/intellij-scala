@@ -880,19 +880,20 @@ object JavaToScala {
                          refs: Seq[ReferenceData] = Seq.empty,
                          usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode = {
 
-    val annotationDropList = Seq("java.lang.Override", "org.jetbrains.annotations.Nullable",
-      "org.jetbrains.annotations.NotNull", "org.jetbrains.annotations.NonNls")
-
-    def handleAnnotations: Seq[IntermediateNode] = {
-      val annotations = mutable.ArrayBuffer[IntermediateNode]()
-      for {
-        a <- owner.getModifierList.getAnnotations
-        optValue = Option(a.getQualifiedName).map(annotationDropList.contains(_))
-        if optValue.exists(_ == false)
-      } {
-        annotations.append(convertPsiToIntermediate(a, null))
-      }
-      annotations
+    def handleAnnotations: Seq[IntermediateNode] = owner.getModifierList match {
+      case null => Seq.empty
+      case list =>
+        for {
+          annotation <- list.getAnnotations
+          if (annotation.getQualifiedName match {
+            case null |
+                 "java.lang.Override" |
+                 "org.jetbrains.annotations.Nullable" |
+                 "org.jetbrains.annotations.NotNull" |
+                 "org.jetbrains.annotations.NonNls" => false
+            case _ => true
+          })
+        } yield convertPsiToIntermediate(annotation, null)
     }
 
     def handleModifiers: Seq[IntermediateNode] = {
