@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError.ConfigError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
@@ -112,9 +113,12 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
       case Right(config) =>
         updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
-      case Left(error) =>
+      case Left(error: ConfigError) =>
+        updateScalafmtVersionLabel(version, isDefault = versionOpt.isEmpty)
         reportConfigResolveError(error)
+      case Left(error: ConfigResolveError) =>
         updateScalafmtVersionLabel("")
+        reportConfigResolveError(error)
     })
   }
 
