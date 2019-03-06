@@ -112,7 +112,11 @@ public abstract class FileSetTestCase extends TestSuite {
         FileSetTestCase.this.setUp(getProject());
         TestUtils.disableTimerThread();
       } catch (Exception x) {
-        tearDown();
+        // The tearDown method is not final and may be overridden
+        try {
+          tearDown();
+        } catch (Exception ignore) {
+        }
         throw x;
       }
     }
