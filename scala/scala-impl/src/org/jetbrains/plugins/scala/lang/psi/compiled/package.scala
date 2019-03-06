@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import java.io.IOException
-
 import com.intellij.openapi.vfs.VirtualFile
 
 import scala.annotation.tailrec
@@ -35,11 +33,7 @@ package object compiled {
     }
 
     def isAcceptable: Boolean = {
-      def isScalaFile(file: VirtualFile) = try {
-        DecompilationResult.decompile(file).isScala
-      } catch {
-        case _: IOException => false
-      }
+      def isScalaFile(file: VirtualFile) = DecompilationResult.tryDecompile(file).isDefined
 
       isScalaFile(virtualFile) ||
         isAcceptableImpl("", virtualFile.getNameWithoutExtension) {
