@@ -21,9 +21,8 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
     import ClauseCompletionProvider._
 
-    override protected def addCompletions(pattern: ScStableReferencePattern,
-                                          position: PsiElement,
-                                          result: CompletionResultSet): Unit = {
+    override protected def addCompletions(pattern: ScStableReferencePattern, result: CompletionResultSet)
+                                         (implicit place: PsiElement): Unit = {
       val maybeInheritors = pattern.expectedType
         .flatMap(_.extractClass)
         .collect {
@@ -33,7 +32,7 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
       for {
         inheritors <- maybeInheritors.toSeq
-        components <- inheritors.inexhaustivePatterns(position)
+        components <- inheritors.inexhaustivePatterns
 
         lookupString = components.extractorText()
       } result.addElement(lookupString, new PatternInsertHandler(lookupString, components))(itemTextItalic = true)

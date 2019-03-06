@@ -17,16 +17,15 @@ private[clauses] abstract class ClauseCompletionProvider[T <: ScalaPsiElement wi
   override final def addCompletions(parameters: CompletionParameters,
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
-    val position = positionFromParameters(parameters)
-    PsiTreeUtil.getParentOfType(position, clazz) match {
+    implicit val place: PsiElement = positionFromParameters(parameters)
+    PsiTreeUtil.getParentOfType(place, clazz) match {
       case null =>
-      case typeable => addCompletions(typeable, position, result)
+      case typeable => addCompletions(typeable, result)
     }
   }
 
-  protected def addCompletions(typeable: T,
-                               position: PsiElement,
-                               result: CompletionResultSet): Unit
+  protected def addCompletions(typeable: T, result: CompletionResultSet)
+                              (implicit place: PsiElement): Unit
 }
 
 private[clauses] object ClauseCompletionProvider {

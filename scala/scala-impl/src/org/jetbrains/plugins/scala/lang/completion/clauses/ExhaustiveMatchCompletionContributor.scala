@@ -11,9 +11,8 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
@@ -21,76 +20,64 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
-  import ClauseCompletionProvider._
-  import CompletionType.BASIC
   import ExhaustiveMatchCompletionContributor._
-  import PlatformPatterns.psiElement
-  import ScalaKeyword._
 
   extend(
-    BASIC,
-    psiElement.inside(classOf[ScSugarCallExpr]),
-    new ClauseCompletionProvider(classOf[ScSugarCallExpr]) {
+    classOf[ScSugarCallExpr],
+    classOf[ScSugarCallExpr]
+  )(
+    classOf[ScMatch],
+    ScalaKeyword.MATCH,
+  ) {
+    case (sugarCall@ScSugarCallExpr(operand, operation, _), place)
+      if !sugarCall.isInstanceOf[ScPrefixExpr] &&
+        operation.isAncestorOf(place) => operand.`type`().toOption
+    case _ => None
+  }
 
-      override protected def addCompletions(sugarCall: ScSugarCallExpr,
-                                            position: PsiElement,
-                                            result: CompletionResultSet): Unit =
-        for {
-          ScSugarCallExpr(operand, operation, _) <- Some(sugarCall)
-          if !sugarCall.isInstanceOf[ScPrefixExpr] && operation.isAncestorOf(position)
-
-          PatternGenerationStrategy(strategy) <- operand.`type`().toOption
-          handler = new ClausesInsertHandler(
-            strategy,
-            classOf[ScMatch],
-            prefix = DefaultPrefix,
-            suffix = DefaultSuffix
-          )(sugarCall) {
-
-            override protected def findCaseClauses(target: ScMatch): ScCaseClauses =
-              target.caseClauses
-          }
-        } result.addElement(MATCH, handler)(tailText = rendererTailText)
-    }
-  )
   extend(
-    BASIC,
-    psiElement.inside(classOf[ScArgumentExprList]),
-    new ClauseCompletionProvider(classOf[ScBlockExpr]) {
+    classOf[ScArgumentExprList],
+    classOf[ScBlockExpr]
+  )(
+    classOf[ScBlockExpr],
+    ScalaKeyword.CASE,
+    Some("", "")
+  ) {
+    case (ExpectedType(FunctionType(_, Seq(targetType))), _) => Some(targetType)
+    case _ => None
+  }
 
-      override protected def addCompletions(block: ScBlockExpr,
-                                            position: PsiElement,
-                                            result: CompletionResultSet): Unit =
-        for {
-          FunctionType(_, Seq(PatternGenerationStrategy(strategy))) <- block.expectedType()
-          handler = new ClausesInsertHandler(
-            strategy,
-            classOf[ScBlockExpr],
-            prefix = "",
-            suffix = ""
-          )(block) {
+  private def extend[T <: ScalaPsiElement with Typeable](captureClass: Class[_ <: ScalaPsiElement], targetClass: Class[T])
+                                                        (handlerTargetClass: Class[_ <: ScExpression], lookupString: String,
+                                                         prefixAndSuffix: PrefixAndSuffix = None)
+                                                        (`type`: (T, PsiElement) => Option[ScType]): Unit = extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement.inside(captureClass),
+    new ClauseCompletionProvider(targetClass) {
 
-            override protected def findCaseClauses(target: ScBlockExpr): ScCaseClauses =
-              target.findLastChildByType[ScCaseClauses](ScalaElementType.CASE_CLAUSES)
-          }
-        } result.addElement(CASE, handler)(tailText = rendererTailText)
+      import ClauseCompletionProvider._
+
+      override protected def addCompletions(typeable: T, result: CompletionResultSet)
+                                           (implicit place: PsiElement): Unit = for {
+        PatternGenerationStrategy(strategy) <- `type`(typeable, place)
+        handler = new ClausesInsertHandler(strategy, handlerTargetClass, prefixAndSuffix)
+      } result.addElement(lookupString, handler)(tailText = rendererTailText)
     }
   )
 }
 
 object ExhaustiveMatchCompletionContributor {
 
-  import ScalaKeyword._
-
-  private val DefaultPrefix = s"$MATCH {\n"
-  private val DefaultSuffix = "\n}"
   private[lang] val Exhaustive = "exhaustive"
 
   private[lang] def rendererTailText = s" ($Exhaustive)"
+
+  private type PrefixAndSuffix = Option[(String, String)]
 
   private[lang] sealed trait PatternGenerationStrategy {
 
@@ -110,12 +97,13 @@ object ExhaustiveMatchCompletionContributor {
           case ScTypedPattern(typeElement) => typeElement
         }
 
-      def createClauses(prefix: String = DefaultPrefix,
-                        suffix: String = DefaultSuffix)
+      def createClauses(prefixAndSuffix: PrefixAndSuffix = None)
                        (implicit place: PsiElement): (Seq[PatternComponents], String) = {
+        val (prefix, suffix) = prefixAndSuffix.getOrElse(ScalaKeyword.MATCH + " {\n", "\n}")
+
         val components = strategy.patterns
         val clausesText = components.map { component =>
-          s"$CASE ${component.text} $functionArrow"
+          ScalaKeyword.CASE + " " + component.text + " " + functionArrow
         }.mkString(prefix, "\n", suffix)
 
         (components, clausesText)
@@ -183,13 +171,13 @@ object ExhaustiveMatchCompletionContributor {
       value.`type`().exists(_.conforms(valueType))
   }
 
-  private abstract class ClausesInsertHandler[E <: ScExpression](strategy: PatternGenerationStrategy, clazz: Class[E],
-                                                                 prefix: String, suffix: String)
-                                                                (implicit place: PsiElement)
+  private class ClausesInsertHandler[E <: ScExpression](strategy: PatternGenerationStrategy, clazz: Class[E],
+                                                        prefixAndSuffix: PrefixAndSuffix)
+                                                       (implicit place: PsiElement)
     extends ClauseInsertHandler(clazz) {
 
     override protected def handleInsert(implicit insertionContext: InsertionContext): Unit = {
-      val (components, clausesText) = strategy.createClauses(prefix, suffix)
+      val (components, clausesText) = strategy.createClauses(prefixAndSuffix)
       ClauseInsertHandler.replaceText(clausesText)
 
       val InsertionContextExt(editor, document, file, project) = insertionContext
@@ -211,7 +199,8 @@ object ExhaustiveMatchCompletionContributor {
       editor.getCaretModel.moveToOffset(offset)
     }
 
-    protected def findCaseClauses(target: E): ScCaseClauses
+    private def findCaseClauses(target: E): ScCaseClauses =
+      target.findLastChildByType[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES)
 
     private def replaceWhiteSpace(clause: ScCaseClause)
                                  (nextSibling: => PsiElement) = {
