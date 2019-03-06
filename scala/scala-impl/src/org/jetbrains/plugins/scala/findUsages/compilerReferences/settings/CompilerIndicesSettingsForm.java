@@ -44,7 +44,11 @@ public class CompilerIndicesSettingsForm {
   }
 
   boolean isModified(CompilerIndicesSettings settings) {
-    return settings.isIndexingEnabled() != enableIndexingCB.isSelected();
+    return settings.isIndexingEnabled() != enableIndexingCB.isSelected() ||
+            settings.isEnabledForApplyUnapply() != applyMethodCB.isSelected() ||
+            settings.isEnabledForForComprehensionMethods() != forCompMethodCB.isSelected() ||
+            settings.isEnabledForImplicitDefs() != implicitDefinitionsCB.isSelected() ||
+            settings.isEnabledForSAMTypes() != samTypesCB.isSelected();
   }
 
   void applyTo(CompilerIndicesSettings settings) {
