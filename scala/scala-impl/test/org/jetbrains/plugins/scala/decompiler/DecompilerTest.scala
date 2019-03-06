@@ -35,7 +35,8 @@ trait DecompilerTestBase extends TestCase {
 
   protected final def decompile(classFilePath: String): String = {
     val file = new File(new jFile(classFilePath))
-    Decompiler(file.name, file.toByteArray).get._2
+    val Some((_, sourceText)) = Decompiler(file.name, file.toByteArray)
+    sourceText
   }
 }
 

@@ -4,7 +4,7 @@ package psi
 
 import java.io.IOException
 
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.VirtualFile
 
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer.decode
@@ -35,69 +35,16 @@ package object compiled {
     }
 
     def isAcceptable: Boolean = {
-      def isScalaFile(file: VirtualFile) =
-        try {
-          file.decompile().isScala
-        } catch {
-          case _: IOException => false
-        }
+      def isScalaFile(file: VirtualFile) = try {
+        DecompilationResult.decompile(file).isScala
+      } catch {
+        case _: IOException => false
+      }
 
       isScalaFile(virtualFile) ||
         isAcceptableImpl("", virtualFile.getNameWithoutExtension) {
           validSiblingsNames(isScalaFile)
         }
-    }
-
-    def decompile(bytes: => Array[Byte] = virtualFile.contentsToByteArray): DecompilationResult = {
-      import DecompilationResult._
-
-      virtualFile match {
-        case _: VirtualFileWithId =>
-          import ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute
-
-          implicit val timeStamp: Long = virtualFile.getTimeStamp
-          var cached = Cache(virtualFile)
-
-          if (cached == null || cached.timeStamp != timeStamp) {
-            val maybeResult = for {
-              attribute <- DecompilerFileAttribute
-              readAttribute <- Option(attribute.readAttribute(virtualFile))
-
-              result <- readFrom(readAttribute)
-              if result.timeStamp == timeStamp
-            } yield result
-
-            def decompile() = decompiler.Decompiler(virtualFile.getName, bytes)
-
-            cached = maybeResult match {
-              case Some(result) if result.isScala =>
-                new DecompilationResult(isScala = true, result.sourceName) {
-                  override protected lazy val rawSourceText: String = decompile().fold("")(_._2)
-                }
-              case Some(result) =>
-                new DecompilationResult(sourceName = result.sourceName) {}
-              case _ =>
-                val result = decompile().fold(empty()) {
-                  case (sourceName, sourceText) =>
-                    new DecompilationResult(isScala = true, sourceName) {
-                      override protected val rawSourceText: String = sourceText
-                    }
-                }
-
-                for {
-                  attribute <- DecompilerFileAttribute
-                  outputStream = attribute.writeAttribute(virtualFile)
-                } writeTo(result, outputStream)
-
-                result
-            }
-
-            Cache(virtualFile) = cached
-          }
-
-          cached
-        case _ => empty()
-      }
     }
 
     private def validSiblingsNames(predicate: VirtualFile => Boolean) =
