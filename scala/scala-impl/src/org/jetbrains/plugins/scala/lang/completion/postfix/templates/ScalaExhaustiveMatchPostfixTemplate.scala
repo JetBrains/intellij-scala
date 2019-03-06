@@ -45,8 +45,13 @@ object ScalaExhaustiveMatchPostfixTemplate {
 
   private def topMostStrategy(context: PsiElement): Option[(ScExpression, PatternGenerationStrategy)] =
     PsiTreeUtil.getNonStrictParentOfType(context, classOf[ScExpression]) match {
-      case expression@Typeable(PatternGenerationStrategy(strategy)) => Some(expression, strategy)
-      case _ => None
+      case null => None
+      case expression =>
+        implicit val place: PsiElement = expression
+        expression match {
+          case Typeable(PatternGenerationStrategy(strategy)) => Some(expression, strategy)
+          case _ => None
+        }
     }
 
   private def expandForStrategy(expression: ScExpression,

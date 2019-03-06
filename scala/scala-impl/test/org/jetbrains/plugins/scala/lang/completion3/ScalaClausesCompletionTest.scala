@@ -250,6 +250,15 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          """.stripMargin
   )
 
+  def testEmptyJavaEnum(): Unit = {
+    configureJavaFile("public enum EmptyEnum {}", "EmptyEnum")
+    checkNoCompletion(
+      fileText = s"(_: EmptyEnum) m$CARET",
+      time = DEFAULT_TIME,
+      completionType = BASIC
+    )(isExhaustiveMatch)
+  }
+
   def testScalaEnum(): Unit = doMatchCompletionTest(
     fileText =
       s"""object Margin extends Enumeration {
@@ -311,6 +320,20 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin
   )
+
+  def testEmptyScalaEnum(): Unit = checkNoCompletion(
+    fileText =
+      s"""object Margin extends Enumeration {
+         |  type Margin = Value
+         |
+         |  private val NULL = Value
+         |}
+         |
+         |(_: Margin.Margin) m$CARET
+       """.stripMargin,
+    time = DEFAULT_TIME,
+    completionType = BASIC
+  )(isExhaustiveMatch)
 
   def testVarargs(): Unit = doMatchCompletionTest(
     fileText =
