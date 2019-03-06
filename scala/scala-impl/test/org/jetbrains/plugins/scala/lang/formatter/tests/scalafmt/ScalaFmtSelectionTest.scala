@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.formatter.tests
+package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
+
+import org.jetbrains.plugins.scala.lang.formatter.tests.SelectionTest
 
 //noinspection RedundantBlock
 class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
