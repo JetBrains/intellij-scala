@@ -70,16 +70,18 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
     projectConfigFile(configPathNew) match {
       case Some(vFile) =>
+        if (configTextChangedInEditor) {
+          saveConfigChangesToFile(editorText, vFile)
+        }
+
         if (configPathChanged || panelWasJustEnabled) {
           scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
           updateConfigTextFromFile(vFile)
-        } else if (configTextChangedInEditor) {
-          saveConfigChangesToFile(editorText, vFile)
         }
         ensureScalafmtResolved(vFile)
       case None =>
         if (configPathChanged || configTextChangedInEditor) {
-          if(configPathNew.isEmpty) {
+          if (configPathNew.isEmpty) {
             scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
             configText = None
           } else {
@@ -288,9 +290,21 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val button = externalFormatterSettingsPath.getButton
     button.getActionListeners.foreach(button.removeActionListener)
 
+    def updateConfigPath(configPath: String): Unit = {
+      projectConfigFile(configPath) match {
+        case Some(vFile) =>
+          updateConfigTextFromFile(vFile)
+          ensureScalafmtResolved(vFile)
+        case _ =>
+      }
+    }
+
     // if config path text field is empty we want to select default config file in project tree of file browser
     val textAccessor = new TextComponentAccessor[JTextField]() {
-      override def setText(textField: JTextField, text: String): Unit = textField.setText(text)
+      override def setText(textField: JTextField, text: String): Unit = {
+        textField.setText(text)
+        updateConfigPath(text)
+      }
       override def getText(textField: JTextField): String = {
         val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
         project
@@ -304,8 +318,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val focusListener = new FocusListener {
       override def focusGained(e: FocusEvent): Unit = {}
       override def focusLost(e: FocusEvent): Unit = {
-        if (StringUtils.isBlank(externalFormatterSettingsPath.getText))
+        val configPath = externalFormatterSettingsPath.getText
+        if (StringUtils.isBlank(configPath)) {
           externalFormatterSettingsPath.setText(null)
+          updateConfigPath(DefaultConfigFilePath)
+        } else {
+          updateConfigPath(configPath)
+        }
       }
     }
 
