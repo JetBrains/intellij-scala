@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang
 package formatting
-/**
-* @author ilyas
-*/
 
 import java.util
 
@@ -15,8 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -67,7 +63,11 @@ object getDummyBlocks {
   }
 
   def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] =
-    if (lastNode != null) applyInner(firstNode, lastNode, block) else applyInner(firstNode, block)
+    if (lastNode != null) {
+      applyInner(firstNode, lastNode, block)
+    } else {
+      applyInner(firstNode, block)
+    }
 
 
   private def applyInner(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
@@ -77,7 +77,10 @@ object getDummyBlocks {
     val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
       case _: ScValue | _: ScVariable if settings.ALIGN_GROUP_FIELD_DECLARATIONS =>
-        if (node.getTreeParent.getPsi match { case _: ScEarlyDefinitions | _: ScTemplateBody => true; case _ => false }) {
+        if (node.getTreeParent.getPsi match {
+          case _: ScEarlyDefinitions | _: ScTemplateBody => true;
+          case _ => false
+        }) {
           subBlocks.addAll(getFieldGroupSubBlocks(node, block))
           return subBlocks
         }
@@ -86,7 +89,7 @@ object getDummyBlocks {
         return subBlocks
       case _: ScIf =>
         val alignment = if (scalaSettings.ALIGN_IF_ELSE) Alignment.createAlignment
-                        else null
+        else null
         subBlocks.addAll(getIfSubBlocks(node, block, alignment))
         return subBlocks
       case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement =>
@@ -214,14 +217,23 @@ object getDummyBlocks {
         return subBlocks
       case _ =>
     }
-    val alignment: Alignment = if (mustAlignment(node, block.getSettings))
-      Alignment.createAlignment
-    else null
+
+    val alignment: Alignment =
+      if (mustAlignment(node, block.getSettings)) Alignment.createAlignment
+      else null
     var alternateAlignment: Alignment = null
     for (child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childAlignment: Alignment = {
         node.getPsi match {
+          case params: ScParameters =>
+            val firstParameterStartsFromNewLine =
+              params.clauses.headOption.exists(_.parameters.headOption match {
+                case Some(PrevSibling(Whitespace(ws))) if ws.contains("\n") => true
+                case _ => false
+              })
+            if (firstParameterStartsFromNewLine) null
+            else alignment
           case _: ScParameterClause =>
             child.getElementType match {
               case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => null
@@ -293,12 +305,13 @@ object getDummyBlocks {
           case _ => alignment
         }
       }
-      val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+
       if (child.getFirstChildNode == null && child.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
-          scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE) {
+        scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE) {
         //flatten interpolated strings
         subBlocks.addAll(getMultilineStringBlocks(child, block))
       } else {
+        val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
         subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       }
     }
@@ -787,11 +800,10 @@ object getDummyBlocks {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new util.ArrayList[Block]
     val children = node.getChildren(null)
-    val alignment = if (parentAlignment != null)
-      parentAlignment
-    else if (mustAlignment(node, settings))
-      Alignment.createAlignment
-    else null
+    val alignment =
+      if (parentAlignment != null) parentAlignment
+      else if (mustAlignment(node, settings)) Alignment.createAlignment
+      else null
     for (child <- children) {
       def checkSamePriority: Boolean = {
         import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
@@ -826,9 +838,9 @@ object getDummyBlocks {
     val settings = block.getSettings
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new util.ArrayList[Block]
-    val alignment = if (mustAlignment(node, settings))
-      Alignment.createAlignment
-    else null
+    val alignment =
+      if (mustAlignment(node, settings)) Alignment.createAlignment
+      else null
     val elementTypes: Set[IElementType] = Set(ScalaElementType.METHOD_CALL, ScalaElementType.REFERENCE_EXPRESSION)
     def extractParentAlignment: Option[Alignment] =
       Option(block.myParentBlock).map(_.getNode.getElementType) match {
