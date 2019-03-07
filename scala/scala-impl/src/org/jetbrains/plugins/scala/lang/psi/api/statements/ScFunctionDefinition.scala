@@ -8,7 +8,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
@@ -16,12 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
+import scala.annotation.tailrec
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 * Time: 9:49:36
 */
 trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
+
+  import ScExpression._
+
   def body: Option[ScExpression]
 
   def hasAssign: Boolean
@@ -63,7 +67,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       case Seq() => Set.empty
       case _ =>
         def calculateExpandedReturns(expression: ScExpression): Set[ScExpression] = {
-          val visitor = new ScExpression.ReturnsVisitor {
+          val visitor: ReturnsVisitor = new ReturnsVisitor {
 
             private val booleanInstance = StdTypes.instance.Boolean
 
@@ -88,7 +92,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
         innerReturnUsages(calculateExpandedReturns).flatMap(expandIf)
     }
 
-    @scala.annotation.tailrec
+    @tailrec
     def possiblyTailRecursiveCallFor(element: PsiElement): PsiElement = element.getParent match {
       case call@(_: ScMethodCall |
                  _: ScGenericCall) => possiblyTailRecursiveCallFor(call)
@@ -100,12 +104,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     recursiveReferences.map { reference =>
       RecursiveReference(reference, expressions(possiblyTailRecursiveCallFor(reference)))
     }
-  }
-
-  def recursionType: RecursionType = recursiveReferences match {
-    case Seq() => RecursionType.NoRecursion
-    case seq if seq.forall(_.isTailCall) => RecursionType.TailRecursion
-    case _ => RecursionType.OrdinaryRecursion
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = body
@@ -128,17 +126,21 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 }
 
 object ScFunctionDefinition {
+
   object withBody {
     def unapply(fun: ScFunctionDefinition): Option[ScExpression] = Option(fun).flatMap(_.body)
+  }
+
+  implicit class FunctionDefinitionExt(private val function: ScFunctionDefinition) extends AnyVal {
+
+    import RecursionType._
+
+    def recursionType: RecursionType = function.recursiveReferences match {
+      case Seq() => NoRecursion
+      case seq if seq.forall(_.isTailCall) => TailRecursion
+      case _ => OrdinaryRecursion
+    }
   }
 }
 
 case class RecursiveReference(element: ScReference, isTailCall: Boolean)
-
-trait RecursionType
-
-object RecursionType {
-  case object NoRecursion extends RecursionType
-  case object OrdinaryRecursion extends RecursionType
-  case object TailRecursion extends RecursionType
-}
