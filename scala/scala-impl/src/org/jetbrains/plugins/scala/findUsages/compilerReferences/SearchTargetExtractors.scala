@@ -16,7 +16,15 @@ import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
   * See also: [[ScalaCompilerReferenceService]]
   */
 object SearchTargetExtractors {
-  sealed trait UsageType
+  sealed trait UsageType {
+    override def toString: String = this match {
+      case UsageType.SAMInterfaceImplementation => "SAM type"
+      case UsageType.InstanceApplyUnapply       => "apply/unapply method"
+      case UsageType.ForComprehensionMethods    => "for-comprehension method"
+      case UsageType.ImplicitDefinitionUsages   => "implicit definition"
+    }
+  }
+
   object UsageType {
     case object SAMInterfaceImplementation extends UsageType
     case object ForComprehensionMethods    extends UsageType
