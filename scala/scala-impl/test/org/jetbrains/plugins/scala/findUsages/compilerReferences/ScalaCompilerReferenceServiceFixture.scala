@@ -81,7 +81,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     getProject.getMessageBus
       .connect(getProject)
       .subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-        override def onIndexingFinished(success: Boolean): Unit = compilerIndexLock.locked {
+        override def onIndexingPhaseFinished(success: Boolean): Unit = compilerIndexLock.locked {
           indexReadyPredicate = true
           indexReady.signal()
         }

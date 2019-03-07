@@ -115,6 +115,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] def onIndexCorruption(): Unit = transactionManager.inTransaction { _ =>
     val index = reader.map(_.getIndex())
     dirtyScopeHolder.reset()
+    messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(success = false)
     indexerScheduler.schedule(InvalidateIndex(index))
     indexerScheduler.schedule("Index invalidation callback", () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
@@ -126,7 +127,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] def closeReader(incrementBuildCount: Boolean): Unit = transactionManager.inTransaction { _ =>
     if (incrementBuildCount) {
       if (activeIndexingPhases.getAndIncrement() == 0) {
-        messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingStarted()
+        messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseStarted()
       }
       dirtyScopeHolder.indexingStarted()
     }
@@ -151,7 +152,7 @@ private[findUsages] class ScalaCompilerReferenceService(
           onIndexCorruption()
         } else {
           reader = ScalaCompilerReferenceReaderFactory(project)
-          messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingFinished(indexingSuccessful)
+          messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(indexingSuccessful)
         }
       }
     }

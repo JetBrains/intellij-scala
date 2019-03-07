@@ -8,7 +8,7 @@ import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
 import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
@@ -160,12 +160,12 @@ object CompilerIndicesReferencesSearcher {
         case module if module.isSourceModule => module.getName
       }.asJavaCollection)
 
-      override def onIndexingStarted(): Unit = showProgressIndicator(project)
+      override def onIndexingPhaseStarted(): Unit = showProgressIndicator(project)
 
       override def onCompilationInfoIndexed(modules: Set[String]): Unit =
         targetModuleNames.removeAll(modules.asJava)
 
-      override def onIndexingFinished(success: Boolean): Unit = {
+      override def onIndexingPhaseFinished(success: Boolean): Unit = {
         if (success) {
           if (targetModuleNames.isEmpty) {
             lock.locked(indexingFinishedCondition.signal())
