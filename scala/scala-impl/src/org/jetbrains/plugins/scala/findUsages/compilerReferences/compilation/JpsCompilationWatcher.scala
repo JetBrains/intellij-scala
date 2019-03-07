@@ -86,7 +86,12 @@ private[compilerReferences] class JpsCompilationWatcher(
         val timestamp   = System.currentTimeMillis()
         val key         = Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS")
         val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
-        val modules     = compileContext.getCompileScope.getAffectedModules.map(_.getName)
+
+        val modules =
+          Option(compileContext.getCompileScope)
+            .fold(Array.empty[String])(
+              _.getAffectedModules.map(_.getName)
+            )
 
         // @TODO: handle the following scenario:
         // @TODO: no indices are present and all modules are up-to-date
