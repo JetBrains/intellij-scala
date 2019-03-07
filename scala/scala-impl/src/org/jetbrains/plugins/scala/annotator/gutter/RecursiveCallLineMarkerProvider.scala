@@ -1,50 +1,46 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala
+package annotator
+package gutter
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
-import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.gutter.GutterIcons._
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScFunctionDefinition}
 
-class RecursiveCallLineMarkerProvider() extends LineMarkerProvider {
-  override def getLineMarkerInfo(psiElement: PsiElement): LineMarkerInfo[_ <: PsiElement] = psiElement match {
-    case ident if ident.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
-      ident.parent.flatMap {
-        case method: ScFunctionDefinition => getRecursionMarker(method)
-        case _                            => None
-      }.orNull
-    case _ => null
-  }
+final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
 
-  private[this] def getRecursionMarker(method: ScFunctionDefinition): Option[LineMarkerInfo[_ <: PsiElement]] =
-    method.recursionType match {
-      case RecursionType.OrdinaryRecursion =>
-        new LineMarkerInfo[PsiElement](
-          method.nameId,
-          method.nameId.getTextRange,
-          RECURSION_ICON,
-          (e: PsiElement) => "Method '%s' is recursive".format(e.getText),
-          null,
-          GutterIconRenderer.Alignment.LEFT
-        ).toOption
-      case RecursionType.TailRecursion =>
-        new LineMarkerInfo[PsiElement](
-          method.nameId,
-          method.nameId.getTextRange,
-          TAIL_RECURSION_ICON,
-          (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText),
-          null,
-          GutterIconRenderer.Alignment.LEFT
-        ).toOption
-      case RecursionType.NoRecursion => None
+  import RecursionType._
+  import RecursiveCallLineMarkerProvider._
+  import icons.Icons._
+
+  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] =
+    element.getParent match {
+      case function: ScFunctionDefinition if element.getNode.getElementType == lang.lexer.ScalaTokenTypes.tIDENTIFIER =>
+        val producer = function.recursionType match {
+          case OrdinaryRecursion => createLineMarkerInfo(RECURSION, "method.is.recursive")
+          case TailRecursion => createLineMarkerInfo(TAIL_RECURSION, "method.is.tail.recursive")
+          case _ => Function.const(null) _
+        }
+        producer(function.nameId)
+      case _ => null
     }
 
-  override def collectSlowLineMarkers(
-    list:       util.List[PsiElement],
-    collection: util.Collection[LineMarkerInfo[_ <: PsiElement]]
-  ): Unit = ()
+  override def collectSlowLineMarkers(list: ju.List[PsiElement],
+                                      collection: ju.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {}
+}
+
+object RecursiveCallLineMarkerProvider {
+
+  private def createLineMarkerInfo(icon: Icon, key: String) =
+    (element: PsiElement) => new LineMarkerInfo(
+      element,
+      element.getTextRange,
+      icon,
+      (e: PsiElement) => ScalaBundle.message(key, e.getText),
+      null,
+      Alignment.LEFT
+    )
 }
