@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -234,12 +234,11 @@ abstract class ScalaAnnotator extends Annotator
         super.visitFunctionDeclaration(fun)
       }
 
-      override def visitFunction(fun: ScFunction) {
-        if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
-          checkOverrideMethods(fun, holder, isInSources)
-        }
-        if (!fun.isConstructor) checkFunctionForVariance(fun, holder)
-        super.visitFunction(fun)
+      override def visitFunction(function: ScFunction) {
+        if (typeAware && !compiled) checkOverrideMethods(function, isInSources)(holder)
+
+        if (!function.isConstructor) checkFunctionForVariance(function, holder)
+        super.visitFunction(function)
       }
 
       override def visitTypeProjection(proj: ScTypeProjection) {
@@ -289,27 +288,24 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitTypeAlias(alias: ScTypeAlias) {
-        if (typeAware && !compiled && alias.getParent.isInstanceOf[ScTemplateBody]) {
-          checkOverrideTypes(alias, holder)
-        }
+        if (typeAware && !compiled) checkOverrideTypeAliases(alias)(holder)
+
         if(!compoundType(alias)) checkBoundsVariance(alias, holder, alias.nameId, alias, checkTypeDeclaredSameBracket = false)
         super.visitTypeAlias(alias)
       }
 
-      override def visitVariable(varr: ScVariable) {
-        if (typeAware && !compiled && (varr.getParent.isInstanceOf[ScTemplateBody] ||
-                varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
-          checkOverrideVars(varr, holder, isInSources)
-        }
-        varr.typeElement match {
-          case Some(typ) => checkBoundsVariance(varr, holder, typ, varr, checkTypeDeclaredSameBracket = false)
+      override def visitVariable(variable: ScVariable) {
+        if (typeAware && !compiled) checkOverrideVariables(variable, isInSources)(holder)
+
+        variable.typeElement match {
+          case Some(typ) => checkBoundsVariance(variable, holder, typ, variable, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
-        if (!childHasAnnotation(varr.typeElement, "uncheckedVariance")) {
-          checkValueAndVariableVariance(varr, Covariant, varr.declaredElements, holder)
-          checkValueAndVariableVariance(varr, Contravariant, varr.declaredElements, holder)
+        if (!childHasAnnotation(variable.typeElement, "uncheckedVariance")) {
+          checkValueAndVariableVariance(variable, Covariant, variable.declaredElements, holder)
+          checkValueAndVariableVariance(variable, Contravariant, variable.declaredElements, holder)
         }
-        super.visitVariable(varr)
+        super.visitVariable(variable)
       }
 
       override def visitValueDeclaration(v: ScValueDeclaration) {
@@ -317,25 +313,22 @@ abstract class ScalaAnnotator extends Annotator
         super.visitValueDeclaration(v)
       }
 
-      override def visitValue(v: ScValue) {
-        if (typeAware && !compiled && (v.getParent.isInstanceOf[ScTemplateBody] ||
-                v.getParent.isInstanceOf[ScEarlyDefinitions])) {
-          checkOverrideVals(v, holder, isInSources)
-        }
-        v.typeElement match {
-          case Some(typ) => checkBoundsVariance(v, holder, typ, v, checkTypeDeclaredSameBracket = false)
+      override def visitValue(value: ScValue) {
+        if (typeAware && !compiled) checkOverrideValues(value, isInSources)(holder)
+
+        value.typeElement match {
+          case Some(typ) => checkBoundsVariance(value, holder, typ, value, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
-        if (!childHasAnnotation(v.typeElement, "uncheckedVariance")) {
-          checkValueAndVariableVariance(v, Covariant, v.declaredElements, holder)
+        if (!childHasAnnotation(value.typeElement, "uncheckedVariance")) {
+          checkValueAndVariableVariance(value, Covariant, value.declaredElements, holder)
         }
-        super.visitValue(v)
+        super.visitValue(value)
       }
 
       override def visitClassParameter(parameter: ScClassParameter) {
-        if (typeAware && !compiled) {
-          checkOverrideClassParameters(parameter, holder)
-        }
+        if (typeAware && !compiled) checkOverrideClassParameters(parameter)(holder)
+
         checkClassParameterVariance(parameter, holder)
         super.visitClassParameter(parameter)
       }

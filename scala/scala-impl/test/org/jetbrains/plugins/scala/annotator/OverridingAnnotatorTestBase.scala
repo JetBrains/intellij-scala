@@ -1,77 +1,52 @@
-package org.jetbrains.plugins.scala.annotator
-import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+package org.jetbrains.plugins.scala
+package annotator
 
 /**
   * Created by mucianm on 22.03.16.
   */
-trait OverridingAnnotatorTestBase extends SimpleTestCase{
+trait OverridingAnnotatorTestBase extends base.SimpleTestCase {
 
-  final val Header = "\n"
+  import lang.psi.api._
+  import statements._
 
   def messages(code: String): List[Message] = {
     val annotator = new OverridingAnnotator() {}
-    val file = (Header + code).parseWithEventSystem
+    val file = ("\n" + code).parseWithEventSystem
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitFunction(fun: ScFunction): Unit = {
-        if (fun.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideMethods(fun, mock, isInSources = false)
-        }
-        super.visitFunction(fun)
-      }
+    new ScalaRecursiveElementVisitor {
 
-      override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
-        if (typedef.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideTypes(typedef, mock)
-        }
-        super.visitTypeDefinition(typedef)
+      override def visitFunction(function: ScFunction): Unit = {
+        annotator.checkOverrideMethods(function)
+        super.visitFunction(function)
       }
 
       override def visitTypeAlias(alias: ScTypeAlias): Unit = {
-        if (alias.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideTypes(alias, mock)
-        }
+        annotator.checkOverrideTypeAliases(alias)
         super.visitTypeAlias(alias)
       }
 
-      override def visitVariable(varr: ScVariable): Unit = {
-        if (varr.getParent.isInstanceOf[ScTemplateBody] ||
-          varr.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVars(varr, mock, isInSources = false)
-        }
-        super.visitVariable(varr)
+      override def visitVariable(variable: ScVariable): Unit = {
+        annotator.checkOverrideVariables(variable)
+        super.visitVariable(variable)
       }
 
-      override def visitValue(v: ScValue): Unit = {
-        if (v.getParent.isInstanceOf[ScTemplateBody] ||
-          v.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVals(v, mock, isInSources = false)
-        }
-        super.visitValue(v)
+      override def visitValue(value: ScValue): Unit = {
+        annotator.checkOverrideValues(value)
+        super.visitValue(value)
       }
 
-      override def visitClassParameter(parameter: ScClassParameter): Unit = {
-        annotator.checkOverrideClassParameters(parameter, mock)
+      override def visitClassParameter(parameter: params.ScClassParameter): Unit = {
+        annotator.checkOverrideClassParameters(parameter)
         super.visitClassParameter(parameter)
       }
 
-      override def visitModifierList(modifierList: ScModifierList): Unit = {
-        ModifierChecker.checkModifiers(modifierList)
+      override def visitModifierList(modifierList: base.ScModifierList): Unit = {
+        modifiers.ModifierChecker.checkModifiers(modifierList)
         super.visitModifierList(modifierList)
       }
-    }
-
-    visitor.visitFile(file)
+    }.visitFile(file)
 
     mock.annotations
   }
