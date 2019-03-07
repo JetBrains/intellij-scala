@@ -106,25 +106,24 @@ object ScalaUsageTypeProvider {
   }
 
   implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
-
-  private val Extractor: UsageType                 = "Extractor"
-  private val ClassTypedPattern: UsageType         = "Typed Pattern"
-  private val TypedStatement: UsageType            = "Typed Statement"
-  private val MethodApply: UsageType               = "Method `apply`"
-  private val ThisReference: UsageType             = "This Reference"
-  private val AccessModifier: UsageType            = "Access Modifier"
-  private val PackageClause: UsageType             = "Package Clause"
-  private val FunctionExpression: UsageType        = "Function expression"
-  private val NamedParameter: UsageType            = "Named parameter"
-  private val PrefixInterpolatedString: UsageType  = "Interpolated string prefix"
-  private val ParameterInPattern: UsageType        = "Parameter in pattern"
-  private val SelfType: UsageType                  = "Self type"
-  private val TypeBound: UsageType                 = "Type bound"
-  private val TypeAlias: UsageType                 = "Type alias"
-  private val SecondaryConstructor: UsageType      = "Secondary constructor"
-  private val ImplicitConversionOrParam: UsageType = "Implicit Conversion/Parameter"
-  private val UnresolvedImplicit: UsageType        = "Unresolved Implicit Conversion/Parameter"
-  private val SAMImplementation: UsageType         = "SAM interface implementation"
+  val Extractor: UsageType                 = "Extractor"
+  val ClassTypedPattern: UsageType         = "Typed Pattern"
+  val TypedStatement: UsageType            = "Typed Statement"
+  val MethodApply: UsageType               = "Method `apply`"
+  val ThisReference: UsageType             = "This Reference"
+  val AccessModifier: UsageType            = "Access Modifier"
+  val PackageClause: UsageType             = "Package Clause"
+  val FunctionExpression: UsageType        = "Function expression"
+  val NamedParameter: UsageType            = "Named parameter"
+  val PrefixInterpolatedString: UsageType  = "Interpolated string prefix"
+  val ParameterInPattern: UsageType        = "Parameter in pattern"
+  val SelfType: UsageType                  = "Self type"
+  val TypeBound: UsageType                 = "Type bound"
+  val TypeAlias: UsageType                 = "Type alias"
+  val SecondaryConstructor: UsageType      = "Secondary constructor"
+  val ImplicitConversionOrParam: UsageType = "Implicit Conversion/Parameter"
+  val UnresolvedImplicit: UsageType        = "Unresolved Implicit Conversion/Parameter"
+  val SAMImplementation: UsageType         = "SAM interface implementation"
 
   private def usageType(element: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element))
