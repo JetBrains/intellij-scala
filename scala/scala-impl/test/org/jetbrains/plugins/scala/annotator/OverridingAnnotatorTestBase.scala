@@ -20,7 +20,7 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
     val annotator = new OverridingAnnotator() {}
     val file = (Header + code).parseWithEventSystem
 
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitFunction(fun: ScFunction): Unit = {
@@ -65,8 +65,8 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
         super.visitClassParameter(parameter)
       }
 
-      override def visitModifierList(modifierList: ScModifierList) {
-        ModifierChecker.checkModifiers(modifierList, mock)
+      override def visitModifierList(modifierList: ScModifierList): Unit = {
+        ModifierChecker.checkModifiers(modifierList)
         super.visitModifierList(modifierList)
       }
     }

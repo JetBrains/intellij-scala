@@ -42,13 +42,14 @@ class ModifierCheckerTest extends SimpleTestCase {
     }
   }
 
-  def messages(@Language(value = "Scala") code: String): List[Message] = {
+  private def messages(@Language(value = "Scala") code: String) = {
     val file = code.parse
-    val modifiers = file.depthFirst().instancesOf[ScModifierList]
 
-    val mock = new AnnotatorHolderMock(file)
-
-    modifiers.foreach(ModifierChecker.checkModifiers(_,mock))
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    file.depthFirst().foreach {
+      case modifierList: ScModifierList => ModifierChecker.checkModifiers(modifierList)
+      case _ =>
+    }
     mock.annotations
   }
 

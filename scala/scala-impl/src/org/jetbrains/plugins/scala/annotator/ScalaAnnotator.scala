@@ -279,7 +279,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitModifierList(modifierList: ScModifierList) {
-        ModifierChecker.checkModifiers(modifierList, holder)
+        ModifierChecker.checkModifiers(modifierList)(holder)
         super.visitModifierList(modifierList)
       }
 
