@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.scala.lang.psi.annotator
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiMethod, PsiModifier}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
-import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
-import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMethodsQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ValueClass
 import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
 
 trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefinition =>
+
+  import ScTemplateDefinitionAnnotator._
 
   abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
@@ -197,7 +199,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
       }.foreach { message =>
         val fixes = {
           val maybeModifierFix = this match {
-            case owner: ScModifierListOwner => Some(new AddModifierQuickFix(owner, PsiModifier.ABSTRACT))
+            case owner: ScModifierListOwner => Some(new ModifierQuickFix.Add(owner, lexer.ScalaModifier.Abstract))
             case _ => None
           }
 

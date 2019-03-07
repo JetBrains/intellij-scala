@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -120,44 +119,48 @@ trait OverridingAnnotator {
                                                              isConcrete: Res => Boolean,
                                                              memberType: String)
                                                             (implicit holder: AnnotationHolder): Unit = {
-    import lang.lexer.ScalaModifier.OVERRIDE
+    import lang.lexer.{ScalaModifier, ScalaTokenTypes}
+    import ScalaModifier.{OVERRIDE, Override}
+    import quickfix.ModifierQuickFix._
 
     if (superSignaturesWithSelfType.isEmpty) {
       if (owner.hasModifierProperty(OVERRIDE)) {
         holder.createErrorAnnotation(
           member.nameId,
           ScalaBundle.message("member.overrides.nothing", memberType, member.name)
-        ).registerFix(new RemoveModifierQuickFix(owner, OVERRIDE))
+        ).registerFix(new Remove(owner, Override))
       }
     } else if (isConcreteElement(nameContext(member))) {
       var isConcretes = false
       for (signature <- superSignatures if !isConcretes && isConcrete(signature)) isConcretes = true
       if (isConcretes && !owner.hasModifierProperty(OVERRIDE)) {
-        val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
-          ScalaBundle.message("member.needs.override.modifier", memberType, member.name))
-
-        member match {
-          case param: ScClassParameter if param.isCaseClassVal && !param.isVal && !param.isVar => fixForCaseClassParameter()
-          case _ => annotation.registerFix(new AddModifierQuickFix(owner, OVERRIDE))
-        }
-
-        def fixForCaseClassParameter() {
-          superSignaturesWithSelfType.head match {
-            case sign: Signature =>
-              nameContext(sign.namedElement) match {
-                case p: ScClassParameter if p.isVal || (p.isCaseClassVal && !p.isVar) =>
-                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, OVERRIDE, addVal = true))
-                case _: ScClassParameter =>
-                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, OVERRIDE, addVal = false))
-                case _: ScValue | _: ScFunction =>
-                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, OVERRIDE, addVal = true))
-                case _: ScVariable =>
-                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, OVERRIDE, addVal = false))
-                case _ =>
+        val maybeQuickFix: Option[Add] = member match {
+          case param: ScClassParameter if param.isCaseClassVal && !(param.isVal || param.isVar) =>
+            superSignaturesWithSelfType.headOption.collect {
+              case signature: Signature => signature.namedElement
+            }.flatMap { element =>
+              import ScalaTokenTypes.{kVAL, kVAR}
+              nameContext(element) match {
+                case parameter: ScClassParameter =>
+                  val keywordElementType =
+                    if (parameter.isVal || (parameter.isCaseClassVal && !parameter.isVar)) kVAL
+                    else kVAR
+                  Some(keywordElementType)
+                case _: ScValue | _: ScFunction => Some(kVAL)
+                case _: ScVariable => Some(kVAR)
+                case _ => None
               }
-            case _ =>
-          }
+            }.map {
+              new AddWithKeyword(owner, _)
+            }
+          case _ => Some(new Add(owner, Override))
         }
+
+        val annotation = holder.createErrorAnnotation(
+          member.nameId,
+          ScalaBundle.message("member.needs.override.modifier", memberType, member.name)
+        )
+        maybeQuickFix.foreach(annotation.registerFix)
       }
       //fix for SCL-7831
       var overridesFinal = false

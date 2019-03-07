@@ -3,8 +3,7 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
-import org.jetbrains.plugins.scala.annotator.quickfix.{AddReturnTypeFix, RemoveElementQuickFix, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -33,10 +32,14 @@ trait FunctionAnnotator {
 
     tailrecAnnotation.foreach { it =>
       if (!function.canBeTailRecursive) {
-        val annotation = holder.createErrorAnnotation(function.nameId,
-          "Method annotated with @tailrec is neither private nor final (so can be overridden)")
-        annotation.registerFix(new AddModifierQuickFix(function, "private"))
-        annotation.registerFix(new AddModifierQuickFix(function, "final"))
+        import lang.lexer.ScalaModifier.{Final, Private}
+
+        val annotation = holder.createErrorAnnotation(
+          function.nameId,
+          "Method annotated with @tailrec is neither private nor final (so can be overridden)"
+        )
+        annotation.registerFix(new ModifierQuickFix.Add(function, Private))
+        annotation.registerFix(new ModifierQuickFix.Add(function, Final))
         annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
       }
 
