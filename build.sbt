@@ -254,7 +254,7 @@ lazy val javaDecompilerIntegration =
 
 val localRepoArtifacts =
   (sbtStructureExtractor.name,  Versions.sbtStructureVersion) ::
-  ("sbt-idea-shell",            Versions.sbtIdeaShellVersion) :: 
+  ("sbt-idea-shell",            Versions.sbtIdeaShellVersion) ::
   ("sbt-idea-compiler-indices", Versions.sbtIdeaCompilerIndicesVersion) :: Nil
 val localRepoPaths = LocalRepoPackager.localPluginRepoPaths(localRepoArtifacts)
 
