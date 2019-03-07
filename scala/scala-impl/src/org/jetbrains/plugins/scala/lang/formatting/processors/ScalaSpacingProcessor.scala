@@ -54,14 +54,18 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     fileText.substring(node.getTextRange)
   }
 
-  private def nextNotWithspace(elem: PsiElement): PsiElement = {
+  private def getText(psi: PsiElement, fileText: CharSequence): String = {
+    getText(psi.getNode, fileText)
+  }
+
+  private def nextNotWhitespace(elem: PsiElement): PsiElement = {
     var next = elem.getNextSibling
     while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
-            next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) next = next.getNextSibling
+      next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) next = next.getNextSibling
     next
   }
 
-  private def prevNotWithspace(elem: PsiElement): PsiElement = {
+  private def prevNotWhitespace(elem: PsiElement): PsiElement = {
     var prev = elem.getPrevSibling
     while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
             prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) prev = prev.getPrevSibling
@@ -347,10 +351,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
-    if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
-      (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT || FormatterUtil.isCommentGrabbingPsi(rightPsi) &&
-      rightPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLINE_COMMENT) &&
-      leftPsi.nextSibling.filter(_.isInstanceOf[PsiWhiteSpace]).exists(psi => !getText(psi.getNode, fileText).contains("\n")) ) {
+    val rightIsLineComment =
+      rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT ||
+        FormatterUtil.isCommentGrabbingPsi(rightPsi) && rightPsi.getFirstChild.elementType == ScalaTokenTypes.tLINE_COMMENT
+    val noNewLineBetweenBlocks =
+      !leftPsi.nextSibling.filterByType[PsiWhiteSpace].exists(getText(_, fileText).contains("\n"))
+    if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE && rightIsLineComment && noNewLineBetweenBlocks) {
       return COMMON_SPACING
     }
 
@@ -523,7 +529,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[ScImportStmt] && !leftPsi.isInstanceOf[ScImportStmt]) {
-      if (leftElementType != ScalaTokenTypes.tSEMICOLON || !prevNotWithspace(leftPsi).isInstanceOf[ScImportStmt]) {
+      if (leftElementType != ScalaTokenTypes.tSEMICOLON || !prevNotWhitespace(leftPsi).isInstanceOf[ScImportStmt]) {
         rightPsi.getParent match {
           case _: ScEarlyDefinitions | _: ScTemplateBody | _: ScalaFile | _: ScPackaging =>
             return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_IMPORTS + 1, keepLineBreaks,
@@ -550,10 +556,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment]) {
-      var pseudoRightPsi = nextNotWithspace(rightPsi)
+      var pseudoRightPsi = nextNotWhitespace(rightPsi)
       while (pseudoRightPsi != null &&
               (pseudoRightPsi.isInstanceOf[PsiComment] || pseudoRightPsi.isInstanceOf[PsiDocComment])) {
-        pseudoRightPsi = nextNotWithspace(pseudoRightPsi)
+        pseudoRightPsi = nextNotWhitespace(pseudoRightPsi)
       }
       if (pseudoRightPsi.isInstanceOf[ScTypeDefinition]) {
         pseudoRightPsi.getParent match {
@@ -718,10 +724,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment]) {
-      var pseudoRightPsi = nextNotWithspace(rightPsi)
+      var pseudoRightPsi = nextNotWhitespace(rightPsi)
       while (pseudoRightPsi != null &&
               (pseudoRightPsi.isInstanceOf[PsiComment] || pseudoRightPsi.isInstanceOf[PsiDocComment])) {
-        pseudoRightPsi = nextNotWithspace(pseudoRightPsi)
+        pseudoRightPsi = nextNotWhitespace(pseudoRightPsi)
       }
       if (pseudoRightPsi.isInstanceOf[ScFunction] || pseudoRightPsi.isInstanceOf[ScValue] ||
               pseudoRightPsi.isInstanceOf[ScVariable] || pseudoRightPsi.isInstanceOf[ScTypeAlias]) {

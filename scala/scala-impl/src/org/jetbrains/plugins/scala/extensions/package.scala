@@ -21,7 +21,7 @@ import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, Processor}
@@ -503,6 +503,8 @@ package object extensions {
     def withContexts: Iterator[PsiElement] = new ContextsIterator(element, strict = false)
 
     def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
+
+    def elementType: IElementType = element.getNode.getElementType
 
     def getPrevSiblingNotWhitespace: PsiElement = {
       var prev: PsiElement = element.getPrevSibling

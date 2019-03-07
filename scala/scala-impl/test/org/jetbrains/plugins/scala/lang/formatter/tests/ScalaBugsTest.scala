@@ -1636,7 +1636,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """"
-        |if (false) { //blah
+        |if (false) { //comment
         |}
       """.stripMargin
 
@@ -1647,12 +1647,30 @@ bars foreach {case (x, y) => list.add(x + y)}
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """"
-        |if (false) { //blah
+        |if (false) { //comment
         |  val x = 42
         |}
       """.stripMargin
 
     doTextTest(before)
+  }
+
+  def testSCL9516_2_NoWhiteSpaceBeforeComment(): Unit = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """"
+        |if (false) {//comment without before whitespace
+        |  val x = 42
+        |}
+      """.stripMargin
+    val after =
+      """"
+        |if (false) { //comment without before whitespace
+        |  val x = 42
+        |}
+      """.stripMargin
+
+    doTextTest(before, after)
   }
 
   def testSCL6599(): Unit = {
@@ -2535,6 +2553,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL4269(): Unit = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """
         |object HelloWorld { // A sample application object
@@ -2548,7 +2567,32 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4269_1(): Unit = {
+  def testSCL4269_2_NoWhiteSpaceBeforeComment(): Unit = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """
+        |object HelloWorld {// A sample application object (comment without before whitespace)
+        |  def main(args: Array[String]) {
+        |    println("Hello, world!")
+        |  }
+        |
+        |  def otherFun = 42
+        |}
+      """.stripMargin
+    val after =
+      """
+        |object HelloWorld { // A sample application object (comment without before whitespace)
+        |  def main(args: Array[String]) {
+        |    println("Hello, world!")
+        |  }
+        |
+        |  def otherFun = 42
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL4269_3(): Unit = {
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
