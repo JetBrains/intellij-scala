@@ -8,23 +8,21 @@ import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment
 import com.intellij.psi.PsiElement
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
 
-  import RecursionType._
   import RecursiveCallLineMarkerProvider._
   import icons.Icons._
 
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] =
     element.getParent match {
       case function: ScFunctionDefinition if element.getNode.getElementType == lang.lexer.ScalaTokenTypes.tIDENTIFIER =>
-        val producer = function.recursionType match {
-          case OrdinaryRecursion => createLineMarkerInfo(RECURSION, "method.is.recursive")
-          case TailRecursion => createLineMarkerInfo(TAIL_RECURSION, "method.is.tail.recursive")
-          case _ => Function.const(null) _
-        }
-        producer(function.nameId)
+        (function.recursiveReferencesGrouped match {
+          case references if references.tailRecursionOnly => createLineMarkerInfo(TAIL_RECURSION, "method.is.tail.recursive")
+          case references if references.noRecursion => Function.const(null)(_: PsiElement)
+          case _ => createLineMarkerInfo(RECURSION, "method.is.recursive")
+        }).apply(function.nameId)
       case _ => null
     }
 

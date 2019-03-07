@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReference, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -28,9 +28,9 @@ trait FunctionAnnotator {
 
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
-      function.recursiveReferences.foreach { ref =>
-        val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
-        holder.createErrorAnnotation(ref.element, message)
+      val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
+      function.recursiveReferences.foreach {
+        holder.createErrorAnnotation(_, message)
       }
     }
 
@@ -56,15 +56,15 @@ trait FunctionAnnotator {
       }
 
       if (typeAware) {
-        val annotations = function.recursiveReferences match {
-          case Seq() =>
+        val annotations = function.recursiveReferencesGrouped match {
+          case references if references.noRecursion =>
             Seq(holder.createErrorAnnotation(functionNameId, "Method annotated with @tailrec contains no recursive calls"))
           case references =>
             for {
-              RecursiveReference(element, false) <- references
-              target = element.getParent match {
+              reference <- references.ordinaryRecursive
+              target = reference.getParent match {
                 case methodCall: ScMethodCall => methodCall
-                case _ => element
+                case _ => reference
               }
             } yield holder.createErrorAnnotation(target, "Recursive call not in tail position (in @tailrec annotated method)")
         }

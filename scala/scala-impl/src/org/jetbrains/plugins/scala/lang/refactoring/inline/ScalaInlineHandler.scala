@@ -154,7 +154,7 @@ class ScalaInlineHandler extends InlineHandler {
     }
 
     def errorOrSettingsForFunction(funDef: ScFunctionDefinition): InlineHandler.Settings = {
-      if (funDef.recursionType != RecursionType.NoRecursion)
+      if (funDef.recursiveReferences.nonEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.recursive.function"), "method")
       else if (funDef.paramClauses.clauses.size > 1)
         showErrorHint(ScalaBundle.message("cannot.inline.function.multiple.clauses"), "method")

@@ -43,7 +43,7 @@ object AddTailRecursionAnnotationIntention {
     def unapply(element: PsiElement): Option[ScFunctionDefinition] = element.getParent match {
       case function: ScFunctionDefinition if function.nameId == element &&
         findTailRecursionAnnotation(function).isEmpty &&
-        function.recursionType == RecursionType.TailRecursion => Some(function)
+        function.recursiveReferencesGrouped.tailRecursionOnly => Some(function)
       case _ => None
     }
   }
