@@ -200,20 +200,28 @@ object getDummyBlocks {
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
         alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, Alignment.createAlignment())
-      case _: ScValue | _: ScVariable | _: ScFunction if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
+      case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered = children.filter(isCorrectBlock)
         subBlocks.add(getSubBlock(block, scalaSettings, childrenFiltered.head))
         val tail = childrenFiltered.tail
-        subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null, {
-          val ws = Option(node.getTreePrev)
-          val preWsET = ws.map(_.getTreePrev).flatMap(Option(_)).map(_.getElementType)
-          ws.map(_.getPsi) match {
-            case Some(ws: PsiWhiteSpace) if scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
-              (preWsET.exists(_ == ScalaTokenTypes.tLBRACE) || preWsET.exists(_ == ScalaTokenTypes.tLPARENTHESIS)) &&
-              !ws.getText.contains("\n") => Indent.getNormalIndent
-            case _ => Indent.getNoneIndent
+        val indent: Indent = {
+          val prevNonWsNode: Option[PsiElement] = psi.prevSibling match {
+            case Some(prev@Whitespace(s)) =>
+              if (s.contains("\n")) None
+              else prev.prevSibling
+            case prev =>
+              prev
           }
-        }, arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap), block.getSettings))
+          prevNonWsNode.map(_.elementType) match {
+            case Some(t) if scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
+              (t == ScalaTokenTypes.tLBRACE || t == ScalaTokenTypes.tLPARENTHESIS) =>
+              Indent.getNormalIndent
+            case _ =>
+              Indent.getNoneIndent
+          }
+        }
+        val wrap = arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap)
+        subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null, indent, wrap, block.getSettings))
         return subBlocks
       case _ =>
     }
