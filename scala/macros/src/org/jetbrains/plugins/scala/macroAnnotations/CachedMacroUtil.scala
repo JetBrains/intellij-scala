@@ -106,12 +106,8 @@ object CachedMacroUtil {
     q"""getClass.getName ++ "." ++ $name"""
   }
 
-  def generateTermName(name: String = "")(implicit c: whitebox.Context): c.universe.TermName = {
-    c.universe.TermName(c.freshName(name))
-  }
-
-  def generateTypeName(name: String = "")(implicit c: whitebox.Context): c.universe.TypeName = {
-    c.universe.TypeName(c.freshName(name))
+  def generateTermName(prefix: String = "", postfix: String = "")(implicit c: whitebox.Context): c.universe.TermName = {
+    c.universe.TermName(prefix + "$" + postfix)
   }
 
   def abort(s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
@@ -119,7 +115,7 @@ object CachedMacroUtil {
   def transformRhsToAnalyzeCaches(c: whitebox.Context)(cacheStatsName: c.universe.TermName, retTp: c.universe.Tree, rhs: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     if (analyzeCachesEnabled(c)) {
-      val innerCachedFunName = generateTermName("")(c)
+      val innerCachedFunName = generateTermName()(c)
       //have to put it in a separate function because otherwise it falls with NonLocalReturn
       q"""
         def $innerCachedFunName(): $retTp = $rhs

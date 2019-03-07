@@ -51,15 +51,15 @@ object CachedInUserData {
 
         //generated names
         val keyId = c.freshName(name.toString + "cacheKey")
-        val cacheStatsName = TermName(c.freshName("cacheStats"))
+        val cacheStatsName = generateTermName(name.toString, "cacheStats")
         val analyzeCaches = CachedMacroUtil.analyzeCachesEnabled(c)
         val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
-        val elemName = generateTermName("element")
-        val dataName = generateTermName("data")
-        val keyVarName = generateTermName("key")
-        val holderName = generateTermName("holder")
-        val resultName = generateTermName("result")
-        val cachedFunName = generateTermName(name.toString + "cachedFun")
+        val elemName = generateTermName(name.toString, "element")
+        val dataName = generateTermName(name.toString, "data")
+        val keyVarName = generateTermName(name.toString, "key")
+        val holderName = generateTermName(name.toString, "holder")
+        val resultName = generateTermName(name.toString, "result")
+        val cachedFunName = generateTermName(name.toString, "cachedFun")
 
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =
