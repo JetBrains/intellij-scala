@@ -2,21 +2,22 @@ package org.jetbrains.plugins.scala
 package annotator
 package quickfix
 
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight._
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner, key: String)
+sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner)
+                                      (key: String, nameId: PsiElement)
                                       (modifier: ScalaModifier, value: Boolean)
-  extends IntentionAction {
+  extends intention.IntentionAction {
 
   override final def isAvailable(project: Project,
                                  editor: Editor,
@@ -38,7 +39,13 @@ sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner, key: Stri
 
   override final def startInWriteAction = true
 
-  override final val getFamilyName: String = ScalaBundle.message(key, modifier.text)
+  override final val getFamilyName: String = {
+    val modifierText = modifier.text
+    nameId match {
+      case null => ScalaBundle.message(key, modifierText)
+      case id => daemon.QuickFixBundle.message(key, id.getText, modifierText)
+    }
+  }
 
   override final def getText: String = getFamilyName
 }
@@ -47,8 +54,8 @@ object ModifierQuickFix {
 
   private val logger = Logger.getInstance(getClass)
 
-  final class Remove(listOwner: ScModifierListOwner, modifier: ScalaModifier)
-    extends ModifierQuickFix(listOwner, "remove.modifier.fix")(modifier, value = false) {
+  final class Remove(listOwner: ScModifierListOwner, nameId: PsiElement, modifier: ScalaModifier)
+    extends ModifierQuickFix(listOwner)("remove.modifier.fix", nameId)(modifier, value = false) {
 
     override def onModifierList(modifierList: ScModifierList)
                                (implicit project: Project, file: PsiFile): Unit = {
@@ -64,11 +71,11 @@ object ModifierQuickFix {
     }
   }
 
-  sealed class Add(listOwner: ScModifierListOwner, modifier: ScalaModifier)
-    extends ModifierQuickFix(listOwner, "add.modifier.fix")(modifier, value = true)
+  sealed class Add(listOwner: ScModifierListOwner, nameId: PsiElement, modifier: ScalaModifier)
+    extends ModifierQuickFix(listOwner)("add.modifier.fix", nameId)(modifier, value = true)
 
-  final class AddWithKeyword(listOwner: ScModifierListOwner, keywordType: IElementType)
-    extends Add(listOwner, ScalaModifier.Override) {
+  final class AddWithKeyword(listOwner: ScModifierListOwner, nameId: PsiElement, keywordType: IElementType)
+    extends Add(listOwner, nameId, ScalaModifier.Override) {
 
     override def onModifierList(modifierList: ScModifierList)
                                (implicit project: Project, file: PsiFile): Unit = {

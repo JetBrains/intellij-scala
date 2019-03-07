@@ -31,15 +31,20 @@ trait FunctionAnnotator {
     }
 
     tailrecAnnotation.foreach { it =>
-      if (!function.canBeTailRecursive) {
-        import lang.lexer.ScalaModifier.{Final, Private}
+      val functionNameId = function.nameId
 
+      if (!function.canBeTailRecursive) {
         val annotation = holder.createErrorAnnotation(
-          function.nameId,
+          functionNameId,
           "Method annotated with @tailrec is neither private nor final (so can be overridden)"
         )
-        annotation.registerFix(new ModifierQuickFix.Add(function, Private))
-        annotation.registerFix(new ModifierQuickFix.Add(function, Final))
+
+        import lang.lexer.ScalaModifier
+        def registerAddQuickFix(modifier: ScalaModifier): Unit =
+          annotation.registerFix(new ModifierQuickFix.Add(function, functionNameId, modifier))
+
+        registerAddQuickFix(ScalaModifier.Private)
+        registerAddQuickFix(ScalaModifier.Final)
         annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
       }
 
@@ -47,7 +52,7 @@ trait FunctionAnnotator {
         val recursiveReferences = function.recursiveReferences
 
         if (recursiveReferences.isEmpty) {
-          val annotation = holder.createErrorAnnotation(function.nameId,
+          val annotation = holder.createErrorAnnotation(functionNameId,
             "Method annotated with @tailrec contains no recursive calls")
           annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
         } else {

@@ -197,9 +197,10 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
             member.getText,
             member.getParentNodeDelegate.getText)
       }.foreach { message =>
+        val nameId = this.nameId
         val fixes = {
           val maybeModifierFix = this match {
-            case owner: ScModifierListOwner => Some(new ModifierQuickFix.Add(owner, lexer.ScalaModifier.Abstract))
+            case owner: ScModifierListOwner => Some(new ModifierQuickFix.Add(owner, nameId, lexer.ScalaModifier.Abstract))
             case _ => None
           }
 

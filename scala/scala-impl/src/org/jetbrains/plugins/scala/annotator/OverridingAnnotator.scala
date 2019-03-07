@@ -123,17 +123,23 @@ trait OverridingAnnotator {
     import ScalaModifier.{OVERRIDE, Override}
     import quickfix.ModifierQuickFix._
 
+    val memberNameId = member.nameId
     if (superSignaturesWithSelfType.isEmpty) {
       if (owner.hasModifierProperty(OVERRIDE)) {
         holder.createErrorAnnotation(
-          member.nameId,
+          memberNameId,
           ScalaBundle.message("member.overrides.nothing", memberType, member.name)
-        ).registerFix(new Remove(owner, Override))
+        ).registerFix(new Remove(owner, memberNameId, Override))
       }
     } else if (isConcreteElement(nameContext(member))) {
       var isConcretes = false
       for (signature <- superSignatures if !isConcretes && isConcrete(signature)) isConcretes = true
       if (isConcretes && !owner.hasModifierProperty(OVERRIDE)) {
+        val annotation = holder.createErrorAnnotation(
+          memberNameId,
+          ScalaBundle.message("member.needs.override.modifier", memberType, member.name)
+        )
+
         val maybeQuickFix: Option[Add] = member match {
           case param: ScClassParameter if param.isCaseClassVal && !(param.isVal || param.isVar) =>
             superSignaturesWithSelfType.headOption.collect {
@@ -151,15 +157,10 @@ trait OverridingAnnotator {
                 case _ => None
               }
             }.map {
-              new AddWithKeyword(owner, _)
+              new AddWithKeyword(owner, memberNameId, _)
             }
-          case _ => Some(new Add(owner, Override))
+          case _ => Some(new Add(owner, memberNameId, Override))
         }
-
-        val annotation = holder.createErrorAnnotation(
-          member.nameId,
-          ScalaBundle.message("member.needs.override.modifier", memberType, member.name)
-        )
         maybeQuickFix.foreach(annotation.registerFix)
       }
       //fix for SCL-7831
@@ -177,13 +178,13 @@ trait OverridingAnnotator {
         }
       }
       if (overridesFinal) {
-        holder.createErrorAnnotation(member.nameId,
+        holder.createErrorAnnotation(memberNameId,
           ScalaBundle.message("can.not.override.final", memberType, member.name))
       }
 
       def annotateVarFromVal(): Unit = {
         def addAnnotation(): Unit = {
-          holder.createErrorAnnotation(member.nameId,
+          holder.createErrorAnnotation(memberNameId,
             ScalaBundle.message("var.cannot.override.val", member.name))
         }
 
@@ -203,12 +204,12 @@ trait OverridingAnnotator {
 
       def annotateFunFromValOrVar(): Unit = {
         def annotVal() = {
-          holder.createErrorAnnotation(member.nameId,
+          holder.createErrorAnnotation(memberNameId,
             ScalaBundle.message("member.cannot.override.val", member.name))
         }
 
         def annotVar() = {
-          holder.createErrorAnnotation(member.nameId,
+          holder.createErrorAnnotation(memberNameId,
             ScalaBundle.message("member.cannot.override.var", member.name))
         }
 
@@ -297,7 +298,7 @@ trait OverridingAnnotator {
       baseType <- comparableType(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
     } {
-      holder.createErrorAnnotation(member.nameId,
+      holder.createErrorAnnotation(memberNameId,
         ScalaBundle.message("override.types.not.conforming", overridingType.presentableText, baseType.presentableText))
     }
   }

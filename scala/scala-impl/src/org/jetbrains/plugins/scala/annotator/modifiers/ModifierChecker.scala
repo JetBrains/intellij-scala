@@ -285,6 +285,6 @@ private[annotator] object ModifierChecker {
                                severity: HighlightSeverity = ERROR)
                               (implicit holder: AnnotationHolder): Unit = {
     holder.createAnnotation(severity, element.getTextRange, message)
-      .registerFix(new quickfix.ModifierQuickFix.Remove(owner, modifier))
+      .registerFix(new quickfix.ModifierQuickFix.Remove(owner, null, modifier))
   }
 }
