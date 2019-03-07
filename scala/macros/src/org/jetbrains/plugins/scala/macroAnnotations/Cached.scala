@@ -48,11 +48,12 @@ object Cached {
           abort("You must specify return type")
         }
         //generated names
-        val cachedFunName = generateTermName("cachedFun")
-        val cacheStatsName = generateTermName("cacheStats")
+        val cachedFunName = generateTermName(name.toString, "$cachedFun")
+        val cacheStatsName = generateTermName(name.toString, "$cacheStats")
         val keyId = c.freshName(name.toString + "$cacheKey")
-        val mapAndCounterRef = generateTermName(name.toString + "$mapAndCounter")
-        val timestampedDataRef = generateTermName(name.toString + "$valueAndCounter")
+
+        val mapAndCounterRef = generateTermName(name.toString, "$mapAndCounter")
+        val timestampedDataRef = generateTermName(name.toString,  "$valueAndCounter")
 
         val analyzeCaches = analyzeCachesEnabled(c)
         val defdefFQN = thisFunctionFQN(name.toString)
