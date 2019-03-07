@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPatt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -31,40 +30,25 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def returnUsages: Set[ScExpression] = innerReturnUsages(calculateReturns)
 
-  def canBeTailRecursive: Boolean = getParent match {
-    case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
-      owner.isInstanceOf[ScObject] ||
-        owner.getModifierList.isFinal || {
-        val methodModifiers = getModifierList
-        methodModifiers.isPrivate || methodModifiers.isFinal
-      }
-    case _ => true
-  }
-
-  def hasTailRecursionAnnotation: Boolean =
-    annotations.map(_.typeElement)
-      .flatMap(_.`type`().toOption)
-      .map(_.canonicalText)
-      .contains("_root_.scala.annotation.tailrec")
-
   def recursiveReferences: Seq[RecursiveReference] = {
     def quickCheck(ref: ScReference): Boolean = {
+      import ScFunction._
+      val refName = ref.refName
       ref match {
-        case _: ScStableCodeReference  =>
+        case _: ScStableCodeReference =>
           ref.getParent match {
             case ChildOf(_: ScConstructorInvocation) =>
-              this.isConstructor && containingClass.name == ref.refName
-            case cp: ScConstructorPattern if cp.ref == ref =>
-              this.name == "unapply" || this.name == "unapplySeq"
-            case inf: ScInfixPattern if inf.operation == ref =>
-              this.name == "unapply" || this.name == "unapplySeq"
+              this.isConstructor && containingClass.name == refName
+            case ScConstructorPattern(`ref`, _) |
+                 ScInfixPattern(_, `ref`, _) => this.isUnapplyMethod
             case _ => false
           }
-        case _: ScReferenceExpression =>
-          if (this.name == "apply")
-            if (this.containingClass.isInstanceOf[ScObject]) this.containingClass.name == ref.refName
-            else true
-          else this.name == ref.refName
+        case _: ScReferenceExpression if this.isApplyMethod =>
+          containingClass match {
+            case scObject: ScObject => scObject.name == refName
+            case _ => true
+          }
+        case _: ScReferenceExpression => this.name == refName
         case _ => false
       }
     }

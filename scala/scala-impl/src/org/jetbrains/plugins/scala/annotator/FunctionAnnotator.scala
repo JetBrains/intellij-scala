@@ -1,39 +1,46 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.quickfix._
+import org.jetbrains.plugins.scala.extensions.{&&, Parent}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReference, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
 /**
- * Pavel.Fatin, 18.05.2010
- */
+  * Pavel.Fatin, 18.05.2010
+  */
 
 trait FunctionAnnotator {
   self: ScalaAnnotator =>
 
-  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
+  import FunctionAnnotator._
+
+  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       function.recursiveReferences.foreach { ref =>
-          val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
-          holder.createErrorAnnotation(ref.element, message)
+        val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
+        holder.createErrorAnnotation(ref.element, message)
       }
     }
 
-    val tailrecAnnotation = function.annotations.find {
-      _.typeElement.`type`().toOption
-        .map(_.canonicalText).contains("_root_.scala.annotation.tailrec")
-    }
-
-    tailrecAnnotation.foreach { it =>
+    for {
+      annotation <- findTailRecursionAnnotation(function)
+      quickFix = new RemoveAnnotationQuickFix(annotation)
+    } {
       val functionNameId = function.nameId
 
-      if (!function.canBeTailRecursive) {
+      if (!canBeTailRecursive(function)) {
         val annotation = holder.createErrorAnnotation(
           functionNameId,
           "Method annotated with @tailrec is neither private nor final (so can be overridden)"
@@ -45,27 +52,25 @@ trait FunctionAnnotator {
 
         registerAddQuickFix(ScalaModifier.Private)
         registerAddQuickFix(ScalaModifier.Final)
-        annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
+        annotation.registerFix(quickFix)
       }
 
       if (typeAware) {
-        val recursiveReferences = function.recursiveReferences
-
-        if (recursiveReferences.isEmpty) {
-          val annotation = holder.createErrorAnnotation(functionNameId,
-            "Method annotated with @tailrec contains no recursive calls")
-          annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
-        } else {
-          recursiveReferences.filter(!_.isTailCall).foreach {
-            ref =>
-              val target = ref.element.getParent match {
-                case call: ScMethodCall => call
-                case _                  => ref.element
+        val annotations = function.recursiveReferences match {
+          case Seq() =>
+            Seq(holder.createErrorAnnotation(functionNameId, "Method annotated with @tailrec contains no recursive calls"))
+          case references =>
+            for {
+              RecursiveReference(element, false) <- references
+              target = element.getParent match {
+                case methodCall: ScMethodCall => methodCall
+                case _ => element
               }
-              val annotation = holder.createErrorAnnotation(target,
-                "Recursive call not in tail position (in @tailrec annotated method)")
-              annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
-          }
+            } yield holder.createErrorAnnotation(target, "Recursive call not in tail position (in @tailrec annotated method)")
+        }
+
+        annotations.foreach {
+          _.registerFix(quickFix)
         }
       }
     }
@@ -142,4 +147,41 @@ trait FunctionAnnotator {
     case (Some(expression: ScExpression), _) => expression.getTypeAfterImplicitConversion().tr
     case (_, default) => Right(default)
   }
+}
+
+object FunctionAnnotator {
+
+  val TailrecAnnotationFQN = "scala.annotation.tailrec"
+
+  def canBeTailRecursive(function: ScFunctionDefinition): Boolean = function.getParent match {
+    case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
+      owner.isInstanceOf[ScObject] ||
+        owner.getModifierList.isFinal || {
+        function.getModifierList match {
+          case list => list.isPrivate || list.isFinal
+        }
+      }
+    case _ => true
+  }
+
+  def findTailRecursionAnnotation(function: ScFunctionDefinition): Option[ScAnnotation] =
+    function.annotations.find {
+      _.typeElement.`type`().exists(_.canonicalText == "_root_." + TailrecAnnotationFQN)
+    }
+
+  private final class RemoveAnnotationQuickFix(annotation: ScAnnotation) extends IntentionAction {
+
+    override def getText = "Remove @tailrec annotation"
+
+    override def getFamilyName = ""
+
+    override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = annotation.isValid
+
+    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+      annotation.delete()
+    }
+
+    override def startInWriteAction = true
+  }
+
 }

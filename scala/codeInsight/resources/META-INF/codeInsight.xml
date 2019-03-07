@@ -69,6 +69,14 @@
         <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamTypes"/>
 
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
+                key="no.tailrec.annotation.title"
+                groupPath="Scala" groupName="General"
+                shortName="NoTailRecursionAnnotation"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+
         <intentionAction>
             <category>Scala/Argument Conversion</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention</className>
