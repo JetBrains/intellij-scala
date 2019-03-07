@@ -1,24 +1,22 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.template.kindOf
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.Seq
 
@@ -29,23 +27,6 @@ import scala.collection.Seq
 
 // TODO move to org.jetbrains.plugins.scala.lang.psi.annotator
 object AnnotatorUtils {
-  def proccessError(error: String, element: PsiElement, holder: AnnotationHolder, fixes: IntentionAction*) {
-    proccessError(error, element.getTextRange, holder, fixes: _*)
-  }
-
-  def proccessError(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
-    val annotation = holder.createErrorAnnotation(range, error)
-    for (fix <- fixes) annotation.registerFix(fix)
-  }
-
-  def proccessWarning(error: String, element: PsiElement, holder: AnnotationHolder, fixes: IntentionAction*) {
-    proccessWarning(error, element.getTextRange, holder, fixes: _*)
-  }
-
-  def proccessWarning(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
-    val annotation: Annotation = holder.createWarningAnnotation(range, error)
-    for (fix <- fixes) annotation.registerFix(fix)
-  }
 
   def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
     implicit val ctx: ProjectContext = expression

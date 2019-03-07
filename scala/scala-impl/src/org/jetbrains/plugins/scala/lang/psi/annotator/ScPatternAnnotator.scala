@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi.annotator
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.proccessError
-import org.jetbrains.plugins.scala.extensions.{ResolvesTo, _}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -116,7 +116,7 @@ object ScPatternAnnotator {
       case Implicit0Pattern(arg) =>
         arg match {
           case ScTypedPattern(_) => () // valid according to better-monadic-for rewriting rules
-          case other             => proccessError(ScalaBundle.message("better.monadic.for.invalid.pattern"), other, holder)
+          case _ => holder.createErrorAnnotation(arg, ScalaBundle.message("better.monadic.for.invalid.pattern"))
         }
       case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
       case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
