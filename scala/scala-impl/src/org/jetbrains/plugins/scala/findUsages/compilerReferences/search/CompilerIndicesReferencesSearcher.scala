@@ -205,7 +205,7 @@ object CompilerIndicesReferencesSearcher {
     val service = ScalaCompilerReferenceService(project)
 
     if (!CompilerIndicesSettings(project).isIndexingEnabled) {
-      inEventDispatchThread(new EnableCompilerIndicesDialog(project, canBeParent = false).show())
+      inEventDispatchThread(new EnableCompilerIndicesDialog(project, canBeParent = false, usageType).show())
       Option(CancelSearch)
     } else if (service.isIndexingInProgress) {
       inEventDispatchThread(showIndexingInProgressDialog(project))
@@ -249,7 +249,7 @@ object CompilerIndicesReferencesSearcher {
   }
 
   private[this] def showIndexingInProgressDialog(project: Project): Unit = {
-    val message = "Implicit usages search is unavailable during bytecode indexing."
+    val message = "Find Usages via bytecode indices is unavailable during compilation."
     Messages.showInfoMessage(project, message, "Indexing In Progress")
   }
 
@@ -263,13 +263,7 @@ object CompilerIndicesReferencesSearcher {
   ): Option[BeforeIndicesSearchAction] = {
     import DialogWrapper.{CANCEL_EXIT_CODE, OK_EXIT_CODE}
 
-    val title = usageType match {
-      case UsageType.SAMInterfaceImplementation => "SAM type"
-      case UsageType.InstanceApplyUnapply       => "apply/unapply method"
-      case UsageType.ForComprehensionMethods    => "for-comprehension method"
-      case UsageType.ImplicitDefinitionUsages   => "implicit definition"
-    }
-
+    val title  = usageType.toString
     val dialog = new ImplicitFindUsagesDialog(false, element, title)
     dialog.show()
 

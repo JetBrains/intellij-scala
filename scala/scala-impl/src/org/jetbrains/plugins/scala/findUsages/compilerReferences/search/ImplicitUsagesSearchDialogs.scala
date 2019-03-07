@@ -12,10 +12,11 @@ import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.util.ui.FormBuilder
 import javax.swing.{Action, JComponent, JLabel}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.UsageType
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.{CompilerIndicesConfigurable, CompilerIndicesSettings}
 
 private object ImplicitUsagesSearchDialogs {
-  class EnableCompilerIndicesDialog(project: Project, canBeParent: Boolean)
+  class EnableCompilerIndicesDialog(project: Project, canBeParent: Boolean, usageType: UsageType)
     extends DialogWrapper(project, canBeParent) {
 
     private[this] val settingsLink =
@@ -28,8 +29,8 @@ private object ImplicitUsagesSearchDialogs {
       }
 
     private[this] val description = new JLabel(
-      """|<html>Searching for implicit usages requires compiler indices to be enabled.<br>
-         |Do you want to enable bytecode indexing (takes effect after IDEA restart)?</html>""".stripMargin)
+      s"""|<html>Searching for $usageType usages requires bytecode indices to be enabled.<br>
+          |Do you want to enable bytecode indexing (takes effect after IDEA restart)?</html>""".stripMargin)
 
     setTitle("Enable Bytecode Indexing")
     setResizable(false)
