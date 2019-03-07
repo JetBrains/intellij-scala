@@ -2038,6 +2038,108 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL4167_1(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    val before =
+      """
+        |class Person(
+        |  name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL4167_1_MultipleParamClauses(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    val before =
+      """
+        |class Person(
+        |  name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |)(
+        |  val weight: Double,
+        |  val height: Double
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL4167_2_ShouldNotIndentIfFirstParameterIsOnNewLine(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    val before =
+      """
+        |class Person(
+        |  name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL4167_2_ShouldNotIndentIfFirstParameterIsOnNewLine_MultipleParamClauses(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    val before =
+      """
+        |class Person(
+        |  name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |)(
+        |  val weight: Double,
+        |  val height: Double
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
   def testSCL5585(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
     val before =
