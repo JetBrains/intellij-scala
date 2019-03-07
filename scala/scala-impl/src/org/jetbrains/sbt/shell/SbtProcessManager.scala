@@ -63,8 +63,8 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
-    val sbtStructureVersion           = BuildInfo.sbtStructureVersion
-    val sbtIdeaShellVersion           = BuildInfo.sbtIdeaShellVersion
+    val sbtStructureVersion = BuildInfo.sbtStructureVersion
+    val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
 
     val compilerIndicesEnabled = CompilerIndicesSettings(project).isIndexingEnabled
     val compilerIndicesPlugin  = compilerIndicesEnabled.seq {
