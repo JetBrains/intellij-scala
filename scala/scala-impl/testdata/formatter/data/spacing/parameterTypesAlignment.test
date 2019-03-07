@@ -5,7 +5,7 @@ def foo(
        )
 ------
 def foo(
-         firstName: String,
-         lastName: String,
-         age: Int
-       )
+  firstName: String,
+  lastName: String,
+  age: Int
+)

@@ -53,7 +53,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
   // NOTE: maybe we should set project in dummy state while downloading formatter?
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
-              verbosity: FmtVerbosity = FmtVerbosity.FailSilent,
+              verbosity: FmtVerbosity,
               resolveFast: Boolean = false,
               progressListener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
     val resolveResult = formattersCache.get(version) match {
@@ -165,7 +165,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
             indicator.setIndeterminate(true)
             val progressListener = new ProgressIndicatorDownloadListener(indicator, s"$titlePrefix: ")
             val result = try {
-              resolve(version, downloadIfMissing = true, progressListener = progressListener)
+              resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, progressListener = progressListener)
             } catch {
               case pce: ProcessCanceledException =>
                 Left(DownloadError(version, pce))
@@ -180,7 +180,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
 
   def ensureVersionIsResolved(version: ScalafmtVersion, progressListener: DownloadProgressListener): Unit = {
     if (!formattersCache.contains(version)) {
-      resolve(version, downloadIfMissing = true, progressListener = progressListener)
+      resolve(version, downloadIfMissing = true, FmtVerbosity.FailSilent, progressListener = progressListener)
     }
   }
 }

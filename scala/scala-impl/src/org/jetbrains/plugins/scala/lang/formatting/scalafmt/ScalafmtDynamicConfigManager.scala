@@ -6,10 +6,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -71,24 +72,37 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   def configForFile(psiFile: PsiFile,
                     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
                     resolveFast: Boolean = false): Option[ScalafmtDynamicConfig] = {
+    configForFileWithTimestamp(psiFile, verbosity, resolveFast).map(_._1)
+  }
+
+  def configForFileWithTimestamp(psiFile: PsiFile,
+                                 verbosity: FmtVerbosity = FmtVerbosity.Verbose,
+                                 resolveFast: Boolean = false): Option[(ScalafmtDynamicConfig, Option[Long])] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    val config = scalafmtProjectConfigFile(configPath) match {
+    val configFile = scalafmtProjectConfigFile(configPath)
+    val config = configFile match {
       case Some(file) =>
         resolveConfig(file, Some(DefaultVersion), verbosity, resolveFast).toOption
       case None =>
         intellijDefaultConfig
     }
-    if (psiFile.isInstanceOf[SbtFileImpl]) {
-      config.map(_.withSbtDialect)
-    } else {
-      config
-    }
+    val configWithDialect =
+      if (psiFile.isInstanceOf[SbtFileImpl]) {
+        config.map(_.withSbtDialect)
+      } else {
+        config
+      }
+
+    val timestamp = configFile.map(_.getPath).flatMap(configsCache.get).map(_.vFileModificationTimestamp)
+    configWithDialect.map((_, timestamp))
   }
 
   private def intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
-    ScalafmtDynamicService.instance.resolve(DefaultVersion, downloadIfMissing = false).toOption.map(_.intellijScalaFmtConfig)
+    ScalafmtDynamicService.instance
+      .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent)
+      .toOption.map(_.intellijScalaFmtConfig)
   }
 
   private def resolveConfig(configFile: VirtualFile,
@@ -114,11 +128,10 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
             }
             configsCache(configPath) = CachedConfig(config, currentVFileTimestamp, currentDocTimestamp)
             Right(config)
-          case Left(error: ConfigResolveError.ConfigScalafmtResolveError) =>
-            Left(error) // do not report, rely on ScalafmtDynamicUtil resolve error reporting
-          case Left(error: ConfigResolveError.ConfigError) =>
-            if (verbosity == FmtVerbosity.Verbose)
+          case Left(error) =>
+            if (verbosity == FmtVerbosity.Verbose) {
               reportConfigResolveError(configFile, error)
+            }
             Left(error)
         }
     }
@@ -167,13 +180,16 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     }
   }
 
-  private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError.ConfigError): Unit = {
+  private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     val details = configError match {
       case ConfigFileNotFound(_) => s"file not found"
       case ConfigMissingVersion(_) => "missing version setting"
       case ConfigParseError(_, cause) => s"parse error: ${cause.getMessage}"
       case UnknownError(unknownMessage, _) => s"unknown error: $unknownMessage"
+      // do not report, rely on ScalafmtDynamicUtil resolve error reporting
+      case _: ConfigScalafmtResolveError =>
+        return
     }
     val errorMessage = s"Failed to load scalafmt config:<br>$details"
     // NOTE: ConfError does not provide any information about parsing error position, so setting offset to zero
@@ -219,6 +235,9 @@ object ScalafmtDynamicConfigManager {
   def instanceIn(project: Project): ScalafmtDynamicConfigManager =
     project.getComponent(classOf[ScalafmtDynamicConfigManager])
 
+  def instanceIn(file: PsiElement): ScalafmtDynamicConfigManager =
+    file.getProject.getComponent(classOf[ScalafmtDynamicConfigManager])
+
   def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
     instanceIn(file.getProject).isIncludedInProject(file, config)
 
@@ -246,7 +265,7 @@ object ScalafmtDynamicConfigManager {
     case class ConfigMissingVersion(configPath: String) extends ConfigError
     case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
-    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigError
+    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigResolveError
 
     object UnknownError {
       def apply(cause: Throwable): UnknownError = new UnknownError(cause.getMessage, Option(cause))

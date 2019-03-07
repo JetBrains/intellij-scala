@@ -14,10 +14,7 @@ object JComponentExt {
     def addActionListener(al: ActionListener)
   }
 
-  //todo: replace with SAM after migration to scala 2.12
   implicit class ActionListenersOwner(val jc: WithAddActionListener) extends AnyVal {
-    def addActionListenerEx(body: => Unit): Unit = jc.addActionListener(new ActionListener {
-      override def actionPerformed(e: ActionEvent): Unit = body
-    })
+    def addActionListenerEx(body: => Unit): Unit = jc.addActionListener(_ => body)
   }
 }

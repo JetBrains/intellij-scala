@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatter.tests
+package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
 class ScalaFmtTest extends ScalaFmtTestBase {
 

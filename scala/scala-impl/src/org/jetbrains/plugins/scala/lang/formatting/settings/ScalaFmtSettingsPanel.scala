@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError.ConfigError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
@@ -69,16 +70,18 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
     projectConfigFile(configPathNew) match {
       case Some(vFile) =>
+        if (configTextChangedInEditor) {
+          saveConfigChangesToFile(editorText, vFile)
+        }
+
         if (configPathChanged || panelWasJustEnabled) {
           scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
           updateConfigTextFromFile(vFile)
-        } else if (configTextChangedInEditor) {
-          saveConfigChangesToFile(editorText, vFile)
         }
         ensureScalafmtResolved(vFile)
       case None =>
         if (configPathChanged || configTextChangedInEditor) {
-          if(configPathNew.isEmpty) {
+          if (configPathNew.isEmpty) {
             scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
             configText = None
           } else {
@@ -88,6 +91,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         ensureDefaultScalafmtResolved()
     }
 
+    isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     updateConfigVisibility()
     updateUseIntellijWarningVisibility(scalaSettings)
   }
@@ -111,9 +115,12 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
       case Right(config) =>
         updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
-      case Left(error) =>
+      case Left(error: ConfigError) =>
+        updateScalafmtVersionLabel(version, isDefault = versionOpt.isEmpty)
         reportConfigResolveError(error)
+      case Left(error: ConfigResolveError) =>
         updateScalafmtVersionLabel("")
+        reportConfigResolveError(error)
     })
   }
 
@@ -283,9 +290,21 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val button = externalFormatterSettingsPath.getButton
     button.getActionListeners.foreach(button.removeActionListener)
 
+    def updateConfigPath(configPath: String): Unit = {
+      projectConfigFile(configPath) match {
+        case Some(vFile) =>
+          updateConfigTextFromFile(vFile)
+          ensureScalafmtResolved(vFile)
+        case _ =>
+      }
+    }
+
     // if config path text field is empty we want to select default config file in project tree of file browser
     val textAccessor = new TextComponentAccessor[JTextField]() {
-      override def setText(textField: JTextField, text: String): Unit = textField.setText(text)
+      override def setText(textField: JTextField, text: String): Unit = {
+        textField.setText(text)
+        updateConfigPath(text)
+      }
       override def getText(textField: JTextField): String = {
         val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
         project
@@ -299,8 +318,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val focusListener = new FocusListener {
       override def focusGained(e: FocusEvent): Unit = {}
       override def focusLost(e: FocusEvent): Unit = {
-        if (StringUtils.isBlank(externalFormatterSettingsPath.getText))
+        val configPath = externalFormatterSettingsPath.getText
+        if (StringUtils.isBlank(configPath)) {
           externalFormatterSettingsPath.setText(null)
+          updateConfigPath(DefaultConfigFilePath)
+        } else {
+          updateConfigPath(configPath)
+        }
       }
     }
 
