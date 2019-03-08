@@ -29,7 +29,7 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
     super.tearDown()
   }
 
-  private[this] def dirtyScopes: Set[ScopedModule] = service.getDirtyScopeHolder.dirtyScopes
+  private[this] def dirtyScopes: Set[ScopedModule] = ScalaCompilerReferenceService(getProject).getDirtyScopeHolder.dirtyScopes
 
   private def moduleScopes(m: Module): Set[ScopedModule] = Set(ScopedModule.compile(m), ScopedModule.test(m))
 
