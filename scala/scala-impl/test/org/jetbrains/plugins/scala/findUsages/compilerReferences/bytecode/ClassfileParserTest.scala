@@ -74,7 +74,7 @@ class ClassfileParserTest {
 
   @Test
   def testSAMInheritor(): Unit = doTest[SAM] { parsed =>
-    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.findUsages.compilerReferences.Foo", 108)))
+    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.Foo", 108)))
   }
 }
 

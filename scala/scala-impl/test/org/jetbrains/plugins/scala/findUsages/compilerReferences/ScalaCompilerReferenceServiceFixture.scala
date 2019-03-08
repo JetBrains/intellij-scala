@@ -9,10 +9,10 @@ import com.intellij.psi.PsiClass
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import junit.framework.TestCase._
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, MockJDKLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.CompileServerUtil
 import org.junit.experimental.categories.Category
 
@@ -33,7 +33,6 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   @volatile private[this] var indexReadyPredicate: Boolean = false
 
   protected var compiler: CompilerTester = _
-  protected lazy val service = ScalaCompilerReferenceService(getProject)
 
   private[this] val myLoaders = mutable.Set.empty[LibraryLoader]
 

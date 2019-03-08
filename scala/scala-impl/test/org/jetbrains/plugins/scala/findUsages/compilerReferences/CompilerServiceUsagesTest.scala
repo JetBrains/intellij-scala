@@ -39,7 +39,8 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
 //    com.intellij.compiler.server.BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
 //    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
     buildProject()
-    val usages = indicesQuery(service, target).map(_.unwrap)
+    val service = ScalaCompilerReferenceService(getProject)
+    val usages  = indicesQuery(service, target).map(_.unwrap)
 
     expectedResults.foreach {
       case (filename, lines) =>
@@ -78,6 +79,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |}
        """.stripMargin
       )
+    val service     = ScalaCompilerReferenceService(getProject)
     val dirtyUsages = service.usagesOf(searchTarget)
     assertTrue("Should not find any usages if index does not exist", dirtyUsages.isEmpty)
     buildProject()
@@ -256,7 +258,8 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
        """.stripMargin
     )
     buildProject()
-    val usages = service.usagesOf(searchTarget)
+    val service = ScalaCompilerReferenceService(getProject)
+    val usages  = service.usagesOf(searchTarget)
     assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.isEmpty)
   }
 
