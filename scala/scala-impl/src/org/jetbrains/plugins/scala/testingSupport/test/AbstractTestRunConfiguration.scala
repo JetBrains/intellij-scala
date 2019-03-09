@@ -398,7 +398,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _                    =>
         }
 
-        val maybeCustomSdk = ProjectJdkTable.getInstance().findJdk(jrePath).toOption
+        val maybeCustomSdk = for {
+          path <- jrePath.toOption
+          jdk  <- ProjectJdkTable.getInstance().findJdk(path).toOption
+        } yield jdk
+
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
             val sdk = maybeCustomSdk.orElse(
