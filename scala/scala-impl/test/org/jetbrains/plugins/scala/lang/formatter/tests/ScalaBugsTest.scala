@@ -3054,6 +3054,17 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL12427_PreserveNewLineAfterCommentBetweenElseIf(): Unit = {
+    val before =
+      """object A {
+        |  if (false) 1
+        |  else //-- this is a comment
+        |  if (true) 2
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
 //  def testSCL12461(): Unit = {
 //    getSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
 //    val before =

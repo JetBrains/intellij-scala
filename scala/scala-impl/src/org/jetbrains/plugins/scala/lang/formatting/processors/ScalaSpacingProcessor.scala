@@ -761,11 +761,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //special else if treatment
-    if (leftNode.getElementType == ScalaTokenTypes.kELSE && (rightNode.getPsi.isInstanceOf[ScIf] ||
-      rightNode.getElementType == ScalaTokenTypes.kIF)) {
-      if (settings.SPECIAL_ELSE_IF_TREATMENT) return WITH_SPACING_NO_KEEP
-      else return ON_NEW_LINE
+    val isElseIf = leftNode.getElementType == ScalaTokenTypes.kELSE &&
+      (rightNode.getPsi.isInstanceOf[ScIf] || rightNode.getElementType == ScalaTokenTypes.kIF)
+    if (isElseIf) {
+      val isCommentAfterElse = Option(leftPsi.getNextSiblingNotWhitespace).exists(_.isInstanceOf[PsiComment])
+      if (settings.SPECIAL_ELSE_IF_TREATMENT && !isCommentAfterElse)
+        return WITH_SPACING_NO_KEEP
+      else
+        return ON_NEW_LINE
     }
+
     if (rightNode.getElementType == ScalaTokenTypes.kELSE && right.myLastNode != null) {
       var lastNode = left.myLastNode
       while (lastNode != null && (ScalaPsiUtil.isLineTerminator(lastNode.getPsi) ||
