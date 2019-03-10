@@ -2479,7 +2479,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  }
         |}
       """.stripMargin
-    doTextTest(before)
+    doTextTest(before, 2)
   }
 
   def testSCL_10545_1(): Unit = {
@@ -2498,7 +2498,48 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  }
         |}
       """.stripMargin
+    doTextTest(before, after, 2)
+  }
+
+  def testSCL_7886(): Unit = {
+    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE
+    val before =
+      """
+        |42 match {
+        |  case 42 => 42
+        |}
+      """.stripMargin
+    val after =
+      """
+        |42 match {
+        |  case 42 => 42
+        |}
+      """.stripMargin
     doTextTest(before, after)
+  }
+
+  def testSCL_7886_1(): Unit = {
+    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE
+    val before =
+      """
+        |42 match {
+        |  case 42 =>
+        |    1
+        |    2
+        |    3
+        |}
+      """.stripMargin
+    val after =
+      """
+        |42 match {
+        |  case 42 => {
+        |    1
+        |    2
+        |    3
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before, after, 2)
   }
 
   def testSCL9072(): Unit = {

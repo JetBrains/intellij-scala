@@ -107,6 +107,10 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(value, value);
   }
 
+  public void doTextTest(String value, int actionRepeats) {
+    doTextTest(value, value, actionRepeats);
+  }
+
   private void doTextTest(final Action action, final String text, final String textAfter) throws IncorrectOperationException {
     doTextTest(action, text, textAfter, 1);
   }
