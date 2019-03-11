@@ -39,9 +39,11 @@ package object psi {
 
   private implicit class ScalaPsiElementExt(val repr: PsiElement) extends AnyVal {
 
-    def isMetaEnabled: Boolean = repr.getContainingFile match {
-      case file: ScalaFile if !file.isCompiled => file.isMetaEnabled(repr.getProject)
-      case _ => false
+    def isMetaEnabled: Boolean = {
+      repr.isValid && (repr.getContainingFile match {
+        case file: ScalaFile if !file.isCompiled => file.isMetaEnabled(repr.getProject)
+        case _ => false
+      })
     }
   }
 

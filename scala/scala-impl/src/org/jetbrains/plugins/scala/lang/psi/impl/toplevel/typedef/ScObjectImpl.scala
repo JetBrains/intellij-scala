@@ -187,7 +187,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
 
-    if (DumbService.isDumb(getProject) || isDesugared) return None
+    if (!this.isValid || DumbService.isDumb(getProject) || isDesugared) return None
 
     val (expansion, isSynthetic) = this.metaExpand match {
       case Right(tree: Defn.Object) =>
