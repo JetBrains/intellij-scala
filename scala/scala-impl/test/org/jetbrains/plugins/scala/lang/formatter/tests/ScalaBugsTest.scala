@@ -2528,30 +2528,6 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after, 2)
   }
 
-  def testSCL_7886_1(): Unit = {
-    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE
-    val before =
-      """
-        |42 match {
-        |  case 42 =>
-        |    1
-        |    2
-        |    3
-        |}
-      """.stripMargin
-    val after =
-      """
-        |42 match {
-        |  case 42 => {
-        |    1
-        |    2
-        |    3
-        |  }
-        |}
-      """.stripMargin
-    doTextTest(before, after, 2)
-  }
-
   def testSCL9072(): Unit = {
     val before = "whenReady(dao.findNetworkRule(\"A12345\")) {          _ => ()          }"
     val after = "whenReady(dao.findNetworkRule(\"A12345\")) { _ => () }"
