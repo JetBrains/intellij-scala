@@ -420,7 +420,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
 
-    if (DumbService.isDumb(getProject)) return None
+    if (!this.isValid || DumbService.isDumb(getProject)) return None
 
     val defn = this.metaExpand match {
       case Right(templ: Defn.Class) => Some(templ)
