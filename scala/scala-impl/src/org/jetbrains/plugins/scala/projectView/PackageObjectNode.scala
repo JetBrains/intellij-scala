@@ -19,7 +19,7 @@ private class PackageObjectNode(definition: ScTypeDefinition)(implicit project: 
   override def update(data: PresentationData): Unit = {
     super.update(data)
 
-    if (!groupWithPackage) {
+    if (!groupWithPackage && definition.isValid) {
       data.clearText()
       Option(definition.getContainingFile).foreach { file =>
         data.addText(getNameWithoutExtension(file.getName) + " ", SimpleTextAttributes.REGULAR_ATTRIBUTES)
