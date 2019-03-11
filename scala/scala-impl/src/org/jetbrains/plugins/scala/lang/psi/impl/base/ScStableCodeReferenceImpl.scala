@@ -147,12 +147,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       else {
         def bindToType(c: ScalaImportTypeFix.TypeToImport): PsiElement = {
           val suitableKinds = getKinds(incomplete = false)
-          if (!ResolveUtils.kindMatches(element, suitableKinds)) {
+          if (!ResolveUtils.kindMatches(c.element, suitableKinds)) {
             reportWrongKind(c, suitableKinds)
           }
           if (nameId.getText != c.name) {
             val ref = createReferenceFromText(c.name)
-            return this.replace(ref).asInstanceOf[ScStableCodeReference].bindToElement(element)
+            return this.replace(ref).asInstanceOf[ScStableCodeReference].bindToElement(c.element)
           }
           val qname = c.qualifiedName
           val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
