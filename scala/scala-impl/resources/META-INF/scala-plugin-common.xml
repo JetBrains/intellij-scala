@@ -1428,7 +1428,7 @@
 
     <application-components>
       <component>
-        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationManager</implementation-class>
+        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor</implementation-class>
       </component>
     </application-components>
 

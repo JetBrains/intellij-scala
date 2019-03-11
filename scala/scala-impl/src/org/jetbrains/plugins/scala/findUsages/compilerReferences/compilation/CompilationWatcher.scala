@@ -10,12 +10,12 @@ private[compilerReferences] trait CompilationWatcher[M <: CompilerMode] {
   def project: Project
   def compilerMode: M
   def start(): Unit
-  def transactionManager: TransactionManager[State]
+  def transactionGuard: TransactionGuard[State]
 
   protected final def isEnabledFor(mode: CompilerMode): Boolean = mode == compilerMode
 
   /** Execute `body` transactionally (i.e. with guaranted exclusive access to state) */
-  protected final def transaction[T](body: State => T): T = transactionManager.inTransaction(body)
+  protected final def transaction[T](body: State => T): T = transactionGuard.inTransaction(body)
 
   /** Execute `body` in transaction under the condition that current compiler mode is [[M]] */
   protected final def processEventInTransaction(body: CompilerIndicesEventPublisher => Unit): Unit =

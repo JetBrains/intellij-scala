@@ -24,7 +24,7 @@ import scala.util.control.NonFatal
 
 private[compilerReferences] class SbtCompilationWatcher(
   override val project:            Project,
-  override val transactionManager: TransactionManager[CompilerIndicesState],
+  override val transactionGuard: TransactionGuard[CompilerIndicesState],
   val indexVersion:                Int
 ) extends CompilationWatcher[CompilerMode.SBT.type] {
   import SbtCompilationWatcher._
