@@ -7,7 +7,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
   val ideaVersion = "191.5701.16"
-  val bspVersion = "2.0.0-M3+30-72c23344"
+  val bspVersion = "2.0.0-M4"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
   val sbtIdeaCompilerIndicesVersion = "0.1.1"
@@ -157,11 +157,11 @@ object DependencyGroups {
       .exclude("net.java.dev.jna","jna") // included in IDEA platform
       .exclude("net.java.dev.jna","jna-platform") // included in IDEA platform
     ,
-    ("ch.epfl.scala" % "bsp4j" % "2.0.0-M3+19-9313cae8")
+    ("ch.epfl.scala" % "bsp4j" % bspVersion)
       .exclude("com.google.code.gson", "gson") // included in IDEA platform
       .exclude("com.google.guava", "guava") // included in IDEA platform
     ,
-    "ch.epfl.scala" %% "bsp-testkit" % "2.0.0-M3+19-9313cae8" % "test"
+    "ch.epfl.scala" %% "bsp-testkit" % bspVersion % "test"
   )
 
   val decompiler: Seq[ModuleID] = Seq(
