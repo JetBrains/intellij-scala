@@ -670,9 +670,10 @@ class ImplicitCollector(place: PsiElement,
       if (!updates.isEmpty)
         (tpe: ScType) => tpe.updateLeaves {
           case undef @ UndefinedType(tparam, _) =>
-            val replacement = updates.get(tparam.typeParamId)
-            if (replacement ne null) replacement
-            else                     undef
+            updates.get(tparam.typeParamId) match {
+              case null        => undef
+              case replacement => replacement
+            }
         }
       else identity
 
