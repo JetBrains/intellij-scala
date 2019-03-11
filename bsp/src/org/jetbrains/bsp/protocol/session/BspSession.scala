@@ -178,7 +178,7 @@ class BspSession private(bspIn: InputStream,
   private[protocol] def shutdown(error: Option[BspError] = None): Try[Unit] = {
     def whenDone: CompletableFuture[Unit] = {
       serverConnection.server.buildShutdown()
-        .thenApply[Unit](_=>())
+        .thenApply[Unit](_=> serverConnection.server.onBuildExit())
         .whenComplete {(_, error) =>
           error match {
             case err: ResponseErrorException =>
