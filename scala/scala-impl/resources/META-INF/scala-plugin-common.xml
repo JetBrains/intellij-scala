@@ -1419,9 +1419,6 @@
         <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager</implementation-class>
       </component>
       <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent</implementation-class>
-      </component>
-      <component>
         <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>
       </component>
       <component>
