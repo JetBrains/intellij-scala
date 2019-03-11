@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:            Project,
-  override val transactionManager: TransactionManager[CompilerIndicesState]
+  override val transactionGuard: TransactionGuard[CompilerIndicesState]
 ) extends CompilationWatcher[CompilerMode.JPS.type] { self =>
   import JpsCompilationWatcher._
 

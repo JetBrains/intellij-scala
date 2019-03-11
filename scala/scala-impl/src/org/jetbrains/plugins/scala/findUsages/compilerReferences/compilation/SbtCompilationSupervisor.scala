@@ -11,9 +11,9 @@ import com.intellij.openapi.components.BaseComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings
 import org.jetbrains.plugins.scala.indices.protocol.sbt._
 
@@ -34,13 +34,16 @@ import scala.util.control.NonFatal
   * Explicit waiting for acknowledgement on the sbt side is done in order to ensure that
   * dependent compilations are processed in their respective order.
  */
-class SbtCompilationManager() extends BaseComponent {
-  import SbtCompilationManager._
+class SbtCompilationSupervisor() extends BaseComponent {
+  import SbtCompilationSupervisor._
 
   private[this] val executor: ExecutorService = Executors.newCachedThreadPool()
   private[this] var server: ServerSocket      = _
   private[this] val bus: MessageBus           = ApplicationManager.getApplication.getMessageBus
   private[this] val port                      = CompilerIndicesSbtSettings().sbtConnectionPort
+
+  /* Either the predefined port, specified in settings, or random one. */
+  @volatile var actualPort: Option[Int] = None
 
   Disposer.register(ApplicationManager.getApplication, () => {
     executor.shutdown()
@@ -53,6 +56,7 @@ class SbtCompilationManager() extends BaseComponent {
   override def initComponent(): Unit =
     try {
       server = new ServerSocket(port)
+      actualPort = Option(server.getLocalPort)
       logger.debug(s"Listening to incoming sbt compilation events on port $port.")
       executeOnPooledThread {
         while (true) {
@@ -117,6 +121,9 @@ class SbtCompilationManager() extends BaseComponent {
     catch { case NonFatal(e) => logger.error(e) }
 }
 
-object SbtCompilationManager {
-  private val logger = Logger.getInstance(classOf[SbtCompilationManager])
+object SbtCompilationSupervisor {
+  private val logger = Logger.getInstance(classOf[SbtCompilationSupervisor])
+
+  def apply(): SbtCompilationSupervisor =
+    ApplicationManager.getApplication.getComponent(classOf[SbtCompilationSupervisor])
 }

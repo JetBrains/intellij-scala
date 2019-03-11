@@ -106,8 +106,8 @@ private[findUsages] class ScalaCompilerReferenceService(
     override def finishIndexing(): Unit = indexerScheduler.schedule(CloseWriter(_.foreach(processIndexingFailure)))
   }
 
-  private[this] val transactionManager: TransactionManager[CompilerIndicesState] =
-    new TransactionManager[CompilerIndicesState] {
+  private[this] val transactionManager: TransactionGuard[CompilerIndicesState] =
+    new TransactionGuard[CompilerIndicesState] {
       override def inTransaction[T](body: CompilerIndicesState => T): T =
         openCloseLock.locked(body((currentCompilerMode, publisher)))
     }

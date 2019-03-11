@@ -24,6 +24,7 @@ import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
@@ -163,13 +164,15 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
       if (addPluginCommandSupported)
         commandLine.addParameter(s"--addPluginSbtFile=${settingsFile.getAbsolutePath}")
 
-      // we have our plugins in there, load custom shell
       val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
-      val ideaPort = CompilerIndicesSbtSettings().sbtConnectionPort
-      val commands = compilerIndicesPluginLoaded.fold(
-        s"; set ideaPort in Global := $ideaPort ; idea-shell",
-        "idea-shell"
-      )
+      val ideaPort                    = SbtCompilationSupervisor().actualPort
+      val ideaPortSetting             = ideaPort.fold("")(port => s"; set ideaPort in Global := $port ;")
+
+      // we have our plugins in there, load custom shell
+      val commands =
+        if (compilerIndicesPluginLoaded) s"$ideaPortSetting idea-shell"
+        else                             "idea-shell"
+
       commandLine.addParameter(commands)
     }
 
