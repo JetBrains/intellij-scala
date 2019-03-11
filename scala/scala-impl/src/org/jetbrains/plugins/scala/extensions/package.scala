@@ -506,6 +506,11 @@ package object extensions {
 
     def elementType: IElementType = element.getNode.getElementType
 
+    def startsFromNewLine: Boolean = element match {
+      case PrevSibling(Whitespace(ws)) if ws.contains("\n") => true
+      case _ => false
+    }
+
     def getPrevSiblingNotWhitespace: PsiElement = {
       var prev: PsiElement = element.getPrevSibling
       while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||

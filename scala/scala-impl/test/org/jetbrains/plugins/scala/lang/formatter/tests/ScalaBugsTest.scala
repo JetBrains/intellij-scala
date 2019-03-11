@@ -3235,6 +3235,44 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL15090_1_WithTrailingComma(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    val before =
+      """List(
+        |    1123123,
+        |  42,
+        |  312321323,
+        |          )
+      """.stripMargin
+    val after =
+      """List(
+        |  1123123,
+        |  42,
+        |  312321323,
+        |)
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL15090_2_WithoutTrailingComma()(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    val before =
+      """List(
+        |    1123123,
+        |  42,
+        |  312321323
+        |          )
+      """.stripMargin
+    val after =
+      """List(
+        |  1123123,
+        |  42,
+        |  312321323
+        |)
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
 //  def testSCL12461(): Unit = {
 //    getSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
 //    val before =

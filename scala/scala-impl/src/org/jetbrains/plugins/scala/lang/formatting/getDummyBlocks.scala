@@ -69,7 +69,6 @@ object getDummyBlocks {
       applyInner(firstNode, block)
     }
 
-
   private def applyInner(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new util.ArrayList[Block]
@@ -236,10 +235,7 @@ object getDummyBlocks {
         node.getPsi match {
           case params: ScParameters =>
             val firstParameterStartsFromNewLine =
-              params.clauses.headOption.exists(_.parameters.headOption match {
-                case Some(PrevSibling(Whitespace(ws))) if ws.contains("\n") => true
-                case _ => false
-              })
+              params.clauses.headOption.flatMap(_.parameters.headOption).exists(_.startsFromNewLine)
             if (firstParameterStartsFromNewLine) null
             else alignment
           case _: ScParameterClause =>
@@ -248,9 +244,12 @@ object getDummyBlocks {
               case _ => alignment
             }
           case args: ScArgumentExprList =>
+            val firstArgStartsFromNewLine =
+              args.exprs.headOption.exists(_.startsFromNewLine)
             child.getElementType match {
               case ScalaTokenTypes.tRPARENTHESIS if args.missedLastExpr &&
-                      settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
+                  settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine =>
+                alignment
               case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS =>
                 if (settings.ALIGN_MULTILINE_METHOD_BRACKETS) {
                   if (alternateAlignment == null) {
@@ -259,7 +258,7 @@ object getDummyBlocks {
                   alternateAlignment
                 } else null
               case ScCodeBlockElementType.BlockExpression if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
-              case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
+              case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine => alignment
               case _ => null
             }
           case patt: ScPatternArgumentList =>
