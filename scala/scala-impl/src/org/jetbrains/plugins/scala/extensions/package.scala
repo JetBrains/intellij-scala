@@ -49,6 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
+import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ArrayBuffer
@@ -506,9 +507,18 @@ package object extensions {
 
     def elementType: IElementType = element.getNode.getElementType
 
-    def startsFromNewLine: Boolean = element match {
-      case PrevSibling(Whitespace(ws)) if ws.contains("\n") => true
-      case _ => false
+    def startsFromNewLine(ignoreComments: Boolean): Boolean = {
+      @tailrec
+      def inner(el: PsiElement): Boolean = el match {
+        case null => true
+        case Whitespace(ws) =>
+          if (ws.contains("\n")) true
+          else inner(el.getPrevSibling)
+        case _: PsiComment if ignoreComments =>
+          inner(el.getPrevSibling)
+        case _ => false
+      }
+      inner(element.getPrevSibling)
     }
 
     def getPrevSiblingNotWhitespace: PsiElement = {

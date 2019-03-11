@@ -2082,7 +2082,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4167_1_MultipleParamClauses(): Unit = {
+  def testSCL4167_2_MultipleParamClauses(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
     val before =
       """
@@ -2109,7 +2109,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4167_2_ShouldNotIndentIfFirstParameterIsOnNewLine(): Unit = {
+  def testSCL4167_3_ShouldNotIndentIfFirstParameterIsOnNewLine(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
     val before =
       """
@@ -2133,7 +2133,31 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4167_2_ShouldNotIndentIfFirstParameterIsOnNewLine_MultipleParamClauses(): Unit = {
+  def testSCL4167_4_ShouldNotIndentIfFirstParameterIsOnNewLineAndCommentPreceding(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    val before =
+      """
+        |class Person(
+        |  /* strange comment */ name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL4167_5_ShouldNotIndentIfFirstParameterIsOnNewLine_MultipleParamClauses(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
     val before =
       """
@@ -3268,7 +3292,26 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL15090_2_WithoutTrailingComma()(): Unit = {
+  def testSCL15090_2_WithTrailingCommaAndPrecedingComment(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    val before =
+      """List(
+        |    /* strange comment */ 12,
+        |  34,
+        |  56,
+        |          )
+      """.stripMargin
+    val after =
+      """List(
+        |  /* strange comment */ 12,
+        |  34,
+        |  56,
+        |)
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL15090_3_WithoutTrailingComma()(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     val before =
       """List(

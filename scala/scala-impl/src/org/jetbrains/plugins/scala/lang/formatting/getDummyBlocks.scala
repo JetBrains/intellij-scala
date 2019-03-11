@@ -235,7 +235,7 @@ object getDummyBlocks {
         node.getPsi match {
           case params: ScParameters =>
             val firstParameterStartsFromNewLine =
-              params.clauses.headOption.flatMap(_.parameters.headOption).exists(_.startsFromNewLine)
+              params.clauses.headOption.flatMap(_.parameters.headOption).exists(_.startsFromNewLine(ignoreComments = true))
             if (firstParameterStartsFromNewLine) null
             else alignment
           case _: ScParameterClause =>
@@ -245,7 +245,7 @@ object getDummyBlocks {
             }
           case args: ScArgumentExprList =>
             val firstArgStartsFromNewLine =
-              args.exprs.headOption.exists(_.startsFromNewLine)
+              args.exprs.headOption.exists(_.startsFromNewLine(ignoreComments = true))
             child.getElementType match {
               case ScalaTokenTypes.tRPARENTHESIS if args.missedLastExpr &&
                   settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine =>
