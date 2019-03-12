@@ -175,8 +175,15 @@ object SbtExternalSystemManager {
 
     val maxHeapSizeString = settings.getMaximumHeapSize.trim
     val maxHeapOptions =
-      if (maxHeapSizeString.nonEmpty) Seq(s"-Xmx$maxHeapSizeString")
-      else Seq.empty
+      if (maxHeapSizeString.nonEmpty) {
+        val maxHeapSize =
+          JvmMemorySize.parse(maxHeapSizeString + "M")
+            .orElse(JvmMemorySize.parse(maxHeapSizeString))
+            .map(_.toString)
+            .getOrElse(maxHeapSizeString + "M")
+
+        Seq(s"-Xmx$maxHeapSize")
+      } else Seq.empty
 
     val allOptions = maxHeapOptions ++ ideaProxyOptions ++ userOptions
 
