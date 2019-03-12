@@ -2,16 +2,27 @@ package org.jetbrains.bsp.project.resolver
 
 import ch.epfl.scala.bsp.testkit.gen.UtilGenerators._
 import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.plugins.scala.SlowTests
+import org.junit.experimental.categories.Category
+import org.junit.{Ignore, Test}
 import org.scalacheck.Prop.forAll
-import org.scalacheck.Properties
+import org.scalatest.junit.AssertionsForJUnit
+import org.scalatest.prop.Checkers
 
-object BspUtilProperties extends Properties("BspUtil functions") {
+@Category(Array(classOf[SlowTests]))
+class BspUtilProperties extends AssertionsForJUnit with Checkers {
 
-  property("StringOps.toURI") = forAll(genUri) { uri =>
-    uri.toURI.toString == uri
-  }
+  @Test
+  def stringOpsToUri(): Unit = check(
+    forAll(genUri) { uri =>
+      uri.toURI.toString == uri
+    }
+  )
 
-  property("URIOps.toFile") = forAll(genPath) { path =>
-    path.toUri.toFile == path.toFile
-  }
+  @Test @Ignore
+  def uriOpsToFile(): Unit = check(
+    forAll(genPath) { path =>
+      path.toUri.toFile == path.toFile
+    }
+  )
 }
