@@ -40,7 +40,7 @@ class SbtCompilationSupervisor() extends BaseComponent {
   private[this] val executor: ExecutorService = Executors.newCachedThreadPool()
   private[this] var server: ServerSocket      = _
   private[this] val bus: MessageBus           = ApplicationManager.getApplication.getMessageBus
-  private[this] val port                      = CompilerIndicesSbtSettings().sbtConnectionPort
+  private[this] val port                      = CompilerIndicesSbtSettings().sbtPort
 
   /* Either the predefined port, specified in settings, or random one. */
   @volatile var actualPort: Option[Int] = None
