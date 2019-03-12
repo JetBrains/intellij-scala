@@ -28,7 +28,8 @@ object Common {
       updateOptions := updateOptions.value.withCachedResolution(true),
       ideaMainJars := ideaMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       pathExcludeFilter := excludePathsFromPackage,
-      testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20")
+      testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
+      testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
     )
 
   def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
