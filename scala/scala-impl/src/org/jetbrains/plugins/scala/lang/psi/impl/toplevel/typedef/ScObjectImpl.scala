@@ -52,7 +52,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   }
 
   override def getContainingFile: PsiFile = {
-    if (isSyntheticObject) getContext.getContainingFile
+    if (isSyntheticObject) syntheticNavigationElement.getContainingFile
     else super.getContainingFile
   }
 
