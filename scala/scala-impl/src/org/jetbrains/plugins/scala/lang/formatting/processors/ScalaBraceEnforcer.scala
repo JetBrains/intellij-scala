@@ -16,27 +16,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
-class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElementVisitor {
-  private val commonSetttings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
-  private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(commonSetttings)
-  private val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeStyleSettings) extends ScalaRecursiveElementVisitor {
+  private val commonSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
+  private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(commonSettings)
 
   override def visitIfStatement(stmt: ScIf) {
     if (checkElementContainsRange(stmt)) {
       super.visitIfStatement(stmt)
       stmt.thenExpression match {
         case Some(thenBranch) =>
-          processExpression(thenBranch, stmt, commonSetttings.IF_BRACE_FORCE)
+          processExpression(thenBranch, stmt, commonSettings.IF_BRACE_FORCE)
         case _ =>
       }
       stmt.elseExpression match {
-        case Some(_: ScIf) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
+        case Some(_: ScIf) if commonSettings.SPECIAL_ELSE_IF_TREATMENT =>
         case Some(el) =>
-          processExpression(el, stmt, commonSetttings.IF_BRACE_FORCE)
+          processExpression(el, stmt, commonSettings.IF_BRACE_FORCE)
         case _ =>
       }
     }
@@ -47,7 +42,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
       super.visitWhileStatement(ws)
       ws.expression match {
         case Some(b) =>
-          processExpression(b, ws, commonSetttings.WHILE_BRACE_FORCE)
+          processExpression(b, ws, commonSettings.WHILE_BRACE_FORCE)
         case _ =>
       }
     }
@@ -57,7 +52,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     if (checkElementContainsRange(stmt)) {
       super.visitDoStatement(stmt)
       stmt.body match {
-        case Some(e) => processExpression(e, stmt, commonSetttings.DOWHILE_BRACE_FORCE)
+        case Some(e) => processExpression(e, stmt, commonSettings.DOWHILE_BRACE_FORCE)
         case _ =>
       }
     }
@@ -67,7 +62,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     if (checkElementContainsRange(expr)) {
       super.visitForExpression(expr)
       expr.body match {
-        case Some(body) => processExpression(body, expr, commonSetttings.FOR_BRACE_FORCE)
+        case Some(body) => processExpression(body, expr, commonSettings.FOR_BRACE_FORCE)
         case _ =>
       }
     }
@@ -180,11 +175,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
         SourceTreeToPsiMap.psiElementToTree(head),
         SourceTreeToPsiMap.psiElementToTree(newExpr))
       CodeStyleManager.getInstance(project).reformat(parent, true)
-    }
-    finally {
+    } finally {
       updateResultRange(oldTextLength, parent.getTextLength)
     }
-
   }
 
   protected def checkElementContainsRange(element: PsiElement): Boolean = {
