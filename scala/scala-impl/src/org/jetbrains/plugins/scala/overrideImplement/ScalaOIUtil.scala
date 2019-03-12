@@ -135,11 +135,11 @@ object ScalaOIUtil {
                                           (f1: PhysicalSignature => Boolean = const(true),
                                            f2: PsiNamedElement => Boolean = const(true)): Iterable[ClassMember] = {
     val methods = (if (withSelfType) clazz.allMethodsIncludingSelfType
-    else clazz.allMethods).filter(f1)
+    else clazz.allMethods).filter(s => s.namedElement.isValid && f1(s))
 
     val aliasesAndValues = (if (withSelfType) clazz.allTypeAliasesIncludingSelfType ++ clazz.allValsIncludingSelfType
     else clazz.allTypeAliases ++ clazz.allVals).filter {
-      case (named, _) => f2(named)
+      case (named, _) => named.isValid && f2(named)
     }
 
     methods.map(toClassMember(_, isOverride)) ++
