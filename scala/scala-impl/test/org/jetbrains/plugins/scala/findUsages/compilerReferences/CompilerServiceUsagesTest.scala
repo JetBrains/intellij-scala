@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import junit.framework.TestCase.fail
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
 import org.junit.Assert._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
@@ -15,7 +14,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
 
     myFixture.getElementAtCaret match {
       case targetExtractor(t, _) => t
-      case e                     => fail(s"invalid search target, but was $e"); ???
+      case e                     => org.junit.Assert.fail(s"invalid search target, but was $e"); ???
     }
   }
 

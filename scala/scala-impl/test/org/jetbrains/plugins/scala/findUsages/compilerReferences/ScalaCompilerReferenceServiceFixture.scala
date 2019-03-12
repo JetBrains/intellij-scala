@@ -8,7 +8,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiClass
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
-import junit.framework.TestCase._
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_12}
@@ -44,7 +43,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       val project = getProject
       compiler = new CompilerTester(project, project.modules.asJava, null)
     } catch {
-      case NonFatal(e) => fail(e.getMessage)
+      case NonFatal(e) => org.junit.Assert.fail(e.getMessage)
     }
   }
 
@@ -89,11 +88,11 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     compiler
       .rebuild
       .asScala
-      .foreach(m => assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
+      .foreach(m => junit.framework.Assert.assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
 
     compilerIndexLock.locked {
       indexReady.await(30, TimeUnit.SECONDS)
-      if (!indexReadyPredicate) fail("Failed to updated compiler index.")
+      if (!indexReadyPredicate) org.junit.Assert.fail("Failed to updated compiler index.")
       indexReadyPredicate = false
     }
   }
