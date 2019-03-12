@@ -2,8 +2,6 @@ package org.jetbrains.sbt
 package project
 
 import java.io.File
-import java.net.URL
-import java.util
 
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
@@ -86,7 +84,7 @@ object SbtExternalSystemManager {
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
     new SbtExecutionSettings(realProjectPath,
-      vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
+      vmExecutable, vmOptions, SbtSettings.hiddenDefaultMaxHeapSize, environment, customLauncher, customSbtStructureFile, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers,
       projectSettings.useSbtShellForImport, projectSettings.enableDebugSbtShell, projectSettings.allowSbtVersionOverride)
   }
@@ -174,7 +172,13 @@ object SbtExternalSystemManager {
     import DefaultOptions._
     val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
     val ideaProxyOptions = proxyOptions { optName => !userOptions.exists(_.startsWith(optName)) }
-    val allOptions = Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ ideaProxyOptions ++ userOptions
+
+    val maxHeapSizeString = settings.getMaximumHeapSize.trim
+    val maxHeapOptions =
+      if (maxHeapSizeString.nonEmpty) Seq(s"-Xmx$maxHeapSizeString")
+      else Seq.empty
+
+    val allOptions = maxHeapOptions ++ ideaProxyOptions ++ userOptions
 
     allOptions
       .addDefaultOption(ideaManaged.key, ideaManaged.value)

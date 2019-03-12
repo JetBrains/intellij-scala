@@ -19,8 +19,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
@@ -28,12 +28,12 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.Sbt
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
-import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
+import org.jetbrains.sbt.{JvmMemorySize, SbtUtil}
 
 import scala.collection.JavaConverters._
 /**
@@ -128,9 +128,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
-    vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
-    vmParams.addAll(JvmOpts.loadFrom(workingDir).asJava)
-    vmParams.addAll(sbtSettings.vmOptions.asJava)
+    vmParams.addAll(buildVMParameters(sbtSettings, workingDir).asJava)
     // don't add runid when using addPluginFile command
     if (! addPluginCommandSupported)
       vmParams.add(s"-Didea.runid=$runid")
@@ -424,4 +422,22 @@ object SbtProcessManager {
 
   /** Minimum project sbt version that is allowed version override. */
   val mayUpgradeSbtVersion = Version("0.13.0")
+
+  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File): Seq[String] = {
+    val opts =
+      SbtOpts.loadFrom(workingDir) ++
+      JvmOpts.loadFrom(workingDir) ++
+      sbtSettings.vmOptions
+
+    val hasXmx = opts.exists(_.startsWith("-Xmx"))
+    val xmsPrefix = "-Xms"
+    def minMaxHeapSize = opts.reverseIterator
+      .find(_.startsWith(xmsPrefix))
+      .map(_.drop(xmsPrefix.length))
+      .flatMap(JvmMemorySize.parse)
+    def xmxNotNeeded = minMaxHeapSize.exists(_ >= sbtSettings.hiddenDefaultMaxHeapSize)
+
+    if (hasXmx || xmxNotNeeded) opts
+    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: opts
+  }
 }
