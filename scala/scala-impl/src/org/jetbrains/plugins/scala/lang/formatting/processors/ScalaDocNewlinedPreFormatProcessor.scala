@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
-import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala
@@ -25,7 +23,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
 
   private class ScalaDocNewlinedPreFormatVisitor(settings: ScalaCodeStyleSettings) extends ScalaElementVisitor {
-
     override def visitDocComment(s: ScDocComment) {
       s.getChildren.foreach {fixNewlines(_, settings)}
     }
@@ -34,18 +31,24 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
       fixNewlines(s, settings)
   }
 
-  override def process(element: ASTNode, range: TextRange): TextRange =
-    Option(element.getPsi)
-      .filter(_.isValid)
-      .filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
-      .map(processScalaElement(_, range))
-      .map(range.grown)
-      .getOrElse(range)
+  override def process(element: ASTNode, range: TextRange): TextRange = {
+    val psiElement = element.getPsi
+    val scalaSettings = ScalaCodeStyleSettings.getInstance(psiElement.getProject)
+    if(scalaSettings.USE_SCALAFMT_FORMATTER()) {
+      range
+    } else {
+      Option(psiElement)
+        .filter(_.isValid)
+        .filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
+        .map(processScalaElement(_, range, scalaSettings))
+        .map(range.grown)
+        .getOrElse(range)
+    }
+  }
 
-  private def processScalaElement(psiElement: PsiElement, range: TextRange) = {
+  private def processScalaElement(psiElement: PsiElement, range: TextRange, scalaSettings: ScalaCodeStyleSettings): Int = {
     val oldRange = psiElement.getTextRange
-    val settings = CodeStyle.getSettings(psiElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val visitor = new ScalaDocNewlinedPreFormatVisitor(settings)
+    val visitor = new ScalaDocNewlinedPreFormatVisitor(scalaSettings)
 
     for {
       elem <- elementsToProcess(psiElement, range)
