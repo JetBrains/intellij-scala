@@ -221,11 +221,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
   }
 
-  def isInMoreSpecificClass(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
-    val clazz1 = getClazz(r1.element)
-    val clazz2 = getClazz(r2.element)
-    isDerived(clazz1, clazz2) && !isDerived(clazz2, clazz1)
-  }
+  def isInMoreSpecificClass(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean =
+    (getClazz(r1.element), getClazz(r2.element)) match {
+      case (Some(clazz1), Some(clazz2)) =>
+        clazz1.qualifiedName != clazz2.qualifiedName &&
+          ScalaPsiUtil.isInheritorDeep(clazz1, clazz2) &&
+          !ScalaPsiUtil.isInheritorDeep(clazz2, clazz1)
+      case _ => false
+    }
 
   private def relativeWeight[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
                                 checkImplicits: Boolean): Int = {
