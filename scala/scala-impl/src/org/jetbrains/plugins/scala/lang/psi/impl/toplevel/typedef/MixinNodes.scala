@@ -517,17 +517,18 @@ object MixinNodes {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
           Seq(ScalaType.designator(obj))
+        case newTd: ScNewTemplateDefinition =>
+          generalLinearization(None, newTd.superTypes)
         case _ =>
           ProgressManager.checkCanceled()
-          val tp = {
-            def default =
-              if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
-              else ScParameterizedType(ScalaType.designator(clazz),
-                clazz.getTypeParameters.map(TypeParameterType(_)))
-            clazz match {
-              case td: ScTypeDefinition => td.`type`().getOrElse(default)
-              case _ => default
-            }
+          def default =
+            if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
+            else ScParameterizedType(ScalaType.designator(clazz),
+              clazz.getTypeParameters.map(TypeParameterType(_)))
+
+          val classType = clazz match {
+            case td: ScTypeDefinition => td.`type`().getOrElse(default)
+            case _ => default
           }
           val supers: Seq[ScType] = {
             clazz match {
@@ -543,7 +544,7 @@ object MixinNodes {
             }
           }
 
-          generalLinearization(tp, addTp = true, supers = supers)
+          generalLinearization(Some(classType), supers)
       }
 
     }
@@ -554,12 +555,12 @@ object MixinNodes {
 
   def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
     val comps = compound.components
-
-    generalLinearization(compound, addTp = addTp, supers = comps)
+    val classType = if (addTp) Some(compound) else None
+    generalLinearization(classType, comps)
   }
 
 
-  private def generalLinearization(tp: ScType, addTp: Boolean, supers: Seq[ScType]): Seq[ScType] = {
+  private def generalLinearization(classType: Option[ScType], supers: Seq[ScType]): Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
     val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {
@@ -632,7 +633,7 @@ object MixinNodes {
           }
       }
     }
-    if (addTp) add(tp)
+    classType.foreach(add)
     buffer
   }
 
