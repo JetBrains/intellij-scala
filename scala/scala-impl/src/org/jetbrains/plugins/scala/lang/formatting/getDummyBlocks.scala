@@ -247,8 +247,7 @@ object getDummyBlocks {
             val firstArgStartsFromNewLine =
               args.exprs.headOption.exists(_.startsFromNewLine(ignoreComments = true))
             child.getElementType match {
-              case ScalaTokenTypes.tRPARENTHESIS if args.missedLastExpr &&
-                  settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine =>
+              case ScalaTokenTypes.tRPARENTHESIS if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine =>
                 alignment
               case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS =>
                 if (settings.ALIGN_MULTILINE_METHOD_BRACKETS) {

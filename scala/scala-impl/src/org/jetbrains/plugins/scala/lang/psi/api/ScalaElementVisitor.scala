@@ -3,12 +3,12 @@ package lang.psi.api
 
 import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -62,6 +62,14 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration) {visitTypeAlias(alias)}
 
   def visitParameters(parameters: ScParameters) {visitScalaElement(parameters)}
+
+  def visitParameterClause(clause: ScParameterClause) {visitScalaElement(clause)}
+
+  def visitTypeParameterClause(clause: ScTypeParamClause) {visitScalaElement(clause)}
+
+  def visitPatternArgumentList(args: ScPatternArgumentList) {visitScalaElement(args)}
+
+  def visitArgumentExprList(args: ScArgumentExprList) {visitScalaElement(args)}
 
   def visitModifierList(modifierList: ScModifierList) {visitScalaElement(modifierList)}
 

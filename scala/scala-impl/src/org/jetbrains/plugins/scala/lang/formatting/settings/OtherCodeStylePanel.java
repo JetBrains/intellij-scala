@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -38,6 +37,8 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JPanel myCommenterPanel;
   private JCheckBox reformatOnCompileCheckBox;
   private CommenterForm myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
+  private TrailingCommaPanel trailingCommaPanel = new TrailingCommaPanel(getSettings());
+  private JPanel trailingCommaInnerPanel;
 
   protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
     super(settings);
@@ -88,12 +89,12 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = (Integer) alternateIndentationForParamsSpinner.getValue();
     scalaCodeStyleSettings.REFORMAT_ON_COMPILE = reformatOnCompileCheckBox.isSelected();
     myCommenterForm.apply(settings);
+    trailingCommaPanel.apply(settings);
   }
 
   @Override
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
 
     if (scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected())
       return true;
@@ -111,7 +112,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
       return true;
     if (scalaCodeStyleSettings.REFORMAT_ON_COMPILE != reformatOnCompileCheckBox.isSelected())
       return true;
-    return (myCommenterForm.isModified(settings));
+    return (myCommenterForm.isModified(settings) || trailingCommaPanel.isModified(settings));
   }
 
   @Nullable
@@ -132,10 +133,12 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     alternateIndentationForParamsSpinner.setValue(scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
     reformatOnCompileCheckBox.setSelected(scalaCodeStyleSettings.REFORMAT_ON_COMPILE);
     myCommenterForm.reset(settings);
+    trailingCommaPanel.resetImpl(settings);
   }
 
   private void createUIComponents() {
     myCommenterPanel = myCommenterForm.getCommenterPanel();
+    trailingCommaInnerPanel = trailingCommaPanel.getPanel();
   }
 
   public void toggleExternalFormatter(boolean useExternalFormatter) {
@@ -156,30 +159,30 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPanel = new JPanel();
-    contentPanel.setLayout(new GridLayoutManager(9, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPanel.setLayout(new GridLayoutManager(11, 2, new Insets(0, 0, 0, 0), -1, -1));
     panel1.add(contentPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     contentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null));
     enforceFunctionalSyntaxForCheckBox = new JCheckBox();
     enforceFunctionalSyntaxForCheckBox.setText("Enforce functional syntax for methods with Unit return type");
-    contentPanel.add(enforceFunctionalSyntaxForCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(enforceFunctionalSyntaxForCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
-    contentPanel.add(spacer1, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    contentPanel.add(spacer1, new GridConstraints(10, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     replaceWithUnicodeSymbolCheckBox = new JCheckBox();
     replaceWithUnicodeSymbolCheckBox.setText("Replace '=>' with unicode symbol");
-    contentPanel.add(replaceWithUnicodeSymbolCheckBox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(replaceWithUnicodeSymbolCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     replaceWithUnicodeSymbolCheckBox1 = new JCheckBox();
     replaceWithUnicodeSymbolCheckBox1.setText("Replace '->' with unicode symbol");
-    contentPanel.add(replaceWithUnicodeSymbolCheckBox1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(replaceWithUnicodeSymbolCheckBox1, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     replaceInForGeneratorCheckBox = new JCheckBox();
     replaceInForGeneratorCheckBox.setText("Replace '<-' in \"for\" generator with unicode symbol");
-    contentPanel.add(replaceInForGeneratorCheckBox, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(replaceInForGeneratorCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     replaceLambdaWithGreekLetter = new JCheckBox();
     replaceLambdaWithGreekLetter.setSelected(false);
     replaceLambdaWithGreekLetter.setText("Kind Projector: Replace 'Lambda' with unicode symbol");
-    contentPanel.add(replaceLambdaWithGreekLetter, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(replaceLambdaWithGreekLetter, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     alternateParamIndentPanel = new JPanel();
     alternateParamIndentPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
-    contentPanel.add(alternateParamIndentPanel, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPanel.add(alternateParamIndentPanel, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     alternateIndentationForParamsCheckBox = new JCheckBox();
     alternateIndentationForParamsCheckBox.setText("Alternate indentation for constructor args and parameter declarations:");
     alternateIndentationForParamsCheckBox.setVerticalAlignment(1);
@@ -192,9 +195,10 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     alternateParamIndentPanel.add(spacesLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
     alternateParamIndentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-    contentPanel.add(myCommenterPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPanel.add(myCommenterPanel, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     reformatOnCompileCheckBox = new JCheckBox();
     reformatOnCompileCheckBox.setText("Reformat on compile");
-    contentPanel.add(reformatOnCompileCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(reformatOnCompileCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(trailingCommaInnerPanel, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 }

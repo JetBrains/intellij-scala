@@ -6,7 +6,9 @@ package builder
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.testFramework.LightVirtualFileBase
 import org.jetbrains.plugins.scala.project.Version
@@ -60,14 +62,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     newlinesEnabled.pop()
   }
 
-  override final def isTrailingCommasEnabled: Boolean = {
-    import ScalaProjectSettings.TrailingCommasMode._
-    ScalaProjectSettings.getInstance(getProject).getTrailingCommasMode match {
-      case Enabled => true
-      case Auto => isTestFile || maybeScalaVersion.forall(_ >= Version("2.12.2"))
-      case Disabled => false
-    }
-  }
+  override final def isTrailingCommasEnabled: Boolean =
+    ScalaPsiBuilderImpl.isTrailingCommasEnabled(getProject, maybePsiFile, maybeScalaVersion)
 
   override final def isIdBindingEnabled: Boolean =
     isTestFile || maybeScalaVersion.exists(_ >= Version("2.12"))
@@ -89,15 +85,15 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     }
   }
 
-  private def checkedFindPreviousNewLine =
-    if (isNewlinesEnabled &&
-      !eof &&
-      canStartStatement) findPreviousNewLine
-    else None
+  private def checkedFindPreviousNewLine: Option[String] =
+    if (isNewlinesEnabled && !eof && canStartStatement) {
+      findPreviousNewLine
+    } else {
+      None
+    }
 
-  private def isTestFile =
-    ApplicationManager.getApplication.isUnitTestMode &&
-      maybePsiFile.exists(_.getVirtualFile.isInstanceOf[LightVirtualFileBase])
+  private def isTestFile: Boolean =
+    maybePsiFile.exists(ScalaPsiBuilderImpl.isTestFile)
 
   import lexer.{ScalaTokenTypes => T}
 
@@ -146,7 +142,28 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
 }
 
 object ScalaPsiBuilderImpl {
-
-  private def isBlank(string: String) =
+  private def isBlank(string: String): Boolean =
     string.forall(StringUtil.isWhiteSpace)
+
+  // TODO: move to more appropriate place, the code is reused in formatter
+  def isTrailingCommasEnabled(file: PsiFile): Boolean = {
+    if (file == null) false else isTrailingCommasEnabled(
+      file.getProject,
+      Some(file),
+      ScalaUtil.getScalaVersion(file).map(Version(_))
+    )
+  }
+
+  private def isTrailingCommasEnabled(project: Project, maybePsiFile: Option[PsiFile], maybeScalaVersion: Option[Version]): Boolean = {
+    import ScalaProjectSettings.TrailingCommasMode._
+    ScalaProjectSettings.getInstance(project).getTrailingCommasMode match {
+      case Enabled => true
+      case Disabled => false
+      case Auto => maybePsiFile.exists(isTestFile) || maybeScalaVersion.forall(_ >= Version("2.12.2"))
+    }
+  }
+
+  private def isTestFile(file: PsiFile): Boolean =
+    ApplicationManager.getApplication.isUnitTestMode &&
+      file.getVirtualFile.isInstanceOf[LightVirtualFileBase]
 }

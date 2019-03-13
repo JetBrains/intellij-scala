@@ -95,7 +95,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   /**
    * NOTE! This setting is inferred:
-   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlign()}
+   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlignStyle()}
    */
   public boolean USE_SCALADOC2_FORMATTING = false;
 
@@ -175,6 +175,18 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_LAMBDA_WITH_GREEK_LETTER = false;
+
+
+  public enum TrailingCommaMode {TRAILING_COMMA_KEEP, TRAILING_COMMA_REMOVE_WHEN_MULTILINE, TRAILING_COMMA_ADD_WHEN_MULTILINE}
+
+  public TrailingCommaMode TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_KEEP;
+  public boolean TRAILING_COMMA_ARG_LIST_ENABLED = true;
+  public boolean TRAILING_COMMA_PARAMS_ENABLED = true;
+  public boolean TRAILING_COMMA_TUPLE_ENABLED = false;
+  public boolean TRAILING_COMMA_TUPLE_TYPE_ENABLED= false;
+  public boolean TRAILING_COMMA_PATTERN_ARG_LIST_ENABLED = false;
+  public boolean TRAILING_COMMA_TYPE_PARAMS_ENABLED = false;
+  public boolean TRAILING_COMMA_IMPORT_SELECTOR_ENABLED = false;
 
   //global
   public boolean REFORMAT_ON_COMPILE = false;

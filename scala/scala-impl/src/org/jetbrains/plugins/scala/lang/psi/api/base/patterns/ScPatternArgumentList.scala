@@ -28,6 +28,10 @@ trait ScPatternArgumentList extends ScArguments {
   }
 
   override def getArgsCount: Int = patterns.length
+
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitPatternArgumentList(this)
+  }
 }
 
 object ScPatternArgumentList {

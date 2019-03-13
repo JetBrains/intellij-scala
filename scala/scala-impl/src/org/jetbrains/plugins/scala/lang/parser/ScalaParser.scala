@@ -9,7 +9,7 @@ final class ScalaParser extends PsiParser {
 
   import parsing._
 
-  def parse(root: IElementType, delegate: PsiBuilder): ASTNode = {
+  override def parse(root: IElementType, delegate: PsiBuilder): ASTNode = {
     val builderImpl = new builder.ScalaPsiBuilderImpl(delegate)
 
     root match {

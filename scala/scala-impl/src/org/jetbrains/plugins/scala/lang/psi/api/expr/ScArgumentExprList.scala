@@ -75,6 +75,10 @@ trait ScArgumentExprList extends ScArguments {
   def isBraceArgs: Boolean = findChild(classOf[ScBlock]).isDefined
 
   override def getArgsCount: Int = exprs.length
+
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitArgumentExprList(this)
+  }
 }
 
 object ScArgumentExprList {

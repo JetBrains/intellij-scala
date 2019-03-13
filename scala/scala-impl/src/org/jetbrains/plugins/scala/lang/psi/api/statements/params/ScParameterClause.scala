@@ -41,6 +41,10 @@ trait ScParameterClause extends ScalaPsiElement {
   def addParameter(param: ScParameter): ScParameterClause
 
   def owner: PsiElement
+
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitParameterClause(this)
+  }
 }
 
 object ScParameterClause {

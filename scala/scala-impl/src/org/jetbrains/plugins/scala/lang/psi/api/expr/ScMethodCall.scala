@@ -31,7 +31,7 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     }
   }
 
-  def argsElement: PsiElement = args
+  override def argsElement: PsiElement = args
 
   /**
     * If named parameters enabled for this method even if it is from java; needed for Play 2 support

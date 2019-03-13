@@ -513,12 +513,26 @@ package object extensions {
         case null => true
         case Whitespace(ws) =>
           if (ws.contains("\n")) true
-          else inner(el.getPrevSibling)
+          else inner(PsiTreeUtil.prevLeaf(el))
         case _: PsiComment if ignoreComments =>
-          inner(el.getPrevSibling)
+          inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
-      inner(element.getPrevSibling)
+      inner(PsiTreeUtil.prevLeaf(element))
+    }
+
+    def followedByNewLine(ignoreComments: Boolean): Boolean = {
+      @tailrec
+      def inner(el: PsiElement): Boolean = el match {
+        case null => false
+        case Whitespace(ws) =>
+          if (ws.contains("\n")) true
+          else inner(PsiTreeUtil.nextLeaf(el))
+        case _: PsiComment if ignoreComments =>
+          inner(PsiTreeUtil.nextLeaf(el))
+        case _ => false
+      }
+      inner(PsiTreeUtil.nextLeaf(element))
     }
 
     def getPrevSiblingNotWhitespace: PsiElement = {

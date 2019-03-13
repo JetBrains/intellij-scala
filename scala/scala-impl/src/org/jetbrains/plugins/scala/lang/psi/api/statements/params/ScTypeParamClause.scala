@@ -17,4 +17,8 @@ trait ScTypeParamClause extends ScalaPsiElement with PsiTypeParameterList {
   def getTextByStub: String
 
   def getTypeParameterIndex(typeParameter: PsiTypeParameter): Int = typeParameters.indexOf(typeParameter)
+
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitTypeParameterClause(this)
+  }
 }
