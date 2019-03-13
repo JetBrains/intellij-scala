@@ -143,7 +143,7 @@ lazy val compilerShared =
       libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol),
       packageLibraryMappings ++= Seq(
         Dependencies.nailgun                 -> Some("lib/jps/nailgun.jar"),
-        Dependencies.compilerIndicesProtocol -> Some("lib/scala-compiler-indices-protocol_2.12-0.1.0.jar")
+        Dependencies.compilerIndicesProtocol -> Some("lib/scala-compiler-indices-protocol_2.12-0.1.1.jar")
       ),
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )

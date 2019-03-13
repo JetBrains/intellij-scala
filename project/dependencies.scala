@@ -10,7 +10,7 @@ object Versions {
   val bspVersion = "2.0.0-M4"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
-  val sbtIdeaCompilerIndicesVersion = "0.1.1"
+  val sbtIdeaCompilerIndicesVersion = "0.1.2"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M11"
   val scalazVersion = "7.1.0"
@@ -105,7 +105,10 @@ object Dependencies {
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   // has to be in the compiler process classpath along with spray-json
-  val compilerIndicesProtocol: ModuleID = "io.github.sugakandrey" %% "scala-compiler-indices-protocol" % "0.1.0"
+  // when updating the version, do not forget to:
+  //  1. update version in the sbt-idea-compiler indices plugin too
+  //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
+  val compilerIndicesProtocol: ModuleID = "io.github.sugakandrey" %% "scala-compiler-indices-protocol" % "0.1.1"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
