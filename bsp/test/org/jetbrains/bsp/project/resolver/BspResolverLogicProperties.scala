@@ -40,7 +40,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
       findsBase && baseIsAncestor
     })
 
-  @Test
+  @Test @Ignore
   def testGetScalaSdkData(): Unit = check(
     forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>
 
@@ -50,7 +50,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
       jarsToClasspath && data.scalaVersion.isDefined
     })
 
-  @Test
+  @Test @Ignore
   def `calculateModuleDescriptions succeeds for build targets with Scala`() : Unit = check(
     forAll(Gen.listOf(genScalaBuildTargetWithoutTags(List(BuildTargetTag.NO_IDE)))) { buildTargets: List[BuildTarget] =>
       forAll { (optionsItems: List[ScalacOptionsItem], sourcesItems: List[SourcesItem], dependencySourcesItems: List[DependencySourcesItem]) =>
@@ -73,7 +73,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
     }
   )
 
-  @Test
+  @Test @Ignore
   def `test createScalaModuleDescription`(): Unit = check(
     forAll(genPath, Gen.listOf(genBuildTargetTag)) { (basePath: Path, tags: List[String]) =>
       forAll(Gen.listOf(genSourceDirectory(basePath))) { sourceRoots: List[SourceDirectory] =>
