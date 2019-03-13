@@ -24,7 +24,8 @@ sealed trait TypeParameter {
 
   def name: String = psiTypeParameter.name
 
-  def update(substitutor: ScSubstitutor, variance: Variance = Invariant): TypeParameter = TypeParameter.StrictTp(
+  def update(substitutor: ScSubstitutor, variance: Variance = Invariant)
+            (implicit visited: Set[ScType] = Set.empty): TypeParameter = TypeParameter.StrictTp(
     psiTypeParameter,
     typeParameters.map(_.update(substitutor, variance)),
     lowerType.recursiveUpdateImpl(substitutor, variance, isLazySubtype = true),

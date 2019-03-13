@@ -4,6 +4,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
 
+import scala.annotation.tailrec
+
 /**
   * Nikolay.Tropin
   * 11-Aug-17
@@ -13,6 +15,7 @@ class Extensions(val tp: ScType) extends AnyVal {
   //This method allows application of different `Update` functions in a single pass (see ScSubstitutor).
   //WARNING: If several updates are used, they should be applicable only for leaf types, e.g. which return themselves
   //from `updateSubtypes` method
+  @tailrec
   final def recursiveUpdateImpl(substitutor: ScSubstitutor,
                                 variance: Variance = Covariant,
                                 isLazySubtype: Boolean = false)
