@@ -206,7 +206,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     // handle callback
     buildMessages match {
       case Success(messages) =>
-        val taskResult = new ProjectTaskResult(messages.aborted, messages.errors.size, messages.warnings.size)
+        val taskResult = messages.toTaskResult
         callbackOpt.foreach(_.finished(taskResult))
       case Failure(_) =>
         val failedResult = new ProjectTaskResult(true, 1, 0)
