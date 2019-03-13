@@ -49,7 +49,6 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
   extends AbstractExternalProjectImportProvider(builder, BSP.ProjectSystemId) {
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
-    BSP.enabled &&
     super.canImport(fileOrDirectory, project)
 }
 
