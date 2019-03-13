@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import java.util.Objects
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature.Substituted
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
@@ -29,7 +30,16 @@ abstract class TypeAliasSignature {
     name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition)
   )
 
-  def updateTypes(substitutor: ScSubstitutor): TypeAliasSignature = new TypeAliasSignature.Substituted(this, substitutor)
+  def updateTypes(substitutor: ScSubstitutor)
+                 (implicit visited: Set[ScType]): TypeAliasSignature = {
+
+    val substTps: Seq[TypeParameter] = this.typeParams.map(_.update(substitutor))
+    val substLower: ScType = lowerBound.recursiveUpdateImpl(substitutor)
+    val substUpper: ScType = upperBound.recursiveUpdateImpl(substitutor)
+    val combinedSubstitutor: ScSubstitutor = this.substitutor.followed(substitutor)
+
+    Substituted(typeAlias, name, substTps, substLower, substUpper, isDefinition, combinedSubstitutor)
+  }
 }
 
 object TypeAliasSignature {
@@ -51,19 +61,12 @@ object TypeAliasSignature {
     def substitutor: ScSubstitutor = ScSubstitutor.empty
   }
 
-  private final class Substituted(other: TypeAliasSignature, nextSubstitutor: ScSubstitutor) extends TypeAliasSignature {
-    val typeAlias: ScTypeAlias = other.typeAlias
+  private final case class Substituted(typeAlias: ScTypeAlias,
+                                       name: String,
+                                       typeParams: Seq[TypeParameter],
+                                       lowerBound: ScType,
+                                       upperBound: ScType,
+                                       isDefinition: Boolean,
+                                       substitutor: ScSubstitutor) extends TypeAliasSignature
 
-    val name: String = other.name
-
-    val typeParams: Seq[TypeParameter] = other.typeParams.map(_.update(nextSubstitutor))
-
-    val lowerBound: ScType = nextSubstitutor(other.lowerBound)
-
-    val upperBound: ScType = nextSubstitutor(other.upperBound)
-
-    val isDefinition: Boolean = other.isDefinition
-
-    val substitutor: ScSubstitutor = other.substitutor.followed(nextSubstitutor)
-  }
 }
