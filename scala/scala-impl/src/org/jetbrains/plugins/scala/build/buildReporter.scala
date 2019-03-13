@@ -101,8 +101,10 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
 
   override def finish(messages: BuildMessages): Unit = {
     val (result, resultMessage) =
-      if (messages.errors.isEmpty)
+      if (messages.status == BuildMessages.OK && messages.errors.isEmpty)
         (new SuccessResultImpl, "success")
+      else if (messages.status == BuildMessages.Canceled)
+        (new SkippedResultImpl, "canceled")
       else {
         val fails: util.List[events.Failure] = messages.errors.asJava
         (new FailureResultImpl(fails), "failed")
@@ -182,21 +184,33 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, m
 }
 
 
-case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], log: Seq[String], aborted: Boolean) {
+case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], log: Seq[String], status: BuildStatus) {
   def appendMessage(text: String): BuildMessages = copy(log = log :+ text.trim)
   def addError(msg: String): BuildMessages = copy(errors = errors :+ BuildFailure(msg.trim))
   def addWarning(msg: String): BuildMessages = copy(warnings = warnings :+ BuildWarning(msg.trim))
-  def abort: BuildMessages = copy(aborted = true)
-  def toTaskResult: ProjectTaskResult = new ProjectTaskResult(aborted, errors.size, warnings.size)
+  def status(buildStatus: BuildStatus): BuildMessages = copy(status = buildStatus)
+  def toTaskResult: ProjectTaskResult =
+    new ProjectTaskResult(
+      status == Canceled || status == Error,
+      errors.size,
+      warnings.size
+    )
 }
 
 case object BuildMessages {
+
+  sealed abstract class BuildStatus
+  case object Indeterminate extends BuildStatus
+  case object OK extends BuildStatus
+  case object Error extends BuildStatus
+  case object Canceled extends BuildStatus
+
 
   case class EventId(id: String)
 
   def randomEventId: EventId = EventId(UUID.randomUUID().toString)
 
-  def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, aborted = false)
+  def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
   def message(parentId: Any, message: String, kind: MessageEvent.Kind, position: Option[FilePosition]): AbstractBuildEvent with MessageEvent =
     position match {

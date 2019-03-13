@@ -70,25 +70,35 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     val buildJob = communication.run(compileRequest(_), notifications, processLog)
     val projectTaskResult = try {
       val result = waitForJobCancelable(buildJob, indicator)
+      result.getStatusCode match {
+        case StatusCode.OK =>
+          buildMessages.status(BuildMessages.OK)
+        case StatusCode.ERROR =>
+          buildMessages.status(BuildMessages.Error)
+        case StatusCode.CANCELLED =>
+          buildMessages.status(BuildMessages.Canceled)
+      }
 
       // TODO report language specific compile result if available
       report.finish(buildMessages)
       reportIndicator.finish(buildMessages)
-      new ProjectTaskResult(buildMessages.aborted, buildMessages.errors.size, buildMessages.warnings.size)
+      buildMessages.toTaskResult
 
     } catch {
       case error: ResponseErrorException =>
+        buildMessages.status(BuildMessages.Error)
         val message = error.getMessage
         val failure = BuildFailureException(message)
         report.error(message, None)
         report.finishWithFailure(failure)
         reportIndicator.finishWithFailure(failure)
-        new ProjectTaskResult(true, buildMessages.errors.size, buildMessages.warnings.size)
+        buildMessages.toTaskResult
 
       case _: ProcessCanceledException =>
         report.finishCanceled()
         reportIndicator.finishCanceled()
-        new ProjectTaskResult(true, 1, 0)
+        buildMessages.status(BuildMessages.Canceled)
+        buildMessages.toTaskResult
 
       case NonFatal(err) =>
         val errName = err.getClass.getName
@@ -96,7 +106,8 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
         report.error(msg, None)
         report.finishWithFailure(err)
         reportIndicator.finishWithFailure(err)
-        new ProjectTaskResult(true, 1, 0)
+        buildMessages.status(BuildMessages.Error)
+        buildMessages.toTaskResult
     }
 
     callbackOpt.foreach(_.finished(projectTaskResult))
