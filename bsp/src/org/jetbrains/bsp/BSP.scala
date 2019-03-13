@@ -11,10 +11,5 @@ object BSP {
 
   val ProjectSystemId = new ProjectSystemId("BSP", Name)
 
-  val RegistryKeyFeatureEnabled: String = BSP.ProjectSystemId + ".experimental.feature.enabled"
-
   val balloonNotification: NotificationGroup = NotificationGroup.balloonGroup("bsp")
-
-  def enabled: Boolean =
-    Registry.get(RegistryKeyFeatureEnabled).asBoolean()
 }

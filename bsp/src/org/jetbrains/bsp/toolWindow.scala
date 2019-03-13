@@ -9,6 +9,5 @@ class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(BSP.P
 
 class BspToolWindowFactoryCondition extends AbstractExternalSystemToolWindowCondition(BSP.ProjectSystemId) {
   override def value(project: Project): Boolean =
-    Registry.get(BSP.RegistryKeyFeatureEnabled).asBoolean() &&
     super.value(project)
 }
