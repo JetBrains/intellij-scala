@@ -81,14 +81,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   // to resolve parameters in return type, type parameter context bounds and body;
   // references in default parameters are processed in ScParametersImpl
   protected def shouldProcessParameters(lastParent: PsiElement): Boolean = {
-    def isSynthetic = lastParent.getContext != lastParent.getParent
-
     def isFromTypeParams = lastParent.isInstanceOf[ScTypeParamClause]
 
     //don't compare returnTypeElement with lastParent, they may be different instances due to caches/stubs
     def isReturnTypeElement = lastParent.isInstanceOf[ScTypeElement] && lastParent.getContext == this
 
-    isSynthetic || isFromTypeParams || isReturnTypeElement
+    !lastParent.isPhysical || isFromTypeParams || isReturnTypeElement
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
