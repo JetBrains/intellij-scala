@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 //todo: possibly join with AttachSourcesNorificationProvider
 //todo: differences only in JavaEditorFileSwapper -> ScalaEditorFileSwapper
 class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: EditorNotifications)
-  extends AttachSourcesNotificationProvider(myProject, notifications) {
+  extends AttachSourcesNotificationProvider() {
   private val EXTENSION_POINT_NAME: ExtensionPointName[AttachSourcesProvider] =
     new ExtensionPointName[AttachSourcesProvider]("com.intellij.attachSourcesProvider")
 
