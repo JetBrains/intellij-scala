@@ -249,6 +249,7 @@ package object extensions {
       array
     }
 
+    def makeArray[B >: A <: AnyRef](implicit factory: ArrayFactory[B]): Array[B] = mapToArray(_.asInstanceOf[B])
   }
 
   implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {

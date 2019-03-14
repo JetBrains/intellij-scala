@@ -233,7 +233,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     })
   }
 
-  def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
+  def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
 
   def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
 
