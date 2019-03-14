@@ -358,7 +358,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     case _ => getParent.getNode.removeChild(getNode)
   }
 
-  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
+  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
 
   override def getSupers: Array[PsiClass] = extendsBlock.supers.filter {
     _ != this
