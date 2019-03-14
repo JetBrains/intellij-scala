@@ -83,6 +83,8 @@ object SyntheticMembersInjector {
 
 
   def inject(source: ScTypeDefinition): Seq[ScFunction] = {
+    if (!source.isValid) return Seq.empty
+
     implicit val ctx: Project = source.getProject
     val buffer = new ArrayBuffer[ScFunction]()
     for {
@@ -108,6 +110,8 @@ object SyntheticMembersInjector {
   }
 
   def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
+    if (!source.isValid) return Seq.empty
+
     val buffer = new ArrayBuffer[ScTypeDefinition]()
     implicit val ctx: Project = source.getProject
     for {
@@ -132,12 +136,15 @@ object SyntheticMembersInjector {
   }
 
   def needsCompanion(source: ScTypeDefinition): Boolean = {
-    if (DumbService.getInstance(source.getProject).isDumb) return false
+    if (!source.isValid && DumbService.getInstance(source.getProject).isDumb) return false
+
     implicit val ctx: Project = source.getProject
     (EP_NAME.getExtensions ++ DYN_EP.getExtensions).exists(_.needsCompanionObject(source))
   }
 
   def injectSupers(source: ScTypeDefinition): Seq[ScTypeElement] = {
+    if (!source.isValid) return Seq.empty
+
     val buffer = new ArrayBuffer[ScTypeElement]()
     implicit val ctx: Project = source.getProject
     for {
@@ -158,6 +165,8 @@ object SyntheticMembersInjector {
   }
 
   def injectMembers(source: ScTypeDefinition): Seq[ScMember] = {
+    if (!source.isValid) return Seq.empty
+
     val buffer = new ArrayBuffer[ScMember]()
     implicit val ctx: Project = source.getProject
     for {

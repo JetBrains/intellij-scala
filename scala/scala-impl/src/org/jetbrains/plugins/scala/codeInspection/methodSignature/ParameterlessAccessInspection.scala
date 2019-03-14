@@ -86,7 +86,8 @@ object ParameterlessAccessInspection {
       super.isValid(element) && IntentionAvailabilityChecker.checkInspection(this, element)
 
     override protected def isValid(method: PsiMethod): Boolean = method match {
-      case function: ScFunction if !function.isInCompiledFile => function.isEmptyParen
+      case function: ScFunction =>
+        function.isValid && !function.isInCompiledFile && function.isEmptyParen
       case _ => false
     }
 
