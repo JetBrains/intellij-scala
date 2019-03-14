@@ -141,10 +141,6 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 
   override def psiInnerClasses: Array[PsiClass] = Array.empty
 
-  override def psiMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.containingClass == this)
-  }
-
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     res ++= getConstructors

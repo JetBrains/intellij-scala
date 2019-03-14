@@ -92,9 +92,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override def isCase: Boolean = hasModifierProperty("case")
 
-  override def psiMethods: Array[PsiMethod] =
-    getAllMethods.filter(_.containingClass == this)
-
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     val names = new mutable.HashSet[String]

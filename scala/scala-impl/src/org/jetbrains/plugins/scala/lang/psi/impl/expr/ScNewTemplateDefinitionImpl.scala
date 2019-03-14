@@ -10,6 +10,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.annotator.{ScExpressionAnnotator, ScNewTemplateDefinitionAnnotator}
@@ -225,5 +226,6 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
     res.toArray
   }
 
+  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 }

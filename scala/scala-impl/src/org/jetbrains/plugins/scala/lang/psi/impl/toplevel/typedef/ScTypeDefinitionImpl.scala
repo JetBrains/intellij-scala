@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
 import scala.annotation.tailrec
@@ -415,6 +415,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition =
     ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
       .setDesugared(actualElement = this)
+
+  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psi._
