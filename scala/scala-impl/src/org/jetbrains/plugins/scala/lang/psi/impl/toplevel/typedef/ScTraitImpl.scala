@@ -53,9 +53,6 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
   override def isInterface: Boolean = true
 
-  override def psiMethods: Array[PsiMethod] =
-    getAllMethods.filter(_.containingClass == this)
-
   override def hasModifierProperty(name: String): Boolean = name match {
     case PsiModifier.ABSTRACT if isInterface => true
     case _ => super.hasModifierProperty(name)
