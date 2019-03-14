@@ -70,6 +70,10 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     return FORMATTER == SCALAFMT_FORMATTER;
   }
 
+  public boolean USE_INTELLIJ_FORMATTER() {
+    return FORMATTER == INTELLIJ_FORMATTER;
+  }
+
   public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
   public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;
 

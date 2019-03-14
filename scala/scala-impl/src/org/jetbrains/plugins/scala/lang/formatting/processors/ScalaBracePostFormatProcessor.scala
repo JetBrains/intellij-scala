@@ -6,22 +6,22 @@ import com.intellij.psi.impl.source.codeStyle.PostFormatProcessor
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-class ScalaBracePostFormatProcessor extends PostFormatProcessor {
+class ScalaBracePostFormatProcessor extends PostFormatProcessor with ScalaIntellijFormatterLike {
   def processText(source: PsiFile, rangeToReformat: TextRange, settings: CodeStyleSettings): TextRange = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (scalaSettings.USE_SCALAFMT_FORMATTER()) {
-      rangeToReformat
-    } else {
+    if (needToProcess(source, rangeToReformat, scalaSettings)) {
       new ScalaBraceEnforcer(settings, scalaSettings).processText(source, rangeToReformat)
+    } else {
+      rangeToReformat
     }
   }
 
   def processElement(source: PsiElement, settings: CodeStyleSettings): PsiElement = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (scalaSettings.USE_SCALAFMT_FORMATTER()) {
-      source
-    } else {
+    if (needToProcess(source, source.getTextRange, scalaSettings)) {
       new ScalaBraceEnforcer(settings, scalaSettings).process(source)
+    } else {
+      source
     }
   }
 }

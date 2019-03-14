@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Roman.Shein
   *         Date: 12.11.2015
   */
-class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
+class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with ScalaIntellijFormatterLike {
 
   private class ScalaDocNewlinedPreFormatVisitor(settings: ScalaCodeStyleSettings) extends ScalaElementVisitor {
     override def visitDocComment(s: ScDocComment) {
@@ -34,15 +34,16 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
   override def process(element: ASTNode, range: TextRange): TextRange = {
     val psiElement = element.getPsi
     val scalaSettings = ScalaCodeStyleSettings.getInstance(psiElement.getProject)
-    if(scalaSettings.USE_SCALAFMT_FORMATTER()) {
-      range
-    } else {
+
+    if (needToProcess(psiElement, range, scalaSettings)) {
       Option(psiElement)
         .filter(_.isValid)
         .filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
         .map(processScalaElement(_, range, scalaSettings))
         .map(range.grown)
         .getOrElse(range)
+    } else {
+      range
     }
   }
 
