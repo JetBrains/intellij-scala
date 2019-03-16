@@ -15,6 +15,8 @@ import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -48,7 +50,14 @@ class SbtStructureDump {
 
     val optString = options.mkString(" ")
     val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
-    val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all"
+
+    val ideaPortSetting =
+      if (CompilerIndicesSettings(project).isIndexingEnabled) {
+        val ideaPort                    = SbtCompilationSupervisor().actualPort
+        ideaPort.fold("")(port => s"; set ideaPort in Global := $port")
+      } else ""
+
+    val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
 
     val taskDescriptor =
       new TaskOperationDescriptorImpl("dump project structure from sbt shell", System.currentTimeMillis(), "project-structure-dump")
