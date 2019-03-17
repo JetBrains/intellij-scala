@@ -172,7 +172,7 @@ private object ScalaMavenImporter {
           case ((groupId, artifactId), version) =>
             // It's okay if classifier is absent or blank
             val classifier = plugin.getChildTextTrim("classifier").toOption
-              .flatMap(c => if (c.isEmpty) None else Some(c))
+              .filterNot(_.isEmpty)
             MavenGAVC(groupId, artifactId, version, classifier)
         }
       }
