@@ -36,7 +36,7 @@ object SbtBuildModuleDataService {
           val data = moduleNode.getData
           SbtModule.setImportsTo(module, data.imports)
           setResolvers(module, data.resolvers)
-          SbtModule.setBuildForModule(module, data.buildFor)
+          SbtModule.BuildForModule(module) = data.buildFor
         }
       }
 

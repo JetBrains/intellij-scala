@@ -4,8 +4,7 @@ package project.module
 import java.net.URI
 
 import com.intellij.openapi.components._
-import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.Module
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.beans.BeanProperty
@@ -25,6 +24,16 @@ object SbtModule {
 
   private def getState(module: Module): SbtModuleState =
     module.getComponent(classOf[SbtModule]).getState
+
+  object Build {
+
+    def apply(module: Module): URI =
+      new URI(getState(module).buildForURI)
+
+    def update(module: Module, uri: URI): Unit = {
+      getState(module).buildForURI = uri.toString
+    }
+  }
 
   def getImportsFrom(module: Module): Seq[String] =
     Option(getState(module).imports)
@@ -55,21 +64,6 @@ object SbtModule {
     module.setOption(ResolversKey, v) // TODO remove in 2018.3
     getState(module).resolvers
   }
-
-  /** The build module for given id/uri in project. */
-  def findBuildModule(project: Project, uri: URI): Option[Module] = {
-    val moma = ModuleManager.getInstance(project)
-
-    moma.getModules.find { m =>
-      new URI(getState(m).buildForURI) == uri
-    }
-  }
-
-  def setBuildForModule(module: Module, uri: URI): Unit = {
-    val state = getState(module)
-    state.buildForURI = uri.toString
-  }
-
 
   // substitution of dollars is necessary because IDEA will interpret a string in the form of $something$ as a path variable
   // and warn the user of "undefined path variables" (SCL-10691)
