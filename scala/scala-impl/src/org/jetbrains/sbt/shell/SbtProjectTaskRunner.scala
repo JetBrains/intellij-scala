@@ -12,8 +12,9 @@ import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.application.WriteAction
+import com.intellij.notification.{Notification, NotificationAction, NotificationType, Notifications}
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
@@ -24,12 +25,11 @@ import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VfsUtil.createDirectoryIfMissing
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.{SbtNotifications, SbtUtil}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
@@ -77,6 +77,28 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
     val moduleCommands = validTasks.flatMap(buildCommands)
+
+    if (moduleCommands.isEmpty && validTasks.nonEmpty) {
+      // sometimes external system loses information about sbt modules
+      // since it is very confusing to users, when build task silently does nothing
+      // we detect such cases and suggest project refresh
+      val notification = SbtNotifications.notificationGroup.createNotification(
+        "sbt build failed",
+        s"Unable to build sbt project corresponding to IDEA module ${project.getName}.",
+        NotificationType.ERROR,
+        null
+      )
+
+      notification.addAction(
+        NotificationAction.createSimple(
+          "Refresh sbt project",
+          () => ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
+        )
+      )
+
+      notification.notify(project)
+    }
+
     val modules = validTasks.map(_.getModule)
 
     // don't run anything if there's no module to run a build for
