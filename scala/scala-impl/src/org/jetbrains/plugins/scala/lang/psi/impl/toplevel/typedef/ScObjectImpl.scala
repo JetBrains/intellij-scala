@@ -144,12 +144,12 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     res ++= getConstructors
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      val isInterface = node.info.namedElement match {
+    TypeDefinitionMembers.getSignatures(this).foreachSignature { signature =>
+      val isInterface = signature.namedElement match {
         case t: ScTypedDefinition if t.isAbstractMember => true
         case _ => false
       }
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _)
+      this.processWrappersForSignature(signature, isStatic = false, isInterface = isInterface)(res += _)
     }
     res.toArray
   }

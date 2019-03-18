@@ -81,8 +81,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition match {
       case obj: ScObject =>
         val res = new ArrayBuffer[PsiMethod]()
-        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(obj) { node =>
-          this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(res += _)
+        TypeDefinitionMembers.getSignatures(obj).foreachThisSignature {
+          this.processWrappersForSignature(_, isStatic = true, isInterface = false)(res += _)
         }
         res.toArray
 

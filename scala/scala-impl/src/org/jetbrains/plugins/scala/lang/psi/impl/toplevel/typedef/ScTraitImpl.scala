@@ -62,18 +62,18 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
     val res = mutable.ArrayBuffer.empty[PsiMethod]
     res ++= getConstructors
 
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this)(node =>
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)
-    )
+    TypeDefinitionMembers.getSignatures(this).foreachSignature {
+      this.processWrappersForSignature(_, isStatic = false, isInterface = true)(res += _)
+    }
 
     if (this.scalaLanguageLevelOrDefault >= Scala_2_12) {
       /** static forwarders for trait companion objects are only generated starting with scala 2.12 */
       ScalaPsiUtil
         .getCompanionModule(this)
         .foreach(companion =>
-          TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(companion)(node =>
-            this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(res += _)
-          )
+          TypeDefinitionMembers.getSignatures(companion).foreachSignature {
+            this.processWrappersForSignature(_, isStatic = true, isInterface = false)(res += _)
+          }
         )
     }
 

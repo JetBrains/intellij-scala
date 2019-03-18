@@ -290,6 +290,20 @@ object MixinNodes {
 
     private def computeForAllNames(): Unit = allNames().foreach(forName)
 
+    def foreachThisSignature(action: T => Unit): Unit = {
+      for (nodesMap <- publicsMap.values; node <- nodesMap.values) {
+        action(node.info)
+      }
+      for (privatesSet <- privatesMap.values; node <- privatesSet.asScala) {
+        action(node.info)
+      }
+    }
+
+    def foreachSignature(action: T => Unit): Unit = {
+      foreachThisSignature(action)
+      superMaps.foreach(_.foreachThisSignature(action))
+    }
+
     def allFirstSeq(): Seq[AllNodes[T]] = {
       computeForAllNames()
       thisAndSupersMap.values().asScala.map(_._1).toSeq

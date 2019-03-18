@@ -176,15 +176,6 @@ object TypeDefinitionMembers {
 
       companionSig.toList ::: implicitClassFun.toList
     }
-
-    def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
-      withResponsibleUI {
-        for {
-          signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
-          (_, node) <- signature
-        } action(node)
-      }
-    }
   }
 
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}

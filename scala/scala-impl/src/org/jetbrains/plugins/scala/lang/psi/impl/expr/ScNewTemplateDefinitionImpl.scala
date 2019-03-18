@@ -220,8 +220,8 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
 
   override def getAllMethods: Array[PsiMethod] = {
     val res = mutable.ArrayBuffer.empty[PsiMethod]
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = false)(res += _)
+    TypeDefinitionMembers.getSignatures(this).foreachSignature {
+      this.processWrappersForSignature(_, isStatic = false, isInterface = false)(res += _)
     }
     res.toArray
   }

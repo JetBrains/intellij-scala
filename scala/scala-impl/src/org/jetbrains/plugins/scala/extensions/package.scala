@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefi
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, Signature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
@@ -669,8 +669,8 @@ package object extensions {
       res.toVector
     }
 
-    def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
-                                (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
+    def processWrappersForSignature(signature: Signature, isStatic: Boolean, isInterface: Boolean)
+                                   (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
 
       //search for a class to place implementation of trait's method
       def concreteForTrait(t: ScTrait): Option[PsiClass] = {
@@ -707,10 +707,10 @@ package object extensions {
         }
       }
 
-      if (!node.info.namedElement.isValid)
+      if (!signature.namedElement.isValid)
         return
 
-      node.info.namedElement match {
+      signature.namedElement match {
         case fun: ScFunction if !fun.isConstructor =>
           val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
           wrappers.foreach(processMethod)
@@ -729,7 +729,7 @@ package object extensions {
         case t: ScTypedDefinition if t.isVal || t.isVar ||
           (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
 
-          PsiTypedDefinitionWrapper.processWrappersFor(t, concreteClassFor(t), node.info.name, isStatic, isInterface, processMethod, processName)
+          PsiTypedDefinitionWrapper.processWrappersFor(t, concreteClassFor(t), signature.name, isStatic, isInterface, processMethod, processName)
         case _ =>
       }
     }

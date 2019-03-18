@@ -98,12 +98,12 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
     res ++= getConstructors
 
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      val isInterface = node.info.namedElement match {
+    TypeDefinitionMembers.getSignatures(this).foreachSignature { signature =>
+      val isInterface = signature.namedElement match {
         case t: ScTypedDefinition if t.isAbstractMember => true
         case _ => false
       }
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _, names += _)
+      this.processWrappersForSignature(signature, isStatic = false, isInterface = isInterface)(res += _, names += _)
     }
 
     ScalaPsiUtil.getCompanionModule(this) match {
@@ -114,8 +114,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           }
         }
 
-        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o)(
-          node => this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
+        TypeDefinitionMembers.getSignatures(o).foreachSignature (
+          this.processWrappersForSignature(_, isStatic = true, isInterface = false)(add)
         )
       case _ =>
     }
