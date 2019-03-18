@@ -3,7 +3,7 @@ package lang
 package psi
 package impl
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
@@ -15,8 +15,7 @@ import com.intellij.openapi.roots.impl.LibraryScopeCache
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiUtilCore
@@ -32,16 +31,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import scala.collection.{JavaConverters, mutable}
 
 class ScalaFileImpl(viewProvider: FileViewProvider,
                     override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
@@ -51,6 +46,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     with ScControlFlowOwner
     with FileResolveScopeProvider {
 
+  import ScalaFileImpl._
+  import psi.stubs.ScFileStub
+  import settings.ScalaProjectSettings
+
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFile(this)
   }
@@ -58,7 +57,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   private[this] var _virtualFile: VirtualFile = _
   private[this] var _sourceName: String = _
 
-  override def toString: String = "ScalaFile:" + getName
+  override def toString: String = "ScalaFile: " + getName
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
@@ -201,26 +200,26 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-
-  def setPackageName(inName: String) {
+  def setPackageName(inName: String): Unit = {
     // TODO support multiple base packages simultaneously
     val basePackageName = {
+      import JavaConverters._
       val basePackages = ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala
       basePackages.find(inName.startsWith).getOrElse("")
     }
 
     val name = ScalaNamesUtil.escapeKeywordsFqn(inName)
 
-    this.typeDefinitions match {
+    typeDefinitions match {
       // Handle package object
       case Seq(obj: ScObject) if obj.isPackageObject && obj.name != "`package`" =>
         val (packageName, objectName) = name match {
-          case ScalaFileImpl.QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
+          case QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
           case _ => ("", name)
         }
 
         setPackageName(basePackageName, packageName)
-        this.typeDefinitions.headOption.foreach(_.setName(objectName))
+        obj.setName(objectName)
       case _ => setPackageName(basePackageName, name)
     }
   }
@@ -228,7 +227,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   def setPackageName(base: String, name: String) {
     if (packageName == null) return
 
-    val vector = ScalaFileImpl.toVector(name)
+    val vector = toVector(name)
 
     preservingClasses {
       val documentManager = PsiDocumentManager.getInstance(getProject)
@@ -243,8 +242,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
         if (vector.nonEmpty) {
           val packagingsText = {
             val path = {
-              val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
-              splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
+              val splits = toVector(base) :: splitsIn(pathIn(this))
+              splits.foldLeft(List(vector))(splitAt)
             }
             path.map(_.mkString("package ", ".", "")).mkString("", "\n", "\n\n")
           }
@@ -265,7 +264,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     block
 
     for ((aClass, oldClass) <- this.typeDefinitions.zip(data)) {
-      CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
+      codeStyle.CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
           def run() {
@@ -297,7 +296,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     case s: ScFileStub => s
     case _ =>
       val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
-      ScalaFileImpl.LOG.error("Scala File has wrong stub file: " + faultyContainer)
+      LOG.error("Scala File has wrong stub file: " + faultyContainer)
       if (faultyContainer != null && faultyContainer.isValid) {
         FileBasedIndex.getInstance.requestReindex(faultyContainer)
       }
@@ -351,7 +350,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     else {
       val definitions = this.typeDefinitions
 
-      if (ScalaFileImpl.isDuringMoveRefactoring) definitions.toArray
+      if (isDuringMoveRefactoring) definitions.toArray
       else {
         val arrayBuffer = mutable.ArrayBuffer.empty[PsiClass]
         for (definition <- definitions) {
@@ -371,29 +370,24 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
   protected def isScalaPredefinedClass: Boolean = this.typeDefinitions match {
-    case Seq(head) => Set("scala", "scala.Predef").contains(head.qualifiedName)
+    case Seq(head) => FileDeclarationsHolder.DefaultImplicitlyImportedObjects(head.qualifiedName)
     case _ => false
   }
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 
-  override def controlFlowScope(): Option[ScalaPsiElement] = Some(this)
+  override def controlFlowScope: Option[ScalaPsiElement] = Some(this)
 
-  def getClassNames: util.Set[String] = {
-    val res = new util.HashSet[String]
-    this.typeDefinitions.foreach {
-      case clazz: ScClass => res.add(clazz.getName)
-      case o: ScObject =>
-        res.add(o.getName)
-        o.fakeCompanionClass match {
-          case Some(clazz) => res.add(clazz.getName)
-          case _ =>
-        }
-      case t: ScTrait =>
-      res.add(t.getName)
-      res.add(t.fakeCompanionClass.getName)
-    }
-    res
+  def getClassNames: ju.Set[String] = {
+    import JavaConverters._
+    typeDefinitions.toSet[ScTypeDefinition].flatMap { definition =>
+      val classes = definition :: (definition match {
+        case _: ScClass => Nil
+        case scalaObject: ScObject => scalaObject.fakeCompanionClass.toList
+        case scalaTrait: ScTrait => scalaTrait.fakeCompanionClass :: Nil
+      })
+      classes.map(_.getName)
+    }.asJava
   }
 
   def packagingRanges: Seq[TextRange] =
@@ -421,26 +415,26 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
   override def setContext(element: PsiElement, child: PsiElement) {
-    putCopyableUserData(ScalaFileImpl.CONTEXT_KEY, element)
-    putCopyableUserData(ScalaFileImpl.CHILD_KEY, child)
+    putCopyableUserData(CONTEXT_KEY, element)
+    putCopyableUserData(CHILD_KEY, child)
   }
 
   override def getContext: PsiElement = {
-    getCopyableUserData(ScalaFileImpl.CONTEXT_KEY) match {
+    getCopyableUserData(CONTEXT_KEY) match {
       case null => super.getContext
       case c => c
     }
   }
 
   override def getPrevSibling: PsiElement = {
-    getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
+    getCopyableUserData(CHILD_KEY) match {
       case null => super.getPrevSibling
       case c => c.getPrevSibling
     }
   }
 
   override def getNextSibling: PsiElement = {
-    getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
+    getCopyableUserData(CHILD_KEY) match {
       case null => super.getNextSibling
       case c => c.getNextSibling
     }
@@ -473,7 +467,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   override def subtreeChanged(): Unit = {
-    AnyScalaPsiModificationTracker.incModificationCount()
+    ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
 
@@ -481,15 +475,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 }
 
 object ScalaFileImpl {
-  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl")
+  private val LOG = Logger.getInstance(getClass)
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
-  val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
+
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
-
-  val DefaultImplicitlyImportedPackages = Seq("scala", "java.lang")
-
-  val DefaultImplicitlyImportedObjects = Seq("scala.Predef", "scala" /* package object*/)
 
   /**
    * @param _place actual place, can be null, if null => false

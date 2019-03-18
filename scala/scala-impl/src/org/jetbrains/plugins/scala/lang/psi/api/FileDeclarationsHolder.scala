@@ -5,7 +5,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -31,6 +30,9 @@ import scala.collection.mutable
  * Date: 12/12/12
  */
 trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsHolder {
+
+  import FileDeclarationsHolder._
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
                                    lastParent: PsiElement,
@@ -119,11 +121,18 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       case _ => true
     }
 
-    def checkObjects(objects: Seq[String], precedence: Int): Boolean = {
-      val attachedQualifiers = new mutable.HashSet[String]()
-      val implObjIter = importedObjects(getManager, scope, objects).iterator
+    def checkObjects(priority: Int,
+                     objects: Set[String] = Set.empty): Boolean = {
+      val attachedQualifiers = mutable.HashSet.empty[String]
 
-      updateProcessor(processor, precedence) {
+      val implObjects = mutable.ArrayBuffer.empty[PsiClass]
+      for (obj <- objects) {
+        implObjects ++= ScalaPsiManager.instance(getProject).getCachedClasses(scope, obj)
+      }
+
+      val implObjIter = implObjects.iterator
+
+      updateProcessor(processor, priority) {
         while (implObjIter.hasNext) {
           val clazz = implObjIter.next()
           if (!attachedQualifiers.contains(clazz.qualifiedName)) {
@@ -145,24 +154,25 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       true
     }
 
-    def checkPackages(packages: Seq[String]): Boolean = {
-      val implPIterator = packages.iterator
-      while (implPIterator.hasNext) {
-        val implP = implPIterator.next()
+    def checkPackages(): Boolean = {
+      val iterator = DefaultImplicitlyImportedPackages.iterator
+      while (iterator.hasNext) {
         ProgressManager.checkCanceled()
-        val pack: PsiPackage = manager.getCachedPackage(implP).orNull
-        if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
+
+        manager.getCachedPackage(iterator.next()) match {
+          case Some(pack) if !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place) => return false
+          case _ =>
+        }
       }
+
       true
     }
 
-    if (checkWildcardImports) {
-      if (!checkObjects(implicitlyImportedObjects, PrecedenceTypes.WILDCARD_IMPORT)) return false
-      if (!checkPackages(implicitlyImportedPackages)) return false
-    }
+    if (checkWildcardImports &&
+      !checkObjects(PrecedenceTypes.WILDCARD_IMPORT)) return false
 
     if (checkPredefinedClassesAndPackages) {
-      if (!checkObjects(predefObjects, PrecedenceTypes.SCALA_PREDEF)) return false
+      if (!checkObjects(PrecedenceTypes.SCALA_PREDEF, DefaultImplicitlyImportedObjects)) return false
 
       val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
       val namesSet =
@@ -185,7 +195,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
         if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
       }
 
-      if (!checkPackages(predefPackages)) return false
+      if (!checkPackages()) return false
     }
 
     if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
@@ -194,32 +204,24 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     true
   }
 
-  //method extracted due to VerifyError in Scala compiler
-  private def updateProcessor(processor: PsiScopeProcessor, priority: Int)(body: => Unit): Unit =
-    processor match {
-      case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
-      case _ => body
-    }
-
-  private def importedObjects(manager: PsiManager, scope: GlobalSearchScope, objects: Seq[String]): Seq[PsiClass] = {
-    val res = mutable.ArrayBuffer.empty[PsiClass]
-    for (obj <- objects) {
-      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
-    }
-    res
-  }
-
   protected def isScalaPredefinedClass: Boolean
-
-  protected def implicitlyImportedPackages: Seq[String] = Seq.empty
-
-  protected def implicitlyImportedObjects: Seq[String] = Seq.empty
-
-  private def predefObjects: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedObjects
-
-  private def predefPackages: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedPackages
 
   def isScriptFile: Boolean = false
 
   def isWorksheetFile: Boolean = false
+}
+
+//noinspection TypeAnnotation
+object FileDeclarationsHolder {
+
+  val DefaultImplicitlyImportedPackages = Set("scala", "java.lang")
+  val DefaultImplicitlyImportedObjects = Set("scala.Predef", "scala" /* package object*/)
+
+  //method extracted due to VerifyError in Scala compiler
+  private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
+                             (body: => Unit): Unit =
+    processor match {
+      case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
+      case _ => body
+    }
 }
