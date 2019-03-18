@@ -39,7 +39,8 @@ import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
 
 class ScalaFileImpl(viewProvider: FileViewProvider,
-                    override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
+                    override val getFileType: LanguageFileType = ScalaFileType.INSTANCE,
+                    var sourceName: Option[String] = None)
   extends PsiFileBase(viewProvider, getFileType.getLanguage)
     with ScalaFile
     with FileDeclarationsHolder
@@ -54,57 +55,38 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     visitor.visitFile(this)
   }
 
-  private[this] var _virtualFile: VirtualFile = _
-  private[this] var _sourceName: String = _
+  override final def isCompiled: Boolean = sourceName.isDefined
 
   override def toString: String = "ScalaFile: " + getName
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+  protected final def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+  protected final def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
+    findChildByClass[T](clazz)
 
-  override final def getName: String = virtualFile match {
-    case null => super.getName
-    case file => file.getName
+  override final def getName: String = super.getName
+
+  override final def getVirtualFile: VirtualFile =
+    if (isCompiled) getViewProvider.getVirtualFile
+    else super.getVirtualFile
+
+  override def getNavigationElement: PsiElement = sourceName
+    .flatMap(findSourceForCompiledFile)
+    .flatMap { file =>
+      Option(getManager.findFile(file))
+    }.getOrElse {
+    super.getNavigationElement
   }
-
-  override final def getVirtualFile: VirtualFile = virtualFile match {
-    case null => super.getVirtualFile
-    case file => file
-  }
-
-  private[scala] final def virtualFile: VirtualFile = _virtualFile
-
-  private[scala] final def virtualFile_=(virtualFile: VirtualFile): Unit = {
-    _virtualFile = virtualFile
-  }
-
-  final def sourceName: String = _sourceName match {
-    case null => ""
-    case name => foldStub(name)(_.sourceName)
-  }
-
-  override final private[scala] def sourceName_=(sourceName: String): Unit = {
-    _sourceName = sourceName
-  }
-
-  override def getNavigationElement: PsiElement =
-    if (this.isCompiled) {
-      findSourceForCompiledFile
-        .flatMap(vf => getManager.findFile(vf).toOption)
-        .getOrElse(this)
-    } else this
 
   @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-  private def findSourceForCompiledFile: Option[VirtualFile] = {
+  private def findSourceForCompiledFile(sourceName: String): Option[VirtualFile] = {
     val inner: String = getPackageNameInner
-    val pName = inner + this.typeDefinitions.find(_.isPackageObject)
+    val pName = inner + typeDefinitions.find(_.isPackageObject)
       .fold("") { definition =>
         (if (inner.length > 0) "." else "") + definition.name
       }
 
-    val sourceName = this.sourceName
     val relPath = if (pName.length == 0) sourceName
     else pName.replace(".", "/") + "/" + sourceName
 
@@ -133,7 +115,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     entryIterator = entries.iterator
 
     //Look in libraries sources if file not relative to path
-    val qual = this.typeDefinitions.headOption.fold {
+    val qual = typeDefinitions.headOption.fold {
       return None
     }(_.qualifiedName)
     var result: Option[VirtualFile] = None
@@ -396,7 +378,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   def getFileResolveScope: GlobalSearchScope = {
     getOriginalFile.getVirtualFile match {
       case file if file != null && file.isValid =>
-        if (this.isCompiled) compiledFileResolveScope
+        if (isCompiled) compiledFileResolveScope
         else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
       case _ => GlobalSearchScope.allScope(getProject)
     }

@@ -8,26 +8,25 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, newvfs}
-import com.intellij.psi.compiled.{ClassFileDecompilers, ClsStubBuilder}
-import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
+import com.intellij.psi.{PsiManager, SingleRootFileViewProvider, compiled}
 import com.intellij.util.indexing.FileContent
 
-final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
+final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
   override def accepts(file: VirtualFile): Boolean = file.isAcceptable
 
-  override def getStubBuilder: ClsStubBuilder = ScClsStubBuilder
+  override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
   override def createFileViewProvider(file: VirtualFile,
                                       manager: PsiManager,
-                                      physical: Boolean): ScSingleRootFileViewProvider = file match {
+                                      eventSystemEnabled: Boolean): ScSingleRootFileViewProvider = file match {
     case DecompilationResult(sourceName, sourceText) =>
-      new ScalaClassFileViewProvider(manager, file, physical, sourceName) {
+      new ScalaClassFileViewProvider(manager, file, eventSystemEnabled, Some(sourceName)) {
         override val getContents: String = sourceText
       }
-    case _ => new NonScalaClassFileViewProvider(manager, file, physical)
+    case _ => new NonScalaClassFileViewProvider(manager, file, eventSystemEnabled)
   }
 }
 
@@ -35,9 +34,9 @@ object ScClassFileDecompiler {
 
   import impl.{ScalaFileImpl, ScalaPsiElementFactory}
 
-  object ScClsStubBuilder extends ClsStubBuilder {
+  object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
-    override val getStubVersion = 314
+    override val getStubVersion = 315
 
     // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
     private[compiled] val DecompilerFileAttribute = ApplicationManager.getApplication match {
@@ -59,11 +58,10 @@ object ScClassFileDecompiler {
 
       content.getFile match {
         case file if file.isInnerClass => null
-        case file@DecompilationResult(sourceName, sourceText) =>
+        case DecompilationResult(sourceName, sourceText) =>
           val scalaFile = ScalaPsiElementFactory.createScalaFileFromText(sourceText)(content.getProject)
             .asInstanceOf[ScalaFileImpl]
-          scalaFile.sourceName = sourceName
-          scalaFile.virtualFile = file
+          scalaFile.sourceName = Some(sourceName)
 
           LanguageParserDefinitions.INSTANCE
             .forLanguage(ScalaLanguage.INSTANCE)
@@ -78,23 +76,19 @@ object ScClassFileDecompiler {
 
   sealed abstract class ScSingleRootFileViewProvider(manager: PsiManager,
                                                      file: VirtualFile,
-                                                     physical: Boolean)
-    extends SingleRootFileViewProvider(manager, file, physical, ScalaLanguage.INSTANCE)
+                                                     eventSystemEnabled: Boolean)
+    extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
 
   private class ScalaClassFileViewProvider protected(manager: PsiManager,
                                                      file: VirtualFile,
-                                                     physical: Boolean,
-                                                     sourceName: String)
-    extends ScSingleRootFileViewProvider(manager, file, physical) {
+                                                     eventSystemEnabled: Boolean,
+                                                     sourceName: Some[String])
+    extends ScSingleRootFileViewProvider(manager, file, eventSystemEnabled) {
 
     override def createFile(project: Project,
                             virtualFile: VirtualFile,
-                            fileType: FileType): PsiFile = {
-      val file = new ScalaFileImpl(this)
-      file.sourceName = sourceName
-      file.virtualFile = virtualFile
-      file
-    }
+                            fileType: FileType) =
+      new ScalaFileImpl(this, sourceName = sourceName)
 
     override def getContents: String = getVirtualFile match {
       case DecompilationResult(_, sourceText) => sourceText
@@ -106,12 +100,12 @@ object ScClassFileDecompiler {
 
   private final class NonScalaClassFileViewProvider(manager: PsiManager,
                                                     file: VirtualFile,
-                                                    physical: Boolean)
-    extends ScSingleRootFileViewProvider(manager, file, physical) {
+                                                    eventSystemEnabled: Boolean)
+    extends ScSingleRootFileViewProvider(manager, file, eventSystemEnabled) {
 
     override def createFile(project: Project,
                             virtualFile: VirtualFile,
-                            fileType: FileType): PsiFile = null
+                            fileType: FileType): Null = null
 
     override def getContents = ""
 

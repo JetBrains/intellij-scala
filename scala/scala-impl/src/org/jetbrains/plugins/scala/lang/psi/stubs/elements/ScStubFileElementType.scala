@@ -6,17 +6,14 @@ package elements
 
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
-import com.intellij.psi.{PsiElement, PsiFile, PsiClass, tree}
 import com.intellij.psi.stubs._
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
 
 /**
   * @author ilyas
   */
 class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
-  extends tree.IStubFileElementType[ScFileStub](
-    "file",
-    language
-  ) {
+  extends tree.IStubFileElementType[ScFileStub]("file", language) {
 
   override final def getStubVersion: Int =
     super.getStubVersion + compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
@@ -31,20 +28,13 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   override final def serialize(stub: ScFileStub,
                                dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isScript)
-    dataStream.writeName(stub.sourceName)
   }
 
   override final def deserialize(dataStream: StubInputStream,
-                                 parentStub: StubElement[_ <: PsiElement]): ScFileStub = {
-    val isScriptImpl = dataStream.readBoolean
-    val sourceNameImpl = dataStream.readNameString
-
+                                 parentStub: StubElement[_ <: PsiElement]): ScFileStubImpl =
     new ScFileStubImpl(null) {
-      override val isScript: Boolean = isScriptImpl
-
-      override val sourceName: String = sourceNameImpl
+      override val isScript: Boolean = dataStream.readBoolean()
     }
-  }
 
   override final def indexStub(stub: ScFileStub,
                                sink: IndexSink): Unit = {}
@@ -66,8 +56,6 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   protected class ScFileStubImpl(file: ScalaFile,
                                  override val getType: ScStubFileElementType = this)
     extends PsiFileStubImpl(file) with ScFileStub {
-
-    override def sourceName: String = getPsi.sourceName
 
     override def isScript: Boolean = getPsi.isScriptFileImpl
 

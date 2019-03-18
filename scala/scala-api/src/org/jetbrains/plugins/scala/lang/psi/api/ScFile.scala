@@ -12,20 +12,12 @@ trait ScFile extends PsiFileWithStubSupport
   with PsiClassOwnerEx
   with PsiImportHolder {
 
-  private[scala] def virtualFile: VirtualFile
-
-  private[scala] def virtualFile_=(virtualFile: VirtualFile): Unit
-
-  def sourceName: String
-
-  private[scala] def sourceName_=(sourceName: String): Unit
+  def isCompiled: Boolean
 }
 
 object ScFile {
 
   implicit class ScFileExt(private val file: ScFile) extends AnyVal {
-
-    def isCompiled: Boolean = file.virtualFile != null
 
     def findVirtualFile: Option[VirtualFile] = VirtualFile.unapply(file)
   }
