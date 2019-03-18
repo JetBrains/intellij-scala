@@ -54,7 +54,7 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
     }
 
     val testResolver = new SbtIvyResolver("Test repo", root)
-    SbtModule.setResolversTo(module, Set(testResolver))
+    SbtModule.Resolvers(module) = Set(testResolver)
 
     val index = testResolver.getIndex(myProject).get
     index.doUpdate()

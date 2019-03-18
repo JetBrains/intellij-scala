@@ -24,12 +24,13 @@ class SbtCompletionDependenciesTest extends SbtCompletionTestBase {
     val testResolver = new SbtIvyResolver("Test repo", root)
 
     testResolver.getIndex(getProjectAdapter).get.doUpdate()
-    val moduleManager = Option(ModuleManager.getInstance(getProjectAdapter))
-    moduleManager.foreach { manager =>
-      manager.getModules.toSeq.foreach { module =>
-        val resolvers = SbtModule.getResolversFrom(module)
-        SbtModule.setResolversTo(module, resolvers + testResolver)
-      }
+
+    ModuleManager.getInstance(getProjectAdapter) match {
+      case null =>
+      case manager =>
+        for {
+          module <- manager.getModules
+        } SbtModule.Resolvers(module) += testResolver
     }
   }
 

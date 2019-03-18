@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.components.libextensions.ui._
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.project.module.SbtModule.getResolversFrom
+import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.collection.mutable
@@ -65,8 +65,13 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     private def action(): Unit = {
       if (accessed.compareAndSet(false, true))
         DumbService.getInstance(project).smartInvokeLater( extensions.toRunnable {
-          val allProjectResolvers = ModuleManager.getInstance(project).getModules.flatMap(getResolversFrom).toSet
-          LibraryExtensionsManager.getInstance(project).searchExtensions(allProjectResolvers)
+          val allProjectResolvers = ModuleManager.getInstance(project)
+            .getModules
+            .toSet
+            .flatMap(SbtModule.Resolvers.apply)
+
+          LibraryExtensionsManager.getInstance(project)
+            .searchExtensions(allProjectResolvers)
           accessed.set(false)
         })
     }

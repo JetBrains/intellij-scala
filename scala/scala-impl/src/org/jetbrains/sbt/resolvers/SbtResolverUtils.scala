@@ -3,26 +3,28 @@ package resolvers
 
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.sbt.project.module.SbtModule
 
 /**
- * @author Nikolay Obedin
- * @since 8/4/14.
- */
+  * @author Nikolay Obedin
+  * @since 8/4/14.
+  */
 object SbtResolverUtils {
 
-  def getProjectResolversForFile(fileOpt: Option[PsiFile]): Set[SbtResolver] = fileOpt match {
-    case Some(file) => getProjectResolvers(file.getProject)
-    case _          => Set.empty
-  }
+  def projectResolvers(place: PsiElement): Set[SbtResolver] =
+    ScalaPsiUtil.fileContext(place) match {
+      case null => Set.empty
+      case file => projectResolvers(file.getProject)
+    }
 
-  def getProjectResolvers(project: Project): Set[SbtResolver] = {
-    val moduleManager = ModuleManager.getInstance(project)
-    if (moduleManager == null) return Set.empty
-    moduleManager.getModules.toSeq.flatMap(SbtModule.getResolversFrom).toSet
+  def projectResolvers(implicit project: Project): Set[SbtResolver] = ModuleManager.getInstance(project) match {
+    case null => Set.empty
+    case manager => manager.getModules.toSet.flatMap(SbtModule.Resolvers.apply)
   }
 
   def joinGroupArtifact(group: String, artifact: String): String = group + ":" + artifact
+
   def joinGroupArtifact(artifact: ArtifactInfo): String = artifact.groupId + ":" + artifact.artifactId
 }

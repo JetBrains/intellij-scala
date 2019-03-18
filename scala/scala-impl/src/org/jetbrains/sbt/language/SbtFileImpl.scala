@@ -46,9 +46,11 @@ final class SbtFileImpl private(provider: FileViewProvider)
   private def fileWithImplicitImports: PsiFile = findModule match {
     case null => null
     case module =>
+      import SbtModule.Imports
+
       val expressions = projectDefinitionModule(module)
-        .fold(SbtModule.getImportsFrom(module)) { definitionModule =>
-          SbtModule.getImportsFrom(definitionModule) ++ localObjectsWithDefinitions(definitionModule)
+        .fold(Imports(module)) { definitionModule =>
+          Imports(definitionModule) ++ localObjectsWithDefinitions(definitionModule)
         }.map {
         // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
         case "Keys._" => "sbt.Keys._"

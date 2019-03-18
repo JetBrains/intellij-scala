@@ -2,7 +2,6 @@ package org.jetbrains.sbt
 package language
 
 import java.util
-import javax.swing.event.HyperlinkEvent
 
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
@@ -18,6 +17,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.util.Consumer
+import javax.swing.event.HyperlinkEvent
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -94,11 +94,13 @@ class SbtProjectComponent(project: Project) extends ProjectComponent {
   }
 
   private def notifyDisabledMavenPlugin(): Unit = {
-    val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project)
+    val outdatedIvyIndexes = SbtResolverUtils.projectResolvers(project)
       .flatMap(_.getIndex(project))
-      .filter { index =>
-        index.isInstanceOf[IvyIndex] && index.getUpdateTimeStamp == -1
+      .filter {
+        case index: IvyIndex => index.getUpdateTimeStamp == -1
+        case _ => false
       }
+
     if (outdatedIvyIndexes.isEmpty) return
     val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"
     val message =

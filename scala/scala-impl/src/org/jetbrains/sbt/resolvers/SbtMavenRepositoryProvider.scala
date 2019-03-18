@@ -1,24 +1,26 @@
-package org.jetbrains.sbt.resolvers
+package org.jetbrains.sbt
+package resolvers
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenRepositoryProvider}
 import org.jetbrains.idea.maven.model.MavenRemoteRepository
 
-class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
-  import scala.collection.JavaConverters._
+import scala.collection.JavaConverters._
 
+final class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
 
-  override def getRemoteRepositories(project: Project): util.Set[MavenRemoteRepository] = {
-    val result = repositories(project)
-    result.asJava
-  }
-
-  def repositories(project: Project): Set[MavenRemoteRepository] = {
-    SbtResolverUtils.getProjectResolvers(project).collect {
-      case r:SbtMavenResolver =>
-        new MavenRemoteRepository(r.name, null, MavenIndex.normalizePathOrUrl(r.root), null, null, null)
-    }
-  }
+  override def getRemoteRepositories(project: Project): ju.Set[MavenRemoteRepository] =
+    SbtResolverUtils.projectResolvers(project).collect {
+      case r: SbtMavenResolver =>
+        new MavenRemoteRepository(
+          r.name,
+          null,
+          MavenIndex.normalizePathOrUrl(r.root),
+          null,
+          null,
+          null
+        )
+    }.asJava
 }

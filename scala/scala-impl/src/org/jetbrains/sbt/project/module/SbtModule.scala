@@ -10,9 +10,15 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 import scala.beans.BeanProperty
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 object SbtModule {
+
+  // substitution of dollars is necessary because IDEA will interpret a string in the form of $something$ as a path variable
+  // and warn the user of "undefined path variables" (SCL-10691)
+  private val SubstitutePrefix = "SUB:"
+  private val SubstituteDollar = "DOLLAR"
+
   @Deprecated
   private val ImportsKey = "sbt.imports"
 
@@ -35,50 +41,53 @@ object SbtModule {
     }
   }
 
-  def getImportsFrom(module: Module): Seq[String] =
-    Option(getState(module).imports)
-      .filter(_.nonEmpty)
-      .orElse(Option(module.getOptionValue(ImportsKey))) // TODO remove in 2018.3+
-      .filter(_.nonEmpty)
-      .map(v => unsubstituteOptionString(v).split(Delimiter).toSeq)
-      .getOrElse(Sbt.DefaultImplicitImports)
+  object Imports {
 
-  def setImportsTo(module: Module, imports: Seq[String]): Unit = {
-    val v = substituteOptionString(imports.mkString(Delimiter))
-    module.setOption(ImportsKey, v) // TODO remove in 2018.3+
-    getState(module).imports = v
+    def apply(module: Module): Seq[String] =
+      Option(getState(module).imports)
+        .filter(_.nonEmpty)
+        .orElse(Option(module.getOptionValue(ImportsKey))) // TODO remove in 2018.3+
+        .filter(_.nonEmpty)
+        .fold(Sbt.DefaultImplicitImports) { implicitImports =>
+          implicitImports
+            .replace(SubstitutePrefix + SubstitutePrefix, SubstitutePrefix)
+            .replace(SubstitutePrefix + SubstituteDollar, "$")
+            .split(Delimiter)
+            .toSeq
+        }
+
+    def update(module: Module, imports: Seq[String]): Unit = {
+      val newImports = imports.mkString(Delimiter)
+        .replace(SubstitutePrefix, SubstitutePrefix + SubstitutePrefix)
+        .replace("$", SubstitutePrefix + SubstituteDollar)
+
+      module.setOption(ImportsKey, newImports) // TODO remove in 2018.3+
+
+      getState(module).imports = newImports
+    }
   }
 
-  def getResolversFrom(module: Module): Set[SbtResolver] =
-    Option(getState(module).resolvers)
-      .filter(_.nonEmpty)
-      .orElse(Option(module.getOptionValue(ResolversKey))) // TODO remove in 2018.3+
-      .map { str =>
-        str.split(Delimiter).map(SbtResolver.fromString).collect {
-          case Some(r) => r
-        }.toSet
-      }.getOrElse(Set.empty)
+  object Resolvers {
 
-  def setResolversTo(module: Module, resolvers: Set[SbtResolver]): Unit = {
-    val v = resolvers.map(_.toString).mkString(Delimiter)
-    module.setOption(ResolversKey, v) // TODO remove in 2018.3
-    getState(module).resolvers
+    def apply(module: Module): Set[SbtResolver] =
+      Option(getState(module).resolvers)
+        .filter(_.nonEmpty)
+        .orElse(Option(module.getOptionValue(ResolversKey))) // TODO remove in 2018.3+
+        .fold(Set.empty[SbtResolver]) { str =>
+        str.split(Delimiter)
+          .flatMap(SbtResolver.fromString)
+          .toSet
+      }
+
+    def update(module: Module, resolvers: Set[SbtResolver]): Unit = {
+      val newResolvers = resolvers.map(_.toString)
+        .mkString(Delimiter)
+
+      module.setOption(ResolversKey, newResolvers) // TODO remove in 2018.3
+
+      getState(module).resolvers
+    }
   }
-
-  // substitution of dollars is necessary because IDEA will interpret a string in the form of $something$ as a path variable
-  // and warn the user of "undefined path variables" (SCL-10691)
-  val substitutePrefix = "SUB:"
-  val substituteDollar = "DOLLAR"
-  def substituteOptionString(raw: String): String =
-    raw
-      .replace(substitutePrefix, substitutePrefix+substitutePrefix)
-      .replace("$",substitutePrefix+substituteDollar)
-
-  def unsubstituteOptionString(substituted: String): String =
-    substituted
-      .replace(substitutePrefix+substitutePrefix, substitutePrefix)
-      .replace(substitutePrefix+substituteDollar,"$")
-
 }
 
 @State(
@@ -91,6 +100,7 @@ class SbtModule extends PersistentStateComponent[SbtModuleState] {
   var myState: SbtModuleState = new SbtModuleState()
 
   override def getState: SbtModuleState = myState
+
   override def loadState(state: SbtModuleState): Unit = {
     myState = state
   }

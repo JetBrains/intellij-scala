@@ -7,7 +7,6 @@ import com.intellij.patterns.{PlatformPatterns, StandardPatterns}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.project._
@@ -58,8 +57,7 @@ class SbtMavenDependencyCompletionContributor extends CompletionContributor {
       if (place.getText == CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
         return
 
-      val file = Option(ScalaPsiUtil.fileContext(place))
-      val resolvers = SbtResolverUtils.getProjectResolversForFile(file)
+      val resolvers = SbtResolverUtils.projectResolvers(place)
 
       def completeGroup(artifactId: String): Unit = {
         for {

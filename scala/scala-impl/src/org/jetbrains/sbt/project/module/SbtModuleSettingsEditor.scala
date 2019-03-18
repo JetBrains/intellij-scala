@@ -1,18 +1,17 @@
 package org.jetbrains.sbt
 package project.module
 
-import java.awt.event.{ActionEvent, ActionListener}
-import java.util
-import javax.swing.JPanel
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import javax.swing.table.AbstractTableModel
+import java.awt.event.ActionEvent
+import java.util.Collections
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.text.DateFormatUtil
+import javax.swing.JPanel
+import javax.swing.event.ListSelectionEvent
+import javax.swing.table.AbstractTableModel
 import org.jetbrains.plugins.scala.util.JListCompatibility
-import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -24,9 +23,12 @@ import scala.collection.JavaConverters._
  * @since 12/1/14.
  */
 class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
+
+  import SbtModule._
+
   private val myForm = new SbtModuleSettingsForm
-  private val modelWrapper = new CollectionListModelWrapper(new CollectionListModel[String](new util.ArrayList[String]))
-  private val resolvers = SbtModule.getResolversFrom(getModel.getModule).toSeq
+  private val modelWrapper = new JListCompatibility.CollectionListModelWrapper(new CollectionListModel[String](Collections.emptyList[String]))
+  private val resolvers = Resolvers(getModel.getModule).toSeq
 
   override def getDisplayName: String = SbtBundle("sbt.settings.sbtModuleSettings")
 
@@ -37,7 +39,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
 
     myForm.updateButton.addActionListener((e: ActionEvent) => {
-      val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows map (resolvers(_))
+      val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows.map(resolvers(_))
       SbtIndexesManager.getInstance(state.getProject).foreach(_.updateWithProgress(resolversToUpdate))
     })
 
@@ -45,10 +47,11 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   }
 
   override def reset(): Unit = {
-    val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule)
+    val module = getModel.getModule
+    val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
     myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle("sbt.settings.sbtVersionNotDetected")))
 
-    modelWrapper.getModel.replaceAll(SbtModule.getImportsFrom(getModel.getModule).asJava)
+    modelWrapper.getModel.replaceAll(Imports(module).asJava)
 
     myForm.resolversTable.setModel(new ResolversModel(resolvers, state.getProject))
     myForm.resolversTable.setRowSelectionInterval(0, 0)
