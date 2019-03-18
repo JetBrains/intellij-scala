@@ -19,20 +19,22 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
-  override def createFileViewProvider(file: VirtualFile,
-                                      manager: PsiManager,
-                                      eventSystemEnabled: Boolean): ScSingleRootFileViewProvider = file match {
-    case DecompilationResult(sourceName, sourceText) =>
-      new ScalaClassFileViewProvider(manager, file, eventSystemEnabled, Some(sourceName)) {
-        override val getContents: String = sourceText
-      }
-    case _ => new NonScalaClassFileViewProvider(manager, file, eventSystemEnabled)
-  }
+  override def createFileViewProvider(file: VirtualFile, manager: PsiManager,
+                                      eventSystemEnabled: Boolean): SingleRootFileViewProvider =
+    createFileViewProvider(eventSystemEnabled)(manager, file)
+
+  private def createFileViewProvider(eventSystemEnabled: Boolean)
+                                    (implicit manager: PsiManager, file: VirtualFile) =
+    file match {
+      case DecompilationResult(sourceName, contents) => new ScClsFileViewProvider(sourceName, contents, eventSystemEnabled)
+      case _ => new NonScalaClassFileViewProvider(eventSystemEnabled)
+    }
+
 }
 
 object ScClassFileDecompiler {
 
-  import impl.{ScalaFileImpl, ScalaPsiElementFactory}
+  import impl.{ScFileViewProviderFactory, ScalaFileImpl, ScalaPsiElementFactory}
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
@@ -74,43 +76,37 @@ object ScClassFileDecompiler {
     }
   }
 
-  sealed abstract class ScSingleRootFileViewProvider(manager: PsiManager,
-                                                     file: VirtualFile,
-                                                     eventSystemEnabled: Boolean)
-    extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
+  import ScFileViewProviderFactory.ScFileViewProvider
 
-  private class ScalaClassFileViewProvider protected(manager: PsiManager,
-                                                     file: VirtualFile,
-                                                     eventSystemEnabled: Boolean,
-                                                     sourceName: Some[String])
-    extends ScSingleRootFileViewProvider(manager, file, eventSystemEnabled) {
+  private final class ScClsFileViewProvider(sourceName: String,
+                                            override val getContents: String,
+                                            eventSystemEnabled: Boolean)
+                                           (implicit manager: PsiManager, file: VirtualFile)
+    extends ScFileViewProvider(eventSystemEnabled) {
 
     override def createFile(project: Project,
-                            virtualFile: VirtualFile,
+                            file: VirtualFile,
                             fileType: FileType) =
-      new ScalaFileImpl(this, sourceName = sourceName)
+      new ScalaFileImpl(this, sourceName = Some(sourceName))
 
-    override def getContents: String = getVirtualFile match {
-      case DecompilationResult(_, sourceText) => sourceText
-    }
-
-    override def createCopy(copy: VirtualFile) =
-      new ScalaClassFileViewProvider(getManager, copy, false, sourceName)
+    override protected def createCopy(eventSystemEnabled: Boolean)
+                                     (implicit manager: PsiManager, file: VirtualFile) =
+      new ScClsFileViewProvider(sourceName, getContents, eventSystemEnabled)
   }
 
-  private final class NonScalaClassFileViewProvider(manager: PsiManager,
-                                                    file: VirtualFile,
-                                                    eventSystemEnabled: Boolean)
-    extends ScSingleRootFileViewProvider(manager, file, eventSystemEnabled) {
+  private final class NonScalaClassFileViewProvider(eventSystemEnabled: Boolean)
+                                                   (implicit manager: PsiManager, file: VirtualFile)
+    extends ScFileViewProvider(eventSystemEnabled) {
 
     override def createFile(project: Project,
-                            virtualFile: VirtualFile,
+                            file: VirtualFile,
                             fileType: FileType): Null = null
 
     override def getContents = ""
 
-    override def createCopy(copy: VirtualFile) =
-      new NonScalaClassFileViewProvider(getManager, copy, false)
+    override protected def createCopy(eventSystemEnabled: Boolean)
+                                     (implicit manager: PsiManager, file: VirtualFile) =
+      new NonScalaClassFileViewProvider(eventSystemEnabled)
   }
 
 }
