@@ -1,6 +1,5 @@
-package org.jetbrains.sbt.shell
-
-import javax.swing.Icon
+package org.jetbrains.sbt
+package shell
 
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.ParserDefinition.SpaceRequirements
@@ -8,11 +7,10 @@ import com.intellij.lang.{ASTNode, Language, ParserDefinition, PsiParser}
 import com.intellij.lexer.{FlexAdapter, Lexer}
 import com.intellij.openapi.fileTypes.{FileTypeConsumer, FileTypeFactory, LanguageFileType}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile, TokenType}
 import com.intellij.psi.tree.{IElementType, IFileElementType, TokenSet}
+import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile, TokenType}
+import javax.swing.Icon
 import org.jetbrains.annotations._
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.shell.grammar.{SbtShellParser, SbtShellTypes, _SbtShellLexer}
 
 object SbtShellLanguage extends Language("sbtShell") {
   override def isCaseSensitive: Boolean = true
@@ -26,10 +24,13 @@ class SbtShellElementType(@NotNull @NonNls debugName: String) extends IElementTy
   * Dummy file type required by the sbt shell LightVirtualFile
   */
 object SbtShellFileType extends LanguageFileType(SbtShellLanguage) {
-  override def getDefaultExtension: String = "sbts"
-  override def getName: String = "sbtShell"
-  override def getIcon: Icon = Sbt.FileIcon
-  override def getDescription: String = "sbt shell file dummy"
+  override def getDefaultExtension = "sbts"
+
+  override def getName = "sbtShell"
+
+  override def getIcon: Icon = language.SbtFileType.getIcon
+
+  override def getDescription = "sbt shell file dummy"
 }
 
 class SbtShellFileTypeFactory extends FileTypeFactory {
@@ -37,7 +38,7 @@ class SbtShellFileTypeFactory extends FileTypeFactory {
     consumer.consume(SbtShellFileType, SbtShellFileType.getDefaultExtension)
 }
 
-class SbtShellLexerAdapter extends FlexAdapter(new _SbtShellLexer)
+class SbtShellLexerAdapter extends FlexAdapter(new grammar._SbtShellLexer)
 
 class SbtShellFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, SbtShellLanguage) {
   override def getFileType: SbtShellFileType.type = SbtShellFileType
@@ -51,11 +52,13 @@ class SbtShellParserDefinition extends ParserDefinition {
   override def spaceExistenceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements = SpaceRequirements.MAY
   override def createFile(viewProvider: FileViewProvider): PsiFile = new SbtShellFile(viewProvider)
   override def getCommentTokens: TokenSet = TokenSet.EMPTY
-  override def createElement(node: ASTNode): PsiElement = SbtShellTypes.Factory.createElement(node)
+
+  override def createElement(node: ASTNode): PsiElement = grammar.SbtShellTypes.Factory.createElement(node)
   override def getStringLiteralElements: TokenSet = TokenSet.EMPTY
   override def createLexer(project: Project): Lexer = new SbtShellLexerAdapter
   override def getFileNodeType: IFileElementType = FILE
-  override def createParser(project: Project): PsiParser = new SbtShellParser
+
+  override def createParser(project: Project): PsiParser = new grammar.SbtShellParser
 }
 
 object SbtShellParserDefinition {

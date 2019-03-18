@@ -7,10 +7,11 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaFileFactory
 /**
  * @author Pavel Fatin
  */
-class SbtFileFactory extends ScalaFileFactory {
-  def createFile(provider: FileViewProvider): Option[SbtFileImpl] = {
-    Option(provider.getVirtualFile.getFileType) collect {
-      case SbtFileType => new SbtFileImpl(provider)
+final class SbtFileFactory extends ScalaFileFactory {
+
+  def createFile(provider: FileViewProvider): Option[SbtFileImpl] =
+    provider.getVirtualFile.getFileType match {
+      case SbtFileType => Some(new SbtFileImpl(provider))
+      case _ => None
     }
-  }
 }

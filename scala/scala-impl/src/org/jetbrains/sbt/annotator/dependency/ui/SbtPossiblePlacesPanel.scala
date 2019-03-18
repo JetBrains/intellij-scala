@@ -1,10 +1,10 @@
-package org.jetbrains.sbt.annotator.dependency.ui
+package org.jetbrains.sbt
+package annotator
+package dependency
+package ui
 
 import java.awt.BorderLayout
-import javax.swing._
-import javax.swing.event._
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
@@ -14,9 +14,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui._
 import com.intellij.ui.components.JBList
-import org.jetbrains.sbt.annotator.dependency.{AddSbtDependencyUtils, DependencyPlaceInfo}
+import javax.swing._
+import javax.swing.event._
+import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
 import scala.collection.JavaConverters.asJavaCollectionConverter
 
@@ -50,7 +51,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
     GuiUtils.replaceJSplitPaneWithIDEASplitter(splitPane)
     myResultList.setCellRenderer(new PlacesCellRenderer)
 
-    myResultList.addListSelectionListener { (_: ListSelectionEvent) =>
+    myResultList.addListSelectionListener { _: ListSelectionEvent =>
       val place = myResultList.getSelectedValue
       if (place != null) {
         if (myCurEditor == null)
@@ -74,12 +75,11 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
       dependency <- AddSbtDependencyUtils.addDependency(tmpElement, resultArtifact)(project)
     } yield dependency
 
-    extensions.inWriteAction {
-      val text = dep match {
-        case Some(_)  => tmpFile.getText
-        case None     => "// Could not generate dependency string, please report this issue"
+    inWriteAction {
+      myCurEditor.getDocument.setText {
+        if (dep.isDefined) tmpFile.getText
+        else "// Could not generate dependency string, please report this issue"
       }
-      myCurEditor.getDocument.setText(text)
     }
 
 
@@ -118,8 +118,13 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
   }
 
   private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyPlaceInfo] {
-    override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo], info: DependencyPlaceInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
-      setIcon(org.jetbrains.plugins.scala.icons.Icons.SBT_FILE)
+
+    override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo],
+                                       info: DependencyPlaceInfo,
+                                       index: Int,
+                                       selected: Boolean,
+                                       hasFocus: Boolean): Unit = {
+      setIcon(language.SbtFileType.getIcon)
       append(info.path + ":")
       append(info.line.toString, SimpleTextAttributes.GRAY_ATTRIBUTES)
       if (info.affectedProjects.nonEmpty)

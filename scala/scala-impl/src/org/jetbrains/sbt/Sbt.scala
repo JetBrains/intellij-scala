@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 
 import javax.swing.Icon
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.Version
@@ -11,10 +10,6 @@ import org.jetbrains.plugins.scala.project.Version
  */
 object Sbt {
   val Name = "sbt"
-
-  val FileExtension = "sbt"
-
-  val FileDescription = "sbt files"
 
   val BuildFile = "build.sbt"
 
@@ -56,9 +51,5 @@ object Sbt {
 
   val Icon: Icon = Icons.SBT
 
-  val FileIcon: Icon = Icons.SBT_FILE
-
   val FolderIcon: Icon = Icons.SBT_FOLDER
-
-  def isSbtFile(@NotNull filename: String): Boolean = filename.endsWith(s".${Sbt.FileExtension}")
 }

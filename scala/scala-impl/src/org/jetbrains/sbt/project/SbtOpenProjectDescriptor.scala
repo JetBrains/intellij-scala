@@ -8,11 +8,12 @@ import com.intellij.openapi.vfs.VirtualFile
  * @author Pavel Fatin
  */
 class SbtOpenProjectDescriptor extends OpenProjectFileChooserDescriptor(true) {
-  override def isFileVisible(file: VirtualFile, showHiddenFiles: Boolean): Boolean = {
+
+  override def isFileVisible(file: VirtualFile, showHiddenFiles: Boolean): Boolean =
     super.isFileVisible(file, showHiddenFiles) &&
-      (file.isDirectory || file.getName.endsWith("." + Sbt.FileExtension))
-  }
+      (file.isDirectory || language.SbtFileType.isSbtFile(file))
 
   override def isFileSelectable(file: VirtualFile): Boolean =
-    super.isFileSelectable(file) && SbtProjectImportProvider.canImport(file)
+    super.isFileSelectable(file) &&
+      SbtProjectImportProvider.canImport(file)
 }

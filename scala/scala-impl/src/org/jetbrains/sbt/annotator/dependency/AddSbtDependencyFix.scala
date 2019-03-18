@@ -1,4 +1,6 @@
-package org.jetbrains.sbt.annotator.dependency
+package org.jetbrains.sbt
+package annotator
+package dependency
 
 import com.intellij.codeInsight.intention.{IntentionAction, LowPriorityAction}
 import com.intellij.notification.{Notification, NotificationType}
@@ -22,9 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
-import org.jetbrains.sbt.annotator.dependency.ui.SbtArtifactSearchWizard
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.{ArtifactInfo, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -32,7 +31,12 @@ import org.jetbrains.sbt.settings.SbtSettings
 /**
   * Created by afonichkin on 7/7/17.
   */
-private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference]) extends IntentionAction with LowPriorityAction {
+private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference])
+  extends IntentionAction
+    with LowPriorityAction {
+
+  import AddSbtDependencyUtils._
+
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file match {
     case _: ScalaCodeFragment => false
     case scalaFile: ScalaFile =>
@@ -62,12 +66,9 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
     }
 
     val baseDir: VirtualFile = project.getBaseDir
-    val sbtFileOpt: Option[VirtualFile] = {
-      val buildSbt = baseDir.findChild(Sbt.BuildFile)
-      if (buildSbt.exists())
-        Some(buildSbt)
-      else
-        baseDir.getChildren.find(vf => Sbt.isSbtFile(vf.getPath))
+    val sbtFileOpt = baseDir.findChild(Sbt.BuildFile) match {
+      case buildFile if buildFile != null && buildFile.exists() => Some(buildFile)
+      case _ => baseDir.getChildren.find(language.SbtFileType.isSbtFile)
     }
 
     val resolver: SbtResolver = SbtResolver.localCacheResolver(None)
@@ -132,7 +133,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
         }
 
         ApplicationManager.getApplication.invokeLater { () =>
-          val wizard = new SbtArtifactSearchWizard(project, deps, places)
+          val wizard = new ui.SbtArtifactSearchWizard(project, deps, places)
           wizard.search() match {
             case (Some(artifactInfo), Some(fileLine)) =>
               addDependency(fileLine.element, artifactInfo)(project)

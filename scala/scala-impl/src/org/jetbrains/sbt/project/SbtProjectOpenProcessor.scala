@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package project
 
-import javax.swing.Icon
-
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.wizard.Step
@@ -11,6 +9,7 @@ import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternal
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessorBase
+import javax.swing.Icon
 
 /**
  * @author Pavel Fatin
@@ -24,7 +23,7 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
   override def canOpenProject(file: VirtualFile): Boolean = SbtProjectImportProvider.canImport(file)
 
   override def doQuickImport(file: VirtualFile, wizardContext: WizardContext): Boolean = {
-    val path = SbtProjectImportProvider.projectRootOf(file).getPath
+    val path = SbtProjectImportProvider.projectRootPath(file)
 
     val dialog = new AddModuleWizard(null, path, new SbtProjectImportProvider(getBuilder))
 
@@ -49,7 +48,7 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
 
   override def getIcon(file: VirtualFile): Icon = {
     if (file.isDirectory) Sbt.FolderIcon
-    else Sbt.FileIcon
+    else language.SbtFileType.getIcon
   }
 
   // That's a hack to display sbt icon in the open project file chooser (this part of the IDEA API is broken)

@@ -1,16 +1,15 @@
 package org.jetbrains.sbt
 package project
 
-import javax.swing.Icon
-
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import javax.swing.Icon
 
 /**
  * @author Pavel Fatin
  */
-class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
+final class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
   extends AbstractExternalProjectImportProvider(builder, SbtProjectSystem.Id) {
 
   override def getId: String = Sbt.Name
@@ -23,38 +22,38 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
     SbtProjectImportProvider.canImport(entry)
 
   override def getPathToBeImported(file: VirtualFile): String =
-    SbtProjectImportProvider.projectRootOf(file).getPath
+    SbtProjectImportProvider.projectRootPath(file)
 }
 
 object SbtProjectImportProvider {
 
-  def canImport(entry: VirtualFile): Boolean = {
-    if (entry == null) false
-    else if (entry.isDirectory) {
-      entry.getName == Sbt.ProjectDirectory ||
-        containsSbtProjectDirectory(entry) ||
-        containsSbtBuildFile(entry)
+  import language.SbtFileType.isSbtFile
 
-    } else {
-      Sbt.isSbtFile(entry.getName)
-    }
+  def canImport(file: VirtualFile): Boolean = file match {
+    case null => false
+    case directory if directory.isDirectory =>
+      directory.getName == Sbt.ProjectDirectory ||
+        containsSbtProjectDirectory(directory) ||
+        containsSbtBuildFile(directory)
+    case _ => isSbtFile(file)
   }
 
-  private def containsSbtProjectDirectory(file: VirtualFile) =
-    Option(file.findChild(Sbt.ProjectDirectory))
-      .exists { projectDir =>
-        projectDir.containsFile(Sbt.PropertiesFile) ||
-        containsSbtBuildFile(projectDir)
-      }
-
-  private def containsSbtBuildFile(dir: VirtualFile) =
-    dir.getChildren.exists(child => Sbt.isSbtFile(child.getName))
-
-  def projectRootOf(entry: VirtualFile): VirtualFile = {
-    if (entry.isDirectory) {
-      if (entry.getName == Sbt.ProjectDirectory) entry.getParent else entry
-    } else {
-      entry.getParent
+  private def containsSbtProjectDirectory(directory: VirtualFile) =
+    directory.findChild(Sbt.ProjectDirectory) match {
+      case null => false
+      case projectDirectory =>
+        projectDirectory.containsFile(Sbt.PropertiesFile) ||
+          containsSbtBuildFile(projectDirectory)
     }
+
+  private def containsSbtBuildFile(directory: VirtualFile) =
+    directory.getChildren.exists(isSbtFile)
+
+  def projectRootPath(file: VirtualFile): String = {
+    val root = if (file.isDirectory && file.getName != Sbt.ProjectDirectory) file
+    else file.getParent
+
+    root.getPath
   }
+
 }

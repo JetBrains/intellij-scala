@@ -80,7 +80,6 @@ public interface Icons {
     Icon SBT = getIcon("/org/jetbrains/plugins/scala/images/sbt_icon.svg");
     // used from SBT.xml
     Icon SBT_TOOLWINDOW = getIcon("/org/jetbrains/plugins/scala/images/sbt_toolwin.svg");
-    Icon SBT_FILE = getIcon("/org/jetbrains/plugins/scala/images/sbt_file.svg");
     Icon SBT_FOLDER = getIcon("/org/jetbrains/plugins/scala/images/sbt_folder.svg");
     Icon SBT_SHELL = getIcon("/org/jetbrains/plugins/scala/images/sbt_shell.svg");
     // used from SBT.xml
