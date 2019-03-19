@@ -79,7 +79,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
       testName = testName.substring(0, dotIdx);
     }
 
-      String temp = transform(testName, input.toArray(new String[input.size()]));
+      String temp = transform(testName, input.toArray(new String[0]));
     transformed = StringUtil.replace(temp ,"\r", "");
 
     if (shouldPass()) {

@@ -26,7 +26,6 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.testFramework.ThreadTracker;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
-import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
 import org.junit.Assert;
@@ -48,7 +47,6 @@ public class TestUtils {
   public static final String BEGIN_MARKER = "<begin>";
   public static final String END_MARKER = "<end>";
 
-
   public static PsiFile createPseudoPhysicalScalaFile(final Project project, final String text) throws IncorrectOperationException {
     String TEMP_FILE = project.getBaseDir() + "temp.scala";
     return PsiFileFactory.getInstance(project).createFileFromText(
@@ -56,80 +54,52 @@ public class TestUtils {
         FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
         text,
         LocalTimeCounter.currentTime(),
-        true);
+            true
+    );
   }
 
   private static String TEST_DATA_PATH = null;
 
-  public static String getTestName(String name, boolean lowercaseFirstLetter) {
-    Assert.assertTrue(name.startsWith("test"));
-    name = name.substring("test".length());
-    if (lowercaseFirstLetter) {
-      name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-    }
-    return name;
-  }
-
-
-
   @NotNull
   public static String getTestDataPath() {
     if (TEST_DATA_PATH == null) {
-      ClassLoader loader = TestUtils.class.getClassLoader();
-      URL resource = loader.getResource("testdata");
       try {
-        File f1 = new File("community/scala/scala-impl", "testdata");
-        if (resource != null) {
-          TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
-        } else if (f1.exists()) {
-          TEST_DATA_PATH = f1.getAbsolutePath();
-        } else {
-          File f2 = findTestDataDir(new File("scala/scala-impl").getCanonicalFile());
-          TEST_DATA_PATH = f2.getAbsolutePath();
-        }
-      } catch (URISyntaxException e) {
+        URL resource = TestUtils.class.getClassLoader().getResource("testdata");
+        TEST_DATA_PATH = resource == null ?
+                find("scala/scala-impl", "testdata").getAbsolutePath() :
+                new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
+      } catch (URISyntaxException | IOException e) {
         LOG.error(e);
         throw new RuntimeException(e);
         // just rethrowing here because that's a clearer way to make tests fail than some NPE somewhere else
-      } catch (IOException e) {
-        LOG.error(e);
-        throw new RuntimeException(e);
       }
     }
 
     return TEST_DATA_PATH;
   }
 
+  @NotNull
+  public static String findTestDataDir(String pathname) throws IOException {
+    return findTestDataDir(new File(pathname), "testdata");
+  }
+
+  private static File find(String pathname, String child) throws IOException {
+    File file = new File("community/" + pathname, child);
+    return file.exists() ? file : new File(findTestDataDir(pathname));
+  }
+
   /** Go upwards to find testdata, because when running test from IDEA, the launching dir might be some subdirectory. */
   @NotNull
-  private static File findTestDataDir(File here) throws IOException {
-    File testdata = new File(here,"testdata").getCanonicalFile();
-    if (testdata.exists()) return testdata;
-    else {
-      File parent = here.getParentFile();
-      if (parent == null) throw new RuntimeException("no testdata directory found");
-      else return findTestDataDir(parent);
+  private static String findTestDataDir(File parent, String child) throws IOException {
+    File testData = new File(parent, child).getCanonicalFile();
+
+    if (testData.exists()) {
+      return testData.getCanonicalPath();
+    } else {
+      File newParent = parent.getParentFile();
+      if (newParent == null) throw new RuntimeException("no testdata directory found");
+      else return findTestDataDir(newParent, child);
     }
-  }
-
-  public static String findTestdataDirForClass(Object instance) throws IOException {
-    String path = PathUtil.getJarPathForClass(instance.getClass());
-    return findTestDataDir(new File(path)).getCanonicalPath();
-  }
-
-  public static String getScalaLibrarySrc() {
-    return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/scala-library-2.10.6-sources.jar";
-  }
-
-  public static String getIvyCachePath() {
-    String homePath = System.getProperty("user.home") + "/.ivy2/cache";
-    String ivyCachePath = System.getProperty("sbt.ivy.home");
-    String result = ivyCachePath != null ? ivyCachePath + "/cache" : homePath;
-    return result.replace("\\", "/");
-  }
-
-  public static String getScalaLibraryPath() {
-    return getIvyCachePath() + "/org.scala-lang/scala-library/jars/scala-library-2.10.6.jar";
   }
 
   public static String removeBeginMarker(String text) {
@@ -144,9 +114,9 @@ public class TestUtils {
 
   private static final long ETALON_TIMING = 438;
 
-  public static final boolean COVERAGE_ENABLED_BUILD = "true".equals(System.getProperty("idea.coverage.enabled.build"));
+  private static final boolean COVERAGE_ENABLED_BUILD = "true".equals(System.getProperty("idea.coverage.enabled.build"));
 
-  public static void assertTiming(String message, long expected, long actual) {
+  private static void assertTiming(String message, long expected, long actual) {
     if (COVERAGE_ENABLED_BUILD) return;
     long expectedOnMyMachine = expected * Timings.MACHINE_TIMING / ETALON_TIMING;
     final double acceptableChangeFactor = 1.1;
@@ -173,7 +143,7 @@ public class TestUtils {
     assertTiming(message, expected, 4, actionToMeasure);
   }
 
-  public static void assertTiming(String message, long expected, int attempts, @NotNull Runnable actionToMeasure) {
+  private static void assertTiming(String message, long expected, int attempts, @NotNull Runnable actionToMeasure) {
     while (true) {
       attempts--;
       long start = System.currentTimeMillis();
@@ -191,12 +161,12 @@ public class TestUtils {
       }
     }
   }
-  
+
   public static List<String> readInput(String filePath) throws IOException {
     String content = new String(FileUtil.loadFileText(new File(filePath)));
     Assert.assertNotNull(content);
 
-    List<String> input = new ArrayList<String>();
+    List<String> input = new ArrayList<>();
 
     int separatorIndex;
     content = StringUtil.replace(content, "\r", ""); // for MACs
@@ -219,7 +189,6 @@ public class TestUtils {
     input.add(content);
 
     Assert.assertTrue("No data found in source file", input.size() > 0);
-    Assert.assertNotNull("Test output points to null", input.size() > 1);
 
     return input;
   }
