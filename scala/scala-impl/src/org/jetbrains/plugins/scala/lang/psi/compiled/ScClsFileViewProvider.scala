@@ -3,143 +3,183 @@ package lang
 package psi
 package compiled
 
+import java.{util => ju}
+
 import com.intellij.lang.Language
-import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager, impl => rootsImpl}
+import com.intellij.openapi.roots.{OrderEntry, OrderRootType, ProjectRootManager, impl => rootsImpl}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFileSystemItem, PsiManager, search}
 import com.intellij.util.Processor
 
 import scala.annotation.tailrec
 
-private final class ScClsFileViewProvider(sourceName: String,
-                                          override val getContents: String,
-                                          eventSystemEnabled: Boolean)
-                                         (implicit manager: PsiManager, file: VirtualFile)
+final class ScClsFileViewProvider(private val sourceName: String,
+                                  override val getContents: String,
+                                  eventSystemEnabled: Boolean)
+                                 (implicit manager: PsiManager, file: VirtualFile)
   extends impl.ScFileViewProviderFactory.ScFileViewProvider(eventSystemEnabled) {
 
-  //noinspection TypeAnnotation
-  override def createFile(language: Language) =
-    new impl.ScalaFileImpl(this) {
-
-      import search.GlobalSearchScope
-
-      override def isCompiled: Boolean = true
-
-      override def getVirtualFile: VirtualFile = ScClsFileViewProvider.this.getVirtualFile
-
-      override def getNavigationElement: PsiElement =
-        findSourceForCompiledFile(getVirtualFile).flatMap { file =>
-          Option(getManager.findFile(file))
-        }.getOrElse {
-          super.getNavigationElement
-        }
-
-      import macroAnnotations.CachedInUserData
-
-      @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-      override protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope =
-      // this cache is very inefficient when orderEntries.size is large
-        rootsImpl.LibraryScopeCache.getInstance(getProject).getLibraryScope {
-          orderEntries(file)
-        }
-
-      @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-      private def findSourceForCompiledFile(file: VirtualFile): Option[VirtualFile] = findInLibSources(file) match {
-        case result: Some[VirtualFile] => result
-        case _ =>
-          //Look in libraries sources if file not relative to path
-          typeDefinitions.headOption match {
-            case Some(typeDefinition) =>
-              val qualifiedName = typeDefinition.qualifiedName
-              var result = Option.empty[VirtualFile]
-
-              val processor = new Processor[PsiFileSystemItem] {
-                override def process(item: PsiFileSystemItem): Boolean = {
-                  val sourceFile = item.getVirtualFile
-                  val clazzIterator = getManager.findFile(sourceFile) match {
-                    case scalaFile: api.ScalaFile => scalaFile.typeDefinitions.iterator
-                    case classOwner: PsiClassOwner => classOwner.getClasses.iterator
-                    case _ => Iterator.empty
-                  }
-
-                  import extensions.PsiClassExt
-                  while (clazzIterator.hasNext) {
-                    if (qualifiedName == clazzIterator.next().qualifiedName) {
-                      result = Some(sourceFile)
-                      return false
-                    }
-                  }
-
-                  true
-                }
-              }
-
-              search.FilenameIndex.processFilesByName(
-                sourceName,
-                false,
-                processor,
-                GlobalSearchScope.allScope(getProject),
-                getProject,
-                null
-              )
-
-              result
-            case _ => None
-          }
-      }
-
-      private def findInLibSources(file: VirtualFile): Option[VirtualFile] = {
-        val relPath = packagePath match {
-          case "" => sourceName
-          case path => s"$path/$sourceName"
-        }
-
-        // Look in libraries' sources
-        val entryIterator = orderEntries(file).iterator
-        while (entryIterator.hasNext) {
-          val filesIterator = entryIterator.next()
-            .getFiles(OrderRootType.SOURCES)
-            .iterator
-
-          while (filesIterator.hasNext) {
-            filesIterator.next().findFileByRelativePath(relPath) match {
-              case null =>
-              case source if getManager.findFile(source).isInstanceOf[PsiClassOwner] => return Some(source)
-              case _ =>
-            }
-          }
-        }
-
-        None
-      }
-
-      private def orderEntries(file: VirtualFile) =
-        ProjectRootManager.getInstance(getProject).getFileIndex.getOrderEntriesForFile(file)
-
-      private def packagePath: String = {
-        @tailrec
-        def inner(packaging: api.toplevel.ScPackaging, result: StringBuilder): String = {
-          result.append(packaging.packageName)
-          packaging.packagings.headOption match {
-            case Some(implicitPackaging) if !implicitPackaging.isExplicit => inner(implicitPackaging, result.append("/"))
-            case _ => result.toString
-          }
-        }
-
-        val packageName = firstPackaging match {
-          case Some(packaging) if !packaging.isExplicit => inner(packaging, StringBuilder.newBuilder)
-          case _ => ""
-        }
-
-        packageName + typeDefinitions.find(_.isPackageObject)
-          .fold("") { definition =>
-            (if (packageName.length > 0) "/" else "") + definition.name
-          }
-      }
-
-    }
+  override def createFile(language: Language) = new ScClsFileViewProvider.ScClsFileImpl(this)
 
   override protected def createCopy(eventSystemEnabled: Boolean)
                                    (implicit manager: PsiManager, file: VirtualFile) =
     new ScClsFileViewProvider(sourceName, getContents, eventSystemEnabled)
+}
+
+object ScClsFileViewProvider {
+
+  import api.toplevel._
+
+  final class ScClsFileImpl(override val getViewProvider: ScClsFileViewProvider)
+    extends impl.ScalaFileImpl(getViewProvider) {
+
+    import ScClsFileImpl._
+
+    override def isCompiled: Boolean = true
+
+    override def getVirtualFile: VirtualFile = getViewProvider.getVirtualFile
+
+    override def getNavigationElement: PsiElement =
+      findSourceForCompiledFile.flatMap { file =>
+        Option(getManager.findFile(file))
+      }.getOrElse {
+        super.getNavigationElement
+      }
+
+    import macroAnnotations.CachedInUserData
+
+    @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
+    override protected def defaultFileResolveScope(file: VirtualFile): search.GlobalSearchScope = {
+      implicit val manager: PsiManager = getManager
+
+      // this cache is very inefficient when orderEntries.size is large
+      rootsImpl.LibraryScopeCache
+        .getInstance(manager.getProject)
+        .getLibraryScope(orderEntries(file))
+    }
+
+    @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
+    private def findSourceForCompiledFile: Option[VirtualFile] = {
+      implicit val manager: PsiManager = getManager
+      val typeDefinitions = this.typeDefinitions
+
+      findInLibSources(
+        orderEntries(getVirtualFile),
+        relativePath(typeDefinitions)
+      ).orElse {
+        //Look in libraries sources if file not relative to path
+
+        import extensions._
+        typeDefinitions.headOption match {
+          case Some(ClassQualifiedName(qualifiedName)) =>
+            var result = Option.empty[VirtualFile]
+
+            processFilesByName(getViewProvider.sourceName) { item =>
+              val sourceFile = item.getVirtualFile
+              val found = findInSources(sourceFile, qualifiedName)
+              if (found) {
+                result = Some(sourceFile)
+              }
+
+              !found
+            }
+
+            result
+          case _ => None
+        }
+      }
+    }
+
+    private def relativePath(typeDefinitions: Seq[typedef.ScTypeDefinition]) = {
+      val builder = StringBuilder.newBuilder
+
+      buildPackagePath(firstPackaging, builder)
+
+      for {
+        packageObject <- typeDefinitions.find(_.isPackageObject)
+        segment = packageObject.name
+      } builder.appendSegment(segment)
+
+      builder.append(getViewProvider.sourceName).toString
+    }
+  }
+
+  private object ScClsFileImpl {
+
+    @tailrec
+    private def buildPackagePath(maybePackaging: Option[ScPackaging], builder: StringBuilder): StringBuilder =
+      maybePackaging match {
+        case Some(packaging) if !packaging.isExplicit =>
+          buildPackagePath(
+            packaging.packagings.headOption,
+            builder.appendSegment(packaging.packageName)
+          )
+        case _ => builder
+      }
+
+    private def findInLibSources(entries: ju.List[OrderEntry], relPath: String)
+                                (implicit manager: PsiManager): Option[VirtualFile] = {
+      val entriesIterator = entries.iterator
+
+      while (entriesIterator.hasNext) {
+        val filesIterator = entriesIterator.next()
+          .getFiles(OrderRootType.SOURCES)
+          .iterator
+
+        while (filesIterator.hasNext) {
+          filesIterator.next().findFileByRelativePath(relPath) match {
+            case null =>
+            case sourceFile if findFile(sourceFile).isInstanceOf[PsiClassOwner] => return Some(sourceFile)
+            case _ =>
+          }
+        }
+      }
+
+      None
+    }
+
+    private def findInSources(sourceFile: VirtualFile, qualifiedName: String)
+                             (implicit manager: PsiManager) = {
+      val clazzIterator = findFile(sourceFile) match {
+        case scalaFile: api.ScalaFile => scalaFile.typeDefinitions.iterator
+        case classOwner: PsiClassOwner => classOwner.getClasses.iterator
+        case _ => Iterator.empty
+      }
+
+      import extensions._
+      clazzIterator.exists(_.qualifiedName == qualifiedName)
+    }
+
+    private def processFilesByName(name: String)
+                                  (processor: Processor[PsiFileSystemItem])
+                                  (implicit manager: PsiManager) = {
+      val project = manager.getProject
+      search.FilenameIndex.processFilesByName(
+        name,
+        false,
+        processor,
+        search.GlobalSearchScope.allScope(project),
+        project,
+        null
+      )
+    }
+
+    private def orderEntries(file: VirtualFile)
+                            (implicit manager: PsiManager) =
+      ProjectRootManager.getInstance(manager.getProject)
+        .getFileIndex
+        .getOrderEntriesForFile(file)
+
+    private def findFile(file: VirtualFile)
+                        (implicit manager: PsiManager) =
+      manager.findFile(file)
+
+    private implicit class StringBuilderExt(private val builder: StringBuilder) extends AnyVal {
+
+      def appendSegment(segment: String): StringBuilder =
+        builder.append(segment).append('/')
+    }
+
+  }
+
 }

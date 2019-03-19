@@ -10,7 +10,6 @@ import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
@@ -350,9 +349,6 @@ object ScalaFileImpl {
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
 
-  private def fileIndex(project: Project) =
-    ProjectRootManager.getInstance(project).getFileIndex
-
   /**
    * @param _place actual place, can be null, if null => false
    * @return true, if place is out of source content root, or in Scala Worksheet.
@@ -370,7 +366,7 @@ object ScalaFileImpl {
         val file = scalaFile.getVirtualFile
         if (file == null) return false
 
-        val index = fileIndex(place.getProject)
+        val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
         !(index.isInSourceContent(file) ||
           index.isInLibraryClasses(file) ||
           index.isInLibrarySource(file))
