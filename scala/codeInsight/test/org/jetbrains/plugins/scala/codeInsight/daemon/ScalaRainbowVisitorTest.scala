@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package daemon
 
+import com.intellij.openapi.util.text.StringUtil
+
 class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaRainbowVisitorTest.{END_TAG => E, START_TAG => S, START_TAG_1 => S_1, START_TAG_2 => S_2, START_TAG_3 => S_3, START_TAG_4 => S_4}
@@ -110,7 +112,12 @@ class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestAdapt
   private def doTest(text: String,
                      isRainbowOn: Boolean = true,
                      withColor: Boolean = true): Unit =
-    getFixture.testRainbow("dummy.scala", text, isRainbowOn, withColor)
+    getFixture.testRainbow(
+      "dummy.scala",
+      StringUtil.convertLineSeparators(text),
+      isRainbowOn,
+      withColor
+    )
 }
 
 object ScalaRainbowVisitorTest {
