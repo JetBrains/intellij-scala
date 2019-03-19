@@ -29,8 +29,28 @@ lazy val scalaCommunity: sbt.Project =
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
-      javaDecompilerIntegration)
-    .settings(
+      javaDecompilerIntegration
+    ).aggregate(
+      scalaApi,
+      codeInsight,
+      conversion,
+      scalaImpl,
+      compilerJps,
+      repackagedZinc,
+      compilerShared,
+      runners,
+      nailgunRunners,
+      decompiler,
+      macroAnnotations,
+      bsp,
+      androidIntegration,
+      copyrightIntegration,
+      gradleIntegration,
+      intelliLangIntegration,
+      mavenIntegration,
+      propertiesIntegration,
+      javaDecompilerIntegration
+  ).settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
