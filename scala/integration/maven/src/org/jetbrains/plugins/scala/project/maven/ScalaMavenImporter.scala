@@ -12,7 +12,7 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.impl.libraries.LibraryEx.ModifiableModelEx
 import org.jdom.Element
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
-import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenId => IdeaMavenId, MavenPlugin}
+import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
 import org.jetbrains.plugins.scala.extensions._
@@ -94,8 +94,8 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       val repositories = mavenProject.getRemoteRepositories
 
       def resolve(id: MavenId): MavenArtifact = {
-        embedder.resolve(new MavenArtifactInfo(id.asIdea, "pom", null), repositories)
-        embedder.resolve(new MavenArtifactInfo(id.asIdea, "jar", id.classifier.orNull), repositories)
+        embedder.resolve(new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "pom", null), repositories)
+        embedder.resolve(new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "jar", id.classifier.orNull), repositories)
       }
 
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
@@ -194,7 +194,5 @@ private object ScalaMavenImporter {
     * Represents a Maven artifact by group, artifact, version and optional classifier.
     * Similar to [[org.jetbrains.idea.maven.model.MavenId]], but supports classifier.
     */
-  private case class MavenId(groupId: String, artifactId: String, version: String, classifier: Option[String] = None) {
-    def asIdea = new IdeaMavenId(groupId, artifactId, version)
-  }
+  private case class MavenId(groupId: String, artifactId: String, version: String, classifier: Option[String] = None)
 }
