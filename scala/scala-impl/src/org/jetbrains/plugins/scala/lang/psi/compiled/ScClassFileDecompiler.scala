@@ -3,12 +3,10 @@ package lang
 package psi
 package compiled
 
-import com.intellij.lang.LanguageParserDefinitions
+import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, newvfs}
-import com.intellij.psi.{PsiManager, SingleRootFileViewProvider, compiled}
+import com.intellij.psi.{PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled}
 import com.intellij.util.indexing.FileContent
 
 final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
@@ -34,7 +32,7 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
 object ScClassFileDecompiler {
 
-  import impl.{ScFileViewProviderFactory, ScalaFileImpl, ScalaPsiElementFactory}
+  import impl.ScFileViewProviderFactory
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
@@ -60,10 +58,16 @@ object ScClassFileDecompiler {
 
       content.getFile match {
         case file if file.isInnerClass => null
-        case DecompilationResult(sourceName, sourceText) =>
-          val scalaFile = ScalaPsiElementFactory.createScalaFileFromText(sourceText)(content.getProject)
-            .asInstanceOf[ScalaFileImpl]
-          scalaFile.sourceName = Some(sourceName)
+        case original@DecompilationResult(sourceName, sourceText) =>
+          val scalaFile = PsiFileFactory.getInstance(content.getProject).createFileFromText(
+            sourceName,
+            ScalaLanguage.INSTANCE,
+            sourceText,
+            true,
+            true,
+            false,
+            original
+          )
 
           LanguageParserDefinitions.INSTANCE
             .forLanguage(ScalaLanguage.INSTANCE)
@@ -76,31 +80,11 @@ object ScClassFileDecompiler {
     }
   }
 
-  import ScFileViewProviderFactory.ScFileViewProvider
-
-  private final class ScClsFileViewProvider(sourceName: String,
-                                            override val getContents: String,
-                                            eventSystemEnabled: Boolean)
-                                           (implicit manager: PsiManager, file: VirtualFile)
-    extends ScFileViewProvider(eventSystemEnabled) {
-
-    override def createFile(project: Project,
-                            file: VirtualFile,
-                            fileType: FileType) =
-      new ScalaFileImpl(this, sourceName = Some(sourceName))
-
-    override protected def createCopy(eventSystemEnabled: Boolean)
-                                     (implicit manager: PsiManager, file: VirtualFile) =
-      new ScClsFileViewProvider(sourceName, getContents, eventSystemEnabled)
-  }
-
   private final class NonScalaClassFileViewProvider(eventSystemEnabled: Boolean)
                                                    (implicit manager: PsiManager, file: VirtualFile)
-    extends ScFileViewProvider(eventSystemEnabled) {
+    extends ScFileViewProviderFactory.ScFileViewProvider(eventSystemEnabled) {
 
-    override def createFile(project: Project,
-                            file: VirtualFile,
-                            fileType: FileType): Null = null
+    override def createFile(language: Language): Null = null
 
     override def getContents = ""
 

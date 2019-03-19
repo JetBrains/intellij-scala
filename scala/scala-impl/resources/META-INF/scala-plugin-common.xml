@@ -132,6 +132,8 @@
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
+      <lang.fileViewProviderFactory language="Scala"
+                                    implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScFileViewProviderFactory"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>

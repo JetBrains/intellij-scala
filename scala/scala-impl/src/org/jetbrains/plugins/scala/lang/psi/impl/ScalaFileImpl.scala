@@ -10,16 +10,15 @@ import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
-import com.intellij.openapi.roots.impl.LibraryScopeCache
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
-import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiUtilCore
-import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
@@ -39,8 +38,7 @@ import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
 
 class ScalaFileImpl(viewProvider: FileViewProvider,
-                    override val getFileType: LanguageFileType = ScalaFileType.INSTANCE,
-                    var sourceName: Option[String] = None)
+                    override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
   extends PsiFileBase(viewProvider, getFileType.getLanguage)
     with ScalaFile
     with FileDeclarationsHolder
@@ -55,7 +53,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     visitor.visitFile(this)
   }
 
-  override final def isCompiled: Boolean = sourceName.isDefined
+  override def isCompiled: Boolean = false
 
   override def toString: String = "ScalaFile: " + getName
 
@@ -66,90 +64,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     findChildByClass[T](clazz)
 
   override final def getName: String = super.getName
-
-  override final def getVirtualFile: VirtualFile =
-    if (isCompiled) getViewProvider.getVirtualFile
-    else super.getVirtualFile
-
-  override def getNavigationElement: PsiElement = sourceName
-    .flatMap(findSourceForCompiledFile)
-    .flatMap { file =>
-      Option(getManager.findFile(file))
-    }.getOrElse {
-    super.getNavigationElement
-  }
-
-  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-  private def findSourceForCompiledFile(sourceName: String): Option[VirtualFile] = {
-    val inner: String = getPackageNameInner
-    val pName = inner + typeDefinitions.find(_.isPackageObject)
-      .fold("") { definition =>
-        (if (inner.length > 0) "." else "") + definition.name
-      }
-
-    val relPath = if (pName.length == 0) sourceName
-    else pName.replace(".", "/") + "/" + sourceName
-
-    // Look in libraries' sources
-    val vFile = getContainingFile.getVirtualFile
-    val index = ProjectRootManager.getInstance(getProject).getFileIndex
-    val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
-    var entryIterator = entries.iterator
-    while (entryIterator.hasNext) {
-      val entry = entryIterator.next()
-      // Look in sources of an appropriate entry
-      val files = entry.getFiles(OrderRootType.SOURCES)
-      val filesIterator = files.iterator
-      while (filesIterator.nonEmpty) {
-        val file = filesIterator.next()
-        val source = file.findFileByRelativePath(relPath)
-        if (source != null) {
-          val psiSource = getManager.findFile(source)
-          psiSource match {
-            case _: PsiClassOwner => return Some(source)
-            case _ =>
-          }
-        }
-      }
-    }
-    entryIterator = entries.iterator
-
-    //Look in libraries sources if file not relative to path
-    val qual = typeDefinitions.headOption.fold {
-      return None
-    }(_.qualifiedName)
-    var result: Option[VirtualFile] = None
-
-    FilenameIndex.processFilesByName(sourceName, false, new Processor[PsiFileSystemItem] {
-      override def process(t: PsiFileSystemItem): Boolean = {
-        val source = t.getVirtualFile
-        getManager.findFile(source) match {
-          case o: ScalaFile =>
-            val clazzIterator = o.typeDefinitions.iterator
-            while (clazzIterator.hasNext) {
-              val clazz = clazzIterator.next()
-              if (qual == clazz.qualifiedName) {
-                result = Some(source)
-                return false
-              }
-            }
-          case o: PsiClassOwner =>
-            val clazzIterator = o.getClasses.iterator
-            while (clazzIterator.hasNext) {
-              val clazz = clazzIterator.next()
-              if (qual == clazz.qualifiedName) {
-                result = Some(source)
-                return false
-              }
-            }
-          case _ =>
-        }
-        true
-      }
-    }, GlobalSearchScope.allScope(getProject), getProject, null)
-
-    result
-  }
 
   def isScriptFileImpl: Boolean = {
     val empty = this.children.forall {
@@ -311,22 +225,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     inner(packagings, StringBuilder.newBuilder)
   }
 
-  private def getPackageNameInner: String = {
-    @tailrec
-    def inner(p: ScPackaging, result: StringBuilder): String = {
-      result ++= p.packageName
-      p.packagings.headOption match {
-        case Some(packaging) if !packaging.isExplicit => inner(packaging, result.append("."))
-        case _ => result.toString
-      }
-    }
-
-    firstPackaging match {
-      case Some(packaging) if !packaging.isExplicit => inner(packaging, StringBuilder.newBuilder)
-      case _ => ""
-    }
-  }
-
   override def getClasses: Array[PsiClass] =
     if (isScriptFile || isWorksheetFile) PsiClass.EMPTY_ARRAY
     else {
@@ -375,24 +273,13 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   def packagingRanges: Seq[TextRange] =
     this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
-  def getFileResolveScope: GlobalSearchScope = {
-    getOriginalFile.getVirtualFile match {
-      case file if file != null && file.isValid =>
-        if (isCompiled) compiledFileResolveScope
-        else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
-      case _ => GlobalSearchScope.allScope(getProject)
-    }
+  def getFileResolveScope: GlobalSearchScope = getVirtualFile match {
+    case file if file != null && file.isValid => defaultFileResolveScope(file)
+    case _ => GlobalSearchScope.allScope(getProject)
   }
 
-  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-  private def compiledFileResolveScope: GlobalSearchScope = {
-    val file = getOriginalFile.getVirtualFile
-    val orderEntries = ProjectRootManager.getInstance(getProject)
-      .getFileIndex
-      .getOrderEntriesForFile(file)
-    LibraryScopeCache.getInstance(getProject)
-      .getLibraryScope(orderEntries) //this cache is very inefficient when orderEntries.size is large
-  }
+  protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope =
+    ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
@@ -463,6 +350,9 @@ object ScalaFileImpl {
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
 
+  private def fileIndex(project: Project) =
+    ProjectRootManager.getInstance(project).getFileIndex
+
   /**
    * @param _place actual place, can be null, if null => false
    * @return true, if place is out of source content root, or in Scala Worksheet.
@@ -473,15 +363,17 @@ object ScalaFileImpl {
       case _ => _place
     }
     if (place == null) return false
-    val containingFile: PsiFile = place.getContainingFile
-    if (containingFile == null) return false
-    containingFile match {
-      case s: ScalaFile =>
-        if (s.isWorksheetFile) return true
-        val file: VirtualFile = s.getVirtualFile
+
+    place.getContainingFile match {
+      case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true
+      case scalaFile: ScalaFile =>
+        val file = scalaFile.getVirtualFile
         if (file == null) return false
-        val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-        !(index.isInSourceContent(file) || index.isInLibraryClasses(file) || index.isInLibrarySource(file))
+
+        val index = fileIndex(place.getProject)
+        !(index.isInSourceContent(file) ||
+          index.isInLibraryClasses(file) ||
+          index.isInLibrarySource(file))
       case _ => false
     }
   }
