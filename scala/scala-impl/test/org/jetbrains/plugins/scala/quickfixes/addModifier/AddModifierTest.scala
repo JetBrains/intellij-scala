@@ -2,37 +2,36 @@ package org.jetbrains.plugins.scala
 package quickfixes
 package addModifier
 
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
- * User: Alefas
- * Date: 20.10.11
- */
+  * User: Alefas
+  * Date: 20.10.11
+  */
 
-class AddModifierTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+class AddModifierTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
+
+  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testAbstractModifier(): Unit = {
     configureFromFileTextAdapter(
       "dummy.scala",
-      """
-        |@Deprecated
-        |class Foo<caret> extends Runnable
-      """.stripMargin
+      s"@Deprecated class Foo$CARET extends Runnable"
     )
 
+    import extensions._
     val place = getFileAdapter.findElementAt(getEditorAdapter.getCaretModel.getOffset)
-    place.parentOfType(classOf[ScModifierListOwner]).foreach { owner =>
-      inWriteAction(owner.setModifierProperty("abstract"))
+    PsiTreeUtil.getParentOfType(place, classOf[ScModifierListOwner]) match {
+      case null =>
+      case owner => inWriteAction {
+        owner.getModifierList.setModifierProperty(ScalaModifier.ABSTRACT, true)
+      }
     }
 
-    checkResultByText(
-      """
-        |@Deprecated
-        |abstract class Foo<caret> extends Runnable
-      """.stripMargin
-    )
+    checkResultByText(s"@Deprecated abstract class Foo$CARET extends Runnable")
   }
 
 }
