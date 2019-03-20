@@ -36,7 +36,7 @@ object ScClassFileDecompiler {
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
-    override val getStubVersion = 315
+    override val getStubVersion = 316
 
     // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
     private[compiled] val DecompilerFileAttribute = ApplicationManager.getApplication match {

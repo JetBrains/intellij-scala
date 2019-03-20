@@ -83,7 +83,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
-  override def isScriptFile: Boolean = foldStub(isScriptFileImpl)(_.isScript)
+  override def isScriptFile: Boolean = !isCompiled &&
+    foldStub(isScriptFileImpl)(Function.const(super.isScriptFile))
 
   override def isWorksheetFile: Boolean = {
     this.findVirtualFile.exists { virtualFile =>

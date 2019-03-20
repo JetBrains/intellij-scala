@@ -5,7 +5,4 @@ package stubs
 
 import com.intellij.psi.stubs.PsiClassHolderFileStub
 
-trait ScFileStub extends PsiClassHolderFileStub[api.ScalaFile] {
-
-  def isScript: Boolean
-}
+trait ScFileStub extends PsiClassHolderFileStub[api.ScalaFile]

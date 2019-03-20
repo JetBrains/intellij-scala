@@ -9,9 +9,7 @@ import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.stubs._
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
 
-/**
-  * @author ilyas
-  */
+//noinspection TypeAnnotation
 class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   extends tree.IStubFileElementType[ScFileStub]("file", language) {
 
@@ -26,40 +24,33 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   override def getExternalId = "scala.file"
 
   override final def serialize(stub: ScFileStub,
-                               dataStream: StubOutputStream): Unit = {
-    dataStream.writeBoolean(stub.isScript)
-  }
+                               dataStream: StubOutputStream): Unit = {}
 
   override final def deserialize(dataStream: StubInputStream,
-                                 parentStub: StubElement[_ <: PsiElement]): ScFileStubImpl =
-    new ScFileStubImpl(null) {
-      override val isScript: Boolean = dataStream.readBoolean()
-    }
+                                 parentStub: StubElement[_ <: PsiElement]) =
+    new ScFileStubImpl(null)
 
   override final def indexStub(stub: ScFileStub,
                                sink: IndexSink): Unit = {}
 
   import api.ScalaFile
 
-  protected def instantiateFileStub(scalaFile: ScalaFile) = new ScFileStubImpl(scalaFile)
-
   protected class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
-    override def buildStubTree(file: PsiFile): ScFileStubImpl =
+    override def buildStubTree(file: PsiFile) =
       super.buildStubTree(file).asInstanceOf[ScFileStubImpl]
 
-    protected override def createStubForFile(file: PsiFile): ScFileStubImpl = file match {
-      case ScStubFileElementType.ViewProvider(scalaFile: ScalaFile) => instantiateFileStub(scalaFile)
+    protected override def createStubForFile(file: PsiFile) = file match {
+      case ScStubFileElementType.ViewProvider(scalaFile: ScalaFile) => new ScFileStubImpl(scalaFile)
     }
   }
 
-  protected class ScFileStubImpl(file: ScalaFile,
-                                 override val getType: ScStubFileElementType = this)
+  protected final class ScFileStubImpl(file: ScalaFile)
     extends PsiFileStubImpl(file) with ScFileStub {
 
-    override def isScript: Boolean = getPsi.isScriptFileImpl
+    override def getType = ScStubFileElementType.this
 
-    override final def getClasses: Array[PsiClass] = getChildrenByType(
+    override def getClasses: Array[PsiClass] = getChildrenByType(
       TokenSets.TYPE_DEFINITIONS,
       PsiClass.ARRAY_FACTORY
     )
