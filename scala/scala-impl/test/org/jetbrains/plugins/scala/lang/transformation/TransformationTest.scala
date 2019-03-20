@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package transformation
 
-import com.intellij.openapi.util.{TextRange, text => textUtils}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.assertEquals
 
 /**
@@ -16,14 +17,26 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestA
   protected val header: String = ""
 
   import TransformationTest._
-  import extensions._
 
   protected def transform(element: PsiElement, file: PsiFile, reformat: Transformer.ReformatAction): Unit
 
-  protected def check(@Language("Scala") before: String,
+  protected final def check(@Language("Scala") before: String,
                       @Language("Scala") after: String)
                      (@Language("Scala") header: String = "",
                       @Language("Scala") footer: String = ""): Unit = {
+    doCheck(
+      before.withNormalizedSeparator,
+      after.withNormalizedSeparator
+    )(
+      header.withNormalizedSeparator,
+      footer.withNormalizedSeparator
+    )
+  }
+
+  private def doCheck(@Language("Scala") before: String,
+                      @Language("Scala") after: String)
+                     (@Language("Scala") header: String,
+                      @Language("Scala") footer: String): Unit = {
     implicit val headerAndFooter: (String, String) = (createHeader(header), footer)
 
     val actualFile = configureByText(before)
@@ -42,26 +55,29 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestA
     val expectedFile = configureByText(afterCode)
     assertEquals(psiToString(expectedFile), psiToString(actualFile))
 
-    assertEquals(sortRanges(expectedReformatRangesWithHeader), sortRanges(actualRewriteTextRanges))
+    assertEquals(
+      sortRanges(expectedReformatRangesWithHeader),
+      sortRanges(actualRewriteTextRanges)
+    )
   }
 
   private def createHeader(header: String) =
     s"""$PredefinedHeader
        |${this.header}
-       |$header""".stripMargin
+       |$header""".stripMargin.withNormalizedSeparator
 
   private def configureByText(text: String)
-                             (implicit headerAndFooter: (String, String)) = {
+                             (implicit headerAndFooter: (String, String)): PsiFile = {
     val (header, footer) = headerAndFooter
     val fileText =
       s"""$header
          |$text
-         |$footer""".stripMargin
+         |$footer""".stripMargin.withNormalizedSeparator
 
     PsiFileFactory.getInstance(getProject).createFileFromText(
       "foo.scala",
       ScalaFileType.INSTANCE,
-      textUtils.StringUtil.convertLineSeparators(fileText)
+      fileText
     )
   }
 
@@ -73,13 +89,13 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestA
 object TransformationTest {
   val ScalaSourceHeader = "import scala.io.Source"
 
-  private val PredefinedHeader =
+  private val PredefinedHeader: String =
     s"""class A { def a(): Unit = _ }
        |class B { def b(): Unit = _ }
        |class C { def c(): Unit = _ }
        |object A extends A
        |object B extends B
-       |object C extends C""".stripMargin
+       |object C extends C""".stripMargin.withNormalizedSeparator
 
   private def psiToString(file: PsiFile): String =
     DebugUtil.psiToString(file, false)
