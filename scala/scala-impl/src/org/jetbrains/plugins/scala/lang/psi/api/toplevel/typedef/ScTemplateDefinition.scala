@@ -191,7 +191,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeAliases: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getTypes(this).allFirstSeq().flatMap(n => n.map {
+  def allTypeAliases: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getTypes(this).forAllNames().flatMap(n => n.map {
     case (_, x) => (x.info, x.substitutor)
   })
 
@@ -201,7 +201,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allFirstSeq().
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).forAllNames().
               flatMap(_.map { case (_, n) => (n.info, n.substitutor) })
           case _ =>
             allTypeAliases
@@ -212,7 +212,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   }
 
   def allVals: Seq[(PsiNamedElement, ScSubstitutor)] =
-    TypeDefinitionMembers.getSignatures(this).allFirstSeq()
+    TypeDefinitionMembers.getSignatures(this).forAllNames()
       .flatMap(n => n.filter {
         case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
           (x.info.namedElement match {
@@ -233,7 +233,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().flatMap(n => n.filter{
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).forAllNames().flatMap(n => n.filter{
               case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
                 (x.info.namedElement match {
                   case v =>
@@ -252,7 +252,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   }
 
   def allMethods: Iterable[PhysicalSignature] =
-    TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.filter {
+    TypeDefinitionMembers.getSignatures(this).forAllNames().flatMap(_.filter {
       case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
       map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] }
 
@@ -262,7 +262,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().flatMap(_.filter {
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).forAllNames().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
               map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] }
           case _ =>
@@ -274,7 +274,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   }
 
   def allSignatures: Seq[Signature] =
-    TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.map { case (_, n) => n.info })
+    TypeDefinitionMembers.getSignatures(this).forAllNames().flatMap(_.map { case (_, n) => n.info })
 
   def allSignaturesIncludingSelfType: Seq[Signature] = {
     selfType match {
@@ -282,7 +282,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).forAllNames().
               flatMap(_.map { case (_, n) => n.info })
           case _ =>
             allSignatures
@@ -431,7 +431,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   }
 
   def functionsByName(name: String): Seq[PsiMethod] = {
-    for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield p.method
+    for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)) yield p.method
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {

@@ -369,7 +369,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
-    for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield s
+    for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)) yield s
   }
 
   override def getNameIdentifier: PsiIdentifier = {

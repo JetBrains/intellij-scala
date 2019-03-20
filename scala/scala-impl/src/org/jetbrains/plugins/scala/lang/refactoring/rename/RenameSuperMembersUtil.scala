@@ -169,7 +169,7 @@ object RenameSuperMembersUtil {
     val signatures =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(aClass)
       else TypeDefinitionMembers.getSignatures(aClass)
-    val allSigns = signatures.forName(named.name)._1
+    val allSigns = signatures.forName(named.name)
     val signs = allSigns.filter(sign => sign._1.namedElement == named)
     signs.flatMap(sign => sign._2.supers.map(_.info.namedElement))
   }
@@ -185,7 +185,7 @@ object RenameSuperMembersUtil {
     val types =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(aClass)
       else TypeDefinitionMembers.getTypes(aClass)
-    val forName = types.forName(named.name)._1
+    val forName = types.forName(named.name)
     val typeAliases = forName.filter(ta => ScalaNamesUtil.scalaName(ta._1) == named.name)
     typeAliases.flatMap(ta => ta._2.supers.map(_.info))
   }

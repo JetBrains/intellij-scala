@@ -311,7 +311,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def superMethods: Seq[PsiMethod] = {
     val clazz = containingClass
-    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name))._1.
+    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name)).
       get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
       filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
     else Seq.empty
@@ -322,7 +322,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
     val clazz = containingClass
     if (clazz != null) {
-      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
+      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name).
         fastPhysicalSignatureGet(new PhysicalSignature(this, ScSubstitutor.empty))
       if (option.isEmpty) return None
       option.get.primarySuper.filter(_.info.isInstanceOf[PhysicalSignature]).
@@ -336,7 +336,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name))._1.
+    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name)).
       fastPhysicalSignatureGet(s) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq[Signature]()
@@ -350,7 +350,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (clazz == null) return Seq(s)
     val withSelf = clazz.selfType.isDefined
     if (withSelf) {
-      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaNamesUtil.clean(name))._1
+      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaNamesUtil.clean(name))
       signs.fastPhysicalSignatureGet(s) match {
         case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
         case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
@@ -361,7 +361,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         }
       }
     } else {
-      TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name))._1.
+      TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name)).
         fastPhysicalSignatureGet(s) match {
         case Some(x) => x.supers.map { _.info }
         case None => Seq.empty

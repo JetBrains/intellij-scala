@@ -219,7 +219,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     if (isInstanceOf[ScTrait]) return
 
     val signatures = TypeDefinitionMembers.getSignatures(this)
-      .allFirstSeq()
+      .forAllNames()
       .flatMap {
         _.map(_._2)
       }

@@ -168,7 +168,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       val signatureMap = TypeDefinitionMembers.getSignatures(aClass)
       val signaturesForNamed =
         signatureMap
-          .forName(named.name)._1
+          .forName(named.name)
           .filter(sign => sign._1.namedElement == named)
       signaturesForNamed.flatMap(_._2.supers.map(_.info))
     }

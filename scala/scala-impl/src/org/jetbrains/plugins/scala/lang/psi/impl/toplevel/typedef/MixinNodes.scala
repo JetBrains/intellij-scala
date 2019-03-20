@@ -37,6 +37,7 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 abstract class MixinNodes[T: SignatureStrategy] {
   type Map = MixinNodes.Map[T]
+  type SupersMap = MixinNodes.SupersMap[T]
   type Node = MixinNodes.Node[T]
 
   def shouldSkip(t: T): Boolean
@@ -89,7 +90,9 @@ abstract class MixinNodes[T: SignatureStrategy] {
     map
   }
 
-  private def superTypeMap(superType: ScType, thisTypeSubst: ScSubstitutor, isPredef: Boolean): Map = {
+  private def superTypeMap(superType: ScType, thisTypeSubst: ScSubstitutor, isPredef: Boolean): SupersMap = {
+    val newMap = new SupersMap
+
     superType.extractClassType match {
       case Some((superClass, s)) =>
         // Do not include scala.ScalaObject to Predef's base types to prevent SOE
@@ -100,25 +103,17 @@ abstract class MixinNodes[T: SignatureStrategy] {
             case _ => ScSubstitutor.empty
           }
           val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
-          val newMap = new Map
 
           addAllFrom(superClass, newSubst, newMap)
-
-          newMap
         }
-        else MixinNodes.emptyMap
       case _ =>
         dealias(superType) match {
           case cp: ScCompoundType =>
-            val newMap = new Map
             processRefinement(cp, newMap)
-            newMap
           case _ =>
-            MixinNodes.emptyMap
         }
-
     }
-
+    newMap
   }
 
   private def addSuperSignatures(superTypes: Seq[ScType],
@@ -126,14 +121,9 @@ abstract class MixinNodes[T: SignatureStrategy] {
                                  map: Map,
                                  isPredef: Boolean = false): Unit = {
 
-    val iter = superTypes.iterator
-    val superTypesBuff = new ArrayBuffer[Map](superTypes.size)
-
-    while (iter.hasNext) {
-      val superType = iter.next()
-      superTypesBuff += superTypeMap(superType, thisTypeSubst, isPredef)
+    for (superType <- superTypes) {
+      map.addSupersMap(superTypeMap(superType, thisTypeSubst, isPredef))
     }
-    map.setSupersMap(superTypesBuff)
   }
 
   private def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
@@ -142,6 +132,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
     ScSubstitutor.bind(typeParameters, substedTpts)
   }
 
+  @tailrec
   private def addAllFrom(clazz: PsiClass, substitutor: ScSubstitutor, map: Map): Unit = {
     clazz match {
       case null                     => ()
@@ -161,7 +152,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
 object MixinNodes {
   private type SigToNode[T] = (T, Node[T])
 
-  class Node[T](val info: T, val substitutor: ScSubstitutor) {
+  class Node[T](val info: T, val substitutor: ScSubstitutor, val fromSuper: Boolean) {
     var supers: Seq[Node[T]] = Seq.empty
     var primarySuper: Option[Node[T]] = None
   }
@@ -170,12 +161,38 @@ object MixinNodes {
     import strategy._
 
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
-    private val publicsMap: mutable.HashMap[String, NodesMap[T]] = mutable.HashMap.empty
-    private val privatesMap: mutable.HashMap[String, PrivateNodesSet[T]] = mutable.HashMap.empty
+    protected val publicsMap: mutable.HashMap[String, NodesMap[T]] = mutable.HashMap.empty
+    protected val privatesMap: mutable.HashMap[String, PrivateNodesSet[T]] = mutable.HashMap.empty
+
+    private val thisAndSupersMap = ContainerUtil.newConcurrentMap[String, AllNodes[T]]()
+
+    private val superMaps: ArrayBuffer[SupersMap[T]] = new ArrayBuffer(4) //looks like a reasonable default initial size
+
+    protected lazy val allNames: Seq[String] = {
+      val names = new mutable.HashSet[String]
+      names ++= publicsMap.keySet
+      names ++= privatesMap.keySet
+      for (sup <- superMaps) {
+        names ++= sup.allNames
+      }
+      names.toSeq
+    }
+
+    lazy val forImplicits: Seq[SigToNode[T]] = {
+      val res = new ArrayBuffer[SigToNode[T]](implicitNames.size)
+      val iterator = implicitNames.iterator()
+      while (iterator.hasNext) {
+        val thisMap = forName(iterator.next)
+        res ++= thisMap.flatMap(implicitEntry)
+      }
+      res
+    }
+
+    protected def fromSuper: Boolean = false
 
     private[MixinNodes] def addToMap(key: T, substitutor: ScSubstitutor) {
       val name = ScalaNamesUtil.clean(elemName(key))
-      val node = new Node(key, substitutor)
+      val node = new Node(key, substitutor, fromSuper)
       if (isPrivate(key)) {
         privatesMap.getOrElseUpdate(name, PrivateNodesSet.empty).add(node)
       }
@@ -198,85 +215,54 @@ object MixinNodes {
                       isSupers: Boolean,
                       onlyImplicit: Boolean = false): Iterator[Node[T]] = {
 
-      if (decodedName != "") {
-        val allForName =
-          if (!isSupers) forName(decodedName)._1 else forName(decodedName)._2
-        allForName.nodesIterator
-      } else if (onlyImplicit) {
-        forImplicits().iterator.map(_._2)
-      } else {
-        val allNodesSeq = if (!isSupers) allFirstSeq() else allSecondSeq()
-        allNodesSeq.iterator.flatMap(_.nodesIterator)
-      }
+      val allIterator =
+        if (decodedName != "")
+          forName(decodedName).nodesIterator
+        else if (onlyImplicit)
+          forImplicits.iterator.map(_._2)
+        else
+          forAllNames().iterator.flatMap(_.nodesIterator)
+
+      if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
+      else allIterator
     }
 
-    @volatile
-    private var superMaps: Seq[Map[T]] = Nil
-    def setSupersMap(list: Seq[Map[T]]) {
-      for (m <- list) {
-        implicitNames.addAll(m.implicitNames)
-      }
-      superMaps = list
+    private[MixinNodes] def addSupersMap(supersMap: SupersMap[T]): Unit = {
+      implicitNames.addAll(supersMap.implicitNames)
+      superMaps += supersMap
     }
 
-    private val thisAndSupersMap = ContainerUtil.newConcurrentMap[String, (AllNodes[T], AllNodes[T])]()
-
-    def forName(name: String): (AllNodes[T], AllNodes[T]) = {
+    def forName(name: String): AllNodes[T] = {
       val convertedName = ScalaNamesUtil.clean(name)
-      def calculate: (AllNodes[T], AllNodes[T]) = {
+      def calculate: AllNodes[T] = {
         val thisMap: NodesMap[T] = publicsMap.getOrElse(convertedName, NodesMap.empty[T])
         val maps: Seq[NodesMap[T]] = superMaps.map(sup => sup.publicsMap.getOrElse(convertedName, NodesMap.empty))
-        val supers = mergeWithSupers(thisMap, mergeSupers(maps))
+
+        mergeWithSupers(thisMap, mergeSupers(maps))
+
         val supersPrivates = privatesFromSupersForName(convertedName)
         val thisPrivates = privatesMap.getOrElse(convertedName, PrivateNodesSet.empty)
 
         //to show privates from supers as inaccessible instead of unresolved
         thisPrivates.addAll(supersPrivates)
 
-        val thisAllNodes = new AllNodes(thisMap, thisPrivates)
-        val supersAllNodes = new AllNodes(supers, supersPrivates)
-        (thisAllNodes, supersAllNodes)
+        new AllNodes(thisMap, thisPrivates)
       }
       thisAndSupersMap.atomicGetOrElseUpdate(convertedName, calculate)
     }
 
-    @volatile
-    private var forImplicitsCache: Seq[SigToNode[T]] = null
+    def forAllNames(): Seq[AllNodes[T]] = allNames.map(forName)
 
-    def forImplicits(): Seq[SigToNode[T]] = {
-      def implicitEntry(sigToSuper: SigToNode[T]): Option[SigToNode[T]] = {
-        val (sig, primarySuper) = sigToSuper
+    private def implicitEntry(sigToSuper: SigToNode[T]): Option[SigToNode[T]] = {
+      val (sig, primarySuper) = sigToSuper
 
-        val nonAbstract =
-          if (isAbstract(sig) && !isAbstract(primarySuper.info)) primarySuper.info
-          else sig
+      val nonAbstract =
+        if (isAbstract(sig) && !isAbstract(primarySuper.info)) primarySuper.info
+        else sig
 
-        if (isImplicit(nonAbstract))
-          Some((nonAbstract, primarySuper))
-        else None
-      }
-
-      if (forImplicitsCache != null) return forImplicitsCache
-
-      val res = new ArrayBuffer[SigToNode[T]](implicitNames.size)
-      val iterator = implicitNames.iterator()
-      while (iterator.hasNext) {
-        val thisMap = forName(iterator.next)._1
-        res ++= thisMap.flatMap(implicitEntry)
-      }
-      forImplicitsCache = res
-      forImplicitsCache
-    }
-
-    def allNames(): Set[String] = {
-      val names = new mutable.HashSet[String]
-      names ++= publicsMap.keySet
-      names ++= privatesMap.keySet
-      for (sup <- superMaps) {
-        names ++= sup.publicsMap.keySet
-        names ++= sup.privatesMap.keySet
-      }
-      names.toSet
+      if (isImplicit(nonAbstract))
+        Some((nonAbstract, primarySuper))
+      else None
     }
 
     private def privatesFromSupersForName(name: String): PrivateNodesSet[T] = {
@@ -287,8 +273,6 @@ object MixinNodes {
       result.trimToSize()
       result
     }
-
-    private def computeForAllNames(): Unit = allNames().foreach(forName)
 
     def foreachThisSignature(action: T => Unit): Unit = {
       for (nodesMap <- publicsMap.values; node <- nodesMap.values) {
@@ -302,16 +286,6 @@ object MixinNodes {
     def foreachSignature(action: T => Unit): Unit = {
       foreachThisSignature(action)
       superMaps.foreach(_.foreachThisSignature(action))
-    }
-
-    def allFirstSeq(): Seq[AllNodes[T]] = {
-      computeForAllNames()
-      thisAndSupersMap.values().asScala.map(_._1).toSeq
-    }
-
-    def allSecondSeq(): Seq[AllNodes[T]] = {
-      computeForAllNames()
-      thisAndSupersMap.values().asScala.map(_._2).toSeq
     }
 
     private class MultiMap extends mutable.HashMap[T, mutable.Set[Node[T]]] with collection.mutable.MultiMap[T, Node[T]] {
@@ -335,9 +309,8 @@ object MixinNodes {
       res
     }
 
-    //Return primary selected from supersMerged
-    private def mergeWithSupers(thisMap: NodesMap[T], supersMerged: MultiMap): NodesMap[T] = {
-      val primarySupers = new NodesMap[T]
+    //adds nodes from supers to thisMap
+    private def mergeWithSupers(thisMap: NodesMap[T], supersMerged: MultiMap): Unit = {
       for ((key, nodes) <- supersMerged) {
 
         ProgressManager.checkCanceled()
@@ -346,7 +319,6 @@ object MixinNodes {
           case None => nodes.head
           case Some(concrete) => concrete
         }
-        primarySupers += ((key, primarySuper))
 
         def updateThisMap(): Unit = {
           nodes -= primarySuper
@@ -365,7 +337,6 @@ object MixinNodes {
           case None                                                  => updateThisMap()
         }
       }
-      primarySupers
     }
 
     def isSyntheticShadedBy(synth: Node[T], realNode: Node[T]): Boolean =
@@ -373,6 +344,9 @@ object MixinNodes {
 
   }
 
+  class SupersMap[T: SignatureStrategy] extends Map[T] {
+    override def fromSuper: Boolean = true
+  }
 
   object NodesMap {
     def empty[T: SignatureStrategy]: NodesMap[T] = new NodesMap[T]()

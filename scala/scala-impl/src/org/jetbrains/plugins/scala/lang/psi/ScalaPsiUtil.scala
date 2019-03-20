@@ -532,7 +532,7 @@ object ScalaPsiUtil {
     val signatures =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
       else TypeDefinitionMembers.getSignatures(clazz)
-    val sigs = signatures.forName(x.name)._1
+    val sigs = signatures.forName(x.name)
     var res: Seq[Signature] = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(node) if !withSelfType || node.info.namedElement == x => node.supers.map {
@@ -554,7 +554,7 @@ object ScalaPsiUtil {
     val beanMethods = getBeanMethods(typed)
     beanMethods.foreach {
       method =>
-        val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)._1
+        val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
         (sigs.get(new PhysicalSignature(method, ScSubstitutor.empty)): @unchecked) match {
           //partial match
           case Some(node) if !withSelfType || node.info.namedElement == method => res ++= node.supers.map {
@@ -590,7 +590,7 @@ object ScalaPsiUtil {
     }
     if (clazz == null) return Seq.empty
     val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
-    val sigs = types.forName(element.name)._1
+    val sigs = types.forName(element.name)
     (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) if !withSelfType || x.info == element => x.supers
@@ -645,7 +645,7 @@ object ScalaPsiUtil {
   }
 
   def allMethods(clazz: PsiClass): Iterable[PhysicalSignature] =
-    TypeDefinitionMembers.getSignatures(clazz).allFirstSeq().flatMap(_.filter {
+    TypeDefinitionMembers.getSignatures(clazz).forAllNames().flatMap(_.filter {
       case (_, n) => n.info.isInstanceOf[PhysicalSignature]
     }).
       map {
@@ -653,7 +653,7 @@ object ScalaPsiUtil {
       }
 
   def getMethodsForName(clazz: PsiClass, name: String): Seq[PhysicalSignature] = {
-    for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz).forName(name)._1
+    for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz).forName(name)
          if clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static")) yield n
   }
 

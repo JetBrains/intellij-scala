@@ -136,7 +136,7 @@ object ScalaOverridingMemberSearcher {
             val signatures =
               if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(inheritor)
               else TypeDefinitionMembers.getSignatures(inheritor)
-            val signsIterator = signatures.forName(member.name)._1.iterator
+            val signsIterator = signatures.forName(member.name).iterator
             while (signsIterator.hasNext) {
               val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
               if (PsiTreeUtil.getParentOfType(t.namedElement,
