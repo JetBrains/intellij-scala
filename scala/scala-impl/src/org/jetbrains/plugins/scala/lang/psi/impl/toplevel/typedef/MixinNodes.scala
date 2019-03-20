@@ -10,9 +10,8 @@ package typedef
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType}
-import com.intellij.util.AstLoadingFilter
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
-import gnu.trove.TObjectHashingStrategy
+import com.intellij.util.{AstLoadingFilter, SmartList}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -162,7 +161,7 @@ object MixinNodes {
 
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
     protected val publicsMap: mutable.HashMap[String, NodesMap[T]] = mutable.HashMap.empty
-    protected val privatesMap: mutable.HashMap[String, PrivateNodesSet[T]] = mutable.HashMap.empty
+    protected val privatesMap: mutable.HashMap[String, PrivateNodes[T]] = mutable.HashMap.empty
 
     private val thisAndSupersMap = ContainerUtil.newConcurrentMap[String, AllNodes[T]]()
 
@@ -194,7 +193,7 @@ object MixinNodes {
       val name = elemName(key)
       val node = new Node(key, substitutor, fromSuper)
       if (isPrivate(key)) {
-        privatesMap.getOrElseUpdate(name, PrivateNodesSet.empty).add(node)
+        privatesMap.getOrElseUpdate(name, PrivateNodes.empty).add(node)
       }
       else {
         val nodesMap = publicsMap.getOrElseUpdate(name, new NodesMap[T])
@@ -241,7 +240,7 @@ object MixinNodes {
         mergeWithSupers(thisMap, mergeSupers(maps))
 
         val supersPrivates = privatesFromSupersForName(convertedName)
-        val thisPrivates = privatesMap.getOrElse(convertedName, PrivateNodesSet.empty)
+        val thisPrivates = privatesMap.getOrElse(convertedName, PrivateNodes.empty)
 
         //to show privates from supers as inaccessible instead of unresolved
         thisPrivates.addAll(supersPrivates)
@@ -265,12 +264,11 @@ object MixinNodes {
       else None
     }
 
-    private def privatesFromSupersForName(name: String): PrivateNodesSet[T] = {
-      val result = PrivateNodesSet.empty
+    private def privatesFromSupersForName(name: String): PrivateNodes[T] = {
+      val result = PrivateNodes.empty
       superMaps.foreach { map =>
-        result.addAll(map.privatesMap.getOrElse(name, PrivateNodesSet.empty))
+        result.addAll(map.privatesMap.getOrElse(name, PrivateNodes.empty))
       }
-      result.trimToSize()
       result
     }
 
@@ -354,7 +352,7 @@ object MixinNodes {
 
   def emptyMap[T: SignatureStrategy]: MixinNodes.Map[T] = new MixinNodes.Map[T]
 
-  class AllNodes[T: SignatureStrategy](publics: NodesMap[T], privates: PrivateNodesSet[T]) {
+  class AllNodes[T: SignatureStrategy](publics: NodesMap[T], privates: PrivateNodes[T]) {
 
     def get(s: T): Option[Node[T]] = {
       publics.get(s) match {
@@ -415,19 +413,13 @@ object MixinNodes {
 
   //each set contains private members of some class with a fixed name
   //most of them are of size 0 and 1
-  type PrivateNodesSet[T] = SmartHashSet[Node[T]]
+  type PrivateNodes[T] = SmartList[Node[T]]
 
-  object PrivateNodesSet {
-    private def hashingStrategy[T: SignatureStrategy] = new TObjectHashingStrategy[Node[T]] {
-      def computeHashCode(node: Node[T]): Int = SignatureStrategy[T].identityHashCode(node.info)
-      def equals(t: Node[T], t1: Node[T]): Boolean = SignatureStrategy[T].same(t.info, t1.info)
-    }
-
-    def empty[T: SignatureStrategy]: PrivateNodesSet[T] =
-      new SmartHashSet[Node[T]](hashingStrategy)
+  object PrivateNodes {
+    def empty[T: SignatureStrategy]: PrivateNodes[T] = new SmartList[Node[T]]
   }
 
-  implicit class PrivateNodesSetOps[T: SignatureStrategy](set: PrivateNodesSet[T]) {
+  implicit class PrivateNodesOps[T: SignatureStrategy](set: PrivateNodes[T]) {
     def get(s: T): Option[Node[T]] = {
       val iterator = set.iterator
       while (iterator.hasNext) {
