@@ -79,7 +79,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       buffer ++= Seq("ALIGN_MULTILINE_METHOD_BRACKETS")
 
       //method call chain
-      buffer ++= Seq("METHOD_CALL_CHAIN_WRAP", "ALIGN_MULTILINE_CHAINED_METHODS", "KEEP_LINE_BREAKS")
+      buffer ++= Seq("METHOD_CALL_CHAIN_WRAP", "WRAP_FIRST_METHOD_IN_CALL_CHAIN", "ALIGN_MULTILINE_CHAINED_METHODS", "KEEP_LINE_BREAKS")
 
       //brace placement
       buffer ++= Seq("CLASS_BRACE_STYLE", "METHOD_BRACE_STYLE", "BRACE_STYLE")

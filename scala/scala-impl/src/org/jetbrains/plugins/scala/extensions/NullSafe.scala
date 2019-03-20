@@ -30,8 +30,13 @@ final class NullSafe[+A >: Null] private(val a: A) extends AnyVal {
   @inline def getOrElse[B >: A](other: => B): B =
     if (notNull) a else other
 
+  @inline def get: A = a
+
   @inline def exists(p: A => Boolean): Boolean =
     notNull && p(a)
+
+  @inline def contains[B >: A](elem: B): Boolean =
+    notNull && a == elem
 
   @inline def forall(p: A => Boolean): Boolean =
     isNull || p(a)

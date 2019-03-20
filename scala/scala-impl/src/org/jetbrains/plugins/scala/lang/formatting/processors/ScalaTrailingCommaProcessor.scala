@@ -140,14 +140,14 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
     try {
       scalaSettings.TRAILING_COMMA_MODE match {
         case TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE =>
-          if (isCommaNext && next.followedByNewLine(ignoreComments = true)) {
+          if (isCommaNext && next.followedByNewLine()) {
             CodeEditUtil.removeChild(
               SourceTreeToPsiMap.psiElementToTree(parent),
               SourceTreeToPsiMap.psiElementToTree(next)
             )
           }
         case TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE =>
-          if (!isCommaNext && trailingElement.followedByNewLine(ignoreComments = true)) {
+          if (!isCommaNext && trailingElement.followedByNewLine()) {
             val newComma = ScalaPsiElementFactory.createComma(project)
             CodeEditUtil.addChild(
               SourceTreeToPsiMap.psiElementToTree(parent),

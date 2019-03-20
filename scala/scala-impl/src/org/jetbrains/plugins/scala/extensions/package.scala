@@ -512,7 +512,7 @@ package object extensions {
 
     def elementType: IElementType = element.getNode.getElementType
 
-    def startsFromNewLine(ignoreComments: Boolean): Boolean = {
+    def startsFromNewLine(ignoreComments: Boolean = true): Boolean = {
       @tailrec
       def inner(el: PsiElement): Boolean = el match {
         case null => true
@@ -526,7 +526,7 @@ package object extensions {
       inner(PsiTreeUtil.prevLeaf(element))
     }
 
-    def followedByNewLine(ignoreComments: Boolean): Boolean = {
+    def followedByNewLine(ignoreComments: Boolean = true): Boolean = {
       @tailrec
       def inner(el: PsiElement): Boolean = el match {
         case null => false

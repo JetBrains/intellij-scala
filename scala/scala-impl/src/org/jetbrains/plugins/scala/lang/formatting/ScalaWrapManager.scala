@@ -6,19 +6,15 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCompositePattern, ScInfixPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSequenceArg}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-
-/**
- * @author Alexander Podkhalyuzin
- */
 
 object ScalaWrapManager {
   def suggestedWrap(block: ScalaBlock, scalaSettings: ScalaCodeStyleSettings): Wrap = {
@@ -62,10 +58,10 @@ object ScalaWrapManager {
           wrap.ignoreParentWraps()
         }
         return wrap
-      case _: ScReferenceExpression =>
+      case _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference =>
         return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, true)
       case _: ScMethodCall =>
-        return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, true)
+        return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, settings.WRAP_FIRST_METHOD_IN_CALL_CHAIN)
       case _: ScPatternArgumentList =>
         return Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.myLastNode != null =>
@@ -137,7 +133,7 @@ object ScalaWrapManager {
       case _: ScMethodCall =>
         if (child.getElementType == ScalaTokenTypes.tDOT) return suggestedWrap
         else return null
-      case _: ScReferenceExpression =>
+      case _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference =>
         if (child.getElementType == ScalaTokenTypes.tDOT) return suggestedWrap
         else return null
       case _: ScArgumentExprList =>
