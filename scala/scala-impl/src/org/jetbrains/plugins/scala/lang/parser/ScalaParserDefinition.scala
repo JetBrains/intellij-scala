@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{getInstance => ScalaProjectSettings}
 
-final class ScalaParserDefinition extends ParserDefinition {
+class ScalaParserDefinition extends ParserDefinition {
 
   override def createLexer(project: Project) =
     new lexer.ScalaLexer(ScalaProjectSettings(project).isTreatDocCommentAsBlockComment)
@@ -30,11 +30,11 @@ final class ScalaParserDefinition extends ParserDefinition {
     case _ => new ASTWrapperPsiElement(node)
   }
 
-  override def createFile(fileViewProvider: FileViewProvider): PsiFile =
+  override def createFile(viewProvider: FileViewProvider): PsiFile =
     ScalaFileFactory.EP_NAME.getExtensions.view
-      .flatMap(_.createFile(fileViewProvider))
+      .flatMap(_.createFile(viewProvider))
       .headOption
-      .getOrElse(new ScalaFileImpl(fileViewProvider))
+      .getOrElse(new ScalaFileImpl(viewProvider))
 
   import lexer.ScalaTokenTypes.{COMMENTS_TOKEN_SET => Comments, STRING_LITERAL_TOKEN_SET => StringLiterals, WHITES_SPACES_TOKEN_SET => WhiteSpaces, kIMPORT => Import, tWHITE_SPACE_IN_LINE => WS}
 

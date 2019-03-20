@@ -38,9 +38,9 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   protected class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
     override def buildStubTree(file: PsiFile) =
-      super.buildStubTree(file).asInstanceOf[ScFileStubImpl]
+      super.buildStubTree(file).asInstanceOf[PsiFileStubImpl[_ <: PsiFile]]
 
-    protected override def createStubForFile(file: PsiFile) = file match {
+    protected override def createStubForFile(file: PsiFile): PsiFileStubImpl[_ <: PsiFile] = file match {
       case ScStubFileElementType.ViewProvider(scalaFile: ScalaFile) => new ScFileStubImpl(scalaFile)
     }
   }

@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala
-package lang
 package worksheet
 
 import java.io.File
@@ -13,14 +12,12 @@ import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import org.junit.Assert.assertNotNull
+import org.junit.Assert._
 
 /**
-  * User: Dmitry.Naydanov
-  * Date: 12.07.16.
-  */
+ * User: Dmitry.Naydanov
+ * Date: 12.07.16.
+ */
 abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
 
   override protected def useCompileServer: Boolean = true
@@ -33,28 +30,30 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
   protected def doTest(text: String): Unit = {
     val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(
       defaultFileName(WorksheetFileType),
-      ScalaLanguage.INSTANCE,
+      WorksheetFileType,
       text
     )
     val doc = PsiDocumentManager.getInstance(myProject).getDocument(psiFile)
 
-    WorksheetSourceProcessor.processDefault(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
+    processor.WorksheetSourceProcessor.processDefault(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
       case Left((code, _)) =>
         val src = new File(getBaseDir.getCanonicalPath, "src")
-        assert(src.exists(), "Cannot find src dir")
+        assertTrue("Cannot find src dir", src.exists())
 
         val file = new File(src, defaultFileName(ScalaFileType.INSTANCE))
         file.createNewFile()
 
         FileUtil.writeToFile(file, code)
 
-        val vfile = LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
-        assert(vfile != null, "Can't find created file")
+        assertNotNull(
+          "Can't find created file",
+          LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
+        )
 
         val messages = make()
 
-        assert(messages.isEmpty, messages.mkString(" , "))
-      case Right(errorElement) => assert(assertion = false, s"Compile error: $errorElement , ${errorElement.getText}")
+        assertTrue(messages.mkString(" , "), messages.isEmpty)
+      case Right(errorElement) => fail(s"Compile error: $errorElement , ${errorElement.getText}")
     }
 
   }

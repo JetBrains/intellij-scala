@@ -6,7 +6,7 @@ package compiled
 import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.{VirtualFile, newvfs}
-import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled}
+import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
 import com.intellij.util.indexing.FileContent
 
 final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
@@ -53,7 +53,7 @@ object ScClassFileDecompiler {
         Some(attribute)
     }
 
-    override def buildFileStub(content: FileContent): stubs.ScFileStub = content match {
+    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] = content match {
       case ScClsStubBuilder(scalaFile) =>
         LanguageParserDefinitions.INSTANCE
           .forLanguage(ScalaLanguage.INSTANCE)

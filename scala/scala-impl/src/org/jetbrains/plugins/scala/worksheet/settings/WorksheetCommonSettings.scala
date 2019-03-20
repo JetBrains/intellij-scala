@@ -37,7 +37,7 @@ abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
 
   def getModuleFor: Module = getModuleName match {
     case null => null
-    case moduleName => inReadAction {
+    case moduleName => extensions.inReadAction {
       ModuleManager.getInstance(project).findModuleByName(moduleName)
     }
   }

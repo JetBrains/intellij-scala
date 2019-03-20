@@ -11,10 +11,10 @@ import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 //noinspection TypeAnnotation
-object WorksheetFileType extends LanguageFileType(ScalaLanguage.INSTANCE)
+object WorksheetFileType extends LanguageFileType(WorksheetLanguage.INSTANCE)
   with ex.FileTypeIdentifiableByVirtualFile {
 
-  override def getName = "Scala Worksheet"
+  override def getName = getLanguage.getID
 
   override def getDescription = "Scala Worksheet files"
 

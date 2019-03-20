@@ -95,7 +95,8 @@ object WorksheetSourceProcessor {
   def processDefault(srcFile: ScalaFile, ifDoc: Option[Document]): Either[(String, String), PsiErrorElement] = {
     if (!srcFile.isWorksheetFile) return Right(null)
 
-    val iterNumber = WorksheetCache.getInstance(srcFile.getProject).peakCompilationIteration(srcFile.getVirtualFile.getCanonicalPath) + 1
+    val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
+      .peakCompilationIteration(srcFile.getViewProvider.getVirtualFile.getCanonicalPath) + 1
     
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"

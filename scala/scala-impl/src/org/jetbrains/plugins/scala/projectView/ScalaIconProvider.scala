@@ -14,7 +14,6 @@ class ScalaIconProvider extends IconProvider {
 
     import icons.Icons._
     val icon = Some(element) collect {
-      case file: ScalaFile if file.isWorksheetFile => worksheet.WorksheetFileType.getIcon
       case file: ScalaFile if file.isScriptFile || file.getVirtualFile == null => SCRIPT_FILE_LOGO
       case file: ScalaFile if file.getFileType != ScalaFileType.INSTANCE => file.getFileType.getIcon
       case SingularDefinition(definition) => definition.getIcon(flags)

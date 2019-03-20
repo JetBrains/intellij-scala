@@ -26,12 +26,6 @@ private class FileNode(file: ScalaFile)(implicit project: ProjectContext, settin
     super.updateImpl(data)
 
     data.setPresentableText(file.getName.stripSuffix(".scala"))
-
-    val icon =
-      if (file.isWorksheetFile) worksheet.WorksheetFileType.getIcon
-      else if (file.isScriptFile) icons.Icons.SCRIPT_FILE_LOGO
-      else file.getFileType.getIcon
-
-    data.setIcon(icon)
+    data.setIcon(if (file.isScriptFile) icons.Icons.SCRIPT_FILE_LOGO else file.getFileType.getIcon)
   }
 }
