@@ -14,6 +14,7 @@ import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, W
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Ref, TextRange, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -349,6 +350,9 @@ package object extensions {
 
     def parenthesize(needParenthesis: Boolean = true): String =
       if (needParenthesis) s"($string)" else string
+
+    def withNormalizedSeparator: String =
+      StringUtil.convertLineSeparators(string)
   }
 
   implicit class CharSeqExt(val cs: CharSequence) extends AnyVal {
