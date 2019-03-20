@@ -15,32 +15,25 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
-class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVarargs: Boolean = false, forDefault: Option[Int] = None) extends {
+class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
   val containingClass: PsiClass = {
     val res: PsiClass = delegate.containingClass
     assert(res != null, s"Method: ${delegate.getText}\nhas null containing class. \nContaining file text: ${delegate.getContainingFile.getText}")
     res
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = forDefault.isDefined, isInterface = false, None, forDefault)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = false, isInterface = false, None)
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
 } with PsiMethodWrapper(delegate.getManager, method, containingClass)
   with NavigablePsiElementWrapper[ScPrimaryConstructor] {
 
-  override protected def returnType: ScType = {
-    forDefault match {
-      case Some(i) =>
-        val param = delegate.parameters(i - 1)
-        param.`type`().getOrAny
-      case _ => null
-    }
-  }
+  override protected def returnType: ScType = null
 
   override protected def parameterListText: String = {
     val substitutor = ScFunctionWrapper.getSubstitutor(None, delegate)
-    ScFunctionWrapper.parameterListText(delegate, substitutor, forDefault, isJavaVarargs)
+    ScFunctionWrapper.parameterListText(delegate, substitutor, isJavaVarargs)
   }
 
   override def isWritable: Boolean = getContainingFile.isWritable
@@ -54,16 +47,13 @@ object ScPrimaryConstructorWrapper {
 }
 
 /**
-  * Represnts Scala functions for Java. It can do it in many ways including
-  * default parameters. For example (forDefault = Some(1)):
-  * def foo(x: Int = 1) generates method foo$default$1.
+  * Represents Scala functions for Java.
   *
   * @author Alefas
   * @since 27.02.12
   */
 class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface: Boolean,
-                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false,
-                        forDefault: Option[Int] = None) extends {
+                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false) extends {
   val containingClass: PsiClass = {
     if (cClass.isDefined) cClass.get
     else {
@@ -80,7 +70,7 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     }
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass, forDefault)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass)
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
@@ -97,11 +87,11 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
 
   override protected def parameterListText: String = {
     val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
-    ScFunctionWrapper.parameterListText(delegate, substitutor, forDefault, isJavaVarargs)
+    ScFunctionWrapper.parameterListText(delegate, substitutor, isJavaVarargs)
   }
 
   override protected def returnType: ScType = {
-    val isConstructor = delegate.isConstructor && forDefault.isEmpty
+    val isConstructor = delegate.isConstructor
     if (isConstructor) null
     else {
       val typeParameters = delegate.typeParameters
@@ -113,14 +103,9 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
 
 
       val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
-      val scalaType = forDefault match {
-        case Some(i) =>
-          val param = delegate.parameters(i - 1)
-          val paramType = substitutor(param.`type`().getOrAny)
-          generifySubst(paramType)
-        case None =>
-          val retType = substitutor(delegate.returnType.getOrAny)
-          generifySubst(retType)
+      val scalaType = {
+        val retType = substitutor(delegate.returnType.getOrAny)
+        generifySubst(retType)
       }
       scalaType
     }
@@ -131,7 +116,7 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
   override def isWritable: Boolean = getContainingFile.isWritable
 
   override def setName(name: String): PsiElement = {
-    if (forDefault.isEmpty && !delegate.isConstructor) delegate.setName(name)
+    if (!delegate.isConstructor) delegate.setName(name)
     else this
   }
 
@@ -145,24 +130,22 @@ object ScFunctionWrapper {
   /**
     * This is for Java only.
     */
-  private[light] def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
-                                forDefault: Option[Int] = None): String = {
+  private[light] def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass]): String = {
     val builder = new StringBuilder
 
     builder.append(JavaConversionUtil.annotationsAndModifiers(function, isStatic))
 
     builder.append(javaTypeParameters(function, getSubstitutor(cClass, function)))
 
-    val isConstructor = function.isConstructor && forDefault.isEmpty
+    val isConstructor = function.isConstructor
     if (!isConstructor) builder.append("java.lang.Object")
 
     builder.append(" ")
-    val name = forDefault match {
-      case Some(i) if function.isConstructor => "$lessinit$greater$default$" + i
-      case Some(i) => function.getName + "$default$" + i
-      case _ if function.isConstructor => function.containingClass.getName
-      case _ => function.getName
-    }
+
+    val name =
+      if (function.isConstructor) function.containingClass.getName
+      else function.getName
+
     builder.append(name)
 
     builder.append("()")
@@ -261,20 +244,9 @@ object ScFunctionWrapper {
   private def escapeJavaKeywords(name: String): String =
     if (JavaLexer.isKeyword(name, LanguageLevel.HIGHEST)) name + "$" else name
 
-  private[light] def parameterListText(function: ScMethodLike, subst: ScSubstitutor, forDefault: Option[Int], isJavaVarargs: Boolean): String = {
-    val params = function.effectiveParameterClauses.flatMap(_.effectiveParameters)
+  private[light] def parameterListText(function: ScMethodLike, subst: ScSubstitutor, isJavaVarargs: Boolean): String = {
+    val parameterClauses = function.effectiveParameterClauses
 
-    val defaultParam = forDefault match {
-      case Some(i) => Some(params(i - 1))
-      case None => None
-    }
-
-    val parameterClauses = function.effectiveParameterClauses.takeWhile { clause =>
-      defaultParam match {
-        case Some(param) => !clause.effectiveParameters.contains(param)
-        case None => true
-      }
-    }
     parameterClauses.flatMap(_.effectiveParameters).map { param =>
       paramText(subst, param, isJavaVarargs)
     }.mkString("(", ", ", ")")
