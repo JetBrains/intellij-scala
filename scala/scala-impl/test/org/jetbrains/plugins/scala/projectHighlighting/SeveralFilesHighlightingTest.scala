@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{inWriteAction, using}
 import org.jetbrains.plugins.scala.util.PsiFileTestUtil
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 import scala.io.Source
 
@@ -74,6 +75,7 @@ trait SeveralFilesHighlightingTest {
 
     try {
       module.scalaCompilerSettings.additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
+      ScalaCompilerConfiguration.incModificationCount()
       addedFiles.foreach(AllProjectHighlightingTest.annotateFile(_, reporter))
     } finally {
       addedFiles.foreach(removeFile)
