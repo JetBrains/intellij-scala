@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDeclaratio
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 trait SignatureStrategy[T] {
   def equiv(t1: T, t2: T): Boolean
@@ -66,7 +67,7 @@ object SignatureStrategy {
 
     def computeHashCode(t: PsiNamedElement): Int = t.name.hashCode
 
-    def elemName(t: PsiNamedElement): String = t.name
+    def elemName(t: PsiNamedElement): String = ScalaNamesUtil.clean(t.name)
 
     def isAbstract(t: PsiNamedElement): Boolean = t match {
       case _: ScTypeAliasDeclaration => true

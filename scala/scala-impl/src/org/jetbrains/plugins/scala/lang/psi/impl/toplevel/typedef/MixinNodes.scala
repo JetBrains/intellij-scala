@@ -191,7 +191,7 @@ object MixinNodes {
     protected def fromSuper: Boolean = false
 
     private[MixinNodes] def addToMap(key: T, substitutor: ScSubstitutor) {
-      val name = ScalaNamesUtil.clean(elemName(key))
+      val name = elemName(key)
       val node = new Node(key, substitutor, fromSuper)
       if (isPrivate(key)) {
         privatesMap.getOrElseUpdate(name, PrivateNodesSet.empty).add(node)
