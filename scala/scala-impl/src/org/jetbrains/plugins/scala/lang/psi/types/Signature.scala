@@ -170,6 +170,8 @@ class Signature(_name: String,
 
     thisKind == otherKind || (thisKind == ScalaVal && otherKind == Parameterless)
   }
+
+  override def toString = s"Signature($namedElement, $substitutor)"
 }
 
 object Signature {
