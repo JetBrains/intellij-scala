@@ -24,8 +24,7 @@ public interface Icons {
     Icon COMPILE_SERVER = getIcon("/org/jetbrains/plugins/scala/images/compileServer.svg");
 
     Icon FILE_TYPE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
-    //todo worksheet logo
-    Icon WORKSHEET_LOGO = getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
+
     Icon SCALA_SMALL_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.svg");
     Icon SCRIPT_FILE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.svg");
 

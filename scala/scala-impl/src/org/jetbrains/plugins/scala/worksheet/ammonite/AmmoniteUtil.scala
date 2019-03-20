@@ -1,15 +1,15 @@
-package org.jetbrains.plugins.scala.worksheet.ammonite
+package org.jetbrains.plugins.scala
+package worksheet
+package ammonite
 
 import java.io.File
 import java.util.regex.Pattern
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
-import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
-import com.intellij.util.containers.ContainerUtilRt
-import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 
@@ -32,8 +31,7 @@ import scala.util.matching.Regex
   * Date: 01.08.17.
   */
 object AmmoniteUtil {
-  val AMMONITE_EXTENSION = "sc"
-  
+
   val DEFAULT_VERSION = "2.12"
   private val ROOT_FILE = "$file"
   private val ROOT_EXEC = "$exec"
@@ -47,17 +45,10 @@ object AmmoniteUtil {
   private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter with ammonite.interp.Interpreter"))
 
   def isAmmoniteFile(file: ScFile): Boolean =
-    ScFile.VirtualFile.unapply(file).exists(isAmmoniteFile(_, file.getProject))
-
-  def isAmmoniteFile(virtualFile: VirtualFile, project: Project): Boolean = {
-    virtualFile.getExtension == AMMONITE_EXTENSION && (ScalaProjectSettings.getInstance(project).getScFileMode match {
-      case ScalaProjectSettings.ScFileMode.Ammonite => true
-      case ScalaProjectSettings.ScFileMode.Worksheet => false
-      case ScalaProjectSettings.ScFileMode.Auto =>
-        ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(virtualFile, ContainerUtilRt.newHashSet(JavaSourceRootType.TEST_SOURCE))
-      case _ => false
-    })
-  }
+    ScFile.VirtualFile.unapply(file).exists { virtualFile =>
+      import WorksheetFileType._
+      isMyFileType(virtualFile) && isAmmoniteEnabled(virtualFile)(file.getProject)
+    }
 
   def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {
     file.getChildren.flatMap {
@@ -98,7 +89,9 @@ object AmmoniteUtil {
               case other =>
                 d match {
                   case dir: PsiDirectory =>
-                    Option(dir findFile s"$other.$AMMONITE_EXTENSION").orElse(Option(dir findSubdirectory other))
+                    Option(dir.findFile(other + "." + WorksheetFileType.getDefaultExtension)).orElse {
+                      Option(dir.findSubdirectory(other))
+                    }
                   case _ => None
                 }
             }

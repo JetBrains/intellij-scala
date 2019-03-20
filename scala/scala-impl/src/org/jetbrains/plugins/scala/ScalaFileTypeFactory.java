@@ -18,14 +18,17 @@ package org.jetbrains.plugins.scala;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType;
 
 /**
  * @author ilyas
  */
 public class ScalaFileTypeFactory extends FileTypeFactory {
-  public void createFileTypes(final @NotNull FileTypeConsumer consumer) {
-    ScalaFileType fileType = ScalaFileType.INSTANCE;
-    consumer.consume(fileType,
-            fileType.getDefaultExtension() + FileTypeConsumer.EXTENSION_DELIMITER + ScalaFileType.WORKSHEET_EXTENSION);
-  }
+    public void createFileTypes(final @NotNull FileTypeConsumer consumer) {
+        ScalaFileType fileType = ScalaFileType.INSTANCE;
+        consumer.consume(
+                fileType,
+                fileType.getDefaultExtension() + FileTypeConsumer.EXTENSION_DELIMITER + WorksheetFileType.getDefaultExtension())
+        ;
+    }
 }

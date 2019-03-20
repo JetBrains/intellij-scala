@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
-package worksheet.actions
+package worksheet
+package actions
 
 import java.lang.ref.WeakReference
 import java.util
 
-import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.ApplicationManager
@@ -21,7 +21,6 @@ import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
 
@@ -119,15 +118,11 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
   }
 
   private object WorksheetEditorListener extends FileEditorManagerListener {
-    private def isPluggable(file: VirtualFile): Boolean = {
-      if (!file.isValid) return false
-      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension && !AmmoniteUtil.isAmmoniteFile(file, project)) return true
-      
-      PsiManager.getInstance(project).findFile(file) match {
-        case _: ScalaFile if ScratchFileService.getInstance().getRootType(file).isInstanceOf[ScratchRootType] => true
-        case _ => false
-      }
-    }
+
+    private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
+      WorksheetFileType.isWorksheetFile(file) {
+        PsiManager.getInstance(_).findFile(file).isInstanceOf[ScalaFile]
+      }(project)
 
     override def selectionChanged(event: FileEditorManagerEvent) {}
 

@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.projectView
+package org.jetbrains.plugins.scala
+package projectView
 
 import java.util
 
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -28,8 +28,8 @@ private class FileNode(file: ScalaFile)(implicit project: ProjectContext, settin
     data.setPresentableText(file.getName.stripSuffix(".scala"))
 
     val icon =
-      if (file.isWorksheetFile) Icons.WORKSHEET_LOGO
-      else if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO
+      if (file.isWorksheetFile) worksheet.WorksheetFileType.getIcon
+      else if (file.isScriptFile) icons.Icons.SCRIPT_FILE_LOGO
       else file.getFileType.getIcon
 
     data.setIcon(icon)

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet
 package settings
 
-import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -12,7 +11,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
 import org.jetbrains.plugins.scala.worksheet.server.InProcessServer
@@ -56,15 +54,17 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
 
   override def getCompilerProfile: ScalaCompilerSettingsProfile = {
+    implicit val fileProject: Project = file.getProject
     val configuration = ScalaCompilerConfiguration.instanceIn(project)
+
     val maybeCustomProfile = configuration.customProfiles match {
-      case profiles if isScratchWorksheet(file) =>
+      case profiles if isScratchWorksheet(file.getVirtualFile) =>
         val name = getCompilerProfileName
         profiles.find(_.getName == name)
       case profiles =>
         for {
           ScFile.VirtualFile(virtualFile) <- Some(file)
-          module <- ScalaUtil.getModuleForFile(virtualFile, file.getProject)
+          module <- ScalaUtil.getModuleForFile(virtualFile, fileProject)
           profile <- profiles.find(_.getModuleNames.contains(module.getName))
         } yield profile
     }
@@ -106,13 +106,12 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
   
   def shouldShowReplWarning(file: PsiFile): Boolean = isRepl(file) && WorksheetProjectSettings.getMakeType(file.getProject) != InProcessServer
 
-  def isScratchWorksheet(vFileOpt: Option[VirtualFile], project: Project): Boolean = vFileOpt.exists {
-    vFile => ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
-      ScalaProjectSettings.getInstance(project).isTreatScratchFilesAsWorksheet
+  def isScratchWorksheet(file: VirtualFile)
+                        (implicit project: Project): Boolean = {
+    import WorksheetFileType._
+    hasScratchRootType(file) && treatScratchFileAsWorksheet
   }
 
-  def isScratchWorksheet(file: PsiFile): Boolean = isScratchWorksheet(Option(file.getVirtualFile), file.getProject)
-  
   object SerializableWorksheetAttributes {
     trait SerializableInFileAttribute[T] {
       def readAttribute(attr: FileAttribute, file: PsiFile): Option[T] = {

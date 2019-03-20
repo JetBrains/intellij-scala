@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.worksheet.ammonite
+package org.jetbrains.plugins.scala
+package worksheet
+package ammonite
 
 import java.util.function.BiFunction
 
@@ -20,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 
 import scala.collection.mutable
@@ -220,8 +221,8 @@ object AmmoniteScriptWrappersHolder {
   }
   
   def getInstance(project: Project): AmmoniteScriptWrappersHolder = project.getComponent(classOf[AmmoniteScriptWrappersHolder])
-  
-  def getWrapperName(from: PsiFile): String = from.getName.stripSuffix(s".${AmmoniteUtil.AMMONITE_EXTENSION}")
+
+  def getWrapperName(from: PsiFile): String = from.getName.stripSuffix("." + WorksheetFileType.getDefaultExtension)
   
   def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length 
 }

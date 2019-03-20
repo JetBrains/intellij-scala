@@ -6,7 +6,6 @@ package impl
 import java.{util => ju}
 
 import com.intellij.extapi.psi.PsiFileBase
-import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
@@ -30,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
@@ -86,13 +84,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override def isScriptFile: Boolean = !isCompiled &&
     foldStub(isScriptFileImpl)(Function.const(super.isScriptFile))
 
-  override def isWorksheetFile: Boolean = {
-    this.findVirtualFile.exists { virtualFile =>
-      virtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION &&
-        !AmmoniteUtil.isAmmoniteFile(virtualFile, getProject) ||
-        ScratchFileService.getInstance().getRootType(virtualFile).isInstanceOf[ScratchRootType] &&
-          ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
-    }
+  override def isWorksheetFile: Boolean = ScFile.VirtualFile.unapply(this).exists {
+    worksheet.WorksheetFileType.isWorksheetFile(_)()(getProject)
   }
 
   def setPackageName(inName: String): Unit = {

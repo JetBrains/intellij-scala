@@ -1,18 +1,20 @@
-package org.jetbrains.plugins.scala.lang.worksheet
+package org.jetbrains.plugins.scala
+package lang
+package worksheet
 
 import java.io.File
 
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.ScalaFileType.WORKSHEET_EXTENSION
 import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert.assertNotNull
 
 /**
@@ -29,7 +31,11 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
     Seq(WorksheetProcessorTestBase.MacroPrinterLoader(this.getClass.getClassLoader))
 
   protected def doTest(text: String): Unit = {
-    val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(defaultFileName(WORKSHEET_EXTENSION), ScalaLanguage.INSTANCE, text)
+    val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(
+      defaultFileName(WorksheetFileType),
+      ScalaLanguage.INSTANCE,
+      text
+    )
     val doc = PsiDocumentManager.getInstance(myProject).getDocument(psiFile)
 
     WorksheetSourceProcessor.processDefault(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
@@ -37,7 +43,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
         val src = new File(getBaseDir.getCanonicalPath, "src")
         assert(src.exists(), "Cannot find src dir")
 
-        val file = new File(src, defaultFileName(ScalaFileType.INSTANCE.getDefaultExtension))
+        val file = new File(src, defaultFileName(ScalaFileType.INSTANCE))
         file.createNewFile()
 
         FileUtil.writeToFile(file, code)
@@ -56,7 +62,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
 
 object WorksheetProcessorTestBase {
 
-  private def defaultFileName(extension: String) = s"dummy.$extension"
+  private def defaultFileName(fileType: FileType) = s"dummy." + fileType.getDefaultExtension
 
   case class MacroPrinterLoader(classLoader: ClassLoader) extends ThirdPartyLibraryLoader {
 

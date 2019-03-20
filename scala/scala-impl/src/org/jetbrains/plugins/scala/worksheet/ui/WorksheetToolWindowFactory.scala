@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala
+package worksheet
+package ui
 
 import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.ui.{ConsoleView, RunnerLayoutUi}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowAnchor, ToolWindowFactory, ToolWindowManager}
 import com.intellij.ui.content.Content
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -27,6 +28,9 @@ class WorksheetToolWindowFactory extends ToolWindowFactory with DumbAware  {
 }
 
 object WorksheetToolWindowFactory {
+
+  import WorksheetFileType.{getIcon => WorkSheetIcon}
+
   private val WORKSHEET_NAME = "Worksheet"
   private val MY_ID = "WorksheetResultsToolWindow"
   
@@ -35,7 +39,7 @@ object WorksheetToolWindowFactory {
   }
   
   private def initToolWindow(toolWindow: ToolWindow): ToolWindow = {
-    toolWindow.setIcon(Icons.WORKSHEET_LOGO)
+    toolWindow.setIcon(WorkSheetIcon)
     toolWindow.setTitle("Worksheet Output")
     toolWindow.setStripeTitle("Worksheet")
     toolWindow
@@ -49,8 +53,8 @@ object WorksheetToolWindowFactory {
     
     val cv = new ConsoleViewImpl(project, false)
     val component = cv.getComponent //don't inline, it initializes cv's editor
-    
-    (layoutUi.createContent(MY_ID, component, getDisplayName(file), Icons.WORKSHEET_LOGO, null), cv)
+
+    (layoutUi.createContent(MY_ID, component, getDisplayName(file), WorkSheetIcon, null), cv)
   }
   
   

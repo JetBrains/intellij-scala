@@ -21,6 +21,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.icons.Icons;
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType;
 
 import javax.swing.*;
 
@@ -30,7 +31,6 @@ import javax.swing.*;
 public class ScalaFileType extends LanguageFileType implements FileTypeIdentifiableByVirtualFile {
 
   public static final ScalaFileType INSTANCE = new ScalaFileType();
-  @NonNls public static final String WORKSHEET_EXTENSION = "sc";
 
   private ScalaFileType() {
     super(ScalaLanguage.INSTANCE);
@@ -62,6 +62,7 @@ public class ScalaFileType extends LanguageFileType implements FileTypeIdentifia
   // while FileTypeManager contains no .scala pattern)
   @Override
   public boolean isMyFileType(@NotNull VirtualFile virtualFile) {
-    return getDefaultExtension().equals(virtualFile.getExtension()) || WORKSHEET_EXTENSION.equals(virtualFile.getExtension());
+    return getDefaultExtension().equals(virtualFile.getExtension()) ||
+            WorksheetFileType.isMyFileType(virtualFile);
   }
 }

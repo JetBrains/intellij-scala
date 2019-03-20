@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.worksheet.settings.RunTypes;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings;
-import scala.Some;
 
 import javax.swing.*;
 import java.awt.*;
@@ -115,7 +114,7 @@ public class WorksheetSettingsSetForm {
         Module defaultModule = settings.getModuleFor();
         if (defaultModule != null) {
             moduleComboBox.setSelectedModule(defaultModule);
-            if (myFile != null && !WorksheetFileSettings.isScratchWorksheet(new Some<>(myFile.getVirtualFile()), myFile.getProject()))
+            if (myFile != null && !WorksheetFileSettings.isScratchWorksheet(myFile.getVirtualFile(), myFile.getProject()))
                 moduleComboBox.setEnabled(false);
         }
 
