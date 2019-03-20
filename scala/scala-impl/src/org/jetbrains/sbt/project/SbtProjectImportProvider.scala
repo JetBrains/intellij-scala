@@ -27,7 +27,7 @@ final class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
 
 object SbtProjectImportProvider {
 
-  import language.SbtFileType.isSbtFile
+  import language.SbtFileType.isMyFileType
 
   def canImport(file: VirtualFile): Boolean = file match {
     case null => false
@@ -35,7 +35,7 @@ object SbtProjectImportProvider {
       directory.getName == Sbt.ProjectDirectory ||
         containsSbtProjectDirectory(directory) ||
         containsSbtBuildFile(directory)
-    case _ => isSbtFile(file)
+    case _ => isMyFileType(file)
   }
 
   private def containsSbtProjectDirectory(directory: VirtualFile) =
@@ -47,7 +47,7 @@ object SbtProjectImportProvider {
     }
 
   private def containsSbtBuildFile(directory: VirtualFile) =
-    directory.getChildren.exists(isSbtFile)
+    directory.getChildren.exists(isMyFileType)
 
   def projectRootPath(file: VirtualFile): String = {
     val root = if (file.isDirectory && file.getName != Sbt.ProjectDirectory) file

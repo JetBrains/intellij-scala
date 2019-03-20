@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package language
 
-import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.fileTypes.{LanguageFileType, ex}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -10,16 +10,17 @@ import org.jetbrains.plugins.scala.ScalaLanguage
  * @author Pavel Fatin
  */
 //noinspection TypeAnnotation
-object SbtFileType extends LanguageFileType(ScalaLanguage.INSTANCE) {
+object SbtFileType extends LanguageFileType(ScalaLanguage.INSTANCE)
+  with ex.FileTypeIdentifiableByVirtualFile {
 
-  def getName: String = Sbt.Name
+  override def getName: String = Sbt.Name
 
-  def getDescription = s"$getName files"
+  override def getDescription = s"$getName files"
 
-  def getDefaultExtension = getName
+  override def getDefaultExtension = getName
 
-  def getIcon = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_file.svg")
+  override def getIcon = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_file.svg")
 
-  def isSbtFile(file: VirtualFile): Boolean =
-    file.getExtension == getDefaultExtension
+  override def isMyFileType(file: VirtualFile): Boolean =
+    getDefaultExtension == file.getExtension
 }

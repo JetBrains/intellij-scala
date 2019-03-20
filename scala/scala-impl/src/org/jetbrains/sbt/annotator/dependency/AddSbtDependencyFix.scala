@@ -68,7 +68,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
     val baseDir: VirtualFile = project.getBaseDir
     val sbtFileOpt = baseDir.findChild(Sbt.BuildFile) match {
       case buildFile if buildFile != null && buildFile.exists() => Some(buildFile)
-      case _ => baseDir.getChildren.find(language.SbtFileType.isSbtFile)
+      case _ => baseDir.getChildren.find(language.SbtFileType.isMyFileType)
     }
 
     val resolver: SbtResolver = SbtResolver.localCacheResolver(None)

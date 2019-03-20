@@ -11,7 +11,7 @@ class SbtOpenProjectDescriptor extends OpenProjectFileChooserDescriptor(true) {
 
   override def isFileVisible(file: VirtualFile, showHiddenFiles: Boolean): Boolean =
     super.isFileVisible(file, showHiddenFiles) &&
-      (file.isDirectory || language.SbtFileType.isSbtFile(file))
+      (file.isDirectory || language.SbtFileType.isMyFileType(file))
 
   override def isFileSelectable(file: VirtualFile): Boolean =
     super.isFileSelectable(file) &&
