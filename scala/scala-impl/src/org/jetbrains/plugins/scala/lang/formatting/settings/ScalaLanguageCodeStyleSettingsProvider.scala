@@ -7,6 +7,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.OptionAnchor
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, CommonCodeStyleSettings, DisplayPriority, LanguageCodeStyleSettingsProvider}
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -148,6 +149,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("ALIGN_TYPES_IN_MULTILINE_DECLARATIONS", "Align parameter types in multiline declarations",
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
+      showCustomOption("INDENT_FIRST_PARAMETER", "Indent first parameter",
+        CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("INDENT_FIRST_PARAMETER_CLAUSE", "Indent first parameter clause",
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("DO_NOT_INDENT_CASE_CLAUSE_BODY", "Do not indent case clause body", CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
@@ -249,83 +252,103 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       |
       |  foo[Int]( )
       |}
-    """.stripMargin.trim
+    """.stripMargin.withNormalizedSeparator.trim
 
   private val WRAPPING_AND_BRACES_SAMPLE =
-    "class A {\n" +
-            "  def foo {\n" +
-            "    val infixExpr = 1 + 2 + (3 + 4) + 5 + 6 +\n" +
-            "      7 + 8 + 9 + 10 + 11 + 12 + 13 + (14 +\n" +
-            "      15) + 16 + 17 * 18 + 19 + 20\n" +
-            "  }\n" +
-            "\n" +
-            "  class Foo {\n" +
-            "    def foo(x: Int = 0, y: Int = 1, z: Int = 2) = new Foo\n" +
-            "  }\n" +
-            "  \n" +
-            "  val goo = new Foo\n" +
-            "\n" +
-            "  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()\n" +
-            "  \n" +
-            "  def m(x: Int, y: Int, z: Int)(u: Int, f: Int, l: Int) {\n" +
-            "    val zz = if (true) 1 else 3\n" +
-            "    val uz = if (true)\n" +
-            "               1\n" +
-            "              else {\n" +
-            "              }\n" +
-            "    if (true) {\n" +
-            "      false\n" +
-            "    } else if (false) {\n" +
-            "    } else true\n" +
-            "    for (i <- 1 to 5) yield i + 1\n" +
-            "    Some(3) match {\n" +
-            "      case Some(a) if a != 2 => a\n" +
-            "      case Some(1) |\n" +
-            "         Some(2) => \n" +
-            "        \n" +
-            "      case _ =>\n" +
-            "    }\n" +
-            "    try a + 2\n" +
-            "    catch {\n" +
-            "      case e => (i: Int) => i + 1\n" +
-            "    } finally \n" +
-            "      doNothing\n" +
-            "    while (true) \n" +
-            "      true = false\n" +
-            "  }\n" +
-            "}"
+    """class A {
+      |  def foo {
+      |    val infixExpr = 1 + 2 + (3 + 4) + 5 + 6 +
+      |      7 + 8 + 9 + 10 + 11 + 12 + 13 + (14 +
+      |      15) + 16 + 17 * 18 + 19 + 20
+      |  }
+      |
+      |  class Foo {
+      |    def foo(x: Int = 0, y: Int = 1, z: Int = 2) = new Foo
+      |  }
+      |
+      |  val goo = new Foo
+      |
+      |  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()
+      |
+      |  def m(x: Int, y: Int, z: Int)(u: Int, f: Int, l: Int) {
+      |    val zz = if (true) 1 else 3
+      |    val uz = if (true)
+      |               1
+      |              else {
+      |              }
+      |    if (true) {
+      |      false
+      |    } else if (false) {
+      |    } else true
+      |    for (i <- 1 to 5) yield i + 1
+      |    Some(3) match {
+      |      case Some(a) if a != 2 => a
+      |      case Some(1) |
+      |         Some(2) =>
+      |
+      |      case _ =>
+      |    }
+      |    try a + 2
+      |    catch {
+      |      case e => (i: Int) => i + 1
+      |    } finally
+      |      doNothing
+      |    while (true)
+      |      true = false
+      |  }
+      |
+      |  case class B(
+      |    x: Int,
+      |    str: String
+      |  )
+      |
+      |  def foo1(
+      |    x: Int,
+      |    y: Long,
+      |    str: String
+      |  ) = ???
+      |
+      |  def foo2(x: Int,
+      |           y: Long,
+      |           str: String) = ???
+      |
+      |  def foo3
+      |  (x: Int, y: Int)
+      |  (u: Int, v: Int) = ???
+      |}""".stripMargin.withNormalizedSeparator
 
   private val BLANK_LINES_CODE_SAMPLE =
-    "//code\npackage A\n" +
-            "\n" +
-            "\n" +
-            "import a.b\n" +
-            "\n" +
-            "import b.c\n" +
-            "import c.d\n" +
-            "\n" +
-            "\n" +
-            "class A {\n" +
-            "  def foo = 1\n" +
-            "  def goo = 2\n" +
-            "  type S = String\n" +
-            "  val a = 1\n" +
-            "  \n" +
-            "  val b = 2\n" +
-            "  val c = 2\n" +
-            "}\n" +
-            "\n" +
-            "trait B {\n" +
-            "  \n" +
-            "  def foo\n" +
-            "  def goo\n" +
-            "  def too = {\n" +
-            "    \n" +
-            "    \n" +
-            "    val x = 2\n" +
-            "    new J {\n" +
-            "      def goo = 1\n" +
-            "    }\n" +
-            "  }\n" +
-            "}"
+    """//code
+      |package A
+      |
+      |
+      |import a.b
+      |
+      |import b.c
+      |import c.d
+      |
+      |
+      |class A {
+      |  def foo = 1
+      |  def goo = 2
+      |  type S = String
+      |  val a = 1
+      |
+      |  val b = 2
+      |  val c = 2
+      |}
+      |
+      |trait B {
+      |
+      |  def foo
+      |  def goo
+      |  def too = {
+      |
+      |
+      |    val x = 2
+      |    new J {
+      |      def goo = 1
+      |    }
+      |  }
+      |}""".stripMargin.withNormalizedSeparator
 }

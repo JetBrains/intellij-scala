@@ -119,20 +119,20 @@ class TrailingCommaTest extends AbstractScalaFormatterTestBase {
   def testAddRemove_MultipleParametersClauses(): Unit = testAddRemove(
     withoutComma =
       """def foo(
-        |  x: Int,
-        |  y: Int
-        |)(implicit
-        |  w: String,
-        |  u: Long
-        |) = ???""".stripMargin,
+        |         x: Int,
+        |         y: Int
+        |       )(implicit
+        |         w: String,
+        |         u: Long
+        |       ) = ???""".stripMargin,
     withComma =
       """def foo(
-        |  x: Int,
-        |  y: Int,
-        |)(implicit
-        |  w: String,
-        |  u: Long,
-        |) = ???""".stripMargin
+        |         x: Int,
+        |         y: Int,
+        |       )(implicit
+        |         w: String,
+        |         u: Long,
+        |       ) = ???""".stripMargin
   )
 
   def testAddRemove_Tuple(): Unit = testAddRemove(
