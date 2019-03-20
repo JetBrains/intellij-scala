@@ -6,7 +6,7 @@ package compiled
 import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.{VirtualFile, newvfs}
-import com.intellij.psi.{PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled}
+import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled}
 import com.intellij.util.indexing.FileContent
 
 final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
@@ -53,29 +53,29 @@ object ScClassFileDecompiler {
         Some(attribute)
     }
 
-    override def buildFileStub(content: FileContent): stubs.ScFileStub = {
-      implicit val bytes: Array[Byte] = content.getContent
+    override def buildFileStub(content: FileContent): stubs.ScFileStub = content match {
+      case ScClsStubBuilder(scalaFile) =>
+        LanguageParserDefinitions.INSTANCE
+          .forLanguage(ScalaLanguage.INSTANCE)
+          .asInstanceOf[lang.parser.ScalaParserDefinition]
+          .getFileNodeType
+          .getBuilder
+          .buildStubTree(scalaFile)
+      case _ => null
+    }
 
-      content.getFile match {
-        case file if file.isInnerClass => null
-        case original@DecompilationResult(sourceName, sourceText) =>
-          val scalaFile = PsiFileFactory.getInstance(content.getProject).createFileFromText(
-            sourceName,
-            ScalaLanguage.INSTANCE,
-            sourceText,
-            true,
-            true,
-            false,
-            original
-          )
-
-          LanguageParserDefinitions.INSTANCE
-            .forLanguage(ScalaLanguage.INSTANCE)
-            .asInstanceOf[lang.parser.ScalaParserDefinition]
-            .getFileNodeType
-            .getBuilder
-            .buildStubTree(scalaFile)
-        case _ => null
+    private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
+      case original if original.isInnerClass => None
+      case original => DecompilationResult.unapply(original)(content.getContent).map {
+        case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
+          sourceName,
+          ScalaLanguage.INSTANCE,
+          sourceText,
+          true,
+          true,
+          false,
+          original
+        )
       }
     }
   }
