@@ -206,10 +206,6 @@ object MixinNodes {
       if (isImplicit(key)) implicitNames.add(name)
     }
 
-    def publicNames: collection.Set[String] = publicsMap.keySet
-
-    def addPublicsFrom(map: Map[T]): Unit = publicsMap ++= map.publicsMap
-
     def nodesIterator(decodedName: String,
                       isSupers: Boolean,
                       onlyImplicit: Boolean = false): Iterator[Node[T]] = {
