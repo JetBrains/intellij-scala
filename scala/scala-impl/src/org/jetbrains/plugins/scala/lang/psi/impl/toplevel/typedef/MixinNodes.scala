@@ -152,8 +152,21 @@ object MixinNodes {
   private type SigToNode[T] = (T, Node[T])
 
   class Node[T](val info: T, val substitutor: ScSubstitutor, val fromSuper: Boolean) {
-    var supers: Seq[Node[T]] = Seq.empty
-    var primarySuper: Option[Node[T]] = None
+    private[this] var _concreteSuper: Node[T] = _
+    private[this] val _supers: SmartList[Node[T]] = new SmartList()
+
+    private[MixinNodes] def addSuper(n: Node[T]): Unit = _supers.add(n)
+
+    private[MixinNodes] def setConcreteSuper(n: Node[T]): Unit = {
+      if (_concreteSuper == null) {
+        _concreteSuper = n
+      }
+    }
+
+    private[MixinNodes] def concreteSuper: Option[Node[T]] = Option(_concreteSuper)
+
+    def supers: Seq[Node[T]] = _supers.asScala
+    def primarySuper: Option[Node[T]] = concreteSuper.orElse(supers.headOption)
   }
 
   class Map[T](implicit strategy: SignatureStrategy[T]) {
@@ -233,7 +246,7 @@ object MixinNodes {
         val thisMap: NodesMap[T] = publicsMap.getOrElse(convertedName, NodesMap.empty[T])
         val maps: Seq[NodesMap[T]] = superMaps.map(sup => sup.publicsMap.getOrElse(convertedName, NodesMap.empty))
 
-        mergeWithSupers(thisMap, mergeSupers(maps))
+        mergeWithSupers(thisMap, maps)
 
         val supersPrivates = privatesFromSupersForName(convertedName)
         val thisPrivates = privatesMap.getOrElse(convertedName, PrivateNodes.empty)
@@ -282,53 +295,30 @@ object MixinNodes {
       superMaps.foreach(_.foreachThisSignature(action))
     }
 
-    private class MultiMap extends mutable.HashMap[T, mutable.Set[Node[T]]] with collection.mutable.MultiMap[T, Node[T]] {
-      override def elemHashCode(t : T): Int = computeHashCode(t)
-      override def elemEquals(t1 : T, t2 : T): Boolean = equiv(t1, t2)
-      override def makeSet = new mutable.LinkedHashSet[Node[T]]
-    }
-
-    private object MultiMap {def empty = new MultiMap}
-
-    private def mergeSupers(maps: Seq[NodesMap[T]]) : MultiMap = {
-      val res = MultiMap.empty
-      val mapsIterator = maps.iterator
-      while (mapsIterator.hasNext) {
-        val currentIterator = mapsIterator.next().iterator
-        while (currentIterator.hasNext) {
-          val (k, node) = currentIterator.next()
-          res.addBinding(k, node)
-        }
-      }
-      res
-    }
-
     //adds nodes from supers to thisMap
-    private def mergeWithSupers(thisMap: NodesMap[T], supersMerged: MultiMap): Unit = {
-      for ((key, nodes) <- supersMerged) {
+    private def mergeWithSupers(thisMap: NodesMap[T], superNodesMaps: Seq[NodesMap[T]]): Unit = {
+      for {
+        superNodeMap <- superNodesMaps
+        (key, node) <- superNodeMap
+      } {
+        thisMap.getOrElseUpdate(key, node) match {
+          case other if node ne other =>
+            if (!isAbstract(node.info) && (isSynthetic(other.info) || isAbstract(other.info))) {
+              //force update thisMap with a non-abstract and non-synthetic node
+              thisMap.update(key, node)
 
-        ProgressManager.checkCanceled()
-
-        val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
-          case None => nodes.head
-          case Some(concrete) => concrete
-        }
-
-        def updateThisMap(): Unit = {
-          nodes -= primarySuper
-          primarySuper.supers = nodes.toSeq
-          thisMap.update(key, primarySuper)
-        }
-
-        def updateSupersOf(node: Node[T]): Unit = {
-          node.primarySuper = Some(primarySuper)
-          node.supers = nodes.toSeq
-        }
-
-        thisMap.get(key) match {
-          case Some(node) if isSyntheticShadedBy(node, primarySuper) => updateThisMap()
-          case Some(node)                                            => updateSupersOf(node)
-          case None                                                  => updateThisMap()
+              //and copy already collected nodes to it
+              other.supers.foreach(node.addSuper)
+              other.concreteSuper.foreach(node.setConcreteSuper)
+            }
+            else {
+              //add supers to existing node
+              other.addSuper(node)
+              if (!isAbstract(node.info)) {
+                other.setConcreteSuper(node)
+              }
+            }
+          case _ =>
         }
       }
     }
