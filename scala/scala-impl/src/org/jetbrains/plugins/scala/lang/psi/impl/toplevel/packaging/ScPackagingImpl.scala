@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -100,8 +100,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
       if (!super[ScImportsHolder].processDeclarations(processor,
         state, lastParent, place)) return false
 
-      if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
-        !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+      if (FileDeclarationsHolder.isProcessLocalClasses(lastParent) && !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
     }
 
     true

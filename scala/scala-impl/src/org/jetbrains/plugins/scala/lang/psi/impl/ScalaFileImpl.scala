@@ -10,7 +10,6 @@ import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.openapi.roots._
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -247,12 +246,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       }
     }
 
-  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  protected def isScalaPredefinedClass: Boolean = this.typeDefinitions match {
-    case Seq(head) => FileDeclarationsHolder.DefaultImplicitlyImportedObjects(head.qualifiedName)
-    case _ => false
-  }
-
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 
   override def controlFlowScope: Option[ScalaPsiElement] = Some(this)
@@ -348,31 +341,6 @@ object ScalaFileImpl {
 
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
-
-  /**
-   * @param _place actual place, can be null, if null => false
-   * @return true, if place is out of source content root, or in Scala Worksheet.
-   */
-  def isProcessLocalClasses(_place: PsiElement): Boolean = {
-    val place = _place match {
-      case s: ScalaPsiElement => s.getDeepSameElementInContext
-      case _ => _place
-    }
-    if (place == null) return false
-
-    place.getContainingFile match {
-      case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true
-      case scalaFile: ScalaFile =>
-        val file = scalaFile.getVirtualFile
-        if (file == null) return false
-
-        val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-        !(index.isInSourceContent(file) ||
-          index.isInLibraryClasses(file) ||
-          index.isInLibrarySource(file))
-      case _ => false
-    }
-  }
 
   def pathIn(root: PsiElement): List[List[String]] =
     packagingsIn(root).map(packaging => toVector(packaging.packageName))

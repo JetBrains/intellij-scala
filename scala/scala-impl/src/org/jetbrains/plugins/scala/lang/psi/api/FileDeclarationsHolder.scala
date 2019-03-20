@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
@@ -26,9 +27,9 @@ import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 import scala.collection.mutable
 
 /**
- * User: Dmitry Naydanov
- * Date: 12/12/12
- */
+  * User: Dmitry Naydanov
+  * Date: 12/12/12
+  */
 trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsHolder {
 
   import FileDeclarationsHolder._
@@ -107,7 +108,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
         }
     }
 
-    FileDeclarationsContributor.getAllFor(this).foreach (
+    FileDeclarationsContributor.getAllFor(this).foreach(
       _.processAdditionalDeclarations(processor, this, state)
     )
 
@@ -180,6 +181,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
         else Set.empty[String]
 
       def alreadyContains(className: String) = namesSet.contains(className)
+
       val classes = SyntheticClasses.get(getProject)
       val synthIterator = classes.getAll.iterator
       while (synthIterator.hasNext) {
@@ -198,24 +200,32 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       if (!checkPackages()) return false
     }
 
-    if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
-      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+    if (isProcessLocalClasses(lastParent) && !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     true
   }
 
-  protected def isScalaPredefinedClass: Boolean
-
   def isScriptFile: Boolean = false
 
   def isWorksheetFile: Boolean = false
+
+  import macroAnnotations.CachedInUserData
+
+  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
+  private def isScalaPredefinedClass: Boolean = this match {
+    case impl: ScalaFileImpl => impl.typeDefinitions match {
+      case Seq(head) => DefaultImplicitlyImportedObjects(head.qualifiedName)
+      case _ => false
+    }
+    case _ => false
+  }
 }
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  val DefaultImplicitlyImportedPackages = Set("scala", "java.lang")
-  val DefaultImplicitlyImportedObjects = Set("scala.Predef", "scala" /* package object*/)
+  private val DefaultImplicitlyImportedPackages = Set("scala", "java.lang")
+  private val DefaultImplicitlyImportedObjects = Set("scala.Predef", "scala" /* package object*/)
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
@@ -224,4 +234,30 @@ object FileDeclarationsHolder {
       case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
       case _ => body
     }
+
+  /**
+    * @param _place actual place, can be null, if null => false
+    * @return true, if place is out of source content root, or in Scala Worksheet.
+    */
+  def isProcessLocalClasses(_place: PsiElement): Boolean = {
+    val place = _place match {
+      case s: ScalaPsiElement => s.getDeepSameElementInContext
+      case _ => _place
+    }
+    if (place == null) return false
+
+    place.getContainingFile match {
+      case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true
+      case scalaFile: ScalaFile =>
+        val file = scalaFile.getVirtualFile
+        if (file == null) return false
+
+        val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
+        !(index.isInSourceContent(file) ||
+          index.isInLibraryClasses(file) ||
+          index.isInLibrarySource(file))
+      case _ => false
+    }
+  }
+
 }
