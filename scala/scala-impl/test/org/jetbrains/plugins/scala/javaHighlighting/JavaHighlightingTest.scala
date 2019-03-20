@@ -622,7 +622,9 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "TestSCL7582"))
+    assertMessages(errorsFromJavaCode(scalaCode, javaCode, "TestSCL7582"))(
+      Error("$lessinit$greater$default$2","Cannot resolve method '$lessinit$greater$default$2(int)'")
+    )
   }
 
   def testSpecializedFields(): Unit = {
