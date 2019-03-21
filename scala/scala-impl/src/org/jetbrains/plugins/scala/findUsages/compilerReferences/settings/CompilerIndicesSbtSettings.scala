@@ -12,13 +12,12 @@ import scala.beans.BeanProperty
   storages = Array(new Storage("compiler_indices_sbt.xml"))
 )
 class CompilerIndicesSbtSettings extends PersistentStateComponent[CompilerIndicesSbtSettings] {
-  //TODO: better instruction on how to set port in sbt
-  @BeanProperty var sbtConnectionPort: Int     = 65337
-  @BeanProperty var usePredefinedPort: Boolean = false
+  @BeanProperty var useManualConfiguration: Boolean = false
+  @BeanProperty var sbtConnectionPort: Int          = 65337
 
-  def sbtPort: Int = usePredefinedPort.fold(sbtConnectionPort, 0)
+  def sbtPort: Int = useManualConfiguration.fold(sbtConnectionPort, 0)
 
-  override def getState: CompilerIndicesSbtSettings = this
+  override def getState: CompilerIndicesSbtSettings               = this
   override def loadState(state: CompilerIndicesSbtSettings): Unit = XmlSerializerUtil.copyBean(state, this)
 }
 
