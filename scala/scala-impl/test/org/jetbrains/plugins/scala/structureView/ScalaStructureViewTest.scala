@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.structureView
 
 import java.util.Comparator
-import javax.swing.Icon
 
 import com.intellij.icons.AllIcons.Nodes._
 import com.intellij.ide.structureView.StructureViewTreeElement
@@ -11,6 +10,7 @@ import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.PlatformIcons._
+import javax.swing.Icon
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -773,9 +773,9 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(model.getRoot, sorter)
     }
 
-    val expectedNode = new Node(FILE, "foo.scala", nodes: _*)
+    val expected = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", nodes: _*).toString
 
-    Assert.assertEquals(expectedNode.toString, actualNode.toString)
+    Assert.assertEquals(expected, actualNode.toString)
   }
 }
 

@@ -8,24 +8,27 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-class ScalaIconProvider extends IconProvider {
-  override def getIcon(element: PsiElement, flags: Int): Icon = {
-    ProgressManager.checkCanceled()
+final class ScalaIconProvider extends IconProvider {
 
-    import icons.Icons._
-    val icon = Some(element) collect {
-      case file: ScalaFile if file.isScriptFile || file.getVirtualFile == null => SCRIPT_FILE_LOGO
-      case file: ScalaFile if file.getFileType != ScalaFileType.INSTANCE => file.getFileType.getIcon
-      case SingularDefinition(definition) => definition.getIcon(flags)
-      case ClassAndCompanionObject(classDefinition, _) =>
-        classDefinition.decorate(
-          if (classDefinition.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT,
-          flags
-        )
-      case TraitAndCompanionObject(_, _) => TRAIT_AND_OBJECT
-      case _: ScalaFile => FILE
-    }
-
-    icon.orNull
+  override def getIcon(element: PsiElement, flags: Int): Icon = element match {
+    case file: ScalaFile =>
+      ProgressManager.checkCanceled()
+      getIcon(file, flags)
+    case _ => null
   }
+
+  import icons.Icons._
+
+  private def getIcon(file: ScalaFile, flags: Int) = file match {
+    case _ if file.isScriptFile => SCRIPT_FILE_LOGO
+    case SingularDefinition(definition) => definition.getIcon(flags)
+    case ClassAndCompanionObject(clazz, _) =>
+      clazz.decorate(
+        if (clazz.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT,
+        flags
+      )
+    case TraitAndCompanionObject(_, _) => TRAIT_AND_OBJECT
+    case _ => file.getFileType.getIcon
+  }
+
 }

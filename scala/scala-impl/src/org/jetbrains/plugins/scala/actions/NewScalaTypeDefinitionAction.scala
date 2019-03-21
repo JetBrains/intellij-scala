@@ -7,7 +7,6 @@ import com.intellij.ide.IdeView
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTemplateUtil}
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -39,11 +38,14 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
     builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
 
-    for (template <- FileTemplateManager.getInstance(project).getAllTemplates) {
-      if (isScalaTemplate(template) && checkPackageExists(directory)) {
-        builder.addKind(template.getName, Icons.FILE, template.getName)
-      }
-    }
+    for {
+      template <- FileTemplateManager.getInstance(project).getAllTemplates
+
+      fileType = FileTypeManagerEx.getInstanceEx.getFileTypeByExtension(template.getExtension)
+      if fileType == ScalaFileType.INSTANCE && checkPackageExists(directory)
+
+      templateName = template.getName
+    } builder.addKind(templateName, fileType.getIcon, templateName)
 
     builder.setTitle("Create New Scala Class")
     builder.setValidator(new InputValidatorEx {
@@ -62,11 +64,6 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
         !StringUtil.isEmptyOrSpaces(inputString) && getErrorText(inputString) == null
       }
     })
-  }
-
-  private def isScalaTemplate(template: FileTemplate): Boolean = {
-    val fileType: FileType = FileTypeManagerEx.getInstanceEx.getFileTypeByExtension(template.getExtension)
-    fileType == ScalaFileType.INSTANCE
   }
 
   def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
@@ -118,9 +115,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     NewScalaTypeDefinitionAction.createFromTemplate(directory, className, templateName, parameters: _*)
   }
 
-  def checkPackageExists(directory: PsiDirectory): Boolean = {
-    JavaDirectoryService.getInstance.getPackage(directory) != null
-  }
+  def checkPackageExists(directory: PsiDirectory): Boolean = JavaDirectoryService.getInstance.getPackage(directory) != null
 }
 
 object NewScalaTypeDefinitionAction {

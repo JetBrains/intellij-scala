@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet
 
 import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
-import com.intellij.openapi.fileTypes.{LanguageFileType, ex}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
@@ -11,20 +10,12 @@ import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 //noinspection TypeAnnotation
-object WorksheetFileType extends LanguageFileType(WorksheetLanguage.INSTANCE)
-  with ex.FileTypeIdentifiableByVirtualFile {
-
-  override def getName = getLanguage.getID
-
-  override def getDescription = "Scala Worksheet files"
+object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE) {
 
   override def getDefaultExtension = "sc"
 
-  //todo worksheet logo
-  override def getIcon = icons.Icons.FILE_TYPE_LOGO
-
-  override def isMyFileType(file: VirtualFile): Boolean =
-    getDefaultExtension == file.getExtension
+  // TODO worksheet logo
+  override def getIcon = ScalaFileType.INSTANCE.getIcon
 
   def isWorksheetFile(file: VirtualFile)
                      (flag: Project => Boolean = treatScratchFileAsWorksheet(_))

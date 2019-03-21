@@ -15,52 +15,22 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.icons.Icons;
+import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 
 /**
  * @author ilyas
  */
-public class ScalaFileType extends LanguageFileType implements FileTypeIdentifiableByVirtualFile {
+final public class ScalaFileType extends LanguageFileTypeBase {
 
-  public static final ScalaFileType INSTANCE = new ScalaFileType();
+    public static final ScalaFileType INSTANCE = new ScalaFileType();
 
-  private ScalaFileType() {
-    super(ScalaLanguage.INSTANCE);
-  }
+    private ScalaFileType() {
+        super(ScalaLanguage.INSTANCE);
+    }
 
-  @NotNull
-  @NonNls
-  public String getName() {
-    return "Scala";
-  }
-
-  @NotNull
-  public String getDescription() {
-    return "Scala files";
-  }
-
-  @NotNull
-  @NonNls
-  public String getDefaultExtension() {
-    return "scala";
-  }
-
-  public Icon getIcon() {
-     return Icons.FILE;
-  }
-
-  // TODO Temporary fix for Upsource
-  // (FileTypeManagerImpl.isFileOfType is called from ScalaSourceFilterScope,
-  // while FileTypeManager contains no .scala pattern)
-  @Override
-  public boolean isMyFileType(@NotNull VirtualFile virtualFile) {
-    return getDefaultExtension().equals(virtualFile.getExtension());
-  }
+    public Icon getIcon() {
+        return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
+    }
 }

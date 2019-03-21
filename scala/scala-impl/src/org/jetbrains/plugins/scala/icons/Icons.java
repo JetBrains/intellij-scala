@@ -23,8 +23,6 @@ public interface Icons {
 
     Icon COMPILE_SERVER = getIcon("/org/jetbrains/plugins/scala/images/compileServer.svg");
 
-    Icon FILE_TYPE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
-
     Icon SCALA_SMALL_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.svg");
     Icon SCRIPT_FILE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.svg");
 
@@ -36,7 +34,6 @@ public interface Icons {
     Icon NO_SCALA_SDK = getIcon("/org/jetbrains/plugins/scala/images/no_scala_sdk.svg");
 
     //Toplevel nodes
-    Icon FILE = getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
     Icon CLASS = getIcon("/org/jetbrains/plugins/scala/images/class_scala.svg");
     Icon ABSTRACT_CLASS = getIcon("/org/jetbrains/plugins/scala/images/abstract_class_scala.svg");
     Icon TRAIT = getIcon("/org/jetbrains/plugins/scala/images/trait_scala.svg");
