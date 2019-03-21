@@ -26,9 +26,10 @@ import org.jetbrains.plugins.scala.util.ImplicitUtil._
  * Date: 17.08.2009
  */
 class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory { self =>
-  private[factory] val typeDefinitionOptions = new ScalaTypeDefinitionFindUsagesOptions(project)
-  private[factory] val memberOptions         = new ScalaMemberFindUsagesOptions(project)
-  private[factory] val localOptions          = new ScalaLocalFindUsagesOptions(project)
+  private[factory] val typeDefinitionOptions  = new ScalaTypeDefinitionFindUsagesOptions(project)
+  private[factory] val memberOptions          = new ScalaMemberFindUsagesOptions(project)
+  private[factory] val localOptions           = new ScalaLocalFindUsagesOptions(project)
+  private[factory] val compilerIndicesOptions = CompilerIndicesSettings(project)
 
   override def canFindUsages(element: PsiElement): Boolean =
     element match {
@@ -52,8 +53,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
     val replaced =
       if (!forHighlightUsages) {
-        val maybeSuper            = suggestChooseSuper(unwrapped)
-        val settings              = CompilerIndicesSettings(project)
+        val maybeSuper             = suggestChooseSuper(unwrapped)
+        val settings               = CompilerIndicesSettings(project)
         val shouldSearchInBytecode = new ShouldBeSearchedInBytecode(settings)
         maybeSuper.flatMap {
           case shouldSearchInBytecode(target, usageType) =>

@@ -141,7 +141,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           if (s.isSearchCompanionModule)
             definition.baseCompanionModule.foreach(companion => if (!addElementUsages(companion)) return false)
 
-          if (definition.isSAMable) {
+          if (factory.compilerIndicesOptions.isEnabledForSAMTypes && definition.isSAMable) {
             val success =
               CompilerIndicesInheritorsSearch.search(definition, options.searchScope)
                 .forEach((e: PsiElement) => processor.process(new UsageInfo(e)))
