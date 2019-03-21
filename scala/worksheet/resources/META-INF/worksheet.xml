@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <resource-bundle xmlns="">messages.ScalaCodeInsightBundle</resource-bundle>
+    <resource-bundle xmlns="">messages.WorksheetBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileTypeFactory"/>
