@@ -13,7 +13,7 @@ import com.intellij.util.ui.FormBuilder
 import javax.swing.{Action, JComponent, JLabel}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.UsageType
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.{CompilerIndicesConfigurable, CompilerIndicesSettings}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.{CompilerIndicesConfigurable, CompilerIndicesSbtSettings, CompilerIndicesSettings}
 
 private object ImplicitUsagesSearchDialogs {
   class EnableCompilerIndicesDialog(project: Project, canBeParent: Boolean, usageType: UsageType)
@@ -69,13 +69,16 @@ private object ImplicitUsagesSearchDialogs {
     element:     PsiNamedElement,
     title:       String
   ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT) {
-    private[this] val shouldCompileCB = new JBCheckBox("Pre-compile modules in use scope before searching", true)
+
+    private[this] val shouldCompileCB = new JBCheckBox(
+      "Pre-compile modules in use scope before searching",
+      !CompilerIndicesSbtSettings().useManualConfiguration
+    )
 
     private[this] val settingsLink =
       new LinkLabel[AnyRef]("Settings", null) {
         setListener({
           case (_, _) =>
-            close(DialogWrapper.CANCEL_EXIT_CODE)
             ShowSettingsUtil.getInstance().showSettingsDialog(element.getProject, classOf[CompilerIndicesConfigurable])
         }, null)
       }
@@ -99,6 +102,7 @@ private object ImplicitUsagesSearchDialogs {
       FormBuilder
         .createFormBuilder()
         .addComponent(new JLabel(indicesStatusMessage))
+        .addVerticalGap(3)
         .addComponent(shouldCompileCB)
         .addVerticalGap(5)
         .addComponent(settingsLink)
