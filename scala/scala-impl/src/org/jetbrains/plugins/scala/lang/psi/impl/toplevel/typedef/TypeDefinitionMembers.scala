@@ -81,7 +81,7 @@ object TypeDefinitionMembers {
 
   abstract class SignatureNodes extends MixinNodes[Signature] {
     def shouldSkip(t: Signature): Boolean = t.namedElement match {
-      case f: ScFunction => f.isBridge || f.isConstructor
+      case f: ScFunction => f.isConstructor
       case m: PsiMethod  => m.isConstructor || isStaticJava(m)
       case m: PsiMember  => isStaticJava(m)
       case _             => false

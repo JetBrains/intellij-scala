@@ -115,11 +115,6 @@ object ResolveUtils {
       }
     }
 
-    member match {
-      case f: ScFunction if f.isBridge => return false
-      case _ =>
-    }
-
     def checkProtected(td: PsiClass, withCompanion: Boolean): Boolean = {
       val isConstr = member match {
         case m: PsiMethod => m.isConstructor

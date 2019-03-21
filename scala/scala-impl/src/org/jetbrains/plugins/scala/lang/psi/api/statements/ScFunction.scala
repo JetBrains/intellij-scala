@@ -91,8 +91,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     visitor.visitFunction(this)
   }
 
-  def isBridge: Boolean
-
   def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
 
   def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
