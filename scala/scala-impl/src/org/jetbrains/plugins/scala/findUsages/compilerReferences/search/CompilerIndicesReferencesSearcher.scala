@@ -8,7 +8,7 @@ import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
 import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
@@ -172,10 +172,10 @@ object CompilerIndicesReferencesSearcher {
             val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
             val factory     = ScalaFindUsagesHandlerFactory.getInstance(project)
 
-            val handler = target match {
+            val handler = inReadAction(target match {
               case SAMType(_) => new ScalaFindUsagesHandler(target, factory)
               case _          => new CompilerIndicesFindUsagesHandler(target, factory)
-            }
+            })
 
             val runnable: Runnable = () =>
               findManager.getFindUsagesManager.findUsages(
