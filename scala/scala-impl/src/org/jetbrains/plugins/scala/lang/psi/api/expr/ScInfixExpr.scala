@@ -18,11 +18,11 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
   type Kind = ScExpression
   type Reference = ScReferenceExpression
 
-  def left: ScExpression = unapply._1
+  override def left: ScExpression = unapply._1
 
   override def operation: ScReferenceExpression = unapply._2
 
-  def rightOption: Option[ScExpression] = Option(right)
+  override def rightOption: Option[ScExpression] = Option(right)
 
   def right: ScExpression = unapply._3
 

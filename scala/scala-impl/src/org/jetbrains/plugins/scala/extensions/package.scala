@@ -300,6 +300,13 @@ package object extensions {
 
     def ifNot(predicate: T => Boolean): Option[T] =
       if (predicate(v)) None else Some(v)
+
+    // todo: can we make these methods macro?
+    @inline def is[T1: ClassTag]: Boolean = implicitly[ClassTag[T1]].runtimeClass.isInstance(v)
+    @inline def is[T1: ClassTag, T2: ClassTag]: Boolean = is[T1] || is[T2]
+    @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag]: Boolean = is[T1, T2] || is[T3]
+    @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag]: Boolean = is[T1, T2, T3] || is[T4]
+    @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag, T5: ClassTag]: Boolean = is[T1, T2, T3, T4] || is[T5]
   }
 
   implicit class OptionExt[T](val option: Option[T]) extends AnyVal {
