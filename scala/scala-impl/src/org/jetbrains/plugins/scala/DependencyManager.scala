@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala
 import java.io.File
 import java.nio.file.{Files, Paths}
 
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.report.ResolveReport
@@ -170,9 +169,7 @@ object DependencyManagerBase {
 
   sealed trait Dependency
   case class UnresolvedDependency(info: DependencyDescription) extends Dependency
-  case class ResolvedDependency(info: DependencyDescription, file: File) extends Dependency {
-    def toJarVFile: VirtualFile = JarFileSystem.getInstance().refreshAndFindFileByPath(s"${file.getCanonicalPath}!/")
-  }
+  case class ResolvedDependency(info: DependencyDescription, file: File) extends Dependency
 
   sealed trait Resolver
   case class MavenResolver(name: String, root: String) extends Resolver

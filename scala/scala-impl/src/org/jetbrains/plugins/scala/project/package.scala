@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -33,6 +32,7 @@ import scala.util.matching.Regex
  * @author Pavel Fatin
  */
 package object project {
+
   implicit class LibraryExt(val library: Library) extends AnyVal {
     def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryType().getKind
 
@@ -45,19 +45,6 @@ package object project {
       libraryEx.getProperties.asOptionOf[ScalaLibraryProperties]
 
     private def libraryEx = library.asInstanceOf[LibraryEx]
-
-    def convertToScalaSdkWith(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]): ScalaSdk = {
-      val properties = new ScalaLibraryProperties()
-      properties.languageLevel = languageLevel
-      properties.compilerClasspath = compilerClasspath
-
-      val editor = new ExistingLibraryEditor(library, null)
-      editor.setType(ScalaLibraryType())
-      editor.setProperties(properties)
-      editor.commit()
-
-      new ScalaSdk(library)
-    }
 
     def classes: Set[File] = library.getFiles(OrderRootType.CLASSES).toSet.map(VfsUtilCore.virtualToIoFile)
   }
@@ -87,19 +74,6 @@ package object project {
       collector.getResults.asScala.toSet
     }
 
-    def attach(library: Library): Unit = {
-      val model = modifiableModel
-      model.addLibraryEntry(library)
-      model.commit()
-    }
-
-    def detach(library: Library): Unit = {
-      val model = modifiableModel
-      val entry = model.findLibraryOrderEntry(library)
-      model.removeOrderEntry(entry)
-      model.commit()
-    }
-
     def scalaCompilerSettings: ScalaCompilerSettings =
       compilerConfiguration.getSettingsForModule(module)
 
@@ -113,8 +87,8 @@ package object project {
       compilerConfiguration.hasSettingForHighlighting(module, _.literalTypes)
 
     /**
-      * @see https://github.com/non/kind-projector
-      */
+     * @see https://github.com/non/kind-projector
+     */
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def kindProjectorPluginEnabled: Boolean =
       compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kind-projector")))
@@ -124,12 +98,12 @@ package object project {
       compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("better-monadic-for")))
 
     /**
-      * Should we check if it's a Single Abstract Method?
-      * In 2.11 works with -Xexperimental
-      * In 2.12 works by default
-      *
-      * @return true if language level and flags are correct
-      */
+     * Should we check if it's a Single Abstract Method?
+     * In 2.11 works with -Xexperimental
+     * In 2.12 works by default
+     *
+     * @return true if language level and flags are correct
+     */
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def isSAMEnabled: Boolean = scalaLanguageLevel.exists {
       case lang if lang > Scala_2_11 => true // if scalaLanguageLevel is None, we treat it as Scala 2.12
@@ -268,6 +242,7 @@ package object project {
           case elem => getContainingFileByContext(elem.getContext)
         }
       }
+
       val file: PsiFile = getContainingFileByContext(element)
       if (file == null || file.getVirtualFile == null) return ScalaLanguageLevel.Default
       val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
@@ -280,14 +255,18 @@ package object project {
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
 
     def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
-    def betterMonadicForEnabled   : Boolean = inThisModuleOrProject(_.betterMonadicForPluginEnabled)
-    def isSAMEnabled              : Boolean = inThisModuleOrProject(_.isSAMEnabled)
-    def literalTypesEnabled       : Boolean = inThisModuleOrProject(_.literalTypesEnabled)
-    def partialUnificationEnabled : Boolean = inThisModuleOrProject(_.isPartialUnificationEnabled)
+
+    def betterMonadicForEnabled: Boolean = inThisModuleOrProject(_.betterMonadicForPluginEnabled)
+
+    def isSAMEnabled: Boolean = inThisModuleOrProject(_.isSAMEnabled)
+
+    def literalTypesEnabled: Boolean = inThisModuleOrProject(_.literalTypesEnabled)
+
+    def partialUnificationEnabled: Boolean = inThisModuleOrProject(_.isPartialUnificationEnabled)
 
     private def inThisModuleOrProject(predicate: Module => Boolean): Boolean = module match {
       case Some(m) => predicate(m)
-      case None    => element.getProject.modulesWithScala.exists(predicate)
+      case None => element.getProject.modulesWithScala.exists(predicate)
     }
   }
 

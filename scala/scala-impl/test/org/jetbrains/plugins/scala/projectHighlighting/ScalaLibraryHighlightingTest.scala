@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.projectHighlighting
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
 import org.jetbrains.plugins.scala.debugger.{CustomVersion, ScalaVersion}
@@ -22,8 +21,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 
   def testHighlightScalaLibrary(): Unit = {
     val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems, reportStatus = false)
-    val manager = ScalaSDKLoader().dependencyManager
-    val sources = manager.resolveSingle("org.scala-lang" % "scala-library" % version.minor % Types.SRC).toJarVFile
+    val sources = ScalaSDKLoader().resolveSources
     VfsUtilCore.processFilesRecursively(sources, (vFile: VirtualFile) => {
       if (vFile.getFileType == ScalaFileType.INSTANCE) {
         val relPath = VfsUtilCore.getRelativePath(vFile, sources)
