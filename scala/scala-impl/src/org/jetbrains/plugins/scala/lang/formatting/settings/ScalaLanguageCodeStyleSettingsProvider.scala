@@ -268,7 +268,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       |
       |  val goo = new Foo
       |
-      |  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()
+      |  gooooo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()
+      |    .foo().foo()
+      |    .foo(1, 2, 3).foo()
       |
       |  def m(x: Int, y: Int, z: Int)(u: Int, f: Int, l: Int) {
       |    val zz = if (true) 1 else 3
