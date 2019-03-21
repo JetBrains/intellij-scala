@@ -5,8 +5,8 @@ package rename
 
 import java.awt.{BorderLayout, GridLayout}
 import java.util
-import javax.swing._
 
+import javax.swing._
 import com.intellij.CommonBundle
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.application.ApplicationManager
@@ -22,6 +22,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -75,7 +76,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
     val buff = new ArrayBuffer[PsiNamedElement]
-    val getterOrSetter = function.getGetterOrSetterFunction match {
+    val getterOrSetter = getGetterOrSetterFunction(function) match {
       case Some(function2) =>
         buff += function2
         Some(function2)
@@ -84,7 +85,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
     for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
       allRenames.put(elem, newName)
       elem match {
-        case fun: ScFunction => fun.getGetterOrSetterFunction match {
+        case fun: ScFunction => getGetterOrSetterFunction(fun) match {
           case Some(function2) => buff += function2
           case _ =>
         }
@@ -126,6 +127,20 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
     RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
+
+  def getGetterOrSetterFunction(f: ScFunction): Option[ScFunction] = {
+    f.containingClass match {
+      case clazz: ScTemplateDefinition =>
+        val name = f.name
+        if (name.endsWith("_=")) {
+          clazz.functions.find(_.name == name.substring(0, name.length - 2))
+        } else if (!f.hasParameterClause) {
+          clazz.functions.find(_.name == name + "_=")
+        } else None
+      case _ => None
+    }
+  }
+
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
     setTitle(IdeBundle.message("title.warning"))

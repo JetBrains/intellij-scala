@@ -50,18 +50,5 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
 
   def parameterList: ScParameters
 
-  def hasMalformedSignature: Boolean
-
-  def addParameter(param: ScParameter): ScMethodLike = {
-    if (parameterList.clauses.nonEmpty)
-      parameterList.clauses.head.addParameter(param)
-    else {
-      val clause = createClauseFromText()
-      val newClause = clause.addParameter(param)
-      parameterList.addClause(newClause)
-    }
-    this
-  }
-
-  def isExtensionMethod: Boolean = false
+  def parameters: Seq[ScParameter]
 }

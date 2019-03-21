@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.strictlyOrderedByContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, functionTypeNoImplicits}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -600,8 +600,8 @@ class ImplicitCollector(place: PsiElement,
     val subst = c.substitutor
 
     val ft =
-      if (noReturnType) fun.functionTypeNoImplicits(Some(Nothing))
-      else fun.functionTypeNoImplicits()
+      if (noReturnType) functionTypeNoImplicits(fun, Some(Nothing))
+      else functionTypeNoImplicits(fun)
 
     ft match {
       case Some(_funType: ScType) =>

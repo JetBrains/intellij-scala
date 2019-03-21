@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiN
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
@@ -291,7 +291,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             }
           case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
             if (!processor.isInstanceOf[CompletionProcessor]) {
-              fun.getParamByName(refName, invocationCount - 1) match {
+              getParamByName(fun, refName, invocationCount - 1) match {
                 //todo: why -1?
                 case Some(param) =>
                   var state = ResolveState.initial.put(ScSubstitutor.key, subst).
@@ -400,7 +400,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               candidate match {
                 case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
                   if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
-                    fun.getParamByName(refName, arguments.indexOf(args)) match {
+                    getParamByName(fun, refName, arguments.indexOf(args)) match {
                       case Some(param) =>
                         var state = ResolveState.initial.put(ScSubstitutor.key, subst).
                           put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
@@ -416,7 +416,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                   }
                 case ScalaResolveResult(constructor: ScPrimaryConstructor, _) =>
                   if (!baseProcessor.isInstanceOf[CompletionProcessor])
-                    constructor.getParamByName(refName, arguments.indexOf(args)) match {
+                    getParamByName(constructor, refName, arguments.indexOf(args)) match {
                       case Some(param) =>
                         baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
                           put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
@@ -618,4 +618,23 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     ScalaPsiElementFactory.createExpressionFromText(newText, ref.getContext)
       .asInstanceOf[ScReferenceExpression]
   }
+
+  /**
+    * Seek parameter with appropriate name in appropriate parameter clause.
+    *
+    * @param name          parameter name
+    * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
+    */
+  private def getParamByName(ml: ScMethodLike, name: String, clausePosition: Int = -1): Option[ScParameter] = {
+    val parameters = clausePosition match {
+      case -1 => ml.parameters
+      case i if i < 0 || i >= ml.effectiveParameterClauses.length => Seq.empty
+      case _ => ml.effectiveParameterClauses.apply(clausePosition).effectiveParameters
+    }
+
+    parameters.find { param =>
+      ScalaNamesUtil.equivalent(param.name, name) || param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
+    }
+  }
+
 }

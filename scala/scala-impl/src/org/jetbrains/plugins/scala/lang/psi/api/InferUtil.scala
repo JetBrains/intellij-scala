@@ -441,7 +441,7 @@ object InferUtil {
              _: ScParameter |
              _: ScBindingPattern |
              _: ScFieldId => element.asInstanceOf[Typeable].`type`().toOption
-        case function: ScFunction => function.functionTypeNoImplicits()
+        case function: ScFunction => functionTypeNoImplicits(function)
       }
 
       maybeType.map(substitutor)
@@ -592,5 +592,38 @@ object InferUtil {
       }
     } else ScTypePolymorphicType(retType, typeParams)
     (tpe, conformanceResult)
+  }
+
+  def functionTypeNoImplicits(function: ScFunction, forcedReturnType: Option[ScType] = None): Option[ScType] = {
+    val retType = forcedReturnType match { //avoid getOrElse for reduced stacktrace
+      case None => function.returnType.toOption
+      case some => some
+    }
+    collectReverseParamTypesNoImplicits(function) match {
+      case Some(params) =>
+        implicit val scope: ElementScope = ElementScope(function)
+        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
+      case None => None
+    }
+  }
+
+  private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[Seq[Seq[ScType]]] = {
+    val buffer = ArrayBuffer.empty[Seq[ScType]]
+    val clauses = function.paramClauses.clauses
+
+    //for performance
+    var idx = clauses.length - 1
+    while (idx >= 0) {
+      val cl = clauses(idx)
+      if (!cl.isImplicit) {
+        val parameters = cl.parameters
+        val paramTypes = parameters.flatMap(_.`type`().toOption)
+
+        if (paramTypes.size != parameters.size) return None
+        else buffer += paramTypes
+      }
+      idx -= 1
+    }
+    Some(buffer)
   }
 }

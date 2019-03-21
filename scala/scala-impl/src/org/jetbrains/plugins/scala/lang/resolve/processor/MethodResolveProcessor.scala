@@ -355,7 +355,7 @@ object MethodResolveProcessor {
       case _: ScTypeAlias =>
         ConformanceExtResult(problems)
       //Implicit Application
-      case f: ScMethodLike if f.hasMalformedSignature =>
+      case f: ScMethodLike if hasMalformedSignature(f) =>
         problems += new MalformedDefinition
         ConformanceExtResult(problems)
       case ScalaConstructor(constructor) => scalaConstructorCompatibility(constructor)
@@ -670,5 +670,10 @@ object MethodResolveProcessor {
         case None => filtered
       }
     }
+  }
+
+  //Signature has repeated param, which is not the last one
+  private def hasMalformedSignature(ml: ScMethodLike) = ml.parameterList.clauses.exists {
+    _.parameters.dropRight(1).exists(_.isRepeatedParameter)
   }
 }

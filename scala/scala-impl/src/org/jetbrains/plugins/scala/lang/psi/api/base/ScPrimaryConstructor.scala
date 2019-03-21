@@ -23,9 +23,6 @@ import scala.collection.mutable
 */
 
 trait ScPrimaryConstructor extends ScMember with ScMethodLike {
-  override def hasMalformedSignature: Boolean = parameterList.clauses.exists {
-    _.parameters.dropRight(1).exists(_.isRepeatedParameter)
-  }
 
   /**
    *  @return has access modifier
@@ -89,20 +86,6 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
       ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }
     res.asInstanceOf[ScMethodType]
-  }
-
-  def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
-    clausePosition match {
-      case -1 =>
-        for (param <- parameters if ScalaNamesUtil.equivalent(param.name, name)) return Some(param)
-        None
-      case i if i < 0 => None
-      case i if i >= effectiveParameterClauses.length => None
-      case i =>
-        val clause: ScParameterClause = effectiveParameterClauses.apply(i)
-        for (param <- clause.parameters if ScalaNamesUtil.equivalent(param.name, name)) return Some(param)
-        None
-    }
   }
 
   @Cached(ModCount.getBlockModificationCount, this)
