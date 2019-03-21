@@ -184,6 +184,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def targetElements(file: PsiFile, editor: Editor): Seq[ClassMember] =
     parentClasses(file, editor).flatMap(targetsIn)
+      .sortBy(m => (m.getPsiElement.getContainingFile.getName, m.getPsiElement.getTextRange.getStartOffset))
 
   // todo add ScObjectMember for targets
   private def targetsIn(clazz: ScTemplateDefinition): Iterable[ClassMember] =
