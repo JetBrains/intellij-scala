@@ -13,7 +13,7 @@ import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.project.template._
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConverters
 
 abstract class DependencyManagerBase {
   import DependencyManagerBase._
@@ -21,7 +21,7 @@ abstract class DependencyManagerBase {
   private val homePrefix = sys.props.get("tc.idea.prefix").orElse(sys.props.get("user.home")).map(new File(_)).get
   private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
-  protected val artifactBlackList = Set("scala-library", "scala-reflect", "scala-compiler")
+  protected val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
   protected val resolvers: Seq[Resolver] = Seq(
@@ -121,25 +121,26 @@ abstract class DependencyManagerBase {
         .getAllArtifactsReports
         .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
         .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
+    } else {
+      import JavaConverters._
+      throw new RuntimeException(report.getAllProblemMessages.asScala.mkString("\n"))
     }
-    else throw new RuntimeException(report.getAllProblemMessages.asScala.mkString("\n"))
-  }
-
-  private def resolveFast(dep: DependencyDescription): Dependency = {
-    val DependencyDescription(org, artId, version, _, kind, _, _) = dep
-    val suffix = if (dep.classifierBare.nonEmpty) s"-${dep.classifierBare}" else ""
-    val file   = new File(ivyHome, s"cache/$org/$artId/${kind}s/$artId-$version$suffix.jar")
-    if (!dep.isTransitive && file.exists())
-      ResolvedDependency(dep, file)
-    else
-      UnresolvedDependency(dep)
   }
 
   def resolve(dependencies: DependencyDescription*): Seq[ResolvedDependency] = {
-    val res = dependencies.map(resolveFast)
-    val resolvedLocally = res.collect({case d:ResolvedDependency => d})
-    val unresolved      = res.collect({case UnresolvedDependency(info) => info})
-    resolvedLocally ++ resolveIvy(unresolved)
+    val (resolved, unresolved) = dependencies.map {
+      case info@DependencyDescription(org, artId, version, _, kind, false, _) =>
+        new File(
+          ivyHome,
+          s"cache/$org/$artId/${kind}s/$artId-$version${info.classifierBare.fold("")("-" + _)}.jar"
+        ) match {
+          case file if file.exists() => Right(ResolvedDependency(info, file))
+          case _ => Left(info)
+        }
+      case info => Left(info)
+    }.partition(_.isRight)
+
+    resolved.map(_.right.get) ++ resolveIvy(unresolved.map(_.left.get))
   }
 
   def resolveSingle(dependency: DependencyDescription): ResolvedDependency = resolve(dependency).head
@@ -148,19 +149,25 @@ abstract class DependencyManagerBase {
 object DependencyManagerBase {
 
   object Types extends Enumeration {
-    type Type = Value
-    val JAR, BUNDLE, SRC = Value
+
+    final class Type extends super.Val {
+      override def toString: String = super.toString.toLowerCase
+    }
+
+    val JAR, BUNDLE, SRC = new Type
   }
+
+  import Types._
 
   case class DependencyDescription(org: String,
                                    artId: String,
                                    version: String,
                                    conf: String = "compile->default(compile)",
-                                   kind: String = Types.JAR.str,
+                                   kind: Type = JAR,
                                    isTransitive: Boolean = false,
                                    excludes: Seq[String] = Seq.empty) {
     def %(version: String): DependencyDescription = copy(version = version)
-    def %(kind: Types.Type): DependencyDescription = copy(kind = kind.str)
+    def %(kind: Type): DependencyDescription = copy(kind = kind)
     def configuration(conf: String): DependencyDescription = copy(conf = conf)
     def transitive(): DependencyDescription = copy(isTransitive = true)
     def exclude(patterns: String*): DependencyDescription = copy(excludes = patterns)
@@ -175,18 +182,28 @@ object DependencyManagerBase {
   case class MavenResolver(name: String, root: String) extends Resolver
   case class IvyResolver(name: String, pattern: String) extends Resolver
 
-  implicit class RichStr(value: String) {
-    def %(right: String) = DependencyDescription(value, right, "")
-    def %%(right: String)(implicit scalaVersion: ScalaVersion): DependencyDescription =
-      DependencyDescription(value, s"${right}_${scalaVersion.major}", "")
+  implicit class RichStr(private val org: String) extends AnyVal {
+
+    def %(artId: String) = DependencyDescription(org, artId, "")
+
+    def %%(artId: String)(implicit scalaVersion: ScalaVersion) = DependencyDescription(
+      org,
+      artId + "_" + scalaVersion.major,
+      ""
+    )
   }
 
-  implicit class DependencyDescriptionExt(dep: DependencyDescription) {
-    def classifier: String = if (classifierBare.nonEmpty) s"""e:classifier="$classifierBare"""" else ""
-    def classifierBare: String = if (dep.kind == Types.SRC.str) "sources" else ""
-  }
+  implicit class DependencyDescriptionExt(private val dep: DependencyDescription) extends AnyVal {
 
-  implicit class TypesExt(tp: Types.Type) { def str: String = tp.toString.toLowerCase }
+    def classifier: String = classifierBare.fold("") { bare =>
+      "e:classifier=\"" + bare + "\""
+    }
+
+    def classifierBare: Option[String] = dep.kind match {
+      case Types.SRC => Some("sources")
+      case _ => None
+    }
+  }
 
   def stripScalaVersion(str: String): String = str.replaceAll("_\\d+\\.\\d+$", "")
 }
