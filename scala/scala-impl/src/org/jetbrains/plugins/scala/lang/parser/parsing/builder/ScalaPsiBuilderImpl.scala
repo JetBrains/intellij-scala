@@ -20,8 +20,8 @@ import scala.collection.mutable
 import scala.meta.intellij.psi
 
 /**
-  * @author Alexander Podkhalyuzin
-  */
+ * @author Alexander Podkhalyuzin
+ */
 class ScalaPsiBuilderImpl(delegate: PsiBuilder)
   extends PsiBuilderAdapter(delegate) with ScalaPsiBuilder {
 
@@ -41,12 +41,13 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
   }
 
   override def newlineBeforeCurrentToken: Boolean =
-    checkedFindPreviousNewLine.isDefined
+    previousNewLineExists(Function.const(true))
 
   override def twoNewlinesBeforeCurrentToken: Boolean =
-    checkedFindPreviousNewLine match {
-      case Some(text) => s"start $text end".split('\n').exists(ScalaPsiBuilderImpl.isBlank)
-      case _ => false
+    previousNewLineExists { text =>
+      s"start $text end".split('\n').exists { line =>
+        line.forall(StringUtil.isWhiteSpace)
+      }
     }
 
   override final def disableNewlines(): Unit = {
@@ -66,34 +67,20 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     ScalaPsiBuilderImpl.isTrailingCommasEnabled(getProject, maybePsiFile, maybeScalaVersion)
 
   override final def isIdBindingEnabled: Boolean =
-    isTestFile || maybeScalaVersion.exists(_ >= Version("2.12"))
+    maybePsiFile.exists { file =>
+      ScalaPsiBuilderImpl.isTestFile(file) ||
+        maybeScalaVersion.exists(_ >= Version("2.12"))
+    }
 
   protected final def isNewlinesEnabled: Boolean = newlinesEnabled.isEmpty || newlinesEnabled.top
 
-  final def findPreviousNewLine: Option[String] = {
-    @tailrec
-    def whiteSpacesAndComments(steps: Int = 1): String =
-      if (steps < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-steps)))
-        whiteSpacesAndComments(steps + 1)
-      else
-        originalSubText(1 - steps)
+  final def findPreviousNewLine: Option[String] = whiteSpacesAndComments(1)
 
-
-    whiteSpacesAndComments() match {
-      case text if text.contains('\n') => Some(text)
-      case _ => None
-    }
-  }
-
-  private def checkedFindPreviousNewLine: Option[String] =
-    if (isNewlinesEnabled && !eof && canStartStatement) {
-      findPreviousNewLine
-    } else {
-      None
-    }
-
-  private def isTestFile: Boolean =
-    maybePsiFile.exists(ScalaPsiBuilderImpl.isTestFile)
+  private def previousNewLineExists(predicate: String => Boolean): Boolean =
+    isNewlinesEnabled &&
+      !eof &&
+      canStartStatement &&
+      findPreviousNewLine.exists(predicate)
 
   import lexer.{ScalaTokenTypes => T}
 
@@ -135,15 +122,22 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     case _ => true
   }
 
-  private def originalSubText(steps: Int) = getOriginalText.subSequence(
-    rawTokenTypeStart(steps),
-    rawTokenTypeStart(0)
-  ).toString
+  @tailrec
+  private[this] def whiteSpacesAndComments(steps: Int): Option[String] =
+    if (steps < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-steps))) {
+      whiteSpacesAndComments(steps + 1)
+    } else {
+      val originalSubText = getOriginalText.subSequence(
+        rawTokenTypeStart(1 - steps),
+        rawTokenTypeStart(0)
+      ).toString
+
+      if (originalSubText.contains('\n')) Some(originalSubText)
+      else None
+    }
 }
 
 object ScalaPsiBuilderImpl {
-  private def isBlank(string: String): Boolean =
-    string.forall(StringUtil.isWhiteSpace)
 
   // TODO: move to more appropriate place, the code is reused in formatter
   def isTrailingCommasEnabled(file: PsiFile): Boolean = {
