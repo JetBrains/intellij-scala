@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.project
+package org.jetbrains.plugins.scala
+package project
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -6,59 +7,47 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.roots.libraries.Library
-import com.intellij.util.Processor
 
 /**
  * @author Pavel Fatin
  */
-class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends ProjectComponent {
-  private val cache = new ConcurrentHashMap[Module, Option[ScalaSdk]]()
+final class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends ProjectComponent {
 
-  events.addScalaProjectListener(new ScalaProjectListener {
-    def onScalaProjectChanged() {
-      cache.clear()
-    }
-  })
+  private val cache = new ConcurrentHashMap[Module, ScalaSdk]()
 
-  override def projectClosed(): Unit = {
-    cache.clear()
-  }
+  events.addScalaProjectListener(() => clear())
 
-  def get(module: Module): Option[ScalaSdk] = {
-    val cached = cache.get(module)
+  override def projectClosed(): Unit = clear()
 
-    if (cached != null) cached
-    else {
-      val computed = scalaSdk0(module)
-      cache.put(module, computed)
-      computed
-    }
-  }
+  def apply(module: Module): ScalaSdk = cache.computeIfAbsent(
+    module,
+    ScalaSdkCache.findScalaSdk(_)
+  )
 
-  private def scalaSdk0(module: Module): Option[ScalaSdk] = {
-    var result: Option[ScalaSdk] = None
-
-    // TODO breadth-first search is preferable
-    val enumerator = ModuleRootManager.getInstance(module)
-      .orderEntries().recursively().librariesOnly().exportedOnly()
-
-    enumerator.forEachLibrary(new Processor[Library] {
-      override def process(library: Library): Boolean = {
-        if (library.isScalaSdk) {
-          result = Some(new ScalaSdk(library))
-          false
-        } else {
-          true
-        }
-      }
-    })
-
-    result
-  }
+  private def clear(): Unit = cache.clear()
 }
 
 object ScalaSdkCache {
-  def instanceIn(project: Project): ScalaSdkCache =
+
+  def apply(project: Project): ScalaSdkCache =
     project.getComponent(classOf[ScalaSdkCache])
+
+  private def findScalaSdk(module: Module): ScalaSdk = {
+    var result: ScalaSdk = null
+
+    ModuleRootManager.getInstance(module)
+      .orderEntries()
+      .recursively()
+      .librariesOnly()
+      .exportedOnly()
+      .forEachLibrary { library =>
+        val found = library.isScalaSdk
+
+        if (found) result = new ScalaSdk(library)
+
+        !found
+      }
+
+    result
+  }
 }

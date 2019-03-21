@@ -71,8 +71,9 @@ package object project {
     def hasDotty: Boolean =
       scalaSdk.exists(_.platform == Platform.Dotty)
 
-    def scalaSdk: Option[ScalaSdk] =
-      ScalaSdkCache.instanceIn(module.getProject).get(module)
+    def scalaSdk: Option[ScalaSdk] = Option {
+      ScalaSdkCache(module.getProject)(module)
+    }
 
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
