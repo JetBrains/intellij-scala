@@ -72,7 +72,11 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     Disposer.register(module, library)
     inWriteAction {
-      val properties = createLibraryProperties(compilerClasspath)
+      val properties = ScalaLibraryProperties(
+        null,
+        languageLevel(compilerClasspath.head),
+        compilerClasspath
+      )
 
       val editor = new ExistingLibraryEditor(library, null)
       editor.setType(ScalaLibraryType())
@@ -93,13 +97,9 @@ object ScalaSDKLoader {
       file.getCanonicalPath + "!/"
     }
 
-  private def createLibraryProperties(compilerClasspath: Seq[File]) = {
-    val properties = new ScalaLibraryProperties()
-    properties.compilerClasspath = compilerClasspath
-    properties.languageLevel = template.Artifact.ScalaCompiler
-      .versionOf(compilerClasspath.head)
+  private def languageLevel(file: File) =
+    template.Artifact.ScalaCompiler
+      .versionOf(file)
       .flatMap(_.toLanguageLevel)
       .getOrElse(ScalaLanguageLevel.Default)
-    properties
-  }
 }

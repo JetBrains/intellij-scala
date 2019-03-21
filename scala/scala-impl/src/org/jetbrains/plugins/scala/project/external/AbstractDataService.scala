@@ -76,10 +76,6 @@ trait Importer[E] {
   def getModules: Array[Module] =
     modelsProvider.getModules
 
-  // FIXME: should be implemented in External System
-  def getModifiableLibraryModelEx(library: Library): LibraryEx.ModifiableModelEx =
-    modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
-
   // Utility methods
 
   def getIdeModuleByNode(node: DataNode[_]): Option[Module] =
@@ -96,18 +92,32 @@ trait Importer[E] {
   def setScalaSdk(library: Library,
                   platform: Platform,
                   languageLevel: ScalaLanguageLevel,
-                  compilerClasspath: Seq[File]): Unit = {
+                  compilerClasspath: Seq[File]): Unit =
+    Importer.setScalaSdk(modelsProvider, library)(
+      platform,
+      languageLevel,
+      compilerClasspath
+    )
+}
 
-    val properties = new ScalaLibraryProperties()
-    properties.platform = platform
-    properties.languageLevel = languageLevel
-    properties.compilerClasspath = compilerClasspath
+object Importer {
 
-    val model = getModifiableLibraryModelEx(library)
-    model.setKind(ScalaLibraryType().getKind)
-    model.setProperties(properties)
+  def setScalaSdk(modelsProvider: IdeModifiableModelsProvider,
+                  library: Library)
+                 (platform: Platform,
+                  languageLevel: ScalaLanguageLevel,
+                  compilerClasspath: Seq[File]): Unit =
+    modelsProvider.getModifiableLibraryModel(library) match { // FIXME: should be implemented in External System
+      case modelEx: LibraryEx.ModifiableModelEx =>
+        val properties = ScalaLibraryProperties(
+          platform,
+          languageLevel,
+          compilerClasspath
+        )
 
-  }
+        modelEx.setKind(ScalaLibraryType().getKind)
+        modelEx.setProperties(properties)
+    }
 }
 
 abstract class AbstractImporter[E](val dataToImport: Seq[DataNode[E]],

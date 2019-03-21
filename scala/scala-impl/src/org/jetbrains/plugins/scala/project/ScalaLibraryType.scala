@@ -31,7 +31,7 @@ object ScalaLibraryType {
 
   private object Kind extends PersistentLibraryKind[ScalaLibraryProperties]("Scala") {
 
-    override def createDefaultProperties() = new ScalaLibraryProperties()
+    override def createDefaultProperties() = ScalaLibraryProperties()
   }
 
 }

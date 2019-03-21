@@ -8,8 +8,6 @@ import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.impl.libraries.LibraryEx
-import com.intellij.openapi.roots.impl.libraries.LibraryEx.ModifiableModelEx
 import org.jdom.Element
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenId, MavenPlugin}
@@ -17,6 +15,7 @@ import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
 import scala.collection.JavaConverters._
@@ -68,24 +67,13 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
               compilerVersion.presentation + " for module " + module.getName))
 
       if (!scalaLibrary.isScalaSdk) {
-        val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
-        val compilerClasspath = configuration.compilerClasspath.map(mavenProject.localPathTo)
-
-        val libraryModel = modelsProvider.getModifiableLibraryModel(scalaLibrary).asInstanceOf[LibraryEx.ModifiableModelEx]
-        convertToScalaSdk(libraryModel, languageLevel, compilerClasspath)
+        Importer.setScalaSdk(modelsProvider, scalaLibrary)(
+          null,
+          compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default),
+          configuration.compilerClasspath.map(mavenProject.localPathTo)
+        )
       }
     }
-  }
-
-  // Can we reuse library.convertToScalaSdk? (dependency on modifiable model, cannot commit model)
-  private def convertToScalaSdk(model: ModifiableModelEx, languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]) {
-    model.setKind(ScalaLibraryType().getKind)
-
-    val properties = new ScalaLibraryProperties()
-    properties.languageLevel = languageLevel
-    properties.compilerClasspath = compilerClasspath
-
-    model.setProperties(properties)
   }
 
   override def resolve(project: Project, mavenProject: MavenProject, nativeMavenProject: NativeMavenProjectHolder,

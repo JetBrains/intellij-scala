@@ -22,14 +22,14 @@ case class ScalaSdkDescriptor(platform: Platform,
                               docFiles: Seq[File]) {
 
   def createNewLibraryConfiguration(): NewLibraryConfiguration = {
-    val properties = new ScalaLibraryProperties()
-
-    properties.platform = platform
-    properties.languageLevel = platform match {
-      case Scala => version.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.Default)
-      case Dotty => ScalaLanguageLevel.Snapshot
-    }
-    properties.compilerClasspath = compilerFiles
+    val properties = ScalaLibraryProperties(
+      platform,
+      platform match {
+        case Scala => version.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.Default)
+        case Dotty => ScalaLanguageLevel.Snapshot
+      },
+      compilerFiles
+    )
 
     val name = platform match {
       case Scala => "scala-sdk-" + version.map(_.presentation).getOrElse("Unknown")
