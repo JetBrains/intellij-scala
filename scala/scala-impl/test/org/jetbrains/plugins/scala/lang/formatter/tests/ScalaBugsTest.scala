@@ -1560,14 +1560,16 @@ bars foreach {case (x, y) => list.add(x + y)}
 
   def testSCL5444_ScaladocCodeSnippetAsTagValue(): Unit = {
     val before =
-      """/** @example      {{{
+      """/**
+        |  * @example      {{{
         |  * val x = 2
         |  *      }}}
         |  */
         |class A
       """.stripMargin
     val after =
-      """/** @example {{{
+      """/**
+        |  * @example {{{
         |  * val x = 2
         |  * }}}
         |  */
@@ -2109,6 +2111,7 @@ bars foreach {case (x, y) => list.add(x + y)}
 
   def testSCL4167_3_ShouldNotIndentIfFirstParameterIsOnNewLine(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
     val before =
       """
         |class Person(
@@ -2133,6 +2136,7 @@ bars foreach {case (x, y) => list.add(x + y)}
 
   def testSCL4167_4_ShouldNotIndentIfFirstParameterIsOnNewLineAndCommentPreceding(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
     val before =
       """
         |class Person(
@@ -2157,6 +2161,7 @@ bars foreach {case (x, y) => list.add(x + y)}
 
   def testSCL4167_5_ShouldNotIndentIfFirstParameterIsOnNewLine_MultipleParamClauses(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
     val before =
       """
         |class Person(
@@ -2180,6 +2185,100 @@ bars foreach {case (x, y) => list.add(x + y)}
         |}
       """.stripMargin
     doTextTest(before)
+  }
+
+  def testSCL4167_6_ShouldNotIndentIfForceFirstParamOnNewLine(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+    getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    val before =
+      """
+        |class Person(name: String,
+        |             age: Int,
+        |             birthdate: Date
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Person(
+        |  name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL15126_ShouldIndentIfFirstParameterIsOnNewLine_MultipleParamClauses_LegacySetting(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = true
+    val before =
+      """
+        |class Person(
+        |  name: String,
+        |  age: Int,
+        |  birthdate: Date
+        |)(
+        |  val weight: Double,
+        |  val height: Double
+        |) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |    x: Int,
+        |    y: String
+        |  ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Person(
+        |              name: String,
+        |              age: Int,
+        |              birthdate: Date
+        |            )(
+        |              val weight: Double,
+        |              val height: Double
+        |            ) extends Entity
+        |  with Logging
+        |  with Identifiable
+        |  with Serializable {
+        |
+        |  def foo(
+        |           x: Int,
+        |           y: String
+        |         ): String = {
+        |    "42"
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before, after)
   }
 
   def testSCL5585(): Unit = {
@@ -2328,6 +2427,41 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL10527_1(): Unit = {
+    val before =
+      """
+        |def xyz(arg: String): String =
+        |  "good formatting"
+        |
+        |/**
+        |  *
+        |  * @param arg
+        |  * @return
+        |  */
+        |def xyz1(arg: string): String =
+        |  "wrong formatting"
+        |
+        |val x =
+        |  42
+        |
+        |//someComment
+        |val x1 =
+        |  42
+        |
+        |var y =
+        |  42
+        |
+        |/*Other comment*/
+        |var y1 =
+        |  42
+        |
+        |//comment
+        |type T =
+        |  Int
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL10527_2(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =
       """
@@ -2339,7 +2473,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL10527_2(): Unit = {
+  def testSCL10527_3(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     val before =
       """
@@ -3235,8 +3369,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL15090_1_WithTrailingComma(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+  def testSCL15090_WithTrailingComma(): Unit = {
     val before =
       """List(
         |    1123123,
@@ -3254,8 +3387,24 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL15090_2_WithTrailingCommaAndPrecedingComment(): Unit = {
+  def testSCL15090_WithTrailingComma_1(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    val before =
+      """List(1123123,
+        |  42,
+        |  312321323,
+        |          )
+      """.stripMargin
+    val after =
+      """List(1123123,
+        |     42,
+        |     312321323,
+        |     )
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL15090_WithTrailingCommaAndPrecedingComment(): Unit = {
     val before =
       """List(
         |    /* strange comment */ 12,
@@ -3273,8 +3422,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL15090_3_WithoutTrailingComma()(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+  def testSCL15090_WithoutTrailingComma()(): Unit = {
     val before =
       """List(
         |    1123123,
@@ -3292,8 +3440,25 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+ def testSCL15090_WithoutTrailingComma_1()(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    val before =
+      """List(1123123,
+        |  42,
+        |  312321323
+        |          )
+      """.stripMargin
+    val after =
+      """List(1123123,
+        |     42,
+        |     312321323
+        |     )
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
 //  def testSCL12461(): Unit = {
-//    getSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+//    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
 //    val before =
 //      """
 //        |test("Some test") {

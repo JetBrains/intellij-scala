@@ -233,10 +233,11 @@ object getDummyBlocks {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childAlignment: Alignment = {
         node.getPsi match {
-          case params: ScParameters =>
+          case params: ScParameters if settings.ALIGN_MULTILINE_PARAMETERS =>
             val firstParameterStartsFromNewLine =
-              params.clauses.headOption.flatMap(_.parameters.headOption).exists(_.startsFromNewLine(ignoreComments = true))
-            if (firstParameterStartsFromNewLine) null
+              params.clauses.headOption.flatMap(_.parameters.headOption).exists(_.startsFromNewLine()) ||
+                block.getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE
+            if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
             else alignment
           case _: ScParameterClause =>
             child.getElementType match {
@@ -244,11 +245,8 @@ object getDummyBlocks {
               case _ => alignment
             }
           case args: ScArgumentExprList =>
-            val firstArgStartsFromNewLine =
-              args.exprs.headOption.exists(_.startsFromNewLine(ignoreComments = true))
             child.getElementType match {
-              case ScalaTokenTypes.tRPARENTHESIS if args.missedLastExpr &&
-                  settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine =>
+              case ScalaTokenTypes.tRPARENTHESIS if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS =>
                 alignment
               case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS =>
                 if (settings.ALIGN_MULTILINE_METHOD_BRACKETS) {
@@ -258,7 +256,8 @@ object getDummyBlocks {
                   alternateAlignment
                 } else null
               case ScCodeBlockElementType.BlockExpression if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
-              case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && !firstArgStartsFromNewLine => alignment
+              case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS =>
+                alignment
               case _ => null
             }
           case patt: ScPatternArgumentList =>
