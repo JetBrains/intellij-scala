@@ -111,7 +111,7 @@ object Importer {
       case modelEx: LibraryEx.ModifiableModelEx =>
         val properties = ScalaLibraryProperties(maybeLanguageLevel, compilerClasspath)
 
-        modelEx.setKind(ScalaLibraryType().getKind)
+        modelEx.setKind(ScalaLibraryType.Kind)
         modelEx.setProperties(properties)
     }
 }

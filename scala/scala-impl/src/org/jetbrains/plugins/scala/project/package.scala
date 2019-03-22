@@ -33,7 +33,7 @@ import scala.util.matching.Regex
 package object project {
 
   implicit class LibraryExt(val library: Library) extends AnyVal {
-    def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryType().getKind
+    def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryType.Kind
 
     def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
