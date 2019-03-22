@@ -144,7 +144,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     res ++= getConstructors
-    TypeDefinitionMembers.getSignatures(this).foreachSignature { signature =>
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach { signature =>
       val isInterface = signature.namedElement match {
         case t: ScTypedDefinition if t.isAbstractMember => true
         case _ => false

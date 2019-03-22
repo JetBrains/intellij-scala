@@ -231,13 +231,15 @@ object MixinNodes {
         else if (onlyImplicit)
           implicitNodes.iterator
         else
-          allNames.map(forName).iterator.flatMap(_.nodesIterator)
+          allNodesIterator
 
       if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
       else allIterator
     }
 
-    def allNodesIterator: Iterator[Node[T]] = nodesIterator("", isSupers = false)
+    def allNodesIterator: Iterator[Node[T]] = allNames.map(forName).iterator.flatMap(_.nodesIterator)
+
+    def allSignatures: Iterator[T] = allNodesIterator.map(_.info)
 
     private[MixinNodes] def addSupersMap(supersMap: SupersMap[T]): Unit = {
       implicitNames.addAll(supersMap.implicitNames)
@@ -269,20 +271,6 @@ object MixinNodes {
         result.addAll(map.privatesMap.getOrElse(name, PrivateNodes.empty))
       }
       result
-    }
-
-    def foreachThisSignature(action: T => Unit): Unit = {
-      for (nodesMap <- publicsMap.values; node <- nodesMap.values.asScala) {
-        action(node.info)
-      }
-      for (privatesSet <- privatesMap.values; node <- privatesSet.asScala) {
-        action(node.info)
-      }
-    }
-
-    def foreachSignature(action: T => Unit): Unit = {
-      foreachThisSignature(action)
-      superMaps.foreach(_.foreachThisSignature(action))
     }
 
     //adds nodes from supers to thisMap

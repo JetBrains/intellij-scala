@@ -98,7 +98,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
     res ++= getConstructors
 
-    TypeDefinitionMembers.getSignatures(this).foreachSignature { signature =>
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach { signature =>
       val isInterface = signature.namedElement match {
         case t: ScTypedDefinition if t.isAbstractMember => true
         case _ => false
@@ -114,7 +114,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           }
         }
 
-        TypeDefinitionMembers.getSignatures(o).foreachSignature (
+        TypeDefinitionMembers.getSignatures(o).allSignatures.foreach (
           this.processWrappersForSignature(_, isStatic = true, isInterface = false)(add)
         )
       case _ =>

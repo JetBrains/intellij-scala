@@ -62,7 +62,7 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
     val res = mutable.ArrayBuffer.empty[PsiMethod]
     res ++= getConstructors
 
-    TypeDefinitionMembers.getSignatures(this).foreachSignature {
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach {
       this.processWrappersForSignature(_, isStatic = false, isInterface = true)(res += _)
     }
 
@@ -71,7 +71,7 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
       ScalaPsiUtil
         .getCompanionModule(this)
         .foreach(companion =>
-          TypeDefinitionMembers.getSignatures(companion).foreachSignature {
+          TypeDefinitionMembers.getSignatures(companion).allSignatures.foreach {
             this.processWrappersForSignature(_, isStatic = true, isInterface = false)(res += _)
           }
         )
