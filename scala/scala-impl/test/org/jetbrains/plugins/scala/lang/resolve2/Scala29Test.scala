@@ -7,6 +7,4 @@ class Scala29Test extends ResolveTestBase {
   }
 
   def testSCL2913() = doTest()
-
-  def testSCL3212() = doTest()
 }
