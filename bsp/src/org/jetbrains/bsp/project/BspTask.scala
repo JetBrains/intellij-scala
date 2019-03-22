@@ -70,7 +70,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     val buildJob = communication.run(compileRequest(_), notifications, processLog)
     val projectTaskResult = try {
       val result = waitForJobCancelable(buildJob, indicator)
-      result.getStatusCode match {
+      buildMessages = result.getStatusCode match {
         case StatusCode.OK =>
           buildMessages.status(BuildMessages.OK)
         case StatusCode.ERROR =>
@@ -86,7 +86,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
     } catch {
       case error: ResponseErrorException =>
-        buildMessages.status(BuildMessages.Error)
+        buildMessages = buildMessages.status(BuildMessages.Error)
         val message = error.getMessage
         val failure = BuildFailureException(message)
         report.error(message, None)
@@ -97,7 +97,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
       case _: ProcessCanceledException =>
         report.finishCanceled()
         reportIndicator.finishCanceled()
-        buildMessages.status(BuildMessages.Canceled)
+        buildMessages = buildMessages.status(BuildMessages.Canceled)
         buildMessages.toTaskResult
 
       case NonFatal(err) =>
@@ -106,7 +106,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
         report.error(msg, None)
         report.finishWithFailure(err)
         reportIndicator.finishWithFailure(err)
-        buildMessages.status(BuildMessages.Error)
+        buildMessages = buildMessages.status(BuildMessages.Error)
         buildMessages.toTaskResult
     }
 
