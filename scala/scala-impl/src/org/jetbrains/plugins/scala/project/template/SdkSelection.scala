@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala
 package project.template
 
-import javax.swing.JComponent
-
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtilCore
+import javax.swing.JComponent
 
 /**
  * @author Pavel Fatin
@@ -27,7 +26,7 @@ object SdkSelection {
 
     val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
 
-    val components = Component.discoverIn(allFiles, Artifact.ScalaArtifacts)
+    val components = Component.discoverIn(allFiles)
 
     if (files.nonEmpty) Some(ScalaSdkDescriptor.from(components)) else None
   }

@@ -80,7 +80,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
       .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
 
   private def sdkIn(root: File): Option[ScalaSdkDescriptor] = {
-    val components = Component.discoverIn(root.allFiles, Artifact.ScalaArtifacts)
+    val components = Component.discoverIn(root.allFiles)
 
     ScalaSdkDescriptor.from(components).right.toOption
   }
@@ -106,7 +106,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   }
 
   private def scalaSdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
-    val components = Component.discoverIn(files, Artifact.ScalaArtifacts)
+    val components = Component.discoverIn(files)
 
     components.groupBy(_.version).mapValues(ScalaSdkDescriptor.from).toSeq.collect {
       case (Some(_), Right(sdk)) => sdk

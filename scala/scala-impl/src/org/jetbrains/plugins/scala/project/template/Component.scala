@@ -1,32 +1,34 @@
 package org.jetbrains.plugins.scala
-package project.template
+package project
+package template
 
-import java.io.{BufferedInputStream, File, IOException, InputStream}
+import java.io.{BufferedInputStream, File, IOException}
 import java.net.URL
 import java.util.Properties
-import java.util.regex.Pattern
-
-import org.jetbrains.plugins.scala.project.Version
 
 /**
  * @author Pavel Fatin
  */
-sealed class Artifact(val prefix: String, val resource: Option[String] = None) {
+sealed class Artifact(val prefix: String,
+                      val resource: Option[String] = None) {
   def title: String = prefix + "*.jar"
 
-  def versionOf(file: File): Option[Version] = externalVersionOf(file).orElse(internalVersionOf(file))
+  private val fileNameRegex = (prefix + "-(.*?)(?:-src|-sources|-javadoc)?\\.jar").r
 
-  private def externalVersionOf(file: File): Option[Version] = {
-    val FileName = (prefix + "-(.*?)(?:-src|-sources|-javadoc)?\\.jar").r
+  def versionOf(file: File): Option[Version] =
+    externalVersionOf(file.getName)
+      .orElse(internalVersionOf(file.toURI.toString))
+      .map(Version(_))
 
-    file.getName match {
-      case FileName(number) => Some(Version(number))
-      case _ => None
-    }
+  private def externalVersionOf(fileName: String) = fileName match {
+    case fileNameRegex(number) => Some(number)
+    case _ => None
   }
 
-  private def internalVersionOf(file: File): Option[Version] =
-    resource.flatMap(it => Artifact.readProperty(file, it, "version.number")).map(Version(_))
+  private def internalVersionOf(fileUri: String) =
+    resource.flatMap {
+      Artifact.readProperty(fileUri, _)
+    }
 }
 
 object Artifact {
@@ -48,20 +50,20 @@ object Artifact {
     DottyLibrary
   )
 
-  private def readProperty(file: File, resource: String, name: String): Option[String] = {
+  private def readProperty(fileUri: String,
+                           resource: String) =
     try {
-      val url = new URL("jar:%s!/%s".format(file.toURI.toString, resource))
-      Option(url.openStream).flatMap(it => using(new BufferedInputStream(it))(readProperty(_, name)))
+      val url = new URL(s"jar:$fileUri!/$resource")
+      Option(url.openStream).flatMap { in =>
+        using(new BufferedInputStream(in)) { inStream =>
+          val properties = new Properties()
+          properties.load(inStream)
+          Option(properties.getProperty("version.number"))
+        }
+      }
     } catch {
       case _: IOException => None
     }
-  }
-
-  private def readProperty(input: InputStream, name: String): Option[String] = {
-    val properties = new Properties()
-    properties.load(input)
-    Option(properties.getProperty(name))
-  }
 
   // Scala
 
@@ -87,33 +89,38 @@ object Artifact {
 
 }
 
-sealed class Kind(regex: String) {
-  def patternFor(prefix: String): Pattern = Pattern.compile(prefix + regex)
-}
-
-object Kind {
-  def values: Set[Kind] = Set(Binaries, Sources, Docs)
-
-  case object Binaries extends Kind(".*(?<!-src|-sources|-javadoc)\\.jar")
-
-  case object Sources extends Kind(".*-(src|sources)\\.jar")
-
-  case object Docs extends Kind(".*-javadoc\\.jar")
-}
-
-case class Component(artifact: Artifact, kind: Kind, version: Option[Version], file: File)
+case class Component(artifact: Artifact,
+                     kind: Kind,
+                     version: Option[Version],
+                     file: File)
 
 object Component {
-  def discoverIn(files: Seq[File], artifacts: Set[Artifact]): Seq[Component] = {
-    val patterns = artifacts.flatMap { artifact =>
-      Kind.values.map(kind => (kind.patternFor(artifact.prefix), artifact, kind))
-    }
 
-    files.filter(it => it.isFile && it.getName.endsWith(".jar")).flatMap { file =>
-      patterns.collect {
-        case (pattern, artifact, kind) if pattern.matcher(file.getName).matches =>
-          Component(artifact, kind, artifact.versionOf(file), file)
-      }
-    }
+  def discoverIn(files: Seq[File],
+                 artifacts: Set[Artifact] = Artifact.ScalaArtifacts): Seq[Component] = {
+    val patterns = for {
+      artifact <- artifacts
+      kind <- Kind.values
+    } yield (
+      artifact,
+      kind,
+      kind.getPattern(artifact)
+    )
+
+    for {
+      file <- files
+
+      fileName = file.getName
+      if file.isFile && fileName.endsWith(".jar")
+
+      (artifact, kind, pattern) <- patterns
+      if pattern.test(fileName)
+
+    } yield Component(
+      artifact,
+      kind,
+      artifact.versionOf(file),
+      file
+    )
   }
 }
