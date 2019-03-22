@@ -56,20 +56,19 @@ object ScalaLibraryProperties {
 
   import VfsUtilCore._
 
-  def apply(state: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState()): ScalaLibraryProperties = {
-    val properties = new ScalaLibraryProperties(
-      null,
-      Seq.empty
+  def apply(maybeLanguageLevel: Option[ScalaLanguageLevel] = None,
+            compilerClasspath: Seq[File] = Seq.empty) =
+    new ScalaLibraryProperties(
+      maybeLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault),
+      compilerClasspath
     )
-    properties.loadState(state)
-    properties
-  }
 
-  def apply(languageLevel: ScalaLanguageLevel,
-            compilerClasspath: Seq[File]) = new ScalaLibraryProperties(
-    languageLevel,
-    compilerClasspath
-  )
+  def applyByVersion(maybeVersion: Option[Version] = None,
+                     compilerClasspath: Seq[File] = Seq.empty): ScalaLibraryProperties =
+    ScalaLibraryProperties(
+      maybeVersion.flatMap(_.toLanguageLevel),
+      compilerClasspath
+    )
 
   def unapply(libraryProperties: LibraryProperties[_]): Option[(ScalaLanguageLevel, Seq[File])] =
     libraryProperties match {

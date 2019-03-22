@@ -68,7 +68,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       if (!scalaLibrary.isScalaSdk) {
         Importer.setScalaSdk(modelsProvider, scalaLibrary)(
-          compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault),
+          compilerVersion.toLanguageLevel,
           configuration.compilerClasspath.map(mavenProject.localPathTo)
         )
       }

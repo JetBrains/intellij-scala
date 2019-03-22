@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.junit.Assert._
 
 import scala.collection.JavaConverters
@@ -22,6 +22,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
   }
 
   import ScalaSDKLoader._
+  import template.Artifact.ScalaCompiler.{versionOf => ScalaCompilerVersion}
 
   def resolveSources(implicit version: debugger.ScalaVersion): VirtualFile = {
     val ResolvedDependency(_, file) = DependencyManager.resolveSingle {
@@ -72,8 +73,8 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     Disposer.register(module, library)
     inWriteAction {
-      val properties = ScalaLibraryProperties(
-        languageLevel(compilerClasspath.head),
+      val properties = ScalaLibraryProperties.applyByVersion(
+        ScalaCompilerVersion(compilerClasspath.head),
         compilerClasspath
       )
 
@@ -95,10 +96,4 @@ object ScalaSDKLoader {
     JarFileSystem.getInstance().refreshAndFindFileByPath {
       file.getCanonicalPath + "!/"
     }
-
-  private def languageLevel(file: File) =
-    template.Artifact.ScalaCompiler
-      .versionOf(file)
-      .flatMap(_.toLanguageLevel)
-      .getOrElse(ScalaLanguageLevel.getDefault)
 }

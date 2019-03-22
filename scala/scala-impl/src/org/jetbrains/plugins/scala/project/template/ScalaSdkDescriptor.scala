@@ -16,23 +16,22 @@ import org.jetbrains.plugins.scala.project._
   */
 case class ScalaSdkDescriptor(platform: Platform,
                               version: Option[Version],
-                              compilerFiles: Seq[File],
+                              compilerClasspath: Seq[File],
                               libraryFiles: Seq[File],
                               sourceFiles: Seq[File],
                               docFiles: Seq[File]) {
 
   def createNewLibraryConfiguration(): NewLibraryConfiguration = {
-    val properties = ScalaLibraryProperties(
-      version.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.getDefault),
-      compilerFiles
-    )
-
     val name = platform match {
       case Scala => "scala-sdk-" + version.map(_.presentation).getOrElse("Unknown")
       case Dotty => "dotty-sdk"
     }
 
-    new NewLibraryConfiguration(name, ScalaLibraryType(), properties) {
+    new NewLibraryConfiguration(
+      name,
+      ScalaLibraryType(),
+      ScalaLibraryProperties.applyByVersion(version, compilerClasspath)
+    ) {
       override def addRoots(editor: LibraryEditor): Unit = {
         def addRoot(file: File, rootType: OrderRootType): Unit =
           editor.addRoot(file.toLibraryRootURL, rootType)
