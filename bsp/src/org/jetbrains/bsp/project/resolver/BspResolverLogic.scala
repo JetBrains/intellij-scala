@@ -126,7 +126,8 @@ private[resolver] object BspResolverLogic {
       .map { item =>
         val file = item.getUri.toURI.toFile
         // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
-        if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
+//        if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
+        if (item.getUri.endsWith("/"))
           SourceDirectory(file, item.getGenerated)
         else
           // use the file's immediate parent as best guess of source dir
