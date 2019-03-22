@@ -1,34 +1,28 @@
 package org.jetbrains.plugins.scala
-package project.template
+package project
+package template
 
 import java.io.File
 
 import com.intellij.openapi.roots.JavadocOrderRootType.{getInstance => JAVA_DOCS}
 import com.intellij.openapi.roots.OrderRootType
-import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
-import org.jetbrains.plugins.scala.project.Platform._
-import org.jetbrains.plugins.scala.project._
 
 /**
-  * @author Pavel Fatin
-  */
-case class ScalaSdkDescriptor(platform: Platform,
-                              version: Option[Version],
+ * @author Pavel Fatin
+ */
+case class ScalaSdkDescriptor(version: Option[Version],
                               compilerClasspath: Seq[File],
                               libraryFiles: Seq[File],
                               sourceFiles: Seq[File],
                               docFiles: Seq[File]) {
 
   def createNewLibraryConfiguration(): NewLibraryConfiguration = {
-    val name = platform match {
-      case Scala => "scala-sdk-" + version.map(_.presentation).getOrElse("Unknown")
-      case Dotty => "dotty-sdk"
-    }
+    val suffix = version.map(_.presentation).getOrElse("Unknown")
 
     new NewLibraryConfiguration(
-      name,
+      "scala-sdk-" + suffix,
       ScalaLibraryType(),
       ScalaLibraryProperties.applyByVersion(version, compilerClasspath)
     ) {
@@ -36,7 +30,7 @@ case class ScalaSdkDescriptor(platform: Platform,
         def addRoot(file: File, rootType: OrderRootType): Unit =
           editor.addRoot(file.toLibraryRootURL, rootType)
 
-        (libraryFiles ++ sourceFiles).foreach(addRoot(_, CLASSES))
+        (libraryFiles ++ sourceFiles).foreach(addRoot(_, OrderRootType.CLASSES))
         docFiles.foreach(addRoot(_, JAVA_DOCS))
 
         if (sourceFiles.isEmpty && docFiles.isEmpty) {
@@ -53,61 +47,44 @@ object ScalaSdkDescriptor {
   import Kind._
 
   def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
-    val platform = if (components.map(_.artifact).contains(DottyCompiler)) Dotty else Scala
+    val componentsByKind = components.groupBy(_.kind)
+      .withDefault(Function.const(Seq.empty))
 
-    val (binaryComponents, sourceComponents, docComponents) = {
-      val componentsByKind = components.groupBy(_.kind)
+    def filesByKind(kind: Kind) =
+      files(componentsByKind(kind))()
 
-      (componentsByKind.getOrElse(Binaries, Seq.empty),
-        componentsByKind.getOrElse(Sources, Seq.empty),
-        componentsByKind.getOrElse(Docs, Seq.empty))
-    }
+    val binaryComponents = componentsByKind(Binaries)
 
-    val requiredBinaryArtifacts = binaryArtifactsFor(platform)
+    requiredBinaryArtifacts -- binaryComponents.map(_.artifact) match {
+      case missingBinaryArtifacts if missingBinaryArtifacts.nonEmpty =>
+        Left("Not found: " + missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", "))
+      case _ =>
+        val libraryVersion = binaryComponents.collectFirst {
+          case Component(ScalaLibrary, _, Some(version), _) => version
+        }
 
-    val existingBinaryArtifacts = binaryComponents.map(_.artifact).toSet
+        val descriptor = ScalaSdkDescriptor(
+          libraryVersion,
+          files(binaryComponents)(requiredBinaryArtifacts),
+          files(binaryComponents)(),
+          filesByKind(Sources),
+          filesByKind(Docs)
+        )
 
-    val missingBinaryArtifacts = requiredBinaryArtifacts -- existingBinaryArtifacts
-
-    if (missingBinaryArtifacts.isEmpty) {
-      val compilerBinaries = binaryComponents.filter(it => requiredBinaryArtifacts.contains(it.artifact))
-
-      val libraryArtifacts = libraryArtifactsFor(platform)
-
-      val libraryBinaries = binaryComponents.filter(it => libraryArtifacts.contains(it.artifact))
-      val librarySources = sourceComponents.filter(it => libraryArtifacts.contains(it.artifact))
-      val libraryDocs = docComponents.filter(it => libraryArtifacts.contains(it.artifact))
-
-      val libraryVersion = platform match {
-        case Dotty =>
-          binaryComponents.find(_.artifact == DottyCompiler).flatMap(_.version)
-        case _ =>
-          binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version)
-      }
-
-      val descriptor = ScalaSdkDescriptor(
-        platform,
-        libraryVersion,
-        compilerBinaries.map(_.file),
-        libraryBinaries.map(_.file),
-        librarySources.map(_.file),
-        libraryDocs.map(_.file))
-
-      Right(descriptor)
-    } else {
-      Left("Not found: " + missingBinaryArtifacts.map(_.title).mkString(", "))
+        Right(descriptor)
     }
   }
 
-  private[this] def binaryArtifactsFor(platform: Platform): Set[Artifact] =
-    Set(ScalaLibrary, ScalaCompiler, ScalaReflect) ++ (platform match {
-      case Dotty => Set(DottyLibrary)
-      case _ => Set.empty[Artifact]
-    })
+  private[this] def requiredBinaryArtifacts = Set[Artifact](
+    ScalaLibrary,
+    ScalaCompiler,
+    ScalaReflect
+  )
 
-  private[this] def libraryArtifactsFor(platform: Platform): Set[Artifact] =
-    (platform match {
-      case Scala => ScalaArtifacts
-      case Dotty => DottyArtifacts
-    }) - ScalaCompiler
+  private[this] def files(components: Seq[Component])
+                         (predicate: Artifact => Boolean = ScalaArtifacts - ScalaCompiler) =
+    for {
+      Component(artifact, _, _, file) <- components
+      if predicate(artifact)
+    } yield file
 }
