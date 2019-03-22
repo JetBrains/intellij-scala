@@ -16,20 +16,26 @@ trait SignatureStrategy[T] {
   def equiv(t1: T, t2: T): Boolean
   def computeHashCode(t: T): Int
 
-  def same(t1: T, t2: T): Boolean
-  def identityHashCode(t: T): Int
+  def namedElement(t: T): PsiNamedElement
+
+  def same(t1: T, t2: T): Boolean = elemName(t1) == elemName(t2) && (namedElement(t1) eq namedElement(t2))
+
+  def identityHashCode(t: T): Int = elemName(t).hashCode + 31 * namedElement(t).hashCode()
 
   def elemName(t: T): String
   def isAbstract(t: T): Boolean
   def isImplicit(t: T): Boolean
-  def isPrivate(t: T): Boolean
   def isSynthetic(t: T): Boolean
+
+  def isPrivate(t: T): Boolean = SignatureStrategy.isPrivateImpl(namedElement(t))
 }
 
 object SignatureStrategy {
   def apply[T: SignatureStrategy]: SignatureStrategy[T] = implicitly[SignatureStrategy[T]]
 
   implicit val signature: SignatureStrategy[Signature] = new SignatureStrategy[Signature] {
+    def namedElement(t: Signature): PsiNamedElement = t.namedElement
+
     def equiv(s1: Signature, s2: Signature): Boolean = s1 equiv s2
 
     def computeHashCode(s: Signature): Int = s.simpleHashCode
@@ -44,14 +50,6 @@ object SignatureStrategy {
       case _ => false
     }
 
-    def same(t1: Signature, t2: Signature): Boolean = {
-      t1.namedElement eq t2.namedElement
-    }
-
-    override def identityHashCode(t: Signature): Int = t.namedElement.hashCode()
-
-    def isPrivate(t: Signature): Boolean = isPrivateImpl(t.namedElement)
-
     def isSynthetic(s: Signature): Boolean = s.namedElement match {
       case m: ScMember                => m.isSynthetic
       case inNameContext(m: ScMember) => m.isSynthetic
@@ -62,6 +60,8 @@ object SignatureStrategy {
   }
 
   implicit val types: SignatureStrategy[PsiNamedElement] = new SignatureStrategy[PsiNamedElement] {
+
+    def namedElement(t: PsiNamedElement): PsiNamedElement = t
 
     def equiv(t1: PsiNamedElement, t2: PsiNamedElement): Boolean = t1.name == t2.name
 
@@ -75,14 +75,6 @@ object SignatureStrategy {
     }
 
     def isImplicit(t: PsiNamedElement) = false
-
-    def same(t1: PsiNamedElement, t2: PsiNamedElement): Boolean = {
-      t1 eq t2
-    }
-
-    def identityHashCode(t: PsiNamedElement): Int = t.hashCode
-
-    def isPrivate(t: PsiNamedElement): Boolean = isPrivateImpl(t)
 
     def isSynthetic(t: PsiNamedElement): Boolean = false
   }

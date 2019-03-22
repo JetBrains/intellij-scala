@@ -166,11 +166,15 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       }
 
       val signatureMap = TypeDefinitionMembers.getSignatures(aClass)
-      val signaturesForNamed =
+      val signatureForNamed =
         signatureMap
           .forName(named.name)
-          .filter(sign => sign._1.namedElement == named)
-      signaturesForNamed.flatMap(_._2.supers.map(_.info))
+          .findNode(named)
+
+      signatureForNamed match {
+        case None => Seq.empty
+        case Some(node) => node.supers.map(_.info)
+      }
     }
 
     val computedType = element match {

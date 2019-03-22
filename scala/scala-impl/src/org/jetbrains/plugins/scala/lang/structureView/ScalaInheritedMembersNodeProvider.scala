@@ -39,8 +39,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
         val children = new util.ArrayList[TreeElement]()
         try {
           if (!clazz.isValid) return children
-          val signs = clazz.allSignatures
-          for (sign <- signs) {
+          for (sign <- clazz.allSignatures) {
             sign match {
               case sign: PhysicalSignature =>
                 sign.method match {

@@ -9,9 +9,10 @@ package toplevel
 package typedef
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiClass, PsiClassType}
+import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
+import gnu.trove.{THashMap, TObjectHashingStrategy}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -30,7 +31,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.generic.FilterMonadic
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
@@ -149,8 +149,6 @@ abstract class MixinNodes[T: SignatureStrategy] {
 }
 
 object MixinNodes {
-  private type SigToNode[T] = (T, Node[T])
-
   class Node[T](val info: T, val substitutor: ScSubstitutor, val fromSuper: Boolean) {
     private[this] var _concreteSuper: Node[T] = _
     private[this] val _supers: SmartList[Node[T]] = new SmartList()
@@ -180,22 +178,26 @@ object MixinNodes {
 
     private val superMaps: ArrayBuffer[SupersMap[T]] = new ArrayBuffer(4) //looks like a reasonable default initial size
 
-    protected lazy val allNames: Seq[String] = {
+    protected lazy val allNames: IndexedSeq[String] = {
       val names = new mutable.HashSet[String]
       names ++= publicsMap.keySet
       names ++= privatesMap.keySet
       for (sup <- superMaps) {
         names ++= sup.allNames
       }
-      names.toSeq
+      names.toIndexedSeq
     }
 
-    lazy val forImplicits: Seq[SigToNode[T]] = {
-      val res = new ArrayBuffer[SigToNode[T]](implicitNames.size)
+    private lazy val implicitNodes: Seq[Node[T]] = {
+      val res = new ArrayBuffer[Node[T]](implicitNames.size)
       val iterator = implicitNames.iterator()
       while (iterator.hasNext) {
         val thisMap = forName(iterator.next)
-        res ++= thisMap.flatMap(implicitEntry)
+        thisMap.nodesIterator.foreach { node =>
+          if (isImplicit(node.info)) {
+            res += node
+          }
+        }
       }
       res
     }
@@ -209,11 +211,11 @@ object MixinNodes {
         privatesMap.getOrElseUpdate(name, PrivateNodes.empty).add(node)
       }
       else {
-        val nodesMap = publicsMap.getOrElseUpdate(name, new NodesMap[T])
+        val nodesMap = publicsMap.getOrElseUpdate(name, NodesMap.empty)
 
-        nodesMap.get(key) match {
+        Option(nodesMap.get(key)) match {
           case Some(oldNode) if isSyntheticShadedBy(node, oldNode) => //don't add synthetic if real member was already found
-          case _ => nodesMap.update(key, node)
+          case _ => nodesMap.put(key, node)
         }
       }
       if (isImplicit(key)) implicitNames.add(name)
@@ -227,13 +229,15 @@ object MixinNodes {
         if (decodedName != "")
           forName(decodedName).nodesIterator
         else if (onlyImplicit)
-          forImplicits.iterator.map(_._2)
+          implicitNodes.iterator
         else
-          forAllNames().iterator.flatMap(_.nodesIterator)
+          allNames.map(forName).iterator.flatMap(_.nodesIterator)
 
       if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
       else allIterator
     }
+
+    def allNodesIterator: Iterator[Node[T]] = nodesIterator("", isSupers = false)
 
     private[MixinNodes] def addSupersMap(supersMap: SupersMap[T]): Unit = {
       implicitNames.addAll(supersMap.implicitNames)
@@ -259,20 +263,6 @@ object MixinNodes {
       thisAndSupersMap.atomicGetOrElseUpdate(convertedName, calculate)
     }
 
-    def forAllNames(): Seq[AllNodes[T]] = allNames.map(forName)
-
-    private def implicitEntry(sigToSuper: SigToNode[T]): Option[SigToNode[T]] = {
-      val (sig, primarySuper) = sigToSuper
-
-      val nonAbstract =
-        if (isAbstract(sig) && !isAbstract(primarySuper.info)) primarySuper.info
-        else sig
-
-      if (isImplicit(nonAbstract))
-        Some((nonAbstract, primarySuper))
-      else None
-    }
-
     private def privatesFromSupersForName(name: String): PrivateNodes[T] = {
       val result = PrivateNodes.empty
       superMaps.foreach { map =>
@@ -282,7 +272,7 @@ object MixinNodes {
     }
 
     def foreachThisSignature(action: T => Unit): Unit = {
-      for (nodesMap <- publicsMap.values; node <- nodesMap.values) {
+      for (nodesMap <- publicsMap.values; node <- nodesMap.values.asScala) {
         action(node.info)
       }
       for (privatesSet <- privatesMap.values; node <- privatesSet.asScala) {
@@ -297,29 +287,39 @@ object MixinNodes {
 
     //adds nodes from supers to thisMap
     private def mergeWithSupers(thisMap: NodesMap[T], superNodesMaps: Seq[NodesMap[T]]): Unit = {
+      def addSuperTo(node: Node[T], superNode: Node[T]): Unit = {
+        node.addSuper(superNode)
+        if (!isAbstract(superNode.info)) {
+          node.setConcreteSuper(superNode)
+        }
+      }
+
       for {
         superNodeMap <- superNodesMaps
-        (key, node) <- superNodeMap
       } {
-        thisMap.getOrElseUpdate(key, node) match {
-          case other if node ne other =>
-            if (!isAbstract(node.info) && (isSynthetic(other.info) || isAbstract(other.info))) {
-              //force update thisMap with a non-abstract and non-synthetic node
-              thisMap.update(key, node)
+        superNodeMap.forEachEntry { (key, node) =>
+          thisMap.get(key) match {
+            case null => thisMap.put(key, node)
+            case other if node ne other =>
+              if (!isAbstract(node.info) && (isSynthetic(other.info) || isAbstract(other.info))) {
 
-              //and copy already collected nodes to it
-              other.supers.foreach(node.addSuper)
-              other.concreteSuper.foreach(node.setConcreteSuper)
-            }
-            else {
-              //add supers to existing node
-              other.addSuper(node)
-              if (!isAbstract(node.info)) {
-                other.setConcreteSuper(node)
+                //force update thisMap with a non-abstract and non-synthetic node
+                thisMap.put(key, node)
+
+                //and copy already collected nodes to it
+                other.supers.foreach(node.addSuper)
+                other.concreteSuper.foreach(node.setConcreteSuper)
               }
-            }
-          case _ =>
+              else {
+                addSuperTo(other, node)
+              }
+            case other =>
+              addSuperTo(other, node)
+
+          }
+          true
         }
+
       }
     }
 
@@ -332,66 +332,38 @@ object MixinNodes {
     override def fromSuper: Boolean = true
   }
 
-  object NodesMap {
-    def empty[T: SignatureStrategy]: NodesMap[T] = new NodesMap[T]()
-  }
-
   def emptyMap[T: SignatureStrategy]: MixinNodes.Map[T] = new MixinNodes.Map[T]
 
   class AllNodes[T: SignatureStrategy](publics: NodesMap[T], privates: PrivateNodes[T]) {
 
     def get(s: T): Option[Node[T]] = {
       publics.get(s) match {
-        case res: Some[Node[T]] => res
-        case _ => privates.get(s)
-      }
-    }
-
-    def foreach(p: SigToNode[T] => Unit) {
-      publics.foreach(p)
-      privates.sigToNodes.foreach(p)
-    }
-
-    def map[R](p: SigToNode[T] => R): Seq[R] = {
-      publics.map(p).toSeq ++ privates.sigToNodes.map(p)
-    }
-
-    def filter(p: SigToNode[T] => Boolean): Seq[SigToNode[T]] = {
-      publics.filter(p).toSeq ++ privates.sigToNodes.filter(p)
-    }
-
-    def withFilter(p: SigToNode[T] => Boolean): FilterMonadic[SigToNode[T], Seq[SigToNode[T]]] = {
-      (publics.toSeq ++ privates.sigToNodes).withFilter(p)
-    }
-
-    def flatMap[R](p: SigToNode[T] => Traversable[R]): Seq[R] = {
-      publics.flatMap(p).toSeq ++ privates.sigToNodes.flatMap(p)
-    }
-
-    def iterator: Iterator[SigToNode[T]] = {
-      new Iterator[SigToNode[T]] {
-        private val iter1 = publics.iterator
-        private val iter2 = privates.sigToNodes.iterator
-        def hasNext: Boolean = iter1.hasNext || iter2.hasNext
-
-        def next(): SigToNode[T] = if (iter1.hasNext) iter1.next() else iter2.next()
+        case null => privates.get(s)
+        case node => Some(node)
       }
     }
 
     def nodesIterator: Iterator[Node[T]] = new Iterator[Node[T]] {
-      private val iter1 = publics.valuesIterator
-      private val iter2 = privates.sigToNodes.iterator.map(_._2)
+      private val iter1 = publics.values.iterator
+      private val iter2 = privates.nodesIterator
 
       def hasNext: Boolean = iter1.hasNext || iter2.hasNext
 
       def next(): Node[T] = if (iter1.hasNext) iter1.next() else iter2.next()
     }
 
-    def fastPhysicalSignatureGet(key: T): Option[Node[T]] = {
-      publics.fastPhysicalSignatureGet(key) match {
-        case res: Some[Node[T]] => res
-        case _ => privates.get(key)
+    def iterator: Iterator[T] = nodesIterator.map(_.info)
+
+    def findNode(keyElement: PsiNamedElement): Option[Node[T]] = {
+      publics.forEachEntry { (k, v) =>
+        val element = SignatureStrategy[T].namedElement(k)
+        if ((keyElement eq element) && keyElement.name == SignatureStrategy[T].elemName(k)) {
+          return Some(v)
+        }
+
+        true
       }
+      privates.asScala.find(node => SignatureStrategy[T].namedElement(node.info) eq keyElement)
     }
 
     def isEmpty: Boolean = publics.isEmpty && privates.isEmpty
@@ -405,9 +377,9 @@ object MixinNodes {
     def empty[T: SignatureStrategy]: PrivateNodes[T] = new SmartList[Node[T]]
   }
 
-  implicit class PrivateNodesOps[T: SignatureStrategy](set: PrivateNodes[T]) {
+  implicit class PrivateNodesOps[T: SignatureStrategy](list: PrivateNodes[T]) {
     def get(s: T): Option[Node[T]] = {
-      val iterator = set.iterator
+      val iterator = list.iterator
       while (iterator.hasNext) {
         val next = iterator.next()
         if (SignatureStrategy[T].same(s, next.info)) return Some(next)
@@ -415,64 +387,19 @@ object MixinNodes {
       None
     }
 
-    def sigToNodes: Seq[(T, Node[T])] = {
-      val result = new ArrayBuffer[(T, Node[T])](set.size)
-
-      val iterator = set.iterator
-      while (iterator.hasNext) {
-        val node = iterator.next()
-        result += ((node.info, node))
-      }
-      result
-    }
+    def nodesIterator: Iterator[Node[T]] = list.iterator.asScala
   }
 
-  class NodesMap[T: SignatureStrategy] extends mutable.HashMap[T, Node[T]] {
-    
-    override def elemHashCode(t: T): Int = SignatureStrategy[T].computeHashCode(t)
-    override def elemEquals(t1 : T, t2 : T): Boolean = SignatureStrategy[T].equiv(t1, t2)
+  type NodesMap[T] = THashMap[T, Node[T]]
 
-    /**
-      * Use this method if you are sure, that map contains key
-      */
-    def fastGet(key: T): Option[Node[T]] = {
-      //todo: possible optimization to filter without types first then if only one variant left, get it.
-      val h = index(elemHashCode(key))
-      var e = table(h).asInstanceOf[Entry]
-      if (e != null && e.next == null) return Some(e.value)
-      while (e != null) {
-        if (elemEquals(e.key, key)) return Some(e.value)
-        e = e.next
-        if (e.next == null) return Some(e.value)
+  object NodesMap {
+    private def hashingStrategy[T: SignatureStrategy] =
+      new TObjectHashingStrategy[T] {
+        def computeHashCode(t: T): Int   = SignatureStrategy[T].computeHashCode(t)
+        def equals(t: T, t1: T): Boolean = SignatureStrategy[T].equiv(t, t1)
       }
-      None
-    }
 
-    def fastPhysicalSignatureGet(key: T): Option[Node[T]] = {
-      key match {
-        case p: PhysicalSignature =>
-          val h = index(elemHashCode(key))
-          var e = table(h).asInstanceOf[Entry]
-          if (e != null && e.next == null) {
-            e.value.info match {
-              case p2: PhysicalSignature =>
-                if (p.method == p2.method) return Some(e.value)
-                else return None
-              case _ => return None
-            }
-          }
-          while (e != null) {
-            e.value.info match {
-              case p2: PhysicalSignature =>
-                if (p.method == p2.method) return Some(e.value)
-              case _ =>
-            }
-            e = e.next
-          }
-          fastGet(key)
-        case _ => fastGet(key)
-      }
-    }
+    def empty[T: SignatureStrategy]: NodesMap[T] = new THashMap[T, Node[T]](2, hashingStrategy)
   }
   
   def linearization(clazz: PsiClass): Seq[ScType] = {

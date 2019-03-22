@@ -55,6 +55,6 @@ object MonocleInjector {
       }
 
       s"def $prefix${parameter.name}$typeParametersText: _root_.monocle.Lens[${clazz.`type`().getOrAny}, $typeText] = ???"
-    }
+    }.toSeq
   }
 }

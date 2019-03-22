@@ -123,7 +123,7 @@ object ScalaVariableOfTypeMacro {
   }
 
   private[macros] def isIterable(`type`: ScType) = `type`.extractClass.exists {
-    case definition: ScTypeDefinition => definition.functionsByName(IterableId).nonEmpty
+    case definition: ScTypeDefinition => definition.allFunctionsByName(IterableId).nonEmpty
     case _ => false
   }
 

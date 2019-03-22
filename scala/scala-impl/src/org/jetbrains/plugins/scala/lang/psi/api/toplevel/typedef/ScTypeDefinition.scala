@@ -43,7 +43,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def getQualifiedNameForDebugger: String
 
-  def signaturesByName(name: String): Seq[PhysicalSignature]
+  def methodsByName(name: String): Iterator[PhysicalSignature]
 
   def isPackageObject = false
 

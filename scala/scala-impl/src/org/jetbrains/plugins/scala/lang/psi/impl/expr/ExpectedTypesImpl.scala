@@ -533,8 +533,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     def superSignature(name: String, containingClass: PsiClass) = {
       val sigs = TypeDefinitionMembers.getSignatures(containingClass).forName(name)
-      sigs.iterator.collectFirst {
-        case (sig, node) if sig.paramLength == 0 =>
+      sigs.nodesIterator.collectFirst {
+        case node if node.info.paramLength == 0 =>
           node.primarySuper.map(_.info).filter(isParameterless)
       }.flatten
     }

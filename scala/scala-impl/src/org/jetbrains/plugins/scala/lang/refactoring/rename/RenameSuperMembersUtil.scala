@@ -162,16 +162,19 @@ object RenameSuperMembersUtil {
   def allSuperMembers(named: ScNamedElement, withSelfType: Boolean): Seq[PsiNamedElement] = {
     val member = ScalaPsiUtil.nameContext(named) match {
       case m: ScMember => m
-      case _ => return Seq()
+      case _ => return Seq.empty
     }
     val aClass = member.containingClass
-    if (aClass == null) return Seq()
+    if (aClass == null) return Seq.empty
     val signatures =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(aClass)
       else TypeDefinitionMembers.getSignatures(aClass)
     val allSigns = signatures.forName(named.name)
-    val signs = allSigns.filter(sign => sign._1.namedElement == named)
-    signs.flatMap(sign => sign._2.supers.map(_.info.namedElement))
+
+    allSigns.findNode(named) match {
+      case Some(node) => node.supers.map(_.info.namedElement)
+      case _ => Seq.empty
+    }
   }
 
   @NotNull
@@ -186,8 +189,11 @@ object RenameSuperMembersUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(aClass)
       else TypeDefinitionMembers.getTypes(aClass)
     val forName = types.forName(named.name)
-    val typeAliases = forName.filter(ta => ScalaNamesUtil.scalaName(ta._1) == named.name)
-    typeAliases.flatMap(ta => ta._2.supers.map(_.info))
+
+    forName.findNode(typeAlias) match {
+      case Some(node) => node.supers.map(_.info)
+      case _ => Seq.empty
+    }
   }
 
   @NotNull

@@ -218,20 +218,16 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
   private def annotateNeedsToBeMixin(holder: AnnotationHolder): Unit = {
     if (isInstanceOf[ScTrait]) return
 
-    val signatures = TypeDefinitionMembers.getSignatures(this)
-      .forAllNames()
-      .flatMap {
-        _.map(_._2)
-      }
+    val nodes = TypeDefinitionMembers.getSignatures(this).allNodesIterator
 
     def isOverrideAndAbstract(definition: ScFunctionDefinition) =
       definition.hasModifierPropertyScala(PsiModifier.ABSTRACT) &&
         definition.hasModifierPropertyScala("override")
 
-    for (signature <- signatures) {
-      signature.info match {
+    for (node <- nodes) {
+      node.info match {
         case PhysicalSignature(function: ScFunctionDefinition, _) if isOverrideAndAbstract(function) =>
-          val flag = signature.supers.map(_.info.namedElement).forall {
+          val flag = node.supers.map(_.info.namedElement).forall {
             case f: ScFunctionDefinition => isOverrideAndAbstract(f)
             case _: ScBindingPattern => true
             case m: PsiMethod => m.hasModifierProperty(PsiModifier.ABSTRACT)

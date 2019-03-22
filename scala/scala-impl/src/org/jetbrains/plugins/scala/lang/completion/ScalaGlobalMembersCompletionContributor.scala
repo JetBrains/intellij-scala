@@ -151,9 +151,9 @@ object ScalaGlobalMembersCompletionContributor {
       containingClass <- inheritedIn(method, method)
 
       methodName = method.name
-      overloads: Seq[PsiMethod] = containingClass match {
-        case o: ScObject => o.functionsByName(methodName)
-        case _ => containingClass.getAllMethods.filter(_.name == methodName)
+      overloads = containingClass match {
+        case o: ScObject => o.allFunctionsByName(methodName).toSeq
+        case _ => containingClass.getAllMethods.filter(_.name == methodName).toSeq
       }
 
       first <- overloads.headOption

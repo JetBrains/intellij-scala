@@ -164,7 +164,7 @@ object SAMUtil {
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
     private[SAMUtil] def singleAbstractMethodScala: Option[(ScFunction, ScSubstitutor)] = cls match {
       case tdef: ScTemplateDefinition =>
-        val abstractMembers = tdef.allSignatures.filter(SignatureStrategy.signature.isAbstract)
+        val abstractMembers = tdef.allSignatures.filter(SignatureStrategy.signature.isAbstract).toSeq
         abstractMembers match {
           case Seq(PhysicalSignature(fun: ScFunction, subst))
             if !fun.hasTypeParameters && fun.paramClauses.clauses.size == 1 =>

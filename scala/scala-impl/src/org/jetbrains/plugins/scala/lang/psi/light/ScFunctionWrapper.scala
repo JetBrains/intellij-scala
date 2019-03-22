@@ -206,7 +206,7 @@ object ScFunctionWrapper {
       case (Some(clazz), function: ScFunction) =>
         clazz match {
           case td: ScTypeDefinition =>
-            td.signaturesByName(function.name).find(_.method == function) match {
+            td.methodsByName(function.name).find(_.method == function) match {
               case Some(sign) => sign.substitutor
               case _ => ScSubstitutor.empty
             }

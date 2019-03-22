@@ -120,20 +120,20 @@ object ScalaOIUtil {
       inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterable[ClassMember] =
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterator[ClassMember] =
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))
 
-  def getAllMembersToOverride(clazz: ScTemplateDefinition): Iterable[ClassMember] =
+  def getAllMembersToOverride(clazz: ScTemplateDefinition): Iterator[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)()
 
-  def getMembersToOverride(clazz: ScTemplateDefinition): Iterable[ClassMember] =
+  def getMembersToOverride(clazz: ScTemplateDefinition): Iterator[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
 
   private[this] def classMembersWithFilter(clazz: ScTemplateDefinition,
                                            withSelfType: Boolean,
                                            isOverride: Boolean = true)
                                           (f1: PhysicalSignature => Boolean = const(true),
-                                           f2: PsiNamedElement => Boolean = const(true)): Iterable[ClassMember] = {
+                                           f2: PsiNamedElement => Boolean = const(true)): Iterator[ClassMember] = {
     val methods = (if (withSelfType) clazz.allMethodsIncludingSelfType
     else clazz.allMethods).filter(s => s.namedElement.isValid && f1(s))
 
@@ -271,7 +271,7 @@ object ScalaOIUtil {
     }
   }
 
-  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterable[PhysicalSignature] = {
+  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterator[PhysicalSignature] = {
     val all = if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods
     all.filter(needOverride(_, clazz))
   }

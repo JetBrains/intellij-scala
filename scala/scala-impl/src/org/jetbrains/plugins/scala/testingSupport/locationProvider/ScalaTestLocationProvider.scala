@@ -59,7 +59,7 @@ class ScalaTestLocationProvider extends SMTestLocator {
             val methodOwner = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
             methodOwner match {
               case Some(td: ScTypeDefinition) =>
-                td.signaturesByName(methodName).foreach {
+                td.methodsByName(methodName).foreach {
                   case signature: PhysicalSignature =>
                     res.add(new PsiLocationWithName(project, signature.method, testName))
                 }

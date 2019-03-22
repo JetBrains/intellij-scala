@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -98,7 +99,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     val toSearchWithIndices = Set("main", JUnitUtil.SUITE_METHOD_NAME) //these methods may be searched from EDT, search them without building a whole type hierarchy
 
     def withIndices(): Array[PsiMethod] = {
-      val inThisClass = functionsByName(name)
+      val inThisClass = allFunctionsByName(name)
 
       val files = this.allSupers.flatMap(_.containingVirtualFile).asJava
       val scope = GlobalSearchScope.filesScope(getProject, files)
@@ -191,18 +192,18 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeAliases: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getTypes(this).forAllNames().flatMap(n => n.map {
-    case (_, x) => (x.info, x.substitutor)
-  })
+  def allTypeAliases: Iterator[(PsiNamedElement, ScSubstitutor)] =
+    TypeDefinitionMembers.getTypes(this).allNodesIterator.map {
+      x => (x.info, x.substitutor)
+    }
 
-  def allTypeAliasesIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
+  def allTypeAliasesIncludingSelfType: Iterator[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType)).forAllNames().
-              flatMap(_.map { case (_, n) => (n.info, n.substitutor) })
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allNodesIterator.map(n => (n.info, n.substitutor))
           case _ =>
             allTypeAliases
         }
@@ -211,38 +212,30 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  def allVals: Seq[(PsiNamedElement, ScSubstitutor)] =
-    TypeDefinitionMembers.getSignatures(this).forAllNames()
-      .flatMap(n => n.filter {
-        case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
-          (x.info.namedElement match {
-            case v =>
-              ScalaPsiUtil.nameContext(v) match {
-                case _: ScVariable => v.name == x.info.name
-                case _: ScValue => v.name == x.info.name
-                case _ => true
-              }
-          })
-      })
-      .distinctBy { case (_, y) => y.info.namedElement }
-      .map { case (_, n) => (n.info.namedElement, n.substitutor) }
+  private def isValSignature(s: Signature): Boolean = s match {
+    case _: PhysicalSignature => false
+    case _ => s.namedElement.nameContext match {
+      case _: ScValueOrVariable | _: ScClassParameter => s.namedElement.name == s.name
+      case _ => false
+    }
+  }
 
-  def allValsIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
+  def allVals: Iterator[(PsiNamedElement, ScSubstitutor)] = {
+    TypeDefinitionMembers.getSignatures(this).allNodesIterator
+      .filter(n => isValSignature(n.info))
+      .map(n => (n.info.namedElement, n.substitutor))
+  }
+
+  def allValsIncludingSelfType: Iterator[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).forAllNames().flatMap(n => n.filter{
-              case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
-                (x.info.namedElement match {
-                  case v =>
-                    ScalaPsiUtil.nameContext(v) match {
-                      case _: ScVariable => v.name == x.info.name
-                      case _: ScValue => v.name == x.info.name
-                      case _ => true
-                    }
-                })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType))
+              .allNodesIterator
+              .filter(n => isValSignature(n.info))
+              .map(n => (n.info.namedElement, n.substitutor))
           case _ =>
             allVals
         }
@@ -251,20 +244,26 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  def allMethods: Iterable[PhysicalSignature] =
-    TypeDefinitionMembers.getSignatures(this).forAllNames().flatMap(_.filter {
-      case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
-      map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] }
+  def allMethods: Iterator[PhysicalSignature] =
+    TypeDefinitionMembers.getSignatures(this)
+      .allNodesIterator
+      .map(_.info)
+      .collect {
+        case p: PhysicalSignature => p
+      }
 
-  def allMethodsIncludingSelfType: Iterable[PhysicalSignature] = {
+  def allMethodsIncludingSelfType: Iterator[PhysicalSignature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).forAllNames().flatMap(_.filter {
-              case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
-              map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] }
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType))
+              .allNodesIterator
+              .map(_.info)
+              .collect {
+                case p: PhysicalSignature => p
+              }
           case _ =>
             allMethods
         }
@@ -273,17 +272,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  def allSignatures: Seq[Signature] =
-    TypeDefinitionMembers.getSignatures(this).forAllNames().flatMap(_.map { case (_, n) => n.info })
+  def allSignatures: Iterator[Signature] =
+    TypeDefinitionMembers.getSignatures(this).allNodesIterator.map(_.info)
 
-  def allSignaturesIncludingSelfType: Seq[Signature] = {
+  def allSignaturesIncludingSelfType: Iterator[Signature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).forAllNames().
-              flatMap(_.map { case (_, n) => n.info })
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allNodesIterator.map(_.info)
           case _ =>
             allSignatures
         }
@@ -430,8 +428,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     member.getParent.getNode.removeChild(member.getNode)
   }
 
-  def functionsByName(name: String): Seq[PsiMethod] = {
-    for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)) yield p.method
+  def allFunctionsByName(name: String): Iterator[PsiMethod] = {
+    TypeDefinitionMembers.getSignatures(this).forName(name)
+      .iterator
+      .collect {
+        case p: PhysicalSignature => p.method
+      }
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {

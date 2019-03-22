@@ -187,9 +187,10 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       .sortBy(m => (m.getPsiElement.getContainingFile.getName, m.getPsiElement.getTextRange.getStartOffset))
 
   // todo add ScObjectMember for targets
-  private def targetsIn(clazz: ScTemplateDefinition): Iterable[ClassMember] =
+  private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] =
     ScalaOIUtil.getAllMembersToOverride(clazz)
       .filter(canBeTargetInClass(_, clazz))
+      .toSeq
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case _: ScAliasMember => false

@@ -644,21 +644,11 @@ object ScalaPsiUtil {
     }
   }
 
-  def getMethodsForName(clazz: PsiClass, name: String): Seq[PhysicalSignature] = {
-    for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz).forName(name)
-         if clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static")) yield n
-  }
-
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    getMethodsForName(clazz, "apply")
-  }
-
-  def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq")
-  }
-
-  def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    getMethodsForName(clazz, "update")
+    val isObject = clazz.isInstanceOf[ScObject]
+    TypeDefinitionMembers.getSignatures(clazz).forName("apply").iterator.collect {
+      case p: PhysicalSignature if isObject || p.method.hasModifierProperty("static") => p
+    }.toList
   }
 
   @tailrec
@@ -1385,18 +1375,21 @@ object ScalaPsiUtil {
     }
   }
 
+  //reference in assignment is resolved to var, but actually there is a "_=" method which is applied
+  //todo: resolve reference correctly instead of hacking annotator
   def isUnderscoreEq(assign: ScAssignment, actualType: ScType): Boolean = {
     assign.leftExpression match {
-      case ref: ScReferenceExpression =>
-        ref.bind().map(_.element).exists {
-          case pat: ScBindingPattern =>
-            Option(pat.containingClass).exists(_.allSignatures.find(_.name == pat.name + "_=").exists {
-              sig =>
-                sig.paramClauseSizes === Array(1) &&
-                  actualType.conforms(sig.substitutedTypes.head.head.apply())
-            })
+      case Resolved(pat: ScBindingPattern, _) =>
+        pat.containingClass match {
+          case td: ScTemplateDefinition =>
+            val signaturesByName = TypeDefinitionMembers.getSignatures(td).forName(pat.name + "_=").iterator
+            signaturesByName.exists { sig =>
+              sig.paramClauseSizes === Array(1) &&
+                actualType.conforms(sig.substitutedTypes.head.head.apply())
+            }
           case _ => false
         }
+
       case _ => false
     }
   }

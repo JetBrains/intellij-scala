@@ -18,13 +18,13 @@ import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, StubBasedExt, TraversableExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -44,7 +44,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScType, Signature}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
@@ -380,9 +379,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   def superMethods: Seq[PsiMethod] = {
     val clazz = containingClass
-    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name)).
-      get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
-      filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
+    if (clazz != null) {
+      val node = TypeDefinitionMembers.getSignatures(clazz).forName(name).findNode(this)
+      node.toSeq.flatMap(_.supers).map(_.info.namedElement).filterBy[PsiMethod]
+    }
     else Seq.empty
   }
 
@@ -391,11 +391,13 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
     val clazz = containingClass
     if (clazz != null) {
-      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name).
-        fastPhysicalSignatureGet(new PhysicalSignature(this, ScSubstitutor.empty))
-      if (option.isEmpty) return None
-      option.get.primarySuper.filter(_.info.isInstanceOf[PhysicalSignature]).
-        map(node => (node.info.asInstanceOf[PhysicalSignature].method, node.info.substitutor))
+      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name).findNode(this)
+      option
+        .flatMap(_.primarySuper)
+        .map(_.info)
+        .collect {
+          case p: PhysicalSignature => (p.method, p.substitutor)
+        }
     }
     else None
   }
@@ -403,39 +405,30 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   def superSignatures: Seq[Signature] = {
     val clazz = containingClass
-    val s = new PhysicalSignature(this, ScSubstitutor.empty)
-    if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name)).
-      fastPhysicalSignatureGet(s) match {
+    if (clazz == null) return Seq.empty
+
+    TypeDefinitionMembers.getSignatures(clazz).forName(name).findNode(this) match {
       case Some(x) => x.supers.map {_.info}
-      case None => Seq[Signature]()
+      case None => Seq.empty
     }
-    t
   }
 
   def superSignaturesIncludingSelfType: Seq[Signature] = {
     val clazz = containingClass
-    val s = new PhysicalSignature(this, ScSubstitutor.empty)
-    if (clazz == null) return Seq(s)
-    val withSelf = clazz.selfType.isDefined
-    if (withSelf) {
-      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaNamesUtil.clean(name))
-      signs.fastPhysicalSignatureGet(s) match {
-        case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
-        case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
-        case None => signs.get(s) match {
-          case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
-          case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
+    if (clazz == null) return Seq.empty
+
+    if (clazz.selfType.isDefined) {
+      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(name)
+      signs.findNode(this) match {
+        case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
+        case Some(x) => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
+        case None => signs.get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
+          case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
+          case Some(x) => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
           case None => Seq.empty
         }
       }
-    } else {
-      TypeDefinitionMembers.getSignatures(clazz).forName(ScalaNamesUtil.clean(name)).
-        fastPhysicalSignatureGet(s) match {
-        case Some(x) => x.supers.map { _.info }
-        case None => Seq.empty
-      }
-    }
+    } else superSignatures
   }
 
 }

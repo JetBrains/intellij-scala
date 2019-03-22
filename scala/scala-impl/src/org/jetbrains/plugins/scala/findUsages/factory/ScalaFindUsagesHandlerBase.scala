@@ -18,7 +18,7 @@ class ScalaFindUsagesHandlerBase(
 ) extends FindUsagesHandler(element) {
   private[this] def applyFactoryMethods(cls: ScClass): Seq[PsiMethod] = {
     val companion    = ScalaPsiUtil.getCompanionModule(cls)
-    val applyMethods = companion.toSeq.flatMap(_.functionsByName("apply"))
+    val applyMethods = companion.toSeq.flatMap(_.allFunctionsByName("apply"))
 
     applyMethods.filter {
       case f: ScFunctionDefinition if f.isApplyMethod => f.isSynthetic

@@ -380,7 +380,7 @@ object ScalaImportTypeFix {
       buffer.filter {
         case ClassTypeToImport(clazz) =>
           clazz.isInstanceOf[ScObject] &&
-            clazz.asInstanceOf[ScObject].functionsByName("apply").nonEmpty
+            clazz.asInstanceOf[ScObject].allFunctionsByName("apply").nonEmpty
         case _ => false
       }.sortBy(_.qualifiedName).toArray
     } else buffer.sortBy(_.qualifiedName).toArray
