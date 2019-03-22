@@ -51,6 +51,9 @@
     </extensions>
 
     <actions>
+        <action id="bsp.enable" class="org.jetbrains.bsp.EnableBspAction"
+                text="Enable experimental bsp support" description="Enable experimental bsp support">
+        </action>
     </actions>
 
 

@@ -10,6 +10,16 @@ class StartupRoutine extends ApplicationInitializedListener {
 
   override def componentsInitialized(): Unit = {
 
+    val bspEnabled = Registry.get(BSP.RegistryKeyFeatureEnabled)
+
+    // bsp is experimental feature, hide it from UI by default
+    val shouldSetKey =
+      try { ! bspEnabled.isChangedFromDefault }
+      catch { case _ : MissingResourceException => true }
+
+    if (shouldSetKey)
+      bspEnabled.setValue(false)
+
     // use in-process mode for external system
     Registry
       .get(BSP.ProjectSystemId + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX)
