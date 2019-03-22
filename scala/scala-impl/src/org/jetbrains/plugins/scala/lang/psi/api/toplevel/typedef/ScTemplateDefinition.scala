@@ -216,6 +216,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     case _: PhysicalSignature => false
     case _ => s.namedElement.nameContext match {
       case _: ScValueOrVariable | _: ScClassParameter => s.namedElement.name == s.name
+      case _: PsiField => true
       case _ => false
     }
   }
