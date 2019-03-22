@@ -19,8 +19,8 @@ trait ScalaLibraryMigrationHandler {
     * Checks if the other handler can be substituted by this one.
     *
     * @param otherOne other handler
-    * @return true if yes, false otherwise (regardless of other one supports another version(s) 
-    *         of the same lib or just a different lib(s)
+   * @return true if yes, false otherwise (regardless of other one supports another version(s)
+    *        of the same lib or just a different lib(s)
     */
   def precede(otherOne: ScalaLibraryMigrationHandler): Boolean
 }

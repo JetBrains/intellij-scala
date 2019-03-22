@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
+
 import scala.collection.JavaConverters._
 
 /**
@@ -72,15 +73,11 @@ object ModuleExtDataService {
 
         scalaLibrary match {
           case Some(library) if !library.isScalaSdk =>
-            val languageLevel = platform match {
-              case Scala => library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
-              case Dotty => ScalaLanguageLevel.Snapshot
-            }
             val classpath = platform match {
               case Scala => compilerClasspath
               case Dotty => compilerClasspath.filterNot(_.getName.startsWith("sbt-interface-"))
             }
-            setScalaSdk(library, platform, languageLevel, classpath)
+            setScalaSdk(library, classpath)()
           case None =>
             showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.presentation, module.getName))
           case _ => // do nothing

@@ -57,13 +57,17 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
 
     val element = refElement.getElement
 
-    def filterByScalaVer(artifacts: Set[ArtifactInfo]): Set[ArtifactInfo] = {
-      val scalaVer = element.module.flatMap(_.scalaSdk.map(_.languageLevel.version))
-      scalaVer
-        .map(version => artifacts.filter(_.artifactId.endsWith(version)))
-        .map(res => if (res.nonEmpty) res else artifacts)
-        .getOrElse(artifacts)
-    }
+    def filterByScalaVer(artifacts: Set[ArtifactInfo]): Option[Set[ArtifactInfo]] = for {
+      module <- element.module
+      sdk <- module.scalaSdk
+
+      version = sdk.languageLevel.getVersion
+
+      filtered = artifacts.filter {
+        case ArtifactInfo(_, artifactId, _) => artifactId.endsWith(version)
+      }
+      if filtered.nonEmpty
+    } yield filtered
 
     val baseDir: VirtualFile = project.getBaseDir
     val sbtFileOpt = baseDir.findChild(Sbt.BuildFile) match {
@@ -86,7 +90,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
 
           indicator.setText("Searching for artifacts...")
           val fqName = extensions.inReadAction(getReferenceText)
-          val artifactInfoSet = if (fqName.endsWith("._")) { // search wildcard imports by containing package
+          val artifacts = if (fqName.endsWith("._")) { // search wildcard imports by containing package
             doSearch(fqName.replaceAll("_$", "")) match {
               case set if set.isEmpty => doSearch(fqName.replaceAll("._$", "")) // not a package, try searching for a class
               case result => result
@@ -98,7 +102,9 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
               case result => result
             }
           }
-          extensions.inReadAction(filterByScalaVer(artifactInfoSet))
+          extensions.inReadAction {
+            filterByScalaVer(artifacts).getOrElse(artifacts)
+          }
         }
 
         def getPlaces: Seq[DependencyPlaceInfo] = {

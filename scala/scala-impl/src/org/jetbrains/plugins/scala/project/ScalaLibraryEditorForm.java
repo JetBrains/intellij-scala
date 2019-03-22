@@ -21,7 +21,7 @@ public class ScalaLibraryEditorForm {
 
   public ScalaLibraryEditorForm() {
     myLanguageLevel.setRenderer(new NamedValueRenderer());
-    myLanguageLevel.setModel(new DefaultComboBoxModel(ScalaLanguageLevel.Values()));
+      myLanguageLevel.setModel(new DefaultComboBoxModel<>(ScalaLanguageLevel.values()));
 
     myPluginsPanel.setBorder(IdeBorderFactory.createBorder());
     myPluginsPanel.add(myClasspathEditor.createComponent(), BorderLayout.CENTER);
@@ -33,7 +33,7 @@ public class ScalaLibraryEditorForm {
 
   public void setState(ScalaLibraryPropertiesState state) {
     myLanguageLevel.setSelectedItem(state.getLanguageLevel());
-    myClasspathEditor.setPaths(state.compilerClasspath);
+      myClasspathEditor.setPaths(state.getCompilerClasspath());
   }
 
   public JComponent getComponent() {

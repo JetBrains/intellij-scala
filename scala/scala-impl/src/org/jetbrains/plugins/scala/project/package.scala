@@ -10,7 +10,7 @@ import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VfsUtilCore
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.dotty.DottyLanguage
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.project.module.SbtModuleType
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.matching.Regex
@@ -38,8 +37,9 @@ package object project {
 
     def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] =
+    def scalaLanguageLevel: ScalaLanguageLevel =
       scalaVersion.flatMap(_.toLanguageLevel)
+        .getOrElse(ScalaLanguageLevel.getDefault)
 
     private[project] def scalaProperties: Option[ScalaLibraryProperties] =
       libraryEx.getProperties.asOptionOf[ScalaLibraryProperties]
@@ -55,8 +55,7 @@ package object project {
     def hasScala: Boolean =
       scalaSdk.isDefined
 
-    def hasDotty: Boolean =
-      scalaSdk.exists(_.platform == Platform.Dotty)
+    def hasDotty: Boolean = false
 
     def scalaSdk: Option[ScalaSdk] = Option {
       ScalaSdkCache(module.getProject)(module)
@@ -213,8 +212,6 @@ package object project {
 
     def compilerClasspath: Seq[File] = properties.compilerClasspath
 
-    def platform: Platform = properties.platform
-
     def languageLevel: ScalaLanguageLevel = properties.languageLevel
   }
 
@@ -232,27 +229,9 @@ package object project {
 
     def isInDottyModule: Boolean = module.exists(_.hasDotty)
 
-    @deprecated("legacy code, use scalaLanguageLevelOrDefault", "14.10.14")
-    def languageLevel: ScalaLanguageLevel = {
-      @tailrec
-      def getContainingFileByContext(element: PsiElement): PsiFile = {
-        element match {
-          case file: PsiFile => file
-          case null => null
-          case elem => getContainingFileByContext(elem.getContext)
-        }
-      }
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk).map(_.languageLevel)
 
-      val file: PsiFile = getContainingFileByContext(element)
-      if (file == null || file.getVirtualFile == null) return ScalaLanguageLevel.Default
-      val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
-      if (module == null) return ScalaLanguageLevel.Default
-      module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.Default)
-    }
-
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk.map(_.languageLevel))
-
-    def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
+    def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault)
 
     def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
 

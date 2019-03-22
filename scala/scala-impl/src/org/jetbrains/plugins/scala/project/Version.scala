@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package project
 
+import org.jetbrains.plugins.scala.project.VersionUtil._
+
 import scala.Ordering.Implicits._
-import VersionUtil._
 
 /**
  * @author Pavel Fatin
@@ -30,8 +31,8 @@ case class Version(presentation: String) extends Ordered[Version] {
     */
   def major(n: Int): Version = Version(groups.head.numbers.take(n).mkString("."))
 
-  def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.Values.find { level =>
-    presentation.startsWith(level.version)
+  def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.values.find { level =>
+    presentation.startsWith(level.getVersion)
   }
 
   def inRange(atLeast: Version, lessThan: Version): Boolean =

@@ -79,7 +79,7 @@ class SbtDependencyAnnotator extends Annotator {
       parentExpr@ScInfixExpr(leftPart, operation, _) <- Option(literal.getParent)
       if isOneOrTwoPercents(operation)
     } yield {
-      val scalaVersion = findProjectModule(module).flatMap(_.scalaSdk).map(_.languageLevel.version)
+      val scalaVersion = findProjectModule(module).flatMap(_.scalaSdk).map(_.languageLevel.getVersion)
       leftPart match {
         case _: ScLiteral =>
           extractArtifactInfo(parentExpr.getParent, scalaVersion).foreach(findDependencyOrAnnotate)

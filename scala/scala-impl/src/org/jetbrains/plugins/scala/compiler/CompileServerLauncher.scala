@@ -22,7 +22,7 @@ import gnu.trove.TByteArrayList
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{Platform, ProjectExt}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -88,7 +88,7 @@ object CompileServerLauncher {
 
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
-        val bootCp = bootClasspath(project)
+        val bootCp = dottyClasspath(project)
         val bootClassPathLibs = bootCp.map(_.getAbsolutePath)
         val bootclasspathArg =
           if (bootClassPathLibs.isEmpty) Nil
@@ -215,10 +215,7 @@ object CompileServerLauncher {
     }
   }
 
-  def bootClasspath(project: Project): Seq[File] = {
-    val dottySdk = project.scalaModules.map(_.sdk).find(_.platform == Platform.Dotty)
-    dottySdk.toSeq.flatMap(_.compilerClasspath)
-  }
+  def dottyClasspath(project: Project): Seq[File] = Seq.empty
 
   private def withTimestamps(files: Seq[File]): Set[(File, Long)] = {
     files.map(f => (f, f.lastModified())).toSet
@@ -253,7 +250,7 @@ object CompileServerLauncher {
           case Some(projectJdk) => projectJdk != instance.jdk
           case _ => false
         }
-        workingDirChanged || instance.bootClasspath != withTimestamps(bootClasspath(project)) || jdkChanged
+        workingDirChanged || instance.bootClasspath != withTimestamps(dottyClasspath(project)) || jdkChanged
     }
   }
 

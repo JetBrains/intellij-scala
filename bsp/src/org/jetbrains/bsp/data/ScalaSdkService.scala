@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
+
 import scala.collection.JavaConverters._
 
 
@@ -45,40 +46,33 @@ object ScalaSdkService {
     override def importData(): Unit =
       dataToImport.foreach(doImport)
 
-    private def doImport(dataNode: DataNode[ScalaSdkData]): Unit = {
-      for {
-        module <- getIdeModuleByNode(dataNode)
-      } {
-        val data = dataNode.getData
-        module.configureScalaCompilerSettingsFrom("bsp", data.scalacOptions.asScala)
-        data.scalaVersion.foreach(
-          version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath.asScala))
-      }
+    private def doImport(dataNode: DataNode[ScalaSdkData]): Unit = for {
+      module <- getIdeModuleByNode(dataNode)
+      ScalaSdkData(_, scalaVersion, scalacClasspath, scalacOptions) = dataNode.getData
+    } {
+      module.configureScalaCompilerSettingsFrom("bsp", scalacOptions.asScala)
+      configureScalaSdk(
+        module,
+        scalaVersion,
+        scalacClasspath.asScala
+      )
     }
 
     private def configureScalaSdk(module: Module,
-                                  compilerOrganization: String,
-                                  compilerVersion: Version,
-                                  compilerClasspath: Seq[File]): Unit = {
+                                  maybeVersion: Option[Version],
+                                  compilerClasspath: Seq[File]): Unit = for {
+      version <- maybeVersion
+      languageLevel <- version.toLanguageLevel
 
-      val platform = compilerOrganization match {
-        case "ch.epfl.lamp" => Platform.Dotty
-        case _ => Platform.Scala
-      }
-      val languageLevel = compilerVersion.toLanguageLevel.get
+      library <- getModifiableRootModel(module)
+        .getModuleLibraryTable
+        .getLibraries
+        .find {
+          _.getName.contains(ScalaSdkData.LibraryName)
+        }
 
-      findScalaLibrary(module, compilerClasspath).foreach { lib =>
-        if (!lib.isScalaSdk)
-          setScalaSdk(lib, platform, languageLevel, compilerClasspath)
-      }
-    }
-
-    private def findScalaLibrary(module: Module, files: Seq[File]) = {
-      val libraryName = "scala-sdk"
-      val rootModel = getModifiableRootModel(module)
-      val libraryTable = rootModel.getModuleLibraryTable
-      libraryTable.getLibraries.find(_.getName.contains(ScalaSdkData.LibraryName))
-    }
+      if !library.isScalaSdk
+    } setScalaSdk(library, compilerClasspath)(languageLevel)
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
       val model = getModifiableRootModel(module)

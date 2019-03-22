@@ -103,13 +103,13 @@ class SbtMavenDependencyCompletionContributor extends CompletionContributor {
         case ScInfixExpr(_, oper, _) if oper.getText == "+=" || oper.getText == "++=" => // empty completion from scratch
           completeGroup(cleanText)
         case ScInfixExpr(lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
-          val versionSuffix = if (oper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
+          val versionSuffix = if (oper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
           completeGroup(artifact + versionSuffix)
         case ScInfixExpr(ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
           completeArtifact(group, stripVersion = oper.getText == "%%")
         case ScInfixExpr(ScInfixExpr(llop, loper, lrop), oper, rop)
           if rop == place.getContext && oper.getText == "%" && isValidOp(loper) =>
-          val versionSuffix = if (loper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
+          val versionSuffix = if (loper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.getVersion}" else ""
           for {
             ScLiteralImpl.string(group) <- Option(llop)
             ScLiteralImpl.string(artifact) <- Option(lrop)

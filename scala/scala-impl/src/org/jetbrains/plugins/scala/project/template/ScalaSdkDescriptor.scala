@@ -23,11 +23,7 @@ case class ScalaSdkDescriptor(platform: Platform,
 
   def createNewLibraryConfiguration(): NewLibraryConfiguration = {
     val properties = ScalaLibraryProperties(
-      platform,
-      platform match {
-        case Scala => version.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.Default)
-        case Dotty => ScalaLanguageLevel.Snapshot
-      },
+      version.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.getDefault),
       compilerFiles
     )
 

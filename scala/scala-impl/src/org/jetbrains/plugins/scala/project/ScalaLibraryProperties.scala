@@ -11,15 +11,11 @@ import com.intellij.openapi.vfs.VfsUtilCore
 /**
  * @author Pavel Fatin
  */
-final class ScalaLibraryProperties private(private[this] var _platform: Platform,
-                                           private[this] var _languageLevel: ScalaLanguageLevel,
-                                           private[this] var _compilerClasspath: Seq[File]) extends LibraryProperties[ScalaLibraryPropertiesState] {
+final class ScalaLibraryProperties private(private[this] var _languageLevel: ScalaLanguageLevel,
+                                           private[this] var _compilerClasspath: Seq[File])
+  extends LibraryProperties[ScalaLibraryPropertiesState] {
 
-  def platform: Platform = _platform
-
-  def platform_=(platform: Platform): Unit = {
-    _platform = platform
-  }
+  import ScalaLibraryProperties._
 
   def languageLevel: ScalaLanguageLevel = _languageLevel
 
@@ -35,49 +31,33 @@ final class ScalaLibraryProperties private(private[this] var _platform: Platform
   }
 
   def loadState(state: ScalaLibraryPropertiesState) {
-    platform = state.getPlatform
     languageLevel = state.getLanguageLevel
-    compilerClasspath = state.compilerClasspath
-      .map(VfsUtilCore.urlToPath)
-      .map(new File(_))
+    compilerClasspath = state.getCompilerClasspath.map(pathToFile)
   }
 
-  def getState: ScalaLibraryPropertiesState = {
-    val compilerClasspath = this.compilerClasspath
-      .map(_.getAbsolutePath)
-      .map(FileUtil.toCanonicalPath)
-      .map(VfsUtilCore.pathToUrl)
-      .toArray
-
-    new ScalaLibraryPropertiesState(
-      platform,
-      languageLevel,
-      compilerClasspath
-    )
-  }
+  def getState: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState(
+    languageLevel,
+    compilerClasspath.map(fileToPath).toArray
+  )
 
   override def equals(obj: Any): Boolean = obj match {
-    case ScalaLibraryProperties(platform, languageLevel, compilerClasspath) =>
-      _platform == platform &&
-        _languageLevel == languageLevel &&
-        _compilerClasspath == compilerClasspath
+    case properties: ScalaLibraryProperties =>
+      languageLevel == properties.languageLevel &&
+        compilerClasspath == properties.compilerClasspath
     case _ => false
   }
 
-  override def hashCode: Int = Objects.hash(
-    platform,
-    languageLevel,
-    compilerClasspath
-  )
+  override def hashCode: Int = Objects.hash(languageLevel, compilerClasspath)
 
-  override def toString = s"ScalaLibraryProperties($platform, $languageLevel, $compilerClasspath)"
+  override def toString = s"ScalaLibraryProperties($languageLevel, $compilerClasspath)"
 }
 
 object ScalaLibraryProperties {
 
+  import VfsUtilCore._
+
   def apply(state: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState()): ScalaLibraryProperties = {
     val properties = new ScalaLibraryProperties(
-      null,
       null,
       Seq.empty
     )
@@ -85,22 +65,21 @@ object ScalaLibraryProperties {
     properties
   }
 
-  def apply(platform: Platform,
-            languageLevel: ScalaLanguageLevel,
+  def apply(languageLevel: ScalaLanguageLevel,
             compilerClasspath: Seq[File]) = new ScalaLibraryProperties(
-    platform,
     languageLevel,
     compilerClasspath
   )
 
-  def unapply(libraryProperties: LibraryProperties[_]): Option[(Platform, ScalaLanguageLevel, Seq[File])] =
+  def unapply(libraryProperties: LibraryProperties[_]): Option[(ScalaLanguageLevel, Seq[File])] =
     libraryProperties match {
-      case scalaLibraryProperties: ScalaLibraryProperties =>
-        Some(
-          scalaLibraryProperties.platform,
-          scalaLibraryProperties.languageLevel,
-          scalaLibraryProperties.compilerClasspath
-        )
+      case properties: ScalaLibraryProperties => Some(properties.languageLevel, properties.compilerClasspath)
       case _ => None
     }
+
+  private def pathToFile(url: String) =
+    new File(urlToPath(url))
+
+  private def fileToPath(file: File) =
+    pathToUrl(FileUtil.toCanonicalPath(file.getAbsolutePath))
 }

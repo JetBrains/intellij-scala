@@ -90,10 +90,7 @@ private object ScalaGradleDataService {
       }
       val scalaLibrary = scalaLibraryOption.get
 
-      if (!scalaLibrary.isScalaSdk) {
-        val languageLevel = scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
-        setScalaSdk(scalaLibrary, Platform.Scala, languageLevel, compilerClasspath)
-      }
+      if (!scalaLibrary.isScalaSdk) setScalaSdk(scalaLibrary, compilerClasspath)()
     }
 
     private def getScalaLibraries: Set[Library] =

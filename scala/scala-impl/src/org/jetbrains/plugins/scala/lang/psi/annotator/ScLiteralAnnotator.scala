@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
-import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.Seq
 

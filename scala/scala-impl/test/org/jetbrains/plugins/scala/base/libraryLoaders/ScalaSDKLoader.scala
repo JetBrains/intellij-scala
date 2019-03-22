@@ -73,7 +73,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     Disposer.register(module, library)
     inWriteAction {
       val properties = ScalaLibraryProperties(
-        null,
         languageLevel(compilerClasspath.head),
         compilerClasspath
       )
@@ -101,5 +100,5 @@ object ScalaSDKLoader {
     template.Artifact.ScalaCompiler
       .versionOf(file)
       .flatMap(_.toLanguageLevel)
-      .getOrElse(ScalaLanguageLevel.Default)
+      .getOrElse(ScalaLanguageLevel.getDefault)
 }
