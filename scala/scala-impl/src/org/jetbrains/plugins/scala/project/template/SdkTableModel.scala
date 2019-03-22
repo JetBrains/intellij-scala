@@ -4,7 +4,6 @@ package project.template
 import java.lang.Boolean
 
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Version
 
 /**
@@ -18,7 +17,9 @@ class SdkTableModel extends ListTableModel[SdkChoice](
   },
   new ColumnInfo[SdkChoice, String]("Version") {
     override def valueOf(item: SdkChoice): String =
-      item.sdk.version.map(_.presentation |> Version.abbreviate).getOrElse("Unknown")
+      item.sdk.versionText() { version =>
+        Version.abbreviate(version.presentation)
+      }
 
     override def getPreferredStringValue = "2.11.0"
   },
@@ -27,12 +28,12 @@ class SdkTableModel extends ListTableModel[SdkChoice](
 
     override def getPreferredStringValue = "0"
 
-    override def valueOf(item: SdkChoice): Boolean = item.sdk.sourceFiles.nonEmpty
+    override def valueOf(item: SdkChoice): Boolean = item.sdk.hasSources
   },
   new ColumnInfo[SdkChoice, Boolean]("Docs") {
     override def getColumnClass: Class[Boolean] = classOf[java.lang.Boolean]
 
     override def getPreferredStringValue = "0"
 
-    override def valueOf(item: SdkChoice): Boolean = item.sdk.docFiles.nonEmpty
+    override def valueOf(item: SdkChoice): Boolean = item.sdk.hasDocs
   })

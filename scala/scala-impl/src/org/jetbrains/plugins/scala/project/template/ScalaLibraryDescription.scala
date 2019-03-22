@@ -23,27 +23,34 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds: ju.Set[LibraryKind] = ju.Collections.singleton(ScalaLibraryType().getKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
-    val lt = (a: ScalaSdkDescriptor, b: ScalaSdkDescriptor) => a.version > b.version
-
     def sdks =
-      Option(contextDirectory).map(it => localSkdsIn(virtualToIoFile(it)).map(SdkChoice(_, "Project"))).getOrElse(Seq.empty) ++
-        systemSdks.sortWith(lt).map(SdkChoice(_, "System")) ++
-        ivySdks.sortWith(lt).map(SdkChoice(_, "Ivy")) ++
-        mavenSdks.sortWith(lt).map(SdkChoice(_, "Maven"))
+      Option(contextDirectory).flatMap(it => localSkdsIn(virtualToIoFile(it)))
+        .map(SdkChoice(_, "Project"))
+        .toSeq ++
+        systemSdks.map(SdkChoice(_, "System")) ++
+        ivySdks.map(SdkChoice(_, "Ivy")) ++
+        mavenSdks.map(SdkChoice(_, "Maven"))
 
-    import JavaConverters._
-    val dialog = new SdkSelectionDialog(parentComponent, () => sdks.asJava)
+    val dialog = new SdkSelectionDialog(
+      parentComponent,
+      () => {
+        import JavaConverters._
+        sdks.asJava
+      }
+    )
 
-    Option(dialog.open()).map(_.createNewLibraryConfiguration()).orNull
+    Option(dialog.open()).fold(null: NewLibraryConfiguration) {
+      _.createNewLibraryConfiguration
+    }
   }
 
   override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
 
-  private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] =
-    Seq(directory / "lib").flatMap(sdkIn)
+  private def localSkdsIn(directory: File): Option[ScalaSdkDescriptor] =
+    Some(directory / "lib").flatMap(sdkIn)
 
-  def systemSdks: Seq[ScalaSdkDescriptor] =
-    systemScalaRoots.flatMap(path => sdkIn(new File(path)).toSeq)
+  private def systemSdks: Seq[ScalaSdkDescriptor] =
+    systemScalaRoots.flatMap(path => sdkIn(new File(path)))
 
   private def systemScalaRoots: Seq[String] = {
     val fromApps = systemAppRoots.filter(exists).flatMap(findScalaDirectoriesIn)
@@ -85,15 +92,15 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     ScalaSdkDescriptor.from(components).right.toOption
   }
 
-  def mavenSdks: Seq[ScalaSdkDescriptor] = {
+  private def mavenSdks: Seq[ScalaSdkDescriptor] = {
     val root = new File(System.getProperty("user.home")) / ".m2"
 
     val scalaFiles = (root / "repository" / "org" / "scala-lang").allFiles
 
-    scalaSdksIn(scalaFiles)
+    scalaSdksIn(scalaFiles).sorted
   }
 
-  def ivySdks: Seq[ScalaSdkDescriptor] = {
+  private def ivySdks: Seq[ScalaSdkDescriptor] = {
     val root = new File(System.getProperty("user.home")) / ".ivy2"
 
     val scalaFiles = (root / "cache" / "org.scala-lang").allFiles
@@ -102,7 +109,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
 //      (root / "cache" / "me.d-d" / "scala-compiler").allFiles ++
 //      (root / "cache" / "ch.epfl.lamp").allFiles
 
-    scalaSdksIn(scalaFiles) // ++ dottySdksIn(dottyFiles)
+    scalaSdksIn(scalaFiles).sorted // ++ dottySdksIn(dottyFiles)
   }
 
   private def scalaSdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {

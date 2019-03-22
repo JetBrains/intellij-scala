@@ -42,7 +42,11 @@ case class Version(presentation: String) extends Ordered[Version] {
 }
 
 object Version {
-  def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
+  def abbreviate(presentation: String): String =
+    presentation
+      .split('-')
+      .take(2)
+      .mkString("-")
 }
 
 private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
