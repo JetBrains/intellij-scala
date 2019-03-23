@@ -368,11 +368,11 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     super[ScTypeDefinition].isInheritor(baseClass, deep)
 
 
-  def methodsByName(name: String): Iterator[PhysicalSignature] = {
+  def methodsByName(name: String): Iterator[PhysicalMethodSignature] = {
     TypeDefinitionMembers.getSignatures(this).forName(name)
       .iterator
       .collect {
-        case p: PhysicalSignature => p
+        case p: PhysicalMethodSignature => p
       }
   }
 

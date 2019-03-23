@@ -14,18 +14,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TermSignature}
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, PrecedenceHelper, TopPrecedenceHolder}
 
 import scala.collection.{Set, mutable}
 
 object CompletionProcessor {
 
-  private def getSignature(element: PsiNamedElement, substitutor: ScSubstitutor): Option[Signature] = element match {
-    case method: PsiMethod => Some(new PhysicalSignature(method, substitutor))
+  private def getSignature(element: PsiNamedElement, substitutor: ScSubstitutor): Option[TermSignature] = element match {
+    case method: PsiMethod => Some(new PhysicalMethodSignature(method, substitutor))
     case _: ScTypeAlias |
          _: PsiClass => None
-    case _ => Some(Signature(element, substitutor))
+    case _ => Some(TermSignature(element, substitutor))
   }
 
   private def findByKey[T](key: Key[T])
@@ -68,7 +68,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected val holder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
 
-  private val signatures = mutable.HashSet[Signature]()
+  private val signatures = mutable.HashSet[TermSignature]()
 
   val includePrefixImports: Boolean = true
 
@@ -147,7 +147,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   private def regularCase(result: ScalaResolveResult,
-                          maybeSignature: Option[Signature]): Boolean = {
+                          maybeSignature: Option[TermSignature]): Boolean = {
     signatures ++= maybeSignature
 
     if (result.prefixCompletion) {
@@ -157,6 +157,6 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     !levelSet.contains(result)
   }
 
-  private def implicitCase(signature: Signature): Boolean =
+  private def implicitCase(signature: TermSignature): Boolean =
     signatures.add(signature)
 }

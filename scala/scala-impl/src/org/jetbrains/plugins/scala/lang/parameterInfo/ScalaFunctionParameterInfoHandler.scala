@@ -145,7 +145,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
               isGrey = applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)(args, buffer, index)
             }
-          case (sign: PhysicalSignature, i: Int) => //i  can be -1 (it's update method)
+          case (sign: PhysicalMethodSignature, i: Int) => //i  can be -1 (it's update method)
             val subst = sign.substitutor
             sign.method match {
               case method: ScFunction =>
@@ -551,7 +551,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               } {
                 variant match {
                   case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
-                    val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
+                    val signature: PhysicalMethodSignature = new PhysicalMethodSignature(method, subst.followed(collectSubstitutor(method)))
                     res += ((signature, i))
                     res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, i) }
                   case _ =>
@@ -569,7 +569,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 ref.bind() match {
                   case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
                     effectiveParameterClauses.length >= count =>
-                    res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
+                    res += ((new PhysicalMethodSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                   case _ =>
                     call match {
                       case invocation: MethodInvocation =>
@@ -592,7 +592,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   variant match {
                     //todo: Synthetic function
                     case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
-                      val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
+                      val signature: PhysicalMethodSignature = new PhysicalMethodSignature(method, subst.followed(collectSubstitutor(method)))
                       res += ((signature, 0))
                       res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
@@ -638,7 +638,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   if constr.isConstructor &&
                      constr.clauses.map(_.clauses.length).getOrElse(1) > i
                 ) {
-                  res += ((new PhysicalSignature(constr, subst), i))
+                  res += ((new PhysicalMethodSignature(constr, subst), i))
                 }
               case clazz: PsiClass if clazz.isAnnotationType =>
                 val resulting: (AnnotationParameters, Int) =
@@ -651,8 +651,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   typeElement match {
                     case gen: ScParameterizedTypeElement =>
                       val substitutor = ScSubstitutor.bind(clazz.getTypeParameters, gen.typeArgList.typeArgs)(_.calcType)
-                      res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))
-                    case _ => res += ((new PhysicalSignature(constructor, subst), i))
+                      res += ((new PhysicalMethodSignature(constructor, substitutor.followed(subst)), i))
+                    case _ => res += ((new PhysicalMethodSignature(constructor, subst), i))
                   }
                 }
               case _ =>
@@ -680,7 +680,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           } {
             if (!PsiTreeUtil.isAncestor(constr, self, true) &&
               constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {
-              res += ((new PhysicalSignature(constr, ScSubstitutor.empty), i))
+              res += ((new PhysicalMethodSignature(constr, ScSubstitutor.empty), i))
             }
           }
         }
@@ -751,7 +751,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       s1 == s2
     case ((a1: AnnotationParameters, i1: Int), (a2: AnnotationParameters, i2: Int)) =>
       i1 == i2 && a1 == a2
-    case ((sign1: PhysicalSignature, i1: Int), (sign2: PhysicalSignature, i2: Int)) =>
+    case ((sign1: PhysicalMethodSignature, i1: Int), (sign2: PhysicalMethodSignature, i2: Int)) =>
       i1 == i2 && sign1.method == sign2.method
     case ((pc1: ScPrimaryConstructor, _: ScSubstitutor, i1: Int), (pc2: ScPrimaryConstructor, _: ScSubstitutor, i2: Int)) =>
       i1 == i2 && pc1 == pc2

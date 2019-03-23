@@ -123,7 +123,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       }.mkString(" with "))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
-        case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
+        case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
           val paramClauses = parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
@@ -132,7 +132,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val typeParameters = typeParametersText(function.typeParameters, substitutor)
 
           Some(s"def ${s.name}$typeParameters$paramClauses: $retType")
-        case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
+        case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
           val substitutor = s.substitutor
           val named: Option[ScTypedDefinition] = s.namedElement match {
             case _ if s.paramLength > 0 => None

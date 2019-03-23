@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
 /**
  * User: Alexander Podkhalyuzin
@@ -60,7 +60,7 @@ class ScalaTestLocationProvider extends SMTestLocator {
             methodOwner match {
               case Some(td: ScTypeDefinition) =>
                 td.methodsByName(methodName).foreach {
-                  case signature: PhysicalSignature =>
+                  case signature: PhysicalMethodSignature =>
                     res.add(new PsiLocationWithName(project, signature.method, testName))
                 }
               case _ =>

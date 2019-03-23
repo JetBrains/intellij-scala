@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
 import scala.collection.Seq
 
@@ -43,7 +43,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def getQualifiedNameForDebugger: String
 
-  def methodsByName(name: String): Iterator[PhysicalSignature]
+  def methodsByName(name: String): Iterator[PhysicalMethodSignature]
 
   def isPackageObject = false
 

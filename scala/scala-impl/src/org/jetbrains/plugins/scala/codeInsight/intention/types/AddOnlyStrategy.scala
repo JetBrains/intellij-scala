@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignature}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
@@ -139,7 +139,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
   private def typeForMember(element: ScMember): Option[ScType] = {
 
-    def signatureType(sign: Signature): Option[ScType] = {
+    def signatureType(sign: TermSignature): Option[ScType] = {
       val substitutor = sign.substitutor
       sign.namedElement match {
         case f: ScFunction =>
@@ -153,7 +153,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       }
     }
 
-    def superSignatures(member: ScMember): Seq[Signature] = {
+    def superSignatures(member: ScMember): Seq[TermSignature] = {
       val named = member match {
         case n: ScNamedElement => n
         case v: ScValueOrVariable if v.declaredElements.size == 1 => v.declaredElements.head

@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
  * @author Alexander Podkhalyuzin
  */
 
-class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
+class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
                                           constraints: ConstraintSystem, substitutor: ScSubstitutor)
   extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(s.projectContext) {
 
@@ -103,7 +103,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       case _ => if (s.typeParamsLength > 0) return true
     }
 
-    def checkSignature(sign1: Signature, typeParams: Array[PsiTypeParameter], returnType: ScType): Boolean = {
+    def checkSignature(sign1: TermSignature, typeParams: Array[PsiTypeParameter], returnType: ScType): Boolean = {
 
       val sign2 = s
 
@@ -140,12 +140,12 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
         })
         val dcl: ScTypedDefinition = namedElement.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar
-        if (!checkSignature(Signature(dcl, subst), Array.empty, rt))
+        if (!checkSignature(TermSignature(dcl, subst), Array.empty, rt))
           return false
-        if (isVar && !checkSignature(Signature.scalaSetter(dcl, subst), Array.empty, Unit))
+        if (isVar && !checkSignature(TermSignature.scalaSetter(dcl, subst), Array.empty, Unit))
           return false
       case method: PsiMethod =>
-        val sign1 = new PhysicalSignature(method, subst)
+        val sign1 = new PhysicalMethodSignature(method, subst)
         if (!checkSignature(sign1, method.getTypeParameters, method match {
           case fun: ScFunction => fun.returnType.getOrNothing
           case method: PsiMethod => method.getReturnType.toScType()

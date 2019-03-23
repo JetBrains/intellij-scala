@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -115,7 +115,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def delegateText(delegate: ClassMember): String = {
     val delegateText = delegate match {
       case field: ScalaFieldMember => field.name
-      case ScMethodMember(PhysicalSignature(method, _), _) =>
+      case ScMethodMember(PhysicalMethodSignature(method, _), _) =>
         method match {
           case m: PsiMethod if m.isAccessor => m.getName
           case f: ScFunction if f.isEmptyParen => f.name + "()"
@@ -195,7 +195,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case _: ScAliasMember => false
     case typed: ScalaTypedMember if typed.scType.isUnit => false
-    case ScMethodMember(PhysicalSignature(method, _), _) =>
+    case ScMethodMember(PhysicalMethodSignature(method, _), _) =>
       method match {
         case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
         case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz)

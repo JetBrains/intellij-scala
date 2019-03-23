@@ -34,7 +34,7 @@ object ScalaOIUtil {
 
   private[this] type Signature = (PsiNamedElement, ScSubstitutor)
 
-  private[this] def toClassMember(signature: PhysicalSignature, isOverride: Boolean): ClassMember = {
+  private[this] def toClassMember(signature: PhysicalMethodSignature, isOverride: Boolean): ClassMember = {
     val method = signature.method
     assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
     ScMethodMember(signature, isOverride)
@@ -132,7 +132,7 @@ object ScalaOIUtil {
   private[this] def classMembersWithFilter(clazz: ScTemplateDefinition,
                                            withSelfType: Boolean,
                                            isOverride: Boolean = true)
-                                          (f1: PhysicalSignature => Boolean = const(true),
+                                          (f1: PhysicalMethodSignature => Boolean = const(true),
                                            f2: PsiNamedElement => Boolean = const(true)): Iterator[ClassMember] = {
     val methods = (if (withSelfType) clazz.allMethodsIncludingSelfType
     else clazz.allMethods).filter(s => s.namedElement.isValid && f1(s))
@@ -171,7 +171,7 @@ object ScalaOIUtil {
     }
   }
 
-  private def needOverride(sign: PhysicalSignature, clazz: ScTemplateDefinition): Boolean = {
+  private def needOverride(sign: PhysicalMethodSignature, clazz: ScTemplateDefinition): Boolean = {
     sign.method match {
       case method if isProductAbstractMethod(method, clazz) => true
       case f: ScFunctionDeclaration if !f.isNative => false
@@ -198,7 +198,7 @@ object ScalaOIUtil {
     }
   }
 
-  private def needImplement(sign: PhysicalSignature, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
+  private def needImplement(sign: PhysicalMethodSignature, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
     val m = sign.method
     val name = if (m == null) "" else m.name
     val place = clazz.extendsBlock
@@ -271,7 +271,7 @@ object ScalaOIUtil {
     }
   }
 
-  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterator[PhysicalSignature] = {
+  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterator[PhysicalMethodSignature] = {
     val all = if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods
     all.filter(needOverride(_, clazz))
   }

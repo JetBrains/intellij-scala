@@ -33,7 +33,7 @@ case class ScAliasMember(override val getElement: ScTypeAlias,
   override val name: String = getText
 }
 
-case class ScMethodMember(signature: PhysicalSignature, isOverride: Boolean)
+case class ScMethodMember(signature: PhysicalMethodSignature, isOverride: Boolean)
   extends PsiElementClassMember[PsiMethod](signature.method, getMethodPresentableText(signature.method)) with ScalaTypedMember {
 
   override val name: String = signature.name
@@ -54,7 +54,7 @@ case class ScMethodMember(signature: PhysicalSignature, isOverride: Boolean)
 object ScMethodMember {
 
   def apply(method: PsiMethod, substitutor: ScSubstitutor = ScSubstitutor.empty, isOverride: Boolean = false): ScMethodMember =
-    ScMethodMember(new PhysicalSignature(method, substitutor), isOverride)
+    ScMethodMember(new PhysicalMethodSignature(method, substitutor), isOverride)
 }
 
 sealed trait ScalaFieldMember extends ScalaTypedMember

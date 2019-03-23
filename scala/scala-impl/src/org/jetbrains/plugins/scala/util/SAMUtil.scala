@@ -9,10 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScF
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SignatureStrategy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project._
 
@@ -164,9 +163,9 @@ object SAMUtil {
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
     private[SAMUtil] def singleAbstractMethodScala: Option[(ScFunction, ScSubstitutor)] = cls match {
       case tdef: ScTemplateDefinition =>
-        val abstractMembers = tdef.allSignatures.filter(SignatureStrategy.signature.isAbstract).toSeq
+        val abstractMembers = tdef.allSignatures.filter(_.isAbstract).toSeq
         abstractMembers match {
-          case Seq(PhysicalSignature(fun: ScFunction, subst))
+          case Seq(PhysicalMethodSignature(fun: ScFunction, subst))
             if !fun.hasTypeParameters && fun.paramClauses.clauses.size == 1 =>
             Option((fun, subst))
           case _ => None

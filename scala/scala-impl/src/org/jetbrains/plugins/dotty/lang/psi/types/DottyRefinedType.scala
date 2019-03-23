@@ -4,13 +4,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeVisitor, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature, TypeAliasSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature, TypeAliasSignature}
 
 /**
   * @author adkozlov
   */
 case class DottyRefinedType(designator: ScType,
-                            signatures: Set[Signature] = Set.empty,
+                            signatures: Set[TermSignature] = Set.empty,
                             typeAliasSignatures: Set[TypeAliasSignature] = Set.empty)
                            (override val typeArguments: Seq[ScType] = Seq.empty)
   extends ParameterizedType with DottyType {
@@ -29,12 +29,12 @@ case class DottyRefinedType(designator: ScType,
 object DottyRefinedType {
   def apply(designator: ScType, refinement: ScRefinement): DottyRefinedType = {
     val signatures = refinement.holders.map {
-      case function: ScFunction => Seq(Signature(function))
+      case function: ScFunction => Seq(TermSignature(function))
       case variable: ScVariable =>
         val elements = variable.declaredElements
-        elements.map(Signature(_)) ++ elements.map(Signature.scalaSetter(_))
-      case value: ScValue => value.declaredElements.map(Signature(_))
-    }.foldLeft(Set[Signature]())(_ ++ _)
+        elements.map(TermSignature(_)) ++ elements.map(TermSignature.scalaSetter(_))
+      case value: ScValue => value.declaredElements.map(TermSignature(_))
+    }.foldLeft(Set[TermSignature]())(_ ++ _)
 
     DottyRefinedType(designator, signatures)()
   }

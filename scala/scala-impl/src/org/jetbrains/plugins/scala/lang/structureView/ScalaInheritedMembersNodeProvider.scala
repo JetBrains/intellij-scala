@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.structureView.element.Element
 
 import scala.collection.JavaConverters._
@@ -41,7 +41,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
           if (!clazz.isValid) return children
           for (sign <- clazz.allSignatures) {
             sign match {
-              case sign: PhysicalSignature =>
+              case sign: PhysicalMethodSignature =>
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
                   case x if x.containingClass == clazz =>

@@ -18,7 +18,7 @@ import scala.collection.mutable
 
 final case class ScCompoundType private (
   components:   Seq[ScType],
-  signatureMap: Map[Signature, ScType]          = Map.empty,
+  signatureMap: Map[TermSignature, ScType]          = Map.empty,
   typesMap:     Map[String, TypeAliasSignature] = Map.empty
 )(implicit override val projectContext: ProjectContext) extends ScalaType with ValueType {
 
@@ -39,7 +39,7 @@ final case class ScCompoundType private (
 
   override def typeDepth: Int = {
     val depths = signatureMap.map {
-      case (sign: Signature, tp: ScType) =>
+      case (sign: TermSignature, tp: ScType) =>
         tp.typeDepth
           .max(sign.typeParams.depth)
     } ++ typesMap.map {
@@ -57,10 +57,10 @@ final case class ScCompoundType private (
   override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
                              (implicit visited: Set[ScType]): ScType = {
     val updSignatureMap = signatureMap.map {
-      case (s: Signature, tp) =>
+      case (s: TermSignature, tp) =>
         val tParams = s.typeParams.update(substitutor, Invariant)
         val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(substitutor, variance, isLazySubtype = true)))
-        val updSignature = new Signature(s.name, paramTypes, tParams, s.substitutor.followed(substitutor), s.namedElement, s.hasRepeatedParam)
+        val updSignature = new TermSignature(s.name, paramTypes, tParams, s.substitutor.followed(substitutor), s.namedElement, s.hasRepeatedParam)
         (updSignature, tp.recursiveUpdateImpl(substitutor, Covariant))
     }
     ScCompoundType(components.smartMap(_.recursiveUpdateImpl(substitutor, variance)), updSignatureMap, typesMap.map {
@@ -145,7 +145,7 @@ final case class ScCompoundType private (
 object ScCompoundType {
   def apply(
     components:   Seq[ScType],
-    signatureMap: Map[Signature, ScType]          = Map.empty,
+    signatureMap: Map[TermSignature, ScType]          = Map.empty,
     typesMap:     Map[String, TypeAliasSignature] = Map.empty
   )(implicit projectContext: ProjectContext): ScCompoundType = {
     val (comps, sigs, types) =
@@ -161,21 +161,21 @@ object ScCompoundType {
 
   def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias])
              (implicit projectContext: ProjectContext): ScCompoundType = {
-    val signatureMapVal = mutable.HashMap.empty[Signature, ScType]
+    val signatureMapVal = mutable.HashMap.empty[TermSignature, ScType]
 
     for (decl <- decls) {
       decl match {
-        case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))
+        case fun: ScFunction => signatureMapVal += ((TermSignature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (Signature(e), e.`type`().getOrAny)
+            e => (TermSignature(e), e.`type`().getOrAny)
           }
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (Signature(e), e.`type`().getOrAny)
+            e => (TermSignature(e), e.`type`().getOrAny)
           }
         case valDecl: ScValue =>
           signatureMapVal ++= valDecl.declaredElements.map {
-            e => (Signature(e), e.`type`().getOrAny)
+            e => (TermSignature(e), e.`type`().getOrAny)
           }
       }
     }

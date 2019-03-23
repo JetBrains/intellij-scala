@@ -511,10 +511,10 @@ object ScalaPsiUtil {
     isPlaceTdAncestor(td, newTd)
   }
 
-  def namedElementSig(x: PsiNamedElement): Signature =
-    Signature(x.name, Seq.empty, ScSubstitutor.empty, x)
+  def namedElementSig(x: PsiNamedElement): TermSignature =
+    TermSignature(x.name, Seq.empty, ScSubstitutor.empty, x)
 
-  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
+  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[TermSignature] = {
     val empty = Seq.empty
     val typed: ScTypedDefinition = x match {
       case x: ScTypedDefinition => x
@@ -533,7 +533,7 @@ object ScalaPsiUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
       else TypeDefinitionMembers.getSignatures(clazz)
     val sigs = signatures.forName(x.name)
-    var res: Seq[Signature] = (sigs.get(s): @unchecked) match {
+    var res: Seq[TermSignature] = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(node) if !withSelfType || node.info.namedElement == x => node.supers.map {
         _.info
@@ -555,7 +555,7 @@ object ScalaPsiUtil {
     beanMethods.foreach {
       method =>
         val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
-        (sigs.get(new PhysicalSignature(method, ScSubstitutor.empty)): @unchecked) match {
+        (sigs.get(new PhysicalMethodSignature(method, ScSubstitutor.empty)): @unchecked) match {
           //partial match
           case Some(node) if !withSelfType || node.info.namedElement == method => res ++= node.supers.map {
             _.info
@@ -578,7 +578,7 @@ object ScalaPsiUtil {
   def superTypeMembers(element: PsiNamedElement,
                        withSelfType: Boolean = false): Seq[PsiNamedElement] = {
 
-    superTypeMembersAndSubstitutors(element, withSelfType).map(_.info)
+    superTypeMembersAndSubstitutors(element, withSelfType).map(_.info.namedElement)
   }
 
   def superTypeMembersAndSubstitutors(element: PsiNamedElement,
@@ -590,8 +590,7 @@ object ScalaPsiUtil {
     }
     if (clazz == null) return Seq.empty
     val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
-    val sigs = types.forName(element.name)
-    (sigs.get(element): @unchecked) match {
+    types.forName(element.name).findNode(element) match {
       //partial match
       case Some(x) if !withSelfType || x.info == element => x.supers
       case Some(x) =>
@@ -644,10 +643,10 @@ object ScalaPsiUtil {
     }
   }
 
-  def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
+  def getApplyMethods(clazz: PsiClass): Seq[PhysicalMethodSignature] = {
     val isObject = clazz.isInstanceOf[ScObject]
     TypeDefinitionMembers.getSignatures(clazz).forName("apply").iterator.collect {
-      case p: PhysicalSignature if isObject || p.method.hasModifierProperty("static") => p
+      case p: PhysicalMethodSignature if isObject || p.method.hasModifierProperty("static") => p
     }.toList
   }
 

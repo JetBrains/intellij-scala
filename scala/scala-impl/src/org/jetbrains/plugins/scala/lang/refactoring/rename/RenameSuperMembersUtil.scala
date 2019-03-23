@@ -191,7 +191,7 @@ object RenameSuperMembersUtil {
     val forName = types.forName(named.name)
 
     forName.findNode(typeAlias) match {
-      case Some(node) => node.supers.map(_.info)
+      case Some(node) => node.supers.map(_.info.namedElement)
       case _ => Seq.empty
     }
   }

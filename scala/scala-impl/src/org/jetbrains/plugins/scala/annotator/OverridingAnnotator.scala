@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -46,7 +46,7 @@ trait OverridingAnnotator {
     }
   }
 
-  private def isConcrete(signature: Signature): Boolean = {
+  private def isConcrete(signature: TermSignature): Boolean = {
     val element = nameContext(signature.namedElement)
     isConcreteElement(element)
   }
@@ -143,7 +143,7 @@ trait OverridingAnnotator {
         val maybeQuickFix: Option[Add] = member match {
           case param: ScClassParameter if param.isCaseClassVal && !(param.isVal || param.isVar) =>
             superSignaturesWithSelfType.headOption.collect {
-              case signature: Signature => signature.namedElement
+              case signature: TermSignature => signature.namedElement
             }.flatMap { element =>
               import ScalaTokenTypes.{kVAL, kVAR}
               nameContext(element) match {
@@ -168,7 +168,7 @@ trait OverridingAnnotator {
       for (signature <- superSignatures if !overridesFinal) {
         val e =
           signature match {
-            case signature: Signature => signature.namedElement
+            case signature: TermSignature => signature.namedElement
             case _ => signature
           }
         e match {
@@ -190,7 +190,7 @@ trait OverridingAnnotator {
 
         for (signature <- superSignatures) {
           signature match {
-            case s: Signature =>
+            case s: TermSignature =>
               s.namedElement match {
                 case f: ScFieldId if f.isVal => addAnnotation()
                 case rp: ScBindingPattern if rp.isVal => addAnnotation()
@@ -215,7 +215,7 @@ trait OverridingAnnotator {
 
         for (signature <- superSignatures) {
           signature match {
-            case s: Signature =>
+            case s: TermSignature =>
               s.namedElement match {
                 case rp: ScBindingPattern if rp.isVal => annotVal()
                 case rp: ScBindingPattern if rp.isVar => annotVar()
@@ -242,7 +242,7 @@ trait OverridingAnnotator {
 
     def effectiveParams(fun: ScFunction) = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
 
-    def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: Signature, baseName: String): Boolean = {
+    def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: TermSignature, baseName: String): Boolean = {
       val actualType = if (s.name == baseName + "_=") {
         overType match {
           case ParameterizedType(des, args) if des.canonicalText == "_root_.scala.Function1" => args.head
@@ -294,7 +294,7 @@ trait OverridingAnnotator {
 
     for {
       overridingType <- comparableType(member)
-      superSig <- superSignatures.filterBy[Signature]
+      superSig <- superSignatures.filterBy[TermSignature]
       baseType <- comparableType(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
     } {

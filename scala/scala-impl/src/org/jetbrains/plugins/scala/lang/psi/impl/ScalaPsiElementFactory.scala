@@ -491,12 +491,12 @@ object ScalaPsiElementFactory {
     (extendsBlock.findFirstChildByType(kEXTENDS), extendsBlock.templateParents.get)
   }
 
-  def createMethodFromSignature(signature: PhysicalSignature, body: String,
+  def createMethodFromSignature(signature: PhysicalMethodSignature, body: String,
                                 withComment: Boolean = true, withAnnotation: Boolean = true)
                                (implicit projectContext: ProjectContext): ScFunction = {
     val builder = StringBuilder.newBuilder
 
-    val PhysicalSignature(method, substitutor) = signature
+    val PhysicalMethodSignature(method, substitutor) = signature
 
     if (withComment) {
       val maybeCommentText = method.firstChild.collect {
@@ -527,7 +527,7 @@ object ScalaPsiElementFactory {
     createClassWithBody(builder.toString()).functions.head
   }
 
-  def createOverrideImplementMethod(signature: PhysicalSignature, needsOverrideModifier: Boolean, body: String,
+  def createOverrideImplementMethod(signature: PhysicalMethodSignature, needsOverrideModifier: Boolean, body: String,
                                     withComment: Boolean = true, withAnnotation: Boolean = true)
                                    (implicit ctx: ProjectContext): ScFunction = {
     val function = createMethodFromSignature(signature, body, withComment, withAnnotation)
@@ -572,7 +572,7 @@ object ScalaPsiElementFactory {
   def createSemicolon(implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText(";").findElementAt(0)
 
-  private def addModifiersFromSignature(function: ScFunction, sign: PhysicalSignature, addOverride: Boolean): ScFunction = {
+  private def addModifiersFromSignature(function: ScFunction, sign: PhysicalMethodSignature, addOverride: Boolean): ScFunction = {
     sign.method match {
       case fun: ScFunction =>
         fun.getModifierList.modifiers.foreach {

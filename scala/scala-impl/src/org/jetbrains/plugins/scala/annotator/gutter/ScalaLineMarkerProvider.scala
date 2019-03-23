@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
 /**
@@ -229,7 +229,7 @@ private object GutterUtil {
       )
   }
 
-  def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[Signature]): Icon =
+  def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[TermSignature]): Icon =
     if (isOverrides(element, signatures)) OverridingMethod else ImplementingMethod
 
   def namedParent(e: PsiElement): Option[PsiElement] =
@@ -280,7 +280,7 @@ private object GutterUtil {
         }
     }
 
-  def isOverrides(element: PsiElement, supers: Seq[Signature]): Boolean =
+  def isOverrides(element: PsiElement, supers: Seq[TermSignature]): Boolean =
     element match {
       case _: ScFunctionDeclaration  => true
       case _: ScValueDeclaration     => true

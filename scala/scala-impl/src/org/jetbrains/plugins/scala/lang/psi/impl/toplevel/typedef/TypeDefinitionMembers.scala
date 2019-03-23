@@ -37,8 +37,8 @@ object TypeDefinitionMembers {
   //noinspection ScalaWrongMethodsUsage
   private def isStaticJava(m: PsiMember): Boolean = !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
 
-  object TypeNodes extends MixinNodes[PsiNamedElement] {
-    def shouldSkip(t: PsiNamedElement): Boolean = t match {
+  object TypeNodes extends MixinNodes[TypeSignature] {
+    def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
       case _: ScObject => true
       case _: ScTypeDefinition | _: ScTypeAlias => false
       case c: PsiClass => isStaticJava(c)
@@ -48,19 +48,19 @@ object TypeDefinitionMembers {
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (inner <- clazz.getInnerClasses) {
-        addToMap(inner, subst, map)
+        addToMap(TypeSignature(inner, subst), subst, map)
       }
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: TypeNodes.Map): Unit = {
       for (member <- template.members.filterBy[ScNamedElement]) {
-        addToMap(member, subst, map)
+        addToMap(TypeSignature(member, subst), subst, map)
       }
     }
 
     def processRefinement(cp: ScCompoundType, map: TypeNodes.Map): Unit = {
       for ((_, aliasSig) <- cp.typesMap) {
-        addToMap(aliasSig.typeAlias, aliasSig.substitutor, map)
+        addToMap(TypeSignature(aliasSig.typeAlias, aliasSig.substitutor), aliasSig.substitutor, map)
       }
     }
   }
@@ -70,7 +70,7 @@ object TypeDefinitionMembers {
   //we need to have separate map for stable elements to avoid recursion processing declarations from imports
   object StableNodes extends SignatureNodes {
 
-    override def shouldSkip(t: Signature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
+    override def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
 
     private def isStable(named: PsiNamedElement): Boolean = named match {
       case _: ScObject => true
@@ -79,8 +79,8 @@ object TypeDefinitionMembers {
     }
   }
 
-  abstract class SignatureNodes extends MixinNodes[Signature] {
-    def shouldSkip(t: Signature): Boolean = t.namedElement match {
+  abstract class SignatureNodes extends MixinNodes[TermSignature] {
+    def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
       case f: ScFunction => f.isConstructor
       case m: PsiMethod  => m.isConstructor || isStaticJava(m)
       case m: PsiMember  => isStaticJava(m)
@@ -89,12 +89,12 @@ object TypeDefinitionMembers {
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (method <- clazz.getMethods) {
-        val phys = new PhysicalSignature(method, subst)
+        val phys = new PhysicalMethodSignature(method, subst)
         addToMap(phys, subst, map)
       }
 
       for (field <- clazz.getFields) {
-        val sig = Signature.withoutParams(field.getName, subst, field)
+        val sig = TermSignature.withoutParams(field.getName, subst, field)
         addToMap(sig, subst, map)
       }
     }
@@ -102,7 +102,7 @@ object TypeDefinitionMembers {
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map): Unit = {
       implicit val ctx: ProjectContext = template
 
-      def addSignature(s: Signature) {
+      def addSignature(s: TermSignature) {
         addToMap(s, subst, map)
       }
 
@@ -119,9 +119,9 @@ object TypeDefinitionMembers {
             constr.parameters
               .foreach(addPropertySignatures(_, subst, addSignature))
           case f: ScFunction =>
-            addSignature(new PhysicalSignature(f, subst))
+            addSignature(new PhysicalMethodSignature(f, subst))
           case o: ScObject =>
-            addSignature(Signature(o, subst))
+            addSignature(TermSignature(o, subst))
           case c: ScTypeDefinition =>
             syntheticSignaturesFromInnerClass(c, subst)
               .foreach(addSignature)
@@ -136,7 +136,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: Signature => Unit): Unit = {
+    private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: TermSignature => Unit): Unit = {
       //some methods of java.lang.Object are available for value classes
       val javaObject = ScalaPsiManager.instance(template.projectContext)
         .getCachedClass(template.resolveScope, "java.lang.Object")
@@ -144,7 +144,7 @@ object TypeDefinitionMembers {
       for (obj <- javaObject; method <- obj.getMethods) {
         method.getName match {
           case "equals" | "hashCode" | "toString" =>
-            addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
+            addSignature(new PhysicalMethodSignature(method, ScSubstitutor.empty))
           case _ =>
         }
       }
@@ -153,24 +153,24 @@ object TypeDefinitionMembers {
     /**
       * @param named is class parameter, or part of ScValue or ScVariable
       * */
-    private def addPropertySignatures(named: ScTypedDefinition, subst: ScSubstitutor, addSignature: Signature => Unit): Unit = {
+    private def addPropertySignatures(named: ScTypedDefinition, subst: ScSubstitutor, addSignature: TermSignature => Unit): Unit = {
       PropertyMethods.allRoles
         .filter(isApplicable(_, named, noResolve = true))
         .map(signature(named, subst, _))
         .foreach(addSignature)
     }
     
-    private def signature(named: ScTypedDefinition, subst: ScSubstitutor, role: DefinitionRole): Signature = role match {
-      case SETTER | EQ => Signature.setter(methodName(named.name, role), named, subst)
-      case _           => Signature.withoutParams(methodName(named.name, role), subst, named)
+    private def signature(named: ScTypedDefinition, subst: ScSubstitutor, role: DefinitionRole): TermSignature = role match {
+      case SETTER | EQ => TermSignature.setter(methodName(named.name, role), named, subst)
+      case _           => TermSignature.withoutParams(methodName(named.name, role), subst, named)
     }
 
-    private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[Signature] = {
-      val companionSig = td.fakeCompanionModule.map(Signature(_, subst))
+    private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[TermSignature] = {
+      val companionSig = td.fakeCompanionModule.map(TermSignature(_, subst))
 
       val implicitClassFun = td match {
         case c: ScClass if c.hasModifierProperty("implicit") =>
-          c.getSyntheticImplicitMethod.map(new PhysicalSignature(_, subst))
+          c.getSyntheticImplicitMethod.map(new PhysicalMethodSignature(_, subst))
         case _ => None
       }
 
@@ -291,10 +291,10 @@ object TypeDefinitionMembers {
   }
 
   private trait SignatureMapsProvider {
-    def allSignatures: MixinNodes.Map[Signature]
-    def stable       : MixinNodes.Map[Signature]
-    def types        : MixinNodes.Map[PsiNamedElement]
-    def fromCompanion: MixinNodes.Map[Signature]
+    def allSignatures: MixinNodes.Map[TermSignature]
+    def stable       : MixinNodes.Map[TermSignature]
+    def types        : MixinNodes.Map[TypeSignature]
+    def fromCompanion: MixinNodes.Map[TermSignature]
   }
 
   private object AllSignatures {
@@ -306,24 +306,24 @@ object TypeDefinitionMembers {
       new CompoundTypeSignatures(comp, compoundTypeThisType)
 
     private class ClassSignatures(c: PsiClass) extends SignatureMapsProvider {
-      override def allSignatures: MixinNodes.Map[Signature] = getSignatures(c)
+      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(c)
 
-      override def stable: MixinNodes.Map[Signature] = getStableSignatures(c)
+      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(c)
 
-      override def types: MixinNodes.Map[PsiNamedElement] = getTypes(c)
+      override def types: MixinNodes.Map[TypeSignature] = getTypes(c)
 
-      override def fromCompanion: MixinNodes.Map[Signature] = signaturesFromCompanion(c)
+      override def fromCompanion: MixinNodes.Map[TermSignature] = signaturesFromCompanion(c)
     }
 
 
     private class CompoundTypeSignatures(ct: ScCompoundType, compoundTypeThisType: Option[ScType]) extends SignatureMapsProvider {
-      override def allSignatures: MixinNodes.Map[Signature] = getSignatures(ct, compoundTypeThisType)
+      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(ct, compoundTypeThisType)
 
-      override def stable: MixinNodes.Map[Signature] = getStableSignatures(ct, compoundTypeThisType)
+      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(ct, compoundTypeThisType)
 
-      override def types: MixinNodes.Map[PsiNamedElement] = getTypes(ct, compoundTypeThisType)
+      override def types: MixinNodes.Map[TypeSignature] = getTypes(ct, compoundTypeThisType)
 
-      override def fromCompanion: MixinNodes.Map[Signature] = MixinNodes.emptyMap[Signature]
+      override def fromCompanion: MixinNodes.Map[TermSignature] = MixinNodes.emptyMap[TermSignature]
     }
   }
 
@@ -352,7 +352,7 @@ object TypeDefinitionMembers {
       } else true
     }
 
-    def processSignatureNode(node: MixinNodes.Node[Signature]): Boolean = {
+    def processSignatureNode(node: MixinNodes.Node[TermSignature]): Boolean = {
 
       val named = node.info.namedElement
 
@@ -388,7 +388,7 @@ object TypeDefinitionMembers {
       true
     }
 
-    def processTypeNode(node: MixinNodes.Node[PsiNamedElement]): Boolean = process(node.info, node.substitutor)
+    def processTypeNode(node: MixinNodes.Node[TypeSignature]): Boolean = process(node.info.namedElement, node.substitutor)
 
     val signatures =
       if (processOnlyStable) provider.stable else provider.allSignatures
@@ -459,9 +459,9 @@ object TypeDefinitionMembers {
     }
   }
 
-  private def mayProcessTypeSignature(processor: PsiScopeProcessor, named: PsiNamedElement): Boolean = {
+  private def mayProcessTypeSignature(processor: PsiScopeProcessor, typeSignature: TypeSignature): Boolean = {
     if (processor.isInstanceOf[BaseProcessor]) true
-    else named.isInstanceOf[ScTypeDefinition]
+    else typeSignature.namedElement.isInstanceOf[ScTypeDefinition]
   }
 
   def processEnum(clazz: PsiClass, process: PsiMethod => Boolean): Boolean = {
@@ -528,7 +528,7 @@ object TypeDefinitionMembers {
     ScalaNamesUtil.clean(if (name != null) name else "")
   }
 
-  private def syntheticPropertyMethods(nameHint: String, signature: Signature): Seq[PsiMethod] = {
+  private def syntheticPropertyMethods(nameHint: String, signature: TermSignature): Seq[PsiMethod] = {
     val sigName = signature.name
 
     signature.namedElement match {
@@ -539,21 +539,21 @@ object TypeDefinitionMembers {
     }
   }
 
-  private implicit class SignatureNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[Signature]]) extends AnyVal
-    with NodesIteratorFilteredOps[Signature] {
+  private implicit class TermNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TermSignature]]) extends AnyVal
+    with NodesIteratorFilteredOps[TermSignature] {
 
-    protected def checkName(s: Signature, nameHint: String): Boolean =
+    protected def checkName(s: TermSignature, nameHint: String): Boolean =
       nameHint.isEmpty || s.name == nameHint || syntheticPropertyMethods(nameHint, s).nonEmpty
   }
 
-  private implicit class TypeNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[PsiNamedElement]]) extends AnyVal
-    with NodesIteratorFilteredOps[PsiNamedElement] {
+  private implicit class TypeNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TypeSignature]]) extends AnyVal
+    with NodesIteratorFilteredOps[TypeSignature] {
 
-    protected def checkName(named: PsiNamedElement, nameHint: String): Boolean =
+    protected def checkName(named: TypeSignature, nameHint: String): Boolean =
       nameHint.isEmpty || ScalaNamesUtil.clean(named.name) == nameHint
   }
 
-  private trait NodesIteratorFilteredOps[T] extends Any {
+  private trait NodesIteratorFilteredOps[T <: Signature] extends Any {
     def iterator: Iterator[MixinNodes.Node[T]]
 
     def filtered(name: String, condition: T => Boolean = Function.const(true))

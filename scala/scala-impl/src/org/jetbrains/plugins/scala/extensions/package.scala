@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefi
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
@@ -669,7 +669,7 @@ package object extensions {
       res.toVector
     }
 
-    def processWrappersForSignature(signature: Signature, isStatic: Boolean, isInterface: Boolean)
+    def processWrappersForSignature(signature: TermSignature, isStatic: Boolean, isInterface: Boolean)
                                    (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
 
       //search for a class to place implementation of trait's method

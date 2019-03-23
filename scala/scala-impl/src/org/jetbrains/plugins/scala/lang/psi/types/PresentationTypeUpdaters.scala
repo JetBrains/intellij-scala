@@ -12,7 +12,7 @@ object PresentationTypeUpdaters {
       val withoutUselessComponents = components.filterNot(tp => uselessTypeNames.contains(tp.canonicalText))
       val refinementsAreNecessary = withoutUselessComponents.isEmpty
 
-      val newSignatures = if (refinementsAreNecessary) signatureMap else Map.empty[Signature, ScType]
+      val newSignatures = if (refinementsAreNecessary) signatureMap else Map.empty[TermSignature, ScType]
       val newComponents = if (withoutUselessComponents.isEmpty) components.headOption.toList else withoutUselessComponents
 
       tpe.copy(newComponents, newSignatures)(tpe.projectContext)

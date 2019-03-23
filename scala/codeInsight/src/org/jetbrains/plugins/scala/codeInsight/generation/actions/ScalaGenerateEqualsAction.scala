@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -97,7 +97,7 @@ object ScalaGenerateEqualsAction {
 
     private def createHashCode(aClass: ScClass): ScFunction = {
       val declText = "def hashCode(): Int"
-      val signature = new PhysicalSignature(
+      val signature = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
       val superCall = Option(if (!overridesFromJavaObject(aClass, signature)) "super.hashCode()" else null)
@@ -118,7 +118,7 @@ object ScalaGenerateEqualsAction {
       implicit val ctx: ProjectContext = project
 
       val declText = "def canEqual(other: Any): Boolean"
-      val sign = new PhysicalSignature(
+      val sign = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
       val overrideMod = overrideModifier(aClass, sign)
@@ -129,7 +129,7 @@ object ScalaGenerateEqualsAction {
     private def createEquals(aClass: ScClass, project: Project): ScFunction = {
       val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
       val declText = "def equals(other: Any): Boolean"
-      val signature = new PhysicalSignature(
+      val signature = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = false", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
       val superCheck = Option(if (!overridesFromJavaObject(aClass, signature)) "super.equals(that)" else null)
@@ -216,18 +216,18 @@ object ScalaGenerateEqualsAction {
       }
     }
 
-    private def overrideModifier(aClass: ScTemplateDefinition, signature: Signature): String = {
+    private def overrideModifier(aClass: ScTemplateDefinition, signature: TermSignature): String = {
       val needModifier = ScalaOIUtil.methodSignaturesToOverride(aClass, withSelfType = false).exists {
-        case sign: PhysicalSignature => sign.equiv(signature)
+        case sign: PhysicalMethodSignature => sign.equiv(signature)
         case _ => false
       }
       if (needModifier) ScalaKeyword.OVERRIDE else ""
     }
 
-    private def overridesFromJavaObject(aClass: ScTemplateDefinition, signature: Signature): Boolean = {
+    private def overridesFromJavaObject(aClass: ScTemplateDefinition, signature: TermSignature): Boolean = {
       val methodsToOverride = ScalaOIUtil.methodSignaturesToOverride(aClass, withSelfType = false)
       methodsToOverride exists {
-        case sign: PhysicalSignature if sign.equiv(signature) =>
+        case sign: PhysicalMethodSignature if sign.equiv(signature) =>
           //used only for equals and hashcode methods
           sign.isJava && sign.method.findSuperMethods(false).isEmpty
         case _ => false

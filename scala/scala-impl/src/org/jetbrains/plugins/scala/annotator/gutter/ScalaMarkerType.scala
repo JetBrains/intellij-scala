@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 /**
@@ -28,10 +28,10 @@ import org.jetbrains.plugins.scala.util.SAMUtil
  * Date: 09.11.2008
  */
 object ScalaMarkerType {
-  private[this] def extractClassName(sigs: Seq[Signature]): Option[String] =
+  private[this] def extractClassName(sigs: Seq[TermSignature]): Option[String] =
     sigs.headOption.map(_.namedElement).collect { case ContainingClass(aClass) => aClass.qualifiedName }
 
-  private[this] def sigToNavigatableElement(s: Signature): Option[NavigatablePsiElement] = s.namedElement match {
+  private[this] def sigToNavigatableElement(s: TermSignature): Option[NavigatablePsiElement] = s.namedElement match {
     case ne: NavigatablePsiElement => Option(ne)
     case _                         => None
   }

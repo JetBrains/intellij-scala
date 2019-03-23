@@ -520,10 +520,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def valSuperSignature(m: ScMember): Option[Signature] = {
+  private def valSuperSignature(m: ScMember): Option[TermSignature] = {
 
     //expected type for values is not inherited from empty-parens functions
-    def isParameterless(s: Signature) = s.namedElement match {
+    def isParameterless(s: TermSignature) = s.namedElement match {
       case f: ScFunction                       => f.isParameterless
       case m: PsiMethod                        => !m.hasParameters
       case _: ScClassParameter                 => true

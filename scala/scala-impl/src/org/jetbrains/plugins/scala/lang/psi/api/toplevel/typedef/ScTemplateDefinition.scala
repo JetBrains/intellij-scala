@@ -194,7 +194,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def allTypeAliases: Iterator[(PsiNamedElement, ScSubstitutor)] =
     TypeDefinitionMembers.getTypes(this).allNodesIterator.map {
-      x => (x.info, x.substitutor)
+      x => (x.info.namedElement, x.substitutor)
     }
 
   def allTypeAliasesIncludingSelfType: Iterator[(PsiNamedElement, ScSubstitutor)] = {
@@ -203,7 +203,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allNodesIterator.map(n => (n.info, n.substitutor))
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allNodesIterator.map(n => (n.info.namedElement, n.substitutor))
           case _ =>
             allTypeAliases
         }
@@ -212,8 +212,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  private def isValSignature(s: Signature): Boolean = s match {
-    case _: PhysicalSignature => false
+  private def isValSignature(s: TermSignature): Boolean = s match {
+    case _: PhysicalMethodSignature => false
     case _ => s.namedElement.nameContext match {
       case _: ScValueOrVariable | _: ScClassParameter => s.namedElement.name == s.name
       case _: PsiField => true
@@ -245,15 +245,15 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  def allMethods: Iterator[PhysicalSignature] =
+  def allMethods: Iterator[PhysicalMethodSignature] =
     TypeDefinitionMembers.getSignatures(this)
       .allNodesIterator
       .map(_.info)
       .collect {
-        case p: PhysicalSignature => p
+        case p: PhysicalMethodSignature => p
       }
 
-  def allMethodsIncludingSelfType: Iterator[PhysicalSignature] = {
+  def allMethodsIncludingSelfType: Iterator[PhysicalMethodSignature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
@@ -263,7 +263,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
               .allNodesIterator
               .map(_.info)
               .collect {
-                case p: PhysicalSignature => p
+                case p: PhysicalMethodSignature => p
               }
           case _ =>
             allMethods
@@ -273,10 +273,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  def allSignatures: Iterator[Signature] =
+  def allSignatures: Iterator[TermSignature] =
     TypeDefinitionMembers.getSignatures(this).allNodesIterator.map(_.info)
 
-  def allSignaturesIncludingSelfType: Iterator[Signature] = {
+  def allSignaturesIncludingSelfType: Iterator[TermSignature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
@@ -433,7 +433,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     TypeDefinitionMembers.getSignatures(this).forName(name)
       .iterator
       .collect {
-        case p: PhysicalSignature => p.method
+        case p: PhysicalMethodSignature => p.method
       }
   }
 

@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Parameteriz
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
@@ -344,8 +344,8 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean): Boolean = m match {
     case f: ScFunction => f.name == name && {
-      if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).
-        paramTypesEquiv(new PhysicalSignature(f, ScSubstitutor.empty))
+      if (strictCheck) new PhysicalMethodSignature(this, ScSubstitutor.empty).
+        paramTypesEquiv(new PhysicalMethodSignature(f, ScSubstitutor.empty))
       else true
     }
     case _ => false
@@ -396,14 +396,14 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
         .flatMap(_.primarySuper)
         .map(_.info)
         .collect {
-          case p: PhysicalSignature => (p.method, p.substitutor)
+          case p: PhysicalMethodSignature => (p.method, p.substitutor)
         }
     }
     else None
   }
 
 
-  def superSignatures: Seq[Signature] = {
+  def superSignatures: Seq[TermSignature] = {
     val clazz = containingClass
     if (clazz == null) return Seq.empty
 
@@ -413,7 +413,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  def superSignaturesIncludingSelfType: Seq[Signature] = {
+  def superSignaturesIncludingSelfType: Seq[TermSignature] = {
     val clazz = containingClass
     if (clazz == null) return Seq.empty
 
@@ -422,7 +422,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       signs.findNode(this) match {
         case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
         case Some(x) => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-        case None => signs.get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
+        case None => signs.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)) match {
           case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
           case Some(x) => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
           case None => Seq.empty

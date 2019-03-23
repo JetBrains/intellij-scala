@@ -72,7 +72,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         val buffer: StringBuilder = new StringBuilder("")
         p match {
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
-          case (sign: PhysicalSignature, _: Int) =>
+          case (sign: PhysicalMethodSignature, _: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
 
@@ -135,7 +135,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
   /**
    * @return 'paramName: ParamType' if `sign` is a synthetic unapply method; otherwise 'ParamType'
    */
-  private def paramTextFor(sign: PhysicalSignature, o: Int, paramTypeText: String): String = {
+  private def paramTextFor(sign: PhysicalMethodSignature, o: Int, paramTypeText: String): String = {
     if (sign.method.name == "unapply") {
       sign.method match {
         case fun: ScFunction if fun.parameters.headOption.exists(_.name == "x$0") =>
@@ -229,7 +229,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           _.followed(substitutor)
                         }
                       }
-                      res += ((new PhysicalSignature(fun, subst), 0))
+                      res += ((new PhysicalMethodSignature(fun, subst), 0))
                     case _ =>
                   }
                 }

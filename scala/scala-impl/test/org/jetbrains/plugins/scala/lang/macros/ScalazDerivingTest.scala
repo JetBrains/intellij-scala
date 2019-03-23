@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
@@ -48,7 +48,7 @@ class ScalazDerivingTest extends ScalaLightCodeInsightFixtureTestAdapter {
       .getOrElse(clazz.asInstanceOf[ScObject])
       .allMethods
       .collectFirst {
-        case PhysicalSignature(fun: ScFunctionDefinition, _) if fun.hasModifierProperty("implicit") => fun
+        case PhysicalMethodSignature(fun: ScFunctionDefinition, _) if fun.hasModifierProperty("implicit") => fun
       } match {
         case Some(method) =>
           method.returnType match {

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
@@ -31,7 +31,7 @@ class ScalaMethodImplementor extends MethodImplementor {
     (for {
       td <- inClass.asOptionOf[ScTemplateDefinition].toSeq
       member <- ScalaOIUtil.getMembersToImplement(td).collect {
-        case member@ScMethodMember(PhysicalSignature(element, _), _) if element == method => member
+        case member@ScMethodMember(PhysicalMethodSignature(element, _), _) if element == method => member
       }
     } yield {
       val body = ScalaGenerationInfo.defaultValue(member.scType, inClass.getContainingFile)

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ValueClassType}
 import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
 
 trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefinition =>
@@ -226,7 +226,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
 
     for (node <- nodes) {
       node.info match {
-        case PhysicalSignature(function: ScFunctionDefinition, _) if isOverrideAndAbstract(function) =>
+        case PhysicalMethodSignature(function: ScFunctionDefinition, _) if isOverrideAndAbstract(function) =>
           val flag = node.supers.map(_.info.namedElement).forall {
             case f: ScFunctionDefinition => isOverrideAndAbstract(f)
             case _: ScBindingPattern => true

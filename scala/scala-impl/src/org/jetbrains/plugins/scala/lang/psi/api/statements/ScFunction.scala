@@ -112,9 +112,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)]
 
-  def superSignatures: Seq[Signature]
+  def superSignatures: Seq[TermSignature]
 
-  def superSignaturesIncludingSelfType: Seq[Signature]
+  def superSignaturesIncludingSelfType: Seq[TermSignature]
 
   def hasAssign: Boolean
 
