@@ -47,3 +47,7 @@ trait Signature {
   def equivHashCode: Int
 
 }
+
+object Signature {
+  def unapply(arg: Signature): Option[(PsiNamedElement, ScSubstitutor)] = Some((arg.namedElement, arg.substitutor))
+}

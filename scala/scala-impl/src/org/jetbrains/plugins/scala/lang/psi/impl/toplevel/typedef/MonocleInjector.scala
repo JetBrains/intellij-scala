@@ -3,9 +3,9 @@ package toplevel
 package typedef
 
 import com.intellij.psi.PsiAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
 
 class MonocleInjector extends SyntheticMembersInjector {
 
@@ -45,8 +45,8 @@ object MonocleInjector {
       case seq => seq.mkString("[", ",", "]")
     }
 
-    clazz.allVals.collect {
-      case (f: ScClassParameterImpl, _) if f.isCaseClassVal => f
+    clazz.allVals.map(_.namedElement).collect {
+      case f: ScClassParameter if f.isCaseClassVal => f
     }.map { parameter =>
       val typeText = if (typeParametersText.isEmpty) {
         parameter.`type`().toOption.map(_.canonicalText).getOrElse("Any")

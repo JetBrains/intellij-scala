@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 /**
   * Represents type alias, inner class or trait.
   */
-class TypeSignature(val namedElement: PsiNamedElement, val substitutor: ScSubstitutor)
+case class TypeSignature(namedElement: PsiNamedElement, substitutor: ScSubstitutor)
   extends Signature {
 
   val name: String = ScalaNamesUtil.clean(namedElement.name)
@@ -26,10 +26,11 @@ class TypeSignature(val namedElement: PsiNamedElement, val substitutor: ScSubsti
   def equiv(other: Signature): Boolean = name == other.name
 
   def equivHashCode: Int = name.hashCode
-}
 
-object TypeSignature {
-  def apply(namedElement: PsiNamedElement, scSubstitutor: ScSubstitutor) =
-    new TypeSignature(namedElement, scSubstitutor)
-}
+  override def equals(other: Any): Boolean = other match {
+    case that: TypeSignature => namedElement == that.namedElement
+    case _ => false
+  }
 
+  override def hashCode(): Int = namedElement.hashCode()
+}

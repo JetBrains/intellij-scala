@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementVariableWithClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -32,8 +31,6 @@ import scala.collection.mutable
 
 object ScalaOIUtil {
 
-  private[this] type Signature = (PsiNamedElement, ScSubstitutor)
-
   private[this] def toClassMember(signature: PhysicalMethodSignature, isOverride: Boolean): ClassMember = {
     val method = signature.method
     assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
@@ -41,7 +38,7 @@ object ScalaOIUtil {
   }
 
   private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {
-    val (named, substitutor) = signature
+    val Signature(named, substitutor) = signature
     val maybeContext = Option(named.nameContext)
 
     def createMember(parameter: ScClassParameter): ScValue = {
@@ -134,12 +131,13 @@ object ScalaOIUtil {
                                            isOverride: Boolean = true)
                                           (f1: PhysicalMethodSignature => Boolean = const(true),
                                            f2: PsiNamedElement => Boolean = const(true)): Iterator[ClassMember] = {
-    val methods = (if (withSelfType) clazz.allMethodsIncludingSelfType
-    else clazz.allMethods).filter(s => s.namedElement.isValid && f1(s))
+    val methods =
+      (if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods)
+        .filter(s => s.namedElement.isValid && f1(s))
 
-    val aliasesAndValues = (if (withSelfType) clazz.allTypeAliasesIncludingSelfType ++ clazz.allValsIncludingSelfType
-    else clazz.allTypeAliases ++ clazz.allVals).filter {
-      case (named, _) => named.isValid && f2(named)
+    val aliasesAndValues = (if (withSelfType) clazz.allTypeSignaturesIncludingSelfType ++ clazz.allValsIncludingSelfType
+    else clazz.allTypeSignatures ++ clazz.allVals).filter {
+      case Signature(named, _) => named.isValid && f2(named)
     }
 
     methods.map(toClassMember(_, isOverride)) ++
@@ -186,7 +184,7 @@ object ScalaOIUtil {
       case method =>
         var flag = false
         if (method match {case x: ScFunction => x.parameters.isEmpty case _ => method.getParameterList.getParametersCount == 0}) {
-          for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
+          for (term <- clazz.allVals; v = term.namedElement) if (v.name == method.name) {
             v.nameContext match {
               case x: ScValue if x.containingClass == clazz => flag = true
               case x: ScVariable if x.containingClass == clazz => flag = true
@@ -230,7 +228,7 @@ object ScalaOIUtil {
             case _ => //todo: ScPrimaryConstructor?
           }
         }
-        for (pair <- clazz.allVals; v = pair._1) if (v.name == named.name) {
+        for (term <- clazz.allVals; v = term.namedElement) if (v.name == named.name) {
           v.nameContext match {
             case x: ScValue if x.containingClass == clazz => flag = true
             case _ =>

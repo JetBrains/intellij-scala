@@ -47,8 +47,8 @@ abstract class MixinNodes[T <: Signature] {
 
   def processRefinement(cp: ScCompoundType, map: Map): Unit
 
-  final def addToMap(t: T, substitutor: ScSubstitutor, m: Map): Unit =
-    if (!shouldSkip(t)) m.addToMap(t, substitutor)
+  final def addToMap(t: T, m: Map): Unit =
+    if (!shouldSkip(t)) m.addToMap(t)
 
   def build(clazz: PsiClass): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
@@ -149,7 +149,7 @@ abstract class MixinNodes[T <: Signature] {
 }
 
 object MixinNodes {
-  class Node[T <: Signature](val info: T, val substitutor: ScSubstitutor, val fromSuper: Boolean) {
+  class Node[T <: Signature](val info: T, val fromSuper: Boolean) {
     private[this] var _concreteSuper: Node[T] = _
     private[this] val _supers: SmartList[Node[T]] = new SmartList()
 
@@ -203,9 +203,9 @@ object MixinNodes {
 
     protected def fromSuper: Boolean = false
 
-    private[MixinNodes] def addToMap(key: T, substitutor: ScSubstitutor) {
+    private[MixinNodes] def addToMap(key: T) {
       val name = key.name
-      val node = new Node(key, substitutor, fromSuper)
+      val node = new Node(key, fromSuper)
       if (key.isPrivate) {
         privatesMap.getOrElseUpdate(name, PrivateNodes.empty).add(node)
       }

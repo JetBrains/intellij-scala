@@ -163,9 +163,9 @@ final class ScProjectionType private(val projected: ScType,
             }
             if (needSuperSubstitutor) {
               Some(element,
-                ScalaPsiUtil.superTypeMembersAndSubstitutors(candidateElement)
-                  .find(_.info == element)
-                  .map(node => node.substitutor.followed(defaultSubstitutor))
+                ScalaPsiUtil.superTypeSignatures(candidateElement)
+                  .find(_.namedElement == element)
+                  .map(typeSig => typeSig.substitutor.followed(defaultSubstitutor))
                   .getOrElse(defaultSubstitutor))
 
             } else {

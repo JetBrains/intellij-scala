@@ -61,14 +61,10 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                 }
             }
           }
-          val types = clazz.allTypeAliases
-          for {
-            typex <- types
-            t = typex._1
-            if t.isInstanceOf[ScTypeAlias]
-            alias = t.asInstanceOf[ScTypeAlias]
-            if alias.containingClass != clazz
-          } children.addAll(Element(alias, inherited = true).asJava)
+          clazz.allTypeSignatures.map(_.namedElement).collect {
+            case alias: ScTypeAlias if alias.containingClass != clazz =>
+              children.addAll(Element(alias, inherited = true).asJava)
+          }
 
           children
         }

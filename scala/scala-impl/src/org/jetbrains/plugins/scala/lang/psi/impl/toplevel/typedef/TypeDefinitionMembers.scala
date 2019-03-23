@@ -48,19 +48,19 @@ object TypeDefinitionMembers {
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (inner <- clazz.getInnerClasses) {
-        addToMap(TypeSignature(inner, subst), subst, map)
+        addToMap(TypeSignature(inner, subst), map)
       }
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: TypeNodes.Map): Unit = {
       for (member <- template.members.filterBy[ScNamedElement]) {
-        addToMap(TypeSignature(member, subst), subst, map)
+        addToMap(TypeSignature(member, subst), map)
       }
     }
 
     def processRefinement(cp: ScCompoundType, map: TypeNodes.Map): Unit = {
       for ((_, aliasSig) <- cp.typesMap) {
-        addToMap(TypeSignature(aliasSig.typeAlias, aliasSig.substitutor), aliasSig.substitutor, map)
+        addToMap(TypeSignature(aliasSig.typeAlias, aliasSig.substitutor), map)
       }
     }
   }
@@ -90,12 +90,12 @@ object TypeDefinitionMembers {
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (method <- clazz.getMethods) {
         val phys = new PhysicalMethodSignature(method, subst)
-        addToMap(phys, subst, map)
+        addToMap(phys, map)
       }
 
       for (field <- clazz.getFields) {
         val sig = TermSignature.withoutParams(field.getName, subst, field)
-        addToMap(sig, subst, map)
+        addToMap(sig, map)
       }
     }
 
@@ -103,7 +103,7 @@ object TypeDefinitionMembers {
       implicit val ctx: ProjectContext = template
 
       def addSignature(s: TermSignature) {
-        addToMap(s, subst, map)
+        addToMap(s, map)
       }
 
       if (template.qualifiedName == "scala.AnyVal") {
@@ -132,7 +132,7 @@ object TypeDefinitionMembers {
 
     def processRefinement(cp: ScCompoundType, map: Map): Unit = {
       for ((sign, _) <- cp.signatureMap) {
-        addToMap(sign, sign.substitutor, map)
+        addToMap(sign, map)
       }
     }
 
@@ -346,49 +346,50 @@ object TypeDefinitionMembers {
     val processOnlyStable = shouldProcessOnlyStable(processor)
     val isImplicitProcessor = BaseProcessor.isImplicitProcessor(processor)
 
-    def process(named: PsiNamedElement, nodeSubstitutor: ScSubstitutor): Boolean = {
-      if (named.isValid) {
-        processor.execute(named, state.put(ScSubstitutor.key, nodeSubstitutor.followed(subst)))
+    def process(signature: Signature): Boolean = {
+      if (signature.namedElement.isValid) {
+        processor.execute(signature.namedElement, state.put(ScSubstitutor.key, signature.substitutor.followed(subst)))
       } else true
     }
 
-    def processSignatureNode(node: MixinNodes.Node[TermSignature]): Boolean = {
+
+    def processTermNode(node: MixinNodes.Node[TermSignature]): Boolean = {
 
       val named = node.info.namedElement
 
       named match {
         case m: PsiMethod if processMethods || processMethodRefs =>
-          if (!process(m, node.substitutor))
+          if (!process(node.info))
             return false
 
         case p: ScClassParameter if processValsForScala && !p.isClassMember =>
           //this is member only for class scope
           val clazz = p.containingClass
           if (clazz != null && isContextAncestor(clazz, place, false)) {
-            if (!process(p, node.substitutor))
+            if (!process(node.info))
               return false
           }
 
         case t: ScTypedDefinition if processValsForScala =>
 
-          if (!process(t, node.substitutor))
+          if (!process(node.info))
             return false
 
           if (!isImplicitProcessor) {
             val iterator = syntheticPropertyMethods(nameHint, node.info).iterator
             while (iterator.hasNext) {
-              if (!process(iterator.next(), node.substitutor))
+              if (!process(iterator.next()))
                 return false
             }
           }
         case e =>
-          if (!process(e, node.substitutor))
+          if (!process(node.info))
             return false
       }
       true
     }
 
-    def processTypeNode(node: MixinNodes.Node[TypeSignature]): Boolean = process(node.info.namedElement, node.substitutor)
+    def processTypeNode(node: MixinNodes.Node[TypeSignature]): Boolean = process(node.info)
 
     val signatures =
       if (processOnlyStable) provider.stable else provider.allSignatures
@@ -396,7 +397,7 @@ object TypeDefinitionMembers {
     if (processMethods || processMethodRefs || processValsForScala) {
       val nodesIterator = signatures.nodesIterator(nameHint, isSupers, onlyImplicit = isImplicitProcessor)
 
-      if (!nodesIterator.filtered(nameHint)(processSignatureNode))
+      if (!nodesIterator.filtered(nameHint)(processTermNode))
         return false
     }
 
@@ -404,7 +405,7 @@ object TypeDefinitionMembers {
     if (processMethods && !isScalaProcessor) {
       val nodesIterator = provider.fromCompanion.nodesIterator(nameHint, isSupers)
 
-      if (!nodesIterator.filtered(nameHint)(processSignatureNode))
+      if (!nodesIterator.filtered(nameHint)(processTermNode))
         return false
     }
 
@@ -528,15 +529,16 @@ object TypeDefinitionMembers {
     ScalaNamesUtil.clean(if (name != null) name else "")
   }
 
-  private def syntheticPropertyMethods(nameHint: String, signature: TermSignature): Seq[PsiMethod] = {
+  private def syntheticPropertyMethods(nameHint: String, signature: TermSignature): Seq[TermSignature] = {
     val sigName = signature.name
 
-    signature.namedElement match {
+    val syntheticMethods = signature.namedElement match {
       case t: ScTypedDefinition if isProperty(t) =>
          if (nameHint.isEmpty) getPropertyMethod(t, EQ) ++: getBeanMethods(t)
          else methodRole(sigName, t.name).flatMap(getPropertyMethod(t, _)).toSeq
       case _ => Seq.empty
     }
+    syntheticMethods.map(TermSignature(_, signature.substitutor))
   }
 
   private implicit class TermNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TermSignature]]) extends AnyVal

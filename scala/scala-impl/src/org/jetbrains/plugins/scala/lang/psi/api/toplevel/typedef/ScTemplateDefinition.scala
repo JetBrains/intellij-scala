@@ -192,23 +192,21 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeAliases: Iterator[(PsiNamedElement, ScSubstitutor)] =
-    TypeDefinitionMembers.getTypes(this).allNodesIterator.map {
-      x => (x.info.namedElement, x.substitutor)
-    }
+  def allTypeSignatures: Iterator[TypeSignature] =
+    TypeDefinitionMembers.getTypes(this).allSignatures
 
-  def allTypeAliasesIncludingSelfType: Iterator[(PsiNamedElement, ScSubstitutor)] = {
+  def allTypeSignaturesIncludingSelfType: Iterator[TypeSignature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allNodesIterator.map(n => (n.info.namedElement, n.substitutor))
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allSignatures
           case _ =>
-            allTypeAliases
+            allTypeSignatures
         }
       case _ =>
-        allTypeAliases
+        allTypeSignatures
     }
   }
 
@@ -221,22 +219,19 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     }
   }
 
-  def allVals: Iterator[(PsiNamedElement, ScSubstitutor)] = {
-    TypeDefinitionMembers.getSignatures(this).allNodesIterator
-      .filter(n => isValSignature(n.info))
-      .map(n => (n.info.namedElement, n.substitutor))
+  def allVals: Iterator[TermSignature] = {
+    TypeDefinitionMembers.getSignatures(this).allSignatures.filter(isValSignature)
   }
 
-  def allValsIncludingSelfType: Iterator[(PsiNamedElement, ScSubstitutor)] = {
+  def allValsIncludingSelfType: Iterator[TermSignature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType))
-              .allNodesIterator
-              .filter(n => isValSignature(n.info))
-              .map(n => (n.info.namedElement, n.substitutor))
+              .allSignatures
+              .filter(isValSignature)
           case _ =>
             allVals
         }
