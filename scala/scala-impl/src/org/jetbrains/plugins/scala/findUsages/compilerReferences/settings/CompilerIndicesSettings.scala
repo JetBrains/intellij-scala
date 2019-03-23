@@ -2,9 +2,14 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences.settings
 
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
 import com.intellij.openapi.project.Project
+import com.intellij.task.impl.{JpsProjectTaskRunner, ProjectTaskList}
+import com.intellij.task.{ProjectTaskManager, ProjectTaskRunner}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.{ScalaCompilerReferenceService, settings}
+import org.jetbrains.sbt.shell.SbtProjectTaskRunner
 
 import scala.beans.BooleanBeanProperty
+import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
 
 @State(
   name     = "CompilerIndicesSettings",
@@ -13,6 +18,14 @@ import scala.beans.BooleanBeanProperty
 class CompilerIndicesSettings(project: Project) extends PersistentStateComponent[CompilerIndicesSettings.State] {
   private[this] var state: CompilerIndicesSettings.State = new settings.CompilerIndicesSettings.State
 
+  private[this] val taskManager = ProjectTaskManager.getInstance(project)
+  private[this] val runners     = ProjectTaskRunner.EP_NAME.getExtensionList.asScala
+
+  /** Corresponds to the actual value set in configurable, consider using
+    * [[isBytecodeIndexingActive]] to check if the indexing is explicitly enabled AND
+    * makes sense in the context of the current project (i.e. this is a project built
+    * with sbt shell or IDEA's JPS builder).
+    */
   def isIndexingEnabled: Boolean                   = state.isIndexingEnabled
   def isEnabledForImplicitDefs: Boolean            = state.isEnabledForImplicitDefs
   def isEnabledForApplyUnapply: Boolean            = state.isEnabledForApplyUnapply
@@ -28,6 +41,23 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
     if (state.indexingEnabled != v) ScalaCompilerReferenceService(project).invalidateIndex()
     state.indexingEnabled = v
   }
+
+  private[this] def hasCompatibleRunner: Boolean =
+    runners.find { runner =>
+      val task = taskManager.createAllModulesBuildTask(true, project)
+      val moduleBuildTasks = task match {
+        case taskList: ProjectTaskList => taskList.asScala
+        case t                         => List(t)
+      }
+
+      try moduleBuildTasks.forall(runner.canRun(project, _))
+      catch { case NonFatal(_) => false }
+    }.exists {
+      case _: SbtProjectTaskRunner | _: JpsProjectTaskRunner => true
+      case _                                                 => false
+    }
+
+  def isBytecodeIndexingActive: Boolean = isIndexingEnabled && hasCompatibleRunner
 
   override def getState: CompilerIndicesSettings.State                = state
   override def loadState(loaded: CompilerIndicesSettings.State): Unit = state = loaded

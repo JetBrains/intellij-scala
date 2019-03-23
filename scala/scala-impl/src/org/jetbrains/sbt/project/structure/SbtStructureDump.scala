@@ -52,7 +52,7 @@ class SbtStructureDump {
     val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
 
     val ideaPortSetting =
-      if (CompilerIndicesSettings(project).isIndexingEnabled) {
+      if (CompilerIndicesSettings(project).isBytecodeIndexingActive) {
         val ideaPort                    = SbtCompilationSupervisor().actualPort
         ideaPort.fold("")(port => s"; set ideaPort in Global := $port")
       } else ""
