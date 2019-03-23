@@ -33,16 +33,19 @@ object SearchTargetExtractors {
   }
 
   class ShouldBeSearchedInBytecode(settings: CompilerIndicesSettings) {
-    def unapply(e: PsiNamedElement): Option[(PsiNamedElement, UsageType)] = e match {
-      case ImplicitSearchTarget(idef) if settings.isEnabledForImplicitDefs =>
-        Option(idef -> UsageType.ImplicitDefinitionUsages)
-      case ForCompehensionMethod(method) if settings.isEnabledForForComprehensionMethods =>
-        Option(method -> UsageType.ForComprehensionMethods)
-      case SAMType(cls) if settings.isEnabledForSAMTypes => Option(cls -> UsageType.SAMInterfaceImplementation)
-      case InstanceApplyUnapply(method) if settings.isEnabledForApplyUnapply =>
-        Option(method -> UsageType.InstanceApplyUnapply)
-      case _ => None
-    }
+    def unapply(e: PsiNamedElement): Option[(PsiNamedElement, UsageType)] =
+      if (!settings.isBytecodeIndexingActive) None
+      else
+        e match {
+          case ImplicitSearchTarget(idef) if settings.isEnabledForImplicitDefs =>
+            Option(idef -> UsageType.ImplicitDefinitionUsages)
+          case ForCompehensionMethod(method) if settings.isEnabledForForComprehensionMethods =>
+            Option(method -> UsageType.ForComprehensionMethods)
+          case SAMType(cls) if settings.isEnabledForSAMTypes => Option(cls -> UsageType.SAMInterfaceImplementation)
+          case InstanceApplyUnapply(method) if settings.isEnabledForApplyUnapply =>
+            Option(method -> UsageType.InstanceApplyUnapply)
+          case _ => None
+        }
   }
 
   object InstanceApplyUnapply {

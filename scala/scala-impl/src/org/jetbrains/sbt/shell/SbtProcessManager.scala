@@ -67,7 +67,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
     val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
 
-    val compilerIndicesEnabled = CompilerIndicesSettings(project).isIndexingEnabled
+    val compilerIndicesEnabled = CompilerIndicesSettings(project).isBytecodeIndexingActive
     val compilerIndicesPlugin  = compilerIndicesEnabled.seq {
       val pluginVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
       s"""addSbtPlugin("org.jetbrains" % "sbt-idea-compiler-indices" % "$pluginVersion")"""
