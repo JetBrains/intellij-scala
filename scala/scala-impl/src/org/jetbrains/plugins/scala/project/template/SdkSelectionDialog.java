@@ -83,7 +83,7 @@ public class SdkSelectionDialog extends JDialog {
     }
 
     private void onDownload() {
-        Option<String> result = new VersionDialog(contentPane).downloadVersionWithProgress();
+        Option<String> result = new VersionDialog(contentPane).showAndGetSelected();
 
         if (result.isDefined()) {
             updateTable();

@@ -1,85 +1,96 @@
-package org.jetbrains.plugins.scala.project
+package org.jetbrains.plugins.scala
+package project
 
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.plugins.scala.buildinfo.BuildInfo
-import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 import org.jetbrains.sbt.Sbt
 
 import scala.io.Source
-import scala.util.Try
-import scala.util.matching.Regex
+import scala.util.{Try, matching}
 
 /**
  * @author Pavel Fatin
  */
-object Versions  {
-  val DefaultScalaVersion: Version = Entity.Scala.defaultVersion
+object Versions {
 
-  val DefaultDottyVersion: Version = Entity.Dotty.defaultVersion
+  import Entity._
 
-  val DefaultSbtVersion: Version = Entity.Sbt1.defaultVersion
+  def loadScalaVersions(prefix: String = ""): (Array[String], String) =
+    loadVersionsOf(prefix + "Scala", Scala)
 
-  def loadScalaVersions(platform: Platform): Array[String] = platform match {
-    case Scala => loadVersionsOf(Entity.Scala)
-    case Dotty => loadVersionsOf(Entity.Dotty)
-  }
+  def loadSbtVersions(): (Array[String], String) =
+    loadVersionsOf("sbt", Sbt013, Sbt1)
 
-  def loadSbtVersions: Array[String] = loadVersionsOf(Entity.Sbt013, Entity.Sbt1)
-
-  private def loadVersionsOf(entities: Entity*): Array[String] = {
-    val allVersions = entities.flatMap { entity =>
-      val loaded = loadVersionsFrom(entity.url, {
-        case entity.pattern(number) => number
-      })
-
-      loaded
-        .getOrElse(entity.hardcodedVersions)
-        .filter(_ >= entity.minVersion)
-    }
-
-    allVersions
-      .sortWith(_ >= _)
-      .map(_.presentation)
-      .toArray
-  }
-
-  private def loadVersionsFrom(url: String, filter: PartialFunction[String, String]): Try[Seq[Version]] = {
-    loadLinesFrom(url).map { lines => lines.collect(filter).map(Version.apply) }
-  }
-
-  def loadLinesFrom(url: String): Try[Seq[String]] = {
-    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
+  def loadLinesFrom(location: String): Try[Seq[String]] =
+    Try(HttpConfigurable.getInstance().openHttpConnection(location)).map { connection =>
       try {
-        Source.fromInputStream(connection.getInputStream).getLines().toVector
+        Source.fromInputStream(connection.getInputStream)
+          .getLines()
+          .toVector
       } finally {
         connection.disconnect()
       }
     }
+
+  private def loadVersionsOf(platformName: String,
+                             entities: Entity*) = {
+    val allVersions = extensions.withProgressSynchronously(s"Fetching $platformName versions") {
+      entities.flatMap {
+        case Entity(url, pattern, minVersion, hardcodedVersions) =>
+          loadLinesFrom(url).toOption
+            .fold(hardcodedVersions) { lines =>
+              lines.collect {
+                case pattern(number) => Version(number)
+              }
+            }.filter { version =>
+            version >= minVersion
+          }
+      }
+    }
+
+    (
+      allVersions.sorted.reverse.map(_.presentation).toArray,
+      entities.last.hardcodedVersions.last.presentation
+    )
   }
 
-  private case class Entity(url: String, pattern: Regex, minVersion: Version, hardcodedVersions: Seq[Version]) {
-    def defaultVersion: Version = hardcodedVersions.last
-  }
+  private case class Entity(url: String,
+                            pattern: matching.Regex,
+                            minVersion: Version,
+                            hardcodedVersions: Seq[Version])
 
   private object Entity {
-    val Scala = Entity("https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
+
+    val Scala = Entity(
+      "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("2.10.0"),
-      Seq("2.10.7", "2.11.12", BuildInfo.scalaVersion).map(Version.apply))
+      Seq(
+        "2.10.7",
+        "2.11.12",
+        buildinfo.BuildInfo.scalaVersion
+      ).map(Version.apply)
+    )
 
-    val Sbt013 = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
+    val Sbt013 = Entity(
+      "https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("0.13.5"),
-      Seq(Sbt.Latest_0_13))
+      Seq(Sbt.Latest_0_13)
+    )
 
-    val Sbt1 = Entity("https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
+    val Sbt1 = Entity(
+      "https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("1.0.0"),
-      Seq(Sbt.Latest_1_0, Sbt.LatestVersion).distinct)
+      Seq(Sbt.Latest_1_0, Sbt.LatestVersion).distinct
+    )
 
-    val Dotty = Entity("https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_0.2/",
+    val Dotty = Entity(
+      "https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_0.2/",
       """.+>(\d+.\d+.+)/<.*""".r,
       Version("0.2.0"),
-      Seq(Version("0.2.0")))
+      Seq(Version("0.2.0"))
+    )
   }
+
 }
