@@ -1,8 +1,8 @@
 object SCL1771 {
-  trait MA[M[_]] {
+  trait MX[M[_]] {
     val mint: M[Int]
   }
-  (null: MA[Option]).mint
+  (null: MX[Option]).mint
 
   trait MA[M[_], A] {
     def ∗[B](f: A => M[B]): M[B]
