@@ -99,13 +99,11 @@ object SbtCommandData {
 }
 
 @SerialVersionUID(1)
-case class ModuleExtData(scalaOrganization: String,
-                         scalaVersion: Option[Version],
+case class ModuleExtData(scalaVersion: Option[Version],
                          scalacClasspath: Seq[File],
                          scalacOptions: Seq[String],
-                         jdk: Option[SdkReference],
-                         javacOptions: Seq[String]
-                   ) extends SbtEntityData
+                         sdk: Option[SdkReference],
+                         javacOptions: Seq[String]) extends SbtEntityData
 
 object ModuleExtData {
   val Key: Key[ModuleExtData] = datakey(classOf[ModuleExtData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
