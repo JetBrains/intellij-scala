@@ -1,46 +1,28 @@
 package org.jetbrains.plugins.scala
-package project.notification
+package project
+package notification
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.roots.ModuleRootModificationUtil.setSdkInherited
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.util.Key
-import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider._
+import com.intellij.openapi.roots.{ModuleRootManager, ModuleRootModificationUtil}
+import com.intellij.ui.EditorNotifications
 
 /**
-  * @author Pavel Fatin
-  */
-class SetupJdkNotificationProvider(project: Project, notifications: EditorNotifications)
-  extends AbstractNotificationProvider(project, notifications) {
+ * @author Pavel Fatin
+ */
+//noinspection TypeAnnotation
+final class SetupJdkNotificationProvider(project: Project, notifications: EditorNotifications)
+  extends AbstractNotificationProvider("JDK", project, notifications) {
 
-  override def getKey = ProviderKey
+  override protected def panelText(kitTitle: String) = s"Project $kitTitle is not defined"
 
-  override protected def hasDeveloperKit(module: Module): Boolean = {
-    module != null && ModuleRootManager.getInstance(module).getSdk != null
-  }
+  override protected def hasDeveloperKit(module: Module): Boolean =
+    ModuleRootManager.getInstance(module).getSdk != null
 
-  override protected def createTask(module: Module) = new Runnable {
-    override def run(): Unit = {
-      val chosenSdk = ProjectSettingsService.getInstance(project).chooseAndSetSdk()
-      if (chosenSdk != null) {
-        inWriteAction {
-          setSdkInherited(module)
-        }
-      }
+  override protected def setDeveloperKit(module: Module): Unit =
+    ProjectSettingsService.getInstance(project).chooseAndSetSdk() match {
+      case null =>
+      case _ => inWriteAction(ModuleRootModificationUtil.setSdkInherited(module))
     }
-  }
-
-  override protected def panelText = s"Project $JDKTitle is not defined"
-
-  override protected def developerKitTitle = JDKTitle
-}
-
-object SetupJdkNotificationProvider {
-  private val JDKTitle = "JDK"
-
-  private val ProviderKey = Key.create[EditorNotificationPanel](JDKTitle)
 }
