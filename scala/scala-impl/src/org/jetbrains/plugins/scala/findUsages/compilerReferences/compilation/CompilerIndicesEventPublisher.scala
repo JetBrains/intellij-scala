@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
   * NOTICE: indexing is separated from compilation, hence separate `onCompilationStart` and `startIndexing` methdods.
   */
 private[compilerReferences] trait CompilerIndicesEventPublisher {
-  def compilerModeChanged(mode: CompilerMode): Unit                         = ()
-  def onError(): Unit                                                       = ()
+  def onCompilerModeChange(mode: CompilerMode): Unit                        = ()
+  def onError(message: String, cause: Option[Throwable] = None): Unit       = ()
   def onCompilationStart(): Unit                                            = ()
   def onCompilationFinish(success: Boolean): Unit                           = ()
   def startIndexing(isCleanBuild: Boolean): Unit                            = ()

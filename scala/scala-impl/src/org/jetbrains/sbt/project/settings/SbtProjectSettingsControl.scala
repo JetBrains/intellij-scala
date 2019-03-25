@@ -153,7 +153,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
             if (settings.useSbtShellForBuild) CompilerMode.SBT
             else                              CompilerMode.JPS
 
-          publisher.compilerModeChanged(newMode)
+          publisher.onCompilerModeChange(newMode)
         }
       }
     }

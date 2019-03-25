@@ -23,9 +23,9 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 private[compilerReferences] class SbtCompilationWatcher(
-  override val project:            Project,
+  override val project:          Project,
   override val transactionGuard: TransactionGuard[CompilerIndicesState],
-  val indexVersion:                Int
+  val indexVersion:              Int
 ) extends CompilationWatcher[CompilerMode.SBT.type] {
   import SbtCompilationWatcher._
 
@@ -68,8 +68,7 @@ private[compilerReferences] class SbtCompilationWatcher(
     val parsedInfos = infoFiles.flatMap(parseCompilationInfo(_).toOption)
 
     if (parsedInfos.size != infoFiles.size) {
-      logger.error(new RuntimeException("Failed to parse some compilation analysis files."))
-      processEventInTransaction(_.onError())
+      processEventInTransaction(_.onError("Failed to parse offline compilation analysis files."))
     } else {
       val infos = parsedInfos.sortBy(_.startTimestamp)
       processEventInTransaction { publisher => infos.foreach(processCompilationInfo(_, publisher, isOffline = true)) }
@@ -87,7 +86,7 @@ private[compilerReferences] class SbtCompilationWatcher(
       // since it may possess a compiler state we are unaware of
       // (this is fine since reindexing is relatively cheap with sbt (no rebuild)).
       override def moduleAdded(project: Project, module: Module): Unit =
-        processEventInTransaction(_.onError())
+        processEventInTransaction(_.onError("sbt module added."))
     })
 
     // can be called from multiple threads in case of a parallel compilation of
@@ -102,7 +101,7 @@ private[compilerReferences] class SbtCompilationWatcher(
         if (thisBuild(base)) processEventInTransaction(_.onCompilationStart())
 
       override def connectionFailure(identifier: ProjectIdentifier, compilationId: Option[UUID]): Unit =
-        if (thisBuild(identifier)) processEventInTransaction(_.onError())
+        if (thisBuild(identifier)) processEventInTransaction(_.onError("sbt compilation supervisor: connection failure."))
 
       override def onCompilationFailure(
         identifier:    ProjectBase,
@@ -120,8 +119,7 @@ private[compilerReferences] class SbtCompilationWatcher(
         // us to keep transactions short and avoid blocking UI thread.
         parseCompilationInfo(infoFile).fold(
           error => processEventInTransaction { publisher =>
-            logger.error(s"Failed to parse compilation info file $compilationId", error)
-            publisher.onError()
+            publisher.onError(s"Failed to parse compilation info file $compilationId", Option(error))
           },
           sbtInfo => processEventInTransaction(processCompilationInfo(sbtInfo, _))
         )
@@ -150,8 +148,7 @@ private[compilerReferences] class SbtCompilationWatcher(
       } finally moduleInfoDirs.foreach(_.unlock(log = logger.info))
     } catch {
       case NonFatal(e) => processEventInTransaction { publisher =>
-        logger.error(s"An error occured while trying to read sbt compilation info files.", e)
-        publisher.onError()
+        publisher.onError(s"An error occured while trying to read sbt compilation info files.", Option(e))
       }
     } finally subscribeToSbtNotifications()
   }

@@ -64,23 +64,41 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] var currentCompilerMode: CompilerMode   = CompilerMode.JPS
 
   private[this] val publisher = new CompilerIndicesEventPublisher {
-    override def compilerModeChanged(mode: CompilerMode): Unit = {
+    override def onCompilerModeChange(mode: CompilerMode): Unit = {
       // IDEA JPS compiler <-> sbt shell change happened
       // current index must be invalidated
       onIndexCorruption()
       currentCompilerMode = mode
+      logCompilerIndicesEvent(s"onCompilerModeChange. new mode: $mode")
     }
 
-    override def onCompilationStart(): Unit                  = closeReader(incrementBuildCount = true)
-    override def onError(): Unit                             = onIndexCorruption()
-    override def startIndexing(isCleanBuild: Boolean): Unit  = indexerScheduler.schedule(OpenWriter(isCleanBuild))
+    override def onCompilationStart(): Unit = {
+      closeReader(incrementBuildCount = true)
+      logCompilerIndicesEvent(s"onCompilationStart. active indexing phases: ${activeIndexingPhases.get()}")
+    }
 
-    override def onCompilationFinish(success: Boolean): Unit =
-      indexerScheduler.schedule("Open compiler index reader", () => openReader(success))
+    override def startIndexing(isCleanBuild: Boolean): Unit = {
+      indexerScheduler.schedule(OpenWriter(isCleanBuild))
+      logCompilerIndicesEvent(s"startIndexing. clean build: $isCleanBuild")
+    }
+
+    override def onError(message: String, cause: Option[Throwable]): Unit = {
+      logger.error(message, cause.orNull)
+      onIndexCorruption()
+    }
+
+    override def onCompilationFinish(success: Boolean): Unit = {
+      indexerScheduler.schedule("Open compiler index reader", () => {
+        openReader(success)
+        logCompilerIndicesEvent(
+          s"onCompilationFinish. success: $success, active indexing phases: ${activeIndexingPhases.get()}"
+        )
+      })
+    }
 
     override def processCompilationInfo(info: CompilationInfo, isOffline: Boolean): Unit = {
       val modules = info.affectedModules(project).map(_.getName)
-      logger.debug(s"Scheduled building index for modules ${modules.mkString("[", ", ", "]")}")
+      logCompilerIndicesEvent(s"processCompilationInfo. offline: $isOffline")
 
       indexerScheduler.schedule(ProcessCompilationInfo(info, () => {
         if (!isOffline) { // do not mark modules as up-to-date when indexing 'offline' sbt compilations
@@ -103,7 +121,10 @@ private[findUsages] class ScalaCompilerReferenceService(
       }))
     }
 
-    override def finishIndexing(): Unit = indexerScheduler.schedule(CloseWriter(_.foreach(processIndexingFailure)))
+    override def finishIndexing(): Unit = {
+      indexerScheduler.schedule(CloseWriter(_.foreach(processIndexingFailure)))
+      logCompilerIndicesEvent("finishIndexing.")
+    }
   }
 
   private[this] val transactionManager: TransactionGuard[CompilerIndicesState] =
@@ -174,7 +195,16 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   override def projectOpened(): Unit =
     if (CompilerIndicesSettings(project).isBytecodeIndexingActive || ApplicationManager.getApplication.isUnitTestMode) {
-      inTransaction(_ => currentCompilerMode = CompilerMode.forProject(project))
+
+      inTransaction { _ =>
+        currentCompilerMode = CompilerMode.forProject(project)
+
+        logger.info(
+          s"Initialized ScalaCompilerReferenceService in ${project.getName}, " +
+            s"current compiler mode = $currentCompilerMode"
+        )
+      }
+
       new JpsCompilationWatcher(project, transactionManager).start()
       new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 
@@ -243,6 +273,8 @@ private[findUsages] class ScalaCompilerReferenceService(
 
 object ScalaCompilerReferenceService {
   private val logger = Logger.getInstance(classOf[ScalaCompilerReferenceService])
+
+  private def logCompilerIndicesEvent(message: String): Unit = logger.info(s"[compiler indices] $message")
 
   private[compilerReferences] type CompilerIndicesState = (CompilerMode, CompilerIndicesEventPublisher)
 
