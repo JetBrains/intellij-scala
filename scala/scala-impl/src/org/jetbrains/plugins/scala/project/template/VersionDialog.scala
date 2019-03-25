@@ -31,14 +31,8 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
     if (showAndGet()) {
       val version = myVersion.getSelectedItem.asInstanceOf[String]
 
-      import Downloader._
       extensions.withProgressSynchronouslyTry(s"Downloading Scala $version") { manager =>
-        createTempSbtProject(
-          version,
-          new DownloadProcessAdapter(manager),
-          setScalaSBTCommand(version),
-          "updateClassifiers"
-        )
+        createTempSbtProject(version, new DownloadProcessAdapter(manager))()
       }.recover {
         case exception => Messages.showErrorDialog(
           parent,

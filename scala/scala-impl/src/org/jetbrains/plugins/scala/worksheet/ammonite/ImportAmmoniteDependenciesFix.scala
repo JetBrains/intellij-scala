@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
-import org.jetbrains.plugins.scala.project.template.{Artifact, Downloader}
+import org.jetbrains.plugins.scala.project.template._
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
 
@@ -53,9 +53,7 @@ object ImportAmmoniteDependenciesFix {
 
         indicator.setText("Ammonite: extracting info from SBT...")
 
-        import Downloader._
-
-        val processAdapter = new DownloadProcessAdapter(manager) {
+        val listener = new DownloadProcessAdapter(manager) {
 
           private val buffer = mutable.ListBuffer.empty[File]
 
@@ -82,13 +80,9 @@ object ImportAmmoniteDependenciesFix {
             }
           }
         }
-        createTempSbtProject(
-          scalaVersion,
-          processAdapter,
-          setScalaSBTCommand(scalaVersion),
-          "set libraryDependencies += \"com.lihaoyi\" " + "%" + " \"ammonite\" " + "%" + " \"" + ammoniteVersion + "\" " + "%" + " \"test\" cross CrossVersion.full",
-          UpdateClassifiersSBTCommand,
-          "show test:dependencyClasspath"
+        createTempSbtProject(scalaVersion, listener)(
+          Seq("set libraryDependencies += \"com.lihaoyi\" " + "%" + " \"ammonite\" " + "%" + " \"" + ammoniteVersion + "\" " + "%" + " \"test\" cross CrossVersion.full"),
+          Seq("show test:dependencyClasspath")
         )
       }
     }
