@@ -6,7 +6,6 @@ import java.util.UUID
 import com.intellij.compiler.impl.ExitStatus
 import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugin.scala.compilerReferences.{ScalaCompilerReferenceIndexBuilder => Builder}
@@ -14,10 +13,9 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerRe
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 
 private[compilerReferences] class JpsCompilationWatcher(
-  override val project:            Project,
+  override val project:          Project,
   override val transactionGuard: TransactionGuard[CompilerIndicesState]
 ) extends CompilationWatcher[CompilerMode.JPS.type] { self =>
-  import JpsCompilationWatcher._
 
   /**
     * Designed to workaround the up-to-date check, which triggers build started, but not any of the
@@ -34,17 +32,14 @@ private[compilerReferences] class JpsCompilationWatcher(
     messageType: String,
     messageText: String,
     publisher:   CompilerIndicesEventPublisher
-  ): Unit = {
-    logger.debug(s"Received compiler index builder message: $messageType: $messageText.")
-
+  ): Unit =
     messageType match {
       case Builder.compilationDataType =>
         val buildData = Builder.decompressCompilationInfo(messageText)
 
         buildData.fold(
           error => {
-            logger.error(s"Malformed messageText from builder: $messageText", error)
-            publisher.onError()
+            publisher.onError(s"Malformed messageText from builder: $messageText", Option(error))
           },
           publisher.processCompilationInfo(_, offline = false)
         )
@@ -55,7 +50,6 @@ private[compilerReferences] class JpsCompilationWatcher(
       case Builder.compilationFinishedType => publisher.finishIndexing()
       case _                               => ()
     }
-  }
 
   override def start(): Unit = {
     val connection = project.getMessageBus.connect(project)
@@ -138,8 +132,4 @@ private[compilerReferences] class JpsCompilationWatcher(
         }
     })
   }
-}
-
-object JpsCompilationWatcher {
-  private val logger = Logger.getInstance(classOf[JpsCompilationWatcher])
 }

@@ -57,7 +57,7 @@ class SbtCompilationSupervisor() extends BaseComponent {
     try {
       server = new ServerSocket(port)
       actualPort = Option(server.getLocalPort)
-      logger.debug(s"Listening to incoming sbt compilation events on port $port.")
+      logger.info(s"Listening to incoming sbt compilation events on port $port.")
       executeOnPooledThread {
         while (true) {
           try {
@@ -93,9 +93,11 @@ class SbtCompilationSupervisor() extends BaseComponent {
       catch { case NonFatal(e) => logger.error(e) }
 
       val out = new DataOutputStream(client.getOutputStream())
+      logger.info(s"sbt compilation started id: $compilationId, project base: $base")
       out.writeUTF(ideaACK)
 
       val isSuccessful = in.readBoolean()
+      logger.info(s"sbt compilation finished id: $compilationId, success: $isSuccessful")
       val publisher    = bus.syncPublisher(SbtCompilationListener.topic)
 
       if (isSuccessful) {
