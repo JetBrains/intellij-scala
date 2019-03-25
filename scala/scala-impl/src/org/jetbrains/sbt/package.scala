@@ -12,7 +12,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.util.{PathUtil, Function => IdeaFunction}
-import plugins.scala.extensions.ToNullSafe
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -68,10 +67,6 @@ package object sbt {
     def isIn(root: File): Boolean = file.getParentFile == root
 
     def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
-
-    def write(lines: String*) {
-      writeLinesTo(file, lines: _*)
-    }
 
     def copyTo(destination: File) {
       copy(file, destination)
@@ -146,13 +141,6 @@ package object sbt {
     }
   }
 
-  def writeLinesTo(file: File, lines: String*) {
-    using(new PrintWriter(new FileWriter(file))) { writer =>
-      lines.foreach(writer.println)
-      writer.flush()
-    }
-  }
-
   def copy(source: File, destination: File) {
     using(new BufferedInputStream(new FileInputStream(source))) { in =>
       using(new BufferedOutputStream(new FileOutputStream(destination))) { out =>
@@ -188,8 +176,10 @@ package object sbt {
     })
   }
 
-  def isIdeaPluginEnabled(id: String): Boolean =
+  def isIdeaPluginEnabled(id: String): Boolean = {
+    import plugins.scala.extensions.ToNullSafe
     PluginId.findId(id).nullSafe
       .map(PluginManager.getPlugin)
       .exists(_.isEnabled)
+  }
 }

@@ -4,54 +4,42 @@ package project.structure
 import java.io.File
 
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.project.template.writeLinesTo
 
 /**
  * @author Pavel Fatin
  */
-class SbtException(message: String) extends Exception(message)
+final class SbtException private(key: String, params: Seq[String])
+  extends RuntimeException(SbtBundle(key, params))
 
 object SbtException {
 
-  val ACCEPTABLE_TO_DISPLAY_LOG_SIZE = 20
+  private[this] val WarnRegexp = "^\\[warn]\\s*::\\s*((?!UNRESOLVED DEPENDENCIES).)*".r
 
-  import Utils._
+  def apply(log: Seq[String]): SbtException = {
+    val (key, params) = if (log.exists(_.startsWith("sbt.ResolveException"))) {
+      ("sbt.import.unresolvedDependencies", Seq(handleUnresolvedDeps(log), dumpLog(log)))
+    } else {
+      ("sbt.import.error", Seq(log.mkString(System.getProperty("line.separator"))))
+    }
 
-  def fromSbtLog(log: String): SbtException = {
-    val lines = log.lines.toSeq
-
-    if (lines.exists(_.startsWith("sbt.ResolveException")))
-      handleUnresolvedDeps(lines)
-    else
-      new SbtException(SbtBundle("sbt.import.error", log))
+    new SbtException(key, params)
   }
 
-  private def handleUnresolvedDeps(lines: Seq[String]): SbtException = {
-    val dependencies = lines.foldLeft("") { (acc, line) =>
-      if (line.startsWith("[warn]")) {
-        val trimmed = line.substring(6).trim
-        if (trimmed.startsWith(":: ") && !trimmed.contains("UNRESOLVED DEPENDENCIES"))
-          acc + s"<li>${trimmed.substring(2)}</li>"
-        else
-          acc
-      } else
-        acc
-    }
-    new SbtException(SbtBundle("sbt.import.unresolvedDependencies", dependencies,
-                      dumpLog(joinLines(lines)).toURI.toString))
-  }
+  private[this] def handleUnresolvedDeps(log: Seq[String]) =
+    log.foldLeft(StringBuilder.newBuilder) {
+      case (accumulator, WarnRegexp(group)) => accumulator.append("<li>").append(group).append("</li>")
+      case (accumulator, _) => accumulator
+    }.toString
 
-  private object Utils {
-    def joinLines(lines: Seq[String]): String =
-      lines.mkString(System.getProperty("line.separator"))
+  private[this] def dumpLog(log: Seq[String]) = {
+    val logDir = new File(PathManager.getLogPath)
+    logDir.mkdirs()
 
-    def dumpLog(log: String): File = {
-      val logDir = new File(PathManager.getLogPath)
-      logDir.mkdirs()
-      val file = new File(logDir, "sbt.last.log")
-      file.createNewFile()
-      file.write(log)
-      file.getAbsoluteFile
-    }
+    val file = new File(logDir, "sbt.last.log")
+    file.createNewFile()
+
+    writeLinesTo(file)(log: _*)
+    file.getAbsolutePath
   }
 }

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.project.template
+package org.jetbrains.plugins.scala
+package project
+package template
 
 import java.io.{File, FileNotFoundException}
 
@@ -51,7 +53,7 @@ object Downloader {
                            processAdapter: DownloadProcessAdapter,
                            sbtCommands: String*): Unit =
     usingTempFile("sbt-commands") { file =>
-      writeLinesTo(file, sbtCommands: _*)
+      writeLinesTo(file)(sbtCommands: _*)
 
       usingTempDirectory("sbt-project") { directory =>
         val process = executeOn(file, directory)

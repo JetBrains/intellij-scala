@@ -53,7 +53,8 @@ package object template {
     }
   }
 
-  def writeLinesTo(file: File, lines: String*) {
+  def writeLinesTo(file: File)
+                  (lines: String*): Unit = {
     using(new PrintWriter(new FileWriter(file))) { writer =>
       lines.foreach(writer.println)
       writer.flush()
