@@ -1,19 +1,18 @@
-package org.jetbrains.plugins.scala.worksheet.ammonite
+package org.jetbrains.plugins.scala
+package worksheet
+package ammonite
 
 import java.io.File
 
-import com.intellij.execution.process.ProcessEvent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.template._
 import org.jetbrains.plugins.scala.project.{Version, Versions}
@@ -23,9 +22,9 @@ import scala.collection.mutable
 import scala.util.{Success, Try}
 
 /**
-  * User: Dmitry.Naydanov
-  * Date: 17.01.18.
-  */
+ * User: Dmitry.Naydanov
+ * Date: 17.01.18.
+ */
 object ImportAmmoniteDependenciesFix {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix")
@@ -41,85 +40,85 @@ object ImportAmmoniteDependenciesFix {
     val manager = ProgressManager.getInstance
 
     val task = new Task.Backgroundable(project, "Adding dependencies", false) {
+
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setText("Ammonite: loading list of versions...")
 
-        val (forScala, needScalaLib) = ScalaUtil.getScalaVersion(file) match {
-          case Some(v) => (ExactVersion(v.charAt(3), Version(v)), false)
-          case _ => (MajorVersion('2'), true)
-        }
+        val (forScala, predicate) = ScalaUtil.getScalaVersion(file)
+          .fold(
+            (
+              MajorVersion('2'): MyScalaVersion,
+              Function.const(true)(_: File)
+            )
+          ) { version =>
+            (
+              ExactVersion(version.charAt(3), Version(version)),
+              (file: File) => file.getName.startsWith("scala-") && Artifact.ScalaArtifacts.exists(_.versionOf(file).isDefined)
+            )
+          }
 
         val (scalaVersion, ammoniteVersion) = detectAmmoniteVersion(forScala)
 
         indicator.setText("Ammonite: extracting info from SBT...")
 
-        val listener = new DownloadProcessAdapter(manager) {
+        val files = mutable.ListBuffer.empty[File]
+        val e = new AmmoniteUtil.RegexExtractor
+        import e._
 
-          private val buffer = mutable.ListBuffer.empty[File]
-
-          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-            val e = new AmmoniteUtil.RegexExtractor
-            import e._
-
-            event.getText.trim match {
-              case mre"[info] * Attributed($filePath)" =>
-                val f = new File(filePath)
-                if (f.exists()) buffer += f
-              case mre"[success]$_" =>
-                indicator.setText("Ammonite: adding dependencies...")
-
-                ScalaUtil.getModuleForFile(file.getVirtualFile, project).foreach { module =>
-                  invokeLater {
-                    inWriteAction {
-                      createAndAdd(buffer, module, !needScalaLib)
-                    }
-                  }
-                }
-              case mre"[error]$content" => LOG.warn(s"Ammonite, error while importing dependencies: $content")
-              case _ =>
-            }
-          }
-        }
-        createTempSbtProject(scalaVersion, listener)(
+        createTempSbtProject(
+          scalaVersion,
           Seq("set libraryDependencies += \"com.lihaoyi\" " + "%" + " \"ammonite\" " + "%" + " \"" + ammoniteVersion + "\" " + "%" + " \"test\" cross CrossVersion.full"),
           Seq("show test:dependencyClasspath")
-        )
+        ) {
+          case mre"[info] * Attributed($pathname)" =>
+            new File(pathname) match {
+              case f if f.exists() => files += f
+              case _ =>
+            }
+          case mre"[success]$_" =>
+            indicator.setText("Ammonite: adding dependencies...")
+
+            ScalaUtil.getModuleForFile(file.getVirtualFile, project).foreach { module =>
+              invokeLater {
+                inWriteAction {
+                  val tableModel = ProjectLibraryTable.getInstance(project).getModifiableModel
+                  val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
+                  val jarFileSystem = JarFileSystem.getInstance
+
+                  for {
+                    file <- files
+                    if predicate(file)
+
+                    rootFile = jarFileSystem.findLocalVirtualFileByPath(file.getCanonicalPath)
+                    if rootFile != null
+
+                    library = tableModel.createLibrary(file.getName)
+                    model = library.getModifiableModel
+                  } {
+                    model.addRoot(rootFile, OrderRootType.CLASSES)
+                    model.commit()
+                    moduleModel.addLibraryEntry(library)
+                  }
+
+                  tableModel.commit()
+                  moduleModel.commit()
+                }
+              }
+            }
+          case mre"[error]$content" => LOG.warn(s"Ammonite, error while importing dependencies: $content")
+          case _ =>
+        }
       }
     }
 
     manager.runProcessWithProgressAsynchronously(task, createBgIndicator)
   }
 
-  private def createAndAdd(files: Seq[File], module: Module, needFiltering: Boolean = true)
-                          (implicit project: Project): Unit = {
-    def selectName(file: File) = file.getName
-    
-    def filterScala(file: File) = file.getName.startsWith("scala-") && 
-      Artifact.ScalaArtifacts.exists(p => p.versionOf(file).isDefined)
-    
-    val tableModel = ProjectLibraryTable.getInstance(project).getModifiableModel
-    val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
-    
-    (if (needFiltering) files filterNot filterScala else files) foreach {
-      file =>
-        Option(JarFileSystem.getInstance().findLocalVirtualFileByPath(file.getCanonicalPath)) foreach {
-          jarRoot =>
-            val lib = tableModel.createLibrary(selectName(file))
-            val model = lib.getModifiableModel
-            model.addRoot(jarRoot, OrderRootType.CLASSES)
-            model.commit()
-            moduleModel.addLibraryEntry(lib)
-        }
-    }
-
-    tableModel.commit()
-    moduleModel.commit()
-  }
-  
   trait MyScalaVersion
+
   case class MajorVersion(m: Char) extends MyScalaVersion // m is last num in major version, e.g. 1 for 2.11
   case class ExactVersion(m: Char, v: Version) extends MyScalaVersion
-  
+
   private def hasAmmonite(file: PsiFile): Boolean =
     ProjectLibraryTable.getInstance(file.getProject).getLibraries.exists(_.getName.startsWith("ammonite-"))
 
@@ -141,12 +140,12 @@ object ImportAmmoniteDependenciesFix {
       case Success(Some(v)) => v.presentation
       case _ => DEFAULT_SCALA_VERSION
     }
-    
+
     val ammoniteVersion = loadAmmoniteVersion(forScala, scalaVersion).getOrElse(DEFAULT_AMMONITE_VERSION)
-    
+
     (scalaVersion, ammoniteVersion)
   }
-  
+
   def loadAmmoniteVersion(forScala: MyScalaVersion, scalaVersion: String): Try[String] = {
     Versions.loadLinesFrom(s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
       lines =>
@@ -157,23 +156,23 @@ object ImportAmmoniteDependenciesFix {
         }.map(str => Version(str stripPrefix "\""))
     }.filter(_.nonEmpty).map(_.max.presentation)
   }
-  
+
   def loadScalaVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
     Versions.loadLinesFrom("https://repo1.maven.org/maven2/com/lihaoyi/").map {
       lines =>
         val pattern = s"\\Q$AMMONITE_PREFIX\\E$THREE_DIGIT_PATTERN".r
         lines.flatMap(line => pattern.findFirstIn(line))
     }.map {
-      ammoniteStrings => 
+      ammoniteStrings =>
         val pattern = THREE_DIGIT_PATTERN.r
         ammoniteStrings.flatMap(v => pattern findFirstIn v).map(Version(_))
     }.map {
       ammoniteVersions => ammoniteVersions.groupBy(_.major(2).presentation.last)
     }.map {
-      grouped => 
+      grouped =>
         forScala match {
           case MajorVersion(m) => grouped.get(m).map(_.last)
-          case ExactVersion(m, v) => 
+          case ExactVersion(m, v) =>
             grouped.get(m).flatMap {
               f => f.reverse.find(v >= _)
             }
@@ -187,7 +186,7 @@ object ImportAmmoniteDependenciesFix {
 
     NotificationUtil.showMessage(
       project = project,
-      title = "Ammonite", 
+      title = "Ammonite",
       message =
         """
           | <html>

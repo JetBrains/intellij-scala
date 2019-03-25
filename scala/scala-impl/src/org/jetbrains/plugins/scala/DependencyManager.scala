@@ -104,7 +104,7 @@ abstract class DependencyManagerBase {
     val ivy = Ivy.newInstance(mkIvySettings())
     ivy.getLoggerEngine.pushLogger(createLogger)
 
-    val report = usingTempFile("ivy", Some(".xml")) { ivyFile =>
+    val report = usingTempFile("ivy", ".xml") { ivyFile =>
       Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
       ivy.resolve(ivyFile.toURI.toURL, new ResolveOptions().setConfs(Array("compile")))
     }

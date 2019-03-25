@@ -4,9 +4,7 @@ package project
 import java.io._
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Key, io}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.{PathUtil, net}
 
@@ -23,30 +21,25 @@ package object template {
     "-Dsbt.log.noformat=true"
   )
 
-  class DownloadProcessAdapter(private val progressManager: ProgressManager) extends ProcessAdapter {
+  private abstract class SBTProcessListener extends ProcessAdapter {
 
-    private val builder = StringBuilder.newBuilder
+    private val builder: StringBuilder = StringBuilder.newBuilder
 
-    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-      val text = event.getText
+    final def text: String = builder.toString
 
-      for {
-        manager <- Option(progressManager)
-        if manager.hasProgressIndicator
+    protected def onText(text: String): Unit
 
-        indicator = manager.getProgressIndicator
-      } indicator.setText(text)
-
+    override final def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      val text = event.getText.trim
+      onText(text)
       builder ++= text
     }
-
-    def text: String = builder.toString
   }
 
   def createTempSbtProject(version: String,
-                           listener: DownloadProcessAdapter)
-                          (preUpdateCommands: Seq[String] = Seq.empty,
-                           postUpdateCommands: Seq[String] = Seq.empty): Unit =
+                           preUpdateCommands: Seq[String] = Seq.empty,
+                           postUpdateCommands: Seq[String] = Seq.empty)
+                          (action: String => Unit): Unit =
     usingTempFile("sbt-commands") { file =>
       writeLinesTo(file)(
         (s"""set scalaVersion := "$version"""" +: preUpdateCommands :+ "updateClassifiers") ++
@@ -59,6 +52,8 @@ package object template {
           null,
           dir
         )
+
+        val listener: SBTProcessListener = action(_)
 
         val handler = new OSProcessHandler(process, "sbt-based downloader", null)
         handler.addProcessListener(listener)
@@ -82,8 +77,10 @@ package object template {
     }
   }
 
-  def usingTempFile[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
-    val file = FileUtil.createTempFile(prefix, suffix.orNull, true)
+  import io.FileUtil._
+
+  def usingTempFile[T](prefix: String, suffix: String = null)(block: File => T): T = {
+    val file = createTempFile(prefix, suffix, true)
     try {
       block(file)
     } finally {
@@ -91,12 +88,12 @@ package object template {
     }
   }
 
-  def usingTempDirectory[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
-    val directory = FileUtil.createTempDirectory(prefix, suffix.orNull, true)
+  def usingTempDirectory[T](prefix: String)(block: File => T): T = {
+    val directory = createTempDirectory(prefix, null, true)
     try {
       block(directory)
     } finally {
-      FileUtil.delete(directory)
+      delete(directory)
     }
   }
 
