@@ -242,8 +242,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def allMethods: Iterator[PhysicalMethodSignature] =
     TypeDefinitionMembers.getSignatures(this)
-      .allNodesIterator
-      .map(_.info)
+      .allSignatures
       .collect {
         case p: PhysicalMethodSignature => p
       }
@@ -255,8 +254,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType))
-              .allNodesIterator
-              .map(_.info)
+              .allSignatures
               .collect {
                 case p: PhysicalMethodSignature => p
               }
@@ -269,7 +267,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   }
 
   def allSignatures: Iterator[TermSignature] =
-    TypeDefinitionMembers.getSignatures(this).allNodesIterator.map(_.info)
+    TypeDefinitionMembers.getSignatures(this).allSignatures
 
   def allSignaturesIncludingSelfType: Iterator[TermSignature] = {
     selfType match {
@@ -277,7 +275,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allNodesIterator.map(_.info)
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allSignatures
           case _ =>
             allSignatures
         }

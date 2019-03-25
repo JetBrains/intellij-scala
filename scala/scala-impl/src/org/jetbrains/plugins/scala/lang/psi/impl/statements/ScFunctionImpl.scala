@@ -377,14 +377,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  def superMethods: Seq[PsiMethod] = {
-    val clazz = containingClass
-    if (clazz != null) {
-      val node = TypeDefinitionMembers.getSignatures(clazz).forName(name).findNode(this)
-      node.toSeq.flatMap(_.supers).map(_.info.namedElement).filterBy[PsiMethod]
-    }
-    else Seq.empty
-  }
+  def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterBy[PsiMethod]
 
   def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 

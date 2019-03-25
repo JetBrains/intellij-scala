@@ -145,7 +145,7 @@ abstract class MixinNodes[T <: Signature] {
 }
 
 object MixinNodes {
-  class Node[T <: Signature](val info: T, val fromSuper: Boolean) {
+  class Node[T](val info: T, val fromSuper: Boolean) {
     private[this] var _concreteSuper: Node[T] = _
     private[this] val _supers: SmartList[Node[T]] = new SmartList()
 
