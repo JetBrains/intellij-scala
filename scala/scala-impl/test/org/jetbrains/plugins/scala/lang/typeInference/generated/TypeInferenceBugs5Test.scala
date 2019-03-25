@@ -1105,4 +1105,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |}
       |//Int""".stripMargin
   }
+
+  def testSCL6008(): Unit = doTest()
 }

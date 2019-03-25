@@ -36,4 +36,25 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
   def testUnitIfStatement() {doTest()}
 
   def testWhileStatement() {doTest()}
+
+  def testSCL8580(): Unit = {
+    doTest(
+      s"""case class Filterable(s: List[String]) {
+         |  def withFilter(p: List[String] => Boolean) = Monadic(s)
+         |}
+         |
+         |case class Monadic(s: List[String]) {
+         |  def map(f: List[String] => List[String]): Monadic = Monadic(f(s))
+         |  def flatMap(f: List[String] => Monadic): Monadic = f(s)
+         |  def foreach(f: List[String] => Unit): Unit = f(s)
+         |  def withFilter(q: List[String] => Boolean): Monadic = this
+         |}
+         |
+         |val filterable = Filterable(List("aaa"))
+         |
+         |${START}for (List(s) <- filterable) yield List(s, s)$END
+         |
+         |//Monadic""".stripMargin)
+  }
+
 }

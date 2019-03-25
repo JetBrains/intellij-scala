@@ -107,4 +107,33 @@ class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTest
        |}
      """.stripMargin
   )
+
+  def testUnificationWrongKind(): Unit = checkTextHasNoErrors(
+    """
+      |trait IO[A]
+      |trait Request[F[_]]
+      |trait Response[F[_]]
+      |trait Kleisli[F[_], A, B]
+      |trait OptionT[F[_], A]
+      |
+      |type HttpService[F[_]] = Kleisli[({ type λ[β$0$] = OptionT[IO, β$0$] })#λ, Request[F], Response[F]]
+      |
+      |def f[F[_], A](fa: F[A]): F[A] = fa
+      |val service: HttpService[IO] = ???
+      |val fa: Kleisli[({ type λ[β$0$] = OptionT[IO, β$0$] })#λ, Request[IO], Response[IO]] = f(service)
+    """.stripMargin
+  )
+
+  def testTypeLambdaConformance(): Unit = checkTextHasNoErrors(
+    """
+      |object Foo {
+      |  trait T[F[_]]
+      |  def fun[F[_], A](fa: F[A])(tf: T[F]): T[F] = tf
+      |  val f: Int => String = ???
+      |  val t: T[({ type L[A] = Int => A})#L] = ???
+      |  fun(f)(t)
+      |}
+    """.stripMargin
+  )
+
 }

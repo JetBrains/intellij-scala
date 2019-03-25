@@ -32,15 +32,4 @@ class ExistentialConformanceTest extends TypeConformanceTestBase {
         |//True""".stripMargin
     doTest(text)
   }
-
-  def testSCL7602(): Unit = {
-    doApplicatonConformanceTest(
-      s"""
-        |class A[P[T]]{
-        |  def use[T](p: P[T]) = ()
-        |  def get: P[_] = ???
-        |  use$caretMarker(get) //error
-        |}
-      """.stripMargin)
-  }
 }

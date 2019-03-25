@@ -70,4 +70,16 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
   def testSCL13326(): Unit = {doTest()}
 
   def testSCL13326_1(): Unit = {doTest()}
+
+  def testSCL7602(): Unit = {
+    doApplicatonConformanceTest(
+      s"""
+         |class A[P[T]]{
+         |  def use[T](p: P[T]) = ()
+         |  def get: P[_] = ???
+         |  use$caretMarker(get) //error
+         |}
+      """.stripMargin)
+  }
+
 }
