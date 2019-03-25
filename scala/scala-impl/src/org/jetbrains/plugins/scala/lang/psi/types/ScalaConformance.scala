@@ -373,6 +373,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           case Right(value) => conformsInner(l, value, visited, constraints, checkWeak)
           case _ => ConstraintsResult.Left
         }
+
+        if (result.isLeft) {
+          result = t.element.selfType match {
+            case Some(selfTp) => conformsInner(l, selfTp, visited, constraints, checkWeak)
+            case _ => result
+          }
+        }
       }
     }
 
@@ -633,7 +640,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with ThisVisitor {}
+        with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 

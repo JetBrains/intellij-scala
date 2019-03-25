@@ -32,29 +32,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL8831(): Unit = doTest()
 
-  def testSCL9302(): Unit = doTest {
-    """
-      |object SCL9302 {
-      |
-      |  class User
-      |
-      |  implicit class RichUser(user: User) {
-      |    def hello(): Int = 1
-      |  }
-      |
-      |  val user = new User
-      |  user.hello()
-      |
-      |  trait UserTrait {
-      |    this: User =>
-      |
-      |    /*start*/this.hello()/*end*/
-      |  }
-      |}
-      |//Int
-    """.stripMargin.trim
-  }
-
   def testSCL7809(): Unit = doTest {
     """
       |class SCL7809 {

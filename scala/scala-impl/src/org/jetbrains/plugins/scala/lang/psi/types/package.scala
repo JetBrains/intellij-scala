@@ -165,7 +165,6 @@ package object types {
         case Some(t) => t.extractClassSimple(visited + ta.physical)
         case _ => None
       }
-      case ScThisType(td) => Some(td)
       case _ => None
     }
 
