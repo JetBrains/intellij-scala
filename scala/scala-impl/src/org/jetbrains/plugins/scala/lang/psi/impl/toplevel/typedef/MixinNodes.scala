@@ -133,8 +133,7 @@ abstract class MixinNodes[T <: Signature] {
       case null                     => ()
       case syn: ScSyntheticClass    => addAllFrom(realClass(syn), substitutor, map)
       case td: ScTemplateDefinition => processScala(td, substitutor, map)
-      case clazz: PsiClass          => processJava(clazz, substitutor, map)
-      case _                        => ()
+      case _                        => processJava(clazz, substitutor, map)
     }
   }
 
@@ -423,11 +422,11 @@ object MixinNodes {
       }
     }
     def add(tp: ScType) {
-      tp.extractClass match {
-        case Some(clazz) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
+      extractClassOrUpperBoundClass(tp) match {
+        case Some((clazz, _)) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
           tp +=: buffer
           set += classString(clazz)
-        case Some(clazz) if clazz.getTypeParameters.nonEmpty =>
+        case Some((clazz, _)) if clazz.getTypeParameters.nonEmpty =>
           val i = buffer.indexWhere(_.extractClass match {
             case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
             case _ => false
@@ -463,7 +462,7 @@ object MixinNodes {
         }
       }
       tp = updateTp(tp)
-      tp.extractClassType match {
+      extractClassOrUpperBoundClass(tp) match {
         case Some((clazz, subst)) =>
           val lin = linearization(clazz)
           val newIterator = lin.reverseIterator
@@ -492,5 +491,13 @@ object MixinNodes {
   private def dealias(tp: ScType) = tp.isAliasType match {
     case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
     case _ => tp
+  }
+
+  private def extractClassOrUpperBoundClass(tp: ScType) = {
+    tp match {
+      case TypeParameterType(tparam)                       => tparam.upperType.extractClassType
+      case ParameterizedType(TypeParameterType(tparam), _) => tparam.upperType.extractClassType
+      case _                                               => tp.extractClassType
+    }
   }
 }

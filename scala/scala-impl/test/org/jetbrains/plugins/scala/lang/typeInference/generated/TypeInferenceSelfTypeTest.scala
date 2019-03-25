@@ -27,27 +27,27 @@ class TypeInferenceSelfTypeTest extends TypeInferenceTestBase{
     """.stripMargin.trim
   }
 
-//  def testSCL9302_2(): Unit = doTest {
-//    """
-//      |trait OA
-//      |
-//      |case object OA1 extends OA
-//      |case object OA2 extends OA
-//      |
-//      |trait ABC[A <: OA, T[AA <: OA] <: ABC[AA, T]] {
-//      |  self: T[A] =>
-//      |
-//      |  def a: A
-//      |}
-//      |
-//      |trait XYZ[A <: OA, T[AA <: OA] <: ABC[AA, T]] {
-//      |  self: T[A] =>
-//      |
-//      |  /*start*/self.a/*end*/
-//      |}
-//      |
-//      |class Concrete[A <: OA] (override val a: A) extends ABC[A, Concrete] with XYZ[A, Concrete]
-//      |//A
-//    """.stripMargin
-//  }
+  def testSCL9302_2(): Unit = doTest {
+    """
+      |trait OA
+      |
+      |case object OA1 extends OA
+      |case object OA2 extends OA
+      |
+      |trait ABC[A <: OA, T[AA <: OA] <: ABC[AA, T]] {
+      |  self: T[A] =>
+      |
+      |  def a: A
+      |}
+      |
+      |trait XYZ[A <: OA, T[AA <: OA] <: ABC[AA, T]] {
+      |  self: T[A] =>
+      |
+      |  /*start*/self.a/*end*/
+      |}
+      |
+      |class Concrete[A <: OA] (override val a: A) extends ABC[A, Concrete] with XYZ[A, Concrete]
+      |//AA
+    """.stripMargin
+  }
 }
