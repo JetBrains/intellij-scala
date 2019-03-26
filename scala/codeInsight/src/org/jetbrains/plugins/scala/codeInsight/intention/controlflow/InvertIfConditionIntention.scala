@@ -24,28 +24,30 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
-    val thenBranch = ifStmt.thenExpression.orNull
-    if (thenBranch == null) return false
+    val thenExpression = ifStmt.thenExpression.orNull
+    if (thenExpression == null) return false
 
     val condition = ifStmt.condition.orNull
     if (condition == null) return false
 
+    val elseExpression = ifStmt.elseExpression.orNull
     val offset = editor.getCaretModel.getOffset
-    if (!(ifStmt.getTextRange.getStartOffset <= offset && offset <= condition.getTextRange.getStartOffset - 1))
-      return false
 
-    val elseBranch = ifStmt.elseExpression.orNull
-    if (elseBranch != null) return elseBranch.isInstanceOf[ScBlockExpr]
+    val caretIsOnIf = ifStmt.getTextRange.getStartOffset <= offset && offset < condition.getTextRange.getStartOffset
+    val caretIsOnElse = isCaretOnElse(thenExpression, elseExpression, offset)
 
-    true
+    caretIsOnIf || caretIsOnElse
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val expr = new StringBuilder
-    val newCond = ifStmt.condition.get match {
+    val condition = ifStmt.condition.orNull
+    val thenExpression = ifStmt.thenExpression.orNull
+    val elseExpression = ifStmt.elseExpression.orNull
+
+    val newCondition: String = condition match {
       case ScInfixExpr.withAssoc(base, operation, argument) =>
         val refName = operation.refName
 
@@ -55,22 +57,43 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
         }
 
         s"${negateBoolOperation(base)} ${Replacement(refName)} ${negateBoolOperation(argument)}"
-      case condition => negate(condition)
+      case _ =>
+        negate(condition)
     }
 
-    val elseBranch = ifStmt.elseExpression.orNull
-    val newThenBranch = if (elseBranch != null) elseBranch.asInstanceOf[ScBlockExpr].getText else "{\n\n}"
-    expr.append("if (").append(newCond).append(")").append(newThenBranch).append(" else ")
-    val res = ifStmt.thenExpression.get match {
-      case e: ScBlockExpr => e.getText
-      case _ => "{\n" + ifStmt.thenExpression.get.getText + "\n}"
+    val newThenExpression: String = elseExpression match {
+      case null => "{\n\n}"
+      case block: ScBlockExpr => block.getText
+      case expr => "{\n" + expr.getText + "\n}"
     }
-    expr.append(res)
+
+    val newElseExpression: String = thenExpression match {
+      case block: ScBlockExpr => block.getText
+      case expr => "{\n" + expr.getText + "\n}"
+    }
+
+    val newIfElseText = s"if ($newCondition) $newThenExpression else $newElseExpression"
+
+    val caretModel = editor.getCaretModel
+    val oldCaretWasOnElse = isCaretOnElse(thenExpression, elseExpression, caretModel.getOffset)
 
     inWriteAction {
-      ifStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), true)
+      val newIfStmtDummy = createExpressionFromText(newIfElseText)(element.getManager)
+      val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+
+      if (oldCaretWasOnElse) {
+        for {
+          newIf <- newIfStmt.toOption.filterByType[ScIf]
+          newThen <- newIf.thenExpression
+        } caretModel.moveToOffset(newThen.getTextRange.getEndOffset)
+      }
     }
+  }
+
+  private def isCaretOnElse(thenBranch: ScExpression, elseBranch: ScExpression, offset: Int) = {
+    elseBranch != null &&
+      thenBranch.getTextRange.getEndOffset <= offset && offset < elseBranch.getTextRange.getStartOffset
   }
 
   override def getFamilyName: String = FamilyName

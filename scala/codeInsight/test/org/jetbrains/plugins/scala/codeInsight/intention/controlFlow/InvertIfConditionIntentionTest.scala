@@ -214,4 +214,169 @@ class InvertIfConditionIntentionTest extends intentions.ScalaIntentionTestBase {
 
     doTest(text, resultText)
   }
+
+  def testInvertIf_NoBraces(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (false)
+         |      System.out.print("if")
+         |    else
+         |      System.out.print("else")
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (true) {
+         |      System.out.print("else")
+         |    } else {
+         |      System.out.print("if")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_NoBraces_SameLine(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (false) System.out.print("if")
+         |    else System.out.print("else")
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (true) {
+         |      System.out.print("else")
+         |    } else {
+         |      System.out.print("if")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_NoIfBraces(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (false) System.out.print("if")
+         |    else {
+         |      System.out.print("else1")
+         |      System.out.print("else2")
+         |    }
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (true) {
+         |      System.out.print("else1")
+         |      System.out.print("else2")
+         |    } else {
+         |      System.out.print("if")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_NoElseBraces(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (false) {
+         |      System.out.print("if1")
+         |      System.out.print("if2")
+         |    }
+         |    else
+         |      System.out.print("else")
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    i${CARET}f (true) {
+         |      System.out.print("else")
+         |    } else {
+         |      System.out.print("if1")
+         |      System.out.print("if2")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretAtElse(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    if (false) {
+         |      System.out.print("if1")
+         |      System.out.print("if2")
+         |    } ${CARET}else {
+         |      System.out.print("else")
+         |    }
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    if (true) {
+         |      System.out.print("else")
+         |    }$CARET else {
+         |      System.out.print("if1")
+         |      System.out.print("if2")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretInsideElse(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    if (false) {
+         |      System.out.print("if1")
+         |      System.out.print("if2")
+         |    } el${CARET}se {
+         |      System.out.print("else")
+         |    }
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def f(a: Boolean, b: Boolean) {
+         |    if (true) {
+         |      System.out.print("else")
+         |    }$CARET else {
+         |      System.out.print("if1")
+         |      System.out.print("if2")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
 }
