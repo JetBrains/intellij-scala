@@ -11,13 +11,11 @@ import com.intellij.openapi.roots.ModuleRootManager
 /**
  * @author Pavel Fatin
  */
-final class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends ProjectComponent {
+final class ScalaSdkCache(project: Project) extends ProjectComponent {
+
+  project.subscribeToModuleRootChanged()(_ => clear())
 
   private val cache = new ConcurrentHashMap[Module, ScalaSdk]()
-
-  override def projectOpened(): Unit = {
-    events.addListener(() => clear())
-  }
 
   override def projectClosed(): Unit = clear()
 

@@ -26,18 +26,18 @@ import org.jetbrains.plugins.scala.project._
 /**
  * @author Pavel Fatin
  */
-final class CompileServerManager(project: Project,
-                                 events: ScalaProjectEvents) extends ProjectComponent {
+final class CompileServerManager(project: Project) extends ProjectComponent {
    private val IconRunning = Icons.COMPILE_SERVER
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
    private val timer = new Timer(1000, TimerListener)
 
+  project.subscribeToModuleRootChanged()(_ => configureWidget())
+
    override def projectOpened() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
 
-     events.addListener(() => configureWidget())
      configureWidget()
      timer.setRepeats(true)
      timer.start()

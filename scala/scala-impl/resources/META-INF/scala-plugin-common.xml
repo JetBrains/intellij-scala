@@ -1348,9 +1348,6 @@
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.project.ScalaProjectEvents</implementation-class>
-        </component>
-        <component>
           <implementation-class>org.jetbrains.plugins.scala.project.ScalaSdkCache</implementation-class>
         </component>
         <component>
