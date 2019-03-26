@@ -79,7 +79,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ => Indent.getContinuationWithoutFirstIndent
     }
 
-    //TODO these are hack methods to facliltate indenting in cases when comment before def/val/var adds one more level of blocks
+    //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {
       case _: ScBlockExpr if settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2 =>
         Indent.getNormalIndent
@@ -272,7 +272,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getNormalIndent
       case _: ScImportSelectors if childElementType != ScalaTokenTypes.tRBRACE &&
         childElementType != ScalaTokenTypes.tLBRACE => Indent.getNormalIndent
-      case _ => Indent.getNoneIndent
+      case Parent(p) if p.isInstanceOf[ScReferenceExpression] && childElementType == ScalaElementType.TYPE_ARGS=>
+        Indent.getContinuationWithoutFirstIndent
+      case _ =>
+        Indent.getNoneIndent
     }
   }
 

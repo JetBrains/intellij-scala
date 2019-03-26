@@ -140,6 +140,9 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScCaseClause =>
         new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScMethodCall if newChildIndex > 0 =>
+        val prevChildBlock = getSubBlocks.get(newChildIndex - 1)
+        new ChildAttributes(prevChildBlock.getIndent, prevChildBlock.getAlignment)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _: ScDocComment =>
@@ -211,10 +214,11 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   override def getSubBlocks: util.List[Block] = {
     if (subBlocks == null) {
-      subBlocks = getDummyBlocks(settings)(node, lastNode, this)
+      subBlocks = getDummyBlocks(this)(node, lastNode)
         .asScala
         .filterNot(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
         .asJava
+      // printSubBlocksDebugInfoToConsole()
     }
     subBlocks
   }
@@ -259,9 +263,9 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   def getChildBlockLastNode(childNode: ASTNode): ASTNode =
     (for {
-      c <- subBlocksContext
-      n <- c.childrenAdditionalContexts.get(childNode)
-    } yield n.lastNode(childNode)).orNull
+      context <- subBlocksContext
+      childContext <- context.childrenAdditionalContexts.get(childNode)
+    } yield childContext.lastNode(childNode)).orNull
 
 
   def getCustomAlignment(childNode: ASTNode): Option[Alignment] =
@@ -270,6 +274,25 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       childContext <- context.childrenAdditionalContexts.get(childNode)
       a <- childContext.alignment
     } yield a
+
+
+  // use these methods only for debugging
+  private def printSubBlocksDebugInfoToConsole(): Unit ={
+    println("#########################################")
+    println(s"Parent: ${node.getPsi.getClass.getSimpleName} $getTextRange $indent $alignment")
+    println(this.debugText)
+    println(s"Children: (${if(subBlocks.isEmpty) "<empty>" else subBlocks.size()})")
+    subBlocks.asScala.map(_.asInstanceOf[ScalaBlock]).zipWithIndex.foreach { case (child, idx) =>
+      println(s"$idx: ${child.debugText}")
+      println(s"$idx: ${child.getTextRange} ${child.indent} ${child.alignment}")
+    }
+    println()
+  }
+
+  private def debugText: String = {
+    import extensions._
+    node.getPsi.getContainingFile.getText.substring(getTextRange)
+  }
 }
 
 object ScalaBlock {
@@ -302,11 +325,16 @@ class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(),
 
 private[formatting]
 object SubBlocksContext {
-  def apply(childNodes: Seq[ASTNode], alignment: Option[Alignment]): SubBlocksContext =
-    new SubBlocksContext(childNodes, alignment)
-
-  def apply(node: ASTNode, alignment: Alignment, childNodes: Seq[ASTNode]): SubBlocksContext = {
-    val children = Map(node -> new SubBlocksContext(childNodes, Some(alignment)))
-    new SubBlocksContext(Seq(), None, children)
+  def apply(node: ASTNode,
+            childNodes: Seq[ASTNode],
+            childAlignment: Option[Alignment] = None,
+            childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()): SubBlocksContext = {
+    new SubBlocksContext(
+      additionalNodes = Seq(),
+      alignment = None,
+      childrenAdditionalContexts = Map(
+        node -> new SubBlocksContext(childNodes, childAlignment, childrenAdditionalContexts)
+      )
+    )
   }
 }

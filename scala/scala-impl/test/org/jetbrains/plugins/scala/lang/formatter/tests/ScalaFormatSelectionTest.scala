@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
+import org.jetbrains.plugins.scala.extensions._
 
 /**
   * @author Roman.Shein
@@ -195,4 +193,41 @@ class ScalaFormatSelectionTest extends SelectionTest {
 //    doTextTest(before, after)
 //  }
 
+  def testSCL15147_FormatMethodCallChain_1(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+      s"""class A {
+         |  myObject.method1()
+         |          .method2().method3().method4()$startMarker
+         |          $endMarker.method5().method6()
+         |}""".stripMargin.withNormalizedSeparator
+
+    val after =
+      """class A {
+        |  myObject.method1()
+        |          .method2().method3().method4()
+        |          .method5().method6()
+        |}""".stripMargin.withNormalizedSeparator
+
+    doTextTest(before, after)
+  }
+
+  def testSCL15147_FormatMethodCallChain_2(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+      s"""class A {
+         |  myObject.method1()
+         |          .method2().method3().method4()
+         |          $startMarker.method5().method6()$endMarker
+         |}""".stripMargin.withNormalizedSeparator
+
+    val after =
+      """class A {
+        |  myObject.method1()
+        |          .method2().method3().method4()
+        |          .method5().method6()
+        |}""".stripMargin.withNormalizedSeparator
+
+    doTextTest(before, after)
+  }
 }

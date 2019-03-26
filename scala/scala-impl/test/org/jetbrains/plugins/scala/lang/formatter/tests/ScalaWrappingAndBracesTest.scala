@@ -4,10 +4,11 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.junit.Ignore
 
 class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   private val RightMarginMarker = "!"
-  private val CHOP_DOWN_IF_LONG = CommonCodeStyleSettings.WRAP_AS_NEEDED | CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
+  private val CHOP_DOWN_IF_LONG = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
 
   private def setupRightMargin(rightMarginVisualHelper: String): Unit = {
     getSettings.setRightMargin(ScalaLanguage.INSTANCE, rightMarginVisualHelper.indexOf(RightMarginMarker))
@@ -276,11 +277,11 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     val before =
       """myObject.foo(1, 2)
         |.bar(3, 4)
-        |.baz(5, 6).foo(7, 8).bar(9, 10).baz(11, 12)""".stripMargin
+        |.baz(5, 6).foo(7, 8)""".stripMargin
     val after =
       """myObject.foo(1, 2)
         |  .bar(3, 4)
-        |  .baz(5, 6).foo(7, 8).bar(9, 10).baz(11, 12)""".stripMargin
+        |  .baz(5, 6).foo(7, 8)""".stripMargin
     doTextTest(before, after)
   }
 
@@ -411,6 +412,130 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def test_MethodCallChain_Align_DoNotWrap_CommentsBetweenCalls() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.foo().bar()
+        | //comment1
+        |.foo().bar()
+        | /*comment2*/
+        |.foo().bar()
+        | //comment4
+        | /*comment3*/
+        | /** comment4 */
+        |.foo().bar()
+        |""".stripMargin
+    val after =
+      """myObject.foo().bar()
+        |        //comment1
+        |        .foo().bar()
+        |        /*comment2*/
+        |        .foo().bar()
+        |        //comment4
+        |        /*comment3*/
+        |        /** comment4 */
+        |        .foo().bar()
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_MethodWithoutBrackets() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.foo.bar
+        |.foo.bar()
+        |.foo().bar
+        |.foo.bar
+        |""".stripMargin
+    val after =
+      """myObject.foo.bar
+        |        .foo.bar()
+        |        .foo().bar
+        |        .foo.bar""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_WithTypeArguments() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """val myObject = myObject2.foo[String](0)
+        |.bar[String](
+        | 2
+        |)
+        |.baz
+        |[String](
+        |3
+        |)
+        |.kek
+        |[String](4)
+      """.stripMargin
+    val after =
+      """val myObject = myObject2.foo[String](0)
+        |                        .bar[String](
+        |                          2
+        |                        )
+        |                        .baz
+        |                          [String](
+        |                            3
+        |                          )
+        |                        .kek
+        |                          [String](4)
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  @Ignore("waiting for https://youtrack.jetbrains.com/issue/SCL-15163")
+  def ignore_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultiline() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """val myObject = myObject2.foo(
+        | 1
+        |)
+        |.bar(
+        | 2
+        |)
+      """.stripMargin
+    val after =
+      """val myObject = myObject2.foo(
+        |                          1
+        |                        )
+        |                        .bar(
+        |                          2
+        |                        )
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultilineAndLast() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """val myObject = myObject2.foo(
+        | 1
+        |)
+      """.stripMargin
+    val after =
+      """val myObject = myObject2.foo(
+        |  1
+        |)
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
   def test_MethodCallChain_Align_WrapIfLong() {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
@@ -534,6 +659,57 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
       """foo[T1, T2](1, 2).bar(3, 4)
         |                 .baz(5, 6).foo(7, 8)
         |                 .bar(9, 10).baz(11, 12)
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_1() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.method1[String]().method2()
+        |.method3()""".stripMargin
+    val after =
+      """myObject.method1[String]().method2()
+        |        .method3()
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_2() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.method1().method2[String]()
+        |.method3()""".stripMargin
+    val after =
+      """myObject.method1().method2[String]()
+        |        .method3()
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_GenericMethodCallInTheMiddle_Align_3() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.method[String]().method()
+        |.method.method[T]()
+        |.method[String]().method().method()
+        |.method.method[T]()
+        |.method""".stripMargin
+    val after =
+      """myObject.method[String]().method()
+        |        .method.method[T]()
+        |        .method[String]().method().method()
+        |        .method.method[T]()
+        |        .method
         |""".stripMargin
     doTextTest(before, after)
   }

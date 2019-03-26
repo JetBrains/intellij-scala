@@ -37,7 +37,6 @@ import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -65,7 +64,7 @@ object getDummyBlocks {
     ScalaElementType.REFERENCE_EXPRESSION
   )
 
-  def apply(settings: CodeStyleSettings): getDummyBlocks = new getDummyBlocks(settings)
+  def apply(block: ScalaBlock): getDummyBlocks = new getDummyBlocks(block)
 
   private def alignmentsMap(project: Project): mutable.Map[InterpolatedPointer, Alignment] = {
     project.getOrUpdateUserData(alignmentsMapKey, mutable.Map[InterpolatedPointer, Alignment]())
@@ -104,22 +103,26 @@ object getDummyBlocks {
 }
 
 //noinspection RedundantDefaultArgument
-class getDummyBlocks(private val settings: CodeStyleSettings) {
+class getDummyBlocks(private val block: ScalaBlock) {
+  private val settings: CodeStyleSettings = block.settings
   private val commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
   private implicit val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
-  private def cs = commonSettings
-  private def ss = scalaSettings
+  // shortcuts to simplify long conditions that operate with settings
+  @inline private def cs = commonSettings
+  @inline private def ss = scalaSettings
 
-  def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  // TODO: there are quite many unnecessary array allocations and copies, consider passing
+  //  mutable buffer/list to submethods, and measure the performance!
+  def apply(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
     if (lastNode != null) {
-      applyInner(firstNode, lastNode, block)
+      applyInner(firstNode, lastNode)
     } else {
-      applyInner(firstNode, block)
+      applyInner(firstNode)
     }
   }
 
-  private def applyInner(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  private def applyInner(node: ASTNode): util.ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new util.ArrayList[Block]
 
@@ -129,48 +132,48 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
           case _: ScEarlyDefinitions | _: ScTemplateBody => true
           case _ => false
         }) {
-          subBlocks.addAll(getFieldGroupSubBlocks(node, block))
+          subBlocks.addAll(getFieldGroupSubBlocks(node))
           return subBlocks
         }
       case _: ScCaseClause if ss.ALIGN_IN_COLUMNS_CASE_BRANCH =>
-        subBlocks.addAll(getCaseClauseGroupSubBlocks(node, block))
+        subBlocks.addAll(getCaseClauseGroupSubBlocks(node))
         return subBlocks
       case _: ScIf =>
         val alignment = if (ss.ALIGN_IF_ELSE) Alignment.createAlignment
         else null
-        subBlocks.addAll(getIfSubBlocks(node, block, alignment))
+        subBlocks.addAll(getIfSubBlocks(node, alignment))
         return subBlocks
       case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement =>
-        subBlocks.addAll(getInfixBlocks(node, block))
+        subBlocks.addAll(getInfixBlocks(node))
         return subBlocks
       case extendsBlock: ScExtendsBlock =>
-        subBlocks.addAll(getExtendsSubBlocks(node, block, extendsBlock))
+        subBlocks.addAll(getExtendsSubBlocks(node, extendsBlock))
         return subBlocks
       case _: ScFor =>
-        subBlocks.addAll(getForSubBlocks(node, block, children))
+        subBlocks.addAll(getForSubBlocks(node, children))
         return subBlocks
       case _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference =>
-        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
+        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
         return subBlocks
       case _: ScMethodCall =>
-        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
+        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
         return subBlocks
       case _: ScLiteral if node.getFirstChildNode != null &&
         node.getFirstChildNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING &&
         ss.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
-        subBlocks.addAll(getMultilineStringBlocks(node, block))
+        subBlocks.addAll(getMultilineStringBlocks(node))
         return subBlocks
       case _: ScTryBlock if children.headOption.exists(_.getElementType == ScalaTokenTypes.kTRY) =>
         //add try block
-        subBlocks.add(getSubBlock(block, children.head))
+        subBlocks.add(subBlock(children.head))
         //add try expression block
         val tail = children.filter(isCorrectBlock).tail
         if (tail.nonEmpty) {
           val singleExpressionUnderTry = tail.length == 1 && tail.head.isInstanceOf[ScExpression]
           val tailBlock = if (singleExpressionUnderTry) {
-            getSubBlock(block, tail.head)
+            subBlock(tail.head)
           } else {
-            getSubBlock(block, tail.head, tail.last)
+            subBlock(tail.head, tail.last)
           }
           subBlocks.add(tailBlock)
         }
@@ -181,16 +184,16 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
         val hasValidTail = afterOpenBrace.nonEmpty && afterOpenBrace.head.getElementType == ScalaTokenTypes.tLBRACE &&
           afterOpenBrace.last.getElementType == ScalaTokenTypes.tRBRACE
         for (child <- if (hasValidTail) beforeOpenBrace else correctChildren) {
-          subBlocks.add(getSubBlock(block, child))
+          subBlocks.add(subBlock(child))
         }
         if (hasValidTail) {
-          subBlocks.add(getSubBlock(block, afterOpenBrace.head, afterOpenBrace.last))
+          subBlocks.add(subBlock(afterOpenBrace.head, afterOpenBrace.last))
         }
         return subBlocks
       case _: ScDocComment =>
         var scalaDocPrevChildTag: Option[String] = None
         var contextAlignment: Alignment = Alignment.createAlignment(true)
-        val alignment = if (mustAlignment(node)) Alignment.createAlignment else null
+        val alignment = createAlignment(node)
         for (child <- children if isCorrectBlock(child)) {
           val context = (child.getElementType match {
             case ScalaDocElementTypes.DOC_TAG =>
@@ -202,7 +205,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
               Some(contextAlignment)
             case _ => None
           }).map(a => new SubBlocksContext(alignment = Some(a)))
-          subBlocks.add(getSubBlock(block, child, null, alignment, context = context))
+          subBlocks.add(subBlock(child, null, alignment, context = context))
         }
         return subBlocks
       case _ if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
@@ -224,16 +227,16 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
         childBlocks match {
           case tagName :: space :: tagParameter :: tail
             if Option(docTag.getValueElement).map(_.getNode).contains(tagParameter) =>
-            subBlocks.add(getSubBlock(block, tagName))
-            subBlocks.add(getSubBlock(block, space))
-            subBlocks.add(getSubBlock(block, tagParameter, tail.lastOption.orNull))
+            subBlocks.add(subBlock(tagName))
+            subBlocks.add(subBlock(space))
+            subBlocks.add(subBlock(tagParameter, tail.lastOption.orNull))
           case tagName :: tail if Option(docTag.getNameElement).map(_.getNode).contains(tagName) =>
-            subBlocks.add(getSubBlock(block, tagName))
+            subBlocks.add(subBlock(tagName))
             if (tail.nonEmpty) {
               if (tail.head.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
-                subBlocks.add(getSubBlock(block, tail.head, tail.last))
+                subBlocks.add(subBlock(tail.head, tail.last))
               else for (child <- tail) {
-                subBlocks.add(getSubBlock(block, child))
+                subBlocks.add(subBlock(child))
               }
             }
           case _ =>
@@ -244,8 +247,8 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
         alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, Alignment.createAlignment())
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered: Array[ASTNode] = children.filter(isCorrectBlock)
-        val childHead :: childTail= childrenFiltered.toList
-        subBlocks.add(getSubBlock(block, childHead))
+        val childHead :: childTail = childrenFiltered.toList
+        subBlocks.add(subBlock(childHead))
         val indent: Indent = {
           val prevNonWsNode: Option[PsiElement] = psi.prevSibling match {
             case Some(prev@Whitespace(s)) =>
@@ -261,14 +264,12 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
               Indent.getNoneIndent
           }
         }
-        subBlocks.add(getSubBlock(block, childTail.head, childTail.last, null, Some(indent)))
+        subBlocks.add(subBlock(childTail.head, childTail.last, null, Some(indent)))
         return subBlocks
       case _ =>
     }
 
-    val alignment: Alignment =
-      if (mustAlignment(node)) Alignment.createAlignment
-      else null
+    val alignment: Alignment = createAlignment(node)
     var alternateAlignment: Alignment = null
     for (child <- children if isCorrectBlock(child)) {
       val childAlignment: Alignment = {
@@ -354,16 +355,16 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
         child.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
         ss.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE
       if (needFlattenInterpolatedStrings) {
-        subBlocks.addAll(getMultilineStringBlocks(child, block))
+        subBlocks.addAll(getMultilineStringBlocks(child))
       } else {
-        subBlocks.add(getSubBlock(block, child, null, childAlignment))
+        subBlocks.add(subBlock(child, null, childAlignment))
       }
     }
 
     subBlocks
   }
 
-  private def getCaseClauseGroupSubBlocks(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  private def getCaseClauseGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new util.ArrayList[Block]
 
@@ -392,14 +393,14 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     var prevChild: ASTNode = null
     for (child <- children if isCorrectBlock(child)) {
       val childAlignment = getChildAlignment(node, child, getPrevGroupNode, Seq(ScalaTokenTypes.FUNTYPE_ANY_TOKEN_SET))
-      subBlocks.add(getSubBlock(block, child, null, childAlignment))
+      subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
 
     subBlocks
   }
 
-  private def getFieldGroupSubBlocks(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  private def getFieldGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new util.ArrayList[Block]
 
@@ -450,7 +451,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     for (child <- children if isCorrectBlock(child)) {
       //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
       val childAlignment = getChildAlignment(node, child, getPrevGroupNode, FieldGroupSubBlocksTokenSets)
-      subBlocks.add(getSubBlock(block, child, null, childAlignment))
+      subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
     subBlocks
@@ -487,7 +488,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     }
   }
 
-  private def getExtendsSubBlocks(node: ASTNode, block: ScalaBlock, extBlock: ScExtendsBlock): util.ArrayList[Block] = {
+  private def getExtendsSubBlocks(node: ASTNode, extBlock: ScExtendsBlock): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val firstChild = extBlock.getFirstChild
@@ -499,48 +500,43 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
       val alignment =
         if (ss.ALIGN_EXTENDS_WITH == ScalaCodeStyleSettings.ALIGN_TO_EXTENDS) Alignment.createAlignment(false)
         else null
-      subBlocks.add(getSubBlock(block, firstChild.getNode, lastChild.getNode, alignment))
+      subBlocks.add(subBlock(firstChild.getNode, lastChild.getNode, alignment))
     }
 
     tempBody match {
       case Some(x) =>
-        subBlocks.add(getSubBlock(block, x.getNode))
+        subBlocks.add(subBlock(x.getNode))
       case _ =>
     }
 
     subBlocks
   }
 
-  private def getForSubBlocks(node: ASTNode, block: ScalaBlock, children: Array[ASTNode]): util.ArrayList[Block] = {
+  private def getForSubBlocks(node: ASTNode, children: Array[ASTNode]): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]()
-
-    def addSubBlock(node: ASTNode, lastNode: ASTNode): Unit = {
-      val subBlock = getSubBlock(block, node, lastNode)
-      subBlocks.add(subBlock)
-    }
 
     var prevChild: ASTNode = null
     def addTail(tail: List[ASTNode]): Unit = {
       for (child <- tail) {
         if (child.getElementType != ScalaTokenTypes.kYIELD) {
           if (prevChild != null && prevChild.getElementType == ScalaTokenTypes.kYIELD) {
-            addSubBlock(prevChild, child)
+            subBlocks.add(subBlock(prevChild, child))
           } else {
-            addSubBlock(child, null)
+            subBlocks.add(subBlock(child, null))
           }
         }
         prevChild = child
       }
       if (prevChild != null && prevChild.getElementType == ScalaTokenTypes.kYIELD) {
         //add a block for 'yield' in case of incomplete for statement (expression after yield is missing)
-        addSubBlock(prevChild, null)
+        subBlocks.add(subBlock(prevChild, null))
       }
     }
 
     @tailrec
     def addFor(children: List[ASTNode]): Unit = children match {
       case forWord :: tail if forWord.getElementType == ScalaTokenTypes.kFOR =>
-        addSubBlock(forWord, null)
+        subBlocks.add(subBlock(forWord, null))
         addFor(tail)
       case lParen :: tail if ScalaTokenTypes.LBRACE_LPARENT_TOKEN_SET.contains(lParen.getElementType) =>
         val closingType =
@@ -551,7 +547,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
           case Nil =>
             addTail(children)
           case headAfter :: tailAfter =>
-            addSubBlock(lParen, headAfter)
+            subBlocks.add(subBlock(lParen, headAfter))
             addTail(tailAfter)
         }
       case _ =>
@@ -561,7 +557,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     subBlocks
   }
 
-  private def getIfSubBlocks(node: ASTNode, block: ScalaBlock, alignment: Alignment): util.ArrayList[Block] = {
+  private def getIfSubBlocks(node: ASTNode, alignment: Alignment): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val firstChildNode = node.getFirstChildNode
@@ -570,7 +566,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
       child = child.getTreeNext
     }
 
-    val firstBlock = getSubBlock(block, firstChildNode, child, alignment)
+    val firstBlock = subBlock(firstChildNode, child, alignment)
     subBlocks.add(firstBlock)
 
     if (child.getTreeNext != null) {
@@ -579,21 +575,21 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
       while (child.getTreeNext != null) {
         child.getTreeNext.getPsi match {
           case _: ScIf if cs.SPECIAL_ELSE_IF_TREATMENT =>
-            subBlocks.add(getSubBlock(block, firstChild, child, alignment, Some(firstBlock.indent)))
-            subBlocks.addAll(getIfSubBlocks(child.getTreeNext, block, alignment))
+            subBlocks.add(subBlock(firstChild, child, alignment, Some(firstBlock.indent)))
+            subBlocks.addAll(getIfSubBlocks(child.getTreeNext, alignment))
           case _ =>
         }
         child = child.getTreeNext
       }
       if (subBlocks.size == 1) {
-        subBlocks.add(getSubBlock(block, firstChild, child, alignment, Some(firstBlock.indent)))
+        subBlocks.add(subBlock(firstChild, child, alignment, Some(firstBlock.indent)))
       }
     }
 
     subBlocks
   }
 
-  private def getMultilineStringBlocks(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  private def getMultilineStringBlocks(node: ASTNode): util.ArrayList[Block] = {
     def interpolatedRefLength(node: ASTNode): Int = {
       if (node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING) {
         node.getPsi.getParent match {
@@ -667,18 +663,17 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     subBlocks
   }
 
-  private def getInfixBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null): util.ArrayList[Block] = {
+  private def getInfixBlocks(node: ASTNode, parentAlignment: Alignment = null): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
     val children = node.getChildren(null)
     val alignment =
       if (parentAlignment != null) parentAlignment
-      else if (mustAlignment(node)) Alignment.createAlignment
-      else null
+      else createAlignment(node)
     for (child <- children) {
       if (InfixElementsTokenSet.contains(child.getElementType) && infixPriority(node) == infixPriority(child)) {
-        subBlocks.addAll(getInfixBlocks(child, block, alignment))
+        subBlocks.addAll(getInfixBlocks(child, alignment))
       } else if (isCorrectBlock(child)) {
-        subBlocks.add(getSubBlock(block, child, null, alignment))
+        subBlocks.add(subBlock(child, null, alignment))
       }
     }
     subBlocks
@@ -691,71 +686,91 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     case _ => 0
   }
 
-  private def getMethodCallOrRefExprSubBlocks(node: ASTNode, block: ScalaBlock,
-                                              delegatedChildren: List[ASTNode] = List()): util.ArrayList[Block] = {
-    val subBlocks = new util.ArrayList[Block]
+  private def getMethodCallOrRefExprSubBlocks(node: ASTNode): util.ArrayList[Block] = {
+    val dotAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
+    val dotWrap = block.suggestedWrap
 
-    def addSubBlock(node: ASTNode, lastNode: ASTNode, alignment: Alignment,
-                    context: Option[SubBlocksContext] = None, wrap: Option[Wrap] = None): Unit = {
-      val subBlock = getSubBlock(block, node, lastNode, alignment, wrap = wrap, context = context)
-      subBlocks.add(subBlock)
+    val result = new util.ArrayList[Block]
+
+    @scala.annotation.tailrec
+    def collectChainedMethodCalls(
+      node: ASTNode,
+      dotFollowedByNewLine: Boolean = false,
+      delegatedChildren: List[ASTNode] = List(),
+      delegatedContext: Map[ASTNode, SubBlocksContext] = Map(),
+    ): Unit = {
+      if (node.getPsi.isInstanceOf[ScLiteral]) {
+        result.add(subBlock(node, null))
+        return
+      }
+
+      val alignment = createAlignment(node)
+      val childrenAll = node.getChildren(null).filter(isCorrectBlock)
+      val (children, comments) = childrenAll.partition(c => !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(c.getElementType))
+
+      children.toList match {
+        //don't check for element types other then absolutely required - they do not matter
+        case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
+          collectChainedMethodCalls(caller, dotFollowedByNewLine, args :: delegatedChildren)
+
+        case expr :: dot :: id :: Nil if dot.getElementType == ScalaTokenTypes.tDOT =>
+          // delegatedChildren can be args or typeArgs
+          val idAdditionalNodes = {
+            // using Set we imply that ASTNode equals and hashCode methods are lightweight (default implementation)
+            val filterOutNodes = delegatedContext.values.flatMap(_.additionalNodes).toSet
+            delegatedChildren.filterNot(filterOutNodes.contains)
+          }
+          val context = SubBlocksContext(id, idAdditionalNodes, Some(dotAlignment), delegatedContext)
+          result.add(subBlock(dot, lastNode(id :: delegatedChildren), dotAlignment, wrap = Some(dotWrap), context = Some(context)))
+
+          comments.foreach { comment =>
+            result.add(subBlock(comment, comment, dotAlignment, wrap = Some(dotWrap)))
+          }
+
+          val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
+          collectChainedMethodCalls(expr, dotFollowedByNewLine)
+
+        case expr :: typeArgs :: Nil if typeArgs.getPsi.isInstanceOf[ScTypeArgs] =>
+          if (expr.getChildren(null).length == 1) {
+            val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
+            val context = SubBlocksContext(typeArgs, delegatedChildren)
+            result.add(subBlock(expr, lastNode(typeArgs :: delegatedChildren), actualAlignment, context = Some(context)))
+          } else {
+            collectChainedMethodCalls(
+              expr, dotFollowedByNewLine,
+              typeArgs :: delegatedChildren,
+              Map(typeArgs -> new SubBlocksContext(delegatedChildren))
+            )
+          }
+
+        case expr :: Nil =>
+          val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
+          val context = SubBlocksContext(expr, delegatedChildren)
+          result.add(subBlock(expr, lastNode(delegatedChildren), actualAlignment, context = Some(context)))
+
+        case _ =>
+          val childrenWithDelegated = children ++ delegatedChildren
+          for (child <- childrenWithDelegated.filter(isCorrectBlock)) {
+            result.add(subBlock(child, null))
+          }
+      }
     }
 
-    val parentBlock = block.parentBlock
-    val insideChainedCall = parentBlock.nullSafe.map(_.getNode.getElementType).exists(MethodCallOrReferenceTokenSet.contains)
-    val nextDotInCallChain: Option[ScalaBlock] =
-      if (insideChainedCall) {
-        parentBlock.getSubBlocks.asScala.toList match {
-          case _ :: (dot: ScalaBlock) :: Nil if dot.getNode.getElementType == ScalaTokenTypes.tDOT =>
-            Some(dot)
-          case _ => None
-        }
-      } else None
+    collectChainedMethodCalls(node)
 
-    val parentDotAlignment: Option[Alignment] = nextDotInCallChain.map(_.alignment)
-    val parentDotWrap: Option[Wrap] = nextDotInCallChain.map(_.wrap)
+    // we need to sort blocks because we add them in wrong order to make inner method tail recursive
+    util.Collections.sort(result, util.Comparator.comparingInt[Block](_.getTextRange.getStartOffset))
 
-    val alignment: Alignment = if (mustAlignment(node)) Alignment.createAlignment else null
-    val dotAlignment: Alignment = parentDotAlignment.getOrElse(alignment)
-    val dotWrap: Wrap = parentDotWrap.getOrElse(block.suggestedWrap)
-
-    val children = node.getChildren(null).filter(isCorrectBlock).toList
-    children match {
-      //don't check for element types other then absolutely required - they do not matter
-      case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
-        val blocks = getMethodCallOrRefExprSubBlocks(caller, block, args :: delegatedChildren)
-        subBlocks.addAll(blocks)
-
-      case expr :: dot :: id :: Nil if dot.getElementType == ScalaTokenTypes.tDOT =>
-        addSubBlock(expr, null, alignment = null)
-        val context = SubBlocksContext(id, dotAlignment, delegatedChildren)
-        addSubBlock(dot, lastNode(id :: delegatedChildren), dotAlignment, Some(context), Some(dotWrap))
-
-      case expr :: typeArgs :: Nil if typeArgs.getPsi.isInstanceOf[ScTypeArgs] =>
-        val actualAlignment =
-          if (nextDotInCallChain.exists(_.getNode.getPsi.followedByNewLine())) dotAlignment
-          else alignment
-        val context = SubBlocksContext(typeArgs, actualAlignment, delegatedChildren)
-        addSubBlock(expr, lastNode(typeArgs :: delegatedChildren), actualAlignment, Some(context))
-
-      case expr :: Nil =>
-        val actualAlignment =
-          if (nextDotInCallChain.exists(_.getNode.getPsi.followedByNewLine())) dotAlignment
-          else alignment
-        val context = SubBlocksContext(expr, alignment, delegatedChildren)
-        addSubBlock(expr, lastNode(delegatedChildren), actualAlignment, context = Some(context))
-
-      case _ =>
-        for (child <- (children ++ delegatedChildren).filter(isCorrectBlock)) {
-          addSubBlock(child, null, dotAlignment)
-        }
-    }
-
-    subBlocks
+    result
   }
 
   @inline
   private def lastNode(nodes: Seq[ASTNode]): ASTNode = nodes.sortBy(_.getTextRange.getStartOffset).lastOption.orNull
+
+  private def createAlignment(node: ASTNode): Alignment = {
+    if (mustAlignment(node)) Alignment.createAlignment
+    else null
+  }
 
   private def mustAlignment(node: ASTNode): Boolean = {
     import commonSettings._
@@ -779,26 +794,26 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     }
   }
 
-  private def applyInner(node: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  private def applyInner(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    def childBlock(child: ASTNode, context: Option[SubBlocksContext] = None): ScalaBlock = {
+    def childBlock(child: ASTNode): ScalaBlock = {
       val lastNode = block.getChildBlockLastNode(child)
       val alignment = block.getCustomAlignment(child).orNull
-      getSubBlock(block, child, lastNode, alignment, context = context)
+      val context = block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))
+      subBlock(child, lastNode, alignment, context = context)
     }
 
     if (insideScalaDocComment(node)) {
-      applyInnerScaladoc(node, lastNode, block, subBlocks)
+      applyInnerScaladoc(node, lastNode, subBlocks)
     } else {
       var child: ASTNode = node
       do {
         if (isCorrectBlock(child)) {
           if (child.getPsi.isInstanceOf[ScTemplateParents]) {
-            subBlocks.addAll(getTemplateParentsBlocks(child, block))
+            subBlocks.addAll(getTemplateParentsBlocks(child))
           } else {
-            val context = block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))
-            subBlocks.add(childBlock(child, context))
+            subBlocks.add(childBlock(child))
           }
         }
       } while (child != lastNode && {
@@ -825,11 +840,11 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(node.getElementType) || insideIncompleteScalaDocTag
   }
 
-  private def applyInnerScaladoc(node: ASTNode, lastNode: ASTNode, block: ScalaBlock, subBlocks: util.List[Block]): Unit = {
+  private def applyInnerScaladoc(node: ASTNode, lastNode: ASTNode, subBlocks: util.List[Block]): Unit = {
     val children = ArrayBuffer[ASTNode]()
     var scaladocNode = node.getElementType match {
       case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN =>
-        subBlocks.add(getSubBlock(block, node, indent = Some(Indent.getNoneIndent)))
+        subBlocks.add(subBlock(node, indent = Some(Indent.getNoneIndent)))
         node.getTreeNext
       case _ =>
         node
@@ -874,7 +889,7 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
         } else {
           (null, arrangeSuggestedWrapForChild(block, child, block.suggestedWrap))
         }
-      subBlocks.add(getSubBlock(block, child, null, childAlignment, wrap = Some(childWrap)))
+      subBlocks.add(subBlock(child, null, childAlignment, wrap = Some(childWrap)))
     }
   }
 
@@ -888,12 +903,14 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
     }
   }
 
-  private def getTemplateParentsBlocks(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+  private def getTemplateParentsBlocks(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     import ScalaCodeStyleSettings._
     val alignSetting = ss.ALIGN_EXTENDS_WITH
-    val alignment = if (alignSetting == ALIGN_TO_EXTENDS) block.getAlignment else Alignment.createAlignment(true)
+    val alignment =
+      if (alignSetting == ALIGN_TO_EXTENDS) block.getAlignment
+      else Alignment.createAlignment(true)
 
     val children = node.getChildren(null)
     for (child <- children if isCorrectBlock(child)) {
@@ -904,20 +921,19 @@ class getDummyBlocks(private val settings: CodeStyleSettings) {
       }
       val lastNode = block.getChildBlockLastNode(child)
       val context = block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))
-      subBlocks.add(getSubBlock(block, child, lastNode, actualAlignment, context = context))
+      subBlocks.add(subBlock(child, lastNode, actualAlignment, context = context))
     }
     subBlocks
   }
 
-  private def getSubBlock(parent: ScalaBlock,
-                          node: ASTNode,
-                          lastNode: ASTNode = null,
-                          alignment: Alignment = null,
-                          indent: Option[Indent] = None,
-                          wrap: Option[Wrap] = None,
-                          context: Option[SubBlocksContext] = None): ScalaBlock = {
-    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parent, node))
-    val wrapFinal = wrap.getOrElse(arrangeSuggestedWrapForChild(parent, node, parent.suggestedWrap))
-    new ScalaBlock(parent, node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+  private def subBlock(node: ASTNode,
+                       lastNode: ASTNode = null,
+                       alignment: Alignment = null,
+                       indent: Option[Indent] = None,
+                       wrap: Option[Wrap] = None,
+                       context: Option[SubBlocksContext] = None): ScalaBlock = {
+    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(block, node))
+    val wrapFinal = wrap.getOrElse(arrangeSuggestedWrapForChild(block, node, block.suggestedWrap))
+    new ScalaBlock(block, node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
   }
 }
