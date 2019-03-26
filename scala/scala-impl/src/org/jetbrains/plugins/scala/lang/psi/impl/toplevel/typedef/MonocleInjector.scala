@@ -40,7 +40,10 @@ object MonocleInjector {
 
   private[this] def mkLens(clazz: ScClass, prefix: String): Seq[String] = {
     import org.jetbrains.plugins.scala.lang.psi.types.result._
-    val typeParametersText = clazz.typeParameters.map(_.getText) match {
+    val typeParametersText = clazz.typeParameters.map(_.getText).map { // strip variance when moving type parameters to method
+      case str if str.length > 1 && (str.charAt(0) == '+' || str.charAt(0) == '-') => str.substring(1)
+      case other => other
+    } match {
       case Seq() => ""
       case seq => seq.mkString("[", ",", "]")
     }

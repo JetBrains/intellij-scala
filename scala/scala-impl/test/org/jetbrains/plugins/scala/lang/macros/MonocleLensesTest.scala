@@ -100,6 +100,26 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     doTest(fileText, "a", "monocle.Lens[Main.Bar[A], A]")
   }
 
+
+  def testTypeArgsWithBoundsAndVariance(): Unit = { // SCL-15167
+    val fileText =
+      """
+        |import monocle.macros.Lenses
+        |import monocle.syntax._
+        |
+        |object Main {
+        |  class Foo
+        |
+        |  @Lenses
+        |  case class Bar[+A <: Foo](a: A)
+        |  object <caret>Bar {}
+        |}
+      """.stripMargin
+    doTest(fileText, "a", "monocle.Lens[Main.Bar[A], A]")
+  }
+
+
+
   def testRecursion(): Unit = {
     //SCL-9420
     val fileText =
