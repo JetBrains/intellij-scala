@@ -24,13 +24,8 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
   import debugger.ScalaVersion
   import template.Artifact.ScalaCompiler.{versionOf => ScalaCompilerVersion}
 
-  def sourceRoot(implicit version: ScalaVersion): VirtualFile = {
-    val ResolvedDependency(_, file) = DependencyManager.resolveSingle(scalaLibraryDescription % Types.SRC)
-    findJarFile(file)
-  }
-
-  override def init(implicit module: Module, version: ScalaVersion): Unit = {
-    val dependencies = for {
+  protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
+    for {
       descriptor <- scalaCompilerDescription ::
         scalaLibraryDescription ::
         scalaReflectDescription ::
@@ -39,6 +34,16 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       if includeScalaReflect || !descriptor.artId.contains("reflect")
     } yield descriptor
 
+  protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
+    scalaLibraryDescription % Types.SRC
+
+  final def sourceRoot(implicit version: ScalaVersion): VirtualFile = {
+    val ResolvedDependency(_, file) = DependencyManager.resolveSingle(sourcesDependency)
+    findJarFile(file)
+  }
+
+  override final def init(implicit module: Module, version: ScalaVersion): Unit = {
+    val dependencies = binaryDependencies
     val resolved = DependencyManager.resolve(dependencies: _*)
 
     assertEquals(

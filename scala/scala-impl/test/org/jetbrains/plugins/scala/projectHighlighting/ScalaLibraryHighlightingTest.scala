@@ -13,14 +13,20 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[HighlightingTests]))
 class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
-  import base.libraryLoaders.ScalaSDKLoader
+  import base.libraryLoaders._
+  import debugger.{ScalaVersion, Scala_2_12}
   import util.reporter.ProgressReporter
 
   private val filesWithProblems = Map(
     "scala/Responder.scala" -> Set[TextRange]((1987, 1988), (2133, 2134), (2278, 2279))
   )
-  //noinspection TypeAnnotation
-  override implicit val version = debugger.CustomVersion("2.12", "2.12.8")
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  override def librariesLoaders = Seq(
+    CustomSDKLoader,
+    HeavyJDKLoader()
+  )
 
   def testHighlightScalaLibrary(): Unit = {
     val reporter = ProgressReporter.newInstance(
@@ -28,7 +34,7 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
       filesWithProblems,
       reportStatus = false
     )
-    val sourceRoot = ScalaSDKLoader().sourceRoot
+    val sourceRoot = CustomSDKLoader.sourceRoot
 
     VfsUtilCore.processFilesRecursively(
       sourceRoot,
@@ -55,4 +61,19 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
         )
       case _ =>
     }
+
+  private object CustomSDKLoader extends ScalaSDKLoader {
+
+    import DependencyManagerBase.DependencyDescription
+
+    override protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
+      super.binaryDependencies.map(setCustomMinor)
+
+    override protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
+      setCustomMinor(super.sourcesDependency)
+
+    private def setCustomMinor(description: DependencyDescription) =
+      description.copy(version = "2.12.8")
+  }
+
 }
