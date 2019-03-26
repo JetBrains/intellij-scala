@@ -79,25 +79,18 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
       if (newLength > followLimit)
         LOG.error("Too much followers for substitutor: " + this.toString)
 
-      new ScSubstitutor(substitutions ++ other.substitutions)
+      val newArray = new Array[Update](newLength)
+      substitutions.copyToArray(newArray, 0)
+      other.substitutions.copyToArray(newArray, thisLength)
+
+      new ScSubstitutor(newArray)
     }
   }
 
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
     assertFullSubstitutor()
 
-    tp match {
-      case ScThisType(template) =>
-        val buffer = ArrayBuffer.empty[LeafSubstitution]
-        template.withContexts.foreach {
-          case t: ScTemplateDefinition =>
-            buffer += ThisTypeSubstitution(ScThisType(t))
-          case _ => //do nothing
-        }
-        new ScSubstitutor(buffer.toArray ++ substitutions)
-      case _ =>
-        ScSubstitutor(tp).followed(this)
-    }
+    ScSubstitutor(tp).followed(this)
   }
 
   def withBindings(from: Seq[TypeParameter], target: Seq[TypeParameter]): ScSubstitutor = {
