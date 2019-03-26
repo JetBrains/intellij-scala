@@ -28,12 +28,12 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
       filesWithProblems,
       reportStatus = false
     )
-    val sources = ScalaSDKLoader().resolveSources
+    val sourceRoot = ScalaSDKLoader().sourceRoot
 
     VfsUtilCore.processFilesRecursively(
-      sources,
+      sourceRoot,
       (file: VirtualFile) => {
-        annotateFile(file, sources)(reporter)
+        annotateFile(file, sourceRoot)(reporter)
         true
       }
     )

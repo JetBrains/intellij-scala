@@ -3,17 +3,15 @@ package base
 package libraryLoaders
 
 import java.io.File
+import java.{util => ju}
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.junit.Assert._
-
-import scala.collection.JavaConverters
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryLoader {
 
@@ -21,22 +19,21 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     override protected val artifactBlackList = Set.empty[String]
   }
 
+  import DependencyManagerBase._
   import ScalaSDKLoader._
+  import debugger.ScalaVersion
   import template.Artifact.ScalaCompiler.{versionOf => ScalaCompilerVersion}
 
-  def resolveSources(implicit version: debugger.ScalaVersion): VirtualFile = {
-    val ResolvedDependency(_, file) = DependencyManager.resolveSingle {
-      "org.scala-lang" % "scala-library" % version.minor % Types.SRC
-    }
+  def sourceRoot(implicit version: ScalaVersion): VirtualFile = {
+    val ResolvedDependency(_, file) = DependencyManager.resolveSingle(scalaLibraryDescription % Types.SRC)
     findJarFile(file)
   }
 
-  override def init(implicit module: Module,
-                    version: debugger.ScalaVersion): Unit = {
+  override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = for {
-      descriptor <- "org.scala-lang" % "scala-compiler" % version.minor ::
-        "org.scala-lang" % "scala-library" % version.minor ::
-        "org.scala-lang" % "scala-reflect" % version.minor ::
+      descriptor <- scalaCompilerDescription ::
+        scalaLibraryDescription ::
+        scalaReflectDescription ::
         Nil
 
       if includeScalaReflect || !descriptor.artId.contains("reflect")
@@ -60,15 +57,16 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       compilerClasspath.isEmpty
     )
 
-    import JavaConverters._
-    val classesRoots = compilerClasspath.map(findJarFile).asJava
-    val sourceRoots = Seq(resolveSources).asJava
+    val classesRoots = {
+      import scala.collection.JavaConverters._
+      compilerClasspath.map(findJarFile).asJava
+    }
 
     val library = PsiTestUtil.addProjectLibrary(
       module,
       s"scala-sdk-${version.minor}",
       classesRoots,
-      sourceRoots
+      ju.Collections.singletonList(sourceRoot)
     )
 
     Disposer.register(module, library)

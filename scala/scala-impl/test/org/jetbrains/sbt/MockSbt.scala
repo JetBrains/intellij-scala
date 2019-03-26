@@ -14,9 +14,9 @@ trait MockSbtBase extends ScalaSdkOwner {
   implicit val sbtVersion: Version
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), IvyManagedLoader(
-    "org.scala-lang" % "scala-compiler" % version.minor,
-    "org.scala-lang" % "scala-library"  % version.minor,
-    "org.scala-lang" % "scala-reflect"  % version.minor,
+    scalaCompilerDescription,
+    scalaLibraryDescription,
+    scalaReflectDescription,
     "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
   ))
 }
@@ -26,8 +26,8 @@ trait MockSbt_0_12 extends MockSbtBase {
   override implicit val version: ScalaVersion = Scala_2_9
 
   override protected def librariesLoaders: Seq[LibraryLoader] =Seq(HeavyJDKLoader(), IvyManagedLoader(
-    "org.scala-lang" % "scala-compiler" % version.minor,
-    "org.scala-lang" % "scala-library"  % version.minor,
+    scalaCompilerDescription,
+    scalaLibraryDescription,
     "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
   ))
 }

@@ -182,6 +182,19 @@ object DependencyManagerBase {
   case class MavenResolver(name: String, root: String) extends Resolver
   case class IvyResolver(name: String, pattern: String) extends Resolver
 
+  private def scalaDependency(kind: String)
+                             (implicit scalaVersion: ScalaVersion) = DependencyDescription(
+    "org.scala-lang",
+    "scala-" + kind,
+    scalaVersion.minor
+  )
+
+  def scalaCompilerDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("compiler")
+
+  def scalaLibraryDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("library")
+
+  def scalaReflectDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("reflect")
+
   implicit class RichStr(private val org: String) extends AnyVal {
 
     def %(artId: String) = DependencyDescription(org, artId, "")
