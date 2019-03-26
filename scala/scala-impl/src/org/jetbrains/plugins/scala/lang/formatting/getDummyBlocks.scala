@@ -59,11 +59,6 @@ object getDummyBlocks {
     ScalaTokenTypes.VAL_VAR_TOKEN_SET,
   )
 
-  private val MethodCallOrReferenceTokenSet = TokenSet.create(
-    ScalaElementType.METHOD_CALL,
-    ScalaElementType.REFERENCE_EXPRESSION
-  )
-
   def apply(block: ScalaBlock): getDummyBlocks = new getDummyBlocks(block)
 
   private def alignmentsMap(project: Project): mutable.Map[InterpolatedPointer, Alignment] = {
@@ -705,26 +700,29 @@ class getDummyBlocks(private val block: ScalaBlock) {
       }
 
       val alignment = createAlignment(node)
-      val childrenAll = node.getChildren(null).filter(isCorrectBlock)
-      val (children, comments) = childrenAll.partition(c => !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(c.getElementType))
+      val childrenAll = node.getChildren(null).filter(isCorrectBlock).toList
+      val (comments, children) = childrenAll.partition(isComment)
 
-      children.toList match {
-        //don't check for element types other then absolutely required - they do not matter
+      //don't check for element types other then absolutely required - they do not matter
+      children match {
         case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
-          collectChainedMethodCalls(caller, dotFollowedByNewLine, args :: delegatedChildren)
+          collectChainedMethodCalls(caller, dotFollowedByNewLine, args :: delegatedChildren ++ comments)
 
         case expr :: dot :: id :: Nil if dot.getElementType == ScalaTokenTypes.tDOT =>
           // delegatedChildren can be args or typeArgs
           val idAdditionalNodes = {
             // using Set we imply that ASTNode equals and hashCode methods are lightweight (default implementation)
             val filterOutNodes = delegatedContext.values.flatMap(_.additionalNodes).toSet
-            delegatedChildren.filterNot(filterOutNodes.contains)
+            sorted(delegatedChildren.filterNot(filterOutNodes.contains))
           }
           val context = SubBlocksContext(id, idAdditionalNodes, Some(dotAlignment), delegatedContext)
           result.add(subBlock(dot, lastNode(id :: delegatedChildren), dotAlignment, wrap = Some(dotWrap), context = Some(context)))
 
-          comments.foreach { comment =>
-            result.add(subBlock(comment, comment, dotAlignment, wrap = Some(dotWrap)))
+          assert(childrenAll.head.eq(expr), "assuming that first child is expr and comments can't go before it")
+          val commentsBeforeDot = childrenAll.tail.takeWhile(isComment)
+          commentsBeforeDot.foreach { comment =>
+            val commentAlign = if (comment.getPsi.startsFromNewLine()) dotAlignment else null
+            result.add(subBlock(comment, comment, commentAlign, wrap = Some(dotWrap)))
           }
 
           val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
@@ -733,13 +731,13 @@ class getDummyBlocks(private val block: ScalaBlock) {
         case expr :: typeArgs :: Nil if typeArgs.getPsi.isInstanceOf[ScTypeArgs] =>
           if (expr.getChildren(null).length == 1) {
             val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
-            val context = SubBlocksContext(typeArgs, delegatedChildren)
+            val context = SubBlocksContext(typeArgs, sorted(delegatedChildren))
             result.add(subBlock(expr, lastNode(typeArgs :: delegatedChildren), actualAlignment, context = Some(context)))
           } else {
             collectChainedMethodCalls(
               expr, dotFollowedByNewLine,
-              typeArgs :: delegatedChildren,
-              Map(typeArgs -> new SubBlocksContext(delegatedChildren))
+              typeArgs :: delegatedChildren ++ comments,
+              Map(typeArgs -> new SubBlocksContext(sorted(delegatedChildren)))
             )
           }
 
@@ -765,7 +763,13 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   @inline
-  private def lastNode(nodes: Seq[ASTNode]): ASTNode = nodes.sortBy(_.getTextRange.getStartOffset).lastOption.orNull
+  private def lastNode(nodes: Seq[ASTNode]): ASTNode = sorted(nodes).lastOption.orNull
+
+  @inline
+  private def sorted(nodes: Seq[ASTNode]): Seq[ASTNode] = nodes.sortBy(_.getTextRange.getStartOffset)
+
+  @inline
+  private def isComment(node: ASTNode) = ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(node.getElementType)
 
   private def createAlignment(node: ASTNode): Alignment = {
     if (mustAlignment(node)) Alignment.createAlignment

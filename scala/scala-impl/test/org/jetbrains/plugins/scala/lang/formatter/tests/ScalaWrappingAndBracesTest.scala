@@ -412,6 +412,40 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def test_MethodCallChain_Align_DoNotWrap_FirstCallOnNewLine_WithComment() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject // comment
+        |.foo(1, 2)
+        |.baz(5, 6)
+        |
+        |foo() // comment
+        |.foo(1, 2)
+        |.baz(3, 4)
+        |
+        |foo[String]() // comment
+        |.foo(1, 2)
+        |.baz(3, 4)
+        |""".stripMargin
+    val after =
+      """myObject // comment
+        |  .foo(1, 2)
+        |  .baz(5, 6)
+        |
+        |foo() // comment
+        |  .foo(1, 2)
+        |  .baz(3, 4)
+        |
+        |foo[String]() // comment
+        |  .foo(1, 2)
+        |  .baz(3, 4)
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
   def test_MethodCallChain_Align_DoNotWrap_CommentsBetweenCalls() {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
@@ -427,6 +461,24 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
         | /*comment3*/
         | /** comment4 */
         |.foo().bar()
+        |
+        |myObject/*comment0*/.foo().bar()
+        | //comment1
+        |.foo().bar()
+        |
+        |foo()/*comment0*/.foo().bar()
+        | //comment1
+        |.foo().bar()
+        |
+        |foo[Int]() /*comment0*/ .foo().bar()
+        | //comment1
+        |.foo().bar()
+        |
+        |myObject
+        |/*comment0*/
+        |.foo().bar()
+        | //comment1
+        |.foo().bar()
         |""".stripMargin
     val after =
       """myObject.foo().bar()
@@ -438,7 +490,71 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
         |        /*comment3*/
         |        /** comment4 */
         |        .foo().bar()
+        |
+        |myObject /*comment0*/ .foo().bar()
+        |                      //comment1
+        |                      .foo().bar()
+        |
+        |foo() /*comment0*/ .foo().bar()
+        |                   //comment1
+        |                   .foo().bar()
+        |
+        |foo[Int]() /*comment0*/ .foo().bar()
+        |                        //comment1
+        |                        .foo().bar()
+        |
+        |myObject
+        |  /*comment0*/
+        |  .foo().bar()
+        |  //comment1
+        |  .foo().bar()
         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_CommentsAfterDot() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.foo().//comment1
+        |bar()
+        |./*comment2*/foo().bar()
+        |""".stripMargin
+    val after =
+      """myObject.foo(). //comment1
+        |        bar()
+        |        . /*comment2*/ foo().bar()
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_CommentsAfterMethodName() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject.foo().bar()
+        |.foo/*comment2*/().bar()
+        |""".stripMargin
+    val after =
+      """myObject.foo().bar()
+        |        .foo /*comment2*/ ().bar()
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_CommentsMixed() {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    val before =
+      """myObject/*comment1*/./*comment2*/foo/*comment3*/()""".stripMargin
+    val after =
+      """myObject /*comment1*/ . /*comment2*/ foo /*comment3*/ ()""".stripMargin
     doTextTest(before, after)
   }
 
