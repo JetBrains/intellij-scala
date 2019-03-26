@@ -170,9 +170,6 @@ package object project {
     def anyScalaModule: Option[ScalaModule] =
       modulesWithScala.headOption.map(new ScalaModule(_))
 
-    def scalaEvents: ScalaProjectEvents =
-      project.getComponent(classOf[ScalaProjectEvents])
-
     def libraries: Seq[Library] =
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 

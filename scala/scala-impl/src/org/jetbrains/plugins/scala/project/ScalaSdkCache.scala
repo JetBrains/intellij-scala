@@ -15,7 +15,9 @@ final class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends 
 
   private val cache = new ConcurrentHashMap[Module, ScalaSdk]()
 
-  events.addScalaProjectListener(() => clear())
+  override def projectOpened(): Unit = {
+    events.addListener(() => clear())
+  }
 
   override def projectClosed(): Unit = clear()
 

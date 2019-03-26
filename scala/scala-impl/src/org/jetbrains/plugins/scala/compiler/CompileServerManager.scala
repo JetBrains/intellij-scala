@@ -3,7 +3,6 @@ package compiler
 
 import java.awt.Point
 import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
-import javax.swing.{Icon, Timer}
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
@@ -19,6 +18,7 @@ import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
+import javax.swing.{Icon, Timer}
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -26,7 +26,8 @@ import org.jetbrains.plugins.scala.project._
 /**
  * @author Pavel Fatin
  */
-class CompileServerManager(project: Project) extends ProjectComponent {
+final class CompileServerManager(project: Project,
+                                 events: ScalaProjectEvents) extends ProjectComponent {
    private val IconRunning = Icons.COMPILE_SERVER
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
@@ -36,7 +37,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    override def projectOpened() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
 
-     project.scalaEvents.addScalaProjectListener(ScalaListener)
+     events.addListener(() => configureWidget())
      configureWidget()
      timer.setRepeats(true)
      timer.start()
@@ -45,7 +46,6 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    override def projectClosed() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
 
-     project.scalaEvents.removeScalaProjectListener(ScalaListener)
      configureWidget()
      timer.stop()
    }
@@ -150,12 +150,6 @@ class CompileServerManager(project: Project) extends ProjectComponent {
   private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
       showCompileServerSettingsDialog(project)
-    }
-  }
-
-  private object ScalaListener extends ScalaProjectListener {
-    def onScalaProjectChanged() {
-      configureWidget()
     }
   }
 

@@ -1,41 +1,32 @@
 package org.jetbrains.plugins.scala
 package project
 
-import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+
+import scala.collection.mutable
 
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectEvents(project: Project) extends ProjectComponent {
-  private var listeners: List[ScalaProjectListener] = Nil
+final class ScalaProjectEvents(project: Project) extends ProjectComponent {
 
-  private val connection = project.getMessageBus.connect()
+  private type Listener = () => Unit
+
+  private var listeners = mutable.ListBuffer.empty[Listener]
 
   override def projectOpened(): Unit = {
-    connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-      override def rootsChanged(event: ModuleRootEvent) {
-        listeners.foreach(_.onScalaProjectChanged())
-      }
-    })
+    project.subscribeToModuleRootChanged() { _ =>
+      listeners.foreach(_.apply())
+    }
   }
 
-  override def projectClosed() {
-    listeners = Nil
-    connection.disconnect()
+  override def projectClosed(): Unit = {
+    listeners = null
   }
 
-  def addScalaProjectListener(listener: ScalaProjectListener) {
-    listeners ::= listener
-  }
-
-  def removeScalaProjectListener(listener: ScalaProjectListener) {
-    listeners = listeners.filterNot(_ == listener)
+  def addListener(listener: Listener): Unit = {
+    listeners += listener
   }
 }
 
-trait ScalaProjectListener {
-  def onScalaProjectChanged()
-}
