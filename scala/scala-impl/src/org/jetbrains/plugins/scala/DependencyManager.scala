@@ -101,7 +101,9 @@ abstract class DependencyManagerBase {
 
     if (deps.isEmpty) return Seq.empty
 
-    val ivy = Ivy.newInstance(mkIvySettings())
+    val settings = mkIvySettings()
+    val ivy = Ivy.newInstance()
+    ivy.setSettings(settings)
     ivy.getLoggerEngine.pushLogger(createLogger)
 
     val report = usingTempFile("ivy", ".xml") { ivyFile =>
