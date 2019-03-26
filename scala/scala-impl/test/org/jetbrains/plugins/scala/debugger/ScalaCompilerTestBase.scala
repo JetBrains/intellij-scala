@@ -2,16 +2,12 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
-import javax.swing.SwingUtilities
-
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration.DurationInt
 
 import com.intellij.ProjectTopics
 import com.intellij.compiler.server.BuildManager
 import com.intellij.compiler.{CompilerConfiguration, CompilerTestUtil}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.compiler._
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
@@ -20,16 +16,19 @@ import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
+import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.util.CompileServerUtil
-import org.junit.Assert
+import org.junit.Assert._
+
+import scala.concurrent.duration
+import scala.util.{Failure, Success, Try}
 
 /**
-  * Nikolay.Tropin
-  * 2/26/14
-  */
+ * Nikolay.Tropin
+ * 2/26/14
+ */
 abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   private var deleteProjectAtTearDown = false
@@ -38,16 +37,17 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     super.setUp()
 
     // uncomment to enable debugging of compile server in tests
-//    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
-//    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
+    //    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
+    //    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
 
     myProject.getMessageBus
       .connect(getTestRootDisposable)
-      .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-        override def rootsChanged(event: ModuleRootEvent) {
-          forceFSRescan()
+      .subscribe(
+        ProjectTopics.PROJECT_ROOTS,
+        new ModuleRootListener {
+          override def rootsChanged(event: ModuleRootEvent): Unit = BuildManager.getInstance.clearState(myProject)
         }
-      })
+      )
 
     addRoots()
     compilerVmOptions.foreach(setCompilerVmOptions)
@@ -94,33 +94,33 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
-  protected def forceFSRescan(): Unit = BuildManager.getInstance.clearState(myProject)
-
   protected override def tearDown(): Unit =
     EdtTestUtil.runInEdtAndWait { () =>
       val baseDir = getBaseDir
       try {
         CompilerTestUtil.disableExternalCompiler(myProject)
-        CompileServerUtil.stopAndWait(10.seconds)
+        ScalaCompilerTestBase.stopAndWait()
         disposeLibraries()
 
       } finally {
         ScalaCompilerTestBase.super.tearDown()
         if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
       }
-  }
+    }
 
-  protected def make(): List[String] = {
-    val semaphore: Semaphore = new Semaphore
+  protected final def make(): Seq[String] = {
+    val semaphore = new Semaphore
     semaphore.down()
+
     val callback = new ErrorReportingCallback(semaphore)
     EdtTestUtil.runInEdtAndWait(() => {
       CompilerTestUtil.saveApplicationSettings()
-      val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
+      val ioFile = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
       saveProject()
-      assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+      assertTrue("File does not exist: " + ioFile.getPath, ioFile.exists)
       CompilerManager.getInstance(getProject).rebuild(callback)
     })
+
     val maxCompileTime = 6000
     var i = 0
     while (!semaphore.waitFor(100) && i < maxCompileTime) {
@@ -129,65 +129,68 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
       }
       i += 1
     }
-    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}", i < maxCompileTime)
-    if (callback.hasError) {
-      deleteProjectAtTearDown = true
-      callback.throwException()
+
+    assertTrue(
+      s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}",
+      i < maxCompileTime
+    )
+
+    callback.result match {
+      case Success(messages) =>
+        messages
+      case Failure(throwable) =>
+        deleteProjectAtTearDown = true
+        throw new RuntimeException(throwable)
     }
-    callback.getMessages
   }
 
   private class ErrorReportingCallback(semaphore: Semaphore) extends CompileStatusNotification {
-    private var myError: Throwable = _
-    private val myMessages = ListBuffer[String]()
 
-    def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
+    private var result_ : Try[Seq[String]] = _
+
+    def result: Try[Seq[String]] = result_
+
+    def finished(aborted: Boolean,
+                 errors: Int,
+                 warnings: Int,
+                 compileContext: CompileContext): Unit =
       try {
-        for (category <- CompilerMessageCategory.values) {
-          for (message <- compileContext.getMessages(category)) {
-            val msg: String = message.getMessage
-            if (category != CompilerMessageCategory.INFORMATION || !msg.startsWith("Compilation completed successfully")) {
-              myMessages += (category + ": " + msg)
-            }
-          }
+        val messages = for {
+          category <- CompilerMessageCategory.values
+          compilerMessage <- compileContext.getMessages(category)
+
+          message = compilerMessage.getMessage
+          if !(category == CompilerMessageCategory.INFORMATION && message.startsWith("Compilation completed successfully"))
+        } yield category + ": " + message
+
+        result_ = Success(messages)
+
+        errors match {
+          case 0 => assertFalse("Code did not compile!", aborted)
+          case _ => fail("Compiler errors occurred! " + messages.mkString("\n"))
         }
-        if (errors > 0) {
-          Assert.fail("Compiler errors occurred! " + myMessages.mkString("\n"))
-        }
-        Assert.assertFalse("Code did not compile!", aborted)
-      }
-      catch {
-        case t: Throwable => myError = t
-      }
-      finally {
+      } catch {
+        case throwable: Throwable => result_ = Failure(throwable)
+      } finally {
         semaphore.up()
       }
-    }
-
-    def hasError: Boolean = myError != null
-
-    def throwException() {
-      if (myError != null) throw new RuntimeException(myError)
-    }
-
-    def getMessages: List[String] = myMessages.toList
   }
 
   protected def getBaseDir: VirtualFile = {
-    val baseDir: VirtualFile = myProject.getBaseDir
-    Assert.assertNotNull(baseDir)
+    val baseDir = myProject.getBaseDir
+    assertNotNull(baseDir)
     baseDir
   }
 
-  protected def addFileToProject(relativePath: String, text: String) {
-    VfsTestUtil.createFile(getSourceRootDir, relativePath, StringUtil.convertLineSeparators(text))
-  }
+  protected def addFileToProject(relativePath: String, text: String): Unit = VfsTestUtil.createFile(
+    getSourceRootDir,
+    relativePath,
+    StringUtil.convertLineSeparators(text)
+  )
 
-  protected def getSourceRootDir: VirtualFile = {
-    getBaseDir.findChild("src")
-  }
+  private def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
 
-  protected def saveProject(): Unit = {
+  private def saveProject(): Unit = {
     val applicationEx = ApplicationManagerEx.getApplicationEx
     val setting = applicationEx.isSaveAllowed
     applicationEx.setSaveAllowed(true)
@@ -196,3 +199,12 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
   }
 }
 
+object ScalaCompilerTestBase {
+
+  import duration.{Duration, DurationInt}
+
+  def stopAndWait(timeout: Duration = 10.seconds): Unit = assertTrue(
+    "Compile server process have not terminated after " + timeout,
+    CompileServerLauncher.stopAndWaitTermination(timeout.toMillis)
+  )
+}

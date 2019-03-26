@@ -14,18 +14,16 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.debugger.CompilationCache
+import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.{CompileServerUtil, TestUtils}
-import org.junit.Assert
-import org.junit.Assert.fail
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert._
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-import scala.concurrent.duration.DurationInt
+import scala.collection.JavaConverters._
 import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
@@ -45,7 +43,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   override def tearDown(): Unit = try {
     disposeLibraries()
     compiler.tearDown()
-    CompileServerUtil.stopAndWait(10.seconds)
+    ScalaCompilerTestBase.stopAndWait()
   } finally {
     compiler = null
     super.tearDown()
@@ -61,7 +59,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
         .filter(_.getCategory == CompilerMessageCategory.ERROR)
         .map(_.getMessage)
     }
-    Assert.assertTrue(s"Failed to compile annotation:\n ${errors.mkString("\n")}", errors.isEmpty)
+    assertTrue(s"Failed to compile annotation:\n ${errors.mkString("\n")}", errors.isEmpty)
   }
 
   protected def compileAnnotBody(body: String): Unit = compileMetaSource(mkAnnot(annotName, body))
@@ -74,7 +72,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     val pluginArtifact = DependencyManager.resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
     val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val settings = profile.getSettings
-    assert(pluginArtifact.nonEmpty, "Paradise plugin not found, aborting compilation")
+    assertTrue("Paradise plugin not found, aborting compilation", pluginArtifact.nonEmpty)
     settings.plugins :+= pluginArtifact.head.file.getCanonicalPath
     profile.setSettings(settings)
   }
@@ -85,7 +83,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     val suffix = if (unrelated.size > 1) s"\nOther errors found:\n${unrelated.mkString("\n")}" else ""
     val prefix = related.mkString("\n")
     if (related.nonEmpty)
-      Assert.fail(prefix + suffix)
+      fail(prefix + suffix)
   }
 
   import intellij.psi._
@@ -94,9 +92,9 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = elementAtCaret.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
     holder.metaExpand match {
-      case Right(tree) => Assert.assertEquals(expectedExpansion, tree.toString())
-      case Left(reason) if reason.nonEmpty => Assert.fail(reason)
-      case Left("") => Assert.fail("Expansion was empty - did annotation even run?")
+      case Right(tree) => assertEquals(expectedExpansion, tree.toString())
+      case Left(reason) if reason.nonEmpty => fail(reason)
+      case Left("") => fail("Expansion was empty - did annotation even run?")
     }
   }
 
@@ -104,9 +102,9 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     val ref = refAtCaret
     val result = ref.multiResolveScala(false)
     if (result.isEmpty)
-      Assert.fail(s"Reference $ref failed to resolve")
+      fail(s"Reference $ref failed to resolve")
     else if (result.length > 1)
-      Assert.fail(s"Reference $ref resolved to multiple elements: ${result.mkString("\n")}")
+      fail(s"Reference $ref resolved to multiple elements: ${result.mkString("\n")}")
   }
 
   protected def checkExpandsNoError(): Unit =
@@ -115,11 +113,11 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case _ =>
     }
 
-  protected def checkHasMember(name: String): Unit = Assert.assertTrue(s"Member $name not found", testClass.members.exists(_.getName == name))
+  protected def checkHasMember(name: String): Unit = assertTrue(s"Member $name not found", testClass.members.exists(_.getName == name))
 
   protected def getGutter: GutterIconRenderer = {
     val gutters = myFixture.findAllGutters()
-    Assert.assertEquals("Wrong number of gutters", 1, gutters.size())
+    assertEquals("Wrong number of gutters", 1, gutters.size())
     gutters.get(0).asInstanceOf[GutterIconRenderer]
   }
 
@@ -147,7 +145,10 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def testClass: ScTypeDefinition =  myFixture.getFile.getChildren
     .flatMap(_.depthFirst().collectFirst{case c: ScTypeDefinition if c.name == testClassName => c})
     .headOption
-    .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
+    .getOrElse {
+      fail(s"Class $testClassName not found")
+      throw new RuntimeException
+    }
   protected val tq = "\"\"\""
 
 }

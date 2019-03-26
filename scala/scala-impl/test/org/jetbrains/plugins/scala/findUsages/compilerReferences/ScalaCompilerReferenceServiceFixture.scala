@@ -10,14 +10,13 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaSdkOwner, ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.CompileServerUtil
+import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
@@ -43,7 +42,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       val project = getProject
       compiler = new CompilerTester(project, project.modules.asJava, null)
     } catch {
-      case NonFatal(e) => org.junit.Assert.fail(e.getMessage)
+      case NonFatal(e) => fail(e.getMessage)
     }
   }
 
@@ -51,7 +50,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     try {
       disposeLibraries()
       compiler.tearDown()
-      CompileServerUtil.stopAndWait(10.seconds)
+      ScalaCompilerTestBase.stopAndWait()
     } finally {
       compiler = null
       super.tearDown()
@@ -88,11 +87,11 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     compiler
       .rebuild
       .asScala
-      .foreach(m => junit.framework.Assert.assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
+      .foreach(m => assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
 
     compilerIndexLock.locked {
       indexReady.await(30, TimeUnit.SECONDS)
-      if (!indexReadyPredicate) org.junit.Assert.fail("Failed to updated compiler index.")
+      if (!indexReadyPredicate) fail("Failed to updated compiler index.")
       indexReadyPredicate = false
     }
   }
