@@ -6,12 +6,11 @@ package impl
 import java.util
 import java.util.concurrent.ConcurrentMap
 
-import com.intellij.ProjectTopics
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener, ProjectRootManager}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -281,7 +280,11 @@ class ScalaPsiManager(val project: Project) {
   private[impl] def projectOpened(): Unit = {
     import ScalaPsiManager._
 
-    subscribeToRootsChange(project)
+    project.subscribeToModuleRootChanged() { _ =>
+      LOG.debug("Clear caches on root change")
+      clearOnRootsChange()
+      project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, null)
+    }
     registerLowMemoryWatcher(project)
     PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
   }
@@ -448,19 +451,6 @@ object ScalaPsiManager {
 
   def instance(implicit ctx: ProjectContext): ScalaPsiManager =
     ctx.project.getComponent(classOf[ScalaPsiManagerComponent]).instance
-
-  private def subscribeToRootsChange(project: Project): Unit = {
-    project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-      override def beforeRootsChange(event: ModuleRootEvent) {}
-
-      override def rootsChanged(event: ModuleRootEvent) {
-        LOG.debug("Clear caches on root change")
-        val manager = ScalaPsiManager.instance(project)
-        manager.clearOnRootsChange()
-        project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, null)
-      }
-    })
-  }
 
   private def registerLowMemoryWatcher(project: Project): Unit = {
     LowMemoryWatcher.register(() => {

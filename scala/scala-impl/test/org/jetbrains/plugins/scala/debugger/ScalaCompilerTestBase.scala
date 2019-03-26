@@ -3,7 +3,6 @@ package debugger
 
 import java.io.File
 
-import com.intellij.ProjectTopics
 import com.intellij.compiler.server.BuildManager
 import com.intellij.compiler.{CompilerConfiguration, CompilerTestUtil}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
@@ -20,6 +19,7 @@ import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.junit.Assert._
 
 import scala.concurrent.duration
@@ -40,14 +40,9 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     //    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
     //    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
 
-    myProject.getMessageBus
-      .connect(getTestRootDisposable)
-      .subscribe(
-        ProjectTopics.PROJECT_ROOTS,
-        new ModuleRootListener {
-          override def rootsChanged(event: ModuleRootEvent): Unit = BuildManager.getInstance.clearState(myProject)
-        }
-      )
+    myProject.subscribeToModuleRootChanged(getTestRootDisposable) { _ =>
+      BuildManager.getInstance.clearState(myProject)
+    }
 
     addRoots()
     compilerVmOptions.foreach(setCompilerVmOptions)

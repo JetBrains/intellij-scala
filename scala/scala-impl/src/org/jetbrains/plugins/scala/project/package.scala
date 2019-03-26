@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala
 
 import java.io.File
 
+import com.intellij.ProjectTopics
 import com.intellij.lang.Language
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
@@ -122,7 +124,16 @@ package object project {
       ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
 
-  implicit class ProjectExt(val project: Project) extends AnyVal {
+  implicit class ProjectExt(private val project: Project) extends AnyVal {
+
+    def subscribeToModuleRootChanged(parentDisposable: Disposable = project)
+                                    (onRootsChanged: ModuleRootEvent => Unit): Unit =
+      project.getMessageBus.connect(parentDisposable).subscribe(
+        ProjectTopics.PROJECT_ROOTS,
+        new ModuleRootListener {
+          override def rootsChanged(event: ModuleRootEvent): Unit = onRootsChanged(event)
+        }
+      )
 
     private def manager =
       ModuleManager.getInstance(project)

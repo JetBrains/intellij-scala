@@ -2,11 +2,9 @@ package org.jetbrains.plugins.scala
 package project
 package notification
 
-import com.intellij.ProjectTopics
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -24,13 +22,9 @@ abstract class AbstractNotificationProvider(kitTitle: String,
 
   override final def getKey: Key[EditorNotificationPanel] = Key.create(kitTitle)
 
-  project.getMessageBus
-    .connect(project)
-    .subscribe(
-      ProjectTopics.PROJECT_ROOTS,
-      new ModuleRootListener {
-        override def rootsChanged(event: ModuleRootEvent): Unit = notifications.updateAllNotifications()
-      })
+  project.subscribeToModuleRootChanged() { _ =>
+    notifications.updateAllNotifications()
+  }
 
   protected def panelText(kitTitle: String): String
 
