@@ -10,7 +10,7 @@ object Versions {
   val bspVersion = "2.0.0-M3"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
-  val sbtIdeaCompilerIndicesVersion = "0.1.2"
+  val sbtIdeaCompilerIndicesVersion = "0.1.3"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M11"
   val scalazVersion = "7.1.0"
