@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstr
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -162,6 +162,8 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       case _: ScValue =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment) //by default suppose there will be simple expr
       case _: ScArgumentExprList =>
+        new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
+      case _: ScFunctionDefinition | _: ScTypeAlias =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
       case _ =>
         new ChildAttributes(Indent.getNoneIndent, null)
