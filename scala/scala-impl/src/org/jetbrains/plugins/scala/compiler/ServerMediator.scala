@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileTask, CompilerManager}
 import com.intellij.openapi.components.ProjectComponent
@@ -24,7 +23,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
   override def projectOpened(): Unit = {
     addBeforeTask(_ => checkSettings())
-    addBeforeTask(_ => checkCompileServerDotty())
     addBeforeTask(_ => startCompileServer())
   }
 
@@ -32,15 +30,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
     if (isScalaProject) {
       if (!checkCompilationSettings()) false
       else true
-    }
-    else true
-
-  private def checkCompileServerDotty(): Boolean =
-    if (!settings.COMPILE_SERVER_ENABLED && project.hasDotty) {
-      val title = "Enable Scala Compile Server"
-      val content = s"<html><body>Dotty projects require Scala Compile Server<br> <a href=''>Configure</a></body></html>"
-      Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, new CompileServerLauncher.ConfigureLinkListener(project)))
-      false
     }
     else true
 

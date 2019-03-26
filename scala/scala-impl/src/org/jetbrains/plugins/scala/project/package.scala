@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala
 import java.io.File
 
 import com.intellij.ProjectTopics
-import com.intellij.lang.Language
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -14,12 +13,7 @@ import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
-import org.jetbrains.plugins.dotty.DottyLanguage
-import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
@@ -148,18 +142,6 @@ package object project {
 
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
-    def hasDotty: Boolean = {
-      val cached = project.getUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY)
-      if (cached != null) cached
-      else {
-        val result = modulesWithScala.exists(_.hasDotty)
-        if (project.isInitialized) {
-          project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, java.lang.Boolean.valueOf(result))
-        }
-        result
-      }
-    }
-
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def modulesWithScala: Seq[Module] =
       modules.filter(_.hasScala)
@@ -172,14 +154,6 @@ package object project {
 
     def libraries: Seq[Library] =
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
-
-    def typeSystem: TypeSystem = {
-      if (project.hasDotty) DottyTypeSystem.instance(project)
-      else ScalaTypeSystem.instance(project)
-    }
-
-    def language: Language =
-      if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
   }

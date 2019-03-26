@@ -49,9 +49,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
-class ScalaPsiManager(val project: Project) {
-
-  implicit def projectContext: Project = project
+class ScalaPsiManager(implicit val project: Project) {
 
   private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
@@ -249,9 +247,7 @@ class ScalaPsiManager(val project: Project) {
       .toSet
 
   private def clearCaches(): Unit = {
-    val typeSystem = project.typeSystem
-
-    typeSystem.clearCache()
+    new ProjectContext(project).typeSystem.clearCache()
     ParameterizedType.substitutorCache.clear()
     PropertyMethods.clearCache()
     collectImplicitObjectsCache.clear()
@@ -283,7 +279,6 @@ class ScalaPsiManager(val project: Project) {
     project.subscribeToModuleRootChanged() { _ =>
       LOG.debug("Clear caches on root change")
       clearOnRootsChange()
-      project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, null)
     }
     registerLowMemoryWatcher(project)
     PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
@@ -310,7 +305,7 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {
-    projectContext.typeSystem.andType(psiTypes.map(_.toScType()))
+    new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
   def getStableTypeAliasesNames: Iterable[String] = {
@@ -322,7 +317,7 @@ class ScalaPsiManager(val project: Project) {
 
   val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker {
     private val psiModTracker =
-      PsiManager.getInstance(projectContext).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
+      PsiManager.getInstance(project).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
 
     override def getModificationCount: Long =
       super.getModificationCount + NonScalaModificationTracker.getModificationCount
@@ -464,7 +459,7 @@ object ScalaPsiManager {
 }
 
 class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {
-  private var manager = new ScalaPsiManager(project)
+  private var manager = new ScalaPsiManager()(project)
 
   def instance: ScalaPsiManager =
     if (manager != null) manager

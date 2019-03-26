@@ -112,30 +112,31 @@ object WorksheetSourceProcessor {
 
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
-    @inline def withCompilerVersion[T](if210: =>T, if211: => T, if213: => T, ifDotty: => T, dflt: =>T) = moduleOpt flatMap {
-      module => if (project.hasDotty) Option(ifDotty) else module.scalaSdk.flatMap(_.compilerVersion).collect {
-        case v if v.startsWith("2.10") => if210
-        case v if v.startsWith("2.11") => if211
-        case v if v.startsWith("2.13") => if213
+    @inline def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, dflt: => T) = moduleOpt.flatMap { module =>
+      module.scalaSdk.map(_.languageLevel).collect {
+        case ScalaLanguageLevel.Scala_2_10 => if210
+        case ScalaLanguageLevel.Scala_2_11 => if211
+        case ScalaLanguageLevel.Scala_2_13 => if213
       }
-    } getOrElse dflt
+    }.getOrElse(dflt)
 
-    val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", 
-      "MacroPrinter213", "", "MacroPrinter")
+    val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "MacroPrinter213", "MacroPrinter")
     val classPrologue = name
-    val objectPrologue = s"$packStmt ${if (project.hasDotty) "" else s" import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n"} object $name { \n"
+    val objectPrologue =
+      s"""$packStmt import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName
+         |
+         | object $name {
+         |""".stripMargin
 
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
     val unitReturnType = " : Unit = "
     val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion(
-      "", unitReturnType, unitReturnType,unitReturnType, unitReturnType)
+      "", unitReturnType, unitReturnType, unitReturnType)
     } { \n val $instanceName = new $name \n")
-    
-    val mySourceBuilder = if (moduleOpt exists (_.hasDotty)) new DottySourceBuilder(classRes, objectRes, iterNumber, srcFile,
+
+    val mySourceBuilder = new ScalaSourceBuilder(classRes, objectRes, iterNumber, srcFile,
       moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue)
-    else new ScalaSourceBuilder(classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue)
-    
+
     val preDeclarations = mutable.ListBuffer.empty[PsiElement]
     val postDeclarations = mutable.ListBuffer.empty[PsiElement]
 
@@ -553,26 +554,5 @@ object WorksheetSourceProcessor {
                                    moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String,
                                    packOpt: Option[String], objectPrologue: String) 
     extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, ifDoc, tpePrinterName, packOpt, objectPrologue) {
-  }
-
-  private class DottySourceBuilder(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
-                                   moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String,
-                                   packOpt: Option[String], objectPrologue: String)
-    extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, ifDoc, tpePrinterName, packOpt, objectPrologue) {
-    override protected val eraseClassName: String = ""
-    override protected val erasePrefixName: String = ""
-    override protected val plusInfoDef: String = ""
-
-    override protected def prettyPrintType(tpeString: String): String = "\" + " + withTempVar(tpeString)
-
-    override protected def getPrintMethodName: String = "println" // s"$runPrinterName.println"
-
-    override protected def getTypePrinterName: String = ""
-
-    override protected def getTempVarInfo: String = ""
-
-    override protected def getImportInfoString(imp: ScImportStmt): String = ""
-
-    override protected def getFunDefInfoString(fun: ScFunction): String = ""
   }
 }

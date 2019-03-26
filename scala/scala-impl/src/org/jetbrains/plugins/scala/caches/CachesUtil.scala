@@ -74,8 +74,6 @@ object CachesUtil {
   val IMPLICIT_RESOLUTION: Key[PsiClass] = Key.create("implicit.resolution")
   val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
   val PACKAGE_OBJECT_KEY: Key[(ScObject, java.lang.Long)] = Key.create("package.object.key")
-  val PROJECT_HAS_DOTTY_KEY: Key[java.lang.Boolean] = Key.create("project.has.dotty")
-
 
   def libraryAwareModTracker(element: PsiElement): ModificationTracker = {
     val rootManager = ProjectRootManager.getInstance(element.getProject)
