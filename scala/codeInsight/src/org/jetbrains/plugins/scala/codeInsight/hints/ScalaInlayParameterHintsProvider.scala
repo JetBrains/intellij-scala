@@ -27,7 +27,7 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
     val matchedParameters = (element match {
       case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.isEnabled => Seq.empty
       case call: ScMethodCall => call.matchedParameters.reverse
-      case constrInvocation: ScConstructorInvocation => constrInvocation.matchedParameters
+      case invocation: ScConstructorInvocation => invocation.matchedParameters
       case _ => Seq.empty
     }).filter {
       case (argument, _) => element.isAncestorOf(argument)
