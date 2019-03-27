@@ -8,6 +8,7 @@ package templates
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTemplateParentsFactory
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -65,7 +66,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.`type`().toOption
     }
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   def superTypes: List[ScType] = {
     val buffer = mutable.ListBuffer.empty[ScType]
 
@@ -179,7 +180,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   }
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   def supers: Seq[PsiClass] = {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
