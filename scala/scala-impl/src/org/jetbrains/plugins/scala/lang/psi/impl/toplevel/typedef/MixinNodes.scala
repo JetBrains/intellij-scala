@@ -315,7 +315,7 @@ object MixinNodes {
     def findNode(keyElement: PsiNamedElement): Option[Node[T]] = {
       publics.forEachEntry { (k, v) =>
         val element = k.namedElement
-        if ((keyElement == element) && keyElement.name == k.name) {
+        if (keyElement == element) {
           return Some(v)
         }
 

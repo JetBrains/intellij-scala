@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.{IterableExt, OptionExt, TraversableExt}
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeParameterType}
@@ -121,6 +124,24 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
   }
 
   override def isVarArgs: Boolean = isJavaVarargs
+
+  override def findSuperMethods(): Array[PsiMethod] = {
+    if (isStatic)
+      return PsiMethod.EMPTY_ARRAY
+
+    def wrap(superSig: PhysicalMethodSignature): PsiMethod = superSig.method match {
+      case f: ScFunction => new ScFunctionWrapper(f, isStatic, isInterface = f.isAbstractMember, cClass = None, isJavaVarargs)
+      case m => m
+    }
+
+    val superSignatures =
+      TypeDefinitionMembers.getSignatures(containingClass)
+        .forName(delegate.name)
+        .findNode(delegate)
+        .map(_.supers.map(_.info).filterBy[PhysicalMethodSignature])
+
+    superSignatures.getOrElse(Seq.empty).mapToArray(wrap)(PsiMethod.ARRAY_FACTORY)
+  }
 }
 
 object ScFunctionWrapper {

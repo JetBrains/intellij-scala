@@ -3,12 +3,16 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
 
 /**
@@ -71,6 +75,30 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
   override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
   override protected def parameterListText: String = PsiTypedDefinitionWrapper.parameterListText(delegate, role, None)
+
+  override def findSuperMethods(): Array[PsiMethod] = {
+    if (isStatic)
+      return PsiMethod.EMPTY_ARRAY
+
+    def wrap(superSig: TermSignature): Option[PsiMethod] = superSig.namedElement match {
+      case f: ScFunction =>
+        Some(new ScFunctionWrapper(f, isStatic, isInterface = f.isAbstractMember, cClass = None, isJavaVarargs = false))
+      case td: ScTypedDefinition =>
+        Some(new PsiTypedDefinitionWrapper(td, isStatic, isInterface = td.isAbstractMember, role))
+      case m: PsiMethod =>
+        Some(m)
+      case _ => None
+    }
+
+    val name = PropertyMethods.methodName(delegate.name, role)
+    val superSignatures =
+      TypeDefinitionMembers.getSignatures(containingClass)
+        .forName(name)
+        .findNode(delegate)
+        .map(_.supers.map(_.info))
+
+    superSignatures.getOrElse(Seq.empty).flatMap(wrap).toArray
+  }
 }
 
 object PsiTypedDefinitionWrapper {
