@@ -71,9 +71,7 @@ abstract class MixinNodes[T <: Signature] {
           case _                        => ScSubstitutor.empty
         }
 
-        val isPredef = clazz.isInstanceOf[ScTypeDefinition] && clazz.qualifiedName == "scala.Predef"
-
-        addSuperSignatures(superTypes, thisTypeSubst, map, isPredef)
+        addSuperSignatures(superTypes, thisTypeSubst, map)
         map
       }
     }
@@ -94,23 +92,19 @@ abstract class MixinNodes[T <: Signature] {
 
   private def addSuperSignatures(superTypes: Seq[ScType],
                                  thisTypeSubst: ScSubstitutor,
-                                 map: Map,
-                                 isPredef: Boolean = false): Unit = {
+                                 map: Map): Unit = {
 
     for (superType <- superTypes) {
       superType.extractClassType match {
         case Some((superClass, s)) =>
-          // Do not include scala.ScalaObject to Predef's base types to prevent SOE
-          if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
-            val dependentSubst = superType match {
-              case p@ScProjectionType(proj, _) => ScSubstitutor(proj).followed(p.actualSubst)
-              case ParameterizedType(p@ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
-              case _ => ScSubstitutor.empty
-            }
-            val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
-
-            addAllFrom(superClass, newSubst, map)
+          val dependentSubst = superType match {
+            case p@ScProjectionType(proj, _) => ScSubstitutor(proj).followed(p.actualSubst)
+            case ParameterizedType(p@ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
+            case _ => ScSubstitutor.empty
           }
+          val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
+
+          addAllFrom(superClass, newSubst, map)
         case _ =>
           dealias(superType) match {
             case cp: ScCompoundType =>

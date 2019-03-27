@@ -75,7 +75,7 @@ private object ScExtendsBlockElementType {
     }
   }
 
-  private val defaultParents   : Array[String] = Array("Object", "ScalaObject")
+  private val defaultParents   : Array[String] = Array("Object")
   private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
 
 }

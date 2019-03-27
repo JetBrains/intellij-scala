@@ -434,7 +434,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     val basePath = Path.of(baseClass)
 
     // These doesn't appear in the superTypes at the moment, so special case required.
-    if (basePath == Path.javaObject || (basePath == Path.scalaObject && !baseClass.isDeprecated)) return true
+    if (basePath == Path.javaObject) return true
 
     if (basePath.kind.isFinal) return false
 
@@ -531,7 +531,6 @@ object ScTemplateDefinition {
     }
 
     val javaObject = Path("Object", Some("java.lang.Object"), Kind.NonScala)
-    val scalaObject = Path("ScalaObject", Some("scala.ScalaObject"), Kind.ScTrait)
   }
 
   private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")

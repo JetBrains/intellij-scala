@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl.addIfNotNull
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -27,7 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.{Seq, mutable}
+import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -67,7 +69,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def superTypes: List[ScType] = {
-    val buffer = mutable.ListBuffer.empty[ScType]
+    val buffer = ArrayBuffer.empty[ScType]
 
     val stdTypes = projectContext.stdTypes
     import stdTypes._
@@ -85,15 +87,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
     if (isUnderCaseClass) {
-      val prod = scalaProduct
-      if (prod != null) buffer += prod
-      val ser = scalaSerializable
-      if (ser != null) buffer += ser
-    }
-
-    if (!isScalaObject) {
-      val obj = scalaObject
-      if (obj != null && !obj.element.asInstanceOf[PsiClass].isDeprecated) buffer += obj
+      addIfNotNull(scalaProduct, buffer)
+      addIfNotNull(scalaSerializable, buffer)
     }
 
     def extract(scType: ScType): Boolean = {
@@ -114,22 +109,12 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case Some(AnyVal) => //do nothing
       case res@(Some(AnyRef) | Some(Any)) =>
         buffer -= res.get
-        if (javaObject != null)
-          buffer += javaObject
+        addIfNotNull(javaObject, buffer)
       case Some(_) => //do nothing
       case _ =>
-        if (javaObject != null)
-          buffer += javaObject
+        addIfNotNull(javaObject, buffer)
     }
     buffer.toList
-  }
-
-  def isScalaObject: Boolean = {
-    getParentByStub match {
-      case clazz: PsiClass =>
-        clazz.qualifiedName == "scala.ScalaObject"
-      case _ => false
-    }
   }
 
   private def scalaProductClass: PsiClass =
@@ -137,9 +122,6 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   private def scalaSerializableClass: PsiClass =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable").orNull
-
-  private def scalaObjectClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject").orNull
 
   private def javaObjectClass: PsiClass =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object").orNull
@@ -152,11 +134,6 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def scalaSerializable: ScType = {
     val sp = scalaSerializableClass
     if (sp != null) ScalaType.designator(sp) else null
-  }
-
-  private def scalaObject: ScDesignatorType = {
-    val so = scalaObjectClass
-    if (so != null) ScDesignatorType(so) else null
   }
 
   private def javaObject: ScDesignatorType = {
@@ -184,18 +161,15 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }
-    val buffer = mutable.ListBuffer(ScExtendsBlockImpl.extractSupers(typeElements): _*)
+
+    val buffer = ArrayBuffer[PsiClass]()
+    buffer ++= ScExtendsBlockImpl.extractSupers(typeElements)
 
     if (isUnderCaseClass) {
-      val prod = scalaProductClass
-      if (prod != null) buffer += prod
-      val ser = scalaSerializableClass
-      if (ser != null) buffer += ser
+      addIfNotNull(scalaProductClass, buffer)
+      addIfNotNull(scalaSerializableClass, buffer)
     }
-    if (!isScalaObject) {
-      val obj = scalaObjectClass
-      if (obj != null && !obj.isDeprecated) buffer += obj
-    }
+
     buffer.find {
       case _: ScSyntheticClass => true
       case _: ScObject => true
@@ -207,12 +181,10 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case Some(s: ScSyntheticClass) if s.stdType.isAnyVal => //do nothing
       case Some(s: ScSyntheticClass) if s.stdType.isAnyRef || s.stdType.isAny =>
         buffer -= s
-        if (javaObjectClass != null)
-          buffer += javaObjectClass
+        addIfNotNull(javaObjectClass, buffer)
       case Some(_: PsiClass) => //do nothing
       case _ =>
-        if (javaObjectClass != null)
-          buffer += javaObjectClass
+        addIfNotNull(javaObjectClass, buffer)
     }
     buffer
   }
@@ -278,6 +250,11 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
 
 object ScExtendsBlockImpl {
+
+  private def addIfNotNull[T >: Null](t: T, buffer: ArrayBuffer[T]): Unit = {
+    if (t != null)
+      buffer += t
+  }
 
   private def extractSupers(typeElements: Seq[ScTypeElement])
                            (implicit project: ProjectContext): Seq[PsiClass] =

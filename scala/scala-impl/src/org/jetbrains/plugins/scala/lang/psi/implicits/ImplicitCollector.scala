@@ -274,7 +274,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def possibleFunctionN(clazz: PsiClass): Option[Int] =
     clazz.qualifiedName match {
-      case "java.lang.Object" | "scala.ScalaObject" => Some(-1)
+      case "java.lang.Object" => Some(-1)
       case name =>
         val paramsNumber = name.stripPrefix(FunctionType.TypeName)
         if (paramsNumber.nonEmpty && paramsNumber.forall(_.isDigit)) Some(paramsNumber.toInt)

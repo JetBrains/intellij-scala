@@ -661,10 +661,7 @@ object ScalaRefactoringUtil {
         else builder.append("(...)")
       case n: ScNewTemplateDefinition =>
         builder.append("new ")
-        val types = n.extendsBlock.superTypes.filter {
-          case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
-          case _ => true
-        }
+        val types = n.extendsBlock.superTypes
         for (tp <- types) {
           builder.append(tp.codeText(expr))
           if (tp != types.last) builder.append(" with ")

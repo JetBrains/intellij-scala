@@ -78,11 +78,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
       case None => (earlyHolders, Seq.empty)
     }
 
-    val superTypes = extendsBlock.superTypes.filter {
-      case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
-      case _                                 => true
-    }
-
+    val superTypes = extendsBlock.superTypes
 
     if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
       Right(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList))
@@ -155,7 +151,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
 
   override def getSupers: Array[PsiClass] = {
     extendsBlock.supers.filter { clazz =>
-      clazz != this && clazz.qualifiedName != "scala.ScalaObject"
+      clazz != this
     }.toArray
   }
 
