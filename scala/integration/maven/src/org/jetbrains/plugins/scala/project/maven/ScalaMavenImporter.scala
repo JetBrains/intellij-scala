@@ -10,7 +10,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jdom.Element
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
-import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenId, MavenPlugin}
+import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
 import org.jetbrains.plugins.scala.extensions._
@@ -81,8 +81,8 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       val repositories = mavenProject.getRemoteRepositories
 
       def resolve(id: MavenId): MavenArtifact = {
-        embedder.resolve(new MavenArtifactInfo(id, "pom", null), repositories)
-        embedder.resolve(new MavenArtifactInfo(id, "jar", null), repositories)
+        embedder.resolve(new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "pom", null), repositories)
+        embedder.resolve(new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "jar", id.classifier.orNull), repositories)
       }
 
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
@@ -100,8 +100,12 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
 private object ScalaMavenImporter {
   implicit class RichMavenProject(val project: MavenProject) extends AnyVal {
-    def localPathTo(id: MavenId): File = project.getLocalRepository / id.getGroupId.replaceAll("\\.", "/") /
-            id.getArtifactId / id.getVersion / "%s-%s.jar".format(id.getArtifactId, id.getVersion)
+    def localPathTo(id: MavenId): File = {
+      val suffix = id.classifier.map("-" + _).getOrElse("")
+      val jarName = s"${id.artifactId}-${id.version}$suffix.jar"
+      project.getLocalRepository / id.groupId.replaceAll("\\.", "/") /
+        id.artifactId / id.version / jarName
+    }
   }
 
   implicit class RichFile(val file: File) extends AnyVal {
@@ -111,11 +115,11 @@ private object ScalaMavenImporter {
   private class ScalaConfiguration(project: MavenProject) {
     private def versionNumber = compilerVersion.map(_.presentation).getOrElse("unknown")
 
-    private def scalaCompilerId = new MavenId("org.scala-lang", "scala-compiler", versionNumber)
+    private def scalaCompilerId = MavenId("org.scala-lang", "scala-compiler", versionNumber)
 
-    private def scalaLibraryId = new MavenId("org.scala-lang", "scala-library", versionNumber)
+    private def scalaLibraryId = MavenId("org.scala-lang", "scala-library", versionNumber)
 
-    private def scalaReflectId = new MavenId("org.scala-lang", "scala-reflect", versionNumber)
+    private def scalaReflectId = MavenId("org.scala-lang", "scala-reflect", versionNumber)
 
     private def compilerPlugin: Option[MavenPlugin] =
       project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
@@ -132,7 +136,7 @@ private object ScalaMavenImporter {
 
     // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
     def implicitScalaLibrary: Option[MavenId] = Some(compilerVersionProperty, standardLibrary) collect  {
-      case (Some(compilerVersion), None) => new MavenId("org.scala-lang", "scala-library", compilerVersion)
+      case (Some(compilerVersion), None) => MavenId("org.scala-lang", "scala-library", compilerVersion)
     }
 
     def compilerClasspath: Seq[MavenId] = Seq(scalaCompilerId, scalaLibraryId, scalaReflectId)
@@ -150,8 +154,13 @@ private object ScalaMavenImporter {
       elements("compilerPlugins", "compilerPlugin").flatMap { plugin =>
         plugin.getChildTextTrim("groupId").toOption
           .zip(plugin.getChildTextTrim("artifactId").toOption)
-          .zip(plugin.getChildTextTrim("version").toOption).map {
-          case ((groupId, artifactId), version) => new MavenId(groupId, artifactId, version)
+          .zip(plugin.getChildTextTrim("version").toOption)
+        .map {
+          case ((groupId, artifactId), version) =>
+            // It's okay if classifier is absent or blank
+            val classifier = plugin.getChildTextTrim("classifier").toOption
+              .filterNot(_.isEmpty)
+            MavenId(groupId, artifactId, version, classifier)
         }
       }
     }
@@ -167,4 +176,10 @@ private object ScalaMavenImporter {
 
     def valid: Boolean = compilerPlugin.isDefined && compilerVersion.isDefined
   }
+
+  /**
+    * Represents a Maven artifact by group, artifact, version and optional classifier.
+    * Similar to [[org.jetbrains.idea.maven.model.MavenId]], but supports classifier.
+    */
+  private case class MavenId(groupId: String, artifactId: String, version: String, classifier: Option[String] = None)
 }
