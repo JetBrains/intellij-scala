@@ -342,7 +342,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testJavaEnum(): Unit = {
-    configureJavaFile(
+    this.configureJavaFile(
       fileText =
         """
           |package a;

@@ -251,7 +251,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testEmptyJavaEnum(): Unit = {
-    configureJavaFile("public enum EmptyEnum {}", "EmptyEnum")
+    this.configureJavaFile("public enum EmptyEnum {}", "EmptyEnum")
     checkNoCompletion(
       fileText = s"(_: EmptyEnum) m$CARET",
       time = DEFAULT_TIME,

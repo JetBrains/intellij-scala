@@ -13,7 +13,7 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
   import ScalaCodeInsightTestBase._
 
   def testJavaVarargs(): Unit = {
-    configureJavaFile(
+    this.configureJavaFile(
       fileText =
         """
           |package a;

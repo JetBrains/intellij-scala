@@ -11,12 +11,12 @@ import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
   * Date: 03.08.2009
   */
 
-abstract class ScalaFixtureTestCase
-  extends CodeInsightFixtureTestCase with DefaultScalaSdkOwner {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase
+  with DefaultScalaSdkOwner {
 
   protected val includeReflectLibrary: Boolean = false
 
-  override def getFixture: CodeInsightTestFixture = myFixture
+  override final def getFixture: CodeInsightTestFixture = myFixture
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeReflectLibrary),

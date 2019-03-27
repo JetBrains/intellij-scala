@@ -133,7 +133,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   )
 
   def testJavaParameterHint(): Unit = {
-    configureJavaFile(
+    this.configureJavaFile(
       fileText =
         """public class Bar {
           |  public static void bar(int bar) {}
@@ -144,7 +144,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   }
 
   def testJavaConstructorParameterHint(): Unit = {
-    configureJavaFile(
+    this.configureJavaFile(
       fileText =
         """public class Bar {
           |  public Bar(int bar) {}
@@ -155,7 +155,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   }
 
   def testVarargJavaConstructorHint(): Unit = {
-    configureJavaFile(
+    this.configureJavaFile(
       fileText =
         """public class Bar {
           |  public Bar(int foo, int... bars) {}
