@@ -317,4 +317,5 @@ public class CompilerIndicesSettingsForm {
   public JComponent $$$getRootComponent$$$() {
     return mainPanel;
   }
+
 }
