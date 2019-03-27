@@ -312,16 +312,20 @@ object MixinNodes {
 
     def iterator: Iterator[T] = nodesIterator.map(_.info)
 
-    def findNode(keyElement: PsiNamedElement): Option[Node[T]] = {
+    def findNode(named: PsiNamedElement): Option[Node[T]] = {
+      var publicNode: Node[T] = null
       publics.forEachEntry { (k, v) =>
         val element = k.namedElement
-        if (keyElement == element) {
-          return Some(v)
+        if (named == element) {
+          publicNode = v
+          false
         }
-
-        true
+        else true
       }
-      privates.asScala.find(node => node.info.namedElement == keyElement)
+      Option(publicNode).orElse {
+        privates.asScala.find(node => node.info.namedElement == named)
+      }
+
     }
 
     def isEmpty: Boolean = publics.isEmpty && privates.isEmpty
