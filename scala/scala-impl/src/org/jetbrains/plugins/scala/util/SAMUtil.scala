@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScF
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
@@ -85,10 +86,7 @@ object SAMUtil {
     }
   }
 
-  def singleAbstractMethod(cls: PsiClass): Option[PsiMethod] = cls match {
-    case _: ScTemplateDefinition => cls.singleAbstractMethodScala.map(_._1)
-    case _                       => cls.singleAbstractMethodJava.map(_._1)
-  }
+  def singleAbstractMethod(cls: PsiClass): Option[PsiMethod] = cls.singleAbstractMethodWithSubstitutor.map(_._1)
 
   /**
     * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
@@ -101,40 +99,33 @@ object SAMUtil {
       val languageLevel                = element.scalaLanguageLevelOrDefault
 
       expected.extractClassType.flatMap {
-        case (templDef: ScTemplateDefinition, subst) =>
-          if (!hasValidConstructorAndSelfType(templDef)) None
+        case (cls: PsiClass, subst) =>
+          if (!hasValidConstructorAndSelfType(cls)) None
           else {
-            val methodWithSubst = templDef.singleAbstractMethodScala
-
             for {
-              (fun, methodSubst) <- methodWithSubst
-              tp                 <- fun.`type`().toOption
+              (method, methodSubst) <- cls.singleAbstractMethodWithSubstitutor
+              funType               <- functionType(method)
             } yield {
-              val substituted = methodSubst.followed(subst)(tp)
+              val substituted = methodSubst.followed(subst)(funType)
               extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse(substituted)
             }
           }
-        case (cls, subst) =>
-          val methodWithSubst = cls.singleAbstractMethodJava
-
-          if (!hasValidConstructorAndSelfType(cls)) None
-          else methodWithSubst.map { case (method, methodSubst) =>
-            val returnType = methodSubst.substitute(method.getReturnType)
-
-            val parametersTypes = method.parameters.map(p =>
-              methodSubst.substitute(p.getTypeElement.getType)
-            )
-
-            val functionType = FunctionType(
-              returnType.toScType(),
-              parametersTypes.map(_.toScType())
-            )
-
-            val substituted = subst(functionType)
-            extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse(substituted)
-          }
       }
     }
+
+  private def functionType(m: PsiMethod)
+                          (implicit scope: ElementScope): Option[ScType] = m match {
+    case fun: ScFunction => fun.`type`().toOption
+    case method          =>
+      val returnType = Option(method.getReturnType.toScType())
+      val paramTypes = method.parameters.map(_.getTypeElement.getType.toScType())
+      returnType.map(FunctionType(_, paramTypes))
+  }
+
+  private def hasSingleParameterClause(m: PsiMethod): Boolean = m match {
+    case f: ScFunction => f.paramClauses.clauses.size == 1
+    case _             => true
+  }
 
 
   implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
@@ -142,35 +133,15 @@ object SAMUtil {
     def isSAMable: Boolean =
       hasValidConstructorAndSelfType(cls) && singleAbstractMethod(cls).isDefined
 
-
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    private[SAMUtil] def singleAbstractMethodJava: Option[(PsiMethod, PsiSubstitutor)] = {
-      import scala.collection.JavaConverters._
-
-      def isAbstract(m: HierarchicalMethodSignature): Boolean =
-        m.getMethod.hasAbstractModifier && m.getSuperSignatures.asScala.forall(_.getMethod.hasAbstractModifier)
-
-      val visibleMethods = cls.getVisibleSignatures.asScala.collect {
-        case sig if isAbstract(sig) => (sig.getMethod, sig.getSubstitutor)
+    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
+      val abstractMembers = TypeDefinitionMembers.getSignatures(cls).allSignatures.filter(_.isAbstract).toSeq
+      abstractMembers match {
+        case Seq(PhysicalMethodSignature(m: PsiMethod, subst))
+          if !m.hasTypeParameters && hasSingleParameterClause(m) =>
+          Option((m, subst))
+        case _ => None
       }
-
-      visibleMethods match {
-        case (method, subst) :: Nil if !method.hasTypeParameters => Option((method, subst))
-        case _                                                   => None
-      }
-    }
-
-    @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    private[SAMUtil] def singleAbstractMethodScala: Option[(ScFunction, ScSubstitutor)] = cls match {
-      case tdef: ScTemplateDefinition =>
-        val abstractMembers = tdef.allSignatures.filter(_.isAbstract).toSeq
-        abstractMembers match {
-          case Seq(PhysicalMethodSignature(fun: ScFunction, subst))
-            if !fun.hasTypeParameters && fun.paramClauses.clauses.size == 1 =>
-            Option((fun, subst))
-          case _ => None
-        }
-      case _ => None
     }
   }
 
