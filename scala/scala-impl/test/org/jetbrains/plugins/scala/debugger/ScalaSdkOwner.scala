@@ -1,15 +1,15 @@
-package org.jetbrains.plugins.scala.debugger
+package org.jetbrains.plugins.scala
+package debugger
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.TestFixtureProvider
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 
-import scala.collection.mutable.ListBuffer
-
-
+import scala.collection.mutable
 
 trait ScalaSdkOwner {
+
+  import base.libraryLoaders.LibraryLoader
+
   implicit val version: ScalaVersion
 
   implicit protected def module: Module
@@ -18,13 +18,11 @@ trait ScalaSdkOwner {
 
   protected def librariesLoaders: Seq[LibraryLoader]
 
-  private lazy val myLoaders: ListBuffer[LibraryLoader] = ListBuffer()
+  private lazy val myLoaders = mutable.ListBuffer.empty[LibraryLoader]
 
-  protected def setUpLibraries(): Unit = {
-    librariesLoaders.foreach { loader =>
-      myLoaders += loader
-      loader.init
-    }
+  protected def setUpLibraries(): Unit = librariesLoaders.foreach { loader =>
+    myLoaders += loader
+    loader.init
   }
 
   protected def disposeLibraries(): Unit = {
