@@ -66,6 +66,8 @@ abstract class DependencyManagerBase {
 
   private def resolveIvy(deps: Seq[DependencyDescription]): Seq[ResolvedDependency] = {
 
+    org.apache.ivy.util.Message.setDefaultLogger(createLogger) // ¯\_(ツ)_/¯ SCL-15168
+
     def mkResolver(resolver: Resolver): RepositoryResolver = resolver match {
       case MavenResolver(name, root) =>
         val iBiblioResolver = new IBiblioResolver
@@ -102,9 +104,10 @@ abstract class DependencyManagerBase {
     if (deps.isEmpty) return Seq.empty
 
     val settings = mkIvySettings()
-    val ivy = Ivy.newInstance()
-    ivy.setSettings(settings)
+    val ivy = new Ivy()
     ivy.getLoggerEngine.pushLogger(createLogger)
+    ivy.setSettings(settings)
+    ivy.bind()
 
     val report = usingTempFile("ivy", ".xml") { ivyFile =>
       Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
