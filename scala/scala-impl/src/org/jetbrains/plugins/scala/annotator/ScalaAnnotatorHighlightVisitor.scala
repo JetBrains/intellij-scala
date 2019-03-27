@@ -9,16 +9,13 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
-
-class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
-  implicit def ctx: ProjectContext = project
+final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
 
   override def order: Int = 0
 
@@ -28,11 +25,29 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
 
   override def suitableForFile(file: PsiFile): Boolean = file match {
     case _: ScalaFile => true
-    case otherFile => ScalaLanguageDerivative hasDerivativeOnFile otherFile
+    case otherFile => ScalaLanguageDerivative.hasDerivativeOnFile(otherFile)
   }
 
-  def visit(element: PsiElement) {
-    runAnnotator(element)
+  def visit(element: PsiElement): Unit = {
+    if (DumbService.getInstance(project).isDumb) return
+
+    val file = element.getContainingFile
+    if (file == null) return
+
+    val manager = HighlightingLevelManager.getInstance(project)
+
+    if (manager.shouldHighlight(file)) {
+      AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
+    }
+
+    if (ApplicationManager.getApplication.isUnitTestMode || manager.shouldInspect(file)) {
+      ScalaAnnotator(project).annotate(element, myAnnotationHolder)
+    }
+
+    myAnnotationHolder.forEach { annotation =>
+      myHolder.add(HighlightInfo.fromAnnotation(annotation))
+    }
+    myAnnotationHolder.clear()
   }
 
   def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
@@ -63,35 +78,5 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     success
   }
 
-  override def clone: HighlightVisitor = {
-    new ScalaAnnotatorHighlightVisitor(project)
-  }
-
-  private def runAnnotator(element: PsiElement) {
-    if (DumbService.getInstance(project).isDumb) {
-      return
-    }
-    val file = element.getContainingFile
-    if (file == null) return
-
-    if (shouldHighlight(file)) {
-      AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
-    }
-
-    if (shouldInspect(file)) {
-      ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
-    }
-
-    myAnnotationHolder.forEach { annotation =>
-      myHolder.add(HighlightInfo.fromAnnotation(annotation))
-    }
-    myAnnotationHolder.clear()
-  }
-
-  private def shouldInspect(file: PsiFile) =
-    file != null && HighlightingLevelManager.getInstance(project).shouldInspect(file) ||
-      ApplicationManager.getApplication.isUnitTestMode
-
-  private def shouldHighlight(file: PsiFile) =
-    file != null && HighlightingLevelManager.getInstance(project).shouldHighlight(file)
+  override def clone = new ScalaAnnotatorHighlightVisitor(project)
 }

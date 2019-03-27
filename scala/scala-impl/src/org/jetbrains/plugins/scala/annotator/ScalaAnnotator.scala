@@ -4,9 +4,9 @@ package annotator
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
-import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.util.{Condition, Key, TextRange}
+import com.intellij.openapi.util.{Condition, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -54,19 +53,20 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner,
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
  */
-abstract class ScalaAnnotator extends Annotator
+abstract class ScalaAnnotator protected()(implicit val project: Project) extends Annotator
   with FunctionAnnotator with ScopeAnnotator
   with ApplicationAnnotator
   with ConstructorInvocationAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
+
+  override final implicit def projectContext: ProjectContext = project
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
 
@@ -799,13 +799,10 @@ abstract class ScalaAnnotator extends Annotator
 }
 
 object ScalaAnnotator {
-  val ignoreHighlightingKey: Key[(Long, mutable.HashSet[TextRange])] = Key.create("ignore.highlighting.key")
 
-  val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
+  def apply(implicit project: Project): ScalaAnnotator = new ScalaAnnotator() {}
 
-  def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
-    override implicit def projectContext: ProjectContext = ctx
-  }
+  def forProject(implicit context: ProjectContext): ScalaAnnotator = apply(context.project)
 
   // TODO place the method in HighlightingAdvisor
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
@@ -827,7 +824,7 @@ object ScalaAnnotator {
     @CachedInUserData(file, file.getManager.getModificationTracker)
     def ignoredRanges(): Set[TextRange] = {
       val chars = file.charSequence
-      val indexes = new ArrayBuffer[Int]
+      val indexes = mutable.ArrayBuffer.empty[Int]
       var lastIndex = 0
       while (chars.indexOf("/*_*/", lastIndex) >= 0) {
         lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
