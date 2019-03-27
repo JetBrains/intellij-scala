@@ -169,6 +169,11 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
     )
   }
 
+  def testMissingArgumentClauseWithImplicit(): Unit = {
+    assertNothing(messages("class Test()(implicit impl: Test); new Test()"))
+    assertNothing(messages("class Test()(private implicit impl: Test); new Test()"))
+  }
+
   def testMissingAndTypeMismatch() {
     assertMessagesSorted(messages("new DD(true)"))(
       Error("(true)", "Unspecified value parameters: c: Int"),

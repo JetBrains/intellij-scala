@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -69,7 +69,16 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def isImplicit: Boolean = byStubOrPsi(_.isImplicit)(findChildByType(ScalaTokenTypes.kIMPLICIT) != null)
+  def isImplicit: Boolean = {
+    import ScModifierList._
+
+    def hasImplicitKeyword =
+      findChildByType(ScalaTokenTypes.kIMPLICIT) != null ||
+      findChild(classOf[ScClassParameter])
+        .exists(_.getModifierList.isImplicit)
+
+    byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
+  }
 
   def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters
