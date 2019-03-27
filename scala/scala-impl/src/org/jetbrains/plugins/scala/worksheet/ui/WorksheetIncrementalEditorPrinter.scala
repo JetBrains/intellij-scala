@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala
+package worksheet
+package ui
 
 import java.util.regex.Pattern
 
@@ -11,8 +13,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompilerUtil, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 
 import scala.collection.mutable
@@ -23,19 +23,21 @@ import scala.collection.mutable
   */
 class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: ScalaFile) 
   extends WorksheetEditorPrinterBase(editor, viewer) {
+
   import WorksheetIncrementalEditorPrinter._
-  
-  private var lastProcessed: Option[Int] = None
+  import processor._
+
+  private var lastProcessed = Option.empty[Int]
   private var currentFile = file
   
   private var hasErrors = false
   private var hasMessages = false
 
-  private val outputBuffer = new StringBuilder
-  private val messagesBuffer = new StringBuilder
-  private val psiToProcess = mutable.Queue[QueuedPsi]()
-  
-  private val inputToOutputMapping = mutable.ListBuffer[(Int, Int)]()
+  private val outputBuffer = StringBuilder.newBuilder
+  private val messagesBuffer = StringBuilder.newBuilder
+  private val psiToProcess = mutable.Queue.empty[QueuedPsi]
+
+  private val inputToOutputMapping = mutable.ListBuffer.empty[(Int, Int)]
 
   private def cleanViewerFrom(ln: Int): Unit = {
     if (ln == 0) {
@@ -150,7 +152,9 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     val firstOffsetFix = if (lastProcessed.isEmpty) 0 else 1
     lastProcessed = Some(processedStartEndLine)
-    WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
+    interactive.WorksheetAutoRunner
+      .getInstance(project)
+      .replExecuted(originalDocument, originalTextRange.getEndOffset)
 
     invokeLater {
       inWriteAction {
@@ -281,6 +285,9 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 }
 
 object WorksheetIncrementalEditorPrinter {
+
+  import processor.WorksheetCompilerUtil
+
   val TECHNICAL_MESSAGE_START = "$$worksheet$$"
   
   private val REPL_START = s"${TECHNICAL_MESSAGE_START}repl$$$$start$$$$"
@@ -296,21 +303,18 @@ object WorksheetIncrementalEditorPrinter {
   private val LAMBDA_LENGTH = 32
   
   private def getConsoleHeaderLines(module: Module): Int = {
-    import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-    import org.jetbrains.plugins.scala.project._
-    
-    val before = 7
-    val after = 11
-    
-    module.scalaSdk.map(
-      sdk => (sdk.compilerVersion, sdk.languageLevel)
-    ) map {
-      case (v, l) => l match {
-        case Scala_2_8 | Scala_2_9 | Scala_2_10 => before
-        case Scala_2_11 => if (v.exists(_ startsWith "2.11.8")) after else before
-        case _ => after
+    import project._
+
+    val isBefore = module.scalaSdk.exists { sdk =>
+      sdk.languageLevel match {
+        case ScalaLanguageLevel.Scala_2_9 |
+             ScalaLanguageLevel.Scala_2_10 => true
+        case ScalaLanguageLevel.Scala_2_11 => sdk.compilerVersion.forall(!_.startsWith("2.11.8"))
+        case _ => false
       }
-    } getOrElse after
+    }
+
+    if (isBefore) 7 else 11
   }
 
   def countNewLines(str: String): Int = StringUtil countNewLines str
