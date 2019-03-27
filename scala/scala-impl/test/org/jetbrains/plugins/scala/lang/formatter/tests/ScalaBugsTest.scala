@@ -5,90 +5,76 @@ import com.intellij.testFramework.LightPlatformTestCase.getCurrentCodeStyleSetti
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-/**
- * @author Alexander Podkhalyuzin
- */
 class ScalaBugsTest extends AbstractScalaFormatterTestBase {
-  /* stub:
-  def test {
-    val before =
-"""
-"""
-    val after =
-"""
-"""
-    doTextTest(before, after)
-  }
-   */
 
   def testSCL2424() {
     val before =
-"""
-someMethod(new Something, abc, def)
-"""
+      """
+        |someMethod(new Something, abc, def)
+        |""".stripMargin
 
     doTextTest(before)
   }
 
   def testSCL2425() {
     val before =
-"""
-import foo.{Foo, Bar}
-"""
+      """
+        |import foo.{Foo, Bar}
+        |""".stripMargin
 
     doTextTest(before)
   }
 
   def testSCL2477() {
     val before =
-"""
-class Foo {
-  //some comment
-	private val i = 0;
-
-	/**
-	 * @param p blah-blah-blah
-	 */
-	def doSmth(p: Int) {}
-  //comment
-  def foo = 1
-}
-"""
+      """
+        |class Foo {
+        |  //some comment
+        |	private val i = 0;
+        |
+        |	/**
+        |	 * @param p blah-blah-blah
+        |	 */
+        |	def doSmth(p: Int) {}
+        |  //comment
+        |  def foo = 1
+        |}
+        |""".stripMargin
     val after =
-"""
-class Foo {
-  //some comment
-  private val i = 0;
-
-  /**
-   * @param p blah-blah-blah
-   */
-  def doSmth(p: Int) {}
-
-  //comment
-  def foo = 1
-}
-"""
+      """
+        |class Foo {
+        |  //some comment
+        |  private val i = 0;
+        |
+        |  /**
+        |   * @param p blah-blah-blah
+        |   */
+        |  def doSmth(p: Int) {}
+        |
+        |  //comment
+        |  def foo = 1
+        |}
+        |""".stripMargin
     doTextTest(before, after)
   }
 
   def testSCL1875() {
     val before =
-"""
-/**
- * something{@link Foo}
- *something
- */
-class A
-"""
+      """
+        |/**
+        | * something{@link Foo}
+        | *something
+        | */
+        |class A
+        |""".stripMargin
     val after =
-"""
-/**
- * something{@link Foo}
- * something
- */
-class A
-"""
+      """
+        |/**
+        | * something{@link Foo}
+        | * something
+        | */
+        |class A
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -96,27 +82,27 @@ class A
     val settings = getCommonSettings
     settings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =
-"""
-val n = Seq(1,2,3)
-n.foreach
-{
-  x =>
-  {
-    println(x)
-  }
-}
-"""
+      """
+        |val n = Seq(1,2,3)
+        |n.foreach
+        |{
+        |  x =>
+        |  {
+        |    println(x)
+        |  }
+        |}
+        |""".stripMargin
     val after =
-"""
-val n = Seq(1, 2, 3)
-n.foreach
-{
-  x =>
-  {
-    println(x)
-  }
-}
-"""
+      """
+        |val n = Seq(1, 2, 3)
+        |n.foreach
+        |{
+        |  x =>
+        |  {
+        |    println(x)
+        |  }
+        |}
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -124,17 +110,17 @@ n.foreach
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
 
     val before =
-"""
-Set(1, 2, 3).filter{a => a % 2 == 0}
-List((1, 2), (2, 3), (3, 4)).map {case (k: Int, n: Int) => k + n}
-Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter{ case (1, "aa") => true; case _ => false}
-"""
+      """
+        |Set(1, 2, 3).filter{a => a % 2 == 0}
+        |List((1, 2), (2, 3), (3, 4)).map {case (k: Int, n: Int) => k + n}
+        |Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter{ case (1, "aa") => true; case _ => false}
+        |""".stripMargin
     val after =
-"""
-Set(1, 2, 3).filter { a => a % 2 == 0 }
-List((1, 2), (2, 3), (3, 4)).map { case (k: Int, n: Int) => k + n }
-Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter { case (1, "aa") => true; case _ => false }
-"""
+      """
+        |Set(1, 2, 3).filter { a => a % 2 == 0 }
+        |List((1, 2), (2, 3), (3, 4)).map { case (k: Int, n: Int) => k + n }
+        |Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter { case (1, "aa") => true; case _ => false }
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -144,25 +130,25 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter { case (1, "aa") => true; case _ => 
     getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true
 
     val before =
-"""
-Set(1, 2, 3).filter{a => a % 2 == 0}
-List((1, 2), (2, 3), (3, 4)).map {case (k: Int, n: Int) => k + n}
-Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter{ case (1, "aa") => true; case _ => false}
-"""
+      """
+        |Set(1, 2, 3).filter{a => a % 2 == 0}
+        |List((1, 2), (2, 3), (3, 4)).map {case (k: Int, n: Int) => k + n}
+        |Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter{ case (1, "aa") => true; case _ => false}
+        |""".stripMargin
 
     val after =
-"""
-Set(1, 2, 3).filter {
-  a => a % 2 == 0
-}
-List((1, 2), (2, 3), (3, 4)).map {
-  case (k: Int, n: Int) => k + n
-}
-Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter {
-  case (1, "aa") => true;
-  case _ => false
-}
-"""
+      """
+        |Set(1, 2, 3).filter {
+        |  a => a % 2 == 0
+        |}
+        |List((1, 2), (2, 3), (3, 4)).map {
+        |  case (k: Int, n: Int) => k + n
+        |}
+        |Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter {
+        |  case (1, "aa") => true;
+        |  case _ => false
+        |}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -172,21 +158,21 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter {
     getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = true
 
     val before =
-"""
-def func() {println("test")}
-
-def func2() {
-  println("test")}
-"""
+      """
+        |def func() {println("test")}
+        |
+        |def func2() {
+        |  println("test")}
+        |""".stripMargin
 
     val after =
-"""
-def func() { println("test") }
-
-def func2() {
-  println("test")
-}
-"""
+      """
+        |def func() { println("test") }
+        |
+        |def func2() {
+        |  println("test")
+        |}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -195,23 +181,23 @@ def func2() {
     getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = false
 
     val before =
-"""
-def func() {  println()}
-
-def func2() { println()
-}
-"""
+      """
+        |def func() {  println()}
+        |
+        |def func2() { println()
+        |}
+        |""".stripMargin
 
     val after =
-"""
-def func() {
-  println()
-}
-
-def func2() {
-  println()
-}
-"""
+      """
+        |def func() {
+        |  println()
+        |}
+        |
+        |def func2() {
+        |  println()
+        |}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -220,42 +206,42 @@ def func2() {
     getScalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS = true
 
     val before =
-"""
-def m = {
-  () => 123
-}
-
-def m2 = {
-  () => {
-    123
-  }
-}
-
-def f[T](i: Int) {
-    val a = () => 123
-}
-
-(a: Int, b: Int, c: Int) => a + b + c
-"""
+      """
+        |def m = {
+        |  () => 123
+        |}
+        |
+        |def m2 = {
+        |  () => {
+        |    123
+        |  }
+        |}
+        |
+        |def f[T](i: Int) {
+        |    val a = () => 123
+        |}
+        |
+        |(a: Int, b: Int, c: Int) => a + b + c
+        |""".stripMargin
 
     val after =
-"""
-def m = {
-  () => 123
-}
-
-def m2 = {
-  () => {
-    123
-  }
-}
-
-def f[T](i: Int) {
-  val a = () => 123
-}
-
-(a: Int, b: Int, c: Int) => a + b + c
-"""
+      """
+        |def m = {
+        |  () => 123
+        |}
+        |
+        |def m2 = {
+        |  () => {
+        |    123
+        |  }
+        |}
+        |
+        |def f[T](i: Int) {
+        |  val a = () => 123
+        |}
+        |
+        |(a: Int, b: Int, c: Int) => a + b + c
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -266,50 +252,50 @@ def f[T](i: Int) {
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
     val before =
-"""
-def f() {
-  println()
-}
-
-def foo (){}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i*2
-}
-
-def test (i: Int) {}
-
-def +++(s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
-"""
+      """
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo (){}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i*2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++(s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |""".stripMargin
 
     val after =
-"""
-def f () {
-  println()
-}
-
-def foo () {}
-
-def g (): Int = 12
-
-def gg (i: Int): Int = {
-  i * 2
-}
-
-def test (i: Int) {}
-
-def +++ (s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
-"""
+      """
+        |def f () {
+        |  println()
+        |}
+        |
+        |def foo () {}
+        |
+        |def g (): Int = 12
+        |
+        |def gg (i: Int): Int = {
+        |  i * 2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++ (s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -320,50 +306,50 @@ def ::= (o: Any) {}
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
     val before =
-"""
-def f() {
-  println()
-}
-
-def foo (){}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i*2
-}
-
-def test (i: Int) {}
-
-def +++(s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
       """
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo (){}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i*2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++(s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |      """.stripMargin
 
     val after =
       """
-def f () {
-  println()
-}
-
-def foo () {}
-
-def g (): Int = 12
-
-def gg (i: Int): Int = {
-  i * 2
-}
-
-def test (i: Int) {}
-
-def +++ (s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
-"""
+        |def f () {
+        |  println()
+        |}
+        |
+        |def foo () {}
+        |
+        |def g (): Int = 12
+        |
+        |def gg (i: Int): Int = {
+        |  i * 2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++ (s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -374,50 +360,50 @@ def ::= (o: Any) {}
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
 
     val before =
-"""
-def f() {
-  println()
-}
-
-def foo (){}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i*2
-}
-
-def test (i: Int) {}
-
-def +++(s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
       """
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo (){}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i*2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++(s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |      """.stripMargin
 
     val after =
       """
-def f() {
-  println()
-}
-
-def foo () {}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i * 2
-}
-
-def test (i: Int) {}
-
-def +++ (s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
-"""
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo () {}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i * 2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++ (s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -428,50 +414,50 @@ def ::= (o: Any) {}
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
 
     val before =
-"""
-def f() {
-  println()
-}
-
-def foo (){}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i*2
-}
-
-def test (i: Int) {}
-
-def +++(s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
       """
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo (){}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i*2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++(s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |      """.stripMargin
 
     val after =
       """
-def f() {
-  println()
-}
-
-def foo() {}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i * 2
-}
-
-def test(i: Int) {}
-
-def +++ (s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
-"""
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo() {}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i * 2
+        |}
+        |
+        |def test(i: Int) {}
+        |
+        |def +++ (s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -481,50 +467,50 @@ def ::= (o: Any) {}
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
 
     val before =
-"""
-def f() {
-  println()
-}
-
-def foo (){}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i*2
-}
-
-def test (i: Int) {}
-
-def +++(s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::= (o: Any) {}
       """
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo (){}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i*2
+        |}
+        |
+        |def test (i: Int) {}
+        |
+        |def +++(s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::= (o: Any) {}
+        |      """.stripMargin
 
     val after =
       """
-def f() {
-  println()
-}
-
-def foo() {}
-
-def g(): Int = 12
-
-def gg(i: Int): Int = {
-  i * 2
-}
-
-def test(i: Int) {}
-
-def +++(s: StringBuilder): StringBuilder = {
-  s append this.toString
-}
-
-def ::=(o: Any) {}
-"""
+        |def f() {
+        |  println()
+        |}
+        |
+        |def foo() {}
+        |
+        |def g(): Int = 12
+        |
+        |def gg(i: Int): Int = {
+        |  i * 2
+        |}
+        |
+        |def test(i: Int) {}
+        |
+        |def +++(s: StringBuilder): StringBuilder = {
+        |  s append this.toString
+        |}
+        |
+        |def ::=(o: Any) {}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -534,18 +520,18 @@ def ::=(o: Any) {}
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
     val before =
-"""
-def f(i: Int)(j: Int) {}
-
-f(1)(2)
-"""
+      """
+        |def f(i: Int)(j: Int) {}
+        |
+        |f(1)(2)
+        |""".stripMargin
 
     val after =
-"""
-def f (i: Int)(j: Int) {}
-
-f (1)(2)
-"""
+      """
+        |def f (i: Int)(j: Int) {}
+        |
+        |f (1)(2)
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -555,50 +541,50 @@ f (1)(2)
     getCommonSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = false
 
     val before =
-"""
-class A(i: Int) {
-  def this(s: String) {
-    this (s.length)
-  }
-
-  def this () {
-    this("")
-  }
-}
-
-class B(i: Int)(s: String) {
-  def this(s: String) {
-    this(s.length)(s)
-  }
-
-  def this () {
-    this ("")
-  }
-}
-"""
+      """
+        |class A(i: Int) {
+        |  def this(s: String) {
+        |    this (s.length)
+        |  }
+        |
+        |  def this () {
+        |    this("")
+        |  }
+        |}
+        |
+        |class B(i: Int)(s: String) {
+        |  def this(s: String) {
+        |    this(s.length)(s)
+        |  }
+        |
+        |  def this () {
+        |    this ("")
+        |  }
+        |}
+        |""".stripMargin
 
     val after =
-"""
-class A(i: Int) {
-  def this(s: String) {
-    this(s.length)
-  }
-
-  def this() {
-    this("")
-  }
-}
-
-class B(i: Int)(s: String) {
-  def this(s: String) {
-    this(s.length)(s)
-  }
-
-  def this() {
-    this("")
-  }
-}
-"""
+      """
+        |class A(i: Int) {
+        |  def this(s: String) {
+        |    this(s.length)
+        |  }
+        |
+        |  def this() {
+        |    this("")
+        |  }
+        |}
+        |
+        |class B(i: Int)(s: String) {
+        |  def this(s: String) {
+        |    this(s.length)(s)
+        |  }
+        |
+        |  def this() {
+        |    this("")
+        |  }
+        |}
+        |""".stripMargin
 
     doTextTest(before, after)
   }
@@ -611,39 +597,39 @@ class B(i: Int)(s: String) {
     getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
     val before =
       """
-Array.fill(34){scala.util.Random.nextInt(12)  }
-
-foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
-
-bars foreach {case  (x, y) =>
-  list.add(x + y)
-}
-
-bars  foreach {
-  case (x,y)   => list.add(x+y)
-}
-
-bars foreach{ case (x,y) =>   list.add(x + y) }
-
-      """
+        |Array.fill(34){scala.util.Random.nextInt(12)  }
+        |
+        |foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
+        |
+        |bars foreach {case  (x, y) =>
+        |  list.add(x + y)
+        |}
+        |
+        |bars  foreach {
+        |  case (x,y)   => list.add(x+y)
+        |}
+        |
+        |bars foreach{ case (x,y) =>   list.add(x + y) }
+        |
+        |      """.stripMargin
 
     val after =
       """
-Array.fill(34) { scala.util.Random.nextInt(12) }
-
-foos map { t => getCounts(t).toSeq sortBy { -_._2 } map { _._1 } }
-
-bars foreach { case (x, y) =>
-  list.add(x + y)
-}
-
-bars foreach {
-  case (x, y) => list.add(x + y)
-}
-
-bars foreach { case (x, y) => list.add(x + y) }
-
-      """
+        |Array.fill(34) { scala.util.Random.nextInt(12) }
+        |
+        |foos map { t => getCounts(t).toSeq sortBy { -_._2 } map { _._1 } }
+        |
+        |bars foreach { case (x, y) =>
+        |  list.add(x + y)
+        |}
+        |
+        |bars foreach {
+        |  case (x, y) => list.add(x + y)
+        |}
+        |
+        |bars foreach { case (x, y) => list.add(x + y) }
+        |
+        |      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -656,38 +642,38 @@ bars foreach { case (x, y) => list.add(x + y) }
     getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
     val before =
       """
-Array.fill(34){scala.util.Random.nextInt(12)  }
-
-foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
-
-bars foreach {case  (x, y) =>
-  list.add(x + y)
-}
-
-bars  foreach {
-  case (x,y)   => list.add(x+y)
-}
-
-bars foreach{ case (x,y) =>   list.add(x + y) }
-
-      """
+        |Array.fill(34){scala.util.Random.nextInt(12)  }
+        |
+        |foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
+        |
+        |bars foreach {case  (x, y) =>
+        |  list.add(x + y)
+        |}
+        |
+        |bars  foreach {
+        |  case (x,y)   => list.add(x+y)
+        |}
+        |
+        |bars foreach{ case (x,y) =>   list.add(x + y) }
+        |
+        |      """.stripMargin
 
     val after =
       """
-Array.fill(34) {scala.util.Random.nextInt(12)}
-
-foos map {t => getCounts(t).toSeq sortBy {-_._2} map {_._1}}
-
-bars foreach {case (x, y) =>
-  list.add(x + y)
-}
-
-bars foreach {
-  case (x, y) => list.add(x + y)
-}
-
-bars foreach {case (x, y) => list.add(x + y)}
-      """
+        |Array.fill(34) {scala.util.Random.nextInt(12)}
+        |
+        |foos map {t => getCounts(t).toSeq sortBy {-_._2} map {_._1}}
+        |
+        |bars foreach {case (x, y) =>
+        |  list.add(x + y)
+        |}
+        |
+        |bars foreach {
+        |  case (x, y) => list.add(x + y)
+        |}
+        |
+        |bars foreach {case (x, y) => list.add(x + y)}
+        |      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -695,34 +681,34 @@ bars foreach {case (x, y) => list.add(x + y)}
   def testSCL6702() {
     getCurrentCodeStyleSettings.FORMATTER_TAGS_ENABLED = true
     val before =
-    """
-      |//@formatter:off
-      |class SCL6702 {
-      |  def foo(p: String ) {
-      |    println(p )
-      |  }
-      |
-      |  //@formatter:on
-      |  def foop(p: String ): Unit = {
-      |    println(p )
-      |  }
-      |}
-    """.stripMargin
+      """
+        |//@formatter:off
+        |class SCL6702 {
+        |  def foo(p: String ) {
+        |    println(p )
+        |  }
+        |
+        |  //@formatter:on
+        |  def foop(p: String ): Unit = {
+        |    println(p )
+        |  }
+        |}
+      """.stripMargin
 
     val after =
-    """
-      |//@formatter:off
-      |class SCL6702 {
-      |  def foo(p: String ) {
-      |    println(p )
-      |  }
-      |
-      |  //@formatter:on
-      |  def foop(p: String): Unit = {
-      |    println(p)
-      |  }
-      |}
-    """.stripMargin
+      """
+        |//@formatter:off
+        |class SCL6702 {
+        |  def foo(p: String ) {
+        |    println(p )
+        |  }
+        |
+        |  //@formatter:on
+        |  def foop(p: String): Unit = {
+        |    println(p)
+        |  }
+        |}
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -2392,7 +2378,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL10527(): Unit = {
-    getScalaSettings.USE_SCALADOC2_FORMATTING=true
+    getScalaSettings.USE_SCALADOC2_FORMATTING = true
     val before =
       """
         |def xyz(arg: String): String =
@@ -3324,17 +3310,19 @@ bars foreach {case (x, y) => list.add(x + y)}
       """.stripMargin
     doTextTest(beforeSCL3536, after)
   }
-// TODO temporarily disabled untile formatter engine has a way to produce desired alignment
-//  def testSCL3536_1(): Unit = {
-//    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_ANCESTOR
-//    val after =
-//      """
-//        |class A extends B
-//        |           with C
-//      """.stripMargin
-//
-//    doTextTest(beforeSCL3536, after)
-//  }
+
+  // TODO temporarily disabled untile formatter engine has a way to produce desired alignment
+  //  def testSCL3536_1(): Unit = {
+  //    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_ANCESTOR
+  //    val after =
+  //      """
+  //        |class A extends B
+  //        |           with C
+  //      """.stripMargin
+  //
+  //    doTextTest(beforeSCL3536, after)
+  //  }
+
   def testSCL3536_2(): Unit = {
     getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ALIGN_TO_EXTENDS
     val after =
@@ -3441,7 +3429,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
- def testSCL15090_WithoutTrailingComma_1()(): Unit = {
+  def testSCL15090_WithoutTrailingComma_1()(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     val before =
       """List(1123123,
@@ -3458,15 +3446,15 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-//  def testSCL12461(): Unit = {
-//    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
-//    val before =
-//      """
-//        |test("Some test") {
-//        |  val a = "1"
-//        |  val b = "2"
-//        |}
-//      """.stripMargin
-//    doTextTest(before)
-//  }
+  //  def testSCL12461(): Unit = {
+  //    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+  //    val before =
+  //      """
+  //        |test("Some test") {
+  //        |  val a = "1"
+  //        |  val b = "2"
+  //        |}
+  //      """.stripMargin
+  //    doTextTest(before)
+  //  }
 }
