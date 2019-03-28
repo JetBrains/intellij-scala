@@ -85,6 +85,7 @@ abstract class DependencyManagerBase {
     def mkIvySettings(): IvySettings = {
       val ivySettings = new IvySettings
       val ivyResolvers = resolvers.map(mkResolver)
+      ivySettings.setDefaultIvyUserDir(ivyHome)
       ivySettings.load(IvySettings.getDefaultSettingsURL)
       ivySettings.getResolver("main") match {
         case cr: ChainResolver => ivyResolvers.foreach(cr.add)
