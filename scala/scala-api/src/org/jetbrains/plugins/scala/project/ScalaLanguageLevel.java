@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project;
 
-public enum ScalaLanguageLevel implements scala.math.Ordered<ScalaLanguageLevel> {
+public enum ScalaLanguageLevel implements scala.math.Ordered<ScalaLanguageLevel>, Named {
 
     Scala_2_9("2.9"),
     Scala_2_10("2.10"),
@@ -17,6 +17,11 @@ public enum ScalaLanguageLevel implements scala.math.Ordered<ScalaLanguageLevel>
 
     public String getVersion() {
         return myVersion;
+    }
+
+    @Override
+    public String getName() {
+        return getVersion();
     }
 
     @Override
