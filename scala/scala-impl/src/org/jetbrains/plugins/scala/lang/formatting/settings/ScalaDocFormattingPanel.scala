@@ -59,6 +59,8 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
       |  * Foos the given x, returning foo'ed x.
       |  * @note Note that this tag is here just to show
       |  * how exactly alignment for tags different from parameters and return tags
+      |
+      |
       |  * @forExample   Even if the tag is not valid, formatting will still be fine
       |  *   also, if you choose to preserver spaces in tags, no spaces will be removed after tag value
       |  * @param x Some parameter named x that has
@@ -67,7 +69,10 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
       |  * @param longParamName Another parameter with a long name
       |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
       |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      |
       |  * @throws RuntimeException whenever it feels like it
+      |
+      |
       |  * @throws IndexOutOfBoundsException when index is out of bound
       |  */
       |def foo(x: Int, yy: Int, longParamName: Int): Int
