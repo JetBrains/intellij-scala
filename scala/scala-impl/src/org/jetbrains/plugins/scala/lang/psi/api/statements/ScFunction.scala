@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ObjectWithCaseClassCompanion, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -557,8 +558,12 @@ object ScFunction {
               val nextFun = children.next()
               if (importantOrderFunction(nextFun)) {
                 ProgressManager.checkCanceled()
-                nextFun.returnTypeInner
-              }
+                val nextReturnType = nextFun.returnTypeInner
+
+                //stop at current function to avoid recursion of some function body below
+                if (nextFun == this) {
+                  return nextReturnType
+                }              }
             }
             function.returnTypeInner
           }
