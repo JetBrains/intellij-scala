@@ -330,7 +330,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
             val nextFun = children.next()
             if (importantOrderFunction(nextFun)) {
               ProgressManager.checkCanceled()
-              nextFun.asInstanceOf[ScFunctionImpl[_]].returnTypeInner
+              val nextReturnType = nextFun.asInstanceOf[ScFunctionImpl[_]].returnTypeInner
+
+              //stop at current function to avoid recursion of some function body below
+              if (nextFun == this) {
+                return nextReturnType
+              }
             }
           }
           returnTypeInner
