@@ -924,17 +924,6 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |}
       """.stripMargin
 
-    /* TODO this is only a temporary reference
-      actual result should be the following:
-      |val x = for {
-      |  //Comment
-      |  x <- Nil
-      |} yield {
-      |  x
-      |}
-      But current implementation of formatting model does not provide reasonable means of implementing this case.
-     */
-
     doTextTest(before, after)
   }
 
@@ -3457,4 +3446,42 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   //      """.stripMargin
   //    doTextTest(before)
   //  }
+
+
+
+  def testSCL2601_1(): Unit = {
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false
+    val before =
+      """obj.infixMethod()
+        |obj.infixMethod("1")
+        |obj.infixMethod("1", "2")
+        |obj infixMethod()
+        |obj infixMethod("1")
+        |obj infixMethod("1", "2")
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL2601_2(): Unit = {
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
+    val before =
+      """obj.infixMethod()
+        |obj.infixMethod("1")
+        |obj.infixMethod("1", "2")
+        |obj infixMethod()
+        |obj infixMethod("1")
+        |obj infixMethod("1", "2")
+      """.stripMargin
+
+    val after =
+      """obj.infixMethod()
+        |obj.infixMethod("1")
+        |obj.infixMethod("1", "2")
+        |obj infixMethod ()
+        |obj infixMethod ("1")
+        |obj infixMethod ("1", "2")
+      """.stripMargin
+
+    doTextTest(before, after)
+  }
 }

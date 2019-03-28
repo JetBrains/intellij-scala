@@ -904,7 +904,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return WITHOUT_SPACING
     }
     // SCL-2601
-    if (rightPsi.is[ScUnitExpr,ScTuple] && leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr]) {
+    if (rightPsi.is[ScUnitExpr, ScTuple, ScParenthesisedExpr] && leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr]) {
       val isOperator = leftPsi match {
         case ref: ScReferenceExpression => ScalaNamesUtil.isOperatorName(ref.refName)
         case _ => false
