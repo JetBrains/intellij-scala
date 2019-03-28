@@ -37,6 +37,8 @@ public class CompilerIndicesSettingsForm {
     private JTextArea pluginSettignsTextArea;
     private PortField portSelector;
     private JPanel manualConfigPanel;
+    private JPanel findUsagesPanel;
+    private JPanel compilationListenerPanel;
     private Project myProject;
 
     private static final String promptText =
@@ -45,6 +47,7 @@ public class CompilerIndicesSettingsForm {
 
     public CompilerIndicesSettingsForm(Project project) {
         this.myProject = project;
+        enableIndexingCB.addItemListener(changeEvent -> updateAllPanels());
         deleteButton.setEnabled(package$.MODULE$.upToDateCompilerIndexExists(project, ScalaCompilerIndices.version()));
         deleteButton.addActionListener(e -> {
             final int confirmation = Messages.showOkCancelDialog(
@@ -58,8 +61,7 @@ public class CompilerIndicesSettingsForm {
         updateSbtKeysTextAreaText();
         updateSbtPluginTextArea();
         portSelector.addChangeListener(e -> updateSbtKeysTextAreaText());
-        resetManualConfigurationPanel();
-        manualConfigButton.addItemListener(e -> resetManualConfigurationPanel());
+        manualConfigButton.addItemListener(e -> updateManualConfigurationPanel());
         pluginSettignsTextArea.setBorder(new SideBorder(JBColor.border(), SideBorder.ALL));
         buildSettingsTextArea.setBorder(new SideBorder(JBColor.border(), SideBorder.ALL));
         pluginSettignsTextArea.addFocusListener(new FocusAdapter() {
@@ -74,10 +76,17 @@ public class CompilerIndicesSettingsForm {
                 buildSettingsTextArea.selectAll();
             }
         });
+        updateAllPanels();
     }
 
-    private void resetManualConfigurationPanel() {
-        setComponentsEnabled(manualConfigPanel, manualConfigButton.isSelected());
+    private void updateAllPanels() {
+        setComponentsEnabled(findUsagesPanel, enableIndexingCB.isSelected());
+        setComponentsEnabled(compilationListenerPanel, enableIndexingCB.isSelected());
+        updateManualConfigurationPanel();
+    }
+
+    private void updateManualConfigurationPanel() {
+        setComponentsEnabled(manualConfigPanel, enableIndexingCB.isSelected() && manualConfigButton.isSelected());
     }
 
     private void updateSbtPluginTextArea() {
@@ -167,7 +176,7 @@ public class CompilerIndicesSettingsForm {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -177,111 +186,89 @@ public class CompilerIndicesSettingsForm {
         deleteButton = new JButton();
         this.$$$loadButtonText$$$(deleteButton, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.settings.invalidate.button"));
         panel1.add(deleteButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.add(panel2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        implicitDefinitionsCB = new JBCheckBox();
-        implicitDefinitionsCB.setSelected(true);
-        implicitDefinitionsCB.setText("Implicit definitions");
-        panel2.add(implicitDefinitionsCB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        applyMethodCB = new JBCheckBox();
-        applyMethodCB.setSelected(true);
-        applyMethodCB.setText("apply/unapply methods");
-        panel2.add(applyMethodCB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        samTypesCB = new JBCheckBox();
-        samTypesCB.setSelected(true);
-        samTypesCB.setText("SAM types");
-        panel2.add(samTypesCB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        forCompMethodCB = new JBCheckBox();
-        forCompMethodCB.setSelected(true);
-        forCompMethodCB.setText("For-comprehension methods (map/flatMap/withFilter/foreach)");
-        panel2.add(forCompMethodCB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JBLabel jBLabel1 = new JBLabel();
-        jBLabel1.setText("Use indices to search for usages of:");
-        mainPanel.add(jBLabel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(2, 1, new Insets(13, 0, 0, 0), -1, -1));
-        mainPanel.add(panel3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        compilationListenerPanel = new JPanel();
+        compilationListenerPanel.setLayout(new GridLayoutManager(2, 1, new Insets(6, 0, 0, 0), -1, -1));
+        mainPanel.add(compilationListenerPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final TitledSeparator titledSeparator1 = new TitledSeparator();
         titledSeparator1.setText("sbt compilation listener configuration (application-wide)");
-        panel3.add(titledSeparator1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel4 = new JPanel();
-        panel4.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
-        panel3.add(panel4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+        compilationListenerPanel.add(titledSeparator1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+        compilationListenerPanel.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         automaticConfigButton = new JRadioButton();
         automaticConfigButton.setSelected(true);
         this.$$$loadButtonText$$$(automaticConfigButton, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.sbt.automatic"));
-        panel4.add(automaticConfigButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add(automaticConfigButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         manualConfigButton = new JRadioButton();
         this.$$$loadButtonText$$$(manualConfigButton, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.sbt.manual"));
-        panel4.add(manualConfigButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add(manualConfigButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         manualConfigPanel = new JPanel();
-        manualConfigPanel.setLayout(new GridLayoutManager(5, 3, new Insets(0, 0, 0, 0), -1, -1));
+        manualConfigPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         manualConfigPanel.setEnabled(true);
-        panel4.add(manualConfigPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 2, false));
+        panel2.add(manualConfigPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 2, false));
+        final JLabel label1 = new JLabel();
+        label1.setText("Port number:");
+        manualConfigPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        portSelector = new PortField();
+        portSelector.setNumber(65337);
+        manualConfigPanel.add(portSelector, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridLayoutManager(2, 1, new Insets(3, 0, 0, 0), -1, -1));
+        manualConfigPanel.add(panel3, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         pluginSettignsTextArea = new JTextArea();
         pluginSettignsTextArea.setEditable(false);
         pluginSettignsTextArea.setRows(1);
         pluginSettignsTextArea.setText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.sbt.plugin.text"));
-        manualConfigPanel.add(pluginSettignsTextArea, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, null, null, 0, false));
+        panel3.add(pluginSettignsTextArea, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(150, 25), null, 0, false));
+        final JBLabel jBLabel1 = new JBLabel();
+        jBLabel1.setComponentStyle(UIUtil.ComponentStyle.SMALL);
+        jBLabel1.setText("<html>Add the following line to <span style=\"font-family:monospace\">project/plugins.sbt</span>:</html>");
+        panel3.add(jBLabel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(2, 1, new Insets(3, 0, 0, 0), -1, -1));
+        manualConfigPanel.add(panel4, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         buildSettingsTextArea = new JTextArea();
         buildSettingsTextArea.setEditable(false);
         buildSettingsTextArea.setRows(1);
         buildSettingsTextArea.setText("");
-        manualConfigPanel.add(buildSettingsTextArea, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, null, null, 0, false));
+        panel4.add(buildSettingsTextArea, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(150, 25), null, 0, false));
         final JBLabel jBLabel2 = new JBLabel();
         jBLabel2.setComponentStyle(UIUtil.ComponentStyle.SMALL);
         jBLabel2.setEnabled(true);
         jBLabel2.setFontColor(UIUtil.FontColor.NORMAL);
-        this.$$$loadLabelText$$$(jBLabel2, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.sbt.keys.comment"));
-        manualConfigPanel.add(jBLabel2, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(244, 14), null, 0, false));
-        final JLabel label1 = new JLabel();
-        label1.setText("Port");
-        manualConfigPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JBLabel jBLabel3 = new JBLabel();
-        jBLabel3.setComponentStyle(UIUtil.ComponentStyle.SMALL);
-        this.$$$loadLabelText$$$(jBLabel3, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.sbt.plugin.comment"));
-        manualConfigPanel.add(jBLabel3, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        portSelector = new PortField();
-        portSelector.setNumber(65337);
-        manualConfigPanel.add(portSelector, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        jBLabel2.setText("<html>Add the following line to <span style=\"font-family:monospace\">build.sbt</span>:</html>");
+        panel4.add(jBLabel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(244, 14), null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel4.add(spacer1, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        mainPanel.add(spacer2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer();
-        mainPanel.add(spacer3, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        mainPanel.add(spacer1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        findUsagesPanel = new JPanel();
+        findUsagesPanel.setLayout(new GridLayoutManager(2, 1, new Insets(3, 0, 0, 0), -1, -1));
+        mainPanel.add(findUsagesPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JPanel panel5 = new JPanel();
+        panel5.setLayout(new GridLayoutManager(4, 1, new Insets(1, 0, 0, 0), -1, -1));
+        findUsagesPanel.add(panel5, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+        implicitDefinitionsCB = new JBCheckBox();
+        implicitDefinitionsCB.setSelected(true);
+        implicitDefinitionsCB.setText("Implicit definitions");
+        panel5.add(implicitDefinitionsCB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        applyMethodCB = new JBCheckBox();
+        applyMethodCB.setSelected(true);
+        applyMethodCB.setText("<html><span style=\"font-family:monospace\">apply</span> / <span style=\"font-family:monospace\">unapply</span> methods</html>");
+        panel5.add(applyMethodCB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        samTypesCB = new JBCheckBox();
+        samTypesCB.setSelected(true);
+        samTypesCB.setText("SAM types");
+        panel5.add(samTypesCB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        forCompMethodCB = new JBCheckBox();
+        forCompMethodCB.setSelected(true);
+        forCompMethodCB.setText("<html>For-comprehension methods (<span style=\"font-family:monospace\">map</span>, <span style=\"font-family:monospace\">withFilter</span>, <span style=\"font-family:monospace\">flatMap</span>, <span style=\"font-family:monospace\">foreach</span>)</html>");
+        panel5.add(forCompMethodCB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JBLabel jBLabel3 = new JBLabel();
+        jBLabel3.setText("Use indices to search for usages of:");
+        findUsagesPanel.add(jBLabel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
         buttonGroup.add(manualConfigButton);
         buttonGroup.add(automaticConfigButton);
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadLabelText$$$(JLabel component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
-        }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setDisplayedMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
     }
 
     /**
