@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.stacktrace
 import java.util.regex.Pattern
 
 import com.intellij.execution.filters._
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
@@ -17,6 +18,11 @@ import scala.collection.JavaConverters._
 class ScalaPackageObjectFilterFactory extends ExceptionFilterFactory {
   override def create(scope: GlobalSearchScope): Filter =
     new ScalaPackageObjectFilter(scope)
+}
+
+class ScalaPackageObjectConsoleFilterProvider extends ConsoleFilterProvider {
+  def getDefaultFilters(project: Project): Array[Filter] =
+    Array(new ScalaPackageObjectFilter(GlobalSearchScope.allScope(project)))
 }
 
 object ScalaPackageObjectFilter {
@@ -49,6 +55,7 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
 
           if (defaultResult == null)
             return null
+
 
           val updated =
             defaultResult.getResultItems.asScala
