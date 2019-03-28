@@ -9,7 +9,6 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReference}
@@ -19,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import _root_.scala.collection.Set
 
@@ -393,19 +394,11 @@ object ResolveUtils {
   }
 
   private def smartContextAncestor(td: ScTemplateDefinition, place: PsiElement, checkCompanion: Boolean): Boolean = {
-    val withCompanion: Set[ScTemplateDefinition] =
-      if (checkCompanion) getCompanionModule(td).toSet + td
-      else Set(td)
+    val companion = if (checkCompanion) getCompanionModule(td) else None
 
-    def withNavigationElem(t: ScTemplateDefinition): Set[ScTemplateDefinition] = t.getNavigationElement match {
-      case `t` => Set(t)
-      case other: ScTemplateDefinition => Set(t, other)
-      case _ => Set(t)
-    }
-
-    val candidates = withCompanion.flatMap(withNavigationElem)
     place.withContexts.exists {
-      case td: ScTemplateDefinition => candidates.contains(td)
+      case contextTd: ScTemplateDefinition =>
+        areClassesEquivalent(td, contextTd) || companion.exists(areClassesEquivalent(_, contextTd))
       case _ => false
     }
   }
