@@ -594,11 +594,9 @@ object InferUtil {
     (tpe, conformanceResult)
   }
 
-  def functionTypeNoImplicits(function: ScFunction, forcedReturnType: Option[ScType] = None): Option[ScType] = {
-    val retType = forcedReturnType match { //avoid getOrElse for reduced stacktrace
-      case None => function.returnType.toOption
-      case some => some
-    }
+  def functionTypeNoImplicits(function: ScFunction): Option[ScType] = {
+    val retType = function.returnType.toOption
+
     collectReverseParamTypesNoImplicits(function) match {
       case Some(params) =>
         implicit val scope: ElementScope = ElementScope(function)

@@ -301,15 +301,7 @@ class ImplicitCollector(place: PsiElement,
           }
         }
 
-        if (isExtensionConversion && !fullInfo) {
-          val applicableParameters =
-            checkFunctionByType(c, withLocalTypeInference, checkFast, noReturnType = true).isDefined
-
-          if (applicableParameters)
-            checkFunctionByType(c, withLocalTypeInference, checkFast, noReturnType = false)
-          else None
-        }
-        else checkFunctionByType(c, withLocalTypeInference, checkFast, noReturnType = false)
+        checkFunctionByType(c, withLocalTypeInference, checkFast)
 
       case _ =>
         if (withLocalTypeInference) None //only functions may have local type inference
@@ -573,12 +565,8 @@ class ImplicitCollector(place: PsiElement,
     cache.typeParametersOwners(funType).contains(fun)
   }
 
-  private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean, noReturnType: Boolean): Option[ScType] = {
+  private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean): Option[ScType] = {
     if (!fun.hasTypeParameters) Some(subst(funType))
-    else if (noReturnType) {
-      val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun))
-      Some(inferredSubst(funType))
-    }
     else {
       val hasTypeParametersInType: Boolean = hasTypeParamsInType(fun, funType)
       if (withLocalTypeInference && hasTypeParametersInType) {
@@ -593,22 +581,19 @@ class ImplicitCollector(place: PsiElement,
   private def checkFunctionByType(
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,
-    checkFast:              Boolean,
-    noReturnType:           Boolean
+    checkFast:              Boolean
   ): Option[Candidate] = {
     val fun = c.element.asInstanceOf[ScFunction]
     val subst = c.substitutor
 
-    val ft =
-      if (noReturnType) functionTypeNoImplicits(fun, Some(Nothing))
-      else functionTypeNoImplicits(fun)
+    val ft = functionTypeNoImplicits(fun)
 
     ft match {
       case Some(_funType: ScType) =>
         val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
         val funType = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp))) getOrElse _funType
 
-        val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
+        val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference) match {
           case Some(t) => t
           case None    => return None
         }
@@ -616,10 +601,9 @@ class ImplicitCollector(place: PsiElement,
         val (withoutDependents, reverter) = approximateDependent(substedFunTp, fun.parameters.toSet)
 
         if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (withoutDependents conforms tp)) {
-          if (checkFast || noReturnType) Some(c, ScSubstitutor.empty)
+          if (checkFast) Some(c, ScSubstitutor.empty)
           else checkFunctionType(c, fun, withoutDependents, reverter)
         }
-        else if (noReturnType) Some(c, ScSubstitutor.empty)
         else {
           substedFunTp match {
             case FunctionType(ret, params) if params.isEmpty =>
