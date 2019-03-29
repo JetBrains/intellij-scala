@@ -101,10 +101,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 1;
   public int BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 0;
 
-  //todo: add to spacing settings
   //spacing settings:
   public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
-  public boolean SPACE_BEFORE_MATCH_LBRACE = true;
   public boolean KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false;
 
   /**

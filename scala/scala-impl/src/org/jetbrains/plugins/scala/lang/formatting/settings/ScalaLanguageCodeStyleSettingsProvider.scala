@@ -40,20 +40,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "SPACE_AFTER_SEMICOLON",
 
         // Before
-        "SPACE_BEFORE_IF_PARENTHESES",
-        "SPACE_BEFORE_FOR_PARENTHESES",
         "SPACE_BEFORE_METHOD_PARENTHESES",
         "SPACE_BEFORE_METHOD_CALL_PARENTHESES",
         "SPACE_BEFORE_CLASS_LBRACE",
-        "SPACE_BEFORE_METHOD_LBRACE", "SPACE_BEFORE_IF_LBRACE",
-        "SPACE_BEFORE_WHILE_LBRACE",
-        "SPACE_BEFORE_DO_LBRACE",
-        "SPACE_BEFORE_FOR_LBRACE",
-        "SPACE_BEFORE_TRY_LBRACE",
-        "SPACE_BEFORE_CATCH_LBRACE",
-        "SPACE_BEFORE_FINALLY_LBRACE",
-        "SPACE_BEFORE_WHILE_PARENTHESES",
-        "SPACE_BEFORE_ELSE_LBRACE",
+        "SPACE_BEFORE_METHOD_LBRACE",
         "SPACE_BEFORE_TYPE_PARAMETER_LIST",
 
         // Within
@@ -233,7 +223,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       opt("INDENT_FIRST_PARAMETER", "Indent first parameter if on new line", GroupNames.WRAPPING_METHOD_PARAMETERS)
       opt("INDENT_FIRST_PARAMETER_CLAUSE", "Indent first parameter clause if on new line", GroupNames.WRAPPING_METHOD_PARAMETERS)
 
-      consumer.renameStandardOption(GroupNames.WRAPPING_SWITCH_STATEMENT, "'match' or 'switch' statements")
+      consumer.renameStandardOption(GroupNames.WRAPPING_SWITCH_STATEMENT, "'match' statement")
       opt("DO_NOT_INDENT_CASE_CLAUSE_BODY", "Do not indent case clause body", GroupNames.WRAPPING_SWITCH_STATEMENT)
       opt("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches", GroupNames.WRAPPING_SWITCH_STATEMENT)
       opt("ALIGN_COMPOSITE_PATTERN", "Align multiline pattern alternatives", GroupNames.WRAPPING_SWITCH_STATEMENT)
