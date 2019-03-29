@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.vfs.VirtualFile
 
 import scala.annotation.tailrec
@@ -9,44 +10,47 @@ import scala.reflect.NameTransformer.decode
 
 package object compiled {
 
-  private[this] type SiblingsNames = Seq[String]
-
-  private[this] val ClassFileExtension = "class"
-
   implicit class VirtualFileExt(private val virtualFile: VirtualFile) extends AnyVal {
 
-    def isInnerClass: Boolean = {
-      def isClass(file: VirtualFile) =
-        file.getExtension == ClassFileExtension
+    def isInnerClass: Boolean = !isClass(virtualFile) && withSiblings { siblings =>
+      val predicate = siblings match {
+        case Seq((_, fileName)) =>
+          val decodedName = Set(decode(fileName))
+          (decodedName(_)).andThen(!_)
+        case _ => Function.const(true)(_: String)
+      }
 
-      !isClass(virtualFile) && {
-        validSiblingsNames(isClass).map(decode) match {
-          case Seq() => false
-          case seq =>
-            implicit val siblingsNames: SiblingsNames = seq
-            virtualFile.getNameWithoutExtension match {
-              case EndsWithDollar(name) if accepts(name) => false // let's handle it separately to avoid giving it for Java.
-              case name => isInnerImpl(decode(name))
-            }
+      virtualFile.getNameWithoutExtension match {
+        case EndsWithDollar(name) if predicate(name) => false // let's handle it separately to avoid giving it for Java.
+        case name => isInnerImpl(decode(name))(predicate)
+      }
+    }
+
+    def isAcceptable: Boolean = isScalaFile(virtualFile) || withSiblings { siblings =>
+      isAcceptableImpl("", virtualFile.getNameWithoutExtension) { prefix =>
+        siblings.exists {
+          case (file, fileName) => Comparing.equal(fileName, prefix, true) && isScalaFile(file)
         }
       }
     }
 
-    def isAcceptable: Boolean = {
-      def isScalaFile(file: VirtualFile) = DecompilationResult.tryDecompile(file).isDefined
+    private def withSiblings(predicate: Seq[(VirtualFile, String)] => Boolean) = virtualFile.getParent match {
+      case null => false
+      case parent =>
+        val siblings = for {
+          sibling <- parent.getChildren
+          if isClass(sibling)
+        } yield (sibling, sibling.getNameWithoutExtension)
 
-      isScalaFile(virtualFile) ||
-        isAcceptableImpl("", virtualFile.getNameWithoutExtension) {
-          validSiblingsNames(isScalaFile)
-        }
+        siblings.nonEmpty && predicate(siblings)
     }
-
-    private def validSiblingsNames(predicate: VirtualFile => Boolean) =
-      virtualFile.getParent match {
-        case null => Seq.empty
-        case parent => parent.getChildren.toSeq.filter(predicate).map(_.getNameWithoutExtension)
-      }
   }
+
+  private[this] def isClass(file: VirtualFile): Boolean =
+    file.getExtension == "class"
+
+  private[this] def isScalaFile(file: VirtualFile): Boolean =
+    DecompilationResult.tryDecompile(file).isDefined
 
   private[this] object SplitAtDollar {
 
@@ -60,22 +64,18 @@ package object compiled {
 
   @tailrec
   private[this] def isInnerImpl(suffix: String)
-                               (implicit siblingsNames: SiblingsNames): Boolean = suffix match {
+                               (implicit predicate: String => Boolean): Boolean = suffix match {
     case SplitAtDollar(newPrefix, newSuffix) =>
-      accepts(newPrefix) || isInnerImpl(newSuffix)
+      predicate(newPrefix) || isInnerImpl(newSuffix)
     case _ => false
   }
 
-  private[this] def accepts(newPrefix: String)
-                           (implicit siblingsNames: SiblingsNames) =
-    siblingsNames.exists(_ != newPrefix)
-
   @tailrec
   private[this] def isAcceptableImpl(prefix: String, suffix: String)
-                                    (implicit siblingsNames: SiblingsNames): Boolean = suffix match {
+                                    (implicit predicate: String => Boolean): Boolean = suffix match {
     case SplitAtDollar(suffixPrefix, suffixSuffix) =>
       prefix + suffixPrefix match {
-        case newPrefix if !newPrefix.endsWith("$") && siblingsNames.contains(newPrefix) => true
+        case newPrefix if !newPrefix.endsWith("$") && predicate(newPrefix) => true
         case newPrefix => isAcceptableImpl(newPrefix + '$', suffixSuffix)
       }
     case _ => false
