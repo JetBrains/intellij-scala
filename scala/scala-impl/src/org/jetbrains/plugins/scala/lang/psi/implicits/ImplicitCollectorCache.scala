@@ -32,29 +32,6 @@ class ImplicitCollectorCache(project: Project) {
     map.put((scope, tp), value)
   }
 
-  def typeParametersOwners(tp: ScType): Set[ScTypeParametersOwner] = {
-    def collectOwners: Set[ScTypeParametersOwner] = {
-      var result = Set[ScTypeParametersOwner]()
-      tp.visitRecursively {
-        case TypeParameterType.ofPsi(psiTP) =>
-          psiTP.getOwner match {
-            case f: ScFunction => result += f
-            case _ =>
-          }
-        case _ =>
-      }
-      result
-    }
-
-    typeParametersOwnersCache.get(tp) match {
-      case null =>
-        val owners = collectOwners
-        typeParametersOwnersCache.putIfAbsent(tp, owners)
-        owners
-      case seq => seq
-    }
-  }
-
   def clear(): Unit = {
     map.clear()
     typeParametersOwnersCache.clear()

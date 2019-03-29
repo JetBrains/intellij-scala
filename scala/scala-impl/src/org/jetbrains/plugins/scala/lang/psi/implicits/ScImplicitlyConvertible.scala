@@ -132,7 +132,7 @@ object ScImplicitlyConvertible {
     val maybeTypes = element match {
       case function: ScFunction =>
         val returnType = function.returnType.map(substitutor)
-        val argumentSubstitutor = ScalaPsiUtil.inferMethodTypesArgs(function)
+        val argumentSubstitutor = ScalaPsiUtil.undefineMethodTypeParams(function)
 
         function.paramClauses.clauses.headOption match {
           case Some(clause) =>

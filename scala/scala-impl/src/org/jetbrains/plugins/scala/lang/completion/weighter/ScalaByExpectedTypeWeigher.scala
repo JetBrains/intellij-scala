@@ -54,7 +54,7 @@ final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
 
 object ScalaByExpectedTypeWeigher {
 
-  import ScalaPsiUtil.inferMethodTypesArgs
+  import ScalaPsiUtil.undefineMethodTypeParams
 
   private def computeType(element: PsiNamedElement, itemSubstitutor: ScSubstitutor)
                          (implicit place: PsiElement): Option[ScType] = {
@@ -76,10 +76,10 @@ object ScalaByExpectedTypeWeigher {
         fun.returnType.toOption
           .orElse(fun.`type`().toOption)
           .map {
-            substitution(_, inferMethodTypesArgs(fun))
+            substitution(_, undefineMethodTypeParams(fun))
           }
       case method: PsiMethod =>
-        val substitutor = inferMethodTypesArgs(method)
+        val substitutor = undefineMethodTypeParams(method)
         Some(substitution(method.getReturnType.toScType(), substitutor))
       case typed: ScTypedDefinition =>
         typed.`type`().toOption
