@@ -24,6 +24,7 @@ lazy val scalaCommunity: sbt.Project =
       conversion % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      devKitIntegration % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -198,6 +199,13 @@ lazy val bsp =
     )
 
 // Integration with other IDEA plugins
+
+lazy val devKitIntegration = newProject(
+  "devKit",
+  file("scala/integration/devKit")
+).settings(
+  ideaInternalPlugins := Seq("devkit")
+)
 
 lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))

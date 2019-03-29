@@ -158,8 +158,6 @@
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
-      <externalSystemTaskNotificationListener
-              implementation="org.jetbrains.plugins.scaladev.IdeaSourcesAttachListener"/>
 
       <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
                   factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"

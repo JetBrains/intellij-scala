@@ -205,7 +205,7 @@ public class AttachSourcesUtil {
         }
     }
 
-    public static void appendSources(Library library, Collection<VirtualFile> files) {
+    private static void appendSources(Library library, Collection<VirtualFile> files) {
         ApplicationManager.getApplication().runWriteAction(() -> {
             if (!((LibraryEx)library).isDisposed()) {
                 Library.ModifiableModel model = library.getModifiableModel();
