@@ -3487,39 +3487,56 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  private val CommonInfixBefore =
+    """obj.method()
+      |obj.method("1")
+      |obj.method("1", "2")
+      |obj method()
+      |obj method("1")
+      |obj method("1", "2")
+      |obj * 42
+      |obj * (42)
+    """.stripMargin
+
   def testSCL2601_1(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false
-    val before =
-      """obj.infixMethod()
-        |obj.infixMethod("1")
-        |obj.infixMethod("1", "2")
-        |obj infixMethod()
-        |obj infixMethod("1")
-        |obj infixMethod("1", "2")
-      """.stripMargin
-    doTextTest(before)
+    getScalaSettings.SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = false
+    doTextTest(CommonInfixBefore)
   }
 
   def testSCL2601_2(): Unit = {
-    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
-    val before =
-      """obj.infixMethod()
-        |obj.infixMethod("1")
-        |obj.infixMethod("1", "2")
-        |obj infixMethod()
-        |obj infixMethod("1")
-        |obj infixMethod("1", "2")
-      """.stripMargin
-
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false
+    getScalaSettings.SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = true
     val after =
-      """obj.infixMethod()
-        |obj.infixMethod("1")
-        |obj.infixMethod("1", "2")
-        |obj infixMethod ()
-        |obj infixMethod ("1")
-        |obj infixMethod ("1", "2")
+      """obj.method()
+        |obj.method("1")
+        |obj.method("1", "2")
+        |obj method()
+        |obj method ("1")
+        |obj method("1", "2")
+        |obj * 42
+        |obj * (42)
+      """.stripMargin
+    doTextTest(CommonInfixBefore, after)
+  }
+
+  def testSCL2601_3(): Unit = {
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
+    getScalaSettings.SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = true
+    val after =
+      """obj.method()
+        |obj.method("1")
+        |obj.method("1", "2")
+        |obj method ()
+        |obj method ("1")
+        |obj method ("1", "2")
+        |obj * 42
+        |obj * (42)
       """.stripMargin
 
-    doTextTest(before, after)
+    doTextTest(CommonInfixBefore, after)
+
+    getScalaSettings.SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = false
+    doTextTest(CommonInfixBefore, after)
   }
 }

@@ -80,7 +80,16 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
+  // simple method call:
+  // obj foo (x, y)
+  // obj ** (bar, baz)
+  // operator-like method call:
+  // a max b
+  // a max (b)
+  // actual operator callcall:
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
+  public boolean SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = true;
+
   public boolean INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = true;
 
   public boolean SPACE_BEFORE_TYPE_COLON = false;

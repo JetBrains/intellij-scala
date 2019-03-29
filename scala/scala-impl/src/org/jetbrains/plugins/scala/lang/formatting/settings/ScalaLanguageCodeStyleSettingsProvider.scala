@@ -213,7 +213,6 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     import ApplicationBundle.message
-
     import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable => GroupNames}
 
     //Custom options
@@ -258,6 +257,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     if (settingsType == SettingsType.SPACING_SETTINGS) {
       opt("SPACE_AFTER_MODIFIERS_CONSTRUCTOR", "Constructor parameters with modifiers", GroupNames.SPACES_BEFORE_PARENTHESES)
       opt("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", "Infix method call parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
+      opt("SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES", "Infix operator-like method call parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
       opt("SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES", "Infix method parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
       opt("PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME", "Preserve space before method parentheses", GroupNames.SPACES_BEFORE_PARENTHESES)
 
@@ -402,6 +402,16 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |  } catch {
       |  } finally {
       |  }
+      |
+      |  obj.method()
+      |  obj.method("1")
+      |  obj.method("1", "2")
+      |  obj method()
+      |  obj method("1")  // operator-like method call, takes single argument
+      |  obj method("1", "2")
+      |  obj * 42 // operator calls are always surrounded with space
+      |  obj % (42)
+      |  obj + (42, 23)
       |
       |  "hello" slice(1, 2) intern()
       |

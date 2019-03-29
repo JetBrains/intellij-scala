@@ -910,8 +910,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _ => false
       }
 
-      return if (scalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES || isOperator) WITH_SPACING
-      else WITHOUT_SPACING
+      val result =
+        if (scalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES || isOperator) WITH_SPACING
+        else if (scalaSettings.SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES && rightPsi.is[ScParenthesisedExpr]) WITH_SPACING
+        else WITHOUT_SPACING
+
+      return result
     }
 
     //processing left parenthesis (if it's from right) only Scala cases
