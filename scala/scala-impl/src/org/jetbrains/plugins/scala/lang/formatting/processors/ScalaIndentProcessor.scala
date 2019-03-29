@@ -257,7 +257,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           Indent.getContinuationWithoutFirstIndent(scalaSettings.ALIGN_TUPLE_ELEMENTS)
         }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs =>
+              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs | _:  ScGenerator =>
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
         if (ScalaTokenTypes.PARENTHESIS_TOKEN_SET.contains(childElementType)) Indent.getNoneIndent

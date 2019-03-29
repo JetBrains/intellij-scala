@@ -3447,7 +3447,45 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   //    doTextTest(before)
   //  }
 
-
+  def testSCL15188(): Unit = {
+    val before =
+      """package example
+        |
+        |object Hello extends App {
+        |  val res = for {
+        |    a <- Some(a)
+        |    b
+        |    <- Some("b")
+        |    c
+        |    <-
+        |    Some(c)
+        |    d <-
+        |    Some("an_extremely_long_complex_evaluation_that_exceeds_the_right_margin_andmandatesittonextline")
+        |  } yield a + b + c + d
+        |
+        |  println(res)
+        |}
+      """.stripMargin
+    val after =
+      """package example
+        |
+        |object Hello extends App {
+        |  val res = for {
+        |    a <- Some(a)
+        |    b
+        |      <- Some("b")
+        |    c
+        |      <-
+        |      Some(c)
+        |    d <-
+        |      Some("an_extremely_long_complex_evaluation_that_exceeds_the_right_margin_andmandatesittonextline")
+        |  } yield a + b + c + d
+        |
+        |  println(res)
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
 
   def testSCL2601_1(): Unit = {
     getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false
