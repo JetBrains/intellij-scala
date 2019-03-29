@@ -576,13 +576,13 @@ class ImplicitCollector(place: PsiElement,
   private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean, noReturnType: Boolean): Option[ScType] = {
     if (!fun.hasTypeParameters) Some(subst(funType))
     else if (noReturnType) {
-      val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
+      val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun))
       Some(inferredSubst(funType))
     }
     else {
       val hasTypeParametersInType: Boolean = hasTypeParamsInType(fun, funType)
       if (withLocalTypeInference && hasTypeParametersInType) {
-        val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
+        val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun))
         Some(inferredSubst(funType))
       } else if (!withLocalTypeInference && !hasTypeParametersInType) {
         Some(subst(funType))
