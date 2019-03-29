@@ -5,7 +5,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import gnu.trove.TLongObjectHashMap
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -26,15 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MostSpecificUtil}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
-import org.jetbrains.plugins.scala.project._
 
 import scala.collection.Set
 
@@ -393,7 +391,7 @@ class ImplicitCollector(place: PsiElement,
     c:                 ScalaResolveResult,
     nonValueType0:     ScType,
     hasImplicitClause: Boolean,
-    depTypeReverter:   ScType => ScType
+    hadDependents:     Boolean
   ): Option[Candidate] = {
     val fun = c.element.asInstanceOf[ScFunction]
     val subst = c.substitutor
@@ -453,12 +451,12 @@ class ImplicitCollector(place: PsiElement,
       }
     }
 
-    val (hadDependents, nonValueType) =
+    val nonValueType =
       try {
-        val updated        = updateNonValueType(nonValueType0)
-        val withDependents = depTypeReverter(updated)
-        val hadDependents  = withDependents ne updated
-        (hadDependents, withDependents)
+        val updated = updateNonValueType(nonValueType0)
+
+        if (hadDependents) UndefinedType.revertDependentTypes(updated)
+        else updated
       }
       catch {
         case _: SafeCheckException => return wrongTypeParam(CantInferTypeParameterResult)
@@ -495,10 +493,10 @@ class ImplicitCollector(place: PsiElement,
   }
 
   def checkFunctionType(
-    c:               ScalaResolveResult,
-    fun:             ScFunction,
-    ret:             ScType,
-    depTypeReverter: ScType => ScType = identity
+    c:             ScalaResolveResult,
+    fun:           ScFunction,
+    ret:           ScType,
+    hadDependents: Boolean = false
   ): Option[Candidate] = {
     val subst = c.substitutor
 
@@ -517,7 +515,7 @@ class ImplicitCollector(place: PsiElement,
           if (polymorphicTypeParameters.isEmpty) methodType
           else ScTypePolymorphicType(methodType, polymorphicTypeParameters)
 
-        try updateImplicitParameters(c, nonValueType0, implicitClause.isDefined, depTypeReverter)
+        try updateImplicitParameters(c, nonValueType0, implicitClause.isDefined, hadDependents)
         catch {
           case _: SafeCheckException =>
             Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult), subst)
@@ -565,7 +563,10 @@ class ImplicitCollector(place: PsiElement,
     cache.typeParametersOwners(funType).contains(fun)
   }
 
-  private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean): Option[ScType] = {
+  private def substedFunType(fun: ScFunction,
+                             funType: ScType,
+                             subst: ScSubstitutor,
+                             withLocalTypeInference: Boolean): Option[ScType] = {
     if (!fun.hasTypeParameters) Some(subst(funType))
     else {
       val hasTypeParametersInType: Boolean = hasTypeParamsInType(fun, funType)
@@ -598,11 +599,13 @@ class ImplicitCollector(place: PsiElement,
           case None    => return None
         }
 
-        val (withoutDependents, reverter) = approximateDependent(substedFunTp, fun.parameters.toSet)
+        val withoutDependents = approximateDependent(substedFunTp, fun.parameters.toSet)
+        val hadDependents = withoutDependents.nonEmpty
+        val updatedRetType = withoutDependents.getOrElse(substedFunTp)
 
-        if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (withoutDependents conforms tp)) {
+        if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (updatedRetType conforms tp)) {
           if (checkFast) Some(c, ScSubstitutor.empty)
-          else checkFunctionType(c, fun, withoutDependents, reverter)
+          else checkFunctionType(c, fun, updatedRetType, hadDependents)
         }
         else {
           substedFunTp match {
@@ -635,33 +638,18 @@ class ImplicitCollector(place: PsiElement,
   private[this] def approximateDependent(
     tpe:    ScType,
     params: Set[ScParameter]
-  ): (ScType, ScType => ScType) = {
+  ): Option[ScType] = {
     import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
-    val updates = new TLongObjectHashMap[ScProjectionType](10)
+    var hasDependents = false
 
-    var uid = 0
-    val updatedType = tpe.updateRecursively {
+    val updated = tpe.updateRecursively {
       case original @ ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
-        val typeParam = TypeParameter.light(p.name ++ "$$dep" + uid, Seq.empty, Nothing, Any)
-        val undef     = UndefinedType(typeParam)
-        updates.put(typeParam.typeParamId, original)
-        uid += 1
-        undef
+        hasDependents = true
+        UndefinedType(p, original)
     }
 
-    val reverter: ScType => ScType =
-      if (!updates.isEmpty)
-        (tpe: ScType) => tpe.updateLeaves {
-          case undef @ UndefinedType(tparam, _) =>
-            updates.get(tparam.typeParamId) match {
-              case null        => undef
-              case replacement => replacement
-            }
-        }
-      else identity
-
-    (updatedType, reverter)
+    if (hasDependents) Some(updated) else None
   }
 
   private def applyExtensionPredicate(cand: Candidate): Option[Candidate] = {
