@@ -402,7 +402,7 @@ object ScalaSmartCompletionContributor {
                   case _ =>
                 }
               }
-              val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.inferMethodTypesArgs(fun)
+              val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.undefineMethodTypeParams(fun)
               val second = checkForSecondCompletion &&
                 fun.paramClauses.clauses.filterNot(_.isImplicit).flatMap(_.parameters).isEmpty
               val added = fun.returnType match {
@@ -417,7 +417,7 @@ object ScalaSmartCompletionContributor {
               }
             case method: PsiMethod =>
               val second = checkForSecondCompletion && method.getParameterList.getParametersCount == 0
-              val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.inferMethodTypesArgs(method)
+              val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.undefineMethodTypeParams(method)
               checkType(method.getReturnType.toScType(), infer, second)
             case typed: ScTypedDefinition =>
               if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&

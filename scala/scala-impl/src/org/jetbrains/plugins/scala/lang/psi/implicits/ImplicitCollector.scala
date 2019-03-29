@@ -558,27 +558,6 @@ class ImplicitCollector(place: PsiElement,
     (name == "conforms" || name == "$conforms") && clazz != null && clazz.qualifiedName == "scala.Predef"
   }
 
-  private def hasTypeParamsInType(fun: ScFunction, funType: ScType): Boolean = {
-    val cache = ImplicitCollector.cache(project)
-    cache.typeParametersOwners(funType).contains(fun)
-  }
-
-  private def substedFunType(fun: ScFunction,
-                             funType: ScType,
-                             subst: ScSubstitutor,
-                             withLocalTypeInference: Boolean): Option[ScType] = {
-    if (!fun.hasTypeParameters) Some(subst(funType))
-    else {
-      val hasTypeParametersInType: Boolean = hasTypeParamsInType(fun, funType)
-      if (withLocalTypeInference && hasTypeParametersInType) {
-        val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun))
-        Some(inferredSubst(funType))
-      } else if (!withLocalTypeInference && !hasTypeParametersInType) {
-        Some(subst(funType))
-      } else None
-    }
-  }
-
   private def checkFunctionByType(
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,
@@ -594,10 +573,12 @@ class ImplicitCollector(place: PsiElement,
         val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
         val funType = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp))) getOrElse _funType
 
-        val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference) match {
-          case Some(t) => t
-          case None    => return None
-        }
+        if (fun.hasTypeParameters && !withLocalTypeInference)
+          return None
+
+        val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun)
+
+        val substedFunTp = subst.followed(undefineTypeParams)(funType)
 
         val withoutDependents = approximateDependent(substedFunTp, fun.parameters.toSet)
         val hadDependents = withoutDependents.nonEmpty

@@ -216,7 +216,7 @@ object ScalaPsiUtil {
   /**
     * Pick all type parameters by method maps them to the appropriate type arguments, if they are
     */
-  def inferMethodTypesArgs(fun: PsiMethod): ScSubstitutor = {
+  def undefineMethodTypeParams(fun: PsiMethod): ScSubstitutor = {
     implicit val ctx: ProjectContext = fun
     val typeParameters = fun match {
       case fun: ScFunction => fun.typeParameters
