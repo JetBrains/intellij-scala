@@ -27,7 +27,7 @@ final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub[ScFuncti
 
   override def toString: String = "ScFunctionDeclaration: " + ifReadAllowed(name)("")
 
-  override protected def returnTypeInner: TypeResult = returnTypeElement match {
+  override def returnType: TypeResult = returnTypeElement match {
     case Some(t) => t.`type`()
     case None => Right(Unit)
   }

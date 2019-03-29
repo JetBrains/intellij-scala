@@ -75,8 +75,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def returnType: TypeResult
 
-  protected def returnTypeInner: TypeResult
-
   def hasExplicitType: Boolean = returnTypeElement.isDefined
 
   def paramClauses: ScParameters

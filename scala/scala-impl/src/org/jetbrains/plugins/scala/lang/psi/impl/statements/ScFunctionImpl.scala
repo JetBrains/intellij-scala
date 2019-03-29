@@ -7,7 +7,6 @@ package statements
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
-import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
@@ -17,12 +16,10 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, StubBasedExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, TraversableExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
@@ -33,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiReferenceList
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl.{importantOrderFunction, isCalculatingFor, isJavaVarargs}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl.isJavaVarargs
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -45,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -315,38 +311,6 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  def returnType: TypeResult = {
-    if (importantOrderFunction(this)) {
-      val parent = getParent
-      val isCalculating = isCalculatingFor(parent)
-
-      if (isCalculating.get()) returnTypeInner
-      else {
-        isCalculating.set(true)
-        try {
-          val children = parent.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionFactory).iterator
-
-          while (children.hasNext) {
-            val nextFun = children.next()
-            if (importantOrderFunction(nextFun)) {
-              ProgressManager.checkCanceled()
-              val nextReturnType = nextFun.asInstanceOf[ScFunctionImpl[_]].returnTypeInner
-
-              //stop at current function to avoid recursion of some function body below
-              if (nextFun == this) {
-                return nextReturnType
-              }
-            }
-          }
-          returnTypeInner
-        }
-        finally {
-          isCalculating.set(false)
-        }
-      }
-    } else returnTypeInner
-  }
-
   override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean): Boolean = m match {
     case f: ScFunction => f.name == name && {
       if (strictCheck) new PhysicalMethodSignature(this, ScSubstitutor.empty).
@@ -432,17 +396,6 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 }
 
 object ScFunctionImpl {
-  private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
-
-  private def isCalculatingFor(e: PsiElement) = e.getOrUpdateUserData(
-    calculatingBlockKey,
-    ThreadLocal.withInitial[Boolean](() => false)
-  )
-
-  private def importantOrderFunction(function: ScFunction): Boolean = function match {
-    case funDef: ScFunctionDefinition => funDef.hasModifierProperty("implicit") && !funDef.hasExplicitType
-    case _ => false
-  }
 
   @tailrec
   private def hasParameterClauseImpl(function: ScFunction): Boolean = {

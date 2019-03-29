@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause;
@@ -47,6 +48,8 @@ public class JavaArrayFactoryUtil {
   public static ArrayFactory<ScMember> ScMemberFactory = ScMember[]::new;
 
   public static ArrayFactory<ScFunction> ScFunctionFactory = ScFunction[]::new;
+
+  public static ArrayFactory<ScFunctionDefinition> ScFunctionDefinitionFactory = ScFunctionDefinition[]::new;
 
   public static ArrayFactory<ScTypeAlias> ScTypeAliasFactory = ScTypeAlias[]::new;
 
