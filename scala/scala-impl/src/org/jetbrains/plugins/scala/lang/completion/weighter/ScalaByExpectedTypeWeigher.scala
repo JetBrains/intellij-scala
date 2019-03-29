@@ -76,10 +76,10 @@ object ScalaByExpectedTypeWeigher {
         fun.returnType.toOption
           .orElse(fun.`type`().toOption)
           .map {
-            substitution(_, inferMethodTypesArgs(fun, itemSubstitutor))
+            substitution(_, inferMethodTypesArgs(fun))
           }
       case method: PsiMethod =>
-        val substitutor = inferMethodTypesArgs(method, itemSubstitutor)
+        val substitutor = inferMethodTypesArgs(method)
         Some(substitution(method.getReturnType.toScType(), substitutor))
       case typed: ScTypedDefinition =>
         typed.`type`().toOption
