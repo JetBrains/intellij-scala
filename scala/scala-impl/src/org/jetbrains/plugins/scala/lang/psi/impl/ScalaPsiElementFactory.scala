@@ -33,9 +33,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationExpr, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationExpr, _}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -54,7 +54,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.EnumSet._
 
 import scala.reflect.ClassTag
 
@@ -575,13 +574,10 @@ object ScalaPsiElementFactory {
   private def addModifiersFromSignature(function: ScFunction, sign: PhysicalMethodSignature, addOverride: Boolean): ScFunction = {
     sign.method match {
       case fun: ScFunction =>
-        fun.getModifierList.modifiers.foreach {
-          case ScalaModifier.Abstract => ()
-          case prop                   => function.setModifierProperty(prop.text())
-        }
-        val modifierList = function.getModifierList
-        if (modifierList.getText.nonEmpty) function.addAfter(createWhitespace(fun.getManager), modifierList)
-        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override")
+        val res = function.getModifierList.replace(fun.getModifierList)
+        if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
+        function.setModifierProperty(ScalaModifier.ABSTRACT, value = false)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty(ScalaModifier.OVERRIDE)
       case m: PsiMethod =>
         var hasOverride = false
         if (m.getModifierList.getNode != null)

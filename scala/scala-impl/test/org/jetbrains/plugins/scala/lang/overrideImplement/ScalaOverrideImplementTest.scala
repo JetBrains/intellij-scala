@@ -1374,4 +1374,33 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val methodName = "unlift"
     runTest(methodName, text, expected, isImplement = true)
   }
+
+  def testImplementScopedVisibilityModifier(): Unit = {
+    val text =
+      """
+        |object Foo {
+        |  sealed trait Bar {
+        |    private[Foo] def foo: Unit
+        |  }
+        |
+        |  class Baz extends Bar {
+        |    <caret>
+        |  }
+        |}
+      """.stripMargin
+    val expected =
+      """
+        |object Foo {
+        |  sealed trait Bar {
+        |    private[Foo] def foo: Unit
+        |  }
+        |
+        |  class Baz extends Bar {
+        |    private[Foo] def foo: Unit = ???
+        |  }
+        |}
+      """.stripMargin
+    val methodName = "foo"
+    runTest(methodName, text, expected, isImplement = true)
+  }
 }
