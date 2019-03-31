@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import java.util.Objects
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature.Substituted
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
@@ -29,22 +28,20 @@ abstract class TypeAliasSignature {
   override def hashCode(): Int = Objects.hash(
     name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition)
   )
-
-  def updateTypes(substitutor: ScSubstitutor)
-                 (implicit visited: Set[ScType]): TypeAliasSignature = {
-
-    val substTps: Seq[TypeParameter] = this.typeParams.map(_.update(substitutor))
-    val substLower: ScType = lowerBound.recursiveUpdateImpl(substitutor)
-    val substUpper: ScType = upperBound.recursiveUpdateImpl(substitutor)
-    val combinedSubstitutor: ScSubstitutor = this.substitutor.followed(substitutor)
-
-    Substituted(typeAlias, name, substTps, substLower, substUpper, isDefinition, combinedSubstitutor)
-  }
 }
 
 object TypeAliasSignature {
 
   def apply(typeAlias: ScTypeAlias): TypeAliasSignature = new Simple(typeAlias)
+
+  def apply(typeAlias: ScTypeAlias,
+            name: String,
+            typeParams: Seq[TypeParameter],
+            lowerBound: ScType,
+            upperBound: ScType,
+            isDefinition: Boolean,
+            substitutor: ScSubstitutor): TypeAliasSignature =
+    Substituted(typeAlias, name, typeParams, lowerBound, upperBound, isDefinition, substitutor)
 
   private final class Simple(val typeAlias: ScTypeAlias) extends TypeAliasSignature {
 

@@ -4,7 +4,6 @@ package lang.psi.types.nonvalue
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
@@ -22,21 +21,6 @@ final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit
       if (!p.isRepeated) inferredParamType
       else inferredParamType.tryWrapIntoSeqType
     }))
-  }
-
-  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType = {
-
-    def updateParameterType(tp: ScType) = tp.recursiveUpdateImpl(substitutor, -variance, isLazySubtype = true)
-    def updateParameter(p: Parameter): Parameter = p.copy(
-      paramType = updateParameterType(p.paramType),
-      expectedType = updateParameterType(p.expectedType),
-      defaultType = p.defaultType.map(updateParameterType)
-    )
-    ScMethodType(
-      result.recursiveUpdateImpl(substitutor, variance),
-      params.map(updateParameter),
-      isImplicit)
   }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {

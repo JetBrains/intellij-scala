@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.dotty.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -20,14 +19,6 @@ case class DottyAndType(override val left: ScType, override val right: ScType) e
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitAndType(this)
     case _ =>
   }
-
-  def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                    (implicit visited: Set[ScType]): ScType = {
-    DottyAndType(
-      left.recursiveUpdateImpl(substitutor, variance),
-      right.recursiveUpdateImpl(substitutor, variance)
-    )
-  }
 }
 
 object DottyAndType {
@@ -38,14 +29,6 @@ case class DottyOrType(override val left: ScType, override val right: ScType) ex
   override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitOrType(this)
     case _ =>
-  }
-
-  def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                    (implicit visited: Set[ScType]): ScType = {
-    DottyOrType(
-      left.recursiveUpdateImpl(substitutor, variance),
-      right.recursiveUpdateImpl(substitutor, variance)
-    )
   }
 }
 

@@ -4,17 +4,16 @@ package recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ArrayExt}
+import org.jetbrains.plugins.scala.extensions.ArrayExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
+import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.immutable.LongMap
-import scala.collection.mutable.ArrayBuffer
 import scala.util.hashing.MurmurHash3
 
 /**
@@ -62,8 +61,40 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     if (cacheSubstitutions)
       cache ++= this.allTypeParamsMap
 
-    `type`.recursiveUpdateImpl(this)
+    recursiveUpdateImpl(`type`)(SubtypeUpdaterNoVariance, Set.empty)
   }
+
+  //This method allows application of different `Update` functions in a single pass (see ScSubstitutor).
+  //WARNING: If several updates are used, they should be applicable only for leaf types, e.g. which return themselves
+  //from `updateSubtypes` method
+  @tailrec
+  private[recursiveUpdate] def recursiveUpdateImpl(scType: ScType,
+                                                   variance: Variance = Covariant,
+                                                   isLazySubtype: Boolean = false)
+                                                  (implicit subtypeUpdater: SubtypeUpdater,
+                                                   visited: Set[ScType] = Set.empty): ScType = {
+    if (fromIndex >= substitutions.length || visited(scType)) scType
+    else {
+      val currentUpdate = substitutions(fromIndex)
+
+      currentUpdate(scType, variance) match {
+        case ReplaceWith(res) =>
+          next.recursiveUpdateImpl(res, variance, isLazySubtype)(subtypeUpdater, visited)
+        case Stop => scType
+        case ProcessSubtypes =>
+          val newVisited = if (isLazySubtype) visited + scType else visited
+
+          if (hasNonLeafSubstitutions) {
+            val withCurrentUpdate = subtypeUpdater.updateSubtypes(scType, variance, ScSubstitutor(currentUpdate))(newVisited)
+            next.recursiveUpdateImpl(withCurrentUpdate, variance)(subtypeUpdater, Set.empty)
+          }
+          else {
+            subtypeUpdater.updateSubtypes(scType, variance, this)(newVisited)
+          }
+      }
+    }
+  }
+
 
   def followed(other: ScSubstitutor): ScSubstitutor = {
     assertFullSubstitutor()

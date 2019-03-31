@@ -128,14 +128,6 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
     polymorphicTypeSubstitutor(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
-  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType = {
-    ScTypePolymorphicType(
-      internalType.recursiveUpdateImpl(substitutor, variance),
-      typeParameters.update(substitutor, -variance)
-    )
-  }
-
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     var lastConstraints = constraints
     r match {

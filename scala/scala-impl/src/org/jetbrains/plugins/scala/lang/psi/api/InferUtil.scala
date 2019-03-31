@@ -558,6 +558,8 @@ object InferUtil {
 
             val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
 
+            import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
+
             def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = ScTypePolymorphicType(
               sub(retType),
               typeParams.filter { tp =>

@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -52,20 +51,6 @@ final case class ScCompoundType private (
     val componentsDepth = if (ints.isEmpty) 0 else ints.max
     if (depths.nonEmpty) componentsDepth.max(depths.max + 1)
     else componentsDepth
-  }
-
-  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType = {
-    val updSignatureMap = signatureMap.map {
-      case (s: TermSignature, tp) =>
-        val tParams = s.typeParams.update(substitutor, Invariant)
-        val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(substitutor, variance, isLazySubtype = true)))
-        val updSignature = new TermSignature(s.name, paramTypes, tParams, s.substitutor.followed(substitutor), s.namedElement, s.hasRepeatedParam)
-        (updSignature, tp.recursiveUpdateImpl(substitutor, Covariant))
-    }
-    ScCompoundType(components.smartMap(_.recursiveUpdateImpl(substitutor, variance)), updSignatureMap, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(substitutor))
-    })
   }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {

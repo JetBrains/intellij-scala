@@ -8,16 +8,14 @@ package types
  */
 
 import java.util.Objects
-import java.util.concurrent.ConcurrentMap
 
 import com.intellij.psi._
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.Bound
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
@@ -52,24 +50,6 @@ final class ScParameterizedType private(val designator: ScType, val typeArgument
       hash = Objects.hash(designator, typeArguments)
 
     hash
-  }
-
-  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType = {
-
-    val typeParameterVariances = designator.extractDesignated(expandAliases = false) match {
-      case Some(n: ScTypeParametersOwner) => n.typeParameters.map(_.variance)
-      case _                              => Seq.empty
-    }
-    val newDesignator = designator.recursiveUpdateImpl(substitutor, variance)
-    val newTypeArgs = typeArguments.smartMapWithIndex {
-      case (ta, i) =>
-        val v = if (i < typeParameterVariances.length) typeParameterVariances(i) else Invariant
-        ta.recursiveUpdateImpl(substitutor, v * variance)
-    }
-
-    if ((newDesignator eq designator) && (newTypeArgs eq typeArguments)) this
-    else ScParameterizedType(newDesignator, newTypeArgs)
   }
 
   protected override def substitutorInner: ScSubstitutor = {

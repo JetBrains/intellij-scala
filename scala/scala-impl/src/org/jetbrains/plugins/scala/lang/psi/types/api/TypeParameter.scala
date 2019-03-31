@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.scala.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -23,14 +22,6 @@ sealed trait TypeParameter {
   def upperType: ScType
 
   def name: String = psiTypeParameter.name
-
-  def update(substitutor: ScSubstitutor, variance: Variance = Invariant)
-            (implicit visited: Set[ScType] = Set.empty): TypeParameter = TypeParameter.StrictTp(
-    psiTypeParameter,
-    typeParameters.map(_.update(substitutor, variance)),
-    lowerType.recursiveUpdateImpl(substitutor, variance, isLazySubtype = true),
-    upperType.recursiveUpdateImpl(substitutor, variance, isLazySubtype = true)
-  )
 
   def isInvariant: Boolean = psiTypeParameter.asOptionOf[ScTypeParam].exists { t =>
     !t.isCovariant && !t.isContravariant

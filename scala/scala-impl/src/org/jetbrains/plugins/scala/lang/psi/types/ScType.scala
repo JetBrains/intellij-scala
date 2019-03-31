@@ -5,8 +5,7 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
 import scala.language.implicitConversions
@@ -54,9 +53,6 @@ trait ScType extends ProjectContextOwner {
   def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     ConstraintsResult.Left
   }
-
-  def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                    (implicit visited: Set[ScType]): ScType
 
   def visitType(visitor: TypeVisitor)
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.dotty.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeVisitor, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature, TypeAliasSignature}
 
@@ -21,9 +21,6 @@ case class DottyRefinedType(designator: ScType,
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitRefinedType(this)
     case _ =>
   }
-
-  //this is wrong, but dotty types are not used right now anyway
-  def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)(implicit visited: Set[ScType]): ScType = this
 }
 
 object DottyRefinedType {

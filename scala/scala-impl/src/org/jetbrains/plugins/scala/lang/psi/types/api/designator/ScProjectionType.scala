@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -84,15 +84,6 @@ final class ScProjectionType private(val projected: ScType,
   }) && super.isStable
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
-
-  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType = {
-
-    val updatedType = projected.recursiveUpdateImpl(substitutor, Covariant)
-
-    if (updatedType eq projected) this
-    else ScProjectionType(updatedType, element)
-  }
 
   @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
   private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {

@@ -23,14 +23,6 @@ final class ScExistentialType private (val quantified: ScType,
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType = {
-    val updatedQ = quantified.recursiveUpdateImpl(substitutor, variance)
-
-    if (updatedQ eq quantified) this
-    else ScExistentialType(updatedQ)
-  }
-
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, constraints)
     val simplified = simplify()

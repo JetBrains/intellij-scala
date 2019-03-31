@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, TypeParameter, TypeParameterType, TypeVisitor, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -17,6 +17,8 @@ trait ScExistentialArgument extends NamedType with ValueType {
   def typeParameters: Seq[TypeParameter]
   def lower: ScType
   def upper: ScType
+
+  def isLazy: Boolean
 
   def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument
 
@@ -49,17 +51,12 @@ object ScExistentialArgument {
     lazy val lower: ScType = ta.lowerBound.getOrNothing
     lazy val upper: ScType = ta.upperBound.getOrAny
 
+    override def isLazy: Boolean = true
+
     def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument = {
       if (newLower != lower || newUpper != upper)
         Complete(name, typeParameters, newLower, newUpper)
       else this //we shouldn't create `Complete` instance, because it'll break equals/hashcode
-    }
-
-    override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                               (implicit visited: Set[ScType]): ScType = {
-      copyWithBounds(
-        lower.recursiveUpdateImpl(substitutor, Contravariant, isLazySubtype = true),
-        upper.recursiveUpdateImpl(substitutor, Covariant    , isLazySubtype = true))
     }
   }
 
@@ -70,12 +67,7 @@ object ScExistentialArgument {
 
     extends ScExistentialArgument {
 
-    override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                               (implicit visited: Set[ScType]): ScType = {
-      copyWithBounds(
-        lower.recursiveUpdateImpl(substitutor, Contravariant),
-        upper.recursiveUpdateImpl(substitutor, Covariant))
-    }
+    override def isLazy: Boolean = false
 
     def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
       Complete(name, typeParameters, newLower, newUpper)
