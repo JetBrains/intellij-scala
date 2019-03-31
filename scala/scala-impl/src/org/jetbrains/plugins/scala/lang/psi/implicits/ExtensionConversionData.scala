@@ -51,19 +51,18 @@ object ExtensionConversionHelper {
         } yield resultType
     }
 
-  def extensionConversionCheck(data: ExtensionConversionData, candidate: Candidate): Option[Candidate] = {
+  def extensionConversionCheck(data: ExtensionConversionData, candidate: ScalaResolveResult): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
     import data._
 
-    val resolveResult = candidate._1
-    specialExtractParameterType(resolveResult).filter {
+    specialExtractParameterType(candidate).filter {
       case _: ValType if isHardCoded => false
       case _ => true
     }.filter {
       checkHasMethodFast(data, _)
     }.flatMap { tp =>
       if (!noApplicability && processor.isInstanceOf[MethodResolveProcessor]) {
-        val typeParams = resolveResult match {
+        val typeParams = candidate match {
           case ScalaResolveResult(function: ScFunction, _) if function.hasTypeParameters =>
             function.typeParameters.map {
               TypeParameter(_)
@@ -82,20 +81,19 @@ object ExtensionConversionHelper {
     }
   }
 
-  private def update(candidate: Candidate, foundInType: ScalaResolveResult)
-                    (implicit context: ProjectContext = foundInType.projectContext): Candidate = {
-    val (candidateResult, candidateSubstitutor) = candidate
+  private def update(candidate: ScalaResolveResult, foundInType: ScalaResolveResult)
+                    (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
 
-    foundInType.resultUndef.collect {
-      case ConstraintSystem(substitutor) => substitutor
-    }.fold(candidate) { substitutor =>
-      val parameterType = candidateResult.implicitParameterType
-      val result = candidateResult.copy(
-        subst = foundInType.substitutor.followed(substitutor),
-        implicitParameterType = parameterType.map(substitutor)
-      )
+    foundInType.resultUndef match {
+      case None => candidate
+      case Some(ConstraintSystem(substitutor)) =>
+        val parameterType = candidate.implicitParameterType
 
-      (result, candidateSubstitutor.followed(substitutor))
+        val combinedSubstitutor = candidate.substitutor.followed(foundInType.substitutor).followed(substitutor)
+        candidate.copy(
+          subst = combinedSubstitutor,
+          implicitParameterType = parameterType.map(combinedSubstitutor)
+        )
     }
   }
 
