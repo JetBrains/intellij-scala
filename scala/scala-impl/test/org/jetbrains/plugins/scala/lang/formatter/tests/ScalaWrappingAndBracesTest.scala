@@ -255,7 +255,6 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   // (vertical align / do not align)
   // (no wrap / wrap if long / chop if long / wrap always )
   // (wrap first / no wrap first) # only for "wrap always" and "chop if long"
-  // TODO: add tests on ENTER press, calculate correct indent for these special cases
 
   //
   // Do not align when multiline
@@ -852,4 +851,86 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     doTextTest(before, after)
   }
+
+  def testIndentForEnumeratorsIfFirstStartsFromNewLine(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_FOR = false
+    val before =
+      """for (x <- Option(1);
+        |y <- Option(2)) yield x * y
+        |""".stripMargin
+    val after =
+      """for (x <- Option(1);
+        |  y <- Option(2)) yield x * y
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testAlignMultilineFor_1(): Unit = {
+    val before =
+      """for (x <- Option(1);
+        |y <- Option(2)) yield x * y
+        |""".stripMargin
+    val after =
+      """for (x <- Option(1);
+        |     y <- Option(2)) yield x * y
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testAlignMultilineFor_2(): Unit = {
+    val before =
+      """for (x <- Option(1);
+        |y <- Option(2)
+        |) yield x * y
+        |""".stripMargin
+    val after =
+      """for (x <- Option(1);
+        |     y <- Option(2)
+        |     ) yield x * y
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testAlignMultilineFor_3(): Unit = {
+    val before =
+      """for {x <- Option(1);
+        |y <- Option(2)} yield x * y
+        |""".stripMargin
+    val after =
+      """for {x <- Option(1);
+        |     y <- Option(2)} yield x * y
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testAlignMultilineFor_4(): Unit = {
+    val before =
+      """for {x <- Option(1);
+        |y <- Option(2)
+        |} yield x * y
+        |""".stripMargin
+    val after =
+      """for {x <- Option(1);
+        |     y <- Option(2)
+        |     } yield x * y
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testAlignMultilineFor_5(): Unit = {
+    val before =
+      """for {x <- Option(1);
+        |y <- Option(2)} yield {
+        |x * y
+        |}
+        |""".stripMargin
+    val after =
+      """for {x <- Option(1);
+        |     y <- Option(2)} yield {
+        |  x * y
+        |}
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
 }

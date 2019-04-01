@@ -286,7 +286,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     println(s"Children: (${if(subBlocks.isEmpty) "<empty>" else subBlocks.size()})")
     subBlocks.asScala.map(_.asInstanceOf[ScalaBlock]).zipWithIndex.foreach { case (child, idx) =>
       println(s"$idx: ${child.debugText}")
-      println(s"$idx: ${child.getTextRange} ${child.indent} ${child.alignment} ${child.wrap}}")
+      println(s"$idx: ${child.getTextRange} ${child.indent} ${child.alignment} ${child.wrap}")
     }
     println()
   }
@@ -337,6 +337,14 @@ object SubBlocksContext {
       childrenAdditionalContexts = Map(
         node -> new SubBlocksContext(childNodes, childAlignment, childrenAdditionalContexts)
       )
+    )
+  }
+
+  def apply(childNodesAlignment: Map[ASTNode, Alignment]): SubBlocksContext = {
+    new SubBlocksContext(
+      additionalNodes = Seq(),
+      alignment = None,
+      childrenAdditionalContexts = childNodesAlignment.mapValues(a => new SubBlocksContext(Seq(), Some(a), Map()))
     )
   }
 }

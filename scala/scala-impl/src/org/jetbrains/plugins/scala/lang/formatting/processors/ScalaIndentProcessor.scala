@@ -232,7 +232,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       case _: ScBlock => Indent.getNoneIndent
-      case enum: ScEnumerators => if (enum.getPrevSibling != null) Indent.getNoneIndent else Indent.getNormalIndent
+      case _: ScEnumerators => Indent.getContinuationWithoutFirstIndent(false)
       case _: ScExtendsBlock if childElementType != ScalaElementType.TEMPLATE_BODY => Indent.getContinuationIndent
       case _: ScExtendsBlock if settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED2 =>
         Indent.getNormalIndent

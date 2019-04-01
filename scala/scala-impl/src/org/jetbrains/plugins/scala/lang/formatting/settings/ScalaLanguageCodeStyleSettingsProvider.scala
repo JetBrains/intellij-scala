@@ -83,6 +83,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Infix expressions")
       consumer.renameStandardOption("EXTENDS_LIST_WRAP", "Extends/with list")
       consumer.renameStandardOption("EXTENDS_KEYWORD_WRAP", "Extends keyword")
+      consumer.renameStandardOption("FOR_BRACE_FORCE", "Force yield braces")
 
       //Binary expression section
       buffer ++= Seq(
@@ -491,7 +492,18 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    23
       |  } else 423
       |
-      |  for (i <- 1 to 5) yield i + 1
+      |  for (x <- 1 to 5) yield x + 1
+      |
+      |  for (x <- 1 to 5;
+      |       y <- 5 to 10) yield x * y
+      |
+      |  for {x <- 1 to 5
+      |       y <- 5 to 10} yield x * y
+      |
+      |  for {
+      |    x <- 1 to 5
+      |    y <- 5 to 10
+      |  } yield x * y
       |
       |  while (true)
       |    println(42)

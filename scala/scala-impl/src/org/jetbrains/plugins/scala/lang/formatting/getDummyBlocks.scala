@@ -265,7 +265,6 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
 
     val alignment: Alignment = createAlignment(node)
-    var alternateAlignment: Alignment = null
     for (child <- children if isCorrectBlock(child)) {
       val childAlignment: Alignment = {
         node.getPsi match {
@@ -523,18 +522,26 @@ class getDummyBlocks(private val block: ScalaBlock) {
         val closingType =
           if (lParen.getElementType == ScalaTokenTypes.tLPARENTHESIS) ScalaTokenTypes.tRPARENTHESIS
           else ScalaTokenTypes.tRBRACE
-        val after = tail.dropWhile(_.getElementType != closingType)
-        after match {
+        val afterСlosingParent = tail.dropWhile(_.getElementType != closingType)
+        afterСlosingParent match {
           case Nil =>
             addTail(children)
-          case headAfter :: tailAfter =>
-            subBlocks.add(subBlock(lParen, headAfter))
-            addTail(tailAfter)
+          case rParent :: yieldNodes =>
+            val enumerators = tail.head
+            val context = if (commonSettings.ALIGN_MULTILINE_FOR && !enumerators.getPsi.startsFromNewLine()) {
+              val alignment = Alignment.createAlignment()
+              Some(SubBlocksContext(Map(rParent -> alignment , enumerators -> alignment)))
+            } else {
+              None
+            }
+            subBlocks.add(subBlock(lParen, rParent, context = context))
+            addTail(yieldNodes)
         }
       case _ =>
         addTail(children)
     }
     addFor(children.filter(isCorrectBlock).toList)
+
     subBlocks
   }
 
