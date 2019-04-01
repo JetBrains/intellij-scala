@@ -43,7 +43,7 @@ class ScalaFilterScope(scope: GlobalSearchScope, project: Project) extends Filte
   override protected def isValid(file: VirtualFile): Boolean = {
     val isScalaSource = myIndex.isInSourceContent(file) &&
       (FileTypeManager.getInstance().isFileOfType(file, ScalaFileType.INSTANCE) ||
-      ScalaLanguageDerivative.hasDerivativeForFileType(file.getFileType))
+        ScalaLanguageDerivative.hasDerivativeForFileType(file))
 
     val isCompiled =
       StdFileTypes.CLASS.getDefaultExtension == file.getExtension &&
