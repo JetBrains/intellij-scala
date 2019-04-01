@@ -35,6 +35,8 @@ public interface Icons {
 
     //Toplevel nodes
     Icon CLASS = getIcon("/org/jetbrains/plugins/scala/images/class_scala.svg");
+    Icon CASE_CLASS = getIcon("/org/jetbrains/plugins/scala/images/case_class_scala.svg");
+    Icon CASE_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/case_object_scala.svg");
     Icon ABSTRACT_CLASS = getIcon("/org/jetbrains/plugins/scala/images/abstract_class_scala.svg");
     Icon TRAIT = getIcon("/org/jetbrains/plugins/scala/images/trait_scala.svg");
     Icon OBJECT = getIcon("/org/jetbrains/plugins/scala/images/object_scala.svg");

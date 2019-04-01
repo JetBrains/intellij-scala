@@ -238,6 +238,8 @@
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
         <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
         <internalFileTemplate name="Scala Class"/>
+        <internalFileTemplate name="Scala CaseClass"/>
+        <internalFileTemplate name="Scala CaseObject"/>
         <internalFileTemplate name="Scala Trait"/>
         <internalFileTemplate name="Scala Object"/>
         <internalFileTemplate name="Scala Script"/>
