@@ -3,6 +3,7 @@ package lang
 package psi
 package compiled
 
+import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.{VirtualFile, newvfs}
@@ -13,7 +14,9 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
-  override def accepts(file: VirtualFile): Boolean = file.isScalaCompiledClassFile
+  override def accepts(file: VirtualFile): Boolean = isTopLevelClass(file) {
+    case (_, _) => true
+  }
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
@@ -65,7 +68,7 @@ object ScClassFileDecompiler {
     }
 
     private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
-      case original if original.isScalaTopLevelClass =>
+      case original if isTopLevelClass(original)() =>
         DecompilationResult.unapply(original)(content.getContent).map {
           case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
             sourceName,
@@ -92,6 +95,49 @@ object ScClassFileDecompiler {
     override protected def createCopy(eventSystemEnabled: Boolean)
                                      (implicit manager: PsiManager, file: VirtualFile) =
       new NonScalaClassFileViewProvider(eventSystemEnabled)
+  }
+
+  private def isTopLevelClass(file: VirtualFile)
+                             (predicate: (String, String) => Boolean = _ == _): Boolean = file.getFileType match {
+    case fileType@JavaClassFileType.INSTANCE =>
+      file.getParent match {
+        case null => false
+        case directory =>
+          def hasDecompilableChild(nameWithoutExtension: String) =
+            directory.findChild(nameWithoutExtension + '.' + fileType.getDefaultExtension) match {
+              case null => false
+              case child => DecompilationResult.tryDecompile(child).isDefined
+            }
+
+          val fileName = file.getNameWithoutExtension
+          new PrefixIterator(fileName).exists { prefix =>
+            !prefix.endsWith("$") &&
+              hasDecompilableChild(prefix) &&
+              predicate(prefix, fileName)
+          }
+      }
+    case _ => false
+  }
+
+  private[this] class PrefixIterator(private val fileName: String) extends Iterator[String] {
+
+    import reflect.NameTransformer._
+
+    private val string = decode(fileName)
+    private val stringLength = string.length
+    private var endIndex = -1
+
+    override def hasNext: Boolean = endIndex < stringLength
+
+    override def next(): String = endIndex match {
+      case `stringLength` => throw new NoSuchElementException("Prefix length equals the string length")
+      case current =>
+        endIndex = string.indexOf('$', current + 1) match {
+          case -1 => stringLength
+          case newEndIndex => newEndIndex
+        }
+        encode(string.substring(0, endIndex))
+    }
   }
 
 }
