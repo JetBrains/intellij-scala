@@ -18,20 +18,20 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def getDisplayName: String = "Unused Symbol"
 
-  private def isElementUsed(elem: ScNamedElement, isOnTheFly: Boolean): Boolean = {
+  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
     if (isOnTheFly) {
       //we can trust RefCounter because references are counted during highlighting
-      val refCounter = ScalaRefCountHolder.getInstance(elem.getContainingFile)
+      val refCounter = ScalaRefCountHolder(element)
       var used = false
+
       val success = refCounter.retrieveUnusedReferencesInfo { () =>
-        if (refCounter.isValueUsed(elem)) {
-          used = true
-        }
+        used |= refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
       }
+
       !success || used //want to return true if it was a failure
     } else {
       //need to look for references because file is not highlighted
-      ReferencesSearch.search(elem, elem.getUseScope).findFirst() != null
+      ReferencesSearch.search(element, element.getUseScope).findFirst() != null
     }
   }
 

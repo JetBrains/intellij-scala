@@ -2,13 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package unusedInspections
 
+import java.{util => ju}
 
-import java.util
-import java.util.Collections
-
-import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.codeInsight.daemon.impl._
-import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.application.ApplicationManager
@@ -39,26 +35,24 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       highlightInfoProcessor) with ScalaUnusedImportPassBase {
   protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 
-  private var myHighlights: util.List[HighlightInfo] = _
+  private var myHighlights: ju.List[HighlightInfo] = _
   private var myOptimizeImportsRunnable: Runnable = _
 
-  override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
-    file match {
-      case scalaFile: ScalaFile if HighlightingLevelManager.getInstance(file.getProject) shouldInspect file =>
-        val unusedImports = UsageTracker.getUnusedImports(scalaFile)
-        val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
+  override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {
+    case scalaFile: ScalaFile if analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
+      val unusedImports = UsageTracker.getUnusedImports(scalaFile)
+      val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 
-        val list = new util.ArrayList[HighlightInfo](annotations.length)
-        annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation) )
+      val list = new ju.ArrayList[HighlightInfo](annotations.length)
+      annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation))
 
-        if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
-          myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(file, progress)
-        }
+      if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
+        myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(file, progress)
+      }
 
-        myHighlights = list
-      case _: ScalaFile => myHighlights = Collections.emptyList()
-      case _ =>
-    }
+      myHighlights = list
+    case _: ScalaFile => myHighlights = ju.Collections.emptyList()
+    case _ =>
   }
 
   override def applyInformationWithProgress(): Unit = {
@@ -95,12 +89,6 @@ object ScalaUnusedImportPass {
         DocumentUtil.writeInRunUndoTransparentAction(runnable)
       }
     })
-  }
-
-  private[codeInspection] def isUpToDate(file: PsiFile): Boolean = {
-    val lastStamp = file.getUserData(SCALA_LAST_POST_PASS_TIMESTAMP)
-    val currentStamp: Long = PsiModificationTracker.SERVICE.getInstance(file.getProject).getModificationCount
-    lastStamp != null && lastStamp == currentStamp || !ProblemHighlightFilter.shouldHighlightFile(file)
   }
 
   private def markFileUpToDate(file: PsiFile) {

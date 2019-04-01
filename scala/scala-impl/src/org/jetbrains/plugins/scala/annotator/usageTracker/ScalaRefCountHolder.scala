@@ -1,26 +1,19 @@
-package org.jetbrains.plugins.scala.annotator.usageTracker
+package org.jetbrains.plugins.scala
+package annotator
+package usageTracker
 
-import java.util
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
+import java.{util => ju}
 
 import com.intellij.codeHighlighting.Pass
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}
 import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
+import com.intellij.openapi.util.{LowMemoryWatcher, Ref}
 import com.intellij.psi._
-import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.containers.hash.LinkedHashMap
-import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder.TimestampedValueMap
-import org.jetbrains.plugins.scala.extensions.FileViewProviderExt
+import com.intellij.util.containers.{ContainerUtil, hash}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-
-import scala.collection.JavaConverters.asScalaIteratorConverter
-import scala.concurrent.duration.{Duration, DurationLong}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,212 +23,225 @@ import scala.concurrent.duration.{Duration, DurationLong}
 /**
  * See com.intellij.codeInsight.daemon.impl.RefCountHolder
  */
-class ScalaRefCountHolder private () {
-  private final val myState: AtomicReference[Integer] = new AtomicReference[Integer](State.VIRGIN)
-  private object State {val VIRGIN = 0; val WRITE = 1; val READY = 2; val READ = 3;}
-  private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]()
-  private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]()
+final class ScalaRefCountHolder private() {
 
-  private def clear() {
-    assertIsAnalyzing()
-    myImportUsed.clear()
-    myValueUsed.clear()
-  }
+  import ScalaRefCountHolder._
+  import State._
 
-  def registerImportUsed(used: ImportUsed) {
+  private val myState = new ju.concurrent.atomic.AtomicReference(VIRGIN)
+
+  private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]
+  private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]
+
+  def registerImportUsed(used: ImportUsed): Unit = {
     myImportUsed.add(used)
   }
 
-  def registerValueUsed(used: ValueUsed) {
+  def registerValueUsed(used: ValueUsed): Unit = {
     myValueUsed.add(used)
   }
 
-  def noUsagesFound(used: ImportUsed): Boolean = {
-    assertIsRetrieving()
-    !myImportUsed.contains(used)
+  def usageFound(used: ImportUsed): Boolean = {
+    assertState()
+    myImportUsed.contains(used)
   }
 
-  def isValueWriteUsed(e: PsiNamedElement): Boolean = {
-    assertIsRetrieving()
-    myValueUsed.contains(WriteValueUsed(e))
+  def isValueWriteUsed(element: PsiNamedElement): Boolean = isValueUsed {
+    WriteValueUsed(element)
   }
 
-  def isValueReadUsed(e: PsiNamedElement): Boolean = {
-    assertIsRetrieving()
-    myValueUsed.contains(ReadValueUsed(e))
+  def isValueReadUsed(element: PsiNamedElement): Boolean = isValueUsed {
+    ReadValueUsed(element)
   }
 
-  def isValueUsed(e: PsiNamedElement): Boolean = {
-    assertIsRetrieving()
-    isValueReadUsed(e) || isValueWriteUsed(e)
+  private def isValueUsed(used: ValueUsed): Boolean = {
+    assertState()
+    myValueUsed.contains(used)
   }
 
-  private def removeInvalidRefs() {
-    assertIsAnalyzing()
-    myImportUsed synchronized {
-      val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
-      while (iterator.hasNext) {
-        val ref: ImportUsed = iterator.next
-        if (!ref.element.isValid) {
-          iterator.remove()
+  def analyze(analyze: Runnable, file: PsiFile): Boolean = {
+    myState.compareAndSet(READY, VIRGIN)
+
+    if (myState.compareAndSet(VIRGIN, WRITE)) {
+      try {
+        val dirtyScope = findDirtyScope(file)(file.getProject)
+        assertState(WRITE)
+
+        if (dirtyScope.forall(_ == file.getTextRange)) {
+          myImportUsed.clear()
+          myValueUsed.clear()
+        } else {
+          clear(myImportUsed)(_.element.isValid)
+          clear(myValueUsed)(_.isValid)
         }
+
+        analyze.run()
+      } finally {
+        setReady(WRITE)
       }
+
+      true
+    } else {
+      false
     }
-    myValueUsed synchronized {
-      val valuesIterator: java.util.Iterator[ValueUsed] = myValueUsed.iterator()
-      while (valuesIterator.hasNext) {
-        val ref: ValueUsed = valuesIterator.next
-        if (!ref.isValid) valuesIterator.remove()
+  }
+
+
+  def retrieveUnusedReferencesInfo(analyze: () => Unit): Boolean =
+    if (myState.compareAndSet(READY, READ)) {
+      try {
+        analyze()
+      } finally {
+        setReady(READ)
       }
+
+      true
+    } else {
+      false
     }
+
+  private def setReady(expect: Int): Unit = {
+    val value = myState.compareAndSet(expect, READY)
+    Log.assertTrue(value, myState.get)
   }
 
-  def analyze(analyze: Runnable, dirtyScope: TextRange, file: PsiFile): Boolean = {
-    myState.compareAndSet(State.READY, State.VIRGIN)
-    if (!myState.compareAndSet(State.VIRGIN, State.WRITE)) return false
-    try {
-      if (dirtyScope != null) {
-        if (dirtyScope.equals(file.getTextRange)) {
-          clear()
-        }
-        else {
-          removeInvalidRefs()
-        }
-      }
-      analyze.run()
-    }
-    finally {
-      val set: Boolean = myState.compareAndSet(State.WRITE, State.READY)
-      assert(set, myState.get)
-    }
-    true
-  }
-
-
-  def retrieveUnusedReferencesInfo(analyze: () => Unit): Boolean = {
-    if (!myState.compareAndSet(State.READY, State.READ)) {
-      return false
-    }
-    try {
-      analyze()
-    }
-    finally {
-      val set: Boolean = myState.compareAndSet(State.READ, State.READY)
-      assert(set, myState.get)
-    }
-    true
-  }
-
-
-  private def assertIsAnalyzing() {
-    assert(myState.get == State.WRITE, myState.get)
-  }
-
-
-  private def assertIsRetrieving() {
-    assert(myState.get == State.READ, myState.get)
+  private def assertState(expected: Int = READ): Unit = {
+    val actual = myState.get
+    Log.assertTrue(actual == expected, actual)
   }
 }
 
 object ScalaRefCountHolder {
 
-  def getDirtyScope(file: PsiFile): Option[TextRange] = {
-    val project = file.getProject
-    val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
+  private val Log = Logger.getInstance(getClass)
 
-    if (document == null) Some(file.getTextRange)
-    else DaemonCodeAnalyzer.getInstance(project) match {
-      case analyzerImpl: DaemonCodeAnalyzerImpl =>
-        val fileStatusMap = analyzerImpl.getFileStatusMap
-        Option(fileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL))
-      case _ => Some(file.getTextRange)
-    }
+  private object State {
+    val VIRGIN = 0
+    val WRITE = 1
+    val READY = 2
+    val READ = 3
   }
 
-  def getInstance(file: PsiFile): ScalaRefCountHolder = file.getViewProvider
-    .findScalaPsi
-    .getOrElse(file)
-    .getProject
-    .getComponent(classOf[ScalaRefCountHolderComponent])
-    .getOrCreate(file, new ScalaRefCountHolder)
+  def apply(element: PsiNamedElement): ScalaRefCountHolder =
+    getInstance(element.getContainingFile)
 
-  private case class Timestamped[V](value: V, var timestamp: Long = -1)
+  def getInstance(file: PsiFile): ScalaRefCountHolder = {
+    import extensions.FileViewProviderExt
+    file.getViewProvider
+      .findScalaPsi
+      .getOrElse(file)
+      .getProject
+      .getComponent(classOf[ScalaRefCountHolderComponent])
+      .getOrCreate(
+        file.getName + file.hashCode,
+        new ScalaRefCountHolder
+      )
+  }
 
-  class TimestampedValueMap[K, V](minimumSize: Int, maximumSize: Int, storageTime: Duration) {
+  private def findDirtyScope(file: PsiFile)
+                            (implicit project: Project) =
+    for {
+      document <- Option(PsiDocumentManager.getInstance(project).getDocument(file))
 
-    private[this] val innerMap: util.Map[K, Timestamped[V]] =
-      new LinkedHashMap[K, Timestamped[V]](maximumSize, true) {
+      analyzer = DaemonCodeAnalyzer.getInstance(project)
+      if analyzer.isInstanceOf[impl.DaemonCodeAnalyzerImpl]
+      analyzerImpl = analyzer.asInstanceOf[impl.DaemonCodeAnalyzerImpl]
 
-        override def removeEldestEntry(eldest: util.Map.Entry[K, Timestamped[V]]): Boolean = size() > maximumSize
+      statusMap = analyzerImpl.getFileStatusMap
+    } yield statusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)
 
-        override def doRemoveEldestEntry(): Unit = innerMap.synchronized {
-          super.doRemoveEldestEntry()
-        }
-      }
-
-    def getOrCreate(k: K, v: => V): V = innerMap.synchronized {
-      val value = {
-        val cached = innerMap.get(k)
-        if (cached != null) cached
-        else {
-          val newValue = Timestamped(v)
-          innerMap.put(k, newValue)
-          newValue
-        }
-      }
-
-      value.timestamp = System.currentTimeMillis()
-      value.value
-    }
-
-    def removeStaleEntries(): Unit = innerMap.synchronized {
-      val currentSize = innerMap.size
-      if (currentSize <= minimumSize) return
-
-      val currentTime = System.currentTimeMillis()
-      val iterator = innerMap.entrySet().iterator()
-
-      val possiblyStale = iterator.asScala.take(currentSize - minimumSize)
-
-      possiblyStale.foreach {
-        case e if currentTime - e.getValue.timestamp > storageTime.toMillis =>
-          innerMap.remove(e.getKey)
-        case _ =>
+  private def clear[T](used: ju.Set[T])
+                      (isValid: T => Boolean): Unit = used.synchronized {
+    val valuesIterator = used.iterator
+    while (valuesIterator.hasNext) {
+      if (!isValid(valuesIterator.next)) {
+        valuesIterator.remove()
       }
     }
   }
 }
 
-class ScalaRefCountHolderComponent(project: Project) extends ProjectComponent {
-  private val autoCleaningMap: Ref[TimestampedValueMap[String, ScalaRefCountHolder]] = Ref.create()
+final class ScalaRefCountHolderComponent(project: Project) extends ProjectComponent {
 
-  private val numberOfFilesToKeep = 3
-  private val maxNumberOfFiles = 20
-  private val otherFilesStorageTime = 5.minutes
-  private val cleanupInterval = 1.minute
+  import ScalaRefCountHolderComponent._
+
+  private val autoCleaningMap = Ref.create[TimestampedValueMap[String, ScalaRefCountHolder]]
 
   override def projectOpened(): Unit = {
-    autoCleaningMap.set(new TimestampedValueMap(numberOfFilesToKeep, maxNumberOfFiles, otherFilesStorageTime))
+    autoCleaningMap.set(new TimestampedValueMap())
 
-    JobScheduler.getScheduler.scheduleWithFixedDelay (
-      cleanupTask(autoCleaningMap), cleanupInterval.toMillis, cleanupInterval.toMillis, TimeUnit.MILLISECONDS
+    val cleanupRunnable: Runnable = () => autoCleaningMap.get.removeStaleEntries()
+
+    JobScheduler.getScheduler.scheduleWithFixedDelay(
+      cleanupRunnable,
+      CleanupDelay,
+      CleanupDelay,
+      ju.concurrent.TimeUnit.MILLISECONDS
     )
 
-    LowMemoryWatcher.register(cleanupTask(autoCleaningMap), project)
+    LowMemoryWatcher.register(cleanupRunnable, project)
   }
 
-  override def projectClosed(): Unit = {
-    autoCleaningMap.set(null)
+  override def projectClosed(): Unit = autoCleaningMap.set(null)
+
+  def getOrCreate(key: String, holder: => ScalaRefCountHolder): ScalaRefCountHolder = {
+    autoCleaningMap.get match {
+      case null => holder
+      case map => map.getOrCreate(key, holder)
+    }
+  }
+}
+
+object ScalaRefCountHolderComponent {
+
+  import concurrent.duration._
+
+  private val CleanupDelay = 1.minute.toMillis
+
+  final private[usageTracker] class TimestampedValueMap[K, V](minimumSize: Int = 3,
+                                                              maximumSize: Int = 20,
+                                                              storageTime: Long = 5.minutes.toMillis) {
+
+    private[this] case class Timestamped(value: V, var timestamp: Long = -1)
+
+    private[this] val innerMap = new hash.LinkedHashMap[K, Timestamped](maximumSize, true) {
+
+      override def removeEldestEntry(eldest: ju.Map.Entry[K, Timestamped]): Boolean = size() > maximumSize
+
+      override def doRemoveEldestEntry(): Unit = this.synchronized {
+        super.doRemoveEldestEntry()
+      }
+    }
+
+    def getOrCreate(key: K, value: => V): V = innerMap.synchronized {
+      val timestamped = innerMap.get(key) match {
+        case null =>
+          val newValue = Timestamped(value)
+          innerMap.put(key, newValue)
+          newValue
+        case cached => cached
+      }
+
+      timestamped.timestamp = System.currentTimeMillis()
+      timestamped.value
+    }
+
+    def removeStaleEntries(): Unit = innerMap.synchronized {
+      innerMap.size - minimumSize match {
+        case diff if diff > 0 =>
+          val timeDiff = System.currentTimeMillis() - storageTime
+
+          import collection.JavaConverters._
+          innerMap.entrySet
+            .iterator
+            .asScala
+            .take(diff)
+            .filter(_.getValue.timestamp < timeDiff)
+            .map(_.getKey)
+            .foreach(innerMap.remove)
+        case _ =>
+      }
+    }
   }
 
-  private def cleanupTask(map: Ref[TimestampedValueMap[String, ScalaRefCountHolder]]): Runnable = () => {
-    map.get().removeStaleEntries()
-  }
-
-  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder = {
-    val key = file.getName + file.hashCode()
-    Option(autoCleaningMap.get())
-      .map(_.getOrCreate(key, holder))
-      .getOrElse(holder)
-  }
 }

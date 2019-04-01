@@ -48,7 +48,7 @@ object UsageTracker {
       imports.groupBy(_.importExpr).foreach {
         case (expr, importsUsed) if expr.nonEmpty =>
           val toHighlight =
-            importsUsed.filter(imp => refHolder.noUsagesFound(imp) && !imp.isAlwaysUsed)
+            importsUsed.filterNot(imp => refHolder.usageFound(imp) || imp.isAlwaysUsed)
 
           if (toHighlight.size == importsUsed.size)
             redundant += ImportExprUsed(expr.get)

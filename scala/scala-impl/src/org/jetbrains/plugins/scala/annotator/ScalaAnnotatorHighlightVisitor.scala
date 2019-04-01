@@ -6,15 +6,15 @@ import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, Highl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
-import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
 final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
+
+  import extensions.PsiFileExt
+  import usageTracker.ScalaRefCountHolder
 
   override def order: Int = 0
 
@@ -33,7 +33,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
     val manager = HighlightingLevelManager.getInstance(project)
 
     if (manager.shouldHighlight(file)) {
-      AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
+      highlighter.AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
     }
 
     if (ApplicationManager.getApplication.isUnitTestMode || manager.shouldInspect(file)) {
@@ -46,20 +46,21 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
     myAnnotationHolder.clear()
   }
 
-  def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
+  def analyze(file: PsiFile,
+              updateWholeFile: Boolean,
+              holder: HighlightInfoHolder,
+              analyze: Runnable): Boolean = {
 //    val time = System.currentTimeMillis()
     var success = true
     try {
       myHolder = holder
       myAnnotationHolder = new AnnotationHolderImpl(holder.getAnnotationSession)
       if (updateWholeFile) {
-        val refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder.getInstance(file)
-        myRefCountHolder = refCountHolder
-        val dirtyScope = ScalaRefCountHolder.getDirtyScope(file).orNull
-        success = refCountHolder.analyze(action, dirtyScope, file)
+        myRefCountHolder = ScalaRefCountHolder.getInstance(file)
+        success = myRefCountHolder.analyze(analyze, file)
       } else {
         myRefCountHolder = null
-        action.run()
+        analyze.run()
       }
     } finally {
       myHolder = null

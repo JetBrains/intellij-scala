@@ -79,15 +79,15 @@ object VarCouldBeValInspection {
       case pattern               => hasNoWriteUsages(pattern)
     }
 
-  private[this] def hasNoWriteUsagesOnTheFly(pattern: ScBindingPattern): Boolean = {
-    var hasWriteUsages = false
-    var used = false
-    val holder = ScalaRefCountHolder.getInstance(pattern.getContainingFile)
+  private[this] def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
+    var noWriteUsages = true
+
+    val holder = ScalaRefCountHolder(element)
     holder.retrieveUnusedReferencesInfo { () =>
-      hasWriteUsages = holder.isValueWriteUsed(pattern)
-      used = holder.isValueReadUsed(pattern)
+      noWriteUsages &= !holder.isValueWriteUsed(element) && holder.isValueReadUsed(element)
     }
-    !hasWriteUsages && used // has no write usages but is used
+
+    noWriteUsages // has no write usages but is used
   }
 
   private[this] def hasNoWriteUsages(pattern: ScBindingPattern): Boolean = {

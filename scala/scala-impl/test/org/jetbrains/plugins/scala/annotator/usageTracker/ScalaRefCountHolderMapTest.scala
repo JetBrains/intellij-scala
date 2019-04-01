@@ -1,18 +1,18 @@
-package org.jetbrains.plugins.scala.refCountHolder
+package org.jetbrains.plugins.scala
+package annotator
+package usageTracker
 
-import junit.framework.{Assert, TestCase}
-import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
-
-import scala.concurrent.duration.{Duration, DurationInt}
+import junit.framework.TestCase
+import org.junit.Assert.assertEquals
 
 /**
-  * Nikolay.Tropin
-  * 29-May-18
-  */
+ * Nikolay.Tropin
+ * 29-May-18
+ */
 class ScalaRefCountHolderMapTest extends TestCase {
 
   def testMap(): Unit = {
-    val map = createTestMap(2, 5, 100.millis)
+    val map = createTestMap(5)
 
     val key1 = Key(1)
     val key2 = Key(2)
@@ -33,11 +33,11 @@ class ScalaRefCountHolderMapTest extends TestCase {
     val resultBefore5 = map.getOrCreate(key5, "new5")
 
     //old values are still in the map
-    Assert.assertEquals("old1", resultBefore1)
-    Assert.assertEquals("old2", resultBefore2)
-    Assert.assertEquals("old3", resultBefore3)
-    Assert.assertEquals("old4", resultBefore4)
-    Assert.assertEquals("old5", resultBefore5)
+    assertEquals("old1", resultBefore1)
+    assertEquals("old2", resultBefore2)
+    assertEquals("old3", resultBefore3)
+    assertEquals("old4", resultBefore4)
+    assertEquals("old5", resultBefore5)
 
     Thread.sleep(200)
     map.removeStaleEntries()
@@ -49,17 +49,17 @@ class ScalaRefCountHolderMapTest extends TestCase {
     val resultAfter5 = map.getOrCreate(key5, "new5")
 
     //most recent keys of the first batch remain in the map
-    Assert.assertEquals("old4", resultAfter4)
-    Assert.assertEquals("old5", resultAfter5)
+    assertEquals("old4", resultAfter4)
+    assertEquals("old5", resultAfter5)
 
     //other keys are removed and replaced
-    Assert.assertEquals("new1", resultAfter1)
-    Assert.assertEquals("new2", resultAfter2)
-    Assert.assertEquals("new3", resultAfter3)
+    assertEquals("new1", resultAfter1)
+    assertEquals("new2", resultAfter2)
+    assertEquals("new3", resultAfter3)
   }
 
   def testMap2(): Unit = {
-    val map = createTestMap(2, 4, 100.millis)
+    val map = createTestMap(4)
 
     val key1 = Key(1)
     val key2 = Key(2)
@@ -79,19 +79,22 @@ class ScalaRefCountHolderMapTest extends TestCase {
     val result4 = map.getOrCreate(key4, "new4")
     val result5 = map.getOrCreate(key5, "new5")
 
-    Assert.assertEquals("old2", result2)
-    Assert.assertEquals("old3", result3)
-    Assert.assertEquals("old4", result4)
-    Assert.assertEquals("old5", result5)
+    assertEquals("old2", result2)
+    assertEquals("old3", result3)
+    assertEquals("old4", result4)
+    assertEquals("old5", result5)
 
     //first result was removed
     val result1 = map.getOrCreate(key1, "new1")
-    Assert.assertEquals("new1", result1)
+    assertEquals("new1", result1)
   }
 
-
-  private def createTestMap(minSize: Int, maxSize: Int, storageTime: Duration) =
-    new ScalaRefCountHolder.TimestampedValueMap[Key, String](minSize, maxSize, storageTime)
-
   private case class Key(x: Int)
+
+  private def createTestMap(maximumSize: Int) =
+    new ScalaRefCountHolderComponent.TimestampedValueMap[Key, String](
+      2,
+      maximumSize,
+      100
+    )
 }
