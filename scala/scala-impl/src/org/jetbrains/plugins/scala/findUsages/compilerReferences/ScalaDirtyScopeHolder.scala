@@ -74,7 +74,7 @@ private[findUsages] class ScalaDirtyScopeHolder(
       case _: JpsCompilationInfo    => modules.flatMap(moduleScopes)
     }
 
-    log.info(s"Finished indexing compilation info for ${scopes.mkString("[\n\t", "\n\t", "\n]")}.")
+    log.debug(s"Finished indexing compilation info for ${scopes.mkString("[\n\t", "\n\t", "\n]")}.")
     scopes.foreach(markScopeUpToDate)
   }
 }
