@@ -98,15 +98,12 @@ private[findUsages] class ScalaCompilerReferenceService(
 
     override def processCompilationInfo(info: CompilationInfo, isOffline: Boolean): Unit = {
       val modules = info.affectedModules(project).map(_.getName)
-      logCompilerIndicesEvent(s"processCompilationInfo. offline: $isOffline")
+      logger.debug(s"[compiler indices] processCompilationInfo. offline: $isOffline")
 
       indexerScheduler.schedule(ProcessCompilationInfo(info, () => {
         if (!isOffline) { // do not mark modules as up-to-date when indexing 'offline' sbt compilations
           modules.foreach(compilationTimestamps.put(_, info.startTimestamp))
-          logger.debug(
-            s"Compiler indices for modules ${modules.mkString(", ")} are updated at ${info.startTimestamp}." +
-              s"Reindexed ${info.generatedClasses.size} classfiles."
-          )
+          logger.debug(s"[compiler indices] Reindexed ${info.generatedClasses.size} classfiles.")
           dirtyScopeHolder.compilationInfoIndexed(info)
           messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onCompilationInfoIndexed(modules)
         }
