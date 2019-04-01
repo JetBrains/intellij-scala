@@ -282,30 +282,16 @@ class getDummyBlocks(private val block: ScalaBlock) {
             }
           case _: ScArgumentExprList =>
             child.getElementType match {
-              case ScalaTokenTypes.tRPARENTHESIS if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS =>
-                alignment
-              case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS =>
-                if (cs.ALIGN_MULTILINE_METHOD_BRACKETS) {
-                  if (alternateAlignment == null) {
-                    alternateAlignment = Alignment.createAlignment
-                  }
-                  alternateAlignment
-                } else null
+              case ScalaTokenTypes.tRPARENTHESIS if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
+              case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => null
               case ScCodeBlockElementType.BlockExpression if ss.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
           case patt: ScPatternArgumentList =>
             child.getElementType match {
-              case ScalaTokenTypes.tRPARENTHESIS if patt.missedLastExpr && cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS =>
-                alignment
-              case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS =>
-                if (cs.ALIGN_MULTILINE_METHOD_BRACKETS) {
-                  if (alternateAlignment == null) {
-                    alternateAlignment = Alignment.createAlignment
-                  }
-                  alternateAlignment
-                } else null
+              case ScalaTokenTypes.tRPARENTHESIS if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && patt.missedLastExpr => alignment
+              case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => null
               case ScCodeBlockElementType.BlockExpression if ss.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
@@ -783,8 +769,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _: ScXmlEmptyTag => true //todo:
       case _: ScParameters if ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScArgumentExprList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS || ALIGN_MULTILINE_METHOD_BRACKETS => true
-      case _: ScPatternArgumentList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS || ALIGN_MULTILINE_METHOD_BRACKETS => true
+      case _: ScArgumentExprList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
+      case _: ScPatternArgumentList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
       case _: ScEnumerators if ALIGN_MULTILINE_FOR => true
       case _: ScParenthesisedExpr if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
       case _: ScParenthesisedTypeElement if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true

@@ -261,7 +261,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
         if (ScalaTokenTypes.PARENTHESIS_TOKEN_SET.contains(childElementType)) Indent.getNoneIndent
-        else Indent.getNormalIndent(settings.ALIGN_MULTILINE_METHOD_BRACKETS)
+        else Indent.getNormalIndent(false)
       case _: ScDocComment => Indent.getNoneIndent
       case _ if nodeElementType == ScalaTokenTypes.kEXTENDS && childElementType != ScalaTokenTypes.kEXTENDS =>
         Indent.getContinuationIndent() //this is here to not break whatever processing there is before

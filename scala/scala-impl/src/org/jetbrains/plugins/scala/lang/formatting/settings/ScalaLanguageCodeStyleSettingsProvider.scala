@@ -101,9 +101,6 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE"
       )
 
-      //align call parameters
-      buffer ++= Seq("ALIGN_MULTILINE_METHOD_BRACKETS")
-
       //method call chain
       buffer ++= Seq(
         "METHOD_CALL_CHAIN_WRAP",
