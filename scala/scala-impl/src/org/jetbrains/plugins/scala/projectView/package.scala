@@ -5,6 +5,7 @@ import com.intellij.openapi.util.io.FileUtilRt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 
 import scala.collection.Seq
 
@@ -27,7 +28,7 @@ package object projectView {
   }
 
   object SingularDefinition {
-    def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = Some(file.typeDefinitions) collect {
+    def unapply(file: ScalaFile): Option[ScTypeDefinition] = Some(file.typeDefinitions) collect {
       case Seq(definition @ MatchesFileName()) => definition
       case Seq(definition) if definition.isPackageObject => definition
     }
@@ -56,6 +57,11 @@ package object projectView {
 
   private object MatchesFileName {
     def unapply(definition: ScTypeDefinition): Boolean =
-      definition.containingFile.forall(file => FileUtilRt.getNameWithoutExtension(file.getName) == definition.name)
+      definition.containingFile.forall(file => matches(file.getName, definition.name))
+
+    private def matches(fileName: String, name: String) = {
+      val withoutExtension = FileUtilRt.getNameWithoutExtension(fileName)
+      clean(withoutExtension) == clean(name)
+    }
   }
 }
