@@ -13,7 +13,7 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
-  override def accepts(file: VirtualFile): Boolean = file.isAcceptable
+  override def accepts(file: VirtualFile): Boolean = file.isScalaCompiledClassFile
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
@@ -65,7 +65,7 @@ object ScClassFileDecompiler {
     }
 
     private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
-      case original if original.isInnerClass => None
+      case original if original.isScalaInnerClass => None
       case original => DecompilationResult.unapply(original)(content.getContent).map {
         case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
           sourceName,

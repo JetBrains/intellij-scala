@@ -2,82 +2,61 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.openapi.util.Comparing
+import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.openapi.vfs.VirtualFile
-
-import scala.annotation.tailrec
-import scala.reflect.NameTransformer.decode
 
 package object compiled {
 
-  implicit class VirtualFileExt(private val virtualFile: VirtualFile) extends AnyVal {
+  private val ClassFileExtension = JavaClassFileType.INSTANCE.getDefaultExtension
 
-    def isInnerClass: Boolean = !isClass(virtualFile) && withSiblings { siblings =>
-      val predicate = siblings match {
-        case Seq((_, fileName)) =>
-          val decodedName = Set(decode(fileName))
-          (decodedName(_)).andThen(!_)
-        case _ => Function.const(true)(_: String)
-      }
+  private def classFileName(withoutExtension: String) = s"$withoutExtension.$ClassFileExtension"
 
-      virtualFile.getNameWithoutExtension match {
-        case EndsWithDollar(name) if predicate(name) => false // let's handle it separately to avoid giving it for Java.
-        case name => isInnerImpl(decode(name))(predicate)
-      }
-    }
+  implicit class VirtualFileExt(val virtualFile: VirtualFile) extends AnyVal {
 
-    def isAcceptable: Boolean = isScalaFile(virtualFile) || withSiblings { siblings =>
-      isAcceptableImpl("", virtualFile.getNameWithoutExtension) { prefix =>
-        siblings.exists {
-          case (file, fileName) => Comparing.equal(fileName, prefix, true) && isScalaFile(file)
+    private def topLevelScalaClass: Option[String] = {
+      val parent = virtualFile.getParent
+
+      if (parent == null || virtualFile.getExtension != ClassFileExtension)
+        return None
+
+      val prefixIterator = new PrefixIterator(virtualFile.getNameWithoutExtension)
+
+      prefixIterator.filterNot(_.endsWith("$"))
+        .find { prefix =>
+          val candidate = parent.findChild(classFileName(prefix))
+          candidate != null && canBeDecompiled(candidate)
         }
+    }
+
+    def isScalaCompiledClassFile: Boolean = topLevelScalaClass.nonEmpty
+
+    def isScalaInnerClass: Boolean = {
+      val fileName = virtualFile.getNameWithoutExtension
+      !topLevelScalaClass.contains(fileName)
+    }
+  }
+
+  private def canBeDecompiled(file: VirtualFile): Boolean = DecompilationResult.tryDecompile(file).isDefined
+
+  private class PrefixIterator(fullName: String) extends Iterator[String] {
+    private var currentPrefixEnd = -1
+
+    def hasNext: Boolean = currentPrefixEnd < fullName.length
+
+    def next(): String = {
+      val prefix = nextPrefix(fullName, currentPrefixEnd)
+      currentPrefixEnd = prefix.length
+      prefix
+    }
+
+    private def nextPrefix(fullName: String, previousPrefixEnd: Int = -1): String = {
+      if (previousPrefixEnd == fullName.length) null
+      else {
+        val nextDollarIndex = fullName.indexOf('$', previousPrefixEnd + 1)
+
+        if (nextDollarIndex >= 0) fullName.substring(0, nextDollarIndex)
+        else fullName
       }
     }
-
-    private def withSiblings(predicate: Seq[(VirtualFile, String)] => Boolean) = virtualFile.getParent match {
-      case null => false
-      case parent =>
-        val siblings = for {
-          sibling <- parent.getChildren
-          if isClass(sibling)
-        } yield (sibling, sibling.getNameWithoutExtension)
-
-        siblings.nonEmpty && predicate(siblings)
-    }
-  }
-
-  private[this] def isClass(file: VirtualFile): Boolean =
-    file.getExtension == "class"
-
-  private[this] def isScalaFile(file: VirtualFile): Boolean =
-    DecompilationResult.tryDecompile(file).isDefined
-
-  private[this] object SplitAtDollar {
-
-    def unapply(string: String): Option[(String, String)] = string.split("\\$", 2) match {
-      case Array(prefix, suffix) => Some(prefix, suffix)
-      case _ => None
-    }
-  }
-
-  private[this] val EndsWithDollar = "(.+)\\$$".r
-
-  @tailrec
-  private[this] def isInnerImpl(suffix: String)
-                               (implicit predicate: String => Boolean): Boolean = suffix match {
-    case SplitAtDollar(newPrefix, newSuffix) =>
-      predicate(newPrefix) || isInnerImpl(newSuffix)
-    case _ => false
-  }
-
-  @tailrec
-  private[this] def isAcceptableImpl(prefix: String, suffix: String)
-                                    (implicit predicate: String => Boolean): Boolean = suffix match {
-    case SplitAtDollar(suffixPrefix, suffixSuffix) =>
-      prefix + suffixPrefix match {
-        case newPrefix if !newPrefix.endsWith("$") && predicate(newPrefix) => true
-        case newPrefix => isAcceptableImpl(newPrefix + '$', suffixSuffix)
-      }
-    case _ => false
   }
 }
