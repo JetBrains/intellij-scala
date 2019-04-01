@@ -11,10 +11,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.FileContentUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 import scala.collection.JavaConverters._
 
@@ -29,9 +29,8 @@ class ScalaOptimizeImportsFix extends IntentionAction with HighPriorityAction {
 
   override def startInWriteAction: Boolean = true
 
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))
-  }
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    file.getManager.isInProject(file) && file.hasScalaPsi
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
@@ -57,7 +56,7 @@ class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = true
-    if (file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))) {
+    if (file.getManager.isInProject(file) && file.hasScalaPsi) {
       if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
 
       file match {

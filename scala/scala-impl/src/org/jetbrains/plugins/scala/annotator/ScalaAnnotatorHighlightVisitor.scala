@@ -7,9 +7,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,10 +22,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
   private var myRefCountHolder: ScalaRefCountHolder = _
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
-  override def suitableForFile(file: PsiFile): Boolean = file match {
-    case _: ScalaFile => true
-    case otherFile => ScalaLanguageDerivative.hasDerivativeOnFile(otherFile)
-  }
+  override def suitableForFile(file: PsiFile): Boolean = file.hasScalaPsi
 
   def visit(element: PsiElement): Unit = {
     if (DumbService.getInstance(project).isDumb) return

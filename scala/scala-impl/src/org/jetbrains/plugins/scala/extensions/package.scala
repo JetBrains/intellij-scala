@@ -40,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -114,16 +113,30 @@ package object extensions {
     }
   }
 
-  implicit class PsiFileExt(val file: PsiFile) extends AnyVal {
+  implicit class PsiFileExt(private val file: PsiFile) extends AnyVal {
+
     def charSequence: CharSequence =
-      if (file.isValid) file.getViewProvider.getContents
+      if (file.isValid) viewProvider.getContents
       else file.getText
+
+    def hasScalaPsi: Boolean = viewProvider.hasScalaPsi
+
+    private def viewProvider = file.getViewProvider
   }
 
   object PsiMethodExt {
     private val AccessorNamePattern = Pattern.compile(
       """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*"""
     )
+  }
+
+  implicit class FileViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
+
+    def hasScalaPsi: Boolean = viewProvider.hasLanguage(ScalaLanguage.INSTANCE)
+
+    def findScalaPsi: Option[PsiFile] =
+      if (hasScalaPsi) Option(viewProvider.getPsi(ScalaLanguage.INSTANCE))
+      else None
   }
 
   implicit class TraversableExt[CC[X] <: Traversable[X], A](val value: CC[A]) extends AnyVal {

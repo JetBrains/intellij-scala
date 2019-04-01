@@ -16,8 +16,8 @@ import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.containers.hash.LinkedHashMap
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder.TimestampedValueMap
+import org.jetbrains.plugins.scala.extensions.FileViewProviderExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.concurrent.duration.{Duration, DurationLong}
@@ -152,11 +152,12 @@ object ScalaRefCountHolder {
     }
   }
 
-  def getInstance(file: PsiFile): ScalaRefCountHolder = {
-    val myFile = Option(ScalaLanguageDerivative.getScalaFileOnDerivative(file)).getOrElse(file)
-    val component = myFile.getProject.getComponent(classOf[ScalaRefCountHolderComponent])
-    component.getOrCreate(file, new ScalaRefCountHolder)
-  }
+  def getInstance(file: PsiFile): ScalaRefCountHolder = file.getViewProvider
+    .findScalaPsi
+    .getOrElse(file)
+    .getProject
+    .getComponent(classOf[ScalaRefCountHolderComponent])
+    .getOrCreate(file, new ScalaRefCountHolder)
 
   private case class Timestamped[V](value: V, var timestamp: Long = -1)
 
