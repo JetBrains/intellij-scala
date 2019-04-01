@@ -311,4 +311,8 @@ class ScalaFmtTest extends ScalaFmtTestBase {
        """.stripMargin
     doTextTest(before, after)
   }
+
+  def testCreateWorksheetFileAndFormat(): Unit = {
+    doTextTest("val    x=2+2", "val x = 2 + 2", "worksheet.sc")
+  }
 }

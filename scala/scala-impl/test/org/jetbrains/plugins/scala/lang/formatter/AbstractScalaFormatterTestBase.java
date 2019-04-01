@@ -35,6 +35,7 @@ import java.util.Map;
  */
 // NOTE: initially was almost duplicate from Java
 public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
+  private static final String TempFileName = "A.scala";
 
   protected enum Action {REFORMAT, INDENT}
 
@@ -99,8 +100,12 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(text, textAfter, 1);
   }
 
-  public void doTextTest(final String text, final String textAfter, int repeats) throws IncorrectOperationException {
-    doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter), repeats);
+  public void doTextTest(final String text, final String textAfter, final int repeats) throws IncorrectOperationException {
+    doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter), TempFileName, repeats);
+  }
+  
+  public void doTextTest(final String text, final String textAfter, final String fileName) throws IncorrectOperationException {
+    doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter), fileName, 1);
   }
 
   public void doTextTest(String value) {
@@ -112,16 +117,16 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   private void doTextTest(final Action action, final String text, final String textAfter) throws IncorrectOperationException {
-    doTextTest(action, text, textAfter, 1);
+    doTextTest(action, text, textAfter, TempFileName, 1);
   }
 
-  private void doTextTest(final Action action, final String text, final String textAfter, int actionRepeats) throws IncorrectOperationException {
+  private void doTextTest(final Action action, final String text, final String textAfter, final String fileName, int actionRepeats) throws IncorrectOperationException {
     assertTrue("action should be applied at least once", actionRepeats >= 1);
     if(actionRepeats > 1 && !myTextRanges.isEmpty()) {
       fail("for now an action can not be applied multiple times for selection");
     }
 
-    final PsiFile file = createFile("A.scala", text);
+    final PsiFile file = createFile(fileName, text);
 
     final PsiDocumentManager manager = PsiDocumentManager.getInstance(getProject());
     final Document document = manager.getDocument(file);

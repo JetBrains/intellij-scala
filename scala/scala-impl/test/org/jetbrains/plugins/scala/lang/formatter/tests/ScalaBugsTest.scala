@@ -3539,4 +3539,8 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     getScalaSettings.SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = false
     doTextTest(CommonInfixBefore, after)
   }
+
+  def testCreateWorksheetFileAndFormat(): Unit = {
+    doTextTest("val    x=2+2", "val x = 2 + 2", "worksheet.sc")
+  }
 }
