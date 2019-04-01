@@ -3,6 +3,7 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.quickfix.PullUpQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -102,10 +103,12 @@ trait OverridingAnnotator {
     val memberNameId = member.nameId
     if (superSignaturesWithSelfType.isEmpty) {
       if (owner.hasModifierProperty(OVERRIDE)) {
-        holder.createErrorAnnotation(
+        val annotation = holder.createErrorAnnotation(
           memberNameId,
           ScalaBundle.message("member.overrides.nothing", memberType, member.name)
-        ).registerFix(new Remove(owner, memberNameId, Override))
+        )
+        annotation.registerFix(new Remove(owner, memberNameId, Override))
+        annotation.registerFix(new PullUpQuickFix(owner, memberNameId))
       }
     } else if (isConcreteElement(nameContext(member))) {
       var isConcretes = false

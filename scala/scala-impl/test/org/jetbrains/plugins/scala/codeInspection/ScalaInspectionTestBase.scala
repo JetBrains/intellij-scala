@@ -17,17 +17,23 @@ import scala.collection.JavaConverters
   * Nikolay.Tropin
   * 6/3/13
   */
-abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  import ScalaInspectionTestBase._
+abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
 
   protected val classOfInspection: Class[_ <: LocalInspectionTool]
-  protected val description: String
 
   protected override def setUp(): Unit = {
     super.setUp()
     getFixture.enableInspections(classOfInspection)
   }
+
+}
+
+abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+  self: ScalaLightCodeInsightFixtureTestAdapter =>
+
+  import ScalaHighlightsTestBase._
+
+  protected val description: String
 
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
@@ -78,7 +84,7 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
   private def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
 }
 
-object ScalaInspectionTestBase {
+object ScalaHighlightsTestBase {
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
 
@@ -91,9 +97,10 @@ object ScalaInspectionTestBase {
   }
 }
 
-abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
+abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase
 
-  import ScalaQuickFixTestBase._
+abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
+  import ScalaAnnotatorQuickFixTestBase.quickFixes
 
   protected final def testQuickFix(text: String, expected: String, hint: String): Unit = {
     val maybeAction = findQuickFix(text, hint)
@@ -112,6 +119,12 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
     assertTrue("Quick fix found.", maybeAction.isEmpty)
   }
 
+  protected final def checkIsNotAvailable(text: String, hint: String): Unit = {
+    val maybeAction = findQuickFix(text, hint)
+    assertTrue("Quick fix not found.", maybeAction.nonEmpty)
+    assertTrue("Quick fix is available", maybeAction.forall(action => !action.isAvailable(getProject, getEditor, getFile)))
+  }
+
   private def findQuickFix(text: String, hint: String): Option[IntentionAction] =
     configureByText(text).map(_._1) match {
       case Seq() =>
@@ -121,7 +134,7 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
     }
 }
 
-object ScalaQuickFixTestBase {
+object ScalaAnnotatorQuickFixTestBase {
   private def quickFixes(info: HighlightInfo): Seq[IntentionAction] = {
     import JavaConverters._
     Option(info.quickFixActionRanges).toSeq
