@@ -37,8 +37,8 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     resolveSbtClassifiers = false
   )
 
-  private lazy val (scalaVersions, defaultScalaVersion) = loadScalaVersions()
-  private lazy val (sbtVersions, defaultSbtVersion) = loadSbtVersions()
+  private lazy val scalaVersionsTuple@(scalaVersions, _) = loadScalaVersions()
+  private lazy val sbtVersionsTuple@(sbtVersions, _) = loadSbtVersions()
 
   {
     val settings = getExternalProjectSettings
@@ -70,7 +70,11 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    setupDefaultVersions()
+    //noinspection NameBooleanParameters
+    {
+      selections(true) = scalaVersionsTuple
+      selections(false) = sbtVersionsTuple
+    }
 
     val sbtVersionComboBox = applyTo(new SComboBox())(
       _.setItems(sbtVersions),
@@ -81,6 +85,7 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
       setupScalaVersionItems
     )
 
+    //noinspection TypeAnnotation
     val step = sdkSettingsStep(settingsStep)
 
     val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
@@ -175,21 +180,6 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     }
   }
 
-  private def setupDefaultVersions(): Unit = {
-    selections.sbtVersion match {
-      case null =>
-      case _ =>
-        selections.sbtVersion = sbtVersions.headOption.getOrElse(defaultSbtVersion)
-    }
-
-    selections.scalaVersion match {
-      case null =>
-      case _ =>
-        selections.scalaVersion = scalaVersions.headOption.getOrElse(defaultScalaVersion)
-    }
-  }
-
-
   override def getNodeIcon: Icon = Sbt.Icon
 
   override def setupRootModel(model: ModifiableRootModel): Unit = SbtModuleBuilderUtil.tryToSetupRootModel(
@@ -202,10 +192,28 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
 
 object SbtModuleBuilder {
 
-  private case class Selections(var sbtVersion: String,
-                                var scalaVersion: String,
-                                var resolveClassifiers: Boolean,
-                                var resolveSbtClassifiers: Boolean)
+  private final case class Selections(var sbtVersion: String,
+                                      var scalaVersion: String,
+                                      var resolveClassifiers: Boolean,
+                                      var resolveSbtClassifiers: Boolean) {
+
+    def apply(scala: Boolean): String =
+      if (scala) scalaVersion else sbtVersion
+
+    def update(scala: Boolean, version: => String): Unit = {
+      val setter: String => Unit = if (scala) scalaVersion_= else sbtVersion_=
+
+      setter {
+        Option(apply(scala)).getOrElse(version)
+      }
+    }
+  }
+
+  private implicit def tupleToVersion(tuple: (Array[String], String)): String = {
+    val (versions, defaultVersion) = tuple
+    if (versions.isEmpty) defaultVersion else versions.head
+  }
+
 
   private def createProjectTemplateIn(root: File,
                                       name: String,
