@@ -65,18 +65,19 @@ object ScClassFileDecompiler {
     }
 
     private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
-      case original if original.isScalaInnerClass => None
-      case original => DecompilationResult.unapply(original)(content.getContent).map {
-        case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
-          sourceName,
-          ScalaLanguage.INSTANCE,
-          sourceText,
-          true,
-          true,
-          false,
-          original
-        )
-      }
+      case original if original.isScalaTopLevelClass =>
+        DecompilationResult.unapply(original)(content.getContent).map {
+          case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
+            sourceName,
+            ScalaLanguage.INSTANCE,
+            sourceText,
+            true,
+            true,
+            false,
+            original
+          )
+        }
+      case _ => None
     }
   }
 

@@ -28,35 +28,29 @@ package object compiled {
         }
     }
 
-    def isScalaCompiledClassFile: Boolean = topLevelScalaClass.nonEmpty
+    def isScalaCompiledClassFile: Boolean = topLevelScalaClass.isDefined
 
-    def isScalaInnerClass: Boolean = {
-      val fileName = virtualFile.getNameWithoutExtension
-      !topLevelScalaClass.contains(fileName)
-    }
+    def isScalaTopLevelClass: Boolean = topLevelScalaClass.contains(virtualFile.getNameWithoutExtension)
   }
 
   private def canBeDecompiled(file: VirtualFile): Boolean = DecompilationResult.tryDecompile(file).isDefined
 
-  private class PrefixIterator(fullName: String) extends Iterator[String] {
-    private var currentPrefixEnd = -1
+  private class PrefixIterator(private val string: String) extends Iterator[String] {
 
-    def hasNext: Boolean = currentPrefixEnd < fullName.length
+    private val stringLength = string.length
+    private var endIndex = -1
 
-    def next(): String = {
-      val prefix = nextPrefix(fullName, currentPrefixEnd)
-      currentPrefixEnd = prefix.length
-      prefix
-    }
+    def hasNext: Boolean = endIndex < stringLength
 
-    private def nextPrefix(fullName: String, previousPrefixEnd: Int = -1): String = {
-      if (previousPrefixEnd == fullName.length) null
-      else {
-        val nextDollarIndex = fullName.indexOf('$', previousPrefixEnd + 1)
-
-        if (nextDollarIndex >= 0) fullName.substring(0, nextDollarIndex)
-        else fullName
-      }
+    def next(): String = endIndex match {
+      case `stringLength` => throw new NoSuchElementException("Prefix length equals string length")
+      case current =>
+        endIndex = string.indexOf('$', current + 1) match {
+          case -1 => stringLength
+          case newEndIndex => newEndIndex
+        }
+        string.substring(0, endIndex)
     }
   }
+
 }
