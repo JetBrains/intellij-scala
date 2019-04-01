@@ -25,7 +25,8 @@ final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
     }
 
     val file = element.getContainingFile
-    val containingFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
+    val viewProvider = file.getViewProvider
+    val containingFile = viewProvider.getPsi(viewProvider.getBaseLanguage)
     Log.assertTrue(containingFile != null, containingFile)
 
     val fileNode = file.getNode
