@@ -17,6 +17,8 @@ object ScalaFileTemplateUtil {
   val SCALA_OBJECT = "Scala Object"
   val SCALA_TRAIT = "Scala Trait"
   val SCALA_CLASS = "Scala Class"
+  val SCALA_CASE_CLASS = "Scala CaseClass"
+  val SCALA_CASE_OBJECT = "Scala CaseObject"
 
   def setClassAndMethodNameProperties(properties: Properties, aClass: PsiClass, method: PsiMethod) {
     var className: String = aClass.qualifiedName
