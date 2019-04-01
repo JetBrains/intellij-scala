@@ -40,9 +40,11 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
     override def buildStubTree(file: PsiFile) =
       super.buildStubTree(file).asInstanceOf[PsiFileStubImpl[_ <: PsiFile]]
 
-    protected override def createStubForFile(file: PsiFile): PsiFileStubImpl[_ <: PsiFile] = file match {
-      case ScStubFileElementType.ViewProvider(scalaFile: ScalaFile) => new ScFileStubImpl(scalaFile)
-    }
+    protected override final def createStubForFile(file: PsiFile): PsiFileStubImpl[_ <: PsiFile] =
+      file.getViewProvider.getPsi(language) match {
+        case scalaFile: ScalaFile => new ScFileStubImpl(scalaFile)
+        case _ => new PsiFileStubImpl(file)
+      }
   }
 
   protected final class ScFileStubImpl(file: ScalaFile)
@@ -58,13 +60,3 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
 
 }
 
-object ScStubFileElementType {
-
-  object ViewProvider {
-
-    def unapply(file: PsiFile): Option[PsiFile] =
-      Option(file.getViewProvider.getPsi(ScalaLanguage.INSTANCE))
-
-  }
-
-}
