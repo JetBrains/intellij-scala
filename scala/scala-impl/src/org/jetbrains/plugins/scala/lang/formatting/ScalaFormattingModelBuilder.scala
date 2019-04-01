@@ -4,58 +4,71 @@ package formatting
 
 import com.intellij.formatting._
 import com.intellij.lang._
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.psi.formatter.{FormattingDocumentModelImpl, PsiBasedFormattingModel}
+import com.intellij.psi.formatter.{FormattingDocumentModelImpl, PsiBasedFormattingModel, FormatterUtil => PsiFormatterUtil}
 import com.intellij.psi.impl.source.tree.TreeUtil
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
+final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
-  override def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
-    val node: ASTNode = element.getNode
-    assert(node != null)
+  import ScalaFormattingModelBuilder._
 
-    val useScalaFmt = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER
-    if (useScalaFmt) {
+  override def createModel(element: PsiElement,
+                           styleSettings: CodeStyleSettings): PsiBasedFormattingModel = {
+    Log.assertTrue(element.getNode != null, "AST should not be null for: " + element)
+
+    if (styleSettings.getCustomSettings(classOf[settings.ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
       //preprocessing is done by this point, use this little side-effect to clean-up ranges synchronization
-      ScalaFmtPreFormatProcessor.clearRangesCache()
+      processors.ScalaFmtPreFormatProcessor.clearRangesCache()
     }
 
-    val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
-    assert(containingFile != null, element.getContainingFile)
-    val astNode: ASTNode = containingFile.getNode
-    assert(astNode != null)
-    val block: ScalaBlock = new ScalaBlock(null, astNode, null, null, Indent.getAbsoluteNoneIndent, null, settings)
-    new ScalaFormattingModel(containingFile, block, FormattingDocumentModelImpl.createOn(containingFile))
+    val file = element.getContainingFile
+    val containingFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
+    Log.assertTrue(containingFile != null, containingFile)
+
+    val fileNode = file.getNode
+    Log.assertTrue(fileNode != null, "AST should not be null for: " + containingFile)
+
+    new ScalaFormattingModel(
+      containingFile,
+      new ScalaBlock(null, fileNode, null, null, Indent.getAbsoluteNoneIndent, null, styleSettings)
+    )
   }
 
-  override def getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange = {
+  override def getRangeAffectingIndent(file: PsiFile,
+                                       offset: Int,
+                                       elementAtOffset: ASTNode): TextRange =
     elementAtOffset.getTextRange
-  }
 }
 
 object ScalaFormattingModelBuilder {
- private class ScalaFormattingModel(file: PsiFile, rootBlock: Block, documentModel: FormattingDocumentModelImpl)
-          extends PsiBasedFormattingModel(file, rootBlock, documentModel) {
-    protected override def replaceWithPsiInLeaf(textRange: TextRange, whiteSpace: String, leafElement: ASTNode): String = {
-      if (!myCanModifyAllWhiteSpaces) {
-        if (ScalaTokenTypes.WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(leafElement.getElementType))
-          return null
-      }
-      var elementTypeToUse: IElementType = TokenType.WHITE_SPACE
-      val prevNode: ASTNode = TreeUtil.prevLeaf(leafElement)
-      if (prevNode != null && ScalaTokenTypes.WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(prevNode.getElementType)) {
-        elementTypeToUse = prevNode.getElementType
-      }
-      inWriteAction(com.intellij.psi.formatter.FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, elementTypeToUse, textRange))
-      whiteSpace
+
+  private val Log = Logger.getInstance(getClass)
+
+  private final class ScalaFormattingModel(file: PsiFile, rootBlock: ScalaBlock)
+    extends PsiBasedFormattingModel(file, rootBlock, FormattingDocumentModelImpl.createOn(file)) {
+
+    import lexer.ScalaTokenTypes.WHITES_SPACES_FOR_FORMATTER_TOKEN_SET
+
+    protected override def replaceWithPsiInLeaf(textRange: TextRange,
+                                                whiteSpace: String,
+                                                leafElement: ASTNode): String = leafElement.getElementType match {
+      case elementType if !myCanModifyAllWhiteSpaces && WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(elementType) => null
+      case _ =>
+        val whiteSpaceToken = findWhiteSpaceToken(leafElement).getOrElse(TokenType.WHITE_SPACE)
+        inWriteAction {
+          PsiFormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, whiteSpaceToken, textRange)
+        }
+        whiteSpace
     }
+
+    private def findWhiteSpaceToken(node: ASTNode) =
+      Option(TreeUtil.prevLeaf(node))
+        .map(_.getElementType)
+        .filter(WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains)
+
   }
+
 }
