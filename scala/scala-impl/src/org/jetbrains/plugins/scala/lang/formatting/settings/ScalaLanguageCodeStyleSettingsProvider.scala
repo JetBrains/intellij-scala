@@ -148,9 +148,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "CATCH_ON_NEW_LINE",
         "FINALLY_ON_NEW_LINE",
         "FOR_STATEMENT_WRAP",
-        "ALIGN_MULTILINE_FOR",
-        "FOR_STATEMENT_LPAREN_ON_NEXT_LINE",
-        "FOR_STATEMENT_RPAREN_ON_NEXT_LINE"
+        "ALIGN_MULTILINE_FOR"
       )
 
       //modifier list wrap
