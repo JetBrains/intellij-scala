@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package project
 
+import java.io.File
 import java.{util => ju}
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries._
 import com.intellij.openapi.roots.ui.configuration._
+import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.{Icon, JComponent}
-import org.jetbrains.plugins.scala.project.template.{SdkChoice, SdkSelectionDialog}
 
 /**
  * @author Pavel Fatin
@@ -59,6 +60,8 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
 //noinspection TypeAnnotation
 object ScalaLibraryType {
 
+  import template._
+
   def apply() =
     LibraryType.findByKind(Kind).asInstanceOf[ScalaLibraryType]
 
@@ -73,16 +76,44 @@ object ScalaLibraryType {
 
     override def createNewLibrary(parent: JComponent,
                                   contextDirectory: VirtualFile) =
-      new SdkSelectionDialog(parent, sdksProvider(contextDirectory)).open() match {
-        case null => null
-        case description => description.createNewLibraryConfiguration
-      }
+      new SdkSelectionDialog(parent, sdksProvider(contextDirectory))
+        .open()
+        .map(createNewScalaLibrary)
+        .orNull
 
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
     private def sdksProvider(contextDirectory: VirtualFile) = () => {
       import scala.collection.JavaConverters._
       SdkChoice.findSdks(contextDirectory).asJava
+    }
+
+    private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
+      val ScalaSdkDescriptor(maybeVersion, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
+
+      new NewLibraryConfiguration(
+        "scala-sdk-" + descriptor.versionText()(),
+        ScalaLibraryType(),
+        ScalaLibraryProperties(maybeVersion, compilerClasspath)
+      ) {
+        override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
+          addRootsInner(libraryFiles ++ sourceFiles)(editor)
+          addRootsInner(docFiles, JavadocOrderRootType.getInstance)(editor)
+
+          if (sourceFiles.isEmpty && docFiles.isEmpty) editor.addRoot(
+            s"https://www.scala-lang.org/api/${descriptor.versionText("current")()}/",
+            JavadocOrderRootType.getInstance
+          )
+        }
+
+        private def addRootsInner(files: Seq[File],
+                                  rootType: OrderRootType = OrderRootType.CLASSES)
+                                 (implicit editor: libraryEditor.LibraryEditor): Unit =
+          for {
+            file <- files
+            url = file.toLibraryRootURL
+          } editor.addRoot(url, rootType)
+      }
     }
   }
 

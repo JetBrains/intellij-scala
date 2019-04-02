@@ -4,54 +4,17 @@ package template
 
 import java.io.File
 
-import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
-import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
-
 /**
  * @author Pavel Fatin
  */
-final class ScalaSdkDescriptor(private val version: Option[Version],
-                               private val compilerClasspath: Seq[File],
-                               private val libraryFiles: Seq[File],
-                               private val sourceFiles: Seq[File],
-                               private val docFiles: Seq[File])
+final case class ScalaSdkDescriptor(maybeVersion: Option[Version],
+                                    compilerClasspath: Seq[File],
+                                    libraryFiles: Seq[File],
+                                    sourceFiles: Seq[File],
+                                    docFiles: Seq[File])
   extends Ordered[ScalaSdkDescriptor] {
 
-  def hasSources: Boolean = sourceFiles.nonEmpty
-
-  def hasDocs: Boolean = docFiles.nonEmpty
-
-  def versionText(default: String = "Unknown")
-                 (presentation: Version => String = _.presentation): String =
-    version.fold(default)(presentation)
-
-  override def compare(that: ScalaSdkDescriptor): Int = that.version.compare(version)
-
-  //noinspection TypeAnnotation
-  def createNewLibraryConfiguration = new NewLibraryConfiguration(
-    "scala-sdk-" + versionText()(),
-    ScalaLibraryType(),
-    ScalaLibraryProperties(version, compilerClasspath)
-  ) {
-    override def addRoots(editor: LibraryEditor): Unit = {
-      addRootsInner(libraryFiles ++ sourceFiles)(editor)
-      addRootsInner(docFiles, JavadocOrderRootType.getInstance)(editor)
-
-      if (sourceFiles.isEmpty && docFiles.isEmpty) editor.addRoot(
-        s"https://www.scala-lang.org/api/${versionText("current")()}/",
-        JavadocOrderRootType.getInstance
-      )
-    }
-
-    private def addRootsInner(files: Seq[File],
-                              rootType: OrderRootType = OrderRootType.CLASSES)
-                             (implicit editor: LibraryEditor): Unit =
-      for {
-        file <- files
-        url = file.toLibraryRootURL
-      } editor.addRoot(url, rootType)
-  }
+  override def compare(that: ScalaSdkDescriptor): Int = that.maybeVersion.compare(maybeVersion)
 }
 
 object ScalaSdkDescriptor {
@@ -76,7 +39,7 @@ object ScalaSdkDescriptor {
           case Component(ScalaLibrary, _, Some(version), _) => version
         }
 
-        val descriptor = new ScalaSdkDescriptor(
+        val descriptor = ScalaSdkDescriptor(
           libraryVersion,
           files(binaryComponents)(requiredBinaryArtifacts),
           files(binaryComponents)(),
@@ -86,6 +49,13 @@ object ScalaSdkDescriptor {
 
         Right(descriptor)
     }
+  }
+
+  implicit class DescriptorExt(private val descriptor: ScalaSdkDescriptor) extends AnyVal {
+
+    def versionText(default: String = "Unknown")
+                   (presentation: Version => String = _.presentation): String =
+      descriptor.maybeVersion.fold(default)(presentation)
   }
 
   private[this] def requiredBinaryArtifacts = Set[Artifact](

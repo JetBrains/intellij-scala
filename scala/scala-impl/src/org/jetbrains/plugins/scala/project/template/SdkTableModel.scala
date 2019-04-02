@@ -28,12 +28,12 @@ class SdkTableModel extends ListTableModel[SdkChoice](
 
     override def getPreferredStringValue = "0"
 
-    override def valueOf(item: SdkChoice): Boolean = item.sdk.hasSources
+    override def valueOf(item: SdkChoice): Boolean = item.sdk.sourceFiles.nonEmpty
   },
   new ColumnInfo[SdkChoice, Boolean]("Docs") {
     override def getColumnClass: Class[Boolean] = classOf[java.lang.Boolean]
 
     override def getPreferredStringValue = "0"
 
-    override def valueOf(item: SdkChoice): Boolean = item.sdk.hasDocs
+    override def valueOf(item: SdkChoice): Boolean = item.sdk.docFiles.nonEmpty
   })

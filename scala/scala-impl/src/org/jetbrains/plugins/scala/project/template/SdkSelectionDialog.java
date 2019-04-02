@@ -116,11 +116,11 @@ public class SdkSelectionDialog extends JDialog {
         dispose();
     }
 
-    public ScalaSdkDescriptor open() {
+    public Option<ScalaSdkDescriptor> open() {
         pack();
         setLocationRelativeTo(myParent.getTopLevelAncestor());
         setVisible(true);
-        return mySelectedSdk;
+        return Option.apply(mySelectedSdk);
     }
 
     {
