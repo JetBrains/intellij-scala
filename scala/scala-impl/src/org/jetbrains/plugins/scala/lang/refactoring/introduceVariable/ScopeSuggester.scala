@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 import java.{util => ju}
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.annotation.tailrec
@@ -150,43 +150,40 @@ object ScopeSuggester {
       result.toArray
     }
 
+    val containingFile = typeElement.getContainingFile
+    val scope = {
+      val project = containingFile.getProject
+      val module = Option(containingFile.getVirtualFile)
+        .flatMap(ScalaUtil.getModuleForFile(_, project))
+        .getOrElse(project.anyScalaModule.get)
+      GlobalSearchScope.moduleScope(module)
+    }
+    val dirContainingFile = getDirectoriesContainigfile(containingFile)
+
     @tailrec
-    def getDirectoriesContainigFileAndPackage(currentPackage: PsiPackage,
-                                              module: Module,
-                                              result: mutable.ArrayBuffer[(PsiPackage, PsiDirectory)],
-                                              dirContainingFile: Array[PsiDirectory]): mutable.ArrayBuffer[(PsiPackage, PsiDirectory)] = {
-
+    def directoriesContainingFileAndPackage(currentPackage: PsiPackage,
+                                            result: mutable.ArrayBuffer[(PsiPackage, PsiDirectory)]): Array[(PsiPackage, PsiDirectory)] = {
       if (currentPackage != null && currentPackage.getName != null) {
-        val subPackages = currentPackage.getSubPackages(GlobalSearchScope.moduleScope(module))
-        val filesNoRecursive = currentPackage.getFiles(GlobalSearchScope.moduleScope(module))
+        val subPackages = currentPackage.getSubPackages(scope)
+        val filesNoRecursive = currentPackage.getFiles(scope)
 
-        // don't choose package if ther is only one subpackage
+        // don't choose package if there is only one subpackage
         if ((subPackages.length != 1) || filesNoRecursive.nonEmpty) {
-          val packageDirectories = currentPackage.getDirectories(GlobalSearchScope.moduleScope(module))
-          val containingDirectory = packageDirectories.intersect(dirContainingFile)
-
-          val resultDirectory: PsiDirectory = if (containingDirectory.length > 0) {
-            containingDirectory.apply(0)
-          } else {
-            typeElement.getContainingFile.getContainingDirectory
-          }
+          val resultDirectory = currentPackage.getDirectories(scope)
+            .intersect(dirContainingFile)
+            .headOption
+            .getOrElse(containingFile.getContainingDirectory)
 
           result += ((currentPackage, resultDirectory))
         }
-        getDirectoriesContainigFileAndPackage(currentPackage.getParentPackage, module, result, dirContainingFile)
-      } else {
-        result
-      }
+        directoriesContainingFileAndPackage(currentPackage.getParentPackage, result)
+      } else result.toArray
     }
 
-    val currentPackage = ScPackageImpl.findPackage(typeElement.getProject, packageName).asInstanceOf[PsiPackage]
-    val directoriesContainingFile = getDirectoriesContainigfile(typeElement.getContainingFile)
-    val module = ScalaUtil.getModuleForFile(typeElement.getContainingFile).orNull
-    val result = mutable.ArrayBuffer.empty[(PsiPackage, PsiDirectory)]
-
-    getDirectoriesContainigFileAndPackage(currentPackage, module, result, directoriesContainingFile)
-
-    result.toArray
+    directoriesContainingFileAndPackage(
+      ScPackageImpl.findPackage(typeElement.getProject, packageName),
+      mutable.ArrayBuffer.empty[(PsiPackage, PsiDirectory)]
+    )
   }
 
   def handleOnePackage(typeElement: ScTypeElement, inPackageName: String, containingDirectory: PsiDirectory,

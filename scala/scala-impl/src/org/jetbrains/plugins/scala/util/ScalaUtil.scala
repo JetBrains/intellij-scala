@@ -32,11 +32,4 @@ object ScalaUtil {
 
   def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
     Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
-
-  def getModuleForFile(file: PsiFile): Option[Module] =
-    Option(file.getVirtualFile).flatMap {
-      getModuleForFile(_, file.getProject)
-    }.orElse {
-      file.getProject.anyScalaModule
-    }
 }
