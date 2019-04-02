@@ -14,9 +14,7 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
-  override def accepts(file: VirtualFile): Boolean = isTopLevelClass(file) {
-    case (_, _) => true
-  }
+  override def accepts(file: VirtualFile): Boolean = topLevelScalaClassFor(file).nonEmpty
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
@@ -68,7 +66,7 @@ object ScClassFileDecompiler {
     }
 
     private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
-      case original if isTopLevelClass(original)() =>
+      case original if isTopLevelScalaClass(original) =>
         DecompilationResult.unapply(original)(content.getContent).map {
           case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
             sourceName,
@@ -97,26 +95,31 @@ object ScClassFileDecompiler {
       new NonScalaClassFileViewProvider(eventSystemEnabled)
   }
 
-  private def isTopLevelClass(file: VirtualFile)
-                             (predicate: (String, String) => Boolean = _ == _): Boolean = file.getFileType match {
-    case fileType@JavaClassFileType.INSTANCE =>
-      file.getParent match {
-        case null => false
-        case directory =>
-          def hasDecompilableChild(nameWithoutExtension: String) =
-            directory.findChild(nameWithoutExtension + '.' + fileType.getDefaultExtension) match {
-              case null => false
-              case child => DecompilationResult.tryDecompile(child).isDefined
-            }
+  private def isTopLevelScalaClass(file: VirtualFile): Boolean = topLevelScalaClassFor(file).contains(file.getNameWithoutExtension)
 
-          val fileName = file.getNameWithoutExtension
-          new PrefixIterator(fileName).exists { prefix =>
-            !prefix.endsWith("$") &&
-              hasDecompilableChild(prefix) &&
-              predicate(prefix, fileName)
-          }
-      }
-    case _ => false
+  private def topLevelScalaClassFor(file: VirtualFile): Option[String] = {
+    val extension = file.getExtension
+    val classFileExtension = JavaClassFileType.INSTANCE.getDefaultExtension
+
+    extension match {
+      case `classFileExtension` =>
+        file.getParent match {
+          case null => None
+          case directory =>
+            def hasDecompilableChild(nameWithoutExtension: String) =
+              directory.findChild(nameWithoutExtension + '.' + classFileExtension) match {
+                case null => false
+                case child => DecompilationResult.tryDecompile(child).isDefined
+              }
+
+            val fileName = file.getNameWithoutExtension
+            new PrefixIterator(fileName).find { prefix =>
+              !prefix.endsWith("$") &&
+                hasDecompilableChild(prefix)
+            }
+        }
+      case _ => None
+    }
   }
 
   private[this] class PrefixIterator(private val fileName: String) extends Iterator[String] {
