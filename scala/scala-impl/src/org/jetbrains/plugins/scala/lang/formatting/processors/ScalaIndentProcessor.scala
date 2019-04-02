@@ -3,7 +3,7 @@ package lang
 package formatting
 package processors
 
-import com.intellij.formatting._
+import com.intellij.formatting.Indent
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.{NEXT_LINE, NEXT_LINE_SHIFTED, NEXT_LINE_SHIFTED2}
@@ -221,13 +221,16 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             }
         }
       case block: ScBlockImpl =>
-        block.getParent match {
-          case _: ScCaseClause | _: ScFunctionExpr =>
+        val blockParent = block.getParent
+        blockParent match {
+          case _: ScCaseClause | _: ScFunctionExpr=>
             childPsi match {
-              case _: ScBlockExpr if isBraceNextLineShifted => Indent.getNormalIndent
-              case _: ScBlockExpr => Indent.getNoneIndent
-              case _ if scalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY => Indent.getNoneIndent
-              case _ => Indent.getNormalIndent
+              case _: ScBlockExpr =>
+                if(isBraceNextLineShifted) Indent.getNormalIndent
+                else Indent.getNoneIndent
+              case _ =>
+                if (scalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY && blockParent.startsFromNewLine()) Indent.getNoneIndent
+                else Indent.getNormalIndent
             }
           case _ => Indent.getNoneIndent
         }

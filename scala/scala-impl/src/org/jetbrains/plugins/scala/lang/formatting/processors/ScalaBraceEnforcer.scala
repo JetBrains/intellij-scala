@@ -4,12 +4,12 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PostFormatProcessorHelper}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeStyleSettings) extends ScalaRecursiveElementVisitor {
   private val commonSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
-  private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(commonSettings)
+  private val myPostProcessor = new PostFormatProcessorHelper(commonSettings)
 
   override def visitIfStatement(stmt: ScIf) {
     if (checkElementContainsRange(stmt)) {
@@ -106,7 +106,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     if (checkElementContainsRange(cc)) {
       super.visitCaseClause(cc)
       cc.expr match {
-        case Some(expr) => processExpression(expr, cc, scalaSettings.CASE_CLAUSE_BRACE_FORCE)
+        // lambdas that are already wrapped with braces and use `case` clause do not need extra braces
+        case Some(expr) if !cc.getParent.nullSafe.map(_.getParent).get.isInstanceOf[ScBlockExpr] =>
+          processExpression(expr, cc, scalaSettings.CASE_CLAUSE_BRACE_FORCE)
         case _ =>
       }
     }
@@ -117,7 +119,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     if (checkElementContainsRange(stmt)) {
       super.visitFunctionExpression(stmt)
       stmt.result match {
-        case Some(expr) => processExpression(expr, stmt, scalaSettings.CLOSURE_BRACE_FORCE)
+          // lambdas that are already wrapped with braces do not need extra braces
+        case Some(expr) if !stmt.getParent.isInstanceOf[ScBlockExpr] =>
+          processExpression(expr, stmt, scalaSettings.CLOSURE_BRACE_FORCE)
         case _ =>
       }
     }
@@ -128,10 +132,10 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
       case _: ScBlockExpr =>
       case c: ScBlock if c.firstChild.exists(_.isInstanceOf[ScBlockExpr]) && c.firstChild == c.lastChild =>
       case _ =>
-        if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
-          (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
-            PostFormatProcessorHelper.isMultiline(stmt))) {
-          replaceExprsWithBlock(expr)
+        val needBraces = option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
+          (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE && PostFormatProcessorHelper.isMultiline(stmt))
+        if (needBraces) {
+          replaceElementsWithBlock(expr)
         }
     }
   }
@@ -143,37 +147,46 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
       if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
         (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
           PostFormatProcessorHelper.isMultiline(stmt))) {
-        replaceExprsWithBlock(elements:_*)
+        replaceElementsWithBlock(elements:_*)
       }
     }
   }
 
-  private def replaceExprsWithBlock(elements: PsiElement*): Unit = {
+  private def replaceElementsWithBlock(elements: PsiElement*): Unit = {
     assert(elements.nonEmpty && elements.forall(_.isValid))
     if (!elements.forall(checkElementContainsRange)) return
 
-    val head = elements.head
+    val head :: tail = elements.toList
     val parent = head.getParent
     val oldTextLength: Int = parent.getTextLength
     try {
       val project = head.getProject
-      val concatText = "{\n" + elements.tail.foldLeft(head.getText)((res, expr) => res + "\n"+ expr.getText) + "\n}"
+      val concatText =
+        s"""{
+           |${elements.map(_.getText).mkString("\n")}
+           |}""".stripMargin
       val newExpr = createExpressionFromText(concatText)(head.getManager)
-      val prev = head.getPrevSibling
-      if (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]) {
-        CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(prev))
+
+      val prev = PsiTreeUtil.prevLeaf(head)
+      val next = PsiTreeUtil.nextLeaf(elements.last)
+
+      def parentNode = SourceTreeToPsiMap.psiElementToTree(parent)
+
+      def remove(child: PsiElement): Unit =
+        CodeEditUtil.removeChild(parentNode, SourceTreeToPsiMap.psiElementToTree(child))
+
+      if (prev.isInstanceOf[PsiWhiteSpace]) remove(prev)
+      if (next.isInstanceOf[PsiWhiteSpace]) remove(next)
+
+      for (expr <- tail) {
+        remove(expr)
       }
-      Option(elements.last.getNextSibling) match {
-        case Some(next) if ScalaPsiUtil.isLineTerminator(next) || next.isInstanceOf[PsiWhiteSpace] =>
-          CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(next))
-        case _ =>
-      }
-      for (expr <- elements.tail) {
-        CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(expr))
-      }
-      CodeEditUtil.replaceChild(SourceTreeToPsiMap.psiElementToTree(parent),
+
+      CodeEditUtil.replaceChild(
+        parentNode,
         SourceTreeToPsiMap.psiElementToTree(head),
-        SourceTreeToPsiMap.psiElementToTree(newExpr))
+        SourceTreeToPsiMap.psiElementToTree(newExpr)
+      )
       CodeStyleManager.getInstance(project).reformat(parent, true)
     } finally {
       updateResultRange(oldTextLength, parent.getTextLength)

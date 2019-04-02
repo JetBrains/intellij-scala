@@ -1019,4 +1019,132 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def testClosureBraceForce_1(): Unit = {
+    val before =
+      """
+        |Seq(1, 2).map(x =>
+        |  42
+        |)
+      """.stripMargin
+    val after =
+      """
+        |Seq(1, 2).map(x => {
+        |  42
+        |})
+      """.stripMargin
+
+    getScalaSettings.CLOSURE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false
+    doTextTest(before, after)
+
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true
+    doTextTest(before, after)
+  }
+
+  def tesClosureBraceForce_2(): Unit = {
+    val before =
+      """
+        |Seq(1, 2).map(x => {
+        |  42
+        |})
+      """.stripMargin
+
+    getScalaSettings.CLOSURE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false
+    doTextTest(before)
+
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true
+    doTextTest(before)
+  }
+
+  def testClosureBraceForce_3_ShouldNotAffectLambdaWrappedWithBraces(): Unit = {
+    val before =
+      """Seq(1, 2).map { x =>
+        |  42
+        |}
+      """.stripMargin
+
+    getScalaSettings.CLOSURE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE
+    doTextTest(before)
+
+    getScalaSettings.CLOSURE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    doTextTest(before)
+  }
+
+  def testMethodDeclarationParametersWrapShouldNotEffectLambdaArgument(): Unit = {
+    val before = """Seq(1, 2).filter { a => a % 2 == 0 }"""
+
+    getCommonSettings.METHOD_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    doTextTest(before)
+
+    getCommonSettings.METHOD_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    doTextTest(before)
+
+    getCommonSettings.METHOD_PARAMETERS_WRAP = CHOP_DOWN_IF_LONG
+    doTextTest(before)
+  }
+
+  def testDoNotIndentCaseClauseBody_1(): Unit = {
+    getScalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY = true
+    val before =
+      """Option(1) match {
+        |  case Some(1) =>
+        |    42
+        |  case _ =>
+        |    23
+        |}
+      """.stripMargin
+    val after =
+      """Option(1) match {
+        |  case Some(1) =>
+        |  42
+        |  case _ =>
+        |  23
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+
+  def testDoNotIndentCaseClauseBody_2(): Unit = {
+    getScalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY = true
+    val before =
+      """Seq(1, 2).map {
+        |  case 1 =>
+        |    "1"
+        |  case 2 =>
+        |    "2"
+        |  case _ =>
+        |    "other"
+        |}
+      """.stripMargin
+    val after =
+      """Seq(1, 2).map {
+        |  case 1 =>
+        |  "1"
+        |  case 2 =>
+        |  "2"
+        |  case _ =>
+        |  "other"
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testDoNotIndentCaseClauseBodySettingShouldNotEffectLambdaBody(): Unit = {
+    getScalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY = true
+    val before =
+      """Seq(1, 2).map { x =>
+        |  42
+        |}
+        |
+        |Seq(1, 2).map { case x =>
+        |  42
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
 }

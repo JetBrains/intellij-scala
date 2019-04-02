@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 object ScalaWrapManager {
   def suggestedWrap(block: ScalaBlock, scalaSettings: ScalaCodeStyleSettings): Wrap = {
@@ -70,9 +70,9 @@ object ScalaWrapManager {
         Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.lastNode != null =>
         Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.EXTENDS_LIST_WRAP), true)
-      case _: ScParameterClause =>
+      case _: ScParameterClause if psi.getParent.nullSafe.map(_.getParent).get.isInstanceOf[ScMember]=>
         Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
-      case _: ScParameters =>
+      case _: ScParameters if psi.getParent.isInstanceOf[ScMember] =>
         Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, true)
       case annot: ScAnnotations if annot.getAnnotations.length > 0 =>
         annot.getParent match {

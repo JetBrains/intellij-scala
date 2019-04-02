@@ -418,10 +418,10 @@ object ScalaLanguageCodeStyleSettingsProvider {
     """.stripMargin.withNormalizedSeparator
 
   private val WrappingAndBracesSample =
-    """class A {
+    """private final class A {
       |  def foo1 = 42
       |
-      |  def foo2: Unit = { println(42) }
+      |  private final def foo2: Unit = { println(42) }
       |
       |  def foo3(
       |    x: Int,
