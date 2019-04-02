@@ -17,6 +17,8 @@ object Sbt {
 
   val ProjectDirectory = "project"
 
+  val PluginsFile = "plugins.sbt"
+
   val TargetDirectory = "target"
 
   val ModulesDirectory = ".idea/modules"

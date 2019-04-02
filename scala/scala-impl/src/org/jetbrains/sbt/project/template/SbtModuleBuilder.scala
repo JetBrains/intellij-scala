@@ -9,13 +9,13 @@ import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, Sdk
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{io, text}
 import javax.swing._
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{Version, Versions}
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 /**
@@ -31,6 +31,7 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   import Versions._
 
   private val selections = Selections(
+    null,
     null,
     null,
     resolveClassifiers = true,
@@ -52,7 +53,7 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     new File(getModuleFileDirectory) match {
       case root if root.exists() =>
-        val Selections(sbtVersion, scalaVersion, resolveClassifiers, resolveSbtClassifiers) = selections
+        val Selections(sbtVersion, scalaVersion, sbtPlugins, resolveClassifiers, resolveSbtClassifiers) = selections
 
       {
         val settings = getExternalProjectSettings
@@ -60,7 +61,7 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
         settings.setResolveSbtClassifiers(resolveSbtClassifiers)
       }
 
-        createProjectTemplateIn(root, getName, scalaVersion, sbtVersion)
+        createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, sbtPlugins)
 
         setModuleFilePath(updateModuleFilePath(getModuleFilePath))
       case _ =>
@@ -149,24 +150,42 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   ) {
 
     override def updateDataModel(): Unit = {
-      settingsStep.getContext.setProjectJdk(selectedJdk)
+      settingsStep.getContext.setProjectJdk(myJdkComboBox.getSelectedJdk)
     }
 
     override def validate(): Boolean = super.validate() && {
-      selectedJdk match {
-        case null => true
-        case sdk =>
-          selections.scalaVersion match {
-            case null => true
-            case presentation =>
-              if (Version(presentation) < Version("2.12") ||
-                JavaSdk.getInstance().getVersion(sdk).isAtLeast(JavaSdkVersion.JDK_1_8)) true
-              else throw new ConfigurationException("Scala 2.12 requires JDK 1.8", "Wrong JDK version")
-          }
-      }
+      for {
+        sdk <- Option(myJdkComboBox.getSelectedJdk)
+        presentation <- Option(selections.scalaVersion)
+        languageLevel <- Version(presentation).toLanguageLevel
+      } validateLanguageLevel(languageLevel, sdk)
+
+      true
     }
 
-    private def selectedJdk = myJdkComboBox.getSelectedJdk
+    private def validateLanguageLevel(languageLevel: ScalaLanguageLevel, sdk: Sdk): Unit = {
+      import JavaSdkVersion.JDK_1_8
+      import Sbt.{Latest_1_0, Name}
+      import ScalaLanguageLevel._
+
+      def reportMisconfiguration(libraryName: String,
+                                 libraryVersion: String) =
+        throw new ConfigurationException(
+          s"Scala ${languageLevel.getVersion} requires $libraryName $libraryVersion",
+          s"Wrong $libraryName version"
+        )
+
+      languageLevel match {
+        case Scala_3_0 if Option(selections.sbtVersion).exists(Version(_) >= Latest_1_0) =>
+          selections.sbtPlugins = Scala3RequiredSbtPlugins
+        case Scala_3_0 =>
+          reportMisconfiguration(Name, Latest_1_0.presentation)
+        case _ if languageLevel >= Scala_2_12 && !JavaSdk.getInstance().getVersion(sdk).isAtLeast(JDK_1_8) =>
+          reportMisconfiguration("JDK", JDK_1_8.getDescription)
+        case _ =>
+      }
+
+    }
   }
 
   private def setupScalaVersionItems(cbx: SComboBox): Unit = {
@@ -192,8 +211,15 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
 
 object SbtModuleBuilder {
 
+  import Sbt._
+
+  private val Scala3RequiredSbtPlugins =
+    """addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.0")
+    """.stripMargin
+
   private final case class Selections(var sbtVersion: String,
                                       var scalaVersion: String,
+                                      var sbtPlugins: String,
                                       var resolveClassifiers: Boolean,
                                       var resolveSbtClassifiers: Boolean) {
 
@@ -218,14 +244,16 @@ object SbtModuleBuilder {
   private def createProjectTemplateIn(root: File,
                                       name: String,
                                       scalaVersion: String,
-                                      sbtVersion: String): Unit = {
-    val buildFile = root / Sbt.BuildFile
-    val projectDir = root / Sbt.ProjectDirectory
+                                      sbtVersion: String,
+                                      sbtPlugins: String): Unit = {
+    val buildFile = root / BuildFile
+    val projectDir = root / ProjectDirectory
+
     if (buildFile.createNewFile() && projectDir.mkdir()) {
       (root / "src" / "main" / "scala").mkdirs()
       (root / "src" / "test" / "scala").mkdirs()
 
-      import FileUtil.writeToFile
+      import io.FileUtil.writeToFile
 
       writeToFile(
         buildFile,
@@ -234,18 +262,26 @@ object SbtModuleBuilder {
            |version := "0.1"
            |
            |scalaVersion := "$scalaVersion"
-          """.stripMargin.trim
+           |""".stripMargin
       )
       writeToFile(
-        projectDir / Sbt.PropertiesFile,
+        projectDir / PropertiesFile,
         "sbt.version = " + sbtVersion
       )
+
+      import text.StringUtil.isEmpty
+      if (!isEmpty(sbtPlugins)) {
+        writeToFile(
+          projectDir / PluginsFile,
+          sbtPlugins
+        )
+      }
     }
   }
 
   // TODO customize the path in UI when IDEA-122951 will be implemented
   private def updateModuleFilePath(pathname: String) = {
     val file = new File(pathname)
-    file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
+    file.getParent + "/" + ModulesDirectory + "/" + file.getName.toLowerCase
   }
 }
