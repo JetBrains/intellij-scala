@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
@@ -123,13 +123,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     node.getPsi match {
       case _: ScValue | _: ScVariable if cs.ALIGN_GROUP_FIELD_DECLARATIONS =>
-        if (node.getTreeParent.getPsi match {
-          case _: ScEarlyDefinitions | _: ScTemplateBody => true
-          case _ => false
-        }) {
-          subBlocks.addAll(getFieldGroupSubBlocks(node))
-          return subBlocks
-        }
+        subBlocks.addAll(getFieldGroupSubBlocks(node))
+        return subBlocks
       case _: ScCaseClause if ss.ALIGN_IN_COLUMNS_CASE_BRANCH =>
         subBlocks.addAll(getCaseClauseGroupSubBlocks(node))
         return subBlocks
@@ -345,7 +340,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   private def getCaseClauseGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
-    val children = node.getChildren(null)
+    val children = node.getChildren(null).filter(isCorrectBlock)
     val subBlocks = new util.ArrayList[Block]
 
     def getPrevGroupNode(node: ASTNode): ASTNode = {
@@ -365,13 +360,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
       while (prev != null && breaks <= 1 && !isOk(prev)) {
         prev = prev.getPrevSibling
       }
-      if (breaks != 1) null
-      else if (prev == null) null
-      else prev.getNode
+      if (breaks == 1 && prev != null) prev.getNode
+      else null
     }
 
     var prevChild: ASTNode = null
-    for (child <- children if isCorrectBlock(child)) {
+    for (child <- children) {
       val childAlignment = getChildAlignment(node, child, getPrevGroupNode, Seq(ScalaTokenTypes.FUNTYPE_ANY_TOKEN_SET))
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
@@ -381,7 +375,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   private def getFieldGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
-    val children = node.getChildren(null)
+    val children = node.getChildren(null).filter(isCorrectBlock)
     val subBlocks = new util.ArrayList[Block]
 
     def getPrevGroupNode(node: ASTNode): ASTNode = {
@@ -391,20 +385,18 @@ class getDummyBlocks(private val block: ScalaBlock) {
       def isOk(psi: PsiElement): Boolean = psi match {
         case ElementType(t) if t == ScalaTokenTypes.tSEMICOLON =>
           false
-        case _: ScVariableDeclaration | _: ScValueDeclaration
-          if nodePsi.isInstanceOf[ScPatternDefinition] || nodePsi.isInstanceOf[ScVariableDefinition] =>
+        case _: ScVariableDeclaration | _: ScValueDeclaration if nodePsi.is[ScPatternDefinition, ScVariableDefinition] =>
           breaks += 2
           false
-        case _: ScVariableDefinition | _: ScPatternDefinition
-          if nodePsi.isInstanceOf[ScValueDeclaration] || nodePsi.isInstanceOf[ScValueDeclaration] =>
+        case _: ScVariableDefinition | _: ScPatternDefinition if nodePsi.is[ScValueDeclaration, ScValueDeclaration] =>
           breaks += 2
           false
         case _: ScVariable | _: ScValue =>
-          def hasModifierList(psi: PsiElement) = psi match {
-            case mod: ScModifierListOwner if mod.getModifierList.getTextLength == 0 => false
-            case _ => true
+          def hasEmptyModifierList(psi: PsiElement): Boolean = psi match {
+            case mod: ScModifierListOwner if mod.getModifierList.getTextLength == 0 => true
+            case _ => false
           }
-          if (hasModifierList(psi) != hasModifierList(nodePsi)) {
+          if (hasEmptyModifierList(psi) != hasEmptyModifierList(node.getPsi)) {
             breaks += 2
             false
           } else {
@@ -422,13 +414,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
       while (prev != null && breaks <= 1 && !isOk(prev)) {
         prev = prev.getPrevSibling
       }
-      if (breaks != 1) null
-      else if (prev == null) null
-      else prev.getNode
+      if (breaks == 1 && prev != null) prev.getNode
+      else null
     }
 
     var prevChild: ASTNode = null
-    for (child <- children if isCorrectBlock(child)) {
+    for (child <- children) {
       //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
       val childAlignment = getChildAlignment(node, child, getPrevGroupNode, FieldGroupSubBlocksTokenSets)
       subBlocks.add(subBlock(child, null, childAlignment))
@@ -447,6 +438,13 @@ class getDummyBlocks(private val block: ScalaBlock) {
       alignment
     }
 
+    def getAlignment(node: ASTNode): Alignment = {
+      val alignment = node.getPsi.getUserData(fieldGroupAlignmentKey)
+      val newAlignment = if (alignment == null) createNewAlignment else alignment
+      child.getPsi.putUserData(fieldGroupAlignmentKey, newAlignment)
+      newAlignment
+    }
+
     val prev = getPrevGroupNode(node)
     tokenSets.find(_.contains(child.getElementType)) match {
       case Some(ts) =>
@@ -457,10 +455,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
           if (prevChild == null) {
             getChildAlignment(prev, child, getPrevGroupNode, tokenSets)
           } else {
-            val alignment = node.getPsi.getUserData(fieldGroupAlignmentKey)
-            val newAlignment = if (alignment == null) createNewAlignment else alignment
-            child.getPsi.putUserData(fieldGroupAlignmentKey, newAlignment)
-            newAlignment
+            getAlignment(prevChild)
           }
         }
       case None =>

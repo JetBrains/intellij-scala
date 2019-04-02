@@ -933,4 +933,90 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def testGroupFieldDeclarationsInColumns(): Unit = {
+    getCommonSettings.ALIGN_GROUP_FIELD_DECLARATIONS = true
+    val before =
+      """var x = 1
+        |val yyy = 2
+        |val zzzzzz = 3
+        |
+        |val zzzzzzzz = 4
+        |var yyyyy = 5
+        |val xxx = 6
+        |
+        |val qq = 7
+        |val wwwwww =
+        |  8
+        |var eeeeeeeeee = {
+        |  9
+        |}
+        |""".stripMargin
+    val after =
+      """var x      = 1
+        |val yyy    = 2
+        |val zzzzzz = 3
+        |
+        |val zzzzzzzz = 4
+        |var yyyyy    = 5
+        |val xxx      = 6
+        |
+        |val qq         = 7
+        |val wwwwww     =
+        |  8
+        |var eeeeeeeeee = {
+        |  9
+        |}
+        |""".stripMargin
+
+    doTextTest(before, after)
+  }
+
+  def testGroupCaseArrowsInColumns(): Unit = {
+    getScalaSettings.ALIGN_IN_COLUMNS_CASE_BRANCH = true
+    val before =
+      """someObj1 match {
+        |  case x => 1
+        |  case yyy => 2
+        |  case zzzzzzzzzzz => 3
+        |}
+        |
+        |someObj2 match {
+        |  case zzzzzzzzzzzzzz => 4
+        |  case yyyyyy => 5
+        |  case xxxx => 6
+        |}
+        |
+        |someObj3 match {
+        |  case qq =>
+        |    4
+        |  case wwww =>
+        |    5
+        |  case eeeeee => 6
+        |}
+      """.stripMargin
+    val after =
+      """someObj1 match {
+        |  case x           => 1
+        |  case yyy         => 2
+        |  case zzzzzzzzzzz => 3
+        |}
+        |
+        |someObj2 match {
+        |  case zzzzzzzzzzzzzz => 4
+        |  case yyyyyy         => 5
+        |  case xxxx           => 6
+        |}
+        |
+        |someObj3 match {
+        |  case qq     =>
+        |    4
+        |  case wwww   =>
+        |    5
+        |  case eeeeee => 6
+        |}
+        |""".stripMargin
+
+    doTextTest(before, after)
+  }
+
 }

@@ -448,6 +448,8 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    param2: String = "1"
       |  ){}
       |
+      |  val x = 42
+      |  val yyy = 23
       |  val fooObj = new Foo
       |
       |  fooObj.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()
@@ -516,9 +518,10 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |  Some(3) match {
       |    case Some(a) if a != 2 => println("1")
       |    case Some(1) |
-      |       Some(2) => println("2")
+      |       Some(2) => println("1 or 2")
+      |    case Some(3) => println("3")
       |
-      |    case _ => println("3")
+      |    case _ => println("other")
       |  }
       |
       |  try fetchUser() finally println("finally")
