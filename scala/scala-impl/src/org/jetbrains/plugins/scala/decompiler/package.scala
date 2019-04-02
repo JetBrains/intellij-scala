@@ -2,48 +2,39 @@ package org.jetbrains.plugins.scala
 
 import java.io.IOException
 
+import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 
-import scala.annotation.tailrec
-import scala.reflect.NameTransformer.decode
+import scala.reflect.NameTransformer
 
 package object decompiler {
 
-  private[this] type SiblingsNames = Seq[String]
+  private val ClassFileExtension = JavaClassFileType.INSTANCE.getDefaultExtension
 
-  private[this] val ClassFileExtension = "class"
+  private def classFileName(withoutExtension: String) = s"$withoutExtension.$ClassFileExtension"
 
   implicit class VirtualFileExt(private val virtualFile: VirtualFile) extends AnyVal {
 
-    def isInnerClass: Boolean = {
-      def isClass(file: VirtualFile) =
-        file.getExtension == ClassFileExtension
+    private def topLevelScalaClass: Option[String] = {
+      val parent = virtualFile.getParent
 
-      !isClass(virtualFile) && {
-        validSiblingsNames(isClass).map(decode) match {
-          case Seq() => false
-          case seq =>
-            implicit val siblingsNames: SiblingsNames = seq
-            virtualFile.getNameWithoutExtension match {
-              case EndsWithDollar(name) if accepts(name) => false // let's handle it separately to avoid giving it for Java.
-              case name => isInnerImpl(decode(name))
-            }
+      if (parent == null || virtualFile.getExtension != ClassFileExtension)
+        return None
+
+      val prefixIterator = new PrefixIterator(virtualFile.getNameWithoutExtension)
+
+      prefixIterator.filterNot(_.endsWith("$"))
+        .find { prefix =>
+          val candidate = parent.findChild(classFileName(prefix))
+          candidate != null && canBeDecompiled(candidate)
         }
-      }
     }
 
-    def isAcceptable: Boolean = {
-      def isScalaFile(file: VirtualFile) =
-        try {
-          file.decompile().isScala
-        } catch {
-          case _: IOException => false
-        }
+    def isAcceptable: Boolean = topLevelScalaClass.nonEmpty
 
-      isScalaFile(virtualFile) ||
-        isAcceptableImpl("", virtualFile.getNameWithoutExtension) {
-          validSiblingsNames(isScalaFile)
-        }
+    def isInnerClass: Boolean = {
+      val fileName = virtualFile.getNameWithoutExtension
+      !topLevelScalaClass.contains(fileName)
     }
 
     def decompile(bytes: => Array[Byte] = virtualFile.contentsToByteArray): DecompilationResult = virtualFile match {
@@ -91,48 +82,41 @@ package object decompiler {
       case _ => DecompilationResult.empty()
     }
 
-    private def validSiblingsNames(predicate: VirtualFile => Boolean) =
-      virtualFile.getParent match {
-        case null => Seq.empty
-        case parent => parent.getChildren.toSeq.filter(predicate).map(_.getNameWithoutExtension)
+  }
+
+  private def canBeDecompiled(file: VirtualFile): Boolean =
+    try {
+      file.decompile().isScala
+    } catch {
+      case _: IOException => false
+    }
+
+  private class PrefixIterator(_fullName: String) extends Iterator[String] {
+    //we need to decode first to avoid treating class `:::` as inner of class `::` and so on
+    private val decoded = NameTransformer.decode(_fullName)
+    private var currentPrefixEnd = -1
+
+    def hasNext: Boolean = currentPrefixEnd < decoded.length
+
+    def next(): String = {
+      val prefix = nextPrefix(currentPrefixEnd)
+      currentPrefixEnd = prefix.length
+      NameTransformer.encode(prefix)
+    }
+
+    private def nextPrefix(previousPrefixEnd: Int = -1): String = {
+      if (previousPrefixEnd == decoded.length) null
+      else {
+        val nextDollarIndex = decoded.indexOf('$', previousPrefixEnd + 1)
+
+        if (nextDollarIndex >= 0) decoded.substring(0, nextDollarIndex)
+        else decoded
       }
+    }
   }
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
   private[this] def decompilerFileAttribute =
     if (ScalaLoader.isUnderUpsource) None
-    else Some(ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute)
-
-  private[this] object SplitAtDollar {
-
-    def unapply(string: String): Option[(String, String)] = string.split("\\$", 2) match {
-      case Array(prefix, suffix) => Some(prefix, suffix)
-      case _ => None
-    }
-  }
-
-  private[this] val EndsWithDollar = "(.+)\\$$".r
-
-  @tailrec
-  private[this] def isInnerImpl(suffix: String)
-                               (implicit siblingsNames: SiblingsNames): Boolean = suffix match {
-    case SplitAtDollar(newPrefix, newSuffix) =>
-      accepts(newPrefix) || isInnerImpl(newSuffix)
-    case _ => false
-  }
-
-  private[this] def accepts(newPrefix: String)
-                           (implicit siblingsNames: SiblingsNames) =
-    siblingsNames.exists(_ != newPrefix)
-
-  @tailrec
-  private[this] def isAcceptableImpl(prefix: String, suffix: String)
-                                    (implicit siblingsNames: SiblingsNames): Boolean = suffix match {
-    case SplitAtDollar(suffixPrefix, suffixSuffix) =>
-      prefix + suffixPrefix match {
-        case newPrefix if !newPrefix.endsWith("$") && siblingsNames.contains(newPrefix) => true
-        case newPrefix => isAcceptableImpl(newPrefix + '$', suffixSuffix)
-      }
-    case _ => false
-  }
+    else Some (ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute)
 }
