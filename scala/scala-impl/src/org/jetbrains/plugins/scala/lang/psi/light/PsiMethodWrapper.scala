@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.{MethodSignature, MethodSignatureBackedByPsiMethod}
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.light.LightUtil.javaTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -98,14 +99,15 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
   override final def findDeepestSuperMethod(): PsiMethod =
     PsiSuperMethodImplUtil.findDeepestSuperMethod(this)
 
-  override final def findSuperMethods(): Array[PsiMethod] =
-    PsiSuperMethodImplUtil.findSuperMethods(this)
+  override def findSuperMethods(): Array[PsiMethod] =
+    PsiMethod.EMPTY_ARRAY
 
   override final def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] =
-    PsiSuperMethodImplUtil.findSuperMethods(this, checkAccess)
+    if (!checkAccess) findSuperMethods()
+    else findSuperMethods().filterNot(_.hasModifierPropertyScala(PsiModifier.PRIVATE))
 
   override final def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] =
-    PsiSuperMethodImplUtil.findSuperMethods(this, parentClass)
+    findSuperMethods().filter(_.getContainingClass == parentClass)
 
   override final def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): util.List[MethodSignatureBackedByPsiMethod] =
     PsiSuperMethodImplUtil.findSuperMethodSignaturesIncludingStatic(this, checkAccess)
