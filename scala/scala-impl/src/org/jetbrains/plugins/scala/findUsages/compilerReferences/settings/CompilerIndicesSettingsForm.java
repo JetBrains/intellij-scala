@@ -41,21 +41,17 @@ public class CompilerIndicesSettingsForm {
     private JPanel compilationListenerPanel;
     private Project myProject;
 
-    private static final String promptText =
-            "You are about to delete scala bytecode indices.\n" +
-                    "Are you sure you want to proceed?";
-
     public CompilerIndicesSettingsForm(Project project) {
         this.myProject = project;
         enableIndexingCB.addItemListener(changeEvent -> updateAllPanels());
         deleteButton.setEnabled(package$.MODULE$.upToDateCompilerIndexExists(project, ScalaCompilerIndices.version()));
         deleteButton.addActionListener(e -> {
-            final int confirmation = Messages.showOkCancelDialog(
-                    project, promptText, "Delete Bytecode Indices",
-                    "Delete", Messages.CANCEL_BUTTON, Messages.getQuestionIcon()
-            );
-            if (confirmation == Messages.OK) invalidateIndices();
-            deleteButton.setEnabled(false);
+            final int answer = Messages.showYesNoDialog(project, "Are you sure you want to delete the bytecode indices?",
+                    "Delete Bytecode Indices", Messages.getQuestionIcon());
+            if (answer == Messages.YES) {
+                invalidateIndices();
+                deleteButton.setEnabled(false);
+            }
         });
 
         updateSbtKeysTextAreaText();
