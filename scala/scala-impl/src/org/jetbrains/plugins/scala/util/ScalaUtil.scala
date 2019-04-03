@@ -37,6 +37,6 @@ object ScalaUtil {
     Option(file.getVirtualFile).flatMap {
       getModuleForFile(_, file.getProject)
     }.orElse {
-      file.getProject.anyScalaModule.map(_.module)
+      file.getProject.anyScalaModule
     }
 }

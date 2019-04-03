@@ -10,10 +10,8 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
-import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
@@ -28,24 +26,31 @@ import scala.util.matching.Regex
  */
 package object project {
 
-  implicit class LibraryExt(val library: Library) extends AnyVal {
-    def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryType.Kind
+  implicit class LibraryExt(private val library: Library) extends AnyVal {
 
-    def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
+    def isScalaSdk: Boolean = library match {
+      case libraryEx: LibraryEx => libraryEx.getKind == ScalaLibraryType.Kind
+      case _ => false
+    }
 
-    def scalaLanguageLevel: ScalaLanguageLevel =
-      scalaVersion.flatMap(_.toLanguageLevel)
-        .getOrElse(ScalaLanguageLevel.getDefault)
+    def compilerVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
 
-    private[project] def scalaProperties: Option[ScalaLibraryProperties] =
-      libraryEx.getProperties.asOptionOf[ScalaLibraryProperties]
-
-    private def libraryEx = library.asInstanceOf[LibraryEx]
-
-    def classes: Set[File] = library.getFiles(OrderRootType.CLASSES).toSet.map(VfsUtilCore.virtualToIoFile)
+    def scalaVersion: Option[Version] = compilerVersion.map(Version(_))
   }
 
-  implicit class ModuleExt(val module: Module) extends AnyVal {
+  implicit class LibraryExExt(private val library: LibraryEx) extends AnyVal {
+
+    private def properties: ScalaLibraryProperties = library.getProperties match {
+      case properties: ScalaLibraryProperties => properties
+      case _ => throw new IllegalStateException("Library is not a Scala SDK: " + library.getName)
+    }
+
+    def compilerClasspath: Seq[File] = properties.compilerClasspath
+
+    def languageLevel: ScalaLanguageLevel = properties.languageLevel
+  }
+
+  implicit class ModuleExt(private val module: Module) extends AnyVal {
     def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
 
     def hasScala: Boolean =
@@ -53,10 +58,8 @@ package object project {
 
     def hasDotty: Boolean = false
 
-    def scalaSdk: Option[ScalaSdk] = Option {
+    def scalaSdk: Option[LibraryEx] = Option {
       ScalaSdkCache(module.getProject)(module)
-    }.map {
-      new ScalaSdk(_)
     }
 
     def modifiableModel: ModifiableRootModel =
@@ -148,11 +151,8 @@ package object project {
     def modulesWithScala: Seq[Module] =
       modules.filter(_.hasScala)
 
-    def scalaModules: Seq[ScalaModule] =
-      modulesWithScala.map(new ScalaModule(_))
-
-    def anyScalaModule: Option[ScalaModule] =
-      modulesWithScala.headOption.map(new ScalaModule(_))
+    def anyScalaModule: Option[Module] =
+      modulesWithScala.headOption
 
     def libraries: Seq[Library] =
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
@@ -173,34 +173,6 @@ package object project {
         }
       }
     }
-  }
-
-  class ScalaModule(val module: Module) {
-    def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {
-      throw new IllegalStateException("Module has no Scala SDK: " + module.getName)
-    }
-  }
-
-  object ScalaModule {
-    implicit def toModule(v: ScalaModule): Module = v.module
-  }
-
-  class ScalaSdk(val library: Library) {
-    //too many instances of anonymous functions was created on getOrElse()
-    private def properties: ScalaLibraryProperties = library.scalaProperties match {
-      case Some(p) => p
-      case None => throw new IllegalStateException("Library is not Scala SDK: " + library.getName)
-    }
-
-    def compilerVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
-
-    def compilerClasspath: Seq[File] = properties.compilerClasspath
-
-    def languageLevel: ScalaLanguageLevel = properties.languageLevel
-  }
-
-  object ScalaSdk {
-    implicit def toLibrary(v: ScalaSdk): Library = v.library
   }
 
   implicit class ProjectPsiElementExt(val element: PsiElement) extends AnyVal {

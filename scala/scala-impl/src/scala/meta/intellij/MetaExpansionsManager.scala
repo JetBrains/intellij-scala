@@ -76,7 +76,8 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent  {
       .replaceAll(getClass.getPackage.getName.replace(".", "/") + "/$", ""))
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
-    def projectOutputDirs(project: Project) = project.scalaModules.flatMap(sm => outputDirs(sm)).distinct.toList
+
+    def projectOutputDirs(project: Project) = project.modulesWithScala.flatMap(outputDirs).distinct.toList
 
     def classLoaderForModule(module: Module)(contextCP: Seq[URL]): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {

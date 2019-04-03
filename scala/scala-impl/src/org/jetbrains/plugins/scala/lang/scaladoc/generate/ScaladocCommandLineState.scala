@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
  * User: Dmitry Naidanov
@@ -115,7 +114,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
   private def processAdditionalParams(params: String) = {
     val paramTokens = splitParams(params)
-    val result = ListBuffer[String]()
+    val result = mutable.ListBuffer.empty[String]
 
     paramTokens.foldLeft(false) {
       case (true, _) => false
@@ -129,7 +128,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   }
 
   private def splitParams(params: String): List[String] = {
-    val result = ListBuffer[String]()
+    val result = mutable.ListBuffer.empty[String]
 
     (params + " ").foldLeft((false, new StringBuilder(""))) {
       case ((flag, acc), ' ') =>
@@ -162,9 +161,9 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val scalaModule = project.anyScalaModule.getOrElse {
       throw new ExecutionException("No modules with Scala SDK are configured")
     }
-    val classpathWithFacet = ListBuffer.apply[String]()
-    val sourcepathWithFacet = ListBuffer.apply[String]()
-    jp.getClassPath.addAllFiles(scalaModule.sdk.compilerClasspath.asJava)
+    val classpathWithFacet = mutable.ListBuffer.empty[String]
+    val sourcepathWithFacet = mutable.ListBuffer.empty[String]
+    jp.getClassPath.addAllFiles(scalaModule.scalaSdk.get.compilerClasspath.asJava)
     jp.setCharset(null)
     jp.setMainClass(MAIN_CLASS)
 
@@ -175,12 +174,12 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val paramList = jp.getProgramParametersList
 
-    val paramListSimple =  ListBuffer.apply[String]()
+    val paramListSimple = mutable.ListBuffer.empty[String]
 
     val modules = ModuleManager.getInstance(project).getModules
 
     val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
-    val documentableFilesList = ListBuffer.apply[String]()
+    val documentableFilesList = mutable.ListBuffer.empty[String]
     val allModules = MutableHashSet.apply(modules: _*)
     val modulesNeeded = MutableHashSet.apply[Module]()
 

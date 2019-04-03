@@ -72,15 +72,13 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     maybeCustomProfile.getOrElse(configuration.defaultProfile)
   }
 
-  override def getModuleFor: Module = Option(super.getModuleFor).getOrElse(getModuleFor(file.getVirtualFile))
-
-  private def getModuleFor(vFile: VirtualFile): Module = {
-    vFile match {
-      case _: VirtualFileWithId =>
-        Option(ProjectFileIndex.SERVICE getInstance project getModuleForFile
-          vFile) getOrElse project.anyScalaModule.map(_.module).orNull
-      case _ => project.anyScalaModule.map(_.module).orNull
-    }
+  override def getModuleFor: Module = super.getModuleFor match {
+    case null =>
+      (file.getVirtualFile match {
+        case virtualFile: VirtualFileWithId => Option(ProjectFileIndex.SERVICE.getInstance(project).getModuleForFile(virtualFile))
+        case _ => None
+      }).orElse(project.anyScalaModule).orNull
+    case module => module
   }
 }
 

@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, WorksheetMakeType}
@@ -42,7 +42,10 @@ class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSett
     compilerConfiguration.customProfiles.find(_.getName == compilerName).getOrElse(compilerConfiguration.defaultProfile)
   }
 
-  override def getModuleFor: Module = Option(super.getModuleFor).orElse(project.anyScalaModule.map(_.module)).orNull
+  override def getModuleFor: Module = super.getModuleFor match {
+    case null => project.anyScalaModule.orNull
+    case module => module
+  }
 }
 
 object WorksheetProjectSettings {

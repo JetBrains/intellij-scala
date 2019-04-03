@@ -3,8 +3,6 @@ package statistics
 
 import java.util
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-
 import com.intellij.internal.statistic.AbstractProjectsUsagesCollector
 import com.intellij.internal.statistic.beans.{GroupDescriptor, UsageDescriptor}
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
@@ -15,6 +13,8 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.util.PlatformUtils
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.settings.SbtSettings
+
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 /**
  * @author Alefas
@@ -36,7 +36,7 @@ class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
       }
 
       project.anyScalaModule
-        .map(_.sdk)
+        .flatMap(_.scalaSdk)
         .flatMap(_.compilerVersion)
         .foreach(v => addUsage(s"Scala: $v"))
 
