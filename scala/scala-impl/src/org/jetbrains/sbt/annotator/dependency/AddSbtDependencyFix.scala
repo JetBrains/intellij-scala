@@ -59,12 +59,10 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
 
     def filterByScalaVer(artifacts: Set[ArtifactInfo]): Option[Set[ArtifactInfo]] = for {
       module <- element.module
-      sdk <- module.scalaSdk
-
-      version = sdk.languageLevel.getVersion
+      languageLevel <- module.scalaLanguageLevel
 
       filtered = artifacts.filter {
-        case ArtifactInfo(_, artifactId, _) => artifactId.endsWith(version)
+        case ArtifactInfo(_, artifactId, _) => artifactId.endsWith(languageLevel.getVersion)
       }
       if filtered.nonEmpty
     } yield filtered

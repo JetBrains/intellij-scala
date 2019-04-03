@@ -83,7 +83,7 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.languageLevel)
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def literalTypesEnabled: Boolean = scalaSdk.map(_.languageLevel).exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
+    def literalTypesEnabled: Boolean = scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
       compilerConfiguration.hasSettingForHighlighting(module, _.literalTypes)
 
     /**
@@ -182,7 +182,7 @@ package object project {
 
     def isInDottyModule: Boolean = module.exists(_.hasDotty)
 
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk).map(_.languageLevel)
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaLanguageLevel)
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault)
 

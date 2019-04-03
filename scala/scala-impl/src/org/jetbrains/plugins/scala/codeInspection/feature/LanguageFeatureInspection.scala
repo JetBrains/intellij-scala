@@ -56,7 +56,7 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = PartialFunction.apply { e: PsiElement =>
     val module = ModuleUtilCore.findModuleForPsiElement(e)
 
-    if (module != null && module.scalaSdk.nonEmpty) {
+    if (module != null && module.hasScala) {
       Features.foreach(_.process(e, holder))
     }
   }

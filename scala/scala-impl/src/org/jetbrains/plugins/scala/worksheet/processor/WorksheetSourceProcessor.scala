@@ -113,7 +113,7 @@ object WorksheetSourceProcessor {
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
     @inline def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, dflt: => T) = moduleOpt.flatMap { module =>
-      module.scalaSdk.map(_.languageLevel).collect {
+      module.scalaLanguageLevel.collect {
         case ScalaLanguageLevel.Scala_2_10 => if210
         case ScalaLanguageLevel.Scala_2_11 => if211
         case ScalaLanguageLevel.Scala_2_13 => if213
