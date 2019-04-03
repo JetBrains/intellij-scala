@@ -42,7 +42,7 @@ object ScalaSdkCache {
       .librariesOnly()
       .exportedOnly()
       .forEachLibrary {
-        case library: LibraryEx if library.getKind == ScalaLibraryType.Kind =>
+        case library: LibraryEx if library.isScalaSdk =>
           result = library
           false
         case _ => true

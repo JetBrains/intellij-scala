@@ -15,7 +15,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.project.module.SbtModuleType
 
@@ -28,10 +27,12 @@ import scala.util.matching.Regex
  */
 package object project {
 
+  import project.ScalaLanguageLevel._
+
   implicit class LibraryExt(private val library: Library) extends AnyVal {
 
     def isScalaSdk: Boolean = library match {
-      case libraryEx: LibraryEx => libraryEx.getKind == ScalaLibraryType.Kind
+      case libraryEx: LibraryEx => libraryEx.isScalaSdk
       case _ => false
     }
 
@@ -41,6 +42,8 @@ package object project {
   }
 
   implicit class LibraryExExt(private val library: LibraryEx) extends AnyVal {
+
+    def isScalaSdk: Boolean = library.getKind == ScalaLibraryType.Kind
 
     def properties: ScalaLibraryProperties = library.getProperties match {
       case properties: ScalaLibraryProperties => properties
@@ -54,7 +57,8 @@ package object project {
     def hasScala: Boolean =
       scalaSdk.isDefined
 
-    def hasDotty: Boolean = false
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def hasScala3: Boolean = scalaLanguageLevel.exists(_ >= Scala_3_0)
 
     def scalaSdk: Option[LibraryEx] = Option {
       ScalaSdkCache(module.getProject)(module)
@@ -183,7 +187,7 @@ package object project {
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
-    def isInDottyModule: Boolean = module.exists(_.hasDotty)
+    def isInScala3Module: Boolean = module.exists(_.hasScala3)
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaLanguageLevel)
 

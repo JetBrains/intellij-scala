@@ -394,7 +394,7 @@ object ScalaAnnotator {
 
   def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = file match {
     case scalaFile: ScalaFile =>
-      HighlightingAdvisor.getInstance(file.getProject).enabled && !isLibrarySource(scalaFile) && !scalaFile.isInDottyModule
+      HighlightingAdvisor.getInstance(file.getProject).enabled && !isLibrarySource(scalaFile) && !scalaFile.isInScala3Module
     case _: JavaDummyHolder =>
       HighlightingAdvisor.getInstance(file.getProject).enabled
     case _ => false
