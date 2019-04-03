@@ -94,7 +94,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     }
 
     val visitor = new ScalaElementVisitor {
-      private def expressionPart(expr: ScExpression) {
+      override def visitExpression(expr: ScExpression) {
         if (!compiled) {
           ImplicitParametersAnnotator.annotate(expr, holder, typeAware)
           ByNameParameter.annotate(expr, holder, typeAware)
@@ -107,10 +107,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
             case _ =>
           }
         }
-      }
 
-      override def visitExpression(expr: ScExpression) {
-        expressionPart(expr)
         super.visitExpression(expr)
       }
 
