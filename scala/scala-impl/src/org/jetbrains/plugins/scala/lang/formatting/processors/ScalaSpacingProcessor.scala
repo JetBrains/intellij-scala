@@ -155,7 +155,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return ON_NEW_LINE
     }
 
-    //ScalaDocs
+
+    def processElementTypes(pf: PartialFunction[(IElementType, IElementType, IElementType, IElementType), Spacing]): Option[Spacing] =
+      pf.lift((leftElementType, rightElementType, leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType))
+
+    //ScalaDoc
     def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.instanceOf[ScDocComment].getOrElse {
       throw new RuntimeException("Unable to find parent doc comment")
     }
@@ -166,9 +170,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (scalaSettings.SD_PRESERVE_SPACES_IN_TAGS)
         Spacing.createSpacing(0, Int.MaxValue, 0, false, 0)
       else WITH_SPACING
-
-    def processElementTypes(pf: PartialFunction[(IElementType, IElementType, IElementType, IElementType), Spacing]): Option[Spacing] =
-      pf.lift((leftElementType, rightElementType, leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType))
 
     processElementTypes {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => NO_SPACING_WITH_NEWLINE
@@ -195,7 +196,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
       case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => WITH_SPACING
       case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
-      case (ScalaTokenTypes.tLINE_COMMENT, _, _, _) => ON_NEW_LINE
     } match {
       case Some(result) => return result
       case _ =>
@@ -283,6 +283,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }  match {
       case Some(result) => return result
       case _ =>
+    }
+
+    if(leftElementType == ScalaTokenTypes.tLINE_COMMENT) {
+      if(!rightPsi.is[ScPackaging, ScImportStmt]) {
+        return ON_NEW_LINE
+      }
     }
 
     def isParenthesisParent(psi: PsiElement): Boolean =
@@ -379,8 +385,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           WITHOUT_SPACING_DEPENDENT(leftPsiParent.getTextRange)
         }
       } else if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES && rightElementType != tRPARENTHESIS ||
-        settings.SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES && rightElementType == tRPARENTHESIS) WITH_SPACING
-      else WITHOUT_SPACING
+        settings.SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES && rightElementType == tRPARENTHESIS) {
+        WITH_SPACING
+      } else {
+        WITHOUT_SPACING
+      }
     }
     if (rightElementType == tRPARENTHESIS && rightPsiParent.is[ScArgumentExprList, ScPatternArgumentList]) {
       return if (settings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE)
@@ -491,10 +500,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[ScPackaging]) {
-      return if (leftPsi.isInstanceOf[ScStableCodeReference] || leftElementType == tLBRACE)
-        Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInCode)
-      else
-        Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+      val result =
+        if (leftPsi.isInstanceOf[ScStableCodeReference] || leftElementType == tLBRACE)
+          Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInCode)
+        else if (leftPsi.isInstanceOf[PsiComment] && leftPsi.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScStableCodeReference])
+          ON_NEW_LINE
+        else
+          Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+      return result
     }
 
     if (leftPsi.isInstanceOf[ScImportStmt] && !rightPsi.isInstanceOf[ScImportStmt]) {
@@ -509,7 +522,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[ScImportStmt] && !leftPsi.isInstanceOf[ScImportStmt]) {
-      if (leftElementType != ScalaTokenTypes.tSEMICOLON || !leftPsi.getPrevSiblingNotWhitespace.isInstanceOf[ScImportStmt]) {
+      val leftIsImport = leftElementType == ScalaTokenTypes.tSEMICOLON && leftPsi.getPrevSiblingNotWhitespace.isInstanceOf[ScImportStmt]
+      val leftIsCommentInsideImport = leftPsi.isInstanceOf[PsiComment] && leftPsi.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScImportStmt]
+      if (!leftIsImport && !leftIsCommentInsideImport) {
         if(rightPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_IMPORTS + 1, keepLineBreaks, keepBlankLinesInCode)
         }

@@ -608,15 +608,14 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |""".stripMargin.withNormalizedSeparator
 
   private val BlankLinesCodeSample =
-    """//code
+    """//comment
       |package A
       |
-      |
+      |//comment
       |import a.b
       |
       |import b.c
       |import c.d
-      |
       |
       |class A {
       |  def foo = 1
@@ -650,5 +649,6 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |  def baz = {
       |    42
       |  }
-      |}""".stripMargin.withNormalizedSeparator
+      |}
+      |""".stripMargin.withNormalizedSeparator
 }
