@@ -163,7 +163,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     }
     val classpathWithFacet = mutable.ListBuffer.empty[String]
     val sourcepathWithFacet = mutable.ListBuffer.empty[String]
-    jp.getClassPath.addAllFiles(scalaModule.scalaSdk.get.compilerClasspath.asJava)
+    jp.getClassPath.addScalaClassPath(scalaModule)
     jp.setCharset(null)
     jp.setMainClass(MAIN_CLASS)
 

@@ -4,7 +4,6 @@ package compiler
 import java.io.File
 import java.net.{URL, URLClassLoader}
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
@@ -47,7 +46,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   private val javaParameters = Array.empty[String]
 
-  private val compilerClasspath = scalaSdk.compilerClasspath
+  private val compilerClasspath = module.scalaCompilerClasspath
 
   private val compilerSharedJar = new File(libCanonicalPath, "compiler-shared.jar")
   
@@ -96,8 +95,6 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
     "0", //timestamp, used in zinc only
     "false" //isCompile
   )
-  
-  protected def configurationError(message: String) = throw new IllegalArgumentException(message)
 
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
 
@@ -105,13 +102,8 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
-  private def scalaSdk = module.scalaSdk.getOrElse(
-          configurationError("No Scala SDK configured for module: " + module.getName))
-
-  private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject) match {
-    case Some(jdk) => jdk.executable
-    case None => configurationError("JDK for compiler process not found")
-  }
+  private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject)
+    .fold(throw new IllegalArgumentException("JDK for compiler process not found"))(_.executable)
 
   private def checkFilesToCompile(files: Seq[File]): Unit = {
     if (files.isEmpty)

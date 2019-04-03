@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
@@ -123,15 +122,9 @@ object RunWorksheetAction {
 
   private def createParameters(module: Module, mainClassName: String,
                                workingDirectory: String, additionalCp: String, consoleArgs: String, worksheetField: String) =  {
-    import _root_.scala.collection.JavaConverters._
-
     if (module == null) throw new ExecutionException("Module is not specified")
 
     val project = module.getProject
-
-    val scalaSdk = module.scalaSdk.getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
 
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
@@ -140,16 +133,15 @@ object RunWorksheetAction {
     }
 
     val params = new JavaParameters()
-    val files = scalaSdk.compilerClasspath
 
-    params.getClassPath.addAllFiles(files.asJava)
+    params.getClassPath.addScalaClassPath(module)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
-    params.getClassPath.add(ScalaUtil.runnersPath())
+    params.getClassPath.addRunners()
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(runnerClassName)
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
-    params.getClassPath.add(ScalaUtil.runnersPath())
+    params.getClassPath.addRunners()
     params.getClassPath.add(additionalCp)
     params.getProgramParametersList addParametersString worksheetField
     if (!consoleArgs.isEmpty) params.getProgramParametersList addParametersString consoleArgs

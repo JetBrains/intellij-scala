@@ -10,7 +10,6 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.JavaConverters._
 
@@ -53,10 +52,6 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val scalaSdk = module.scalaSdk.getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
-
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
     if (sdk == null || !sdk.getSdkType.isInstanceOf[JavaSdkType]) {
@@ -66,11 +61,9 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
     val params = new JavaParameters()
     params.getVMParametersList.addParametersString(javaOptions)
 
-    val files = scalaSdk.compilerClasspath
-
-    params.getClassPath.addAllFiles(files.asJava)
+    params.getClassPath.addScalaClassPath(module)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(getProject))
-    params.getClassPath.add(ScalaUtil.runnersPath())
+    params.getClassPath.addRunners()
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(mainClass)
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)

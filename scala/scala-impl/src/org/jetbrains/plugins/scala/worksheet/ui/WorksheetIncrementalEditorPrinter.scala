@@ -306,7 +306,7 @@ object WorksheetIncrementalEditorPrinter {
     import project._
 
     val isBefore = module.scalaSdk.exists { sdk =>
-      sdk.languageLevel match {
+      sdk.properties.languageLevel match {
         case ScalaLanguageLevel.Scala_2_9 |
              ScalaLanguageLevel.Scala_2_10 => true
         case ScalaLanguageLevel.Scala_2_11 => sdk.compilerVersion.forall(!_.startsWith("2.11.8"))

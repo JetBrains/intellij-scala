@@ -40,7 +40,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
 import org.jetbrains.plugins.scala.testingSupport.{ScalaTestingConfiguration, TestWorkingDirectoryProvider}
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 
@@ -388,10 +387,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         //                params.getVMParametersList.addParametersString("-agentlib:jdwp=transport=dt_socket,server=n,address=UNIT-549.Labs.IntelliJ.Net:5005,suspend=y")
 
-        val rtJarPath = ScalaUtil.runnersPath()
-        params.getClassPath.add(rtJarPath)
+        params.getClassPath.addRunners()
         //a workaround to add jars for integration tests
-        if (addIntegrationTestsClasspath) params.getClassPath.add(ScalaUtil.runnersPath())
+        if (addIntegrationTestsClasspath) params.getClassPath.addRunners()
 
         ManagingFS.getInstance match {
           case fs: PersistentFSImpl => fs.incStructuralModificationCount()

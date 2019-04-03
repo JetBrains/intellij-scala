@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala
 import java.io.File
 
 import com.intellij.ProjectTopics
+import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -12,6 +13,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
+import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
@@ -40,14 +42,10 @@ package object project {
 
   implicit class LibraryExExt(private val library: LibraryEx) extends AnyVal {
 
-    private def properties: ScalaLibraryProperties = library.getProperties match {
+    def properties: ScalaLibraryProperties = library.getProperties match {
       case properties: ScalaLibraryProperties => properties
       case _ => throw new IllegalStateException("Library is not a Scala SDK: " + library.getName)
     }
-
-    def compilerClasspath: Seq[File] = properties.compilerClasspath
-
-    def languageLevel: ScalaLanguageLevel = properties.languageLevel
   }
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
@@ -80,7 +78,12 @@ package object project {
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, options)
 
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.languageLevel)
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.properties.languageLevel)
+
+    def scalaCompilerClasspath: Seq[File] = module.scalaSdk
+      .fold(throw new IllegalArgumentException("No Scala SDK configured for module: " + module.getName)) {
+        _.properties.compilerClasspath
+      }
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def literalTypesEnabled: Boolean = scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
@@ -200,6 +203,19 @@ package object project {
       case Some(m) => predicate(m)
       case None => element.getProject.modulesWithScala.exists(predicate)
     }
+  }
+
+  implicit class PathsListExt(private val list: PathsList) extends AnyVal {
+
+    def addScalaClassPath(module: Module): Unit =
+      try {
+        val files = module.scalaCompilerClasspath.asJava
+        list.addAllFiles(files)
+      } catch {
+        case e: IllegalArgumentException => throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
+      }
+
+    def addRunners(): Unit = list.add(util.ScalaUtil.runnersPath())
   }
 
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r
