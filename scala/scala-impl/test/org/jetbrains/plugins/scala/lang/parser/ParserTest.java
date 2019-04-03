@@ -35,7 +35,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     public String transform(String testName, String[] data) {
         PsiFile psiFile = createPseudoPhysicalScalaFile(getProject(), data[0]);
         return DebugUtil.psiToString(psiFile, false)
-                .replace(": " + psiFile.getName(), "");
+                .replace(":" + psiFile.getName(), "");
     }
 
     public static Test suite() {
