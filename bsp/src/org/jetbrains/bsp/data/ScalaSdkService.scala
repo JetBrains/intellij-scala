@@ -62,7 +62,7 @@ object ScalaSdkService {
                                   maybeVersion: Option[Version],
                                   compilerClasspath: Seq[File]): Unit = for {
       version <- maybeVersion
-      languageLevel <- version.toLanguageLevel
+      _ <- version.toLanguageLevel
 
       library <- getModifiableRootModel(module)
         .getModuleLibraryTable
@@ -72,7 +72,7 @@ object ScalaSdkService {
         }
 
       if !library.isScalaSdk
-    } setScalaSdk(library, compilerClasspath)(languageLevel)
+    } setScalaSdk(library, compilerClasspath)(maybeVersion)
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
       val model = getModifiableRootModel(module)

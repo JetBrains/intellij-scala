@@ -76,7 +76,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     Disposer.register(module, library)
     inWriteAction {
-      val properties = ScalaLibraryProperties.applyByVersion(
+      val properties = ScalaLibraryProperties(
         ScalaCompilerVersion(compilerClasspath.head),
         compilerClasspath
       )

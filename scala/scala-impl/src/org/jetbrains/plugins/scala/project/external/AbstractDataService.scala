@@ -91,26 +91,17 @@ trait Importer[E] {
 
   def setScalaSdk(library: Library,
                   compilerClasspath: Seq[File])
-                 (languageLevel: ScalaLanguageLevel = library.scalaLanguageLevel): Unit =
-    Importer.setScalaSdk(
-      modelsProvider,
-      library
-    )(
-      Some(languageLevel),
-      compilerClasspath
-    )
+                 (maybeVersion: Option[Version] = library.scalaVersion): Unit =
+    Importer.setScalaSdk(modelsProvider, library, ScalaLibraryProperties(maybeVersion, compilerClasspath))
 }
 
 object Importer {
 
   def setScalaSdk(modelsProvider: IdeModifiableModelsProvider,
-                  library: Library)
-                 (maybeLanguageLevel: Option[ScalaLanguageLevel],
-                  compilerClasspath: Seq[File]): Unit =
+                  library: Library,
+                  properties: ScalaLibraryProperties): Unit =
     modelsProvider.getModifiableLibraryModel(library) match { // FIXME: should be implemented in External System
       case modelEx: LibraryEx.ModifiableModelEx =>
-        val properties = ScalaLibraryProperties(maybeLanguageLevel, compilerClasspath)
-
         modelEx.setKind(ScalaLibraryType.Kind)
         modelEx.setProperties(properties)
     }

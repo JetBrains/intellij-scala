@@ -56,25 +56,12 @@ object ScalaLibraryProperties {
 
   import VfsUtilCore._
 
-  def apply(maybeLanguageLevel: Option[ScalaLanguageLevel] = None,
+  def apply(maybeVersion: Option[Version] = None,
             compilerClasspath: Seq[File] = Seq.empty) =
     new ScalaLibraryProperties(
-      maybeLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault),
+      maybeVersion.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.getDefault),
       compilerClasspath
     )
-
-  def applyByVersion(maybeVersion: Option[Version] = None,
-                     compilerClasspath: Seq[File] = Seq.empty): ScalaLibraryProperties =
-    ScalaLibraryProperties(
-      maybeVersion.flatMap(_.toLanguageLevel),
-      compilerClasspath
-    )
-
-  def unapply(libraryProperties: LibraryProperties[_]): Option[(ScalaLanguageLevel, Seq[File])] =
-    libraryProperties match {
-      case properties: ScalaLibraryProperties => Some(properties.languageLevel, properties.compilerClasspath)
-      case _ => None
-    }
 
   private def pathToFile(url: String) =
     new File(urlToPath(url))

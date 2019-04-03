@@ -4,9 +4,9 @@ package template
 
 import java.io.File
 
-import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
+import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 
 /**
  * @author Pavel Fatin
@@ -32,7 +32,7 @@ final class ScalaSdkDescriptor(private val version: Option[Version],
   def createNewLibraryConfiguration = new NewLibraryConfiguration(
     "scala-sdk-" + versionText()(),
     ScalaLibraryType(),
-    ScalaLibraryProperties.applyByVersion(version, compilerClasspath)
+    ScalaLibraryProperties(version, compilerClasspath)
   ) {
     override def addRoots(editor: LibraryEditor): Unit = {
       addRootsInner(libraryFiles ++ sourceFiles)(editor)
