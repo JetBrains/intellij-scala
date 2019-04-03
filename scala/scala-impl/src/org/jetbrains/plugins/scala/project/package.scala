@@ -55,6 +55,8 @@ package object project {
 
     def scalaSdk: Option[ScalaSdk] = Option {
       ScalaSdkCache(module.getProject)(module)
+    }.map {
+      new ScalaSdk(_)
     }
 
     def modifiableModel: ModifiableRootModel =
