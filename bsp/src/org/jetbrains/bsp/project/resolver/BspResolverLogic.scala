@@ -17,7 +17,6 @@ import org.jetbrains.bsp.data.{BspMetadata, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspErrorMessage}
-import org.jetbrains.plugins.scala.project.Version
 
 import scala.collection.JavaConverters._
 
@@ -50,7 +49,7 @@ private[resolver] object BspResolverLogic {
     val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
     ScalaSdkData(
       scalaOrganization = target.getScalaOrganization,
-      scalaVersion = Some(Version(target.getScalaVersion)),
+      scalaVersion = Some(target.getScalaVersion),
       scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
       scalacOptions = scalaOptionsStrings
     )

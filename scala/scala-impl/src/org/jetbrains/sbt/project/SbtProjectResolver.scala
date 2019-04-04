@@ -68,14 +68,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings: SbtExecutionSettings,
                             projectRoot: File,
                             sbtLauncher: File,
-                            sbtVersion: Version,
+                            sbtVersion: String,
                             notifications: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
 
     val importTaskId = s"import:${UUID.randomUUID()}"
     val importTaskDescriptor =
       new TaskOperationDescriptorImpl("import to IntelliJ project model", System.currentTimeMillis(), "project-model-import")
 
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, sbtVersion, settings, taskId, notifications)
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId, notifications)
 
     // side-effecty status reporting
     // TODO move to dump process for real-time feedback
@@ -196,7 +196,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     * Create project preview without using sbt, since sbt import can fail and users would have to do a manual edit of the project.
     * Also sbt boot makes the whole process way too slow.
     */
-  private def dummyProject(projectRoot: File, settings: SbtExecutionSettings, sbtVersion: Version): Node[ESProjectData] = {
+  private def dummyProject(projectRoot: File, settings: SbtExecutionSettings, sbtVersion: String): Node[ESProjectData] = {
 
     // TODO add default scala sdk and sbt libs (newest versions or so)
 
@@ -222,7 +222,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
 
-    val dummySbtProjectData = SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion.presentation, projectPath)
+    val dummySbtProjectData = SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion, projectPath)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
     projectNode.addAll(projectToModule.values)
 

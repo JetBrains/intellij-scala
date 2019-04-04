@@ -58,12 +58,12 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
-  private def injectedPlugins(sbtMajorVersion: Version): Seq[String] =
+  private def injectedPlugins(sbtMajorVersion: String): Seq[String] =
     sbtStructurePlugin(sbtMajorVersion)
 
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
-  private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
+  private def sbtStructurePlugin(sbtMajorVersion: String): Seq[String] = {
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
     val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
 
@@ -74,7 +74,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     }
 
 
-    sbtMajorVersion.presentation match {
+    sbtMajorVersion match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
         s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
@@ -108,7 +108,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
-    val projectSbtVersion = detectSbtVersion(workingDir, launcher)
+    val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
     val latestCompatibleSbtVersion = SbtUtil.latestCompatibleVersion(projectSbtVersion)
 
     // to use the plugin injection command, we may have to override older sbt versions where possible
@@ -156,7 +156,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
         else globalSettingsFile
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
-      val plugins = injectedPlugins(sbtMajorVersion)
+      val plugins = injectedPlugins(sbtMajorVersion.presentation)
       injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: plugins)
 
       if (addPluginCommandSupported)
@@ -175,7 +175,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     }
 
     if (shouldUpgradeSbtVersion)
-      notifyVersionUpgrade(projectSbtVersion, upgradedSbtVersion, workingDir)
+      notifyVersionUpgrade(projectSbtVersion.presentation, upgradedSbtVersion, workingDir)
 
     val pty = createPtyCommandLine(commandLine)
     val cpty = new ColoredProcessHandler(pty)
@@ -183,9 +183,9 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     (cpty, debugConnection)
   }
 
-  private def notifyVersionUpgrade(projectSbtVersion: Version, upgradedSbtVersion: Version, projectPath: File): Unit = {
+  private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
     val message =
-      s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of ${projectSbtVersion.presentation} configured by project."
+      s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of ${projectSbtVersion} configured by project."
     val notification = SbtShellNotifications.notificationGroup.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))

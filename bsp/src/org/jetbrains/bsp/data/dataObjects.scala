@@ -8,8 +8,6 @@ import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityD
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspEntityData._
-import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.SdkReference
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
@@ -35,10 +33,10 @@ object BspEntityData {
 
 @SerialVersionUID(3)
 case class ScalaSdkData(
-    scalaOrganization: String,
-    scalaVersion: Option[Version],
-    scalacClasspath: util.List[File],
-    scalacOptions: util.List[String]
+                         scalaOrganization: String,
+                         scalaVersion: Option[String],
+                         scalacClasspath: util.List[File],
+                         scalacOptions: util.List[String]
 ) extends BspEntityData
 
 object ScalaSdkData {

@@ -37,8 +37,6 @@ package object project {
     }
 
     def compilerVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
-
-    def scalaVersion: Option[Version] = compilerVersion.map(Version(_))
   }
 
   implicit class LibraryExExt(private val library: LibraryEx) extends AnyVal {

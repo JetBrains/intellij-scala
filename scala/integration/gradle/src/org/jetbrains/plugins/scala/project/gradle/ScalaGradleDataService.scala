@@ -72,25 +72,25 @@ private object ScalaGradleDataService {
     }
 
     private def configureScalaSdk(module: Module, compilerClasspath: Seq[File]): Unit = {
-      val compilerVersionOption = findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
-      if (compilerVersionOption.isEmpty) {
-        showWarning(ScalaBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName))
-        return
+      val compilerVersionOption = findScalaLibraryIn(compilerClasspath)
+        .map(_.getName)
+        .flatMap(JarVersion.findFirstIn(_))
+
+      compilerVersionOption match {
+        case Some(compilerVersion) =>
+          val scalaLibraries = getScalaLibraries
+          if (scalaLibraries.isEmpty)
+            return
+
+          scalaLibraries.find(_.compilerVersion.contains(compilerVersion)) match {
+            case Some(scalaLibrary) if !scalaLibrary.isScalaSdk => setScalaSdk(scalaLibrary, compilerClasspath)()
+            case None =>
+              showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion, module.getName))
+            case _ => // do nothing
+          }
+        case _ =>
+          showWarning(ScalaBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName))
       }
-      val compilerVersion = compilerVersionOption.get
-
-      val scalaLibraries = getScalaLibraries
-      if (scalaLibraries.isEmpty)
-        return
-
-      val scalaLibraryOption = scalaLibraries.find(_.scalaVersion.contains(compilerVersion))
-      if (scalaLibraryOption.isEmpty) {
-        showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.presentation, module.getName))
-        return
-      }
-      val scalaLibrary = scalaLibraryOption.get
-
-      if (!scalaLibrary.isScalaSdk) setScalaSdk(scalaLibrary, compilerClasspath)()
     }
 
     private def getScalaLibraries: Set[Library] =
@@ -98,9 +98,6 @@ private object ScalaGradleDataService {
 
     private def findScalaLibraryIn(classpath: Seq[File]): Option[File] =
       classpath.find(_.getName.startsWith(ScalaLibraryName))
-
-    private def getVersionFromJar(scalaLibrary: File): Option[Version] =
-      JarVersion.findFirstIn(scalaLibrary.getName).map(Version(_))
 
     private def compilerOptionsFrom(data: ScalaModelData): Seq[String] =
       Option(data.getScalaCompileOptions).toSeq.flatMap { options =>

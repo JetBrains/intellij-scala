@@ -58,7 +58,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       
       module.configureScalaCompilerSettingsFrom("Maven", compilerOptions)
 
-      val Some(Version(version)) = configuration.compilerVersion
+      val Some(version) = configuration.compilerVersion
 
       val scalaLibrary = modelsProvider.getAllLibraries
         .find { library =>
@@ -117,7 +117,7 @@ private object ScalaMavenImporter {
   }
 
   private class ScalaConfiguration(project: MavenProject) {
-    private def versionNumber = compilerVersion.map(_.presentation).getOrElse("unknown")
+    private def versionNumber = compilerVersion.getOrElse("unknown")
 
     private def scalaCompilerId = MavenId("org.scala-lang", "scala-compiler", versionNumber)
 
@@ -145,8 +145,8 @@ private object ScalaMavenImporter {
 
     def compilerClasspath: Seq[MavenId] = Seq(scalaCompilerId, scalaLibraryId, scalaReflectId)
 
-    def compilerVersion: Option[Version] = compilerVersionProperty
-      .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
+    def compilerVersion: Option[String] = compilerVersionProperty
+      .orElse(standardLibrary.map(_.getVersion))
 
     private def compilerVersionProperty: Option[String] = element("scalaVersion").map(_.getTextTrim)
 

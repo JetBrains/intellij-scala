@@ -4,18 +4,16 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 
 import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators._
-import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp.testkit.gen.UtilGenerators.{genFileUriString, genPath}
+import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetIdentifier}
 import com.google.gson.{Gson, GsonBuilder}
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, SourceDirectory}
+import org.jetbrains.bsp.data.ScalaSdkData
+import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, SourceDirectory, _}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.collection.JavaConverters._
-import BspResolverDescriptors._
-import org.jetbrains.bsp.data.ScalaSdkData
-import org.jetbrains.plugins.scala.project.Version
 
 object Generators {
 
@@ -24,7 +22,7 @@ object Generators {
   implicit val arbFile: Arbitrary[File] = Arbitrary(genPath.map(_.toFile))
   implicit val arbModuleKind: Arbitrary[ModuleKind] = Arbitrary(genModuleKind)
   implicit val arbModuleDescription: Arbitrary[ModuleDescription] = Arbitrary(genModuleDescription)
-  implicit val arbVersion: Arbitrary[Version] = Arbitrary(genVersion)
+  implicit val arbVersion: Arbitrary[String] = Arbitrary(genVersion)
   implicit val arbPath: Arbitrary[Path] = Arbitrary(genPath)
   implicit val arbSourceDirectory: Arbitrary[SourceDirectory] = Arbitrary(genSourceDirectory)
 
@@ -43,15 +41,11 @@ object Generators {
     root.resolve(sub)
   }
 
-  def genVersion: Gen[Version] = for {
+  def genVersion: Gen[String] = for {
     n <- Gen.chooseNum(0,4)
     v <- Gen.listOfN(n, Gen.posNum[Int])
     s <- Gen.identifier.optional
-  } yield {
-    val dotted = v.mkString(".")
-    val suffix = s.map("-" + _).getOrElse("")
-    Version(dotted + suffix)
-  }
+  } yield v.mkString(".") + s.fold("")("-" + _)
 
   def genSourceDirectoryUnder(root: Path): Gen[SourceDirectory] = for {
     path <- genPathBelow(root)
@@ -89,12 +83,10 @@ object Generators {
 
   def genScalaSdkData: Gen[ScalaSdkData] = for {
     scalaOrganization <- arbitrary[String]
-    scalaVersion <- arbitrary[Option[Version]]
+    scalaVersion <- arbitrary[Option[String]]
     scalacClasspath <- arbitrary[File].list
     scalacOptions <- arbitrary[String].list
-  } yield {
-    ScalaSdkData(scalaOrganization, scalaVersion, scalacClasspath, scalacOptions)
-  }
+  } yield ScalaSdkData(scalaOrganization, scalaVersion, scalacClasspath, scalacOptions)
 
   def genModuleKind: Gen[ModuleKind] = for {
     scalaSdkData <- genScalaSdkData

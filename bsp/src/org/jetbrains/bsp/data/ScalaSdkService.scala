@@ -59,9 +59,9 @@ object ScalaSdkService {
     }
 
     private def configureScalaSdk(module: Module,
-                                  maybeVersion: Option[Version],
+                                  maybeVersion: Option[String],
                                   compilerClasspath: Seq[File]): Unit = for {
-      Version(presentation) <- maybeVersion
+      presentation <- maybeVersion
       if ScalaLanguageLevel.findByVersion(presentation).isDefined
 
       library <- getModifiableRootModel(module)
