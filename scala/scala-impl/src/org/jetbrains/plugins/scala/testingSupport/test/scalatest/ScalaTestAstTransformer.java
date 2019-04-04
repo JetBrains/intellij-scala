@@ -38,7 +38,6 @@ import scala.collection.Seq;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +53,7 @@ public class ScalaTestAstTransformer {
 
     public static Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer");
 
-    protected static final List<String> itWordFqns = new LinkedList<String>();
+    private static final List<String> itWordFqns = new LinkedList<>();
     static {
         itWordFqns.add("org.scalatest.FlatSpecLike.ItWord");
         itWordFqns.add("org.scalatest.FunSpecLike.ItWord");
@@ -67,8 +66,8 @@ public class ScalaTestAstTransformer {
         itWordFqns.add("org.scalatest.fixture.FlatSpecLike.ItVerbStringTaggedAs");
     }
 
-    public Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
-        final List<OrderEntry> orderEntries = new ArrayList<OrderEntry>();
+    private Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
+        final List<OrderEntry> orderEntries = new ArrayList<>();
         OrderEnumerator.orderEntries(module).recursively().runtimeOnly().forEach(new Processor<OrderEntry>() {
             @Override
             public boolean process(OrderEntry orderEntry) {
@@ -77,10 +76,10 @@ public class ScalaTestAstTransformer {
             }
         });
 
-        List<URL> loaderUrls = new ArrayList<URL>();
+        List<URL> loaderUrls = new ArrayList<>();
         for (OrderEntry entry : orderEntries) {
-            List<VirtualFile> virtualFiles = new ArrayList<VirtualFile>(Arrays.asList(entry.getFiles(OrderRootType.CLASSES)));
-            List<String> rawUrls = new ArrayList<String>();
+            List<VirtualFile> virtualFiles = new ArrayList<>(Arrays.asList(entry.getFiles(OrderRootType.CLASSES)));
+            List<String> rawUrls = new ArrayList<>();
             for (VirtualFile vf : virtualFiles) {
                 rawUrls.add(vf.getPresentableUrl());
             }
@@ -102,7 +101,7 @@ public class ScalaTestAstTransformer {
     }
 
     @Nullable
-    protected String getNameFromAnnotLiteral(@Nullable ScExpression expr) {
+    private String getNameFromAnnotLiteral(@Nullable ScExpression expr) {
         if (expr == null) return null;
         if (expr instanceof ScLiteral && ((ScLiteral)expr).isString()) {
             Object value2 = ((ScLiteral) expr).getValue();
@@ -114,7 +113,7 @@ public class ScalaTestAstTransformer {
     }
 
     @Nullable
-    protected String getNameFromAnnotAssign(@NotNull ScAssignment assignStmt) {
+    private String getNameFromAnnotAssign(@NotNull ScAssignment assignStmt) {
         if (assignStmt.leftExpression() instanceof ScReferenceExpression &&
                 ((ScReferenceExpression) assignStmt.leftExpression()).refName().equals("value")) {
             ScExpression expr = assignStmt.rightExpression().get();
@@ -137,7 +136,7 @@ public class ScalaTestAstTransformer {
         return null;
     }
 
-    protected String getFinderClassFqn(ScTypeDefinition suiteTypeDef, Module module, String... annotationFqns) {
+    private String getFinderClassFqn(ScTypeDefinition suiteTypeDef, Module module, String... annotationFqns) {
         String finderClassName = null;
         Annotation[] annotations = null;
         for (String annotationFqn: annotationFqns) {
@@ -197,10 +196,10 @@ public class ScalaTestAstTransformer {
         return null;
     }
 
-    public Finder getFinder(ScTypeDefinition clazz, Module module) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+    private Finder getFinder(ScTypeDefinition clazz, Module module) throws IllegalAccessException, InstantiationException {
         Seq<ScType> classes = MixinNodes.linearization(clazz);
         List<ScType> list = JavaConverters.seqAsJavaList(classes);
-        List<PsiClass> newList = new ArrayList<PsiClass>();
+        List<PsiClass> newList = new ArrayList<>();
         for (ScType type : list) {
             PsiClass c = ExtractClass$.MODULE$.unapply(type, clazz.getProject()).get();
             if (c != null) {
@@ -225,10 +224,10 @@ public class ScalaTestAstTransformer {
     }
 
     class StConstructorBlock extends org.scalatest.finders.ConstructorBlock {
-        public String pClassName;
+        String pClassName;
         public PsiElement element;
 
-        public StConstructorBlock(String pClassName, PsiElement element) {
+        StConstructorBlock(String pClassName, PsiElement element) {
             super(pClassName, null, new AstNode[0]);
             this.element = element;
             this.pClassName = pClassName;
@@ -241,7 +240,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            return other != null && other instanceof StConstructorBlock && element.equals(((StConstructorBlock) other).element);
+            return other instanceof StConstructorBlock && element.equals(((StConstructorBlock) other).element);
         }
 
         @Override
@@ -251,10 +250,10 @@ public class ScalaTestAstTransformer {
     }
 
     class StMethodDefinition extends org.scalatest.finders.MethodDefinition {
-        public final String pClassName;
+        final String pClassName;
         public final PsiElement element;
 
-        public StMethodDefinition(String pClassName, PsiElement element, String... pParamTypes) {
+        StMethodDefinition(String pClassName, PsiElement element, String... pParamTypes) {
             super(pClassName, null,
                     new AstNode[0],
                     TestConfigurationUtil.getStaticTestNameOrDefault(element, "", false),
@@ -280,7 +279,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            return other != null && other instanceof StMethodDefinition &&
+            return other instanceof StMethodDefinition &&
                     element.equals(((StMethodDefinition) other).element);
         }
 
@@ -292,12 +291,12 @@ public class ScalaTestAstTransformer {
 
 
     private class StMethodInvocation extends org.scalatest.finders.MethodInvocation {
-        public final String pClassName;
-        public final AstNode pTarget;
+        final String pClassName;
+        final AstNode pTarget;
         public final MethodInvocation invocation;
-        public final PsiElement nameSource;
+        final PsiElement nameSource;
 
-        public StMethodInvocation(String pClassName, AstNode pTarget, MethodInvocation invocation, String pName, PsiElement nameSource, AstNode... args) {
+        StMethodInvocation(String pClassName, AstNode pTarget, MethodInvocation invocation, String pName, PsiElement nameSource, AstNode... args) {
             super(pClassName, pTarget, null, new AstNode[0], pName, args);
             this.pClassName = pClassName;
             this.pTarget = pTarget;
@@ -326,7 +325,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            return other != null && other instanceof StMethodInvocation &&
+            return other instanceof StMethodInvocation &&
                     invocation.equals(((StMethodInvocation) other).invocation);
         }
 
@@ -343,11 +342,11 @@ public class ScalaTestAstTransformer {
 
 
     private class StStringLiteral extends org.scalatest.finders.StringLiteral {
-        public String pClassName;
+        String pClassName;
         public PsiElement element;
-        public String pValue;
+        String pValue;
 
-        public StStringLiteral(String pClassName, PsiElement element, String pValue) {
+        StStringLiteral(String pClassName, PsiElement element, String pValue) {
             super(pClassName, null, pValue);
             this.pClassName = pClassName;
             this.element = element;
@@ -361,7 +360,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            return other != null && other instanceof StStringLiteral &&
+            return other instanceof StStringLiteral &&
                     element.equals(((StStringLiteral) other).element);
         }
 
@@ -372,11 +371,11 @@ public class ScalaTestAstTransformer {
     }
 
     private class StToStringTarget extends org.scalatest.finders.ToStringTarget {
-        public String pClassName;
+        String pClassName;
         public PsiElement element;
         public Object target;
 
-        public StToStringTarget(String pClassName, PsiElement element, Object target) {
+        StToStringTarget(String pClassName, PsiElement element, Object target) {
             super(pClassName, null, new AstNode[0], target);
             this.pClassName = pClassName;
             this.element = element;
@@ -415,7 +414,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            return other != null && other instanceof StToStringTarget &&
+            return other instanceof StToStringTarget &&
                     element.equals(((StToStringTarget) other).element);
         }
 
@@ -425,7 +424,7 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public AstNode getSelectedAstNode(String className, PsiElement element) {
+    private AstNode getSelectedAstNode(String className, PsiElement element) {
         AstNode astNodeOpt = transformNode(className, element);
         if (astNodeOpt != null) {
             return astNodeOpt;
@@ -438,12 +437,12 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public AstNode getTarget(String className, PsiElement element, MethodInvocation selected) {
+    private AstNode getTarget(String className, PsiElement element, MethodInvocation selected) {
         PsiElement firstChild = element.getFirstChild();
         if (firstChild instanceof ScLiteral && (((ScLiteral) firstChild).isString())) {
             return new StToStringTarget(className, firstChild, ((ScLiteral)firstChild).getValue().toString());
         } else if (firstChild instanceof MethodInvocation) {
-            StMethodInvocation inv = getScalaTestMethodInvocation(selected, (MethodInvocation) firstChild, Collections.<ScExpression>emptyList(), className);
+            StMethodInvocation inv = getScalaTestMethodInvocation(selected, (MethodInvocation) firstChild, Collections.emptyList(), className);
             if (inv != null) {
                 return inv;
             } else {
@@ -454,9 +453,9 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public StMethodInvocation getScalaTestMethodInvocation(MethodInvocation selected, MethodInvocation current,
-                                                           List<ScExpression> currentParamsExpr, String className) {
-        List<ScExpression> paramsExpr = new ArrayList<ScExpression>();
+    private StMethodInvocation getScalaTestMethodInvocation(MethodInvocation selected, MethodInvocation current,
+                                                            List<ScExpression> currentParamsExpr, String className) {
+        List<ScExpression> paramsExpr = new ArrayList<>();
         paramsExpr.addAll(JavaConverters.seqAsJavaList(current.argumentExpressions()));
         paramsExpr.addAll(currentParamsExpr);
         if (current.getInvokedExpr() instanceof ScReferenceExpression) {
@@ -482,7 +481,7 @@ public class ScalaTestAstTransformer {
             } else {
                 containingClassName = null;
             }
-            List<AstNode> args = new ArrayList<AstNode>();
+            List<AstNode> args = new ArrayList<>();
             for (ScExpression expr : paramsExpr) {
                 if (expr instanceof ScLiteral && ((ScLiteral) expr).isString()) {
                     args.add(new StStringLiteral(containingClassName, expr, ((ScLiteral) expr).getValue().toString()));
@@ -503,13 +502,13 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public StMethodDefinition getScalaTestMethodDefinition(ScFunctionDefinition methodDef) {
+    private StMethodDefinition getScalaTestMethodDefinition(ScFunctionDefinition methodDef) {
         ScTemplateDefinition containingClass = methodDef.containingClass();
         if (containingClass != null) {
             // For inner method, this will be null
             String className = containingClass.qualifiedName();
             String name = methodDef.name();
-            List<String> paramTypes = new ArrayList<String>();
+            List<String> paramTypes = new ArrayList<>();
             for (ScParameter param : JavaConverters.seqAsJavaList(methodDef.parameters())) {
                 paramTypes.add(param.getType().getCanonicalText());
             }
@@ -521,10 +520,10 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public AstNode transformNode(String className, PsiElement element) {
+    private AstNode transformNode(String className, PsiElement element) {
         if (element instanceof MethodInvocation) {
             MethodInvocation invocation = (MethodInvocation) element;
-            return getScalaTestMethodInvocation(invocation, invocation, Collections.<ScExpression>emptyList(), className);
+            return getScalaTestMethodInvocation(invocation, invocation, Collections.emptyList(), className);
         } else if (element instanceof ScFunctionDefinition) {
             return getScalaTestMethodDefinition((ScFunctionDefinition) element);
         } else if (element instanceof ScTemplateBody) {
@@ -559,7 +558,7 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public AstNode getParentNode(String className, PsiElement element) {
+    private AstNode getParentNode(String className, PsiElement element) {
         PsiElement elementParent = element.getParent();
         if (elementParent == null) {
             return null;
@@ -573,7 +572,7 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public PsiElement getTopInvocation(MethodInvocation element) {
+    private PsiElement getTopInvocation(MethodInvocation element) {
         PsiElement invocationParent = element.getParent();
         if (invocationParent instanceof MethodInvocation) {
             return getTopInvocation((MethodInvocation) invocationParent);
@@ -582,11 +581,11 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    List<PsiElement> getElementNestedBlockChildren(PsiElement element) {
+    private List<PsiElement> getElementNestedBlockChildren(PsiElement element) {
         if (element instanceof ScBlockExpr || element instanceof ScTemplateBody) {
             return Arrays.asList(element.getChildren());
         } else {
-            List<PsiElement> nestedChildren = new ArrayList<PsiElement>();
+            List<PsiElement> nestedChildren = new ArrayList<>();
             PsiElement[] children = element.getChildren();
             for (PsiElement child : children) {
                 if (child instanceof ScArgumentExprListImpl) {
@@ -613,7 +612,7 @@ public class ScalaTestAstTransformer {
 
     public AstNode[] getChildren(String className, PsiElement element) {
         List<PsiElement> nestedChildren = getElementNestedBlockChildren(element);
-        List<AstNode> result = new ArrayList<AstNode>();
+        List<AstNode> result = new ArrayList<>();
         for (PsiElement child : nestedChildren) {
             AstNode parentOpt = transformNode(className, child);
             if (parentOpt != null) {
