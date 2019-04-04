@@ -129,6 +129,22 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     )
   )
 
+  def test_selftype_override_redundant(): Unit = check(
+    """
+      |trait Trait {
+      |  def test(): Unit
+      |}
+      |
+      |trait Impl extends Trait { this: Trait =>
+      |  override def test(): Unit = ()
+      |}
+    """.stripMargin,
+    path("Trait", "test"),
+    Seq(
+      path("Impl", "test")
+    )
+  )
+
   def test_indirect_selftype_override(): Unit = check(
     """
       |trait Trait {
@@ -146,4 +162,29 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
       path("Impl", "test")
     )
   )
+
+  // todo: fix this
+  /*
+  def test_indirect_multiple_selftype_override(): Unit = check(
+    """
+      |trait Trait {
+      |  def test(): Unit
+      |}
+      |
+      |trait Impl { this: Class =>
+      |  override def test(): Unit = ()
+      |}
+      |
+      |trait Impl2 { this: Class =>
+      |  override def test(): Unit = ()
+      |}
+      |
+      |class Class extends Trait with Impl with Impl2
+    """.stripMargin,
+    path("Trait", "test"),
+    Seq(
+      path("Impl", "test"),
+      path("Impl2", "test")
+    )
+  )*/
 }

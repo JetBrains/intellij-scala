@@ -18,9 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types._
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,14 +68,8 @@ class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingM
 }
 
 object ScalaOverridingMemberSearcher {
-  def getOverridingMethods(method: ScNamedElement): Array[PsiNamedElement] = {
-    val result = new ArrayBuffer[PsiNamedElement]
-    inReadAction {
-      for (psiMethod <- ScalaOverridingMemberSearcher.search(method, deep = true)) {
-        result += psiMethod
-      }
-    }
-    result.toArray
+  def getOverridingMethods(method: ScNamedElement): Array[PsiNamedElement] = inReadAction {
+    ScalaOverridingMemberSearcher.search(method)
   }
 
   def search(member: PsiNamedElement,
@@ -89,13 +82,13 @@ object ScalaOverridingMemberSearcher {
         case _ => false
     }
     member match {
-      case _: ScFunction | _: ScTypeAlias => if (!inTemplateBodyOrEarlyDef(member)) return Array[PsiNamedElement]()
-      case td: ScTypeDefinition if !td.isObject => if (!inTemplateBodyOrEarlyDef(member)) return Array[PsiNamedElement]()
+      case _: ScFunction | _: ScTypeAlias => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
+      case td: ScTypeDefinition if !td.isObject => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
       case cp: ScClassParameter if cp.isClassMember =>
       case x: PsiNamedElement =>
         val nameContext = ScalaPsiUtil.nameContext(x)
-        if (nameContext == null || !inTemplateBodyOrEarlyDef(nameContext)) return Array[PsiNamedElement]()
-      case _ => return Array[PsiNamedElement]()
+        if (nameContext == null || !inTemplateBodyOrEarlyDef(nameContext)) return Array.empty
+      case _ => return Array.empty
     }
 
     val parentClass = member match {
@@ -105,7 +98,7 @@ object ScalaOverridingMemberSearcher {
 
     if (parentClass.isEffectivelyFinal) return Array.empty
 
-    val buffer = new ArrayBuffer[PsiNamedElement]
+    val buffer = mutable.Set.empty[PsiNamedElement]
 
     def process(inheritor: PsiClass): Boolean = {
       def inheritorsOfType(name: String): Boolean = {
