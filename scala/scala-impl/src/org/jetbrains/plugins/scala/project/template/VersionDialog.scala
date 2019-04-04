@@ -16,14 +16,14 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
     setTitle("Download")
     myVersion.setTextRenderer(Version.abbreviate)
 
-    Versions.loadScalaVersions("available ") match {
-      case (Array(), _) =>
+    Versions.ScalaKind().versions match {
+      case Array() =>
         Messages.showErrorDialog(
           createCenterPanel(),
           "No versions available for download",
           s"Error Downloading Scala libraries"
         )
-      case (versions, _) => myVersion.setItems(versions)
+      case versions => myVersion.setItems(versions)
     }
   }
 

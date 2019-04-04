@@ -38,8 +38,8 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     resolveSbtClassifiers = false
   )
 
-  private lazy val scalaVersionsTuple@(scalaVersions, _) = loadScalaVersions()
-  private lazy val sbtVersionsTuple@(sbtVersions, _) = loadSbtVersions()
+  private lazy val scalaVersions = ScalaKind()
+  private lazy val sbtVersions = SbtKind()
 
   {
     val settings = getExternalProjectSettings
@@ -73,12 +73,12 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
     //noinspection NameBooleanParameters
     {
-      selections(true) = scalaVersionsTuple
-      selections(false) = sbtVersionsTuple
+      selections(ScalaKind) = scalaVersions
+      selections(SbtKind) = sbtVersions
     }
 
     val sbtVersionComboBox = applyTo(new SComboBox())(
-      _.setItems(sbtVersions),
+      _.setItems(sbtVersions.versions),
       _.setSelectedItem(selections.sbtVersion)
     )
 
@@ -189,10 +189,11 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
   }
 
   private def setupScalaVersionItems(cbx: SComboBox): Unit = {
-    cbx.setItems(scalaVersions)
+    val versions = scalaVersions.versions
+    cbx.setItems(versions)
 
     selections.scalaVersion match {
-      case version if scalaVersions.contains(version) =>
+      case version if versions.contains(version) =>
         cbx.setSelectedItem(version)
       case _ if cbx.getItemCount > 0 => cbx.setSelectedIndex(0)
       case _ =>
@@ -223,23 +224,27 @@ object SbtModuleBuilder {
                                       var resolveClassifiers: Boolean,
                                       var resolveSbtClassifiers: Boolean) {
 
-    def apply(scala: Boolean): String =
-      if (scala) scalaVersion else sbtVersion
+    import Versions._
 
-    def update(scala: Boolean, version: => String): Unit = {
-      val setter: String => Unit = if (scala) scalaVersion_= else sbtVersion_=
+    def apply(kind: Kind): String = kind match {
+      case ScalaKind => scalaVersion
+      case SbtKind => sbtVersion
+    }
 
-      setter {
-        Option(apply(scala)).getOrElse(version)
+    def update(kind: Kind, versions: Versions): Unit = {
+      val version = apply(kind) match {
+        case null =>
+          val Versions(defaultVersion, versionsArray) = versions
+          versionsArray.headOption.getOrElse(defaultVersion)
+        case value => value
+      }
+
+      kind match {
+        case ScalaKind => scalaVersion = version
+        case SbtKind => sbtVersion = version
       }
     }
   }
-
-  private implicit def tupleToVersion(tuple: (Array[String], String)): String = {
-    val (versions, defaultVersion) = tuple
-    if (versions.isEmpty) defaultVersion else versions.head
-  }
-
 
   private def createProjectTemplateIn(root: File,
                                       name: String,
