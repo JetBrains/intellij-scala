@@ -58,21 +58,21 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       
       module.configureScalaCompilerSettingsFrom("Maven", compilerOptions)
 
-      val maybeVersion@Some(compilerVersion) = configuration.compilerVersion
+      val Some(Version(version)) = configuration.compilerVersion
 
       val scalaLibrary = modelsProvider.getAllLibraries
         .find { library =>
           library.getName.contains("scala-library") &&
-            library.scalaVersion.contains(compilerVersion)
+            library.compilerVersion.contains(version)
         }.getOrElse {
-        throw new ExternalSystemException(s"Cannot find project Scala library ${compilerVersion.presentation} for module ${module.getName}")
+        throw new ExternalSystemException(s"Cannot find project Scala library $version for module ${module.getName}")
       }
 
       if (!scalaLibrary.isScalaSdk) {
         Importer.setScalaSdk(
           modelsProvider,
           scalaLibrary,
-          ScalaLibraryProperties(maybeVersion, configuration.compilerClasspath.map(mavenProject.localPathTo)
+          ScalaLibraryProperties(Some(version), configuration.compilerClasspath.map(mavenProject.localPathTo)
           )
         )
       }

@@ -7,14 +7,16 @@ import java.io.File
 /**
  * @author Pavel Fatin
  */
-final case class ScalaSdkDescriptor(maybeVersion: Option[Version],
+final case class ScalaSdkDescriptor(maybeVersion: Option[String],
                                     compilerClasspath: Seq[File],
                                     libraryFiles: Seq[File],
                                     sourceFiles: Seq[File],
                                     docFiles: Seq[File])
   extends Ordered[ScalaSdkDescriptor] {
 
-  override def compare(that: ScalaSdkDescriptor): Int = that.maybeVersion.compare(maybeVersion)
+  private val comparableVersion = maybeVersion.map(Version(_))
+
+  override def compare(that: ScalaSdkDescriptor): Int = that.comparableVersion.compare(comparableVersion)
 }
 
 object ScalaSdkDescriptor {
@@ -54,7 +56,7 @@ object ScalaSdkDescriptor {
   implicit class DescriptorExt(private val descriptor: ScalaSdkDescriptor) extends AnyVal {
 
     def versionText(default: String = "Unknown")
-                   (presentation: Version => String = _.presentation): String =
+                   (presentation: String => String = identity): String =
       descriptor.maybeVersion.fold(default)(presentation)
   }
 

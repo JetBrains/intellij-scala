@@ -5,7 +5,6 @@ import java.net.URI
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtEntityData._
@@ -99,11 +98,11 @@ object SbtCommandData {
 }
 
 @SerialVersionUID(1)
-case class ModuleExtData(scalaVersion: Option[Version],
-                         scalacClasspath: Seq[File],
-                         scalacOptions: Seq[String],
-                         sdk: Option[SdkReference],
-                         javacOptions: Seq[String]) extends SbtEntityData
+case class ModuleExtData(scalaVersion: Option[String],
+                         scalacClasspath: Seq[File] = Seq.empty,
+                         scalacOptions: Seq[String] = Seq.empty,
+                         sdk: Option[SdkReference] = None,
+                         javacOptions: Seq[String] = Seq.empty) extends SbtEntityData
 
 object ModuleExtData {
   val Key: Key[ModuleExtData] = datakey(classOf[ModuleExtData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)

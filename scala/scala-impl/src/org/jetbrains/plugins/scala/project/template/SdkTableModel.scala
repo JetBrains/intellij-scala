@@ -17,9 +17,7 @@ class SdkTableModel extends ListTableModel[SdkChoice](
   },
   new ColumnInfo[SdkChoice, String]("Version") {
     override def valueOf(item: SdkChoice): String =
-      item.sdk.versionText() { version =>
-        Version.abbreviate(version.presentation)
-      }
+      item.sdk.versionText()(Version.abbreviate)
 
     override def getPreferredStringValue = "2.11.0"
   },

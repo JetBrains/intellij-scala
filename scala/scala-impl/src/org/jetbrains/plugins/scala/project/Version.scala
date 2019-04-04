@@ -31,10 +31,6 @@ case class Version(presentation: String) extends Ordered[Version] {
     */
   def major(n: Int): Version = Version(groups.head.numbers.take(n).mkString("."))
 
-  def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.values.find { level =>
-    presentation.startsWith(level.getVersion)
-  }
-
   def inRange(atLeast: Version, lessThan: Version): Boolean =
     this >= atLeast && this < lessThan
 

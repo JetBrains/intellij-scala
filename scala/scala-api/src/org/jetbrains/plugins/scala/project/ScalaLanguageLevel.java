@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.project;
 
-public enum ScalaLanguageLevel implements scala.math.Ordered<ScalaLanguageLevel>, Named {
+import org.jetbrains.annotations.NotNull;
+import scala.Option;
+import scala.math.Ordered;
+
+public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
 
     Scala_2_9("2.9"),
     Scala_2_10("2.10"),
@@ -10,27 +14,42 @@ public enum ScalaLanguageLevel implements scala.math.Ordered<ScalaLanguageLevel>
     Scala_2_14("2.14"),
     Scala_3_0("0.13");
 
+    @NotNull
     private final String myVersion;
 
-    ScalaLanguageLevel(String version) {
+    ScalaLanguageLevel(@NotNull String version) {
         myVersion = version;
     }
 
+    @NotNull
     public String getVersion() {
         return myVersion;
     }
 
+    @NotNull
     @Override
     public String getName() {
         return getVersion();
     }
 
     @Override
-    public int compare(ScalaLanguageLevel that) {
+    public int compare(@NotNull ScalaLanguageLevel that) {
         return super.compareTo(that);
     }
 
+    @NotNull
     public static ScalaLanguageLevel getDefault() {
         return Scala_2_12;
+    }
+
+    @NotNull
+    public static Option<ScalaLanguageLevel> findByVersion(@NotNull String version) {
+        for (ScalaLanguageLevel languageLevel : values()) {
+            if (version.startsWith(languageLevel.myVersion)) {
+                return Option.apply(languageLevel);
+            }
+        }
+
+        return Option.empty();
     }
 }

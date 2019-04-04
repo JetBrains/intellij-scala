@@ -156,8 +156,9 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
     override def validate(): Boolean = super.validate() && {
       for {
         sdk <- Option(myJdkComboBox.getSelectedJdk)
-        presentation <- Option(selections.scalaVersion)
-        languageLevel <- Version(presentation).toLanguageLevel
+        version <- Option(selections.scalaVersion)
+
+        languageLevel <- ScalaLanguageLevel.findByVersion(version)
       } validateLanguageLevel(languageLevel, sdk)
 
       true

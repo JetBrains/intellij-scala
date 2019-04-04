@@ -91,7 +91,7 @@ trait Importer[E] {
 
   def setScalaSdk(library: Library,
                   compilerClasspath: Seq[File])
-                 (maybeVersion: Option[Version] = library.scalaVersion): Unit =
+                 (maybeVersion: Option[String] = library.compilerVersion): Unit =
     Importer.setScalaSdk(modelsProvider, library, ScalaLibraryProperties(maybeVersion, compilerClasspath))
 }
 

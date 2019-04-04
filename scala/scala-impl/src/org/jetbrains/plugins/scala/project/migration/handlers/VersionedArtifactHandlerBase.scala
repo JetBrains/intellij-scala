@@ -24,11 +24,10 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
   
   private val isRangeVersion = versionFrom.size == 1 && versionTo.size == 1 && continuousVersion
 
-  
   protected def extractVersion(files: Seq[File]): Option[Version] =
-  Component.discoverIn(files, Set(getArtifact)).find {
-      component => component.artifact.prefix == myArtifact.prefix
-    }.flatMap(_.version)
+    Component.discoverIn(files, Set(getArtifact)).collectFirst {
+      case Component(artifact, _, Some(version), _) if artifact.prefix == myArtifact.prefix => Version(version)
+    }
   
   protected def extractVersion(lib: Library): Option[Version] = {
     val ioFiles = lib.getFiles(OrderRootType.CLASSES).map {

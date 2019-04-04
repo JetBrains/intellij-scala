@@ -54,12 +54,13 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
 
 object ScalaLibraryProperties {
 
+  import ScalaLanguageLevel._
   import VfsUtilCore._
 
-  def apply(maybeVersion: Option[Version] = None,
+  def apply(maybeVersion: Option[String] = None,
             compilerClasspath: Seq[File] = Seq.empty) =
     new ScalaLibraryProperties(
-      maybeVersion.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.getDefault),
+      maybeVersion.flatMap(findByVersion).getOrElse(getDefault),
       compilerClasspath
     )
 

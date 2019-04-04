@@ -6,7 +6,7 @@ import java.io.File
 
 case class Component(artifact: Artifact,
                      kind: Kind,
-                     version: Option[Version],
+                     version: Option[String],
                      file: File)
 
 object Component {

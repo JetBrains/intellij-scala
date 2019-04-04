@@ -53,21 +53,21 @@ object ModuleExtDataService {
     }
 
     private def configureScalaSdk(module: Module,
-                                  compilerVersion: Version,
+                                  compilerVersion: String,
                                   scalacClasspath: Seq[File]): Unit = getScalaLibraries(module) match {
       case libraries if libraries.isEmpty =>
       case libraries =>
         import JavaConverters._
         val maybeLibrary = libraries.asScala.find { library =>
-          library.scalaVersion.exists { version =>
+          library.compilerVersion.exists { version =>
             version == compilerVersion ||
-              version.toLanguageLevel == compilerVersion.toLanguageLevel
+              ScalaLanguageLevel.findByVersion(version) == ScalaLanguageLevel.findByVersion(compilerVersion)
           }
         }
 
         maybeLibrary match {
           case Some(library) if !library.isScalaSdk => setScalaSdk(library, scalacClasspath)()
-          case None => showWarning(compilerVersion.presentation, module.getName)(project)
+          case None => showWarning(compilerVersion, module.getName)(project)
           case _ => // do nothing
         }
     }

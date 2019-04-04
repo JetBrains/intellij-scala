@@ -357,13 +357,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
-    val scalaVersion = project.scala.map(s => Version(s.version))
-    val scalacClasspath = project.scala.fold(Seq.empty[File])(s => s.jars)
-    val scalacOptions = project.scala.fold(Seq.empty[String])(_.options)
-    val javacOptions = project.java.fold(Seq.empty[String])(_.options)
-    val sdk = project.android.map(android => AndroidJdk(android.targetVersion))
-      .orElse(project.java.flatMap(java => java.home.map(JdkByHome)))
-    new ModuleExtNode(ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions))
+    val ProjectData(_, _, _, _, _, _, _, _, _, java, scala, android, _, _, _, _, _, _) = project
+
+    val sdk = android.map(_.targetVersion).map(AndroidJdk)
+      .orElse(java.flatMap(_.home).map(JdkByHome))
+
+    val data = ModuleExtData(
+      scala.map(_.version),
+      scala.fold(Seq.empty[File])(_.jars),
+      scala.fold(Seq.empty[String])(_.options),
+      sdk,
+      java.fold(Seq.empty[String])(_.options)
+    )
+    new ModuleExtNode(data)
   }
 
 

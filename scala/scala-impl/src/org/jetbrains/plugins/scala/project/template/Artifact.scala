@@ -14,10 +14,9 @@ sealed class Artifact(val prefix: String,
 
   private val fileNameRegex = (prefix + "-(.*?)(?:-src|-sources|-javadoc)?\\.jar").r
 
-  def versionOf(file: File): Option[Version] =
+  def versionOf(file: File): Option[String] =
     externalVersionOf(file.getName)
       .orElse(internalVersionOf(file.toURI.toString))
-      .map(Version(_))
 
   private def externalVersionOf(fileName: String) = fileName match {
     case fileNameRegex(number) => Some(number)
