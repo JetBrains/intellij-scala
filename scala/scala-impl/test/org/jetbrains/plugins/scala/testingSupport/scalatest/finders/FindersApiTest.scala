@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.finders
 
-import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
-import com.intellij.util.ThrowableRunnable
+import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer
+import org.junit.Assert.{assertEquals, assertNotNull}
 import org.scalatest.finders.Selection
 
 /**
@@ -15,11 +15,11 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]) = {
     val location = createLocation(lineNumber, offset, fileName)
     var selection: Selection = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = selection = new ScalaTestAstTransformer().testSelection(location)
-    })
-    assert(selection != null)
-    assert(selection.testNames().map(_.trim).toSet == testNames)
+    EdtTestUtil.runInEdtAndWait(
+      () => selection = new ScalaTestAstTransformer().testSelection(location)
+    )
+    assertNotNull(selection)
+    assertEquals(testNames, selection.testNames().map(_.trim).toSet)
   }
 
   def testFeatureSpec() {

@@ -12,6 +12,8 @@ import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AllInPackageTestData, ClassTestData, SingleTestData}
+import org.junit.Assert
+import org.junit.Assert.assertEquals
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -174,10 +176,10 @@ trait IntegrationTest {
     val config2 = createTestFromLocation(lineNumber, offset, fileName)
     //    assert(configurationCheck(config1))
     //    assert(configurationCheck(config2))
-    assert(config1.getName == config2.getName)
-    assert(config1.getType == config2.getType)
-    assert(config1.getFolderName == config2.getFolderName)
-    assert(config1.getConfiguration.getName == config2.getConfiguration.getName)
+    assertEquals(config1.getName, config2.getName)
+    assertEquals(config1.getType, config2.getType)
+    assertEquals(config1.getFolderName, config2.getFolderName)
+    assertEquals(config1.getConfiguration.getName, config2.getConfiguration.getName)
   }
 
   def runGoToSourceTest(lineNumber: Int, offset: Int, fileName: String,
@@ -201,9 +203,9 @@ trait IntegrationTest {
     val psiFile = psiElement.getContainingFile
     val textRange = psiElement.getTextRange
     val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-    assert(psiFile.getName == sourceFile)
+    assertEquals(psiFile.getName, sourceFile)
     val startLineNumber = document.getLineNumber(textRange.getStartOffset)
-    assert(startLineNumber == sourceLine)
+    assertEquals(startLineNumber, sourceLine)
   }
 
   private def parseTestName(testName: String): Seq[String] = {
