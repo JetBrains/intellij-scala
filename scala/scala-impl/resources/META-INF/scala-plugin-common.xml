@@ -152,7 +152,7 @@
         <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
         <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
-        <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinlines.PackageJoinLinesHandler"/>
+        <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.PackageJoinLinesHandler"/>
         <!-- TODO: now the order of lang.smartEnterProcessor matters because ScalaSmartEnterProcessor.process always returns true
         Ideally, if we want to use several ScalaSmartEnterProcessor.process should return false it does not handle some case.
         Another solution is to move PackageSplitSmartEnterProcessor logic into ScalaSmartEnterProcessor -->

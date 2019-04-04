@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.smartEnter;
+package org.jetbrains.plugins.scala.lang.actions.editor.joinLines;
 
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -10,19 +10,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-public class SmartEnterActionTest extends AbstractActionTestBase {
+public class JoinLinesActionTest extends AbstractActionTestBase {
   @NonNls
-  private static final String DATA_PATH = "/actions/editor/smartEnter";
+  private static final String DATA_PATH = "/actions/editor/joinLines";
 
-  public SmartEnterActionTest() {
+  public JoinLinesActionTest() {
     super(DATA_PATH);
   }
 
   protected EditorActionHandler getMyHandler() {
-    return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_COMPLETE_STATEMENT);
+    return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_JOIN_LINES);
   }
 
   public static Test suite() {
-    return new SmartEnterActionTest();
+    return new JoinLinesActionTest();
   }
 }
