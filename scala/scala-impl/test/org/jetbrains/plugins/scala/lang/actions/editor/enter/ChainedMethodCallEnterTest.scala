@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.ChainedMethodCallEnterTest.DATA_PATH
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
 @RunWith(classOf[AllTests])
-class ChainedMethodCallEnterTest extends AbstractEnterActionTestBase(TestUtils.getTestDataPath + DATA_PATH) {
+class ChainedMethodCallEnterTest extends AbstractEnterActionTestBase(DATA_PATH) {
   override protected def setSettings(): Unit = {
     super.setSettings()
     val settings = getCommonSettings

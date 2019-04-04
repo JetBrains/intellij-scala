@@ -1,0 +1,6 @@
+package o<caret>ne.two.three    /* block comment */
+package four
+-----
+package one
+package <caret>two.three    /* block comment */
+package four

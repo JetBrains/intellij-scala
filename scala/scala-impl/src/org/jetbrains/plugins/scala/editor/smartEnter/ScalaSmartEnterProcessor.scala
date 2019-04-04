@@ -10,7 +10,7 @@ import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
+import com.intellij.openapi.editor.actionSystem.{EditorActionHandler, EditorActionManager}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -29,15 +29,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 object ScalaSmartEnterProcessor {
   private val LOG = Logger.getInstance(getClass)
 
-  val myFixers = Seq(new ScalaMethodCallFixer, new ScalaIfConditionFixer, new ScalaForStatementFixer,
-    new ScalaWhileConditionFixer, new ScalaMissingWhileBodyFixer, new ScalaMissingIfBranchesFixer, new ScalaMissingForBodyFixer)
-  val myEnterProcessors = Seq.empty[EnterProcessor] //Can plug in later
+  private val myFixers: Seq[ScalaFixer] = Seq(
+    new ScalaMethodCallFixer,
+    new ScalaIfConditionFixer,
+    new ScalaForStatementFixer,
+    new ScalaWhileConditionFixer,
+    new ScalaMissingWhileBodyFixer,
+    new ScalaMissingIfBranchesFixer,
+    new ScalaMissingForBodyFixer
+  )
+
+  private val myEnterProcessors: Seq[EnterProcessor] = Seq() //Can plug in later
 }
 
 class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   private final val SMART_ENTER_TIMESTAMP: Key[Long]  = Key.create("smartEnterOriginalTimestamp")
 
-  def process(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
+  override def process(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
     FeatureUsageTracker.getInstance.triggerFeatureUsed("codeassists.complete.statement")
 
     try {
@@ -50,38 +58,39 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     true
   }
 
-  private def processImpl(project: Project, editor: Editor, file: PsiFile) {
+  private def processImpl(project: Project, editor: Editor, file: PsiFile): Unit = {
     try {
       commit(editor)
 
-      val atCaret = getStatementAtCaret(editor, file)
+      val atCaret: PsiElement = getStatementAtCaret(editor, file)
       if (atCaret == null) return
 
-      for (psiElement <- collectAllAtCaret(atCaret)) {
-        for (fixer <- ScalaSmartEnterProcessor.myFixers) {
-          val go = fixer.apply(editor, this, psiElement)
+      for {
+        psiElement <- collectAllAtCaret(atCaret)
+        fixer <- ScalaSmartEnterProcessor.myFixers
+      } {
+        val operation = fixer.apply(editor, this, psiElement)
 
-          if (LookupManager.getInstance(project).getActiveLookup != null) return //Lets dont spoil autocomplete
+        if (LookupManager.getInstance(project).getActiveLookup != null)
+          return //Lets dont spoil autocomplete
 
-          go match {
-            case fixer.WithEnter(inserted) =>
-              commit(editor)
-              if (inserted != 0) moveCaretBy(editor, inserted)
-              plainEnter(editor)
-              return
-            case fixer.WithReformat(inserted) =>
-              commit(editor)
-              if (inserted != 0) moveCaretBy(editor, inserted)
-              reformat(getStatementAtCaret(editor, file))
-              return
-            case _ =>
-          }
+        operation match {
+          case fixer.WithEnter(inserted) =>
+            commit(editor)
+            if (inserted != 0) moveCaretBy(editor, inserted)
+            plainEnter(editor)
+            return
+          case fixer.WithReformat(inserted) =>
+            commit(editor)
+            if (inserted != 0) moveCaretBy(editor, inserted)
+            reformat(getStatementAtCaret(editor, file))
+            return
+          case _ =>
         }
       }
 
       doEnter(atCaret, editor)
-    }
-    catch {
+    } catch {
       case e: IncorrectOperationException =>
         ScalaSmartEnterProcessor.LOG.error(e.getMessage)
     }
@@ -90,16 +99,14 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   protected override def reformat(caret: PsiElement) {
     if (caret == null) return
 
-    var atCaret = caret
-    val parent = atCaret.getParent
-
-    parent match {
-      case block: ScBlockExpr if block.exprs.headOption contains atCaret => atCaret = block
-      case forStmt: ScFor => atCaret = forStmt
-      case _ =>
+    val atCaret = caret
+    val atCaretAdjusted = atCaret.getParent match {
+      case block: ScBlockExpr if block.exprs.headOption.contains(atCaret) => block
+      case forStmt: ScFor => forStmt
+      case _ => atCaret
     }
 
-    super.reformat(atCaret)
+    super.reformat(atCaretAdjusted)
   }
 
   private def doEnter(caret: PsiElement, editor: Editor) {
@@ -113,10 +120,15 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     atCaret = CodeInsightUtil.findElementInRange(psiFile, rangeMarker.getStartOffset, rangeMarker.getEndOffset, atCaret.getClass)
 
     for (processor <- ScalaSmartEnterProcessor.myEnterProcessors) {
-      if (atCaret != null && processor.doEnter(editor, atCaret, isModified(editor))) return
+      if (atCaret != null && processor.doEnter(editor, atCaret, isModified(editor)))
+        return
     }
 
-    if (!isModified(editor)) plainEnter(editor) else editor.getCaretModel.moveToOffset(rangeMarker.getEndOffset)
+    if (!isModified(editor)) {
+      plainEnter(editor)
+    } else {
+      editor.getCaretModel.moveToOffset(rangeMarker.getEndOffset)
+    }
   }
 
   private def collectAllAtCaret(caret: PsiElement): Iterable[PsiElement] = {
@@ -132,12 +144,15 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       val (e, nonOk) = buffer(idx)
       val eNonOK = doNotVisit(e)
 
-      if (e != null && (!eNonOK || !nonOk) && e.getChildren.nonEmpty) buffer ++= e.getChildren.zip(Stream continually eNonOK&&nonOk)
+      val isInvalid = e == null || (eNonOK && nonOk) || e.getChildren.isEmpty
+      if (!isInvalid) {
+        buffer ++= e.getChildren.zip(Stream.continually(eNonOK && nonOk))
+      }
 
       idx += 1
     }
 
-    buffer.result().unzip._1
+    buffer.result.map(_._1)
   }
 
   protected override def getStatementAtCaret(editor: Editor, psiFile: PsiFile): PsiElement = {
@@ -167,13 +182,14 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     editor.getCaretModel.moveToOffset(editor.getCaretModel.getOffset + by)
   }
 
-  protected def isUncommited(project: Project) = PsiDocumentManager.getInstance(project).hasUncommitedDocuments
+  protected def isUncommited(project: Project): Boolean =
+    PsiDocumentManager.getInstance(project).hasUncommitedDocuments
 
-  protected def plainEnter(editor: Editor) {
+  protected def plainEnter(editor: Editor): Unit =
     getEnterHandler.execute(editor, editor.getCaretModel.getCurrentCaret, editor.asInstanceOf[EditorEx].getDataContext)
-  }
 
-  protected def getEnterHandler = EditorActionManager.getInstance.getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
+  protected def getEnterHandler: EditorActionHandler =
+    EditorActionManager.getInstance.getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
 
   protected def isModified(editor: Editor): Boolean = {
     val timestamp: Long = editor.getUserData(SMART_ENTER_TIMESTAMP)

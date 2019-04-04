@@ -4,7 +4,6 @@ import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.openapi.project.Project;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -17,7 +16,7 @@ public class EnterActionTest extends AbstractEnterActionTestBase {
   private static final String DATA_PATH = "/actions/editor/enter/data";
 
   public EnterActionTest() {
-    super(TestUtils.getTestDataPath() + DATA_PATH);
+    super(DATA_PATH);
   }
 
   @Override

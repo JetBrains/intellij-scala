@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.backspace;
+package org.jetbrains.plugins.scala.lang.actions.editor.smartEnter;
 
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -10,19 +10,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-public class BackspaceActionTest extends AbstractActionTestBase {
+public class SmartEnterActionTest extends AbstractActionTestBase {
   @NonNls
-  private static final String DATA_PATH = "/actions/editor/backspace/data";
+  private static final String DATA_PATH = "/actions/editor/smartEnter/data";
 
-  public BackspaceActionTest() {
+  public SmartEnterActionTest() {
     super(DATA_PATH);
   }
 
   protected EditorActionHandler getMyHandler() {
-    return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_BACKSPACE);
+    return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_COMPLETE_STATEMENT);
   }
 
   public static Test suite() {
-    return new BackspaceActionTest();
+    return new SmartEnterActionTest();
   }
 }
