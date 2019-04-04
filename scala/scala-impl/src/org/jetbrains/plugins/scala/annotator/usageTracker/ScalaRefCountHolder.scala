@@ -10,7 +10,7 @@ import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{LowMemoryWatcher, Ref}
+import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.{ContainerUtil, hash}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
@@ -60,19 +60,22 @@ final class ScalaRefCountHolder private() {
   }
 
   def analyze(analyze: Runnable, file: PsiFile): Boolean = {
+    val dirtyScope = findDirtyScope(file)(file.getProject)
     myState.compareAndSet(READY, VIRGIN)
 
     if (myState.compareAndSet(VIRGIN, WRITE)) {
       try {
-        val dirtyScope = findDirtyScope(file)(file.getProject)
         assertState(WRITE)
 
-        if (dirtyScope.forall(_ == file.getTextRange)) {
-          myImportUsed.clear()
-          myValueUsed.clear()
-        } else {
-          clear(myImportUsed)(_.element.isValid)
-          clear(myValueUsed)(_.isValid)
+        val defaultRange = Some(file.getTextRange)
+        dirtyScope.getOrElse(defaultRange) match {
+          case `defaultRange` =>
+            myImportUsed.clear()
+            myValueUsed.clear()
+          case Some(_) =>
+            clear(myImportUsed)(_.element.isValid)
+            clear(myValueUsed)(_.isValid)
+          case _ =>
         }
 
         analyze.run()
@@ -138,17 +141,17 @@ object ScalaRefCountHolder {
       )
   }
 
-  private def findDirtyScope(file: PsiFile)
-                            (implicit project: Project) =
-    for {
-      document <- Option(PsiDocumentManager.getInstance(project).getDocument(file))
-
-      analyzer = DaemonCodeAnalyzer.getInstance(project)
-      if analyzer.isInstanceOf[impl.DaemonCodeAnalyzerImpl]
-      analyzerImpl = analyzer.asInstanceOf[impl.DaemonCodeAnalyzerImpl]
-
-      statusMap = analyzerImpl.getFileStatusMap
-    } yield statusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)
+  def findDirtyScope(file: PsiFile)
+                    (implicit project: Project): Option[Option[TextRange]] =
+    PsiDocumentManager.getInstance(project).getDocument(file) match {
+      case null => None
+      case document =>
+        DaemonCodeAnalyzer.getInstance(project) match {
+          case analyzerImpl: impl.DaemonCodeAnalyzerImpl =>
+            Some(Option(analyzerImpl.getFileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)))
+          case _ => None
+        }
+    }
 
   private def clear[T](used: ju.Set[T])
                       (isValid: T => Boolean): Unit = used.synchronized {
