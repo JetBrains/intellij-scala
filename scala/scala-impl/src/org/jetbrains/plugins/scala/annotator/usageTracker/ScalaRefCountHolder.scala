@@ -170,16 +170,14 @@ final class ScalaRefCountHolderComponent(project: Project) extends ProjectCompon
   override def projectOpened(): Unit = {
     autoCleaningMap.set(new TimestampedValueMap())
 
-    val cleanupRunnable: Runnable = () => autoCleaningMap.get.removeStaleEntries()
-
     JobScheduler.getScheduler.scheduleWithFixedDelay(
-      cleanupRunnable,
+      cleanupRunnable(autoCleaningMap),
       CleanupDelay,
       CleanupDelay,
       ju.concurrent.TimeUnit.MILLISECONDS
     )
 
-    LowMemoryWatcher.register(cleanupRunnable, project)
+    LowMemoryWatcher.register(cleanupRunnable(autoCleaningMap), project)
   }
 
   override def projectClosed(): Unit = autoCleaningMap.set(null)
@@ -197,6 +195,8 @@ object ScalaRefCountHolderComponent {
   import concurrent.duration._
 
   private val CleanupDelay = 1.minute.toMillis
+
+  private def cleanupRunnable(map: Ref[_ <: TimestampedValueMap[_, _]]): Runnable = () => map.get.removeStaleEntries()
 
   final private[usageTracker] class TimestampedValueMap[K, V](minimumSize: Int = 3,
                                                               maximumSize: Int = 20,
