@@ -15,7 +15,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.util.CommonProcessors.CollectProcessor
+import com.intellij.util.CommonProcessors.{CollectProcessor, UniqueProcessor}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 
@@ -55,32 +55,36 @@ object ModuleExtDataService {
     private def configureScalaSdk(module: Module,
                                   compilerVersion: Version,
                                   scalacClasspath: Seq[File]): Unit = getScalaLibraries(module) match {
-      case scalaLibraries if scalaLibraries.isEmpty =>
-      case scalaLibraries =>
-        val scalaLibrary = scalaLibraries
-          .find(_.scalaVersion.contains(compilerVersion))
-          .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
+      case libraries if libraries.isEmpty =>
+      case libraries =>
+        import JavaConverters._
+        val maybeLibrary = libraries.asScala.find { library =>
+          library.scalaVersion.exists { version =>
+            version == compilerVersion ||
+              version.toLanguageLevel == compilerVersion.toLanguageLevel
+          }
+        }
 
-        scalaLibrary match {
-          case Some(library) if !library.isScalaSdk =>
-            setScalaSdk(library, scalacClasspath)()
-          case None =>
-            showWarning(compilerVersion.presentation, module.getName)(project)
+        maybeLibrary match {
+          case Some(library) if !library.isScalaSdk => setScalaSdk(library, scalacClasspath)()
+          case None => showWarning(compilerVersion.presentation, module.getName)(project)
           case _ => // do nothing
         }
     }
 
-    private def getScalaLibraries(module: Module): Set[Library] = {
-      val processor = new CollectProcessor[Library]()
-      getModifiableRootModel(module)
-        .orderEntries()
-        .librariesOnly()
-        .forEachLibrary(processor)
+    private def getScalaLibraries(module: Module) = {
+      val delegate = new CollectProcessor[Library] {
 
-      import JavaConverters._
-      processor.getResults.asScala
-        .toSet
-        .filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName)))
+        override def accept(library: Library): Boolean =
+          Option(library.getName).exists(_.contains(ScalaLibraryName))
+      }
+
+      getModifiableRootModel(module)
+        .orderEntries
+        .librariesOnly
+        .forEachLibrary(new UniqueProcessor(delegate))
+
+      delegate.getResults
     }
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
