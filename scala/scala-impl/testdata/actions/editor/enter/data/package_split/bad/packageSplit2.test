@@ -1,0 +1,6 @@
+package one.tw<caret>o.three
+package four
+-----
+package one.tw
+<caret>o.three
+package four
