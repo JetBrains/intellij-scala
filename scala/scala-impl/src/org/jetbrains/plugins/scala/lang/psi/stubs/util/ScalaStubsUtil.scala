@@ -58,14 +58,21 @@ object ScalaStubsUtil {
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
     @CachedInUserData(clazz, CachesUtil.enclosingModificationOwner(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
+      if (clazz.name == null) {
+        return Seq.empty
+      }
+
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
-      val name = clazz.name
-      if (name == null) return Seq.empty
 
       implicit val project: Project = clazz.getProject
       val resolveScope = clazz.resolveScope
 
       def processClass(inheritedClazz: PsiClass) {
+        val name = inheritedClazz.name
+        if (name == null) {
+          return
+        }
+
         def checkTp(tp: ScType): Boolean = {
           tp match {
             case c: ScCompoundType =>
@@ -73,7 +80,7 @@ object ScalaStubsUtil {
             case _ =>
               tp.extractClass match {
                 case Some(otherClazz) =>
-                  if (ScEquivalenceUtil.areClassesEquivalent(clazz, otherClazz)) return true
+                  if (ScEquivalenceUtil.areClassesEquivalent(inheritedClazz, otherClazz)) return true
                 case _ =>
               }
           }
