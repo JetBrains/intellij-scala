@@ -88,23 +88,13 @@ object ScalaStubsUtil {
         }
         inReadAction {
           import ScalaIndexKeys._
-          val iterator = SELF_TYPE_CLASS_NAME_KEY.elements(name, resolveScope, classOf[ScSelfTypeElement])
-            .iterator
-          while (iterator.hasNext) {
-            val selfTypeElement = iterator.next
-            selfTypeElement.typeElement match {
-              case Some(typeElement) =>
-                typeElement.`type`() match {
-                  case Right(tp) =>
-                    if (checkTp(tp)) {
-                      val clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])
-                      if (clazz != null) inheritors += clazz
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-          }
+          for {
+            selfTypeElement <- SELF_TYPE_CLASS_NAME_KEY.elements(name, resolveScope, classOf[ScSelfTypeElement])
+            typeElement <- selfTypeElement.typeElement
+            tp <- typeElement.`type`().toOption
+            if checkTp(tp)
+            clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])
+          } if (clazz != null) inheritors += clazz
         }
       }
       processClass(clazz)
