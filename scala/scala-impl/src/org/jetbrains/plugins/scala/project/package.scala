@@ -20,7 +20,6 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
-import scala.util.matching.Regex
 
 /**
  * @author Pavel Fatin
@@ -31,12 +30,31 @@ package object project {
 
   implicit class LibraryExt(private val library: Library) extends AnyVal {
 
+    import LibraryExt._
+
     def isScalaSdk: Boolean = library match {
       case libraryEx: LibraryEx => libraryEx.isScalaSdk
       case _ => false
     }
 
-    def compilerVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
+    def compilerVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
+
+    def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
+
+    private def name: Option[String] = Option(library.getName)
+  }
+
+  object LibraryExt {
+
+    private val LibraryVersion = "(?<=:|-)\\d+\\.\\d+\\.\\d+[^:\\s]*".r
+
+    private[this] val RuntimeLibrary = "((?:scala|dotty)-library).+".r
+
+    private[this] val JarVersion = "(?<=-)\\d+\\.\\d+\\.\\d+\\S*(?=\\.jar$)".r
+
+    def isRuntimeLibrary(name: String): Boolean = RuntimeLibrary.findFirstIn(name).isDefined
+
+    def runtimeVersion(input: String): Option[String] = JarVersion.findFirstIn(input)
   }
 
   implicit class LibraryExExt(private val library: LibraryEx) extends AnyVal {
@@ -219,10 +237,4 @@ package object project {
 
     def addRunners(): Unit = list.add(util.ScalaUtil.runnersPath())
   }
-
-  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r
-
-  val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
-
-  val ScalaLibraryName: String = "scala-library"
 }

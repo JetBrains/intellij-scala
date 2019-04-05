@@ -36,68 +36,60 @@ private object ScalaGradleDataService {
                          modelsProvider: IdeModifiableModelsProvider)
     extends AbstractImporter[ScalaModelData](dataToImport, projectData, project, modelsProvider) {
 
-    override def importData(): Unit =
-      dataToImport.foreach(doImport)
+    override def importData(): Unit = for {
+      scalaNode <- dataToImport
 
-    private def doImport(scalaNode: DataNode[ScalaModelData]): Unit = {
-      Option(scalaNode.getData(ProjectKeys.MODULE)).foreach { moduleData =>
-        val moduleName = moduleData.getInternalName
+      moduleData = scalaNode.getData(ProjectKeys.MODULE)
+      if moduleData != null
 
-        (findIdeModule(moduleName),
-          findIdeModule(s"${moduleName}_main").orElse(findIdeModule(s"$moduleName.main")),
-          findIdeModule(s"${moduleName}_test").orElse(findIdeModule(s"$moduleName.test"))) match {
+      moduleName = moduleData.getInternalName
+    } {
+      (findIdeModule(moduleName),
+        findIdeModule(s"${moduleName}_main").orElse(findIdeModule(s"$moduleName.main")),
+        findIdeModule(s"${moduleName}_test").orElse(findIdeModule(s"$moduleName.test"))) match {
 
-          case (_, Some(productionModule), Some(testModule)) =>
-            configureModules(productionModule, testModule)(scalaNode.getData)
-
-          case (Some(compoundModule), _, _) =>
-            configureModules(compoundModule)(scalaNode.getData)
-
-          case _ =>
-        }
-      }
-    }
-
-    private def configureModules(mainModule: Module, otherModules: Module*)(data: ScalaModelData): Unit = {
-      for {
-        module <- mainModule +: otherModules
-        compilerOptions = compilerOptionsFrom(data)
-        compilerClasspath = data.getScalaClasspath.asScala.toSeq
-      } {
-        module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
-        if (module == mainModule) {
-          configureScalaSdk(module, compilerClasspath)
-        }
-      }
-    }
-
-    private def configureScalaSdk(module: Module, compilerClasspath: Seq[File]): Unit = {
-      val compilerVersionOption = findScalaLibraryIn(compilerClasspath)
-        .map(_.getName)
-        .flatMap(JarVersion.findFirstIn(_))
-
-      compilerVersionOption match {
-        case Some(compilerVersion) =>
-          val scalaLibraries = getScalaLibraries
-          if (scalaLibraries.isEmpty)
-            return
-
-          scalaLibraries.find(_.compilerVersion.contains(compilerVersion)) match {
-            case Some(scalaLibrary) if !scalaLibrary.isScalaSdk => setScalaSdk(scalaLibrary, compilerClasspath)()
-            case None =>
-              showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion, module.getName))
-            case _ => // do nothing
-          }
+        case (_, Some(productionModule), Some(testModule)) =>
+          configureModules(productionModule, scalaNode, testModule :: Nil)
+        case (Some(compoundModule), _, _) =>
+          configureModules(compoundModule, scalaNode)
         case _ =>
-          showWarning(ScalaBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName))
       }
     }
 
-    private def getScalaLibraries: Set[Library] =
-      modelsProvider.getAllLibraries.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName))).toSet
+    private def configureModules(mainModule: Module,
+                                 scalaNode: DataNode[ScalaModelData],
+                                 otherModules: List[Module] = Nil): Unit = for {
+      module <- mainModule :: otherModules
+      data = scalaNode.getData
+    } {
+      module.configureScalaCompilerSettingsFrom("Gradle", compilerOptionsFrom(data))
+      module match {
+        case `mainModule` => configureScalaSdk(mainModule.getName, data.getScalaClasspath.asScala.toSeq)
+        case _ =>
+      }
+    }
 
-    private def findScalaLibraryIn(classpath: Seq[File]): Option[File] =
-      classpath.find(_.getName.startsWith(ScalaLibraryName))
+    private def configureScalaSdk(moduleName: String, compilerClasspath: Seq[File]): Unit = {
+      def configureScalaSdk(compilerVersion: String): Unit = {
+        modelsProvider.getAllLibraries.filter(_.hasRuntimeLibrary).toSet match {
+          case libraries if libraries.isEmpty =>
+          case libraries =>
+            libraries.find(_.compilerVersion.contains(compilerVersion)) match {
+              case Some(scalaLibrary) if !scalaLibrary.isScalaSdk => setScalaSdk(scalaLibrary, compilerClasspath)()
+              case None => showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion, moduleName))
+              case _ => // do nothing
+            }
+        }
+      }
+
+      import LibraryExt._
+      compilerClasspath
+        .map(_.getName)
+        .filter(isRuntimeLibrary)
+        .flatMap(runtimeVersion)
+        .headOption
+        .fold(showWarning(ScalaBundle.message("gradle.dataService.scalaVersionCantBeDetected", moduleName)))(configureScalaSdk)
+    }
 
     private def compilerOptionsFrom(data: ScalaModelData): Seq[String] =
       Option(data.getScalaCompileOptions).toSeq.flatMap { options =>

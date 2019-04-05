@@ -26,9 +26,9 @@ import scala.collection.JavaConverters._
  */
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
-  private def generateProject(scalaVersion: Option[String],
-                              scalaCompilerClasspath: Set[File],
-                              compilerOptions: Option[ScalaCompileOptionsData],
+  private def generateProject(scalaVersion: Option[String] = None,
+                              scalaCompilerClasspath: Set[File] = Set.empty,
+                              compilerOptions: Option[ScalaCompileOptionsData] = None,
                               separateModules: Boolean = true): DataNode[ProjectData] =
     new project {
       name := getProject.getName
@@ -99,36 +99,42 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     }.build.toDataNode
 
   def testEmptyScalaCompilerClasspath(): Unit = {
-    importProjectData(generateProject(None, Set.empty, None))
+    importProjectData(generateProject())
     // FIXME: can't check notification count for Gradle because tool window is uninitialized
     // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
   }
 
   def testScalaCompilerClasspathWithoutScala(): Unit = {
-    importProjectData(generateProject(None, Set(new File("/tmp/test/not-a-scala-library.jar")), None))
+    importProjectData(
+      generateProject(scalaCompilerClasspath = Set(new File("/tmp/test/not-a-scala-library.jar")))
+    )
     // FIXME: can't check notification count for Gradle because tool window is uninitialized
     // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
   }
 
   def testWithoutScalaLibrary(): Unit = {
-    importProjectData(generateProject(None, Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
+    importProjectData(
+      generateProject(scalaCompilerClasspath = defaultCompilerClasspath)
+    )
     // FIXME: can't check notification count for Gradle because tool window is uninitialized
     // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
   }
 
   def testWithDifferentVersionOfScalaLibrary(): Unit = {
-    importProjectData(generateProject(Some("2.11.5"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
+    importProjectData(
+      generateProject(Some("2.11.5"), defaultCompilerClasspath
+      )
+    )
     // FIXME: can't check notification count for Gradle because tool window is uninitialized
     // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
   }
 
   def testWithTheSameVersionOfScalaLibrary(): Unit = {
-    importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
+    importProjectData(
+      generateProject(Some("2.10.4"), defaultCompilerClasspath)
+    )
 
-    val isLibrarySetUp = getProject.libraries
-      .filter(_.getName.contains("scala-library"))
-      .exists(_.isScalaSdk)
-    assert(isLibrarySetUp, "Scala library is not set up")
+    assertHasScalaSdk()
 
     // TODO test Scala SDK dependency
   }
@@ -138,10 +144,15 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     options.setAdditionalParameters(util.Arrays.asList("-custom-option"))
 
     importProjectData(
-      generateProject(Some("2.10.4"),Set(new File("/tmp/test/scala-library-2.10.4.jar")), Some(options), separateModules = false))
+      generateProject(
+        Some("2.10.4"),
+        defaultCompilerClasspath,
+        Some(options),
+        separateModules = false
+      )
+    )
 
-    assertTrue("Scala SDK must be present",
-      getProject.libraries.exists(library => library.getName.contains("scala-library") && library.isScalaSdk))
+    assertHasScalaSdk()
 
     val compilerConfiguration = {
       val module = ModuleManager.getInstance(getProject).findModuleByName("module")
@@ -180,7 +191,13 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     options.setUnchecked(true)
     options.setAdditionalParameters(additionalOptions.asJava)
 
-    importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), Some(options)))
+    importProjectData(
+      generateProject(
+        Some("2.10.4"),
+        defaultCompilerClasspath,
+        Some(options)
+      )
+    )
 
     val compilerConfiguration = {
       val module = ModuleManager.getInstance(getProject).findModuleByName("module_main")
@@ -228,5 +245,18 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     }.build.toDataNode
 
     importProjectData(testProject)
+  }
+
+  private def defaultCompilerClasspath = Set(new File("/tmp/test/scala-library-2.10.4.jar"))
+
+  private def assertHasScalaSdk(): Unit = {
+    val libraries = getProject
+      .libraries
+      .filter(_.getName.contains("scala-library"))
+
+    assertTrue(
+      "Scala SDK must be present",
+      libraries.exists(_.isScalaSdk)
+    )
   }
 }

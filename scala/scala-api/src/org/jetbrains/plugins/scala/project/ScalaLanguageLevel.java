@@ -12,13 +12,20 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
     Scala_2_14("2.14"),
-    Scala_3_0("0.13");
+    Scala_3_0("0.13", "3.0");
 
     @NotNull
     private final String myVersion;
+    @NotNull
+    private final String myName;
 
     ScalaLanguageLevel(@NotNull String version) {
+        this(version, version);
+    }
+
+    ScalaLanguageLevel(@NotNull String version, @NotNull String name) {
         myVersion = version;
+        myName = name;
     }
 
     @NotNull
@@ -29,7 +36,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     @NotNull
     @Override
     public String getName() {
-        return getVersion();
+        return myName;
     }
 
     @Override

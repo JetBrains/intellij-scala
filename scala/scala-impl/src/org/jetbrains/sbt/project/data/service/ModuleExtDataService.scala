@@ -75,8 +75,7 @@ object ModuleExtDataService {
     private def getScalaLibraries(module: Module) = {
       val delegate = new CollectProcessor[Library] {
 
-        override def accept(library: Library): Boolean =
-          Option(library.getName).exists(_.contains(ScalaLibraryName))
+        override def accept(library: Library): Boolean = library.hasRuntimeLibrary
       }
 
       getModifiableRootModel(module)
