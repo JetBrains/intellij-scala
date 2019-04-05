@@ -510,7 +510,7 @@ public class ScalaTestAstTransformer {
             String name = methodDef.name();
             List<String> paramTypes = new ArrayList<>();
             for (ScParameter param : JavaConverters.seqAsJavaList(methodDef.parameters())) {
-                paramTypes.add(param.getType().getCanonicalText());
+                paramTypes.add(param.getTypeElement().getText());
             }
             String[] array = new String[paramTypes.size()];
             paramTypes.toArray(array);
