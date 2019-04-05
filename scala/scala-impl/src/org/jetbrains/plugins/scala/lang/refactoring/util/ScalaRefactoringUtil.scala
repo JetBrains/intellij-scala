@@ -4,6 +4,7 @@ package refactoring
 package util
 
 import java.awt.Component
+import java.util.Collections
 import java.{util => ju}
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
@@ -322,7 +323,7 @@ object ScalaRefactoringUtil {
                                       (implicit project: Project): Boolean = {
     val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
-    val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
+    val operationStatus = readonlyStatusHandler.ensureFilesWritable(Collections.singletonList(virtualFile))
     !operationStatus.hasReadonlyFiles
   }
 

@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.runner.SbtRunConfiguration._
 import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 
@@ -51,7 +52,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   
   protected var isUsingSbtShell: Boolean = true
 
-  private def defaultWorkingDirectory = Option(project.getBaseDir).fold("")(_.getPath)
+  private def defaultWorkingDirectory = Option(project.baseDir).fold("")(_.getPath)
 
   override def getValidModules: util.Collection[Module] = new java.util.ArrayList
 

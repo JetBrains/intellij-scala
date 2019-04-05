@@ -172,7 +172,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
   }
 
   protected def getBaseDir: VirtualFile = {
-    val baseDir = myProject.getBaseDir
+    val baseDir = myProject.baseDir
     assertNotNull(baseDir)
     baseDir
   }

@@ -327,7 +327,7 @@ private object ImplicitHintsPass {
   }
 
   private def paramWithType(parameter: ScalaResolveResult): String =
-    StringUtil.escapeXml(parameter.name + typeSuffix(parameter))
+    StringUtil.escapeXmlEntities(parameter.name + typeSuffix(parameter))
 
   private def notFoundTooltip(parameter: ScalaResolveResult): String =
     "No implicits found for parameter " + paramWithType(parameter)

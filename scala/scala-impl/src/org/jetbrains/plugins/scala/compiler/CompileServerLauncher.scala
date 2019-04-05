@@ -271,7 +271,7 @@ object CompileServerLauncher {
 
   private def projectHome(project: Project): Option[File] = {
     for {
-      dir <- Option(project.getBaseDir)
+      dir <- Option(project.baseDir)
       path <- Option(dir.getCanonicalPath)
       file = new File(path)
       if file.exists()

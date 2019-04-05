@@ -18,6 +18,7 @@ import javax.swing._
 import javax.swing.event._
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters.asJavaCollectionConverter
 
@@ -63,7 +64,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
   }
 
   private def updateEditor(myCurFileLine: DependencyPlaceInfo): Unit = {
-    val document    = FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(myCurFileLine.path))
+    val document    = FileDocumentManager.getInstance.getDocument(project.baseDir.findFileByRelativePath(myCurFileLine.path))
     val tmpFile     = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
     var tmpElement  = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
     while (tmpElement.getTextRange != myCurFileLine.element.getTextRange) {

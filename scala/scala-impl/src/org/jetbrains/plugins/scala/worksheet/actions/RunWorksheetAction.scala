@@ -114,7 +114,7 @@ object RunWorksheetAction {
   def executeWorksheet(name: String, project: Project, file: PsiFile, mainClassName: String, addToCp: String) {
     val virtualFile = file.getVirtualFile
     val params = createParameters(WorksheetCommonSettings(file).getModuleFor, mainClassName,
-      Option(project.getBaseDir) map (_.getPath) getOrElse "", addToCp, "",
+      Option(project.baseDir) map (_.getPath) getOrElse "", addToCp, "",
       virtualFile.getCanonicalPath) //todo extract default java options??
 
     setUpUiAndRun(params.createOSProcessHandler(), file)

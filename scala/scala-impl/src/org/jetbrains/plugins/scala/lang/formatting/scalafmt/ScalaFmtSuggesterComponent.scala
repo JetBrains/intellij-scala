@@ -6,6 +6,7 @@ import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.openapi.project.Project
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 import scala.beans.BeanProperty
@@ -27,7 +28,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
   }
 
   private def projectHasScalafmtDefaultConfigFile: Boolean = {
-    project.getBaseDir.toOption
+    project.baseDir.toOption
       .flatMap(_.findChild(ScalafmtDynamicConfigManager.DefaultConfigurationFileName).toOption)
       .nonEmpty
   }

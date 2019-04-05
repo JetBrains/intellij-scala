@@ -129,10 +129,11 @@ class MemoryLeakTest extends PlatformTestCase {
 }
 
 object MemoryLeakTest {
+  import org.jetbrains.plugins.scala.project.ProjectExt
 
   private def findFile(fileName: String)
                       (implicit project: ProjectContext): PsiFile = {
-    val file = project.getBaseDir.findChild("src").findChild(fileName)
+    val file = project.project.baseDir.findChild("src").findChild(fileName)
     PsiManager.getInstance(project).findFile(file)
   }
 

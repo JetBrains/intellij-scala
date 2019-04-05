@@ -24,12 +24,13 @@ import javax.swing.Icon
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.shell.SbtShellRunner._
 
 import scala.collection.JavaConverters._
 
 class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
-  extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath)
+  extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.baseDir.getCanonicalPath)
   with Disposable
 {
   private val log = Logger.getInstance(getClass)

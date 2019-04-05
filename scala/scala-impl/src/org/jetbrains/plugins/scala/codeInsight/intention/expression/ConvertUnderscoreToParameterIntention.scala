@@ -76,7 +76,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     var needComma = false
     var needBraces = false
 
-    for (m <- Extensions.getExtensions(Macro.EP_NAME)) {
+    for (m <- Macro.EP_NAME.getExtensionList.asScala) {
       macros.add(m.getName)
     }
 

@@ -156,7 +156,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val jdk: Sdk = PathUtilEx.getAnyJdk(project)
     assert(jdk != null, "JDK IS NULL")
     jp.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
-    jp.setWorkingDirectory(project.getBaseDir.getPath)
+    jp.setWorkingDirectory(project.baseDir.getPath)
 
     val scalaModule = project.anyScalaModule.getOrElse {
       throw new ExecutionException("No modules with Scala SDK are configured")

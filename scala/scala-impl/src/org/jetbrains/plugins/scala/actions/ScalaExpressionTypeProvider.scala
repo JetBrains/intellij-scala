@@ -84,9 +84,9 @@ object ScalaExpressionTypeProvider {
   ): String = {
     val titleCell = "<td align='left' valign='top' style='color:" +
       ColorUtil.toHtmlColor(DocumentationComponent.SECTION_COLOR) + "'>" +
-      StringUtil.escapeXml(title) + ":</td>"
+      StringUtil.escapeXmlEntities(title) + ":</td>"
 
-    val contentCell = s"<td>${StringUtil.escapeXml(tpeText)}</td>"
+    val contentCell = s"<td>${StringUtil.escapeXmlEntities(tpeText)}</td>"
     s"<tr>$titleCell$contentCell</tr>"
   }
 

@@ -11,6 +11,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
@@ -179,6 +180,8 @@ package object project {
 
     def libraries: Seq[Library] =
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
+
+    def baseDir: VirtualFile = LocalFileSystem.getInstance().findFileByPath(project.getBasePath)
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
   }

@@ -12,6 +12,7 @@ import com.intellij.openapi.startup.StartupActivity
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtStartupActivity.sbtNotificationGroup
 import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 class SbtStartupActivity extends StartupActivity {
   override def runActivity(project: Project): Unit = {
@@ -23,7 +24,7 @@ class SbtStartupActivity extends StartupActivity {
   private def showNotificationForUnlinkedSbtProject(project: Project): Unit =
     if (SbtSettings.getInstance(project).getLinkedProjectsSettings.isEmpty &&
       project.getUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT) != java.lang.Boolean.TRUE &&
-      SbtProjectImportProvider.canImport(project.getBaseDir)
+      SbtProjectImportProvider.canImport(project.baseDir)
     ) {
       val message = s"""<a href="$ImportDescription">Import sbt project</a>"""
 
