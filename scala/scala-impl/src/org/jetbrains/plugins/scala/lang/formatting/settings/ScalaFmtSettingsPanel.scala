@@ -8,6 +8,7 @@ import java.util.Collections.emptyList
 import com.intellij.application.options.CodeStyleAbstractPanel
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
 import com.intellij.openapi.editor.ex.EditorEx
@@ -31,12 +32,13 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError.ConfigError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
+  private val Log = Logger.getInstance(getClass)
 
   override val getEditor: EditorEx = createConfigEditor
 
@@ -102,7 +104,10 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
-    if (project.isEmpty) return
+    val project = projectOpt match {
+      case Some(value) => value
+      case None => return
+    }
 
     val versionOpt = ScalafmtDynamicConfigManager.readVersion(configFile) match {
       case Right(v) => v
@@ -111,22 +116,34 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         return
     }
     val version = versionOpt.getOrElse(DefaultVersion)
-    val configManager = ScalafmtDynamicConfigManager.instanceIn(project.get)
-    configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
-      case Right(config) =>
-        updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
-      case Left(error: ConfigError) =>
-        updateScalafmtVersionLabel(version, isDefault = versionOpt.isEmpty)
-        reportConfigResolveError(error)
-      case Left(error: ConfigResolveError) =>
-        updateScalafmtVersionLabel("")
-        reportConfigResolveError(error)
-    })
+
+    ScalafmtDynamicConfigManager.instanceIn(project).toOption match {
+      case Some(configManager) =>
+        configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
+          case Right(config) =>
+            updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
+          case Left(error: ConfigError) =>
+            updateScalafmtVersionLabel(version, isDefault = versionOpt.isEmpty)
+            reportConfigResolveError(error)
+          case Left(error: ConfigResolveError) =>
+            updateScalafmtVersionLabel("")
+            reportConfigResolveError(error)
+        })
+      case _ =>
+        Log.assertTrue(project.isDefault, "Config manager is expected to be missing only in default projects")
+        ScalafmtDynamicService.instance.resolveAsync(version, project, {
+          case Right(scalaFmtReflect) =>
+            updateScalafmtVersionLabel(scalaFmtReflect.version, isDefault = versionOpt.isEmpty)
+          case Left(error: ScalafmtDynamicService.ScalafmtResolveError) =>
+            updateScalafmtVersionLabel("")
+            reportConfigResolveError(ConfigScalafmtResolveError(error))
+        })
+    }
   }
 
   private def ensureDefaultScalafmtResolved(): Unit = {
-    if (project.isEmpty) return
-    ScalafmtDynamicService.instance.resolveAsync(DefaultVersion, project.get)
+    if (projectOpt.isEmpty) return
+    ScalafmtDynamicService.instance.resolveAsync(DefaultVersion, projectOpt.get)
     updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
   }
 
@@ -165,7 +182,9 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def updateConfigTextFromFile(vFile: VirtualFile): Unit = {
     configText = inReadAction(FileDocumentManager.getInstance.getDocument(vFile).toOption.map(_.getText))
-    configText.foreach(text => inWriteAction(getEditor.getDocument.setText(text)))
+    configText.foreach(text => inWriteAction {
+      getEditor.getDocument.setText(text)
+    })
   }
 
   private def saveConfigChangesToFile(configTextNew: String, vFile: VirtualFile): Unit = {
@@ -273,7 +292,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       constraint(4, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
     val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
-    noConfigLabel = new JLabel("No configuration found under specified path, using default IntelliJ configuration")
+    noConfigLabel = new JLabel(ScalaFmtSettingsPanel.NoConfigSpecifiedText)
     configEditorPanel.add(noConfigLabel)
     noConfigLabel.setVisible(false)
     previewPanel = new JPanel()
@@ -296,7 +315,10 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
           updateConfigTextFromFile(vFile)
           ensureScalafmtResolved(vFile)
         case _ =>
+          configText = None
+          ensureDefaultScalafmtResolved()
       }
+      updateConfigVisibility()
     }
 
     // if config path text field is empty we want to select default config file in project tree of file browser
@@ -307,10 +329,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       }
       override def getText(textField: JTextField): String = {
         val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
-        project
-          .map(ScalafmtDynamicConfigManager.instanceIn)
-          .flatMap(_.absolutePathFromConfigPath(path))
-          .getOrElse(DefaultConfigFilePath)
+        val absolutePath = projectOpt.flatMap(ScalafmtDynamicConfigManager.absolutePathFromConfigPath(_, path))
+        absolutePath.getOrElse(DefaultConfigFilePath)
       }
     }
 
@@ -330,14 +350,14 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
     externalFormatterSettingsPath.getTextField.addFocusListener(focusListener)
     externalFormatterSettingsPath.addBrowseFolderListener(
-      customSettingsTitle, customSettingsTitle, project.orNull,
+      customSettingsTitle, customSettingsTitle, projectOpt.orNull,
       FileChooserDescriptorFactory.createSingleFileDescriptor("conf"),
       textAccessor
     )
   }
 
   def onProjectSet(aProject: Project): Unit = {
-    project = Some(aProject)
+    projectOpt = Some(aProject)
     resetImpl(settings)
     resetConfigBrowserFolderListener()
   }
@@ -353,7 +373,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private def projectConfigFile(configPath: String): Option[VirtualFile] =
-    project.flatMap(ScalafmtDynamicConfigManager.instanceIn(_).scalafmtProjectConfigFile(configPath))
+    projectOpt.flatMap(ScalafmtDynamicConfigManager.scalafmtProjectConfigFile(_, configPath))
 
   //copied from CodeStyleAbstractPanel
   //using non-null getPreviewText breaks setting saving (!!!)
@@ -390,7 +410,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private var isPanelEnabled: Boolean = false
-  private var project: Option[Project] = None
+  private var projectOpt: Option[Project] = None
   private var configText: Option[CharSequence] = None
   private var scalafmtVersionLabel: JLabel = _
   private var noConfigLabel: JLabel = _
@@ -403,4 +423,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
   private val customSettingsTitle = "Select custom scalafmt configuration file"
   private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigManager.DefaultConfigurationFileName}"
+}
+
+object ScalaFmtSettingsPanel {
+  private val NoConfigSpecifiedText = "No configuration found under specified path, using default IntelliJ configuration"
 }
