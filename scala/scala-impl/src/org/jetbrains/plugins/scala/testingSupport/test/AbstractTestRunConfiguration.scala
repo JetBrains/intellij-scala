@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -55,20 +56,34 @@ import scala.concurrent.Future
   * @since 5/15/12
   */
 
-abstract class AbstractTestRunConfiguration(val project: Project,
+abstract class AbstractTestRunConfiguration(project: Project,
                                             val configurationFactory: ConfigurationFactory,
                                             val name: String,
-                                            val configurationProducer: TestConfigurationProducer,
-                                            private var envs: java.util.Map[String, String] =
-                                            new java.util.HashMap[String, String](),
-                                            private var addIntegrationTestsClasspath: Boolean = false)
-  extends ModuleBasedConfiguration[RunConfigurationModule,Element](name,
+                                            val configurationProducer: TestConfigurationProducer)
+  extends ModuleBasedConfiguration[RunConfigurationModule,Element](
+    name,
     new RunConfigurationModule(project),
     configurationFactory) with ScalaTestingConfiguration {
 
-  val SCALA_HOME = "-Dscala.home="
-  val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
-  val EMACS = "-Denv.emacs=\"%EMACS%\""
+  /* BEAN SETTINGS */
+
+  var testConfigurationData: TestConfigurationData = new ClassTestData(this)
+  @BeanProperty var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
+  @BeanProperty var showProgressMessages = true
+  @BeanProperty var useSbt: Boolean = false
+  @BeanProperty var useUiWithSbt = false
+  @BeanProperty var jrePath: String = _
+  @BeanProperty var testArgs = ""
+  @BeanProperty var javaOptions = ""
+  @BeanProperty var envs: java.util.Map[String, String] = new java.util.HashMap[String, String]()
+  /*@BeanProperty*/ var workingDirectory = ""
+
+  def setWorkingDirectory(s: String): Unit  = workingDirectory = ExternalizablePath.urlValue(s)
+  def getWorkingDirectory: String               = ExternalizablePath.localPathValue(workingDirectory)
+
+  final def javaSuitePaths: java.util.List[String] = suitePaths.asJava
+
+  private var addIntegrationTestsClasspath: Boolean = false
 
   def setupIntegrationTestClassPath(): Unit = addIntegrationTestsClasspath = true
 
@@ -76,46 +91,17 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   def suitePaths: List[String]
 
-  final def javaSuitePaths: java.util.List[String] = {
-    import scala.collection.JavaConverters._
-    suitePaths.asJava
-  }
-
   def mainClass: String
 
   def reporterClass: String
 
   def errorMessage: String
 
-  private var testArgs = ""
-  private var javaOptions = ""
-  private var workingDirectory = ""
-  @BeanProperty
-  var testConfigurationData: TestConfigurationData = new ClassTestData(this)
-
   def getTestClassPath: String = testConfigurationData.testClassPath//testClassPath
 
   def getTestPackagePath: String = testConfigurationData.testPackagePath//testPackagePath
 
-  def getTestArgs: String = testArgs
-
-  def getJavaOptions: String = javaOptions
-
-  def getWorkingDirectory: String = ExternalizablePath.localPathValue(workingDirectory)
-
   def allowsSbtUiRun: Boolean = false
-
-  def setTestArgs(s: String) {
-    testArgs = s
-  }
-
-  def setJavaOptions(s: String) {
-    javaOptions = s
-  }
-
-  def setWorkingDirectory(s: String) {
-    workingDirectory = ExternalizablePath.urlValue(s)
-  }
 
   def initWorkingDir(): Unit = if (workingDirectory == null || workingDirectory.trim.isEmpty) setWorkingDirectory(provideDefaultWorkingDir)
 
@@ -123,26 +109,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     val module = getModule
     TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
       case Some(provider) => provider.getWorkingDirectory(module)
-      case _ => Option(getProject.getBaseDir).map(_.getPath).getOrElse("")
+      case _ => Option(getProject.baseDir).map(_.getPath).getOrElse("")
     }
   }
 
-  @BeanProperty
-  var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
-  @BeanProperty
-  var showProgressMessages = true
-  @BeanProperty
-  var useSbt: Boolean = false
-  @BeanProperty
-  var useUiWithSbt = false
-  @BeanProperty
-  var jrePath: String = _
-
   private var generatedName: String = ""
-
-  def setGeneratedName(name: String) {
-    generatedName = name
-  }
+  def setGeneratedName(name: String): Unit = generatedName = name
 
   override def isGeneratedName: Boolean = getName == null || getName.equals(suggestedName)
 
@@ -162,7 +134,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         provideDefaultWorkingDir
       }
     )
-    setEnvVariables(configuration.getEnvironmentVariables)
+    envs = configuration.getEnvironmentVariables
     setShowProgressMessages(configuration.getShowProgressMessages)
     setUseSbt(configuration.getUseSbt)
     setUseUiWithSbt(configuration.getUseUiWithSbt)
@@ -176,7 +148,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (nonObjectClasses.nonEmpty) nonObjectClasses(0) else if (objectClasses.nonEmpty) objectClasses(0) else null
   }
 
-  def mScope(module: Module, withDependencies: Boolean) = {
+  def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
     if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
     else GlobalSearchScope.moduleScope(module)
   }
@@ -203,12 +175,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       path = PathMacroManager.getInstance(getModule).expandPath(path)
     }
     path
-  }
-
-  def getEnvVariables: java.util.Map[String, String] = envs
-
-  def setEnvVariables(variables: java.util.Map[String, String]): Unit = {
-    envs = variables
   }
 
   def getModule: Module = {
@@ -373,7 +339,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           vmParams = PathMacroManager.getInstance(module).expandPath(vmParams)
         }
 
-        val mutableEnvVariables = getEnvVariables
+        val mutableEnvVariables = envs
         params.setEnv(mutableEnvVariables)
 
         //expand environment variables in vmParams
@@ -544,19 +510,26 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   protected def getClassFileNames(classes: mutable.HashSet[PsiClass]): Seq[String] = classes.map(_.qualifiedName).toSeq
 
+//  private class RunConfigurationSettings {
+//    @BeanProperty var path: String = testConfigurationData.testClassPath
+//    @BeanProperty var vmparams = javaOptions
+//    @BeanProperty var params
+//  }
+
   override def writeExternal(element: Element) {
     super.writeExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
-    JDOMExternalizer.write(element, "path", getTestClassPath)
-    JDOMExternalizer.write(element, "vmparams", getJavaOptions)
-    JDOMExternalizer.write(element, "params", getTestArgs)
-    JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
-    JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
-    JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
-    JDOMExternalizer.write(element, "useSbt", useSbt)
-    JDOMExternalizer.write(element, "useUiWithSbt", useUiWithSbt)
-    JDOMExternalizer.write(element, "jrePath", jrePath)
-    JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
+//    JDOMExternalizer.write(element, "path", getTestClassPath)
+//    JDOMExternalizer.write(element, "vmparams", getJavaOptions)
+//    JDOMExternalizer.write(element, "params", getTestArgs)
+//    JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
+//    JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
+//    JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
+//    JDOMExternalizer.write(element, "useSbt", useSbt)
+//    JDOMExternalizer.write(element, "useUiWithSbt", useUiWithSbt)
+//    JDOMExternalizer.write(element, "jrePath", jrePath)
+//    JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
+    XmlSerializer.serializeInto(this, element)
     TestConfigurationData.writeExternal(element, testConfigurationData)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
@@ -567,19 +540,20 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     super.readExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.readExternal(this, element)
     readModule(element)
-    javaOptions = JDOMExternalizer.readString(element, "vmparams")
-    testArgs = JDOMExternalizer.readString(element, "params")
-    workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
-    JDOMExternalizer.readMap(element, envs, "envs", "envVar")
-    val s = JDOMExternalizer.readString(element, "searchForTest")
-    for (search <- SearchForTest.values()) {
-      if (search.toString == s) searchTest = search
-    }
-    testConfigurationData = TestConfigurationData.readExternal(element, this)//TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
-    showProgressMessages = JDOMExternalizer.readBoolean(element, "showProgressMessages")
-    useSbt = JDOMExternalizer.readBoolean(element, "useSbt")
-    useUiWithSbt = JDOMExternalizer.readBoolean(element, "useUiWithSbt")
-    jrePath = JDOMExternalizer.readString(element, "jrePath")
+//    javaOptions = JDOMExternalizer.readString(element, "vmparams")
+//    testArgs = JDOMExternalizer.readString(element, "params")
+//    workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+//    JDOMExternalizer.readMap(element, envs, "envs", "envVar")
+//    val s = JDOMExternalizer.readString(element, "searchForTest")
+//    for (search <- SearchForTest.values()) {
+//      if (search.toString == s) searchTest = search
+//    }
+//    testConfigurationData = TestConfigurationData.readExternal(element, this)//TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
+//    showProgressMessages = JDOMExternalizer.readBoolean(element, "showProgressMessages")
+//    useSbt = JDOMExternalizer.readBoolean(element, "useSbt")
+//    useUiWithSbt = JDOMExternalizer.readBoolean(element, "useUiWithSbt")
+//    jrePath = JDOMExternalizer.readString(element, "jrePath")
+    XmlSerializer.deserializeInto(this, element)
   }
 }
 

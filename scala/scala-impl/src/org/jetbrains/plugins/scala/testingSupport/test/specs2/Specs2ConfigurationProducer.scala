@@ -64,7 +64,7 @@ class Specs2ConfigurationProducer extends {
       runConfiguration.setGeneratedName(testNamePrefixed)
       runConfiguration.setName(testNamePrefixed)
     }
-    runConfiguration.setTestConfigurationData(ClassTestData(runConfiguration, testClassPath, testName))
+    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
 
     try {
       val module = ScalaPsiUtil.getModule(element)

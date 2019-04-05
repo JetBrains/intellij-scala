@@ -73,7 +73,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
             configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
             configuration.setUseSbt(cfg.getUseSbt)
             configuration.setUseUiWithSbt(cfg.getUseUiWithSbt)
-            configuration.setTestConfigurationData(cfg.getTestConfigurationData)
+            configuration.testConfigurationData = cfg.testConfigurationData
             true
           }
         case _ =>
@@ -173,7 +173,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
       } else {
         (context.getModule == configurationModule ||
                 context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-                        .getConfigurationModule.getModule == configurationModule) && !configuration.getTestConfigurationData.isInstanceOf[ClassTestData]
+                        .getConfigurationModule.getModule == configurationModule) && !configuration.testConfigurationData.isInstanceOf[ClassTestData]
       }
     } else false
   }

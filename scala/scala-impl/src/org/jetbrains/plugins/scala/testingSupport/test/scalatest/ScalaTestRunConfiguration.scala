@@ -22,7 +22,7 @@ import scala.concurrent.Future
   * @since 5/17/12
   */
 
-class ScalaTestRunConfiguration(override val project: Project,
+class ScalaTestRunConfiguration(project: Project,
                                 override val configurationFactory: ConfigurationFactory,
                                 override val name: String)
   extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {

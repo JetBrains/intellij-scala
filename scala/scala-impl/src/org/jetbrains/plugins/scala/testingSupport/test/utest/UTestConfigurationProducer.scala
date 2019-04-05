@@ -62,7 +62,7 @@ class UTestConfigurationProducer extends {
         (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
     runConfiguration.initWorkingDir()
-    runConfiguration.setTestConfigurationData(ClassTestData(runConfiguration, testClassPath, testName))
+    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {

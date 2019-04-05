@@ -18,7 +18,7 @@ import scala.concurrent.Future
   * @since 5/17/12
   */
 
-class Specs2RunConfiguration(override val project: Project,
+class Specs2RunConfiguration(project: Project,
                              override val configurationFactory: ConfigurationFactory,
                              override val name: String)
   extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {

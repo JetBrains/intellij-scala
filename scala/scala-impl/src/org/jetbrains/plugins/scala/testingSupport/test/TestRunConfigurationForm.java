@@ -272,7 +272,7 @@ public class TestRunConfigurationForm {
       kindComboBox.addItem(testKind);
     }
 
-    switch (configuration.getTestConfigurationData().getKind()) {
+    switch (configuration.testConfigurationData().getKind()) {
       case ALL_IN_PACKAGE:
         setPackageEnabled();
         break;
@@ -313,7 +313,7 @@ public class TestRunConfigurationForm {
     });
 
     suitePaths = configuration.javaSuitePaths();
-    environmentVariables.setEnvs(configuration.getEnvVariables());
+    environmentVariables.setEnvs(configuration.envs());
   }
 
   private void setupModuleComboBox() {
@@ -396,10 +396,10 @@ public class TestRunConfigurationForm {
 
   public void apply(AbstractTestRunConfiguration configuration) {
     setTestClassPath(configuration.getTestClassPath());
-    setJavaOptions(configuration.getJavaOptions());
+    setJavaOptions(configuration.javaOptions());
     setTestArgs(configuration.getTestArgs());
     setTestPackagePath(configuration.getTestPackagePath());
-    switch (configuration.getTestConfigurationData().getKind()) {
+    switch (configuration.testConfigurationData().getKind()) {
       case ALL_IN_PACKAGE:
         setPackageEnabled();
         break;
@@ -407,12 +407,12 @@ public class TestRunConfigurationForm {
         setClassEnabled();
         break;
       case TEST_NAME:
-        SingleTestData singleData = (SingleTestData) configuration.getTestConfigurationData();
+        SingleTestData singleData = (SingleTestData) configuration.testConfigurationData();
         setTestName(singleData.getTestName());
         setTestNameEnabled();
         break;
       case REGEXP:
-        RegexpTestData regexpData = (RegexpTestData) configuration.getTestConfigurationData();
+        RegexpTestData regexpData = (RegexpTestData) configuration.testConfigurationData();
         setRegexps(regexpData.getClassRegexps(), regexpData.getTestRegexps());
         setRegexpEnabled();
     }
@@ -424,7 +424,7 @@ public class TestRunConfigurationForm {
     setWorkingDirectory(configuration.getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
-    environmentVariables.setEnvs(configuration.getEnvVariables());
+    environmentVariables.setEnvs(configuration.envs());
     setShowProgressMessages(configuration.getShowProgressMessages());
     jreSelector.setPathOrName(configuration.getJrePath(), true);
   }

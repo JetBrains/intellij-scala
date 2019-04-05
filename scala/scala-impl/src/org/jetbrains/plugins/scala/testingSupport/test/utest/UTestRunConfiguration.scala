@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfigura
 
 import scala.annotation.tailrec
 
-class UTestRunConfiguration(override val project: Project,
+class UTestRunConfiguration(project: Project,
                             override val configurationFactory: ConfigurationFactory,
                             override val name: String)
         extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.uTestConfigurationProducer) {
