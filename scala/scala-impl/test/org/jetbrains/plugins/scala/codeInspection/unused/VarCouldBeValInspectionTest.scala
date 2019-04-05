@@ -1,16 +1,16 @@
-package org.jetbrains.plugins.scala.codeInspection
+package org.jetbrains.plugins.scala
+package codeInspection
 package unused
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection
-
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
 class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+  import varCouldBeValInspection.VarCouldBeValInspection
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[VarCouldBeValInspection]
@@ -149,7 +149,8 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
       |    assert(a == 3)
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   def testSeveralPatterns(): Unit = checkTextHasNoErrors(
     """object X {
@@ -159,7 +160,20 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
       |    assert(a == 0)
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
+
+  def testFor(): Unit = checkTextHasNoErrors(
+    """object Foo {
+      | def foo(): Int = {
+      |   var result = 42
+      |   for (_ <- 1 to 100500) {
+      |     result = result + 1
+      |   }
+      |   result
+      | }
+      |}""".stripMargin
+  )
 
   private def testQuickFix(text: String, expected: String): Unit =
     testQuickFix(text, expected, VarToValFix.HINT)

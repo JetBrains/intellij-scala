@@ -22,7 +22,8 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
   import VarCouldBeValInspection._
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = element match {
-    case variable: ScVariableDefinition if couldBeVal(variable.declaredElements, isOnTheFly) =>
+    case variable: ScVariableDefinition
+      if variable.declaredElements.forall(if (isOnTheFly) hasNoWriteUsagesOnTheFly else hasNoWriteUsages) =>
       Seq(ProblemInfo(variable.keywordToken, DESCRIPTION, Seq(new VarToValFix(variable))))
     case _ => Seq.empty
   }
@@ -73,25 +74,19 @@ object VarCouldBeValInspection {
     references.partition(isPossiblyAssignment)
   }
 
-  private def couldBeVal(elements: Seq[ScBindingPattern], isOnTheFly: Boolean): Boolean =
-    elements.forall {
-      case pattern if isOnTheFly => hasNoWriteUsagesOnTheFly(pattern)
-      case pattern               => hasNoWriteUsages(pattern)
-    }
-
-  private[this] def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
-    var noWriteUsages = true
-
+  private def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
+    var hasWriteUsages = false
+    var used = false
     val holder = ScalaRefCountHolder(element)
     holder.retrieveUnusedReferencesInfo { () =>
-      noWriteUsages &= !holder.isValueWriteUsed(element) && holder.isValueReadUsed(element)
+      hasWriteUsages = holder.isValueWriteUsed(element)
+      used = holder.isValueReadUsed(element)
     }
-
-    noWriteUsages // has no write usages but is used
+    !hasWriteUsages && used // has no write usages but is used
   }
 
-  private[this] def hasNoWriteUsages(pattern: ScBindingPattern): Boolean = {
-    val (write, read) = findReferences(pattern)
+  private def hasNoWriteUsages(element: ScBindingPattern): Boolean = {
+    val (write, read) = findReferences(element)
     read.nonEmpty && write.isEmpty
   }
 }
