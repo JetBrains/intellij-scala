@@ -16,7 +16,7 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val location = createLocation(lineNumber, offset, fileName)
     var selection: Selection = null
     EdtTestUtil.runInEdtAndWait(
-      () => selection = new ScalaTestAstTransformer().testSelection(location)
+      () => selection = ScalaTestAstTransformer.testSelection(location)
     )
     assertNotNull(selection)
     assertEquals(testNames, selection.testNames().map(_.trim).toSet)

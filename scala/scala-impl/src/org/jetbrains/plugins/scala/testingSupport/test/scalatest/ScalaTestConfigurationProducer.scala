@@ -643,8 +643,7 @@ class ScalaTestConfigurationProducer extends {
               flatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).getOrElse(None) ++
               wordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).getOrElse(None)).orNull)
 
-    val astTransformer = new ScalaTestAstTransformer()
-    val selection = astTransformer.testSelection(location)
+    val selection = ScalaTestAstTransformer.testSelection(location)
 
     if (selection != null) {
       if (selection.testNames.nonEmpty) (clazz, escapeAndConcatTestNames(selection.testNames().toList.map(_.trim)))

@@ -5,6 +5,18 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
  * @since 10.04.2015.
  */
 object ScalaTestUtil {
+  val itWordFqns: Set[String] = Set(
+    "org.scalatest.FlatSpecLike.ItWord",
+    "org.scalatest.FunSpecLike.ItWord",
+    "org.scalatest.WordSpecLike.ItWord",
+    "org.scalatest.fixture.FlatSpecLike.ItWord",
+    "org.scalatest.fixture.FunSpecLike.ItWord",
+    "org.scalatest.fixture.WordSpecLike.ItWord",
+    "org.scalatest.path.FunSpecLike.ItWord",
+    "org.scalatest.FlatSpecLike.ItVerbStringTaggedAs",
+    "org.scalatest.fixture.FlatSpecLike.ItVerbStringTaggedAs"
+  )
+
   val funSuiteBases: List[String] = List("org.scalatest.FunSuite",
     "org.scalatest.FunSuiteLike",
     "org.scalatest.fixture.FunSuite",
