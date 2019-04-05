@@ -57,10 +57,10 @@ object ScalaLibraryProperties {
   import ScalaLanguageLevel._
   import VfsUtilCore._
 
-  def apply(maybeVersion: Option[String] = None,
+  def apply(version: Option[String] = None,
             compilerClasspath: Seq[File] = Seq.empty) =
     new ScalaLibraryProperties(
-      maybeVersion.flatMap(findByVersion).getOrElse(getDefault),
+      version.flatMap(findByVersion).getOrElse(getDefault),
       compilerClasspath
     )
 

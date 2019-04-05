@@ -7,14 +7,14 @@ import java.io.File
 /**
  * @author Pavel Fatin
  */
-final case class ScalaSdkDescriptor(maybeVersion: Option[String],
+final case class ScalaSdkDescriptor(version: Option[String],
                                     compilerClasspath: Seq[File],
                                     libraryFiles: Seq[File],
                                     sourceFiles: Seq[File],
                                     docFiles: Seq[File])
   extends Ordered[ScalaSdkDescriptor] {
 
-  private val comparableVersion = maybeVersion.map(Version(_))
+  private val comparableVersion = version.map(Version(_))
 
   override def compare(that: ScalaSdkDescriptor): Int = that.comparableVersion.compare(comparableVersion)
 }
@@ -51,13 +51,6 @@ object ScalaSdkDescriptor {
 
         Right(descriptor)
     }
-  }
-
-  implicit class DescriptorExt(private val descriptor: ScalaSdkDescriptor) extends AnyVal {
-
-    def versionText(default: String = "Unknown")
-                   (presentation: String => String = identity): String =
-      descriptor.maybeVersion.fold(default)(presentation)
   }
 
   private[this] def requiredBinaryArtifacts = Set[Artifact](

@@ -89,19 +89,19 @@ object ScalaLibraryType {
     }
 
     private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
-      val ScalaSdkDescriptor(maybeVersion, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
+      val ScalaSdkDescriptor(version, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
 
       new NewLibraryConfiguration(
-        "scala-sdk-" + descriptor.versionText()(),
+        "scala-sdk-" + version.getOrElse(Version.Default),
         ScalaLibraryType(),
-        ScalaLibraryProperties(maybeVersion, compilerClasspath)
+        ScalaLibraryProperties(version, compilerClasspath)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
           addRootsInner(libraryFiles ++ sourceFiles)(editor)
           addRootsInner(docFiles, JavadocOrderRootType.getInstance)(editor)
 
           if (sourceFiles.isEmpty && docFiles.isEmpty) editor.addRoot(
-            s"https://www.scala-lang.org/api/${descriptor.versionText("current")()}/",
+            s"https://www.scala-lang.org/api/${version.getOrElse("current")}/",
             JavadocOrderRootType.getInstance
           )
         }
