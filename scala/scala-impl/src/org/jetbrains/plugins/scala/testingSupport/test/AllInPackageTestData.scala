@@ -1,22 +1,27 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
+import java.util
+
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.util.JDOMExternalizer
-import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
 import com.intellij.psi.search.GlobalSearchScope
-import org.jdom.Element
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
 
+import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 class AllInPackageTestData(override val config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
+
+  @BeanProperty var classBuf: java.util.List[String] = new util.ArrayList[String]()
+
   override def getScope(withDependencies: Boolean): GlobalSearchScope = {
     searchTest match {
       case SearchForTest.IN_WHOLE_PROJECT => unionScope(_ => true, withDependencies)
@@ -42,11 +47,11 @@ class AllInPackageTestData(override val config: AbstractTestRunConfiguration) ex
     ScPackageImpl.findPackage(getProject, path)
   }
 
-  override def getTestMap(): Map[String, Set[String]] = {
+  override def getTestMap: Map[String, Set[String]] = {
     def aMap(seq: Seq[String]) = Map(seq.map(_ -> Set[String]()):_*)
     if (isDumb) {
       if (classBuf.isEmpty) throw new ExecutionException("Can't run while indexing: no class names memorized from previous iterations.")
-      return aMap(classBuf)
+      return aMap(classBuf.asScala)
     }
     var classes = ArrayBuffer[PsiClass]()
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
@@ -75,32 +80,20 @@ class AllInPackageTestData(override val config: AbstractTestRunConfiguration) ex
     if (classes.isEmpty)
       throw new ExecutionException(s"Did not find suite classes in package ${pack.getQualifiedName}")
     val classFqns = classes.map(_.qualifiedName)
-    classBuf = classFqns
+    classBuf = classFqns.asJava
     aMap(classFqns)
-  }
-
-  private var classBuf: Seq[String] = Seq()
-
-  override def readExternal(element: Element): Unit = {
-    import scala.collection.JavaConverters._
-    testPackagePath = JDOMExternalizer.readString(element, "package")
-    classBuf = JDOMExternalizer.loadStringsList(element, "buffered", "bufClass").asScala
-  }
-
-  override def writeExternal(element: Element): Unit = {
-    JDOMExternalizer.write(element, "package", getTestPackagePath)
-    JDOMExternalizer.saveStringsList(element, "buffered", "bufClass", classBuf.sorted:_*)
   }
 
   override def getKind: TestKind = TestKind.ALL_IN_PACKAGE
 
   override def apply(form: TestRunConfigurationForm): Unit = {
+    super.apply(form)
     testPackagePath = form.getTestPackagePath
   }
 }
 
 object AllInPackageTestData {
-  def apply(config: AbstractTestRunConfiguration, pack: String) = {
+  def apply(config: AbstractTestRunConfiguration, pack: String): AllInPackageTestData = {
     val res = new AllInPackageTestData(config)
     res.setTestPackagePath(pack)
     res

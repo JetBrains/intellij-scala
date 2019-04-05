@@ -53,13 +53,13 @@ class Specs2ConfigurationProducer extends {
     val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return None
     val testClassPath = testClass.qualifiedName
-    runConfiguration.initWorkingDir()
+    runConfiguration.testConfigurationData.initWorkingDir()
 
     // If the selected element is a non-empty string literal, we assume that this
     // is the name of an example to be filtered.
     if (testName != null) {
-      val options = runConfiguration.getJavaOptions
-      runConfiguration.setJavaOptions(options)
+      val options = runConfiguration.testConfigurationData.getJavaOptions
+      runConfiguration.testConfigurationData.setJavaOptions(options)
       val testNamePrefixed = testClassPath + "::" + testName
       runConfiguration.setGeneratedName(testNamePrefixed)
       runConfiguration.setName(testNamePrefixed)

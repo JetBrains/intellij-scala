@@ -140,7 +140,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
 
   protected def runConfig(config: AbstractTestRunConfiguration, expectedStrings: Seq[String],
                           unexpectedStrings: Seq[String], commandsExpected: Int = 1): Unit = {
-    config.useSbt = true
+    config.testConfigurationData.useSbt = true
     val project = config.getProject
     val sdk = ProjectRootManager.getInstance(project).getProjectSdk
     assert(sdk != null, s"project sdk was null in project ${project.getName}")

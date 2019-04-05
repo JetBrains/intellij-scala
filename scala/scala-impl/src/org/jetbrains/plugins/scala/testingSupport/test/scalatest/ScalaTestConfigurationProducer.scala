@@ -57,8 +57,8 @@ class ScalaTestConfigurationProducer extends {
       createConfiguration(StringUtil.getShortName(testClassPath) +
       (if (testName != null) "." + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
-    runConfiguration.initWorkingDir()
     runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
+    runConfiguration.testConfigurationData.initWorkingDir()
 
     try {
       val module = ScalaPsiUtil.getModule(element)

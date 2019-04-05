@@ -37,7 +37,7 @@ object TestConfigurationUtil {
     configuration.testConfigurationData = AllInPackageTestData(configuration, pack.getQualifiedName)
     configuration.setGeneratedName(displayName)
     configuration.setModule(location.getModule)
-    configuration.initWorkingDir()
+    configuration.testConfigurationData.initWorkingDir()
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
     settings
   }

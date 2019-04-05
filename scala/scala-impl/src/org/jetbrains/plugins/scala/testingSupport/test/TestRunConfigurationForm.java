@@ -262,11 +262,11 @@ public class TestRunConfigurationForm {
       searchForTestsComboBox.addItem(searchForTest);
     }
 
-    searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
+    searchForTestsComboBox.setSelectedItem(configuration.testConfigurationData().getSearchTest());
 
     searchForTestsComboBox.addItemListener(e -> setupModuleComboBox());
 
-    myShowProgressMessagesCheckBox.setSelected(configuration.getShowProgressMessages());
+    myShowProgressMessagesCheckBox.setSelected(configuration.testConfigurationData().getShowProgressMessages());
 
     for (TestKind testKind : TestKind.values()) {
       kindComboBox.addItem(testKind);
@@ -286,7 +286,7 @@ public class TestRunConfigurationForm {
         setRegexpEnabled();
     }
     useSbtCheckBox.addItemListener(e -> {
-      configuration.setUseSbt(useSbtCheckBox.isSelected());
+      configuration.testConfigurationData().setUseSbt(useSbtCheckBox.isSelected());
       useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
     });
     boolean hasSbt = hasSbt(configuration.getProject());
@@ -313,7 +313,7 @@ public class TestRunConfigurationForm {
     });
 
     suitePaths = configuration.javaSuitePaths();
-    environmentVariables.setEnvs(configuration.envs());
+    environmentVariables.setEnvs(configuration.testConfigurationData().envs());
   }
 
   private void setupModuleComboBox() {
@@ -396,8 +396,8 @@ public class TestRunConfigurationForm {
 
   public void apply(AbstractTestRunConfiguration configuration) {
     setTestClassPath(configuration.getTestClassPath());
-    setJavaOptions(configuration.javaOptions());
-    setTestArgs(configuration.getTestArgs());
+    setJavaOptions(configuration.testConfigurationData().javaOptions());
+    setTestArgs(configuration.testConfigurationData().getTestArgs());
     setTestPackagePath(configuration.getTestPackagePath());
     switch (configuration.testConfigurationData().getKind()) {
       case ALL_IN_PACKAGE:
@@ -419,14 +419,14 @@ public class TestRunConfigurationForm {
     boolean hasSbt = hasSbt(configuration.getProject());
     setSbtVisible(hasSbt);
     setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
-    setUseSbt(configuration.useSbt());
-    setUseUiWithSbt(configuration.useUiWithSbt());
-    setWorkingDirectory(configuration.getWorkingDirectory());
+    setUseSbt(configuration.testConfigurationData().useSbt());
+    setUseUiWithSbt(configuration.testConfigurationData().useUiWithSbt());
+    setWorkingDirectory(configuration.testConfigurationData().getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
-    searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
-    environmentVariables.setEnvs(configuration.envs());
-    setShowProgressMessages(configuration.getShowProgressMessages());
-    jreSelector.setPathOrName(configuration.getJrePath(), true);
+    searchForTestsComboBox.setSelectedItem(configuration.testConfigurationData().getSearchTest());
+    environmentVariables.setEnvs(configuration.testConfigurationData().envs());
+    setShowProgressMessages(configuration.testConfigurationData().getShowProgressMessages());
+    jreSelector.setPathOrName(configuration.testConfigurationData().getJrePath(), true);
   }
 
   protected boolean hasSbt(Project project) {

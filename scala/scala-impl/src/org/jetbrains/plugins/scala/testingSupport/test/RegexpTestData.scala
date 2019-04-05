@@ -77,7 +77,7 @@ class RegexpTestData(override val config: AbstractTestRunConfiguration) extends 
     checkRegexps((_, p) => new RuntimeConfigurationException(s"Failed to compile pattern $p"), new RuntimeConfigurationException("No patterns detected"))
   }
 
-  override def getTestMap(): Map[String, Set[String]] = {
+  override def getTestMap: Map[String, Set[String]] = {
     val patterns = zippedRegexps
     val classToTests = mutable.Map[String, Set[String]]()
     if (isDumb) {
@@ -112,6 +112,7 @@ class RegexpTestData(override val config: AbstractTestRunConfiguration) extends 
   }
 
   override def readExternal(element: Element): Unit = {
+    super.readExternal(element)
     def loadRegexps(pMap: mutable.Map[String, String]): Array[String] = {
       val res = new Array[String](pMap.size)
       pMap.foreach { case (index, pattern) => res(Integer.parseInt(index)) = pattern }
@@ -128,6 +129,7 @@ class RegexpTestData(override val config: AbstractTestRunConfiguration) extends 
   }
 
   override def writeExternal(element: Element): Unit = {
+    super.writeExternal(element)
     val classRegexps: Map[String, String] = Map(zippedRegexps.sorted.zipWithIndex.map { case ((c, _), i) => (i.toString, c) }: _*)
     val testRegexps: Map[String, String] = Map(zippedRegexps.sorted.zipWithIndex.map { case ((_, t), i) => (i.toString, t) }: _*)
     JDOMExternalizer.writeMap(element, classRegexps.asJava, "classRegexps", "pattern")
@@ -161,6 +163,7 @@ class RegexpTestData(override val config: AbstractTestRunConfiguration) extends 
   override def getKind: TestKind = TestKind.REGEXP
 
   override def apply(form: TestRunConfigurationForm): Unit = {
+    super.apply(form)
     classRegexps = form.getClassRegexps
     testRegexps = form.getTestRegexps
   }

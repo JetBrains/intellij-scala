@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala.testingSupport.test
 
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
-import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.psi.PsiClass
-import org.jdom.Element
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
 
 class ClassTestData(override val config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
@@ -30,7 +28,7 @@ class ClassTestData(override val config: AbstractTestRunConfiguration) extends T
     }
   }
 
-  override def getTestMap(): Map[String, Set[String]] = {
+  override def getTestMap: Map[String, Set[String]] = {
     if (isDumb) return Map(testClassPath -> Set[String]())
     val clazz = getClassPathClazz
     if (clazz == null) config.classNotFoundError
@@ -38,18 +36,10 @@ class ClassTestData(override val config: AbstractTestRunConfiguration) extends T
     Map(clazz.qualifiedName -> Set[String]())
   }
 
-
-  override def readExternal(element: Element): Unit = {
-    testClassPath = JDOMExternalizer.readString(element, "path")
-  }
-
-  override def writeExternal(element: Element): Unit = {
-    JDOMExternalizer.write(element, "path", testClassPath)
-  }
-
   override def getKind: TestKind = TestKind.CLASS
 
   override def apply(form: TestRunConfigurationForm): Unit = {
+    super.apply(form)
     testClassPath = form.getTestClassPath
   }
 }
