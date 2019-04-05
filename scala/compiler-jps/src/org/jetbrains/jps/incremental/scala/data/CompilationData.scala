@@ -11,8 +11,8 @@ import org.jetbrains.jps.incremental.scala.model.{CompileOrder, CompilerSettings
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
 import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
 
 import scala.collection.JavaConverters._
 
@@ -115,7 +115,11 @@ abstract class BaseCompilationData extends CompilationDataFactory {
   }
 
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Array[String] = {
-    val noBootCp = if (CompilerData.needNoBootCp(chunk)) Nil else Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    val noBootCp = if (CompilerData.needBootCp(chunk.getModules.asScala.toSet))
+      Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    else
+      Seq.empty
+
     val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
     scalaOptions
   }

@@ -1,21 +1,15 @@
-package org.jetbrains.jps.incremental.scala
+package org.jetbrains.jps
+package incremental
+package scala
 
 import _root_.java.io._
-import java.net.InetAddress
-import java.util.ServiceLoader
+import _root_.java.net.InetAddress
+import _root_.java.util.ServiceLoader
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
-import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.messages.ProgressMessage
-import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
-import org.jetbrains.jps.incremental.scala.data.DataFactoryService
-import org.jetbrains.jps.incremental.scala.data.DefaultDataFactoryService
-import org.jetbrains.jps.incremental.scala.local.LocalServer
-import org.jetbrains.jps.incremental.scala.model.{GlobalSettings, ProjectSettings}
-import org.jetbrains.jps.incremental.scala.remote.RemoteServer
 import org.jetbrains.jps.model.module.JpsModule
 
 import _root_.scala.collection.JavaConverters._
@@ -26,6 +20,8 @@ import _root_.scala.collection.JavaConverters._
  */
 
 object ScalaBuilder {
+
+  import data._
 
   def compile(context: CompileContext,
               chunk: ModuleChunk,
@@ -63,7 +59,8 @@ object ScalaBuilder {
     chunk.getModules.asScala.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the sbt module type
   }
 
-  def projectSettings(context: CompileContext): ProjectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+  def projectSettings(context: CompileContext): model.ProjectSettings =
+    SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
 
   val Log: JpsLogger = JpsLogger.getInstance(ScalaBuilder.getClass.getName)
 
@@ -74,7 +71,7 @@ object ScalaBuilder {
 
   def localServer: Server = {
     lock.synchronized {
-      val server = cachedServer.getOrElse(new LocalServer())
+      val server = cachedServer.getOrElse(new local.LocalServer())
       cachedServer = Some(server)
       server
     }
@@ -95,7 +92,7 @@ object ScalaBuilder {
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {
-    val hasScalaFacet = modules.exists(SettingsManager.hasScalaSdk)
+    val hasScalaFacet = modules.exists(SettingsManager.getScalaSdk(_).isDefined)
     val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
     val hasScalaSources = compilationData.sources.exists(_.getName.endsWith(".scala"))
@@ -109,7 +106,7 @@ object ScalaBuilder {
   private def getServer(context: CompileContext): Server = {
     if (isCompileServerEnabled(context)) {
       cleanLocalServerCache()
-      new RemoteServer(InetAddress.getByName(null), globalSettings(context).getCompileServerPort)
+      new remote.RemoteServer(InetAddress.getByName(null), globalSettings(context).getCompileServerPort)
     } else {
       localServer
     }
@@ -122,6 +119,6 @@ object ScalaBuilder {
   private def isCompilationFromIDEA(context: CompileContext): Boolean =
     JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null
 
-  private def globalSettings(context: CompileContext): GlobalSettings =
+  private def globalSettings(context: CompileContext) =
     SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 }

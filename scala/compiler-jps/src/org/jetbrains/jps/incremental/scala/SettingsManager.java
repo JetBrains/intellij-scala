@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
@@ -8,8 +7,9 @@ import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
 import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 import org.jetbrains.jps.model.library.JpsLibrary;
 import org.jetbrains.jps.model.module.JpsModule;
+import scala.Option;
 
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author Pavel Fatin
@@ -37,21 +37,16 @@ public class SettingsManager {
     project.getContainer().setChild(PROJECT_SETTINGS_ROLE, settings);
   }
 
-  public static boolean hasScalaSdk(JpsModule module) {
-    return getScalaSdk(module) != null;
-  }
+  public static Option<JpsLibrary> getScalaSdk(JpsModule module) {
+    Set<JpsLibrary> libraries = JpsJavaExtensionService.dependencies(module)
+            .recursivelyExportedOnly()
+            .getLibraries();
 
-  @Nullable
-  public static JpsLibrary getScalaSdk(JpsModule module) {
-    for (JpsLibrary library : libraryDependenciesIn(module)) {
+    for (JpsLibrary library : libraries) {
       if (library.getType() == ScalaLibraryType.getInstance()) {
-        return library;
+        return Option.apply(library);
       }
     }
-    return null;
-  }
-
-  public static Collection<JpsLibrary> libraryDependenciesIn(JpsModule module) {
-    return JpsJavaExtensionService.dependencies(module).recursivelyExportedOnly().getLibraries();
+    return Option.empty();
   }
 }

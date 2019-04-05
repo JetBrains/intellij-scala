@@ -1,26 +1,16 @@
-package org.jetbrains.jps.incremental.scala
+package org.jetbrains.jps
+package incremental
+package scala
 
 import _root_.java.io.File
 import _root_.java.util
 
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.Processor
-import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
-import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import org.jetbrains.jps.incremental.fs.CompilationRound
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
-import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.hasScalaModules
-import org.jetbrains.jps.incremental.scala.ScalaBuilder._
-import org.jetbrains.jps.incremental.scala.data.CompilerData
-import org.jetbrains.jps.incremental.scala.local.{IdeClientIdea, PackageObjectsData}
-import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
-import org.jetbrains.jps.incremental.{BuilderCategory, _}
 
 import _root_.scala.collection.JavaConverters._
 import _root_.scala.collection.mutable
-import _root_.scala.collection.mutable.ListBuffer
 
 /**
   * Nikolay.Tropin
@@ -28,12 +18,16 @@ import _root_.scala.collection.mutable.ListBuffer
   */
 class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
 
+  import ModuleLevelBuilder._
+  import ScalaBuilder._
+  import messages._
+
   override def getPresentableName: String = "Scala IDEA builder"
 
   override def build(context: CompileContext,
                      chunk: ModuleChunk,
                      dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-                     outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
+                     outputConsumer: ModuleLevelBuilder.OutputConsumer): ExitCode = {
 
     if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
@@ -54,20 +48,20 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     if (hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
 
-    if (!hasScalaModules(context, chunk)) {
+    if (!InitialScalaBuilder.hasScalaModules(context, chunk)) {
       val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
       return ExitCode.NOTHING_DONE
     }
 
-    val packageObjectsData = PackageObjectsData.getFor(context)
+    val packageObjectsData = local.PackageObjectsData.getFor(context)
     if (JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)) { //rebuild
       packageObjectsData.clear()
     }
     else {
       val additionalFiles = packageObjectsData.invalidatedPackageObjects(sources).filter(_.exists)
       if (additionalFiles.nonEmpty) {
-        (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, CompilationRound.NEXT, f))
+        (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, fs.CompilationRound.NEXT, f))
         return ExitCode.ADDITIONAL_PASS_REQUIRED
       }
     }
@@ -77,11 +71,12 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val modules = chunk.getModules.asScala.toSet
 
-    val successfullyCompiled = mutable.Set[File]()
+    val successfullyCompiled = mutable.Set.empty[File]
 
-    val compilerName = if (modules.exists(CompilerData.isDottyModule)) "dotc" else "scalac"
+    val compilerName = if (data.CompilerData.hasDotty(modules)) "dotc"
+    else "scalac"
 
-    val client = new IdeClientIdea(compilerName, context, modules.map(_.getName).toSeq, outputConsumer,
+    val client = new local.IdeClientIdea(compilerName, context, modules.map(_.getName).toSeq, outputConsumer,
       callback, successfullyCompiled, packageObjectsData)
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
@@ -105,11 +100,16 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
   private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = projectSettings(context)
-    def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
-    def wrongCompileOrder = settings.getCompilerSettings(chunk).getCompileOrder match {
-      case CompileOrder.JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
-      case CompileOrder.ScalaThenJava | CompileOrder.Mixed => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
-      case _ => false
+
+    def wrongIncrType = settings.getIncrementalityType != model.IncrementalityType.IDEA
+
+    def wrongCompileOrder = {
+      import model.CompileOrder._
+      settings.getCompilerSettings(chunk).getCompileOrder match {
+        case JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
+        case ScalaThenJava | Mixed => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
+        case _ => false
+      }
     }
     wrongIncrType || wrongCompileOrder
   }
@@ -118,13 +118,13 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
                              chunk: ModuleChunk,
                              dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
 
-    val result = ListBuffer[File]()
+    val result = mutable.ListBuffer.empty[File]
 
     val project = context.getProjectDescriptor
 
     val compileOrder = projectSettings(context).getCompilerSettings(chunk).getCompileOrder
     val extensionsToCollect = compileOrder match {
-      case CompileOrder.Mixed => List(".scala", ".java")
+      case model.CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")
     }
 
@@ -136,17 +136,13 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       true
     }
 
-    dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
-      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor): Boolean = checkAndCollectFile(file)
-    })
+    dirtyFilesHolder.processDirtyFiles((_: ModuleBuildTarget, file: File, _: JavaSourceRootDescriptor) => checkAndCollectFile(file))
 
     for {
       target <- chunk.getTargets.asScala
       tempRoot <- project.getBuildRootIndex.getTempTargetRoots(target, context).asScala
     } {
-      FileUtil.processFilesRecursively(tempRoot.getRootFile, new Processor[File] {
-        def process(file: File): Boolean = checkAndCollectFile(file)
-      })
+      FileUtil.processFilesRecursively(tempRoot.getRootFile, (file: File) => checkAndCollectFile(file))
     }
 
 

@@ -1,36 +1,33 @@
-package org.jetbrains.jps.incremental.scala
+package org.jetbrains.jps
+package incremental
+package scala
 
-import java.io._
-import java.util
+import _root_.java.io._
+import _root_.java.{util => ju}
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
-import org.jetbrains.jps.incremental.scala.ScalaBuilder.projectSettings
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
-import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.incremental.scala.InitialScalaBuilder._
 import org.jetbrains.jps.model.module.JpsModule
 
-import _root_.scala.collection.JavaConverters._
+import _root_.scala.collection.JavaConverters
 
 
 /**
   * For tasks that should be performed once per compilation
   */
-class InitialScalaBuilder extends ModuleLevelBuilder(buildCategory) {
+class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INSTRUMENTER) { //should be before other scala builders
+
+  import InitialScalaBuilder._
 
   override def getPresentableName = "Collect modules with scala"
 
-  override def buildStarted(context: CompileContext): Unit = {
-    val scalaModules = collectAndStoreScalaModules(context)
-
-    if (scalaModules.nonEmpty) {
+  override def buildStarted(context: CompileContext): Unit = collectAndStoreScalaModules(context) match {
+    case modules if modules.isEmpty =>
+    case _ =>
       checkIncrementalTypeChange(context)
-    }
   }
 
   override def build(context: CompileContext,
@@ -39,12 +36,14 @@ class InitialScalaBuilder extends ModuleLevelBuilder(buildCategory) {
                      outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode =
     ModuleLevelBuilder.ExitCode.NOTHING_DONE
 
-  override def getCompilableFileExtensions: util.List[String] = util.Arrays.asList("scala", "java")
+  override def getCompilableFileExtensions: ju.List[String] = ju.Arrays.asList("scala", "java")
 }
 
 object InitialScalaBuilder {
-  //should be before other scala builders
-  private def buildCategory = BuilderCategory.SOURCE_INSTRUMENTER
+
+  import model.IncrementalityType
+
+  import JavaConverters._
 
   private val scalaModulesKey: Key[Set[JpsModule]] =
     Key.create[Set[JpsModule]]("jps.scala.modules")
@@ -64,11 +63,10 @@ object InitialScalaBuilder {
   }
 
   private def collectAndStoreScalaModules(context: CompileContext): Set[JpsModule] = {
-    val project = context.getProjectDescriptor.getProject
-    var result = Set.empty[JpsModule]
-    project.getModules.forEach { m =>
-      if (SettingsManager.hasScalaSdk(m)) result += m
-    }
+    val result = context.getProjectDescriptor.getProject.getModules.asScala
+      .filter(SettingsManager.getScalaSdk(_).isDefined)
+      .toSet
+
     storeScalaModules(context, result)
     result
   }
@@ -117,7 +115,7 @@ object InitialScalaBuilder {
       }
     }
 
-    val settings = projectSettings(context)
+    val settings = ScalaBuilder.projectSettings(context)
     val previousIncrementalType = getPreviousIncrementalType
     val incrType = settings.getIncrementalityType
     previousIncrementalType match {
