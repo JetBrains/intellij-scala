@@ -37,9 +37,11 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.OrderingUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Sorting
 
 /**
   * User: Alexander Podkhalyuzin
@@ -242,9 +244,9 @@ object ScalaImportTypeFix {
   sealed trait TypeToImport {
     protected type E <: PsiNamedElement
 
-    val element: E
+    def element: E
 
-    final def name: String = element.name
+    def name: String = element.name
 
     def qualifiedName: String
 
@@ -326,7 +328,9 @@ object ScalaImportTypeFix {
     }
   }
 
-  def getTypesToImport(ref: ScReference, myProject: Project): Array[TypeToImport] = {
+  type Sorter = (Seq[TypeToImport], ScReference, Project) => Array[TypeToImport]
+
+  def getTypesToImport(ref: ScReference, myProject: Project, sorter: Sorter = sortImportsByPackageDistanceWithFallbackSorter): Array[TypeToImport] = {
     if (!ref.isValid) return Array.empty
     if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
     val kinds = ref.getKinds(incomplete = false)
@@ -376,13 +380,87 @@ object ScalaImportTypeFix {
       }
     }
 
-    if (ref.getParent.isInstanceOf[ScMethodCall]) {
+    val finalImports = if (ref.getParent.isInstanceOf[ScMethodCall]) {
       buffer.filter {
         case ClassTypeToImport(clazz) =>
           clazz.isInstanceOf[ScObject] &&
             clazz.asInstanceOf[ScObject].allFunctionsByName("apply").nonEmpty
         case _ => false
-      }.sortBy(_.qualifiedName).toArray
-    } else buffer.sortBy(_.qualifiedName).toArray
+      }
+    } else buffer
+
+    sorter(finalImports, ref, myProject)
   }
+
+  def sortImportsByName(imports: Seq[TypeToImport], originalRef: ScReference, project: Project): Array[TypeToImport] = {
+    import OrderingUtil.implicits.PackageNameOrdering
+    imports.toArray.sortBy(_.qualifiedName)
+  }
+
+
+  def sortImportsByPackageDistanceWithFallbackSorter(importCandidates: Seq[TypeToImport],
+                                                     originalRef: ScReference,
+                                                     project: Project): Array[TypeToImport] =
+    sortImportsByPackageDistance(importCandidates, originalRef, project, sortImportsByName)
+
+
+  def sortImportsByPackageDistance(importCandidates: Seq[TypeToImport],
+                                   originalRef: ScReference,
+                                   project: Project,
+                                   fallbackSorter: Sorter): Array[TypeToImport] = {
+    originalRef.containingScalaFile match {
+      case Some(orgFile) =>
+
+        val packaging = orgFile.firstPackaging
+        val packageQualifier = packaging.map(_.fullPackageName)
+        val ctxImports = packaging.getOrElse(orgFile).getImportStatements
+
+        val ctxImportRawQualifiers = packageQualifier.toArray ++ ctxImports.flatMap(_.importExprs.map(_.qualifier.qualName))
+        val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.'))
+
+        // sort, so that those with the longest prefix come first.
+        // if two have the same prefix, sort them alphabetically
+        val weightedCandidate =
+          for (candidate <- importCandidates.toArray) yield {
+            val candidateQualifier = candidate.qualifiedName.split('.').init
+            val (weight, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
+
+            var weightMod = 0
+
+            // We want inner packages before outer packages
+            // base.whereOrgRefWas.inner.Ref
+            // base.Ref
+            if (bestIdx >= 0 && prefixLen == ctxImportQualifiers(bestIdx).length) {
+              weightMod -= 1
+            }
+
+            // if the candidate is nearest to the current package move it forwards
+            if (packageQualifier.isDefined && bestIdx == 0 && prefixLen >= 2) {
+              weightMod -= 6
+            }
+
+            (weight * 2 + weightMod) -> candidate
+          }
+
+        import OrderingUtil.implicits.PackageNameOrdering
+        Sorting.quickSort(weightedCandidate)(Ordering.by { case (w, impt) => (w, impt.qualifiedName) })
+
+        weightedCandidate.map(_._2)
+      case None =>
+        fallbackSorter(importCandidates, originalRef, project)
+    }
+  }
+
+  // calculates the distance between two package qualifiers
+  private def minPackageDistance(qulifier: Seq[String], qualifiers: Seq[Array[String]]): (Int, Int, Int) =
+    if (qualifiers.isEmpty) (0, 0, -1)
+    else (for ((t, idx) <- qualifiers.iterator.zipWithIndex) yield {
+      val prefixLen = seqCommonPrefixSize(qulifier, t)
+      val dist = qulifier.length + t.length - 2 * prefixLen
+
+      (dist, prefixLen, idx)
+    }).minBy(_._1)
+
+  private def seqCommonPrefixSize(fst: Seq[String], snd: Seq[String]): Int =
+    fst.zip(snd).iterator.takeWhile(Function.tupled(_ == _)).length
 }
