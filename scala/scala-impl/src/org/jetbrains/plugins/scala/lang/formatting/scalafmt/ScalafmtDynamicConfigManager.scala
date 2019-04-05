@@ -4,7 +4,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.typesafe.config.{ConfigException, ConfigFactory}
@@ -39,7 +39,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     val scalaSettings = ScalaCodeStyleSettings.getInstance(project)
     val isScalafmtEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     if (isScalafmtEnabled) {
-      val configFile = scalafmtProjectConfigFile(scalaSettings.SCALAFMT_CONFIG_PATH)
+      val configFile = scalafmtProjectConfigFile(project, scalaSettings.SCALAFMT_CONFIG_PATH)
       val version = configFile.flatMap(readVersion(_).toOption.flatten).getOrElse(DefaultVersion)
       ScalafmtDynamicService.instance.resolveAsync(version, project)
     }
@@ -80,7 +80,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    val configFile = scalafmtProjectConfigFile(configPath)
+    val configFile = scalafmtProjectConfigFile(project, configPath)
     val config = configFile match {
       case Some(file) =>
         resolveConfig(file, Some(DefaultVersion), verbosity, resolveFast).toOption
@@ -207,25 +207,6 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     val configOpt = configForFile(file)
     configOpt.exists(isIncludedInProject(file, _))
   }
-
-  def scalafmtProjectConfigFile(configPath: String): Option[VirtualFile] =
-    if (configPath.isEmpty) {
-      defaultConfigurationFile
-    } else {
-      absolutePathFromConfigPath(configPath)
-        .flatMap(path => StandardFileSystems.local.findFileByPath(path).toOption)
-    }
-
-  private def defaultConfigurationFile: Option[VirtualFile] =
-    project.getBaseDir.toOption
-      .flatMap(_.findChild(DefaultConfigurationFileName).toOption)
-
-  def absolutePathFromConfigPath(path: String): Option[String] = {
-    project.getBaseDir.toOption.map { baseDir =>
-      if (path.startsWith(".")) baseDir.getCanonicalPath + "/" + path
-      else path
-    }
-  }
 }
 
 object ScalafmtDynamicConfigManager {
@@ -274,4 +255,37 @@ object ScalafmtDynamicConfigManager {
   private case class CachedConfig(config: ScalafmtDynamicConfig,
                                   vFileModificationTimestamp: Long,
                                   docModificationTimestamp: Long)
+
+  def scalafmtProjectConfigFile(project: Project, configPath: String): Option[VirtualFile] =
+    if (configPath.isEmpty) {
+      defaultConfigurationFile(project)
+    } else {
+      absolutePathFromConfigPath(project, configPath).flatMap { path =>
+        StandardFileSystems.local.findFileByPath(path).toOption
+      }
+    }
+
+  private def defaultConfigurationFile(project: Project): Option[VirtualFile] = {
+    if (project.isDefault) {
+      None
+    } else {
+      ProjectUtil.guessProjectDir(project).toOption
+        .flatMap(_.findChild(DefaultConfigurationFileName).toOption)
+    }
+  }
+
+  def absolutePathFromConfigPath(project: Project, path: String): Option[String] = {
+    val isRelativePath = path.startsWith(".")
+    if (project.isDefault) {
+      if (isRelativePath) None
+      else Some(path)
+    } else {
+      ProjectUtil.guessProjectDir(project).toOption.map { baseDir =>
+        val prefix =
+          if (isRelativePath) baseDir.getCanonicalPath + "/"
+          else ""
+        prefix + path
+      }
+    }
+  }
 }
