@@ -1018,6 +1018,14 @@
               language="Scala" level="WARNING"
               enabledByDefault="true"/>
       <localInspection
+            implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ScalaOverrideModifierMissingInspection"
+            bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+            key="method.signature.override.modifier.missing"
+            groupPath="Scala" groupName="Method signature"
+            shortName="ScalaOverrideModifierMissing"
+            language="Scala" level="WARNING"
+            enabledByDefault="true"/>
+      <localInspection
               implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentResultTypeRefinementInspection"
               bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
               key="method.signature.result.type.refinement"
