@@ -5,7 +5,7 @@ package impl
 
 import java.util
 
-import com.intellij.lang.{ASTNode, PsiBuilderFactory}
+import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilderFactory}
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
@@ -21,7 +21,7 @@ import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
@@ -852,15 +852,24 @@ object ScalaPsiElementFactory {
     val project = ctx.getProject
     val holder = DummyHolderFactory.createHolder(PsiManager.getInstance(project), context).getTreeElement
 
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance
-      .createBuilder(project, holder, new ScalaLexer, ScalaLanguage.INSTANCE, sanitized.string))
+    val language = ScalaLanguage.INSTANCE
+    val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
+    val builder = new ScalaPsiBuilderImpl(
+      PsiBuilderFactory.getInstance.createBuilder(
+        project,
+        holder,
+        parserDefinition.createLexer(project),
+        language,
+        sanitized.string
+      )
+    )
 
     val marker = builder.mark()
     parse(builder)
     while (!builder.eof()) {
       builder.advanceLexer()
     }
-    marker.done(ScalaElementType.FILE)
+    marker.done(parserDefinition.getFileNodeType)
 
     val fileNode = builder.getTreeBuilt
     val node = fileNode.getFirstChildNode

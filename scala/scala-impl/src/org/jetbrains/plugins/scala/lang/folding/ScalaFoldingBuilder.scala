@@ -14,8 +14,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
@@ -24,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
@@ -242,17 +242,19 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       case _ =>
     }
 
-    if (node.getTreeParent.getElementType == ScalaElementType.FILE &&
+    val parent = node.getTreeParent
+    val parentElementType = parent.getElementType
+    if (parentElementType.isInstanceOf[ScStubFileElementType] &&
       node.getTreePrev == null && node.getElementType != ScalaElementType.PACKAGING &&
             ScalaCodeFoldingSettings.getInstance().isCollapseFileHeaders) true
-    else if (node.getTreeParent.getElementType == ScalaElementType.FILE &&
+    else if (parentElementType.isInstanceOf[ScStubFileElementType] &&
       node.getElementType == ScalaElementType.IMPORT_STMT &&
             ScalaCodeFoldingSettings.getInstance().isCollapseImports) true
-    else if (node.getTreeParent != null &&
-      ScalaElementType.PATTERN_DEFINITION == node.getTreeParent.getElementType &&
+    else if (parent != null &&
+      ScalaElementType.PATTERN_DEFINITION == parentElementType &&
             ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
-    else if (node.getTreeParent != null &&
-      ScalaElementType.VARIABLE_DEFINITION == node.getTreeParent.getElementType &&
+    else if (parent != null &&
+      ScalaElementType.VARIABLE_DEFINITION == parentElementType &&
             ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
     else {
       node.getElementType match {
@@ -280,11 +282,11 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case ScalaElementType.SIMPLE_TYPE => true
         case _ if psi.isInstanceOf[ScBlockExpr] &&
-          node.getTreeParent.getElementType == ScalaElementType.ARG_EXPRS &&
+          parentElementType == ScalaElementType.ARG_EXPRS &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
-        case _ if node.getTreeParent.getElementType == ScalaElementType.FUNCTION_DEFINITION &&
+        case _ if parentElementType == ScalaElementType.FUNCTION_DEFINITION &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies &&
-                isMultilineFuncBody(node.getTreeParent.getPsi.asInstanceOf[ScFunctionDefinition])._1 => true
+          isMultilineFuncBody(parent.getPsi.asInstanceOf[ScFunctionDefinition])._1 => true
         case _ if psi.isInstanceOf[ScTypeProjection] &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
         case _ if psi.isInstanceOf[ScTypeElement] &&

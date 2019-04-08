@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -1144,7 +1145,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         NO_SPACING
       //Imports
       case (ScalaElementType.IMPORT_STMT, ScalaElementType.IMPORT_STMT, _, _) => IMPORT_BETWEEN_SPACING
-      case (ScalaElementType.IMPORT_STMT, _, ScalaElementType.FILE, _) => DOUBLE_LINE
+      case (ScalaElementType.IMPORT_STMT, _, _: ScStubFileElementType, _) => DOUBLE_LINE
       case (ScalaElementType.IMPORT_STMT, _, ScalaElementType.PACKAGING, _) => DOUBLE_LINE
       case (ScalaElementType.IMPORT_STMT, _, _, _) => IMPORT_BETWEEN_SPACING
       //Dot

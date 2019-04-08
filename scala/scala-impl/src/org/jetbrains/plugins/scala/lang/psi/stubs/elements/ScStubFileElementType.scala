@@ -10,8 +10,9 @@ import com.intellij.psi.stubs._
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
 
 //noinspection TypeAnnotation
-class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
-  extends tree.IStubFileElementType[ScFileStub]("file", language) {
+class ScStubFileElementType(override val getExternalId: String,
+                            language: Language = ScalaLanguage.INSTANCE)
+  extends tree.IStubFileElementType[ScFileStub]("FILE", language) {
 
   override final def getStubVersion: Int =
     super.getStubVersion + compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
@@ -20,8 +21,6 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
 
   override def getBuilder = new ScFileStubBuilderImpl
-
-  override def getExternalId = "scala.file"
 
   override final def serialize(stub: ScFileStub,
                                dataStream: StubOutputStream): Unit = {}
@@ -41,7 +40,7 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
       super.buildStubTree(file).asInstanceOf[PsiFileStubImpl[_ <: PsiFile]]
 
     protected override final def createStubForFile(file: PsiFile): PsiFileStubImpl[_ <: PsiFile] =
-      file.getViewProvider.getPsi(language) match {
+      file.getViewProvider.getPsi(getLanguage) match {
         case scalaFile: ScalaFile => new ScFileStubImpl(scalaFile)
         case _ => new PsiFileStubImpl(file)
       }

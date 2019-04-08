@@ -67,8 +67,6 @@ object ScalaElementType {
   val SELF_TYPE = new ScSelfTypeElementElementType
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 
-  val FILE = new ScStubFileElementType
-
   val CLASS_DEFINITION: ScTemplateDefinitionElementType[ScClass] = ClassDefinition
   val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
