@@ -331,7 +331,7 @@ object ScalaImportTypeFix {
 
   type Sorter = (Seq[TypeToImport], ScReference, Project) => Array[TypeToImport]
 
-  def getTypesToImport(ref: ScReference, myProject: Project, sorter: Sorter = sortImportsByPackageDistanceWithFallbackSorter): Array[TypeToImport] = {
+  def getTypesToImport(ref: ScReference, myProject: Project, sorter: Sorter = sortImportsByPackageDistance): Array[TypeToImport] = {
     if (!ref.isValid) return Array.empty
     if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
     val kinds = ref.getKinds(incomplete = false)
@@ -398,13 +398,6 @@ object ScalaImportTypeFix {
     imports.toArray.sortBy(_.qualifiedName)
   }
 
-
-  def sortImportsByPackageDistanceWithFallbackSorter(importCandidates: Seq[TypeToImport],
-                                                     originalRef: ScReference,
-                                                     project: Project): Array[TypeToImport] =
-    sortImportsByPackageDistance(importCandidates, originalRef, project, sortImportsByName)
-
-
   /**
    * Sorts a list of possible imports for an unresolved reference.
    *
@@ -427,61 +420,53 @@ object ScalaImportTypeFix {
    * @param importCandidates the possible imports
    * @param originalRef the reference for which the import should be added
    * @param project the current project
-   * @param fallbackSorter a sorter we use if vital information is missing
    * @return the sorted list of possible imports
    */
   def sortImportsByPackageDistance(importCandidates: Seq[TypeToImport],
                                    originalRef: ScReference,
-                                   project: Project,
-                                   fallbackSorter: Sorter): Array[TypeToImport] = {
-    originalRef.containingScalaFile match {
-      case Some(orgFile) =>
+                                   project: Project): Array[TypeToImport] = {
+      val packaging = originalRef.containingScalaFile.flatMap(_.firstPackaging)
+      val packageQualifier = packaging.map(_.fullPackageName)
+      val ctxImports = getRelevantImports(originalRef)
 
-        val packaging = orgFile.firstPackaging
-        val packageQualifier = packaging.map(_.fullPackageName)
-        val ctxImports = getRelevantImports(originalRef)
-
-        val ctxImportRawQualifiers = packageQualifier.toArray ++ ctxImports.flatMap(_.importExprs.map(_.qualifier.qualName))
-        val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.'))
+      val ctxImportRawQualifiers = packageQualifier.toArray ++ ctxImports.flatMap(_.importExprs.map(_.qualifier.qualName))
+      val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.'))
 
 
-        val weightedCandidate =
-          for (candidate <- importCandidates.toArray) yield {
-            val candidateQualifier = candidate.qualifiedName.split('.').init
+      val weightedCandidate =
+        for (candidate <- importCandidates.toArray) yield {
+          val candidateQualifier = candidate.qualifiedName.split('.').init
 
-            val (dist, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
+          val (dist, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
 
-            val weight =
-              if (prefixLen >= 2) {
-                var weightMod = 0
+          val weight =
+            if (prefixLen >= 2) {
+              var weightMod = 0
 
-                // We want inner packages before outer packages
-                // base.whereOrgRefWas.inner.Ref
-                // base.Ref
-                if (bestIdx >= 0 && prefixLen == ctxImportQualifiers(bestIdx).length) {
-                  weightMod -= 1
-                }
-
-                // if the candidate is nearest to the current package move it further up the import list
-                if (packageQualifier.isDefined && bestIdx == 0 && prefixLen >= 2) {
-                  weightMod -= 6
-                }
-
-                dist * 2 + weightMod
-              } else {
-                Int.MaxValue
+              // We want inner packages before outer packages
+              // base.whereOrgRefWas.inner.Ref
+              // base.Ref
+              if (bestIdx >= 0 && prefixLen == ctxImportQualifiers(bestIdx).length) {
+                weightMod -= 1
               }
 
-            weight -> candidate
-          }
+              // if the candidate is nearest to the current package move it further up the import list
+              if (packageQualifier.isDefined && bestIdx == 0 && prefixLen >= 2) {
+                weightMod -= 6
+              }
 
-        import OrderingUtil.implicits.PackageNameOrdering
-        Sorting.quickSort(weightedCandidate)(Ordering.by { case (w, impt) => (w, impt.qualifiedName) })
+              dist * 2 + weightMod
+            } else {
+              Int.MaxValue
+            }
 
-        weightedCandidate.map(_._2)
-      case None =>
-        fallbackSorter(importCandidates, originalRef, project)
-    }
+          weight -> candidate
+        }
+
+    import OrderingUtil.implicits.PackageNameOrdering
+    Sorting.quickSort(weightedCandidate)(Ordering.by { case (w, impt) => (w, impt.qualifiedName) })
+
+    weightedCandidate.map(_._2)
   }
 
   // calculates the distance between two package qualifiers

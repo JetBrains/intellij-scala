@@ -36,7 +36,7 @@ class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with
   }
 
   val alphabeticalSort: Sorter = ScalaImportTypeFix.sortImportsByName
-  val packageDistSort: Sorter = ScalaImportTypeFix.sortImportsByPackageDistanceWithFallbackSorter
+  val packageDistSort: Sorter = ScalaImportTypeFix.sortImportsByPackageDistance
 
   def test_alphabetical_sorting(): Unit = check(
     """
