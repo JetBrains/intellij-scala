@@ -59,24 +59,31 @@ class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with
       |import abc.test.last.SomethingElse
       |
       |object Obj {
+      |  import zzz.zzz.SomethingElse2
+      |
       |  new Ref
       |}
     """.stripMargin,
     path("Obj", "Ref"),
     packageDistSort,
     Seq(
-      "com.my.here.Ref",
-      "com.my.here.inner.Ref",
-      "com.my.Ref",
-      "abc.test.last.Ref",
-      "abc.test.last.innerA.Ref",
-      "abc.test.last.innerB.Ref",
-      "abc.test.Ref",
-      "abc.test.innerA.Ref",
-      "abc.test.innerB.Ref",
-      "abc.testa.Ref",
-      "abc.testb.Ref",
-      "abc.testc.Ref"
+      "com.my.here.Ref",          // dist 0 to com.my.here and is inner+curpack
+      "com.my.here.inner.Ref",    // dist 1 to com.my.here and is inner+curpack
+      "com.my.Ref",               // dist 1 to com.my.here and is curpack
+      "abc.test.last.Ref",        // dist 0 to abc.test.last
+      "zzz.zzz.Ref",              // dist 0 to zzz.zzz
+      "abc.test.last.innerA.Ref", // dist 1 to abc.test.last and is inner
+      "abc.test.last.innerB.Ref", // dist 1 to abc.test.last and is inner
+      "zzz.zzz.a.Ref",            // dist 1 to zzz.zzz and is inner
+      "abc.test.Ref",             // dist 1 to abc.test.last
+      "zzz.zzz.a.b.Ref",          // dist 2 to zzz.zzz and is inner
+      "abc.test.innerA.Ref",      // dist 2 to abc.test.last
+      "abc.test.innerB.Ref",      // dist 2 to abc.test.last
+      "zzz.zzz.a.b.c.Ref",        // dist 3 to zzz.zzz
+      "abc.testa.Ref",            // unrelated
+      "abc.testb.Ref",            // unrelated
+      "abc.testc.Ref",            // unrelated
+      "abc.unrelated.Ref"         // unrelated
     )
   )
 }

@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
@@ -404,6 +405,31 @@ object ScalaImportTypeFix {
     sortImportsByPackageDistance(importCandidates, originalRef, project, sortImportsByName)
 
 
+  /**
+   * Sorts a list of possible imports for an unresolved reference.
+   *
+   * 1. To sort packages, we first get all package qualifier that appear
+   *    in import statements that are relevant for `originalRef`.
+   *    Additionally we use the qualifier of the current package.
+   *    (lets call them context packages)
+   *
+   * 2. For each import candidate we calculate the minimal distance to all context packages.
+   *    For example qulifier `com.libA.blub` has distance of 2 to qualifier `com.libA.blabla`.
+   *    Note that two packages qualifier are not related if they do not share at least the first two package names.
+   *
+   * 3. We sort the candidates according to that distance.
+   *    If two candidates have the same distance we sort them according to their names.
+   *    Further, we prefer inner packages to outer packages
+   *    (i.e com.a.org.inner.Target should be higher up the list than com.a.Target
+   *     iff com.a.org.SomethingElse appears in one of the context imports)
+   *    Also we give a little preference to candidates that are near the curren package.
+   *
+   * @param importCandidates the possible imports
+   * @param originalRef the reference for which the import should be added
+   * @param project the current project
+   * @param fallbackSorter a sorter we use if vital information is missing
+   * @return the sorted list of possible imports
+   */
   def sortImportsByPackageDistance(importCandidates: Seq[TypeToImport],
                                    originalRef: ScReference,
                                    project: Project,
@@ -413,33 +439,40 @@ object ScalaImportTypeFix {
 
         val packaging = orgFile.firstPackaging
         val packageQualifier = packaging.map(_.fullPackageName)
-        val ctxImports = packaging.getOrElse(orgFile).getImportStatements
+        val ctxImports = getRelevantImports(originalRef)
 
         val ctxImportRawQualifiers = packageQualifier.toArray ++ ctxImports.flatMap(_.importExprs.map(_.qualifier.qualName))
         val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.'))
 
-        // sort, so that those with the longest prefix come first.
-        // if two have the same prefix, sort them alphabetically
+
         val weightedCandidate =
           for (candidate <- importCandidates.toArray) yield {
             val candidateQualifier = candidate.qualifiedName.split('.').init
-            val (weight, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
 
-            var weightMod = 0
+            val (dist, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
 
-            // We want inner packages before outer packages
-            // base.whereOrgRefWas.inner.Ref
-            // base.Ref
-            if (bestIdx >= 0 && prefixLen == ctxImportQualifiers(bestIdx).length) {
-              weightMod -= 1
-            }
+            val weight =
+              if (prefixLen >= 2) {
+                var weightMod = 0
 
-            // if the candidate is nearest to the current package move it forwards
-            if (packageQualifier.isDefined && bestIdx == 0 && prefixLen >= 2) {
-              weightMod -= 6
-            }
+                // We want inner packages before outer packages
+                // base.whereOrgRefWas.inner.Ref
+                // base.Ref
+                if (bestIdx >= 0 && prefixLen == ctxImportQualifiers(bestIdx).length) {
+                  weightMod -= 1
+                }
 
-            (weight * 2 + weightMod) -> candidate
+                // if the candidate is nearest to the current package move it further up the import list
+                if (packageQualifier.isDefined && bestIdx == 0 && prefixLen >= 2) {
+                  weightMod -= 6
+                }
+
+                dist * 2 + weightMod
+              } else {
+                Int.MaxValue
+              }
+
+            weight -> candidate
           }
 
         import OrderingUtil.implicits.PackageNameOrdering
@@ -452,15 +485,29 @@ object ScalaImportTypeFix {
   }
 
   // calculates the distance between two package qualifiers
+  // two qualifiers that don't share the first two package names are not related at all!
   private def minPackageDistance(qulifier: Seq[String], qualifiers: Seq[Array[String]]): (Int, Int, Int) =
-    if (qualifiers.isEmpty) (0, 0, -1)
+    if (qualifiers.isEmpty) (Int.MaxValue, 0, -1)
     else (for ((t, idx) <- qualifiers.iterator.zipWithIndex) yield {
       val prefixLen = seqCommonPrefixSize(qulifier, t)
-      val dist = qulifier.length + t.length - 2 * prefixLen
+      val dist =
+        if (prefixLen >= 2) qulifier.length + t.length - 2 * prefixLen
+        else Int.MaxValue
 
       (dist, prefixLen, idx)
     }).minBy(_._1)
 
   private def seqCommonPrefixSize(fst: Seq[String], snd: Seq[String]): Int =
     fst.zip(snd).iterator.takeWhile(Function.tupled(_ == _)).length
+
+  @tailrec
+  private def getRelevantImports(e: PsiElement, foundImports: Seq[ScImportStmt] = Seq.empty): Seq[ScImportStmt] = {
+    val found = e match {
+      case null => return foundImports
+      case holder: ScImportsHolder => foundImports ++ holder.getImportStatements
+      case _ => foundImports
+    }
+
+    getRelevantImports(e.getParent, found)
+  }
 }
