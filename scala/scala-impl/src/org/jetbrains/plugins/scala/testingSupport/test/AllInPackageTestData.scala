@@ -18,7 +18,7 @@ import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
-class AllInPackageTestData(override val config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
+class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
   @BeanProperty var classBuf: java.util.List[String] = new util.ArrayList[String]()
 

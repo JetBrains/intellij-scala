@@ -53,6 +53,7 @@ class Specs2ConfigurationProducer extends {
     val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return None
     val testClassPath = testClass.qualifiedName
+    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
     runConfiguration.testConfigurationData.initWorkingDir()
 
     // If the selected element is a non-empty string literal, we assume that this
@@ -64,7 +65,6 @@ class Specs2ConfigurationProducer extends {
       runConfiguration.setGeneratedName(testNamePrefixed)
       runConfiguration.setName(testNamePrefixed)
     }
-    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
 
     try {
       val module = ScalaPsiUtil.getModule(element)

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.
 
 import scala.beans.BeanProperty
 
-class SingleTestData(override val config: AbstractTestRunConfiguration) extends ClassTestData(config) {
+class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData(config) {
 
   @BeanProperty var testName = ""
 

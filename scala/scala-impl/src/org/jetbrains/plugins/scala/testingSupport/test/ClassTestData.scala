@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 
-class ClassTestData(override val config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
+class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
   protected[test] def getClassPathClazz: PsiClass = config.getClazz(getTestClassPath, withDependencies = false)
 

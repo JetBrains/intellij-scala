@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.
 
 import scala.beans.BeanProperty
 
-abstract class TestConfigurationData(val config: AbstractTestRunConfiguration) {
+abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   protected def getModule: Module = config.getModule
   protected def getProject: Project = config.getProject
   protected def checkModule(): Unit = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")

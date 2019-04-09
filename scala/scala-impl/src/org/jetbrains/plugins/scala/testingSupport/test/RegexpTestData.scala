@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 
-class RegexpTestData(override val config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
+class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
   private var classRegexps: Array[String] = Array.empty
   private var testRegexps: Array[String] = Array.empty
   def getClassRegexps: Array[String] = classRegexps
