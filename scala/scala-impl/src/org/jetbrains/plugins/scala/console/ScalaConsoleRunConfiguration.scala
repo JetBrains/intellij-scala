@@ -46,14 +46,4 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
   }
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
-
-  override def writeExternal(element: Element) {
-    super.writeExternal(element)
-    JDOMExternalizer.write(element, "consoleArgs", consoleArgs)
-  }
-
-  override def readExternal(element: Element) {
-    super.readExternal(element)
-    consoleArgs = JDOMExternalizer.readString(element, "consoleArgs")
-  }
 }

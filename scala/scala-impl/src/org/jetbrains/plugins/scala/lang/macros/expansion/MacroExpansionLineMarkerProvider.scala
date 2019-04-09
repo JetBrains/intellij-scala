@@ -58,7 +58,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
     if (module.isEmpty)
       Logger.getInstance(getClass).error(s"No bound module for annotation ${annot.getText}")
 
-    createMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
+    createMarker(element, AllIcons.General.ContextHelp, ScalaBundle.message("scala.meta.recompile")) { elt =>
       CompilerManager.getInstance(elt.getProject).make(module.get,
         new CompileStatusNotification {
           override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {

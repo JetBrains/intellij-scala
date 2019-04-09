@@ -3,7 +3,7 @@ package testingSupport.test
 
 import javax.swing.ListCellRenderer
 import com.intellij.execution.Location
-import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, LazyRunConfigurationProducer, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.execution.junit.InheritorChooser
 import com.intellij.ide.util.PsiClassListCellRenderer
@@ -59,11 +59,6 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
           runPossibleFor(configWithModule, testElement) && {
             sourceElement.set(testElement)
             configuration.setGeneratedName(cfg.suggestedName)
-//            configuration.setJavaOptions(cfg.getJavaOptions)
-//            configuration.setTestArgs(cfg.getTestArgs)
-//            configuration.setWorkingDirectory(cfg.getWorkingDirectory)
-//            configuration.setSearchTest(cfg.getSearchTest)
-//            configuration.setShowProgressMessages(cfg.getShowProgressMessages)
             configuration.setFileOutputPath(cfg.getOutputFilePath)
             configuration.setModule(cfg.getModule)
             configuration.setName(cfg.getName)
@@ -71,8 +66,6 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
             configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
             configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
             configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
-//            configuration.setUseSbt(cfg.getUseSbt)
-//            configuration.setUseUiWithSbt(cfg.getUseUiWithSbt)
             configuration.testConfigurationData = cfg.testConfigurationData
             true
           }

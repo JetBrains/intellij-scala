@@ -7,45 +7,39 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project._
 
+import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
 /**
   */
 abstract class BaseRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
-  def mainClass:String
-  val defaultJavaOptions = "-Djline.terminal=NONE"
-  val useJavaCp = "-usejavacp"
+  private val defaultJavaOptions = "-Djline.terminal=NONE"
+  private val useJavaCp = "-usejavacp"
+  protected def mainClass:String
   def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) useJavaCp else s
-  private var myConsoleArgs = ""
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
-  var javaOptions: String = defaultJavaOptions
-  var workingDirectory: String = Option(getProject.baseDir) map (_.getPath) getOrElse ""
   def getModule: Module = getConfigurationModule.getModule
   def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
+  @BeanProperty var myConsoleArgs: String     = ""
+  @BeanProperty var workingDirectory: String  = Option(getProject.baseDir) map (_.getPath) getOrElse ""
+  @BeanProperty var javaOptions: String       = defaultJavaOptions
+
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    JDOMExternalizer.write(element, "vmparams4", javaOptions)
-    JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
+    XmlSerializer.serializeInto(this, element)
   }
 
   override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
-    javaOptions = JDOMExternalizer.readString(element, "vmparams4")
-    if (javaOptions == null) {
-      javaOptions = JDOMExternalizer.readString(element, "vmparams")
-      if (javaOptions != null) javaOptions += s" $defaultJavaOptions"
-    }
-    val str = JDOMExternalizer.readString(element, "workingDirectory")
-    if (str != null)
-      workingDirectory = str
+    XmlSerializer.deserializeInto(this, element)
   }
 
   def createParams: JavaParameters = {
