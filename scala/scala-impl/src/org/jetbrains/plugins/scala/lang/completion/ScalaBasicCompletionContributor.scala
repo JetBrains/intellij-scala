@@ -320,11 +320,11 @@ object ScalaBasicCompletionContributor {
          |  val xxx: $canonicalText = null
          |  xxx.xxx
          |}""".stripMargin
-    ScalaPsiElementFactory.createOptionExpressionWithContextFromText(text, context, child).flatMap {
-      case block: ScBlock => block.exprs.lastOption
+    ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, child) match {
+      case block: ScBlock => block.exprs.lastOption.collect {
+        case expression: ScReferenceExpression => expression
+      }
       case _ => None
-    }.collect {
-      case expression: ScReferenceExpression => expression
     }
   }
 

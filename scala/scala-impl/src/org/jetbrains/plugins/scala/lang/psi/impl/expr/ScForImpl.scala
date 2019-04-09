@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -110,41 +110,26 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
   protected def bodyToText(expr: ScalaPsiElement): String = expr.getText
 
-  private def generateDesugaredExprWithMappings(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] = {
-    generateDesugaredExprTextWithMappings(forDisplay) flatMap {
-      case (desugaredText, patternToPosition, enumToPosition) =>
-        ScalaPsiElementFactory.createOptionExpressionWithContextFromText(desugaredText, this.getContext, this) map {
-          expr =>
-            lazy val patternMapping = {
-              for {
-                (originalPattern, idx) <- patternToPosition
-                elem <- Option(expr.findElementAt(idx))
-                mc <- findPatternElement(elem, originalPattern)
-              } yield originalPattern -> mc
-            }.toMap
+  private def generateDesugaredExprWithMappings(forDisplay: Boolean) =
+    generateDesugaredExprTextWithMappings(forDisplay).map {
+      case (expression, patternToPosition, enumToPosition) =>
+        val patternMapping = for {
+          (original, element) <- patternToPosition
+          pattern <- findPatternElement(element, original)
+        } yield original -> pattern
 
-            lazy val enumMapping = {
-              for {
-                (enum, idx) <- enumToPosition
-                elem <- Option(expr.findElementAt(idx))
-                mc <- elem.parentOfType(classOf[ScMethodCall])
-              } yield enum -> new ScEnumeratorImpl.DesugaredEnumeratorImpl(mc, enum)
-            }.toMap
+        val enumMapping = for {
+          (original, element) <- enumToPosition
+          methodCall <- element.parentOfType(classOf[ScMethodCall])
+        } yield original -> new ScEnumeratorImpl.DesugaredEnumeratorImpl(methodCall, original)
 
-            if (forDisplay) (expr, Map.empty, Map.empty)
-            else (expr, patternMapping, enumMapping)
-        }
+        (expression, patternMapping.toMap, enumMapping.toMap)
     }
-  }
 
-  private def generateDesugaredExprTextWithMappings(forDisplay: Boolean): Option[(String, TraversableOnce[(ScPattern, Int)], TraversableOnce[(ScEnumerator, Int)])] = {
-    val forceSingleLine = !forDisplay || !this.getText.contains("\n")
+  private def generateDesugaredExprTextWithMappings(forDisplay: Boolean) = {
+    val forceSingleLine = !(forDisplay && this.getText.contains("\n"))
 
-    var _nextNameIdx = 0
-    def newNameIdx(): String = {
-      _nextNameIdx += 1
-      if (forDisplay) _nextNameIdx.toString else "forIntellij" + _nextNameIdx
-    }
+    var nextNameIdx = 0
     val `=>` = ScalaPsiUtil.functionArrow(getProject)
 
     val underscores = ScUnderScoreSectionUtil.underscores(this).zipWithIndex.toMap
@@ -192,7 +177,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     def needsPatternMatchFilter(pattern: ScPattern): Boolean =
       !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
 
-    val resultText: StringBuilder = new StringBuilder
+    val resultText = mutable.StringBuilder.newBuilder
     val patternMappings = mutable.Map.empty[ScPattern, Int]
     val enumMappings = mutable.Map.empty[ScEnumerator, Int]
 
@@ -283,27 +268,26 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       }
 
       case class ForBinding(forBinding: ScForBinding) {
-        def expr: Option[ScExpression] = forBinding.expr
-
-        def pattern: Option[ScPattern] = Option(forBinding.pattern)
-
-        def isWildCard: Boolean = pattern.exists(_.isInstanceOf[ScWildcardPattern])
-
-        val ownName: Option[String] = pattern collect {
-          case p: ScNamingPattern => p.name
-          case p: ScReferencePattern => p.name
-          case p: ScTypedPattern => p.name
-        }
-
-        val name: String = ownName.getOrElse("v$" + newNameIdx())
-
-        def patternText: String =
-          pattern map { pattern => pattern.getText } getOrElse name
 
         def exprText: String =
-          expr map {
-            toTextWithNormalizedUnderscores
-          } getOrElse "???"
+          forBinding.expr
+            .fold("???")(toTextWithNormalizedUnderscores)
+
+        val pattern: Option[ScPattern] = Option(forBinding.pattern)
+
+        private val bindingPattern: Option[ScBindingPattern] = pattern.collect {
+          case pattern: ScBindingPattern => pattern
+        }
+
+        val isBinding: Boolean = bindingPattern.isDefined
+        val isWildCard: Boolean = pattern.exists(_.isInstanceOf[ScWildcardPattern])
+
+        val name: String = bindingPattern.fold({
+          nextNameIdx += 1
+          s"v$$${if (forDisplay) "" else "forIntellij"}$nextNameIdx"
+        })(_.name)
+
+        def patternText: String = pattern.fold(name)(_.getText)
       }
 
       def printForBindings(forBindings: Seq[ForBinding], newLines: Boolean): Unit = {
@@ -316,7 +300,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
             val patternText = binding.patternText
 
             resultText ++= "val "
-            if (binding.ownName.isDefined || (forDisplay && binding.isWildCard)) {
+            if (binding.isBinding || (forDisplay && binding.isWildCard)) {
               markMappingHere(pattern, patternMappings)
               resultText ++= patternText
             } else {
@@ -439,34 +423,40 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       }
     }
 
-    val firstGen = enumerators.flatMap(_.generators.headOption) getOrElse {
-      return None
+    enumerators.flatMap(_.generators.headOption).map { firstGen =>
+      val restEnums = firstGen.withNextSiblings
+        .collect {
+          case e: ScEnumerator => e
+        }.toList
+        .tail
+
+      appendGen(firstGen, restEnums)
+
+      val lambdaPrefix = underscores.valuesIterator match {
+        case iterator if iterator.isEmpty => ""
+        case iterator =>
+          (iterator.map(underscoreName).toSeq match {
+            case Seq(arg) => arg
+            case args => args.commaSeparated(model = Model.Parentheses)
+          }) + " " + `=>` + " "
+      }
+
+      val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
+        resultText.insert(0, lambdaPrefix).toString,
+        getContext,
+        this
+      )
+      val shiftOffset = lambdaPrefix.length
+
+      def withElements[T](mappings: mutable.Map[T, Int]) = for {
+        (original, offset) <- if (forDisplay) Iterator.empty else mappings.iterator
+
+        element = expression.findElementAt(offset + shiftOffset)
+        if element != null
+      } yield original -> element
+
+      (expression, withElements(patternMappings), withElements(enumMappings))
     }
-
-    val enums = firstGen.withNextSiblings.collect { case e: ScEnumerator => e }.toList
-
-    appendGen(firstGen, enums.tail)
-
-    val desugaredExprText = resultText.toString
-    Some(if (underscores.nonEmpty) {
-      val lambdaPrefix = underscores.values.map(underscoreName) match {
-        case Seq(arg) => arg + " " + `=>` + " "
-        case args => args.mkString("(", ", ", ") ") + `=>` + " "
-      }
-
-      def adjustPosition[T](pair: (T, Int)): (T, Int) = {
-        val (o, idx) = pair
-        (o, idx + lambdaPrefix.length)
-      }
-
-      (lambdaPrefix + desugaredExprText,
-        patternMappings.iterator.map(adjustPosition),
-        enumMappings.iterator.map(adjustPosition))
-    } else {
-      (desugaredExprText,
-        patternMappings.iterator,
-        enumMappings.iterator)
-    })
   }
 
   private def hasMethod(ty: ScType, methodName: String): Boolean = {

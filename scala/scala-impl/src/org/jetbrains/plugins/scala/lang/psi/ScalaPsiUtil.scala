@@ -1171,17 +1171,16 @@ object ScalaPsiUtil {
     val clauses = views.zipWithIndex.map {
       case (text, index) => s"ev$$${index + 1}: $text"
     } ++ bounds
+    if (clauses.isEmpty) return None
 
     val result = createImplicitClauseFromTextWithContext(clauses, paramClauses, isClassParameter)
-    result.toSeq
-      .flatMap(_.parameters)
-      .flatMap(_.typeElement)
+    result.parameters.flatMap(_.typeElement)
       .zip(typeParameters.flatMap(_.viewTypeElement) ++ typeParameters.flatMap(_.contextBoundTypeElement))
       .foreach {
         case (typeElement, context) => context.analog = typeElement
       }
 
-    result
+    Some(result)
   }
 
   //todo: fix it

@@ -6,9 +6,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.typeChecking.IsInstanceOfCall
-import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.codeInspection.typeChecking._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIf, ScMatch}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
@@ -17,13 +16,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
  * Nikolay.Tropin
  * 5/16/13
  */
+final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
 
-object ReplaceTypeCheckWithMatchIntention {
-  def familyName = "Replace type check with pattern matching"
-}
+  import TypeCheckCanBeMatchInspection._
 
-class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ReplaceTypeCheckWithMatchIntention.familyName
+  override def getFamilyName: String = ReplaceTypeCheckWithMatchIntention.FamilyName
 
   override def getText: String = getFamilyName
 
@@ -32,7 +29,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])
       condition <- ifStmt.condition
-      if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
+      if findIsInstanceOfCalls(condition).contains(iioCall)
     } {
       val offset = editor.getCaretModel.getOffset
       if (offset >= iioCall.getTextRange.getStartOffset && offset <= iioCall.getTextRange.getEndOffset)
@@ -46,7 +43,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])
       condition <- ifStmt.condition
-      if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
+      if findIsInstanceOfCalls(condition).contains(iioCall)
     } {
       val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, iioCall, onlyFirst = false)(project)
       for (matchStmt <- matchStmtOption) {
@@ -61,4 +58,8 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
       }
     }
   }
+}
+
+object ReplaceTypeCheckWithMatchIntention {
+  val FamilyName = "Replace type check with pattern matching"
 }
