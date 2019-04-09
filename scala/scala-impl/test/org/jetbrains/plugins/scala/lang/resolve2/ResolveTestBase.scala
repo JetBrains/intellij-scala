@@ -180,7 +180,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   }
 
   def format(text: String, message: String, line: Int) = {
-    val lines = text.lines.zipWithIndex.map(p => if (p._2 + 1 == line) p._1 + " // " + message else p._1)
+    val lines = text.linesIterator.zipWithIndex.map(p => if (p._2 + 1 == line) p._1 + " // " + message else p._1)
     "\n\n" + lines.mkString("\n") + "\n"
   }
 }

@@ -397,7 +397,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   protected def addFileWithBreakpoints(path: String, fileText: String): Unit = {
     val breakpointLines =
       for {
-        (line, idx) <- fileText.lines.zipWithIndex
+        (line, idx) <- fileText.linesIterator.zipWithIndex
         if line.contains(bp)
       } yield idx
     val cleanedText = fileText.replace(bp, "")

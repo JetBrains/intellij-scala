@@ -65,7 +65,7 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
 
   private def bodyIsOneLineExpression(clause: ScCaseClause): Boolean = {
     clause.expr.exists {
-      case block: ScBlock => block.statements.size == 1 && block.getText.lines.size == 1
+      case block: ScBlock => block.statements.size == 1 && block.getText.linesIterator.size == 1
       case _ => false
     }
   }

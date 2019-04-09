@@ -69,7 +69,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   private def toSimpleLocation(location: Location) = Loc(location.declaringType().name(), location.method().name(), location.lineNumber())
 
   protected def setupFile(fileName: String, fileText: String, hasOffsets: Boolean = true): Unit = {
-    val breakpointLine = fileText.lines.indexWhere(_.contains(bp))
+    val breakpointLine = fileText.linesIterator.indexWhere(_.contains(bp))
     var cleanedText = fileText.replace(bp, "").replace("\r", "")
     val offsets = ArrayBuffer[Int]()
     var offset = cleanedText.indexOf(offsetMarker)
