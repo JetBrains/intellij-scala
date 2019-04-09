@@ -5,8 +5,9 @@ package impl
 
 import java.util
 
-import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilderFactory}
+import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
 import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
@@ -15,7 +16,7 @@ import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{IElementType, IFileElementType}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
@@ -55,6 +56,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNames
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
 class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMElementFactory {
@@ -817,19 +819,20 @@ object ScalaPsiElementFactory {
   def createElement(text: String)
                    (parse: ScalaPsiBuilder => AnyVal)
                    (implicit ctx: ProjectContext): PsiElement =
-    createElement(text.sanitize, createScalaFileFromText(""))(parse)
+    createElement(
+      text,
+      createScalaFileFromText("")
+    )(parse)(ctx.project)
 
   def createElementWithContext[E <: ScalaPsiElement](text: String,
                                                      context: PsiElement,
                                                      child: PsiElement,
                                                      parse: ScalaPsiBuilder => AnyVal)
-                                                    (implicit tag: ClassTag[E]): Option[E] = {
-    val sanitized = text.sanitize
-    createElement(sanitized, context)(parse)(context.getProject) match {
-      case element: E if element.getTextLength == sanitized.string.length => Some(withContext(element, context, child))
+                                                    (implicit tag: ClassTag[E]): Option[E] =
+    createElement(text, context, checkLength = true)(parse)(context.getProject) match {
+      case element: E => Some(withContext(element, context, child))
       case _ => None
     }
-  }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList = {
     val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementType.MODIFIERS)
@@ -841,41 +844,56 @@ object ScalaPsiElementFactory {
     element
   }
 
-  //platform-independent version of string, which could be created as multiline string literal
-  private implicit class SanitizedString(val string: String) extends AnyVal {
-    def sanitize: SanitizedString = new SanitizedString(convertLineSeparators(string).trim)
-  }
-
-  private def createElement[T <: AnyVal](sanitized: SanitizedString, context: PsiElement)
+  private def createElement[T <: AnyVal](text: String, context: PsiElement,
+                                         checkLength: Boolean = false)
                                         (parse: ScalaPsiBuilder => T)
-                                        (implicit ctx: ProjectContext): PsiElement = {
-    val project = ctx.getProject
-    val holder = DummyHolderFactory.createHolder(PsiManager.getInstance(project), context).getTreeElement
+                                        (implicit project: Project): PsiElement = {
+    val chameleon = DummyHolderFactory.createHolder(
+      PsiManager.getInstance(project),
+      context
+    ).getTreeElement
 
     val language = ScalaLanguage.INSTANCE
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
-    val builder = new ScalaPsiBuilderImpl(
-      PsiBuilderFactory.getInstance.createBuilder(
-        project,
-        holder,
-        parserDefinition.createLexer(project),
-        language,
-        sanitized.string
-      )
+
+    val seq = convertLineSeparators(text).trim
+    val delegate = PsiBuilderFactory.getInstance.createBuilder(
+      project,
+      chameleon,
+      parserDefinition.createLexer(project),
+      language,
+      seq
     )
 
-    val marker = builder.mark()
-    parse(builder)
-    while (!builder.eof()) {
-      builder.advanceLexer()
+    val builder = new ScalaPsiBuilderImpl(delegate)
+    builder.mark() match {
+      case marker =>
+        parse(builder)
+        advanceLexer(builder)(marker, parserDefinition.getFileNodeType)
     }
-    marker.done(parserDefinition.getFileNodeType)
 
-    val fileNode = builder.getTreeBuilt
-    val node = fileNode.getFirstChildNode
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    node.getPsi
+    val first = builder.getTreeBuilt
+      .getFirstChildNode
+      .asInstanceOf[TreeElement]
+    chameleon.rawAddChildren(first)
+
+    first.getPsi match {
+      case result if checkLength && result.getTextLength != seq.length =>
+        throw new IllegalArgumentException(s"Text length differs; actual: ${result.getText}, expected: $seq")
+      case result => result
+    }
   }
+
+  @tailrec
+  private[this] def advanceLexer(builder: ScalaPsiBuilder)
+                                (marker: PsiBuilder.Marker,
+                                 fileNodeType: IFileElementType): Unit =
+    if (builder.eof()) {
+      marker.done(fileNodeType)
+    } else {
+      builder.advanceLexer()
+      advanceLexer(builder)(marker, fileNodeType)
+    }
 
   def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt =
     createElementWithContext[ScImportStmt](text, context, child, Import.parse).orNull
