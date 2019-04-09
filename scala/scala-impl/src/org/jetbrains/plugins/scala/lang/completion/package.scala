@@ -71,26 +71,31 @@ package object completion {
       Some(context.getEditor, context.getDocument, context.getFile, context.getProject)
   }
 
-  def positionFromParameters(implicit parameters: CompletionParameters): PsiElement =
-    findMirrorPosition(parameters.getOriginalPosition)(parameters.getOriginalFile, parameters.getOffset)
-      .getOrElse(parameters.getPosition)
+  def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
+    val element = parameters.getPosition
+    val file = parameters.getOriginalFile
+    val offset = parameters.getOffset
+
+    findModificationTrackerOwner(parameters.getOriginalPosition)
+      .filter { ancestor =>
+        file == ancestor.getContainingFile &&
+          PsiTreeUtil.isAncestor(ancestor, element, false)
+      }.fold(element) {
+      _.mirrorPosition(
+        dummyIdentifier(file, offset),
+        offset
+      )
+    }
+  }
 
   @tailrec
-  private[this] def findMirrorPosition(element: PsiElement)
-                                      (implicit originalFile: PsiFile,
-                                       offset: Int): Option[PsiElement] =
-    element match {
+  private[this] def findModificationTrackerOwner(element: PsiElement): Option[ScExpression] = element match {
       case null => None // we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScExpression if owner.shouldntChangeModificationCount =>
-        owner.getContainingFile match {
-          case `originalFile` => owner.mirrorPosition(dummyIdentifier(offset), offset)
-          case _ => None
-        }
-      case _ => findMirrorPosition(element.getContext)
+      case owner: ScExpression if owner.shouldntChangeModificationCount => Some(owner)
+      case _ => findModificationTrackerOwner(element.getContext)
     }
 
-  private[completion] def dummyIdentifier(offset: Int)
-                                         (implicit file: PsiFile): String = {
+  private[completion] def dummyIdentifier(file: PsiFile, offset: Int): String = {
     import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}
     import ScalaNamesUtil.isBacktickedName.BackTick
     import ScalaNamesValidator._

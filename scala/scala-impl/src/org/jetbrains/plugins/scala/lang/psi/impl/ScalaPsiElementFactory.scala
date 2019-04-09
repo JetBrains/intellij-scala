@@ -807,12 +807,12 @@ object ScalaPsiElementFactory {
     result = withContext(firstArgument, context, child)
   } yield result
 
-  def createMirrorElement(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = child match {
+  def createMirrorElement(text: String, context: PsiElement, child: PsiElement): ScExpression = (child match {
     case _: ScConstrBlock | _: ScConstrExpr =>
       createElementWithContext[ScExpression](text, context, child, ConstrExpr.parse)
     case _ =>
       createOptionExpressionWithContextFromText(text, context, child)
-  }
+  }).orNull
 
   def createElement(text: String)
                    (parse: ScalaPsiBuilder => AnyVal)

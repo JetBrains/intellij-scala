@@ -205,7 +205,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     })
 
   override def beforeCompletion(context: CompletionInitializationContext): Unit = {
-    context.setDummyIdentifier(dummyIdentifier(context.getStartOffset - 1)(context.getFile))
+    context.setDummyIdentifier(dummyIdentifier(context.getFile, context.getStartOffset - 1))
     super.beforeCompletion(context)
   }
 }
