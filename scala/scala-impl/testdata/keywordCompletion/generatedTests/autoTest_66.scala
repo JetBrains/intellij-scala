@@ -2,7 +2,7 @@
  import a._ 
  class f 
  class g( ) extends k { 
-   def /*caret*/foo( ) = return true
+   def <caret>foo( ) = return true
  } 
 /*
 */

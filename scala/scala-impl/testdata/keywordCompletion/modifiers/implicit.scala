@@ -1,5 +1,5 @@
 class a {
-  def foo()(/*caret*/
+  def foo()(<caret>
 }
 /*
 implicit

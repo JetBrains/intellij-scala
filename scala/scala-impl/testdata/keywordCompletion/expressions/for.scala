@@ -1,7 +1,7 @@
 import y.geom.c.t
 
 class a {
-  for (x<-t) /*caret*/
+  for (x<-t) <caret>
 }
 /*
 do

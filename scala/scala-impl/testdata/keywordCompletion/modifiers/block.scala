@@ -1,6 +1,6 @@
 class A{
  def fe = {
-   laz/*caret*/
+   laz<caret>
  }
 }
 /*

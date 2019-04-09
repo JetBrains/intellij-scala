@@ -1,5 +1,5 @@
 package g
-class a() /*caret*/ {}
+class a() <caret> {}
 /*
 extends
 */

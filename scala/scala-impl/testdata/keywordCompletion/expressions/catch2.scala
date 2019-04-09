@@ -1,7 +1,7 @@
 class a {
   try {
 
-  } /*caret*/
+  } <caret>
 }
 /*
 catch

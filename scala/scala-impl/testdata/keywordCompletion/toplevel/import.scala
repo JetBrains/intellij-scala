@@ -1,4 +1,4 @@
-imp/*caret*/
+imp<caret>
 /*
 implicit
 import

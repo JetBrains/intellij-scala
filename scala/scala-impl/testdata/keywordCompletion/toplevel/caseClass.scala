@@ -1,6 +1,6 @@
 class a {
   def foo = {
-    case /*caret*/
+    case <caret>
   }
 }
 /*

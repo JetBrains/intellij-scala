@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLightKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -37,8 +38,8 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
 
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val offset = fileText.indexOf("/*caret*/")
-    assertNotEquals("Not specified end marker in test case. Use /*caret*/ in scala file for this.", offset, -1)
+    val offset = fileText.indexOf(EditorTestUtil.CARET_TAG)
+    assertNotEquals(s"Caret marker not found.", offset, -1)
 
     val project = getProjectAdapter
     val editor = FileEditorManager.getInstance(project)

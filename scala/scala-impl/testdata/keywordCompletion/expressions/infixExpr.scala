@@ -1,5 +1,5 @@
 class a {
-  2 /*caret*/
+  2 <caret>
 }
 /*
 match

@@ -1,4 +1,4 @@
-class A(/*caret*/)
+class A(<caret>)
 /*
 abstract
 final

@@ -3,7 +3,7 @@ class a{
 
   }
   finally true
-  /*caret*/
+  <caret>
 }
 /*
 abstract

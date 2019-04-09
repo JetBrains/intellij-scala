@@ -1,2 +1,2 @@
-package /*caret*/
+package <caret>
 //

@@ -1,5 +1,5 @@
 class A {
-  for (a <- b) yield /*caret*/
+  for (a <- b) yield <caret>
 }
 /*
 do

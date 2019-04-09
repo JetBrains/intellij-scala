@@ -1,6 +1,6 @@
 class a {
   if (true) true
-  else /*caret*/
+  else <caret>
 }
 /*
 do

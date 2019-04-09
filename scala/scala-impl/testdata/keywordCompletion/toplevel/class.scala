@@ -1,4 +1,4 @@
-case cl/*caret*/
+case cl<caret>
 /*
 class
 */

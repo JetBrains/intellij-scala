@@ -2,7 +2,7 @@ class a {
   try {
 
   }
-  /*caret*/
+  <caret>
 }
 /*
 abstract

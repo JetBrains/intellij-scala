@@ -1,5 +1,5 @@
 class a {
-  for (i <- 1 to 10) /*caret*/
+  for (i <- 1 to 10) <caret>
 }
 /*
 do

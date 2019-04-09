@@ -1,6 +1,6 @@
 class a {
   {
-    case t => /*caret*/
+    case t => <caret>
   }
 }
 /*

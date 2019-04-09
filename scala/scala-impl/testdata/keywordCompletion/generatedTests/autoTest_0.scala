@@ -1,5 +1,5 @@
 package x
-/*caret*/
+<caret>
 import a._
 class f
 class g( ) extends k {

@@ -2,7 +2,7 @@ class a {
   a match {
     case to => from
   }
-  /*caret*/
+  <caret>
 }
 /*
 abstract

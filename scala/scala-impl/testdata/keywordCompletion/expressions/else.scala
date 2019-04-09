@@ -2,7 +2,7 @@ class A {
   if (true) {
 
   }
-  /*caret*/
+  <caret>
 }
 /*
 abstract

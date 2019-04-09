@@ -3,7 +3,7 @@
  class f 
  class g( ) extends k { 
    def foo( ) = return true 
- /*caret*/}
+ <caret>}
 /*
 abstract
 case

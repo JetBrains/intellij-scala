@@ -1,4 +1,4 @@
 class a {
-  val x: this./*caret*/
+  val x: this.<caret>
 }
 //type

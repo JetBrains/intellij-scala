@@ -1,5 +1,5 @@
 class a {
-  ne/*caret*/
+  ne<caret>
 }
 /*
 new

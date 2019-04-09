@@ -1,2 +1,2 @@
-import java.lang./*caret*/
+import java.lang.<caret>
 //

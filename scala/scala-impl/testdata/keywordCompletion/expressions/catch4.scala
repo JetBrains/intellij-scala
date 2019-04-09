@@ -6,7 +6,7 @@ class a{
     case _ =>
   }
 
-  /*caret*/
+  <caret>
 }
 /*
 abstract

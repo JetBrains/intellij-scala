@@ -1,5 +1,5 @@
 class a {
-  val x: T /*caret*/
+  val x: T <caret>
 }
 /*
 forSome
