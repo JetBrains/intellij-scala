@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * @author Alefas
  * @since 30/10/14.
  */
+@SuppressWarnings(value = "unchecked")
 public class JListCompatibility {
   public static DefaultListModel createDefaultListModel() {
     return new DefaultListModel();

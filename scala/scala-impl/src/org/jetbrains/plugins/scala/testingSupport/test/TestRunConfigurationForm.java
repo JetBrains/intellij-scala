@@ -38,6 +38,7 @@ import java.util.Map;
  * @author Ksenia.Sautina
  * @since 5/15/12
  */
+@SuppressWarnings(value = "unchecked")
 public class TestRunConfigurationForm {
   private JPanel myPanel;
   private TextFieldWithBrowseButton testClassTextField;

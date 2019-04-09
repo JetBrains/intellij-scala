@@ -11,6 +11,7 @@ import java.awt.*;
 /**
  * @author Pavel Fatin
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaCompilerConfigurationPanel {
   private final ScalaCompilerProfilesPanel myProfilesPanel;
   private JComboBox myIncrementalityType;

@@ -19,6 +19,7 @@ import java.awt.*;
 /**
  * @author Pavel Fatin
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaCompilerSettingsPanel {
     private JPanel myContentPanel;
     private JPanel myPluginsPanel;

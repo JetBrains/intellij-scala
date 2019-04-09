@@ -36,6 +36,7 @@ import java.util.Set;
 
 import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
+@SuppressWarnings(value = "unchecked")
 public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements NamedDialog {
     private JPanel contentPane;
     private JLabel myTypeLabel;

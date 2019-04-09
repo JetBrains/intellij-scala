@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
  * User: Dmitry Naydanov
  * Date: 4/23/12
  */
+@SuppressWarnings(value = "unchecked")
 public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
   private JPanel panel1;
   private JComboBox supportLevelChooser;
@@ -53,14 +54,12 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     });
     marginCharTextField.addFocusListener(new NonEmptyFieldValidator(marginCharTextField));
 
-    supportLevelChooser.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if (supportLevelChooser.getSelectedIndex() != ScalaCodeStyleSettings.MULTILINE_STRING_ALL) {
-          processMarginCheckBox.setSelected(false);
-          processMarginCheckBox.setEnabled(false);
-        } else {
-          processMarginCheckBox.setEnabled(true);
-        }
+    supportLevelChooser.addActionListener(e -> {
+      if (supportLevelChooser.getSelectedIndex() != ScalaCodeStyleSettings.MULTILINE_STRING_ALL) {
+        processMarginCheckBox.setSelected(false);
+        processMarginCheckBox.setEnabled(false);
+      } else {
+        processMarginCheckBox.setEnabled(true);
       }
     });
   }

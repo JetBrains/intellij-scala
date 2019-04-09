@@ -18,6 +18,7 @@ import java.awt.*;
  * User: Alexander Podkhalyuzin
  * Date: 10.02.2009
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaConsoleRunConfigurationForm {
 
   private RawCommandLineEditor javaOptionsEditor;

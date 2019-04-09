@@ -44,6 +44,7 @@ import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.
  * User: Alexander Podkhalyuzin
  * Date: 01.07.2008
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaIntroduceVariableDialog extends DialogWrapper implements NamedDialog {
   private JCheckBox declareVariableCheckBox;
   private JCheckBox myCbReplaceAllOccurences;
@@ -166,11 +167,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     }
 
 
-    contentPane.registerKeyboardAction(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        myTypeComboBox.requestFocus();
-      }
-    }, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    contentPane.registerKeyboardAction(e -> myTypeComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
     updateEnablingTypeList();
   }
@@ -179,18 +176,10 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
     myLinkContainer.add(link);
 
-    link.addHyperlinkListener(new HyperlinkListener() {
-      @Override
-      public void hyperlinkUpdate(HyperlinkEvent e) {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-          @Override
-          public void run() {
-            mySpecifyTypeChb.setSelected(needsTypeAnnotation());
-            updateEnablingTypeList();
-          }
-        });
-      }
-    });
+    link.addHyperlinkListener(e -> ApplicationManager.getApplication().invokeLater(() -> {
+      mySpecifyTypeChb.setSelected(needsTypeAnnotation());
+      updateEnablingTypeList();
+    }));
   }
 
   // TODO Are all non-local variables now "private"?
@@ -214,12 +203,9 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private void setUpSpecifyTypeChb() {
     mySpecifyTypeChb.setSelected(needsTypeAnnotation());
 
-    mySpecifyTypeChb.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
-        updateEnablingTypeList();
-      }
+    mySpecifyTypeChb.addActionListener(e -> {
+      myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
+      updateEnablingTypeList();
     });
   }
 
@@ -235,25 +221,17 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     myListenerList.add(DataChangedListener.class, new DataChangedListener());
 
     myNameComboBox.addItemListener(
-            new ItemListener() {
-              public void itemStateChanged(ItemEvent e) {
-                fireNameDataChanged();
-              }
-            }
+            e -> fireNameDataChanged()
     );
 
     ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-                                                                                              public void documentChanged(DocumentEvent event) {
+                                                                                              public void documentChanged(@NotNull DocumentEvent event) {
                                                                                                 fireNameDataChanged();
                                                                                               }
                                                                                             }
     );
 
-    contentPane.registerKeyboardAction(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        myNameComboBox.requestFocus();
-      }
-    }, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    contentPane.registerKeyboardAction(e -> myNameComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
     for (String possibleName : possibleNames) {
       myNameComboBox.addItem(possibleName);

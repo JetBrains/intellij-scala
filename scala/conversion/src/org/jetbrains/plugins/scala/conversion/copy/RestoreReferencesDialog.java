@@ -18,6 +18,7 @@ import java.awt.*;
 import static com.intellij.util.ui.UIUtil.ComponentStyle.SMALL;
 import static com.intellij.util.ui.UIUtil.FontColor.BRIGHTER;
 
+@SuppressWarnings(value = "unchecked")
 class RestoreReferencesDialog extends DialogWrapper {
   private final Object[] myNamedElements;
   private JList myList;

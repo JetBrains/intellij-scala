@@ -68,7 +68,7 @@ public class AttachSourcesUtil {
             }
             if (modelsToCommit.isEmpty()) return new ActionCallback.Rejected();
             new WriteAction() {
-                protected void run(final Result result) {
+                protected void run(@NotNull final Result result) {
                     for (Library.ModifiableModel model : modelsToCommit) {
                         model.commit();
                     }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.stress;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.util.containers.HashMap;
+import java.util.HashMap;
 
 import java.util.*;
 
@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class DragStorage {
 
-  private final Map<TextRange, Integer> myRanges = new HashMap<TextRange, Integer>();
+  private final Map<TextRange, Integer> myRanges = new HashMap<>();
 
   public void registerRevision(TextRange range) {
     if (myRanges.get(range) == null) {
@@ -28,7 +28,7 @@ public class DragStorage {
       list.add(new Pair<TextRange, Integer>(entry.getKey(), entry.getValue()));
     }
     Collections.sort(list, new RangeComparator());
-    return list.toArray(new Pair[list.size()]);
+    return list.toArray(new Pair[0]);
   }
 
   static class RangeComparator implements Comparator<Pair<TextRange, Integer>> {

@@ -40,6 +40,7 @@ import java.util.ResourceBundle;
  * User: Alexander Podkhalyuzin
  * Date: 30.07.2008
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaProjectSettingsPanel {
   public final static String INJECTION_SETTINGS_NAME = "DependencyAwareInjectionSettings";
   private final LibExtensionsSettingsPanelWrapper extensionsPanel;
@@ -96,15 +97,12 @@ public class ScalaProjectSettingsPanel {
     outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
     updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
     scalaMetaMode.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScalaMetaMode.class));
-    updateNowButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        try {
-          ScalaPluginUpdater.doUpdatePluginHosts((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
-          UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
-        } catch (InvalidRepoException ex) {
-          Messages.showErrorDialog(ex.getMessage(), "Invalid Update Channel");
-        }
+    updateNowButton.addActionListener(e -> {
+      try {
+        ScalaPluginUpdater.doUpdatePluginHosts((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+        UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
+      } catch (InvalidRepoException ex) {
+        Messages.showErrorDialog(ex.getMessage(), "Invalid Update Channel");
       }
     });
 

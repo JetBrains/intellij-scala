@@ -47,6 +47,7 @@ import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.
  * User: Alexander Podkhalyuzin
  * Date: 01.07.2008
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDialog {
   private JCheckBox myReplaceAllChb;
   private JComboBox myTypeComboBox;
@@ -153,49 +154,34 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   private void bindToSettings() {
-    myInitInDeclarationRB.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
-        readSettings();
-      }
+    myInitInDeclarationRB.addActionListener(e -> {
+      mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
+      readSettings();
     });
 
-    myInitInLocalScopeRB.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
-        readSettings();
-      }
+    myInitInLocalScopeRB.addActionListener(e -> {
+      mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
+      readSettings();
     });
 
-    myReplaceAllChb.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        mySettings.setReplaceAll(myReplaceAllChb.isSelected());
-        readSettings();
-      }
+    myReplaceAllChb.addActionListener(e -> {
+      mySettings.setReplaceAll(myReplaceAllChb.isSelected());
+      readSettings();
     });
 
-    myVariableCheckBox.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (myVariableCheckBox.isSelected()) {
-          mySettings.setDefineVar(true);
-        } else {
-          mySettings.setDefineVar(false);
-        }
-        readSettings();
+    myVariableCheckBox.addActionListener(e -> {
+      if (myVariableCheckBox.isSelected()) {
+        mySettings.setDefineVar(true);
+      } else {
+        mySettings.setDefineVar(false);
       }
+      readSettings();
     });
 
-    visibilityComboBox.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        visibilityTextField.setEnabled(!isPublic());
-        mySettings.setVisibilityLevel(getVisibility());
-        readSettings();
-      }
+    visibilityComboBox.addActionListener(e -> {
+      visibilityTextField.setEnabled(!isPublic());
+      mySettings.setVisibilityLevel(getVisibility());
+      readSettings();
     });
   }
 
@@ -249,11 +235,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       myReplaceAllChb.setText(myReplaceAllChb.getText() + " (" + occurrencesCount + " occurrences)");
     }
 
-    contentPane.registerKeyboardAction(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        myTypeComboBox.requestFocus();
-      }
-    }, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    contentPane.registerKeyboardAction(e -> myTypeComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
   }
 
   private void readSettings() {
@@ -289,25 +271,17 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myListenerList.add(DataChangedListener.class, new DataChangedListener());
 
     myNameComboBox.addItemListener(
-            new ItemListener() {
-              public void itemStateChanged(ItemEvent e) {
-                fireNameDataChanged();
-              }
-            }
+            e -> fireNameDataChanged()
     );
 
     ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-                                                                                              public void documentChanged(DocumentEvent event) {
+                                                                                              public void documentChanged(@NotNull DocumentEvent event) {
                                                                                                 fireNameDataChanged();
                                                                                               }
                                                                                             }
     );
 
-    contentPane.registerKeyboardAction(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        myNameComboBox.requestFocus();
-      }
-    }, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    contentPane.registerKeyboardAction(e -> myNameComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
     for (String possibleName : possibleNames) {
       myNameComboBox.addItem(possibleName);
@@ -334,19 +308,11 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
     updateEnablingTypeList();
 
-    mySpecifyTypeChb.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        updateEnablingTypeList();
-      }
-    });
+    mySpecifyTypeChb.addActionListener(e -> updateEnablingTypeList());
 
-    visibilityComboBox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
-        updateEnablingTypeList();
-      }
+    visibilityComboBox.addItemListener(e -> {
+      mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
+      updateEnablingTypeList();
     });
   }
 
@@ -354,18 +320,10 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
     myLinkContainer.add(link);
 
-    link.addHyperlinkListener(new HyperlinkListener() {
-      @Override
-      public void hyperlinkUpdate(HyperlinkEvent e) {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-          @Override
-          public void run() {
-            mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
-            updateEnablingTypeList();
-          }
-        });
-      }
-    });
+    link.addHyperlinkListener(e -> ApplicationManager.getApplication().invokeLater(() -> {
+      mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
+      updateEnablingTypeList();
+    }));
   }
 
   public JComponent getPreferredFocusedComponent() {

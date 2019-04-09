@@ -13,6 +13,7 @@ import java.awt.*;
  * @author Alefas
  * @since 24.05.12
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaAutoImportOptionsProviderForm {
   private static final String INSERT_IMPORTS_ALWAYS = ApplicationBundle.message("combobox.insert.imports.all");
   private static final String INSERT_IMPORTS_ASK = ApplicationBundle.message("combobox.insert.imports.ask");

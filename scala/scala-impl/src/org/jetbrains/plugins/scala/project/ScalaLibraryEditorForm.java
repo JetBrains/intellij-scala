@@ -12,6 +12,7 @@ import java.awt.*;
 /**
  * @author Pavel Fatin
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaLibraryEditorForm {
     private JPanel myContentPanel;
     private JPanel myPluginsPanel;

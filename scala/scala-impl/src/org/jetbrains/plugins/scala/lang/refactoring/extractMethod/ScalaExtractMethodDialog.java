@@ -43,6 +43,7 @@ import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.
  * User: Alexander Podkhalyuzin
  * Date: 11.01.2010
  */
+@SuppressWarnings(value = "unchecked")
 public class ScalaExtractMethodDialog extends DialogWrapper {
   private JButton buttonOK;
 

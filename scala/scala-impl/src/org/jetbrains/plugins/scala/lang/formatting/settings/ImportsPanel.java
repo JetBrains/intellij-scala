@@ -25,6 +25,7 @@ import java.util.Arrays;
  * @author Alefas
  * @since 21/05/14.
  */
+@SuppressWarnings(value = "unchecked")
 public class ImportsPanel extends CodeStyleAbstractPanel {
     private JPanel contentPanel;
     private JCheckBox addImportStatementInCheckBox;
