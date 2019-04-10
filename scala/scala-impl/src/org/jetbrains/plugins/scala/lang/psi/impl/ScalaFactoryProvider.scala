@@ -1,14 +1,16 @@
-package org.jetbrains.plugins.scala.lang.psi.impl
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JVMElementFactory, JVMElementFactoryProvider}
+import com.intellij.psi.JVMElementFactoryProvider
 
 /**
  * @author Alefas
  * @since 15.05.12
  */
-class ScalaFactoryProvider extends JVMElementFactoryProvider {
-  def getFactory(project: Project): JVMElementFactory = {
-    new ScalaPsiElementFactoryImpl()(project)
-  }
+final class ScalaFactoryProvider extends JVMElementFactoryProvider {
+
+  def getFactory(project: Project) = new ScalaPsiElementFactoryImpl(project)
 }

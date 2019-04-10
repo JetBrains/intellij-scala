@@ -21,19 +21,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{AnnotationExpr, Block, Expr}
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, ParamClauses, TypeParamClause}
-import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params._
-import org.jetbrains.plugins.scala.lang.parser.parsing.types._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -52,14 +39,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
-class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMElementFactory {
+final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFactory {
+
   def createDocCommentFromText(text: String): PsiDocComment = ???
 
   def isValidClassName(name: String): Boolean = isIdentifier(name)
@@ -92,14 +79,15 @@ class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMEl
     ScalaPsiElementFactory.createMethodFromText(
       """def this() {
         |this()
-        |}""".stripMargin)
+        |}""".stripMargin
+    )(project)
 
-  def createConstructor(name: String): PsiMethod =
-    createConstructor()
+  def createConstructor(name: String): PsiMethod = createConstructor()
 
   def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
 
   def createParameter(name: String, `type`: PsiType): PsiParameter = {
+    implicit val context: ProjectContext = project
     val typeText = `type`.toScType().canonicalText
     ScalaPsiElementFactory.createParameterFromText(s"$name: $typeText")
   }
@@ -146,8 +134,10 @@ class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMEl
 
 object ScalaPsiElementFactory {
 
-  import ScalaNamesUtil._
-  import ScalaTokenTypes._
+  import lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
+  import lexer.ScalaTokenTypes._
+  import psi.ScalaPsiUtil.functionArrow
+  import refactoring.util.ScalaNamesUtil._
 
   def createExpressionFromText(text: String, context: PsiElement): ScExpression = {
     try {
@@ -241,22 +231,22 @@ object ScalaPsiElementFactory {
       case Seq() => throw new IncorrectOperationException("At least one clause required.")
       case _ =>
         createElementWithContext[ScParameterClause](s"(implicit ${clauses.commaSeparated()})", context, contextLastChild(context)) {
-          case builder if isClassParameter => ImplicitClassParamClause.parse(builder)
-          case builder => ImplicitParamClause.parse(builder)
+          case builder if isClassParameter => top.params.ImplicitClassParamClause.parse(builder)
+          case builder => params.ImplicitParamClause.parse(builder)
         }
     }
 
   def createEmptyClassParamClauseWithContext(context: PsiElement): ScParameterClause =
-    createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(ClassParamClause.parse)
+    createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(top.params.ClassParamClause.parse)
 
   def createClassParamClausesWithContext(text: String, context: PsiElement): ScParameters =
-    createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses.parse)
+    createElementWithContext[ScParameters](text, context, contextLastChild(context))(top.params.ClassParamClauses.parse)
 
   def createConstructorFromText(text: String, context: PsiElement, child: PsiElement): ScConstructorInvocation =
-    createElementWithContext[ScConstructorInvocation](text, context, child)(Constructor.parse)
+    createElementWithContext[ScConstructorInvocation](text, context, child)(parsingBase.Constructor.parse)
 
   def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters =
-    createElementWithContext[ScParameters](text, context, child)(ParamClauses.parse)
+    createElementWithContext[ScParameters](text, context, child)(params.ParamClauses.parse)
 
   private def contextLastChild(context: PsiElement): PsiElement = context.stub match {
     case Some(stub) =>
@@ -267,7 +257,7 @@ object ScalaPsiElementFactory {
   }
 
   def createPatternFromTextWithContext(patternText: String, context: PsiElement, child: PsiElement): ScPattern =
-    createElementWithContext[ScCaseClause](ScalaKeyword.CASE + " " + patternText, context, child)(CaseClause.parse)
+    createElementWithContext[ScCaseClause](kCASE + " " + patternText, context, child)(patterns.CaseClause.parse)
       .pattern
       .getOrElse {
         throw elementCreationException("pattern", patternText, context)
@@ -283,11 +273,12 @@ object ScalaPsiElementFactory {
 
   def createAnnotationExpression(text: String)
                                 (implicit ctx: ProjectContext): ScAnnotationExpr =
-    createElement(text)(AnnotationExpr.parse).asInstanceOf[ScAnnotationExpr]
+    createElement(text)(expressions.AnnotationExpr.parse)
+      .asInstanceOf[ScAnnotationExpr]
 
   def createBlockExpressionWithoutBracesFromText(text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {
-    createElement(text)(Block.parse(_, hasBrace = false, needNode = true)) match {
+    createElement(text)(expressions.Block.parse(_, hasBrace = false, needNode = true)) match {
       case b: ScBlockImpl => b
       case _ => null
     }
@@ -525,7 +516,7 @@ object ScalaPsiElementFactory {
     signatureText(method, substitutor)(builder)
 
     builder.append(" ")
-      .append(ScalaTokenTypes.tASSIGN)
+      .append(tASSIGN)
       .append(" ")
       .append(body)
 
@@ -580,10 +571,11 @@ object ScalaPsiElementFactory {
   private def addModifiersFromSignature(function: ScFunction, sign: PhysicalMethodSignature, addOverride: Boolean): ScFunction = {
     sign.method match {
       case fun: ScFunction =>
+        import lexer.ScalaModifier._
         val res = function.getModifierList.replace(fun.getModifierList)
         if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
-        function.setModifierProperty(ScalaModifier.ABSTRACT, value = false)
-        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty(ScalaModifier.OVERRIDE)
+        function.setModifierProperty(ABSTRACT, value = false)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty(OVERRIDE)
       case m: PsiMethod =>
         var hasOverride = false
         if (m.getModifierList.getNode != null)
@@ -603,7 +595,6 @@ object ScalaPsiElementFactory {
   private def signatureText(method: PsiMethod, substitutor: ScSubstitutor)
                            (myBuilder: StringBuilder)
                            (implicit projectContext: ProjectContext): Unit = {
-    import ScalaTokenTypes._
     myBuilder.append(kDEF)
       .append(" ")
       .append(escapeKeyword(method.name))
@@ -630,7 +621,7 @@ object ScalaPsiElementFactory {
           }
 
           val contextBoundText = typeParam.contextBound.map { tp =>
-            " : " + ScTypeUtil.stripTypeArgs(substitutor(tp)).canonicalText
+            " : " + refactoring.util.ScTypeUtil.stripTypeArgs(substitutor(tp)).canonicalText
           }
 
           val boundsText = (lowerBoundText.toSeq ++ upperBoundText.toSeq ++ viewBoundText ++ contextBoundText).mkString
@@ -749,10 +740,7 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def colon(name: String) = {
-    import ScalaTokenTypes.tCOLON
-    (if (isIdentifier(name + tCOLON)) " " else "") + tCOLON + " "
-  }
+  private def colon(name: String) = (if (isIdentifier(name + tCOLON)) " " else "") + tCOLON + " "
 
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
                                                body: Option[String], needsOverride: Boolean,
@@ -791,23 +779,25 @@ object ScalaPsiElementFactory {
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction =
-    createElementWithContext[ScFunction](text, context, child)(Def.parse(_))
+    createElementWithContext[ScFunction](text, context, child)(parsingStat.Def.parse(_))
 
   def createDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScMember =
-    createElementWithContext[ScMember](text, context, child)(Def.parse(_))
+    createElementWithContext[ScMember](text, context, child)(parsingStat.Def.parse(_))
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject =
-    createElementWithContext[ScObject](text, context, child)(TmplDef.parse)
+    createElementWithContext[ScObject](text, context, child)(top.TmplDef.parse)
 
   def createTypeDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScTypeDefinition =
-    createElementWithContext[ScTypeDefinition](text, context, child)(TmplDef.parse)
+    createElementWithContext[ScTypeDefinition](text, context, child)(top.TmplDef.parse)
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
-    createElementWithContext[ScStableCodeReference](text, context, child)(StableId.parse(_, ScalaElementType.REFERENCE))
+    createElementWithContext[ScStableCodeReference](text, context, child) {
+      types.StableId.parse(_, parser.ScalaElementType.REFERENCE)
+    }
 
   // TODO method should be eliminated eventually
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
-    val methodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child)(Expr.parse)
+    val methodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child)(expressions.Expr.parse)
 
     val firstArgument = methodCall.argumentExpressions
       .headOption
@@ -820,13 +810,13 @@ object ScalaPsiElementFactory {
 
   def createMirrorElement(text: String, context: PsiElement, child: PsiElement): ScExpression = child match {
     case _: ScConstrBlock | _: ScConstrExpr =>
-      createElementWithContext[ScExpression](text, context, child)(ConstrExpr.parse)
+      createElementWithContext[ScExpression](text, context, child)(parsingStat.ConstrExpr.parse)
     case _ =>
       createExpressionWithContextFromText(text, context, child)
   }
 
   def createElement(text: String)
-                   (parse: ScalaPsiBuilder => AnyVal)
+                   (parse: builder.ScalaPsiBuilder => AnyVal)
                    (implicit ctx: ProjectContext): PsiElement =
     createElement(
       text,
@@ -836,7 +826,7 @@ object ScalaPsiElementFactory {
   private def createElementWithContext[E <: ScalaPsiElement](text: String,
                                                              context: PsiElement,
                                                              child: PsiElement)
-                                                            (parse: ScalaPsiBuilder => AnyVal)
+                                                            (parse: builder.ScalaPsiBuilder => AnyVal)
                                                             (implicit tag: ClassTag[E]): E =
     createElement(text, context, checkLength = true)(parse)(context.getProject) match {
       case element: E => withContext(element, context, child)
@@ -845,7 +835,7 @@ object ScalaPsiElementFactory {
 
   def createEmptyModifierList(context: PsiElement): ScModifierList =
     createElementWithContext[ScModifierList]("", context, context.getFirstChild) {
-      _.mark().done(ScalaElementType.MODIFIERS)
+      _.mark().done(parser.ScalaElementType.MODIFIERS)
     }
 
   private def withContext[E <: ScalaPsiElement](element: E, context: PsiElement, child: PsiElement) = {
@@ -855,7 +845,7 @@ object ScalaPsiElementFactory {
 
   private def createElement[T <: AnyVal](text: String, context: PsiElement,
                                          checkLength: Boolean = false)
-                                        (parse: ScalaPsiBuilder => T)
+                                        (parse: builder.ScalaPsiBuilder => T)
                                         (implicit project: Project): PsiElement = {
     val chameleon = DummyHolderFactory.createHolder(
       PsiManager.getInstance(project),
@@ -874,14 +864,14 @@ object ScalaPsiElementFactory {
       seq
     )
 
-    val builder = new ScalaPsiBuilderImpl(delegate)
-    builder.mark() match {
+    val psiBuilder = new builder.ScalaPsiBuilderImpl(delegate)
+    psiBuilder.mark() match {
       case marker =>
-        parse(builder)
-        advanceLexer(builder)(marker, parserDefinition.getFileNodeType)
+        parse(psiBuilder)
+        advanceLexer(psiBuilder)(marker, parserDefinition.getFileNodeType)
     }
 
-    val first = builder.getTreeBuilt
+    val first = psiBuilder.getTreeBuilt
       .getFirstChildNode
       .asInstanceOf[TreeElement]
     chameleon.rawAddChildren(first)
@@ -894,18 +884,18 @@ object ScalaPsiElementFactory {
   }
 
   @tailrec
-  private[this] def advanceLexer(builder: ScalaPsiBuilder)
+  private[this] def advanceLexer(psiBuilder: PsiBuilder)
                                 (marker: PsiBuilder.Marker,
                                  fileNodeType: IFileElementType): Unit =
-    if (builder.eof()) {
+    if (psiBuilder.eof()) {
       marker.done(fileNodeType)
     } else {
-      builder.advanceLexer()
-      advanceLexer(builder)(marker, fileNodeType)
+      psiBuilder.advanceLexer()
+      advanceLexer(psiBuilder)(marker, fileNodeType)
     }
 
   def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt =
-    createElementWithContext[ScImportStmt](text, context, child)(Import.parse)
+    createElementWithContext[ScImportStmt](text, context, child)(parsingBase.Import.parse)
 
   def createTypeElementFromText(text: String)
                                (implicit ctx: ProjectContext): ScTypeElement =
@@ -936,11 +926,11 @@ object ScalaPsiElementFactory {
     createExpressionFromText(s"1$whitespace+ 1").findElementAt(1)
 
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScTypeElement](text, context, child)(ParamType.parseInner)
+    createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseInner)
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =
-    createElementWithContext[ScTypeParamClause](text, context, child)(TypeParamClause.parse)
+    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause.parse)
 
   def createWildcardPattern(implicit ctx: ProjectContext): ScWildcardPattern = {
     val element = createElementFromText("val _ = x")
@@ -948,13 +938,13 @@ object ScalaPsiElementFactory {
   }
 
   def createTemplateDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition =
-    createElementWithContext[ScTemplateDefinition](text, context, child)(TmplDef.parse)
+    createElementWithContext[ScTemplateDefinition](text, context, child)(top.TmplDef.parse)
 
   def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration =
-    createElementWithContext[ScDeclaration](text, context, child)(Dcl.parse(_))
+    createElementWithContext[ScDeclaration](text, context, child)(parsingStat.Dcl.parse(_))
 
   def createTypeAliasDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition =
-    createElementWithContext[ScTypeAliasDefinition](text, context, child)(Def.parse(_))
+    createElementWithContext[ScTypeAliasDefinition](text, context, child)(parsingStat.Def.parse(_))
 
   def createDocCommentFromText(text: String)
                               (implicit ctx: ProjectContext): ScDocComment =
