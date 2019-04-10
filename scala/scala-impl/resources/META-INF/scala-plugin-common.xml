@@ -1004,7 +1004,7 @@
               bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
               key="method.signature.unit.declaration.type"
               groupPath="Scala" groupName="Method signature"
-              shortName="DeclarationType"
+              shortName="MethodDeclarationHasNoExplicitType"
               language="Scala" level="WARNING"
               enabledByDefault="false"/>
       <localInspection

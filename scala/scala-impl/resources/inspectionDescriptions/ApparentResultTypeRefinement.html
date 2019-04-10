@@ -1,0 +1,19 @@
+<html>
+<body>
+A type can not be refined when used as result type of a function.
+When a '=' is missing between result type and function body it might look like it, however.
+
+<p>
+Before
+<pre>
+def test(): T {}
+</pre>
+
+<br />
+After:
+<pre>
+def test(): T = {}
+</pre>
+</p>
+</body>
+</html>
