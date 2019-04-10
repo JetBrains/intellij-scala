@@ -168,4 +168,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testBacktickedPaths(): Unit = {
     doTest("MediaTypes.class")
   }
+
+  def testAbstractOverride(): Unit = {
+    doTest("LoggingFSM.class")
+  }
 }

@@ -210,6 +210,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case c@(_: ClassSymbol | _: ObjectSymbol) if !c.isTrait => print("abstract ")
       case _ => ()
     }
+    if (symbol.isAbstractOverride) print("abstract override ")
     if (symbol.isCase && !symbol.isMethod) print("case ")
   }
 
