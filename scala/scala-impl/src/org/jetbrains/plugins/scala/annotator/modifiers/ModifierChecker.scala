@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScPatternDefinition, ScTypeAlias, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -60,7 +61,17 @@ private[annotator] object ModifierChecker {
         modifier.getPsi match {
           case accessModifier: ScAccessModifier => // todo: check private with final or sealed combination.
             val maybeModifier = if (accessModifier.isPrivate) Some(Private) else if (accessModifier.isProtected) Some(Protected) else None
-            maybeModifier.foreach(checkDuplicates(accessModifier, _))
+            maybeModifier.foreach { modifier =>
+              checkDuplicates(accessModifier, modifier)
+              if (owner.getContext.isInstanceOf[ScBlock]) {
+                registerQuickFix(
+                  ScalaBundle.message("access.modifier.is.not.allowed.here", modifier.text()),
+                  accessModifier,
+                  owner,
+                  modifier
+                )
+              }
+            }
           case modifierPsi =>
             modifier.getText match {
               case LAZY =>

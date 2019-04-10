@@ -42,6 +42,34 @@ class ModifierCheckerTest extends SimpleTestCase {
     }
   }
 
+  def testAccessModifierInClass(): Unit = {
+    assertNothing(messages(
+      """
+        |private class Test {
+        |  private class InnerTest
+        |  private def test(): Unit = ()
+        |}
+      """.stripMargin
+    ))
+  }
+
+  def testAccessModifierInBlock(): Unit = {
+    assertMessagesSorted(messages(
+      """
+        |{
+        |  private class Test
+        |
+        |  try {
+        |    protected class Test2
+        |  }
+        |}
+      """.stripMargin
+    ))(
+      Error("private", "'private' modifier is not allowed here"),
+      Error("protected", "'protected' modifier is not allowed here")
+    )
+  }
+
   private def messages(@Language(value = "Scala") code: String) = {
     val file = code.parse
 
