@@ -6,12 +6,17 @@ import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 
@@ -21,15 +26,16 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxE
  */
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
-  def beforeCharDeleted(c: Char, file: PsiFile, editor: Editor) {
+
+  override def beforeCharDeleted(c: Char, file: PsiFile, editor: Editor): Unit = {
     if (!file.isInstanceOf[ScalaFile]) return
 
     val offset = editor.getCaretModel.getOffset
     val element = file.findElementAt(offset - 1)
     if (element == null) return
 
-    if (needCorrecrWiki(element)) {
-      extensions.inWriteAction {
+    if (needCorrectWiki(element)) {
+      inWriteAction {
         val document = editor.getDocument
 
         if (element.getParent.getLastChild != element) {
@@ -52,17 +58,17 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       val closingTag = openingTag.getClosingTag
 
       if (closingTag != null && closingTag.getTextLength > 3 && closingTag.getText.substring(2, closingTag.getTextLength - 1) == openingTag.getTagName) {
-        extensions.inWriteAction {
+        inWriteAction {
           val offsetInName = editor.getCaretModel.getOffset - element.getTextOffset + 1
           editor.getDocument.deleteString(closingTag.getTextOffset + offsetInName, closingTag.getTextOffset + offsetInName + 1)
           PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
         }
       }
     } else if (element.getNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING && offset - element.getTextOffset == 3) {
-      correctMultilineString(element.getTextOffset + element.getTextLength - 3)
+      correctMultilineString(file, editor, element.getTextOffset + element.getTextLength - 3)
     } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER && element.getNextSibling != null &&
       element.getNextSibling.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
-        extensions.inWriteAction {
+        inWriteAction {
           editor.getDocument.deleteString(element.getTextOffset + 1, element.getTextOffset + 2)
           PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
         }
@@ -71,24 +77,69 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             element.getParent.getLastChild.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
             element.getPrevSibling != null &&
             isMultilineInterpolatedStringPrefix(element.getPrevSibling.getNode.getElementType)) {
-      correctMultilineString(element.getParent.getLastChild.getTextOffset)
+      correctMultilineString(file, editor, element.getParent.getLastChild.getTextOffset)
+    } else if(c == '{' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET){
+      handleLeftBrace(offset, element, file, editor)
     }
+  }
 
-    @inline def isMultilineInterpolatedStringPrefix(tpe: IElementType) =
-      Set(ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
-        ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE, ScalaTokenTypes.tINTERPOLATED_STRING_ID) contains tpe
+  @inline
+  private def isMultilineInterpolatedStringPrefix(tpe: IElementType) =
+    Set(
+      ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
+      ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE,
+      ScalaTokenTypes.tINTERPOLATED_STRING_ID
+    ).contains(tpe)
 
-    def correctMultilineString(closingQuotesOffset: Int) {
-      extensions.inWriteAction {
-        editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
-//        editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //https://youtrack.jetbrains.com/issue/SCL-6490
-        PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+  private def correctMultilineString(file: PsiFile, editor: Editor, closingQuotesOffset: Int): Unit = {
+    inWriteAction {
+      editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
+      //editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //https://youtrack.jetbrains.com/issue/SCL-6490
+      PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+    }
+  }
+
+  private def needCorrectWiki(element: PsiElement): Boolean = {
+    (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || element.getText == "{{{") &&
+      (element.getParent.getLastChild != element ||
+        element.getText == "'''" && element.getPrevSibling != null &&
+          element.getPrevSibling.getText == "'")
+  }
+
+  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
+    val assignElement: PsiElement = {
+      PsiTreeUtil.prevLeaf(element) match {
+        case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
+        case prev => prev
       }
     }
 
-    def needCorrecrWiki(element: PsiElement) = (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]
-            || element.getText == "{{{") && (element.getParent.getLastChild != element ||
-            element.getText == "'''" && element.getPrevSibling != null && element.getPrevSibling.getText == "'")
+    if (assignElement != null && assignElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
+      val definition = assignElement.getParent
+      val bodyOpt: Option[ScExpression] = definition match {
+        case patDef: ScPatternDefinition if patDef.bindings.size == 1 => patDef.expr
+        case varDef: ScVariableDefinition => varDef.expr
+        case funDef: ScFunctionDefinition => funDef.body
+        case _ => None
+      }
+
+      bodyOpt match {
+        case Some(block: ScBlockExpr) if block.exprs.size == 1 =>
+          block.getRBrace match {
+            case Some(rBrace) =>
+              val start = rBrace.getTreePrev match {
+                case ws if ws.getElementType == TokenType.WHITE_SPACE => ws.getStartOffset
+                case _ => rBrace.getStartOffset
+              }
+              val end = rBrace.getStartOffset + 1
+              val document = editor.getDocument
+              document.deleteString(start, end)
+              document.commit(file.getProject)
+            case _ =>
+          }
+        case _ =>
+      }
+    }
   }
 
   /*
@@ -96,45 +147,49 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     bag in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not)
     So we have to fix it in our handler
    */
-  def charDeleted(c: Char, file: PsiFile, editor: Editor): Boolean = {
+  override def charDeleted(charRemoved: Char, file: PsiFile, editor: Editor): Boolean = {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
-    
-    if (!CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET || offset >= document.getTextLength) return false
-    
-    val c1 = document.getImmutableCharSequence.charAt(offset)
-    
-    def hasLeft: Option[Boolean] = {
-      val iterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
 
+    if (!CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET || offset >= document.getTextLength) return false
+
+    def hasLeft: Option[Boolean] = {
       val fileType = file.getFileType
       if (fileType != ScalaFileType.INSTANCE) return None
       val txt = document.getImmutableCharSequence
-      
+
+      val iterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
       val tpe = iterator.getTokenType
       if (tpe == null) return None
 
       val matcher = BraceMatchingUtil.getBraceMatcher(fileType, tpe)
       if (matcher == null) return None
-      
+
       val stack = scala.collection.mutable.Stack[IElementType]()
-      
+
       iterator.retreat()
       while (!iterator.atEnd() && iterator.getStart > 0 && iterator.getTokenType != null) {
-        if (matcher.isRBraceToken(iterator, txt, fileType)) stack push iterator.getTokenType 
+        if (matcher.isRBraceToken(iterator, txt, fileType)) stack push iterator.getTokenType
           else if (matcher.isLBraceToken(iterator, txt, fileType)) {
           if (stack.isEmpty || !matcher.isPairBraces(iterator.getTokenType, stack.pop())) return Some(false)
         }
-        
+
         iterator.retreat()
       }
-      
-      if (stack.isEmpty) Some(true) else None
+
+      if (stack.isEmpty) Some(true)
+      else None
     }
-    
-    @inline def fixBrace():Unit = if (hasLeft.exists(!_)) extensions.inWriteAction { document.deleteString(offset, offset + 1) }
-    
-    (c, c1) match {
+
+    @inline
+    def fixBrace(): Unit = if (hasLeft.exists(!_)) {
+      inWriteAction {
+        document.deleteString(offset, offset + 1)
+      }
+    }
+
+    val charNext = document.getImmutableCharSequence.charAt(offset)
+    (charRemoved, charNext) match {
       case ('{', '}') => fixBrace()
       case ('(', ')') => fixBrace()
       case _ => 
@@ -142,4 +197,5 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     
     false
   }
+
 }
