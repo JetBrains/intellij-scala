@@ -69,6 +69,28 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
     """.stripMargin
   )()
 
+  def testRecursionInTry(): Unit =
+    assertRecursionTypeIs("def f(n: Int): Int = try f(n + 1) catch { case _ => 0 }")(ordinaryRecursion)
+
+  def testRecursionInTryWithReturn(): Unit =
+    assertRecursionTypeIs("def f(n: Int): Int = try { return f(n + 1); 3 } catch { case _ => 0 }")(ordinaryRecursion)
+
+  def testRecursionInCatch(): Unit =
+    assertRecursionTypeIs("def f(n: Int): Int = try 0 catch { case _ => f(n + 1) }")()
+
+  def testRecursionInCatchWithReturn(): Unit = assertRecursionTypeIs(
+    """
+      |def f(n: Int): Int = try 0 catch {
+      |  case _ =>
+      |    if (n > 3)
+      |      return f(n + 1)
+      |    f(n + 1)
+      |}
+    """.stripMargin)()
+
+  def testRecursionInFinally(): Unit =
+    assertRecursionTypeIs("def f(n: Int): Int = try 0 finally { return f(n + 1) }")(ordinaryRecursion)
+
   def testGetReturnUsages(): Unit = {
     val code =
       """

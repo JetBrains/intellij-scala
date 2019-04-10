@@ -73,7 +73,8 @@ object ScFunctionDefinition {
     def recursiveReferencesGrouped: RecursiveReferences = recursiveReferences match {
       case Seq() => RecursiveReferences()
       case references =>
-        val expressions: Set[PsiElement] = innerReturnUsages(function.body.get, createVisitor)
+        val expressions: Set[PsiElement] =
+          innerReturnUsages(function.body.get, createTailRecReturnVisitor(), excludeTailRecBlockingStatements = true)
           .flatMap(expandIf)
 
         val (tailRecursive, ordinaryRecursive) = references.partition { reference =>
@@ -105,7 +106,7 @@ object ScFunctionDefinition {
       }
     }
 
-    private def createVisitor: ReturnsVisitor = new ReturnsVisitor {
+    private def createTailRecReturnVisitor(): ReturnsVisitor = new ReturnsVisitor {
 
       private val booleanInstance = function.projectContext.stdTypes.Boolean
 
@@ -113,6 +114,13 @@ object ScFunctionDefinition {
         case ScInfixExpr(Typeable(`booleanInstance`), ElementText("&&" | "||"), right@Typeable(`booleanInstance`)) =>
           acceptVisitor(right)
         case _ => super.visitInfixExpression(infix)
+      }
+
+      override def visitExpression(expression: ScExpression): Unit = {
+        // results coming from the inside of a try block or a finally block can not be in tail position
+        if (!expression.isInstanceOf[ScTryBlock]) {
+          super.visitExpression(expression)
+        }
       }
     }
   }
@@ -127,8 +135,14 @@ object ScFunctionDefinition {
   }
 
   private def innerReturnUsages(expression: ScExpression,
-                                visitor: ReturnsVisitor = new ReturnsVisitor): Set[ScExpression] = {
-    val statements = expression.depthFirst(!_.isInstanceOf[ScFunction]).collect {
+                                visitor: ReturnsVisitor = new ReturnsVisitor,
+                                excludeTailRecBlockingStatements: Boolean = false): Set[ScExpression] = {
+
+    val stopper: PsiElement => Boolean =
+      if (!excludeTailRecBlockingStatements) !_.isInstanceOf[ScFunction]
+      else e => !e.isInstanceOf[ScFunction] && !e.isInstanceOf[ScTryBlock] && !e.isInstanceOf[ScFinallyBlock]
+
+    val statements = expression.depthFirst(stopper).collect {
       case statement: ScReturn => statement
     }.toSet
 
