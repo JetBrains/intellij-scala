@@ -24,7 +24,7 @@ final class ApparentResultTypeRefinementInspection extends AbstractMethodSignatu
 
   override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
     val quickFix = new AbstractFixOnPsiElement(
-      "Insert missing assignment",
+      InspectionBundle.message("insert.missing.assignment"),
       function
     ) {
       override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit = for {
