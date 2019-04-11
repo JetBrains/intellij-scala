@@ -1,0 +1,42 @@
+<html>
+<body>
+It is not recommended to use procedure-like syntax for methods. It is
+inconsistent,
+may lead to errors and will be deprecated in future versions of Scala.
+<br />
+<br />
+
+* Reference: The talk <a href="https://www.parleys.com/play/51c1994ae4b0d38b54f4621b/chapter46/agenda">"Scala with
+Style"</a> by Martin Odersky at
+ScalaDays 2013
+<br />
+<br />
+
+<em>Hint:</em> You can use Analyze / Run Inspection by Name (Ctrl+Alt+Shift+I) to apply this inspection to the whole
+project
+
+<br />
+<br />
+
+<p>
+    Before:
+<pre>
+class Impl {
+  def method() {
+    // ...
+  }
+}
+</pre>
+
+<br>
+After:
+<pre>
+class Impl {
+  def method(): Unit = {
+    // ...
+  }
+}
+</pre>
+</p>
+</body>
+</html>

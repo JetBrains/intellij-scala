@@ -992,19 +992,19 @@
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
       <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProceduralDefinition"
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDefinition"
               bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.unit.procedural.definition"
+              key="method.signature.procedure.definition"
               groupPath="Scala" groupName="Method signature"
-              shortName="UnitMethodDefinedLikeProcedure"
+              shortName="ProcedureDefinition"
               level="WARNING"
               enabledByDefault="false" language="Scala"/>
       <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$DeclarationType"
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDeclaration"
               bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-              key="method.signature.unit.declaration.type"
+              key="method.signature.procedure.declaration"
               groupPath="Scala" groupName="Method signature"
-              shortName="MethodDeclarationHasNoExplicitType"
+              shortName="ProcedureDeclaration"
               language="Scala" level="WARNING"
               enabledByDefault="false"/>
       <localInspection

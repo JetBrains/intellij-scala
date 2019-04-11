@@ -97,7 +97,7 @@ object UnitMethodInspection {
     }
   }
 
-  final class ProceduralDefinition extends UnitMethodInspection {
+  final class ProcedureDefinition extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
       super.isApplicable(function) && function.isInstanceOf[ScFunctionDefinition] &&
@@ -107,7 +107,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        InspectionBundle.message("insert.return.type.and.equals"),
+        InspectionBundle.message("convert.to.function.syntax"),
         function.asInstanceOf[ScFunctionDefinition]
       ) {
         override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit = {
@@ -121,7 +121,7 @@ object UnitMethodInspection {
     }
   }
 
-  final class DeclarationType extends UnitMethodInspection {
+  final class ProcedureDeclaration extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
       super.isApplicable(function) && function.isInstanceOf[ScFunctionDeclaration] &&
@@ -129,7 +129,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        InspectionBundle.message("add.unit.type.to.declaration"),
+        InspectionBundle.message("convert.to.function.syntax"),
         function
       ) {
         override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit = {
