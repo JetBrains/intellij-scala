@@ -419,9 +419,20 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       return
     }
 
+    refElement match {
+      case _: ScDocResolvableCodeReference =>
+        if (resolve.isEmpty) {
+          val annotation = holder.createAnnotation(HighlightSeverity.WARNING,
+            refElement.getTextRange,
+            ScalaBundle.message("cannot.resolve", refElement.refName))
+          registerAddFixes(refElement, annotation, getFixes: _*)
+        }
+        return
 
-    val goodDoc = refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 1
-    if (resolve.length != 1 && !goodDoc) {
+      case _ =>
+    }
+
+    if (resolve.length != 1) {
       if (resolve.length == 0) { //Let's try to hide dynamic named parameter usage
         refElement match {
           case e: ScReferenceExpression =>
@@ -515,7 +526,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       }
     }
 
-    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1 && !goodDoc) {
+    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
       val parent = refElement.getParent
       def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
