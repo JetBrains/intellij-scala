@@ -41,7 +41,7 @@ object ParameterlessOverrideInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
       super.isApplicable(function) &&
-        function.hasUnitResultType &&
+        !function.hasUnitResultType &&  // when the type is Unit, UnitMethodInspection#Parameterless is applicable
         hasMutatorLikeName(function) &&
         !isUnderscoreFunction(function)
 
