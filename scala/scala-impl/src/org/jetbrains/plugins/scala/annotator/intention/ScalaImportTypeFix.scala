@@ -440,6 +440,7 @@ object ScalaImportTypeFix {
     val weightedCandidate =
       for (candidate <- importCandidates.toArray) yield {
         val candidateQualifier = candidate.qualifiedName.split('.').init
+        assert(candidateQualifier.nonEmpty)
 
         val (dist, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
 
@@ -461,7 +462,7 @@ object ScalaImportTypeFix {
 
             dist * 2 + weightMod
           } else {
-            Int.MaxValue
+            specialPackageWeight.getOrElse(candidateQualifier.head, Int.MaxValue)
           }
 
         weight -> candidate
@@ -472,6 +473,11 @@ object ScalaImportTypeFix {
 
     weightedCandidate.map(_._2)
   }
+
+  val specialPackageWeight: Map[String, Int] = Map(
+    "scala" -> 10000,
+    "java"  -> 100000
+  )
 
   // calculates the distance between two package qualifiers
   // two qualifiers that don't share the first two package names are not related at all!
