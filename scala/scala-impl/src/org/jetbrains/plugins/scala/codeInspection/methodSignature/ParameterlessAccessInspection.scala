@@ -126,7 +126,7 @@ object ParameterlessAccessInspection {
   }
 
   private def createQuickFix(expression: ScExpression) = new AbstractFixOnPsiElement(
-    "Add call parentheses",
+    InspectionBundle.message("add.call.parentheses"),
     expression
   ) {
     override protected def doApplyFix(expression: ScExpression)(implicit project: Project): Unit = {

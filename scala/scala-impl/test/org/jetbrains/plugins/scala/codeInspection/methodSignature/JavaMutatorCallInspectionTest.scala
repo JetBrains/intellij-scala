@@ -5,24 +5,24 @@ import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
 
-class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBase {
+class JavaMutatorCallInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.{CARET_MARKER => CARET}
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[ParameterlessOverrideInspection.JavaMutator]
+    classOf[ParameterlessAccessInspection.JavaMutator]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.parameterless.override.java.mutator")
+    InspectionBundle.message("method.signature.parameterless.access.java.mutator")
 
-  private val hint = InspectionBundle.message("empty.parentheses")
+  private val hint = InspectionBundle.message("add.call.parentheses")
 
 
   def test_non_unit_with_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    getFixture.configureByText("J.java",
       """
-        |public class JBase {
+        |public class J {
         |    public int addFoo() {}
         |}
       """.stripMargin
@@ -31,33 +31,27 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
     checkTextHasError(
       text =
         s"""
-           |class Impl extends JBase {
-           |  override def ${START}addFoo$END: Int = 0
-           |}
+           |new J().${START}addFoo$END
          """.stripMargin
     )
 
     testQuickFix(
       text =
         s"""
-           |class Impl extends JBase {
-           |  def add${CARET}Foo: Int = 0
-           |}
+           |new J().add${CARET}Foo
          """.stripMargin,
       expected =
         s"""
-           |class Impl extends JBase {
-           |  def addFoo(): Int = 0
-           |}
+           |new J().addFoo()
          """.stripMargin,
       hint
     )
   }
 
   def test_unit_with_non_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    getFixture.configureByText("J.java",
       """
-        |public class JBase {
+        |public class J {
         |    public void foo() {}
         |}
       """.stripMargin)
@@ -65,17 +59,15 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
     checkTextHasError(
       text =
         s"""
-           |class Impl extends JBase {
-           |  def ${START}foo$END: Unit = 0
-           |}
+           |new J().${START}foo$END
          """.stripMargin
     )
   }
 
   def test_unit_with_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    getFixture.configureByText("J.java",
       """
-        |public class JBase {
+        |public class J {
         |    public void addFoo() {}
         |}
       """.stripMargin
@@ -84,26 +76,22 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
     checkTextHasNoErrors(
       text =
         """
-          |class Impl extends JBase {
-          |  def addFoo(): Unit = ()
-          |}
+          |new J().addFoo()
         """.stripMargin
     )
   }
 
   def test_with_non_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    getFixture.configureByText("J.java",
       """
-        |public class JBase {
+        |public class J {
         |    public int foo() { return 0; }
         |}
       """.stripMargin)
 
     checkTextHasNoErrors(
       """
-        |class Impl extends JBase {
-        |  def foo: Int = 0
-        |}
+        |new J().foo
       """.stripMargin
     )
   }
