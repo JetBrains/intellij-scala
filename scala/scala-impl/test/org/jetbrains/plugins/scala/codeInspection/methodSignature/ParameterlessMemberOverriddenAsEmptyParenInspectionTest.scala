@@ -5,18 +5,18 @@ import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
 
-class EmptyParenMethodInspectionTest extends ScalaQuickFixTestBase {
+class ParameterlessMemberOverriddenAsEmptyParenInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.{CARET_MARKER => CARET}
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[ParameterlessOverrideInspection.EmptyParenMethod]
+    classOf[EmptyParenOverrideInspection.ParameterlessMemberOverriddenAsEmptyParenInspection]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.parameterless.override.empty.paren")
+    InspectionBundle.message("method.signature.empty.paren.override.parameterless")
 
-  private val hint = InspectionBundle.message("empty.parentheses")
+  private val hint = InspectionBundle.message("redundant.parentheses")
 
 
   def test(): Unit = {
@@ -24,11 +24,11 @@ class EmptyParenMethodInspectionTest extends ScalaQuickFixTestBase {
       text =
         s"""
            |class Impl extends Base {
-           |  def ${START}blub$END: Int = 0
+           |  def ${START}blub$END(): Int = 0
            |}
            |
            |trait Base {
-           |  def blub(): Int
+           |  def blub: Int
            |}
          """.stripMargin
     )
@@ -37,21 +37,21 @@ class EmptyParenMethodInspectionTest extends ScalaQuickFixTestBase {
       text =
         s"""
            |class Impl extends Base {
-           |  def bl${CARET}ub: Int = 0
+           |  def bl${CARET}ub(): Int = 0
            |}
            |
            |trait Base {
-           |  def blub(): Int
+           |  def blub: Int
            |}
          """.stripMargin,
       expected =
         s"""
            |class Impl extends Base {
-           |  def blub(): Int = 0
+           |  def blub: Int = 0
            |}
            |
            |trait Base {
-           |  def blub(): Int
+           |  def blub: Int
            |}
          """.stripMargin,
       hint
