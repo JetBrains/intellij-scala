@@ -75,5 +75,42 @@ class OpeningBraceBackspaceActionTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
+  def testNotRemoveClosingBraceForFunctionBodyWithMultipleExpressionsAndStatements(): Unit = {
+    val before =
+      s"""def foo() = {$CARET
+         |  val x = 42
+         |  someMethod()
+         |}
+      """.stripMargin
+    val after =
+      s"""def foo() = $CARET
+         |  val x = 42
+         |  someMethod()
+         |}
+      """.stripMargin
+    doTest(before, after)
+  }
+
+  def testNotRemoveClosingBraceForFunctionBodyWithMultipleExpressionsAndStatements_1(): Unit = {
+    val before =
+      s"""def foo() = {$CARET
+         |  try {
+         |    someMethod1()
+         |  }
+         |  someMethod2()
+         |}
+      """.stripMargin
+    val after =
+      s"""def foo() = $CARET
+         |  try {
+         |    someMethod1()
+         |  }
+         |  someMethod2()
+         |}
+      """.stripMargin
+    doTest(before, after)
+  }
+
+
 
 }

@@ -124,7 +124,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
 
       bodyOpt match {
-        case Some(block: ScBlockExpr) if block.exprs.size == 1 =>
+        case Some(block: ScBlockExpr) if block.statements.size == 1 =>
           block.getRBrace match {
             case Some(rBrace) =>
               val start = rBrace.getTreePrev match {
