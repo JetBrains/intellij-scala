@@ -54,7 +54,7 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
         val relPath = VfsUtilCore.getRelativePath(file, ancestor)
         reporter.notify(relPath)
 
-        AllProjectHighlightingTest.annotateFile(
+        AllProjectHighlightingTest.annotateScalaFile(
           PsiManager.getInstance(getProject).findFile(file),
           reporter,
           Some(relPath)

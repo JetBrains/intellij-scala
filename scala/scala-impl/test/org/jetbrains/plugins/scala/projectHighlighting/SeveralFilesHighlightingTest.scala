@@ -76,7 +76,7 @@ trait SeveralFilesHighlightingTest {
     try {
       module.scalaCompilerSettings.additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
       ScalaCompilerConfiguration.incModificationCount()
-      addedFiles.foreach(AllProjectHighlightingTest.annotateFile(_, reporter))
+      addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter))
     } finally {
       addedFiles.foreach(removeFile)
       module.scalaCompilerSettings.additionalCompilerOptions = Seq.empty

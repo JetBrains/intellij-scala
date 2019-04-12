@@ -2,19 +2,21 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.collection.JavaConverters._
 import scala.util.Random
@@ -35,11 +37,11 @@ trait AllProjectHighlightingTest {
 
   def doAllProjectHighlightingTest(): Unit = {
 
-    val scope = SourceFilterScope(getProject)
-    val scalaFiles = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, scope)
-    val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope)
+    val scope = SourceFilterScope(getProject, GlobalSearchScope.projectScope(getProject), scalaFileTypes :+ JavaFileType.INSTANCE)
+    val scalaFiles = scalaFileTypes.flatMap(fileType => FileTypeIndex.getFiles(fileType, scope).asScala)
+    val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope).asScala
 
-    val files = scalaFiles.asScala ++ javaFiles.asScala
+    val files = scalaFiles ++ javaFiles
 
     LocalFileSystem.getInstance().refreshFiles(files.asJava)
 
@@ -53,15 +55,17 @@ trait AllProjectHighlightingTest {
       reporter.updateHighlightingProgress(percent(index, size))
 
       file.getFileType match {
-        case ScalaFileType.INSTANCE =>
-          annotateScala(psiFile)
         case JavaFileType.INSTANCE =>
           annotateJava(psiFile, getProjectFixture)
+        case _ =>
+          annotateScala(psiFile)
       }
     }
 
     reporter.reportResults()
   }
+
+  protected def scalaFileTypes: Seq[FileType] = Seq(ScalaFileType.INSTANCE)
 
   def shouldSkip(fileName: String): Boolean = false
 
@@ -80,7 +84,7 @@ trait AllProjectHighlightingTest {
   }
 
   private def annotateScala(psiFile: PsiFile): Unit =
-    AllProjectHighlightingTest.annotateFile(psiFile, reporter)
+    AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter)
 }
 
 object AllProjectHighlightingTest {
@@ -95,9 +99,14 @@ object AllProjectHighlightingTest {
     case path => throw new IllegalArgumentException(s"Unknown test path: $path")
   }
 
-  def annotateFile(psiFile: PsiFile, reporter: ProgressReporter, relPath: Option[String] = None): Unit = {
-    val fileName = relPath.getOrElse(relativePathOf(psiFile))
-    val mock = new AnnotatorHolderMock(psiFile){
+  def annotateScalaFile(file: PsiFile, reporter: ProgressReporter, relPath: Option[String] = None): Unit = {
+    val scalaFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
+      case f: ScalaFile => f
+      case _            => return
+    }
+
+    val fileName = relPath.getOrElse(relativePathOf(scalaFile))
+    val mock = new AnnotatorHolderMock(scalaFile){
       override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
         reporter.reportError(fileName, range, message)
         super.createErrorAnnotation(range, message)
@@ -108,11 +117,11 @@ object AllProjectHighlightingTest {
       }
     }
 
-    val annotator = ScalaAnnotator.forProject(psiFile)
+    val annotator = ScalaAnnotator.forProject(scalaFile)
 
     val random = new Random(0)
 
-    for (element <- random.shuffle(psiFile.depthFirst())) {
+    for (element <- random.shuffle(scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]))) {
       try {
         annotator.annotate(element, mock)
       } catch {
