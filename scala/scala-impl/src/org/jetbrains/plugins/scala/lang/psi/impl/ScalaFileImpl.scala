@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.extensions._
@@ -325,6 +325,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
+
+  override final def getUseScope: SearchScope = super[PsiFileBase].getUseScope
 
   override val allowsForwardReferences: Boolean = false
 }

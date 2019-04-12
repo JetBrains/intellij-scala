@@ -3,7 +3,7 @@ package lang
 package psi
 package api
 
-import com.intellij.psi.{PsiElement, PsiElementVisitor, tree}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, search, tree}
 
 trait ScalaPsiElement extends PsiElement
   with project.ProjectContextOwner {
@@ -15,7 +15,7 @@ trait ScalaPsiElement extends PsiElement
 
   implicit def projectContext: project.ProjectContext = this.getProject
 
-  def isInCompiledFile: Boolean = getContainingFile match {
+  final def isInCompiledFile: Boolean = getContainingFile match {
     case sf: ScalaFile => sf.isCompiled
     case _ => false
   }
@@ -100,6 +100,29 @@ trait ScalaPsiElement extends PsiElement
     if (child == null) None else Some(child.asInstanceOf[T])
   }
 
+  abstract override def getUseScope: search.SearchScope = {
+    import ScalaUseScope._
+
+    val scriptScope = getContainingFile match {
+      case file: ScalaFile if file.isWorksheetFile || file.isScriptFile =>
+        Some(safeLocalScope(file))
+      case _ => None
+    }
+
+    val mostNarrow = (this match {
+      case parameter: statements.params.ScParameter => Option(parameterScope(parameter))
+      case named: toplevel.ScNamedElement => namedScope(named)
+      case member: toplevel.typedef.ScMember => memberScope(member)
+      case _ => None
+    }).map {
+      intersect(_, scriptScope)
+    }.orElse {
+      scriptScope
+    }
+
+    intersect(super.getUseScope, mostNarrow)
+  }
+
   abstract override def accept(visitor: PsiElementVisitor): Unit = visitor match {
     case visitor: ScalaElementVisitor => acceptScala(visitor)
     case _ => super.accept(visitor)
@@ -109,9 +132,8 @@ trait ScalaPsiElement extends PsiElement
     visitor.visitScalaElement(this)
   }
 
-  def acceptChildren(visitor: ScalaElementVisitor): Unit =
-    getChildren.foreach {
-      case element: ScalaPsiElement => element.accept(visitor)
-      case _ =>
-    }
+  def acceptChildren(visitor: ScalaElementVisitor): Unit = getChildren.foreach {
+    case element: ScalaPsiElement => element.accept(visitor)
+    case _ =>
+  }
 }

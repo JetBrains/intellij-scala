@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi
+package org.jetbrains.plugins.scala
+package lang
+package psi
 
 import com.intellij.psi.search._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -17,41 +17,21 @@ import scala.annotation.tailrec
 
 object ScalaUseScope {
 
-  def mostNarrow(element: ScalaPsiElement): Option[SearchScope] = {
-
-    val narrowScope = element match {
-      case p: ScParameter    => Option(parameterScope(p))
-      case n: ScNamedElement => namedScope(n)
-      case m: ScMember       => memberScope(m)
-      case _                 => None
-    }
-
-    val scriptScope =
-      element.containingScalaFile
-        .filter(f => f.isWorksheetFile || f.isScriptFile)
-        .map(safeLocalScope(_))
-
-    intersect(narrowScope, scriptScope)
-  }
+  import extensions._
 
   def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope = {
     scopeOption.map(_.intersectWith(scope))
       .getOrElse(scope)
   }
 
-  private def intersect(scope1: Option[SearchScope], scope2: Option[SearchScope]): Option[SearchScope] = {
-    scope1.map(intersect(_, scope2))
-      .orElse(scope2)
-  }
-
-  private def parameterScope(parameter: ScParameter): SearchScope = parameter.getDeclarationScope match {
+  private[psi] def parameterScope(parameter: ScParameter): SearchScope = parameter.getDeclarationScope match {
     case null                 => GlobalSearchScope.EMPTY_SCOPE
     case expr: ScFunctionExpr => safeLocalScope(expr)
     case td: ScTypeDefinition => intersect(td.getUseScope, namedScope(parameter)) //class parameters
     case d                    => d.getUseScope //named parameters
   }
 
-  private def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
+  def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
     case member: ScMember if member.isLocal      => localDefinitionScope(member)
     case member: ScMember if member != named     => Some(member.getUseScope)
     case member: ScMember                        => memberScope(member)
@@ -60,16 +40,15 @@ object ScalaUseScope {
     case _                                       => None
   }
 
-
   private def localDefinitionScope(elem: PsiElement): Option[LocalSearchScope] =
     elem.parentOfType(Seq(classOf[ScFor], classOf[ScBlock], classOf[ScMember]))
       .map(safeLocalScope)
-  
-  private def safeLocalScope(elem: PsiElement): LocalSearchScope =
+
+  private[psi] def safeLocalScope(elem: PsiElement): LocalSearchScope =
     if (elem.isValid && elem.getContainingFile != null) new LocalSearchScope(elem)
     else LocalSearchScope.EMPTY
 
-  private def memberScope(member: ScMember): Option[SearchScope] = {
+  private[psi] def memberScope(member: ScMember): Option[SearchScope] = {
 
     def localSearchScope(typeDefinition: ScTypeDefinition, withCompanion: Boolean = true): SearchScope = {
       val scope = safeLocalScope(typeDefinition)
