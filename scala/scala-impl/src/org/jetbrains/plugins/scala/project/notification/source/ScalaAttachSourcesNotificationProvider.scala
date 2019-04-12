@@ -38,7 +38,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
 
     val scalaFile = PsiManager.getInstance(myProject).findFile(file) match {
       case scalaFile: ScalaFile => scalaFile
-      case _ => return super.createNotificationPanel(file, fileEditor) //as Java has now different message
+      case _ => return super.createNotificationPanel(file, fileEditor, myProject) //as Java has now different message
     }
 
     val fqn = ScalaEditorFileSwapper.getFQN(scalaFile)

@@ -8,8 +8,6 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.JDOMExternalizer
-import org.jdom.Element
 import org.jetbrains.plugins.scala.runner.BaseRunConfiguration
 
 /**

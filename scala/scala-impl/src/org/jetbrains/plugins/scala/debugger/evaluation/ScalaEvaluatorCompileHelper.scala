@@ -4,7 +4,7 @@ package debugger.evaluation
 import java.io.File
 
 import com.intellij.debugger.DebuggerManagerEx
-import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerManagerListener, DebuggerSession}
+import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module

@@ -14,17 +14,18 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{JDOMExternalizer, Key}
 import com.intellij.util.execution.ParametersListUtil
+import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.plugins.scala.extensions.using
-import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.runner.SbtRunConfiguration._
-import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.settings.SbtSettings
 
+import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
 /**
@@ -36,56 +37,51 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * List of task to execute in format of sbt.
    */
-  protected var tasks: String = ""
+  @BeanProperty var tasks: String = ""
 
   /**
    * Extra java options.
    */
-  protected var javaOptions: String = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled"
+  @BeanProperty var vmparams: String = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled"
 
   /**
    * Environment variables.
    */
-  protected val environmentVariables: java.util.Map[String, String] = new java.util.HashMap[String, String]()
+  val environmentVariables: java.util.Map[String, String] = new java.util.HashMap[String, String]()
 
-  protected var workingDirectory: String = defaultWorkingDirectory
-  
-  protected var isUsingSbtShell: Boolean = true
+  @BeanProperty var workingDir: String = defaultWorkingDirectory
+
+  @BeanProperty var useSbtShell: Boolean = true
 
   private def defaultWorkingDirectory = Option(project.baseDir).fold("")(_.getPath)
 
   override def getValidModules: util.Collection[Module] = new java.util.ArrayList
 
-  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = 
+  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =
     new SbtCommandLineState(preprocessTasks(), this, env)
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SbtRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    JDOMExternalizer.write(element, TASKS_KEY, getTasks)
-    JDOMExternalizer.write(element, VM_PARAMS_KEY, getJavaOptions)
-    JDOMExternalizer.write(element, WORK_DIR_KEY, getWorkingDir)
-    JDOMExternalizer.write(element, USE_SBT_SHELL_KEY, getUseSbtShell)
-    EnvironmentVariablesComponent.writeExternal(element, getEnvironmentVariables)
+    workingDir = if (StringUtil.isEmpty(workingDir)) defaultWorkingDirectory else workingDir
+    XmlSerializer.serializeInto(this, element)
+    EnvironmentVariablesComponent.writeExternal(element, environmentVariables)
   }
 
   override def readExternal(element: Element) {
     super.readExternal(element)
-    tasks = JDOMExternalizer.readString(element, TASKS_KEY)
-    javaOptions = JDOMExternalizer.readString(element, VM_PARAMS_KEY)
-    workingDirectory = JDOMExternalizer.readString(element, WORK_DIR_KEY)
-    isUsingSbtShell = JDOMExternalizer.readBoolean(element, USE_SBT_SHELL_KEY)
+    XmlSerializer.deserializeInto(this, element)
     EnvironmentVariablesComponent.readExternal(element, environmentVariables)
   }
 
   def apply(params: SbtRunConfigurationForm): Unit = {
     tasks = params.getTasks
-    javaOptions = params.getJavaOptions
-    workingDirectory = params.getWorkingDir
+    vmparams = params.getJavaOptions
+    workingDir = params.getWorkingDir
     environmentVariables.clear()
     environmentVariables.putAll(params.getEnvironmentVariables)
-    isUsingSbtShell = params.isUseSbtShell
+    useSbtShell = params.isUseSbtShell
   }
 
   def determineMainClass(launcherPath: String): String = {
@@ -95,31 +91,13 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     }
   }
 
-  def getUseSbtShell: Boolean = isUsingSbtShell
-  
-  def getTasks: String = tasks
-
-  def getJavaOptions: String = javaOptions
-
-  def getEnvironmentVariables: util.Map[String, String] = environmentVariables
-
-  def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) defaultWorkingDirectory else workingDirectory
-  
   protected def preprocessTasks(): String = if (!getUseSbtShell || getTasks.trim.startsWith(";")) getTasks else {
     val commands = ParametersListUtil.parse(getTasks, true).asScala
     if (commands.length == 1) commands.head else commands.mkString(";", " ;", "")
   }
 }
 
-object SbtRunConfiguration {
-  private val TASKS_KEY = "tasks"
-  private val VM_PARAMS_KEY = "vmparams"
-  private val WORK_DIR_KEY = "workingDir"
-  private val USE_SBT_SHELL_KEY = "useSbtShell"
-}
-
-
-class SbtCommandLineState(val processedCommands: String, val configuration: SbtRunConfiguration, environment: ExecutionEnvironment, 
+class SbtCommandLineState(val processedCommands: String, val configuration: SbtRunConfiguration, environment: ExecutionEnvironment,
                           private var listener: Option[String => Unit] = None) extends JavaCommandLineState(environment) {
   def getListener: Option[String => Unit] = listener
   
@@ -141,7 +119,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
   }
   
   def createJavaParameters(): JavaParameters = {
-    val environmentVariables = configuration.getEnvironmentVariables
+    val environmentVariables = configuration.environmentVariables
     val params: JavaParameters = new JavaParameters
     val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)
 
@@ -169,7 +147,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     }
     
     params.setEnv(environmentVariables)
-    params.getVMParametersList.addParametersString(configuration.getJavaOptions)
+    params.getVMParametersList.addParametersString(configuration.getVmparams)
     params.getProgramParametersList.addParametersString(processedCommands)
     
     params

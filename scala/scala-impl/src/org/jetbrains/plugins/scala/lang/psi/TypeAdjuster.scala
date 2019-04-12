@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.openapi.application.{ApplicationAdapter, ApplicationManager}
+import com.intellij.openapi.application.{ApplicationListener, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-object TypeAdjuster extends ApplicationAdapter {
+object TypeAdjuster extends ApplicationListener {
 
   import ScEquivalenceUtil.smartEquivalence
   import ScalaNamesUtil.{isOperatorName, qualifiedName, splitName}

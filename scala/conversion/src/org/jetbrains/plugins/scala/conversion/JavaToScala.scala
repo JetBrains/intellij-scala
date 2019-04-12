@@ -31,8 +31,8 @@ object JavaToScala {
 
   case class AssociationHelper(node: IntermediateNode, path: Path)
 
-  private val context: ThreadLocal[mutable.Stack[(Boolean, String)]] = new ThreadLocal[mutable.Stack[(Boolean, String)]] {
-    override def initialValue(): mutable.Stack[(Boolean, String)] = new mutable.Stack[(Boolean, String)]()
+  private val context: ThreadLocal[java.util.Stack[(Boolean, String)]] = new ThreadLocal[java.util.Stack[(Boolean, String)]] {
+    override def initialValue(): java.util.Stack[(Boolean, String)] = new java.util.Stack[(Boolean, String)]()
   }
 
   def findVariableUsage(elementToFind: PsiElement, maybeElement: Option[PsiElement]): Seq[PsiReferenceExpression] =
@@ -473,8 +473,8 @@ object JavaToScala {
         PolyadicExpression(p.getOperands.map(convertPsiToIntermediate(_, externalProperties)), tokenValue)
       case r: PsiReferenceParameterList => TypeParameters(r.getTypeParameterElements.map(convertPsiToIntermediate(_, externalProperties)))
       case b: PsiBreakStatement =>
-        if (b.getLabelIdentifier != null)
-          NotSupported(None, "break " + b.getLabelIdentifier.getText + "// todo: label break is not supported")
+        if (b.getLabelExpression != null)
+          NotSupported(None, "break " + b.getLabelExpression.getText + "// todo: label break is not supported")
         else NotSupported(None, "break //todo: break is not supported")
       case c: PsiContinueStatement =>
         if (c.getLabelIdentifier != null)
@@ -944,7 +944,7 @@ object JavaToScala {
             LiteralExpression(packageName.substring(packageName.lastIndexOf(".") + 1))))
       }
 
-      if (owner.hasModifierProperty(PsiModifier.FINAL) && context.get.nonEmpty && !context.get.top._1) {
+      if (owner.hasModifierProperty(PsiModifier.FINAL) && !context.get.empty() && !context.get.peek()._1) {
         owner match {
           case _: PsiLocalVariable =>
           case _: PsiParameter =>

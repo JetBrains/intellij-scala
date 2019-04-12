@@ -28,7 +28,7 @@ public class SbtRunConfigurationForm {
     private JPanel optionalPanel;
 
     public SbtRunConfigurationForm(final Project project, final SbtRunConfiguration configuration) {
-        environmentVariables.setEnvs(configuration.getEnvironmentVariables());
+        environmentVariables.setEnvs(configuration.environmentVariables());
         workingDirField.setText(configuration.getWorkingDir());
         FileChooserDescriptor folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
         workingDirField.addBrowseFolderListener("Choose Working Directory", null, project, folderDescriptor);
@@ -72,8 +72,8 @@ public class SbtRunConfigurationForm {
 
     public void apply(SbtRunConfiguration configuration) {
         tasksEditor.setText(configuration.getTasks());
-        javaOptionsEditor.setText(configuration.getJavaOptions());
-        environmentVariables.setEnvs(configuration.getEnvironmentVariables());
+        javaOptionsEditor.setText(configuration.getVmparams());
+        environmentVariables.setEnvs(configuration.environmentVariables());
         workingDirField.setText(configuration.getWorkingDir());
         useSbtShellCheckBox.setSelected(configuration.getUseSbtShell());
     }

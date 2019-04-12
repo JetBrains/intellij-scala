@@ -5,7 +5,7 @@ import java.io.File
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.service.JpsServiceManager
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 abstract class LogFilterService {
   def shouldLog(kind: Kind,
@@ -16,8 +16,8 @@ abstract class LogFilterService {
 }
 
 object LogFilter extends LogFilterService {
-  private val filters: Seq[LogFilterService] = JpsServiceManager.getInstance
-          .getExtensions(classOf[LogFilterService]).toSeq
+  private val filters = JpsServiceManager.getInstance
+          .getExtensions(classOf[LogFilterService]).asScala
 
 
   override def shouldLog(kind: Kind,
@@ -26,7 +26,7 @@ object LogFilter extends LogFilterService {
                          line: Option[Long],
                          column: Option[Long]): Boolean = {
     // We want to run shouldLog on all filters not just retrun fast
-    val res = filters.map(_.shouldLog(kind, text, source, line, column))
+    val res = filters.map(_.shouldLog(kind, text, source, line, column)).toSeq
 
     !res.contains(false)
   }

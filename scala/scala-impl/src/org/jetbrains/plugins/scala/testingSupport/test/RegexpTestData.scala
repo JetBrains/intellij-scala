@@ -1,28 +1,27 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
+import java.util
 import java.util.regex.{Pattern, PatternSyntaxException}
 
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
-import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.psi.search.GlobalSearchScopesCore
 import com.intellij.psi.search.searches.AllClassesSearch
-import org.jdom.Element
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import scala.collection.mutable
 
 class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
-  private var classRegexps: Array[String] = Array.empty
-  private var testRegexps: Array[String] = Array.empty
-  def getClassRegexps: Array[String] = classRegexps
-  def getTestRegexps: Array[String] = testRegexps
-  private var testsBuf: Map[String, Set[String]] = Map()
+
+  @BeanProperty var classRegexps: Array[String] = Array.empty
+  @BeanProperty var testRegexps: Array[String]  = Array.empty
+  @BeanProperty var testsBuf: java.util.Map[String, java.util.Set[String]] = new util.HashMap()
 
   protected[test] def zippedRegexps: Array[(String, String)] = classRegexps.zipAll(testRegexps, "", "")
 
@@ -82,7 +81,7 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     val classToTests = mutable.Map[String, Set[String]]()
     if (isDumb) {
       if (testsBuf.isEmpty) throw new ExecutionException("Can't run while indexing: no class names memorized from previous iterations.")
-      return testsBuf
+      return testsBuf.asScala.map { case (k,v) => k -> v.asScala.toSet }.toMap
     }
 
     def getCondition(patternString: String): String => Boolean = {
@@ -107,57 +106,8 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
         findTestsByFqnCondition(getCondition(classPatternString), getCondition(testPatternString), classToTests)
     }
     val res = classToTests.toMap.filter(_._2.nonEmpty)
-    testsBuf = res
+    testsBuf = res.map { case (k, v) => k -> v.asJava }.asJava
     res
-  }
-
-  override def readExternal(element: Element): Unit = {
-    super.readExternal(element)
-    def loadRegexps(pMap: mutable.Map[String, String]): Array[String] = {
-      val res = new Array[String](pMap.size)
-      pMap.foreach { case (index, pattern) => res(Integer.parseInt(index)) = pattern }
-      res
-    }
-
-    val classRegexpsMap = mutable.Map[String, String]()
-    JDOMExternalizer.readMap(element, classRegexpsMap.asJava, "classRegexps", "pattern")
-    classRegexps = loadRegexps(classRegexpsMap)
-    val testRegexpssMap = mutable.Map[String, String]()
-    JDOMExternalizer.readMap(element, testRegexpssMap.asJava, "testRegexps", "pattern")
-    testRegexps = loadRegexps(testRegexpssMap)
-    testsBuf = readBufMap(element)
-  }
-
-  override def writeExternal(element: Element): Unit = {
-    super.writeExternal(element)
-    val classRegexps: Map[String, String] = Map(zippedRegexps.sorted.zipWithIndex.map { case ((c, _), i) => (i.toString, c) }: _*)
-    val testRegexps: Map[String, String] = Map(zippedRegexps.sorted.zipWithIndex.map { case ((_, t), i) => (i.toString, t) }: _*)
-    JDOMExternalizer.writeMap(element, classRegexps.asJava, "classRegexps", "pattern")
-    JDOMExternalizer.writeMap(element, testRegexps.asJava, "testRegexps", "pattern")
-    writeBufMap(element)
-  }
-
-  private def readBufMap(element: Element): Map[String, Set[String]] = {
-    val buf = element.getChild("buffered")
-    if (buf == null) return Map()
-    Map(buf.getChildren("entry").asScala.map{ entry =>
-      entry.getAttributeValue("class") -> entry.getChildren("test").asScala.map(_.getAttributeValue("name")).toSet
-    }:_*)
-  }
-
-  private def writeBufMap(element: Element): Unit = {
-    val buf = new Element("buffered")
-    testsBuf.toSeq.sortBy(_._1).foreach { case (className, tests) =>
-      val classElement = new Element("entry")
-      classElement.setAttribute("class", className)
-      tests.toSeq.sorted.foreach { testName =>
-        val testElement = new Element("test")
-        testElement.setAttribute("name", testName)
-        classElement.addContent(testElement)
-      }
-      buf.addContent(classElement)
-    }
-    element.addContent(buf)
   }
 
   override def getKind: TestKind = TestKind.REGEXP

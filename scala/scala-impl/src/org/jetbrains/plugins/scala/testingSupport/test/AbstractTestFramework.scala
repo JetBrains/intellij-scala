@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.testIntegration.JavaTestFramework
 import javax.swing.Icon
-import org.jetbrains.concurrency.Promise
+import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -76,7 +76,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     }
     val modifier = new SimpleBuildFileModifier(libraries, resolvers, options)
     modifier.modify(module, needPreviewChanges = true)
-    Promise.resolve(null)
+    Promises.resolvedPromise()
   }
 
   def getSuitePaths: Seq[String]

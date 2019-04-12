@@ -10,7 +10,7 @@ import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{JavaPsiFacade, PsiExpression}
-import com.intellij.util.{IncorrectOperationException, StringBuilderSpinAllocator}
+import com.intellij.util.IncorrectOperationException
 import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings

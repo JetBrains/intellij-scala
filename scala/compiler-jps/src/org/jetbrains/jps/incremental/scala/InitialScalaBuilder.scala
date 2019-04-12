@@ -105,7 +105,6 @@ object InitialScalaBuilder {
     }
 
     def cleanCaches() {
-      context.getProjectDescriptor.setFSCache(FSCache.NO_CACHE)
       try {
         val directory = context.getProjectDescriptor.dataManager.getDataPaths.getDataStorageRoot
         FileUtil.delete(directory)
