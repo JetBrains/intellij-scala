@@ -56,7 +56,7 @@ object JavaAccessorEmptyParenCallInspection {
 
   private def createQuickFix(call: ScMethodCall) = {
     val quickFix = new AbstractFixOnPsiElement(
-      "Remove call parentheses",
+      InspectionBundle.message("remove.call.parentheses"),
       call
     ) {
       override protected def doApplyFix(call: ScMethodCall)(implicit project: Project): Unit = {
