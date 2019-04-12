@@ -249,7 +249,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
          |  //Generated synthetic object
          |}""".stripMargin
 
-    val child = ScalaPsiUtil.getNextStubOrPsiElement(this) match {
+    val child = ScalaPsiUtil.getStubOrPsiSibling(this, next = true) match {
       case null => this
       case next => next
     }

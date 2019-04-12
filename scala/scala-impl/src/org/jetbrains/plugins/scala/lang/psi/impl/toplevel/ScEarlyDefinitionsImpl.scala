@@ -44,8 +44,8 @@ class ScEarlyDefinitionsImpl private(stub: ScEarlyDefinitionsStub, node: ASTNode
 
       if (!processed) return false
 
-      maybeElement = maybeElement flatMap { element =>
-        Option(ScalaPsiUtil.getPrevStubOrPsiElement(element))
+      maybeElement = maybeElement.flatMap {
+        element => Option(ScalaPsiUtil.getStubOrPsiSibling(element))
       }
     }
     true

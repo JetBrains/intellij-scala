@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -51,36 +50,36 @@ trait ScImportsHolder extends ScalaPsiElement {
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
     if (lastParent != null) {
-      var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
+      var run = ScalaPsiUtil.getStubOrPsiSibling(lastParent)
 //      updateResolveCaches()
       while (run != null) {
         ProgressManager.checkCanceled()
         if (run.isInstanceOf[ScImportStmt] &&
             !run.processDeclarations(processor, state, lastParent, place)) return false
-        run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
+        run = ScalaPsiUtil.getStubOrPsiSibling(run)
       }
     }
     true
   }
 
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
-    val buffer: ArrayBuffer[ScImportStmt] = new ArrayBuffer[ScImportStmt]()
+    val buffer = mutable.ArrayBuffer.empty[ScImportStmt]
     if (lastParent != null) {
-      var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
+      var run = ScalaPsiUtil.getStubOrPsiSibling(lastParent)
       while (run != null) {
         ProgressManager.checkCanceled()
         run match {
           case importStmt: ScImportStmt => buffer += importStmt
           case _ =>
         }
-        run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
+        run = ScalaPsiUtil.getStubOrPsiSibling(run)
       }
     }
     buffer.toVector
   }
 
   def getAllImportUsed: mutable.Set[ImportUsed] = {
-    val res: mutable.Set[ImportUsed] = new mutable.HashSet[ImportUsed]
+    val res = mutable.HashSet.empty[ImportUsed]
     def processChild(element: PsiElement) {
       for (child <- element.getChildren) {
         child match {
@@ -307,7 +306,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def deleteImportStmt(stmt: ScImportStmt) {
-    def remove(node: ASTNode) = getNode.removeChild(node)
+    def remove(node: ASTNode): Unit = getNode.removeChild(node)
     def shortenWhitespace(node: ASTNode) {
       if (node == null) return
       if (node.getText.count(_ == '\n') >= 2) {

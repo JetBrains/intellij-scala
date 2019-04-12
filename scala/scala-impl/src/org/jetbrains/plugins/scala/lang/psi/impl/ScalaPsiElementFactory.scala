@@ -134,9 +134,9 @@ final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFacto
 
 object ScalaPsiElementFactory {
 
+  import ScalaPsiUtil._
   import lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
   import lexer.ScalaTokenTypes._
-  import psi.ScalaPsiUtil.functionArrow
   import refactoring.util.ScalaNamesUtil._
 
   def createExpressionFromText(text: String, context: PsiElement): ScExpression = {
@@ -248,13 +248,12 @@ object ScalaPsiElementFactory {
   def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, child)(params.ParamClauses.parse)
 
-  private def contextLastChild(context: PsiElement): PsiElement = context.stub match {
-    case Some(stub) =>
-      val children = stub.getChildrenStubs
-      if (children.isEmpty) null
-      else children.get(children.size() - 1).getPsi
-    case _ => context.getLastChild
-  }
+  private def contextLastChild(element: PsiElement): PsiElement =
+    stub(element)
+      .map(_.getChildrenStubs)
+      .fold(element.getLastChild) {
+        at(_)().orNull
+      }
 
   def createPatternFromTextWithContext(patternText: String, context: PsiElement, child: PsiElement): ScPattern =
     createElementWithContext[ScCaseClause](kCASE + " " + patternText, context, child)(patterns.CaseClause.parse)
@@ -745,7 +744,10 @@ object ScalaPsiElementFactory {
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
                                                body: Option[String], needsOverride: Boolean,
                                                isVal: Boolean, needsInferType: Boolean): String = {
-    val modOwner: ScModifierListOwner = ScalaPsiUtil.nameContext(variable) match {case m: ScModifierListOwner => m case _ => null}
+    val modOwner: ScModifierListOwner = nameContext(variable) match {
+      case m: ScModifierListOwner => m
+      case _ => null
+    }
     val overrideText = if (needsOverride && (modOwner == null || !modOwner.hasModifierProperty("override"))) "override " else ""
     val modifiersText = if (modOwner != null) modOwner.getModifierList.getText + " " else ""
     val keyword = if (isVal) "val " else "var "

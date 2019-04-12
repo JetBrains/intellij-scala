@@ -90,14 +90,14 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   override def getPrevSibling: PsiElement = {
     child match {
       case null => super.getPrevSibling
-      case _ => ScalaPsiUtil.getPrevStubOrPsiElement(child)
+      case _ => ScalaPsiUtil.getStubOrPsiSibling(child)
     }
   }
 
   override def getNextSibling: PsiElement = {
     child match {
       case null => super.getNextSibling
-      case _ => ScalaPsiUtil.getNextStubOrPsiElement(child)
+      case _ => ScalaPsiUtil.getStubOrPsiSibling(child, next = true)
     }
   }
 

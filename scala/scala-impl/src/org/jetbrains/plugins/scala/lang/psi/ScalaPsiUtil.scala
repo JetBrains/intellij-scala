@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import java.{util => ju}
+
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
@@ -13,6 +16,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
+import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
@@ -441,32 +445,31 @@ object ScalaPsiUtil {
     }
   }
 
-  def getNextStubOrPsiElement(elem: PsiElement): PsiElement =
-    elem.stub match {
-      case Some(stub) => stubOrPsiSibling(stub, +1, elem.getNextSibling)
-      case None => elem.getNextSibling
-    }
+  def getStubOrPsiSibling(element: PsiElement, next: Boolean = false): PsiElement = {
+    val container = for {
+      stub <- stub(element)
+      parent = stub.getParentStub
 
-  def getPrevStubOrPsiElement(elem: PsiElement): PsiElement =
-    elem.stub match {
-      case Some(stub) => stubOrPsiSibling(stub, -1, elem.getPrevSibling)
-      case None => elem.getPrevSibling
-    }
+      childrenStubs = parent.getChildrenStubs
+      maybeElement = childrenStubs.indexOf(stub) match {
+        case -1 => null
+        case index => at(childrenStubs)(index + (if (next) 1 else -1))
+      }
+    } yield maybeElement
 
-  private def stubOrPsiSibling(stub: StubElement[_], delta: Int, byPsi: => PsiElement): PsiElement = {
-    stub.getParentStub match {
-      case null => byPsi
-      case parent =>
-        val children = parent.getChildrenStubs
-        val index = children.indexOf(stub)
-        val newIndex = index + delta
+    container.fold(if (next) element.getNextSibling else element.getPrevSibling)(_.orNull)
+  }
 
-        if (index < 0)
-          byPsi
-        else if (newIndex < 0 || newIndex >= children.size)
-          null
-        else
-          children.get(newIndex).getPsi
+  def at(stubs: ju.List[StubElement[_ <: PsiElement]])
+        (index: Int = stubs.size - 1): Option[PsiElement] =
+    if (index < 0 || index >= stubs.size) None
+    else Some(stubs.get(index).getPsi)
+
+  def stub(element: PsiElement): NullSafe[StubElement[_]] = NullSafe {
+    element match {
+      case stubbed: StubBasedPsiElementBase[_] => stubbed.getStub
+      case file: PsiFileImpl => file.getStub
+      case _ => null
     }
   }
 
@@ -741,7 +744,7 @@ object ScalaPsiUtil {
 
       def put(classParameter: PsiTypeParameter, mapping: PsiType): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
+      def getSubstitutionMap: ju.Map[PsiTypeParameter, PsiType] = new ju.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
         substitutor(`type`.toScType()).toPsiType
