@@ -1,27 +1,19 @@
-package org.jetbrains.plugins.scala.lang.psi.impl
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
-import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaUseScope}
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
-
-  override def getContext: PsiElement = {
-    context match {
-      case null => super.getContext
-      case _ => context
-    }
-  }
 
   override def getStartOffsetInParent: Int = {
     child match {
@@ -48,10 +40,6 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  override def findLastChildByType(t: TokenSet): PsiElement = {
-    super[ScalaPsiElement].findLastChildByType(t)
-  }
-
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
@@ -74,7 +62,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   }
 
   override def subtreeChanged(): Unit = {
-    AnyScalaPsiModificationTracker.incModificationCount()
+    ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
 
@@ -83,24 +71,13 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
-                                                                               nodeType: ScStubElementType[S, T],
+                                                                               nodeType: stubs.elements.ScStubElementType[S, T],
                                                                                node: ASTNode)
   extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
     with StubBasedPsiElement[S]
     with ScalaPsiElement {
 
-  override def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = {
-    byStubOrPsi(_.getStubType) {
-      getNode.getElementType.asInstanceOf[IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement]]
-    }
-  }
-
-  override def getContext: PsiElement = {
-    context match {
-      case null => super.getContext
-      case _ => context
-    }
-  }
+  override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = super.getElementType
 
   override def getStartOffsetInParent: Int = {
     child match {
@@ -125,10 +102,6 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   }
 
   override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
-    super[ScalaPsiElement].findLastChildByType(t)
-  }
-
-  override def findLastChildByType(t: TokenSet): PsiElement = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
@@ -159,7 +132,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   }
 
   override def subtreeChanged(): Unit = {
-    AnyScalaPsiModificationTracker.incModificationCount()
+    ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
 
