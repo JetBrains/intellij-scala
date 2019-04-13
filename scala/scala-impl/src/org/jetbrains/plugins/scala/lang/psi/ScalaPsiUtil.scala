@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -54,6 +54,7 @@ import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import scala.annotation.tailrec
 import scala.collection.{Seq, Set, mutable}
+import scala.reflect.NameTransformer
 
 /**
   * User: Alexander Podkhalyuzin
@@ -1108,23 +1109,39 @@ object ScalaPsiUtil {
     }
   }
 
-  private def contextBoundParameterName(typeParameter: ScTypeParam, bound: ScTypeElement): String = {
-    val boundName = bound match {
-      case ScSimpleTypeElement(Some(ref)) => ref.refName
-      case projection: ScTypeProjection   => projection.refName
-      case _                              => bound.getText
-    }
-    val tpName = typeParameter.name
-    StringUtil.decapitalize(s"$boundName$$$tpName")
+  @annotation.tailrec
+  private def simpleBoundName(bound: ScTypeElement): String = bound match {
+    case ScSimpleTypeElement(Some(ref))     => NameTransformer.encode(ref.refName)
+    case proj: ScTypeProjection             => NameTransformer.encode(proj.refName)
+    case ScInfixTypeElement(_, op, _)       => NameTransformer.encode(op.refName)
+    case ScParameterizedTypeElement(ref, _) => simpleBoundName(ref)
+    case other                              => s"`${other.getText.replaceAll("\\s+", "")}`"
+  }
+
+  private def contextBoundParameterName(typeParameter: ScTypeParam, bound: ScTypeElement, idx: Int): String = {
+    val boundName = simpleBoundName(bound)
+    val tpName    = NameTransformer.encode(typeParameter.name)
+    StringUtil.decapitalize(s"$boundName$$$tpName$$$idx")
   }
 
   def originalContextBound(parameter: ScParameter): Option[(ScTypeParam, ScTypeElement)] = {
     if (parameter.isPhysical) return None
 
-    val ownerTypeParams = parameter.owner.asOptionOf[ScTypeParametersOwner].toSeq.flatMap(_.typeParameters)
-    val bounds = ownerTypeParams.flatMap(tp => tp.contextBoundTypeElement.map((tp, _)))
-    bounds.find {
-      case (tp, te) => contextBoundParameterName(tp, te) == parameter.name
+    val owner =
+      parameter.owner match {
+        case ScPrimaryConstructor.ofClass(cls) => Option(cls)
+        case other: ScTypeParametersOwner      => Option(other)
+        case _                                 => None
+      }
+
+    val ownerTypeParams = owner.toSeq.flatMap(_.typeParameters)
+
+    val bounds = ownerTypeParams.flatMap(tp =>
+      tp.contextBoundTypeElement.zipWithIndex.map { case (bound, idx) => (tp, bound, idx) }
+    )
+
+    bounds.collectFirst {
+      case (tp, te, idx) if contextBoundParameterName(tp, te, idx) == parameter.name => (tp, te)
     }
   }
 
@@ -1156,9 +1173,10 @@ object ScalaPsiUtil {
 
     val bounds = typeParameters.flatMap { typeParameter =>
       val parameterName = typeParameter.name
-      typeParameter.contextBoundTypeElement.map { typeElement =>
-        val syntheticName = contextBoundParameterName(typeParameter, typeElement)
-        s"`$syntheticName` : (${typeElement.getText})[$parameterName]"
+      typeParameter.contextBoundTypeElement.zipWithIndex.map {
+        case (typeElement, idx) =>
+          val syntheticName = contextBoundParameterName(typeParameter, typeElement, idx)
+          s"$syntheticName : (${typeElement.getText})[$parameterName]"
       }
     }
 
