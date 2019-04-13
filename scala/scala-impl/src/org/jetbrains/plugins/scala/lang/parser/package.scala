@@ -15,31 +15,13 @@ package object parser {
       if (notEOF) builder.advanceLexer()
     }
 
-    def lookAhead(expected: IElementType,
-                  elementTypes: IElementType*): Boolean =
-      currentTokenMatches(expected) && matchTokenTypes(elementTypes)
+    def lookAhead(elementTypes: IElementType*): Boolean =
+      matchTokenTypes(elementTypes)
 
     def lookBack(): IElementType = lookBack(n = 1)
 
-    private def matchTokenTypes(elementTypes: Seq[IElementType]) = elementTypes.toList match {
-      case Nil => true
-      case list =>
-        @tailrec
-        def matchTokenTypes(list: List[IElementType]): Boolean = list match {
-          case Nil => true
-          case head :: tail if notEOF && currentTokenMatches(head) =>
-            builder.advanceLexer()
-            matchTokenTypes(tail)
-          case _ => false
-        }
-
-        val marker = builder.mark
-        builder.advanceLexer()
-
-        val result = matchTokenTypes(list)
-
-        marker.rollbackTo()
-        result
+    private def matchTokenTypes(elementTypes: Seq[IElementType]) = {
+      elementTypes.indices.forall(idx => elementTypes(idx) == builder.lookAhead(idx))
     }
 
     @tailrec
