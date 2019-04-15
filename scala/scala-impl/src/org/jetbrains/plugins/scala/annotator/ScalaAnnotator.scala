@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotatio
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
-import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromForBindingIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -109,87 +108,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       override def visitGenericCallExpression(call: ScGenericCall) {
         //todo: if (typeAware) checkGenericCallExpression(call, holder)
         super.visitGenericCallExpression(call)
-      }
-
-      override def visitForBinding(forBinding: ScForBinding) {
-        forBinding.valKeyword match {
-          case Some(valKeyword) =>
-            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerator.val.keyword.deprecated"))
-            annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
-            annotation.registerFix(new RemoveValFromForBindingIntentionAction(forBinding))
-          case _ =>
-        }
-        super.visitForBinding(forBinding)
-      }
-
-      private def checkGenerator(generator: ScGenerator): Unit = {
-
-        for {
-          forExpression <- generator.forStatement
-          ScEnumerator.withDesugaredAndEnumeratorToken(desugaredGenerator, generatorToken) <- Some(generator)
-        } {
-          val sessionForDesugaredCode = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile)
-          def delegateHolderFor(element: PsiElement) = new DelegateAnnotationHolder(element, holder, sessionForDesugaredCode) with ErrorIndication
-
-          val followingEnumerators = generator.nextSiblings
-            .takeWhile(!_.isInstanceOf[ScGenerator])
-
-          val foundUnresolvedSymbol = followingEnumerators
-            .exists {
-              case enum@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, enumToken) =>
-                val holder = delegateHolderFor(enumToken)
-                // TODO decouple
-                desugaredEnum.callExpr.foreach(_.asInstanceOf[ScReferenceAnnotator].qualifierPart(holder, typeAware))
-                holder.hadError
-              case _ =>
-                false
-            }
-
-          // It doesn't make sense to look for errors down the function chain
-          // if we were not able to resolve a previous call
-          if (!foundUnresolvedSymbol) {
-            var foundMonadicError = false
-
-            // check the return type of the next generator
-            // we check the next generator here with it's predecessor,
-            // because we don't want to do the check if foundUnresolvedSymbol is true
-            if (forExpression.isYield) {
-              val nextGenOpt = generator.nextSiblings.collectFirst { case gen: ScGenerator => gen }
-              for (nextGen <- nextGenOpt) {
-                foundMonadicError = nextGen.desugared.exists {
-                  nextDesugaredGen =>
-                    val holder = delegateHolderFor(nextGen)
-                    nextDesugaredGen.analogMethodCall.annotate(holder, typeAware)
-                    holder.hadError
-                }
-
-                if (!foundMonadicError) {
-                  val holder = delegateHolderFor(nextGen)
-                  // TODO decouple
-                  desugaredGenerator.callExpr.foreach(_.asInstanceOf[ScReferenceAnnotator].annotateReference(holder))
-                  foundMonadicError = holder.hadError
-                }
-              }
-            }
-
-            if (!foundMonadicError) {
-              // TODO decouple
-              desugaredGenerator.callExpr.foreach(_.asInstanceOf[ScReferenceAnnotator].qualifierPart(delegateHolderFor(generatorToken), typeAware))
-            }
-          }
-        }
-      }
-
-      override def visitGenerator(gen: ScGenerator) {
-        checkGenerator(gen)
-        gen.valKeyword match {
-          case Some(valKeyword) =>
-            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
-            annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-            annotation.registerFix(new RemoveValFromGeneratorIntentionAction(gen))
-          case _ =>
-        }
-        super.visitGenerator(gen)
       }
 
       override def visitForExpression(expr: ScFor) {
