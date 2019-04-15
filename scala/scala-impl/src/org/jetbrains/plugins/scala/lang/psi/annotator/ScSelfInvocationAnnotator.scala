@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import org.jetbrains.plugins.scala.annotator.ConstructorInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
-
 trait ScSelfInvocationAnnotator extends Annotatable { self: ScSelfInvocation =>
-  import ConstructorInvocationAnnotator._
+  // TODO unify using ConstructorInvocationLike
+  import ScConstructorInvocationAnnotator._
 
   override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)

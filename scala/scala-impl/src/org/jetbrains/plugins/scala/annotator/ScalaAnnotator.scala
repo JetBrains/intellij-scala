@@ -46,7 +46,6 @@ import scala.collection.{Seq, mutable}
  */
 abstract class ScalaAnnotator protected()(implicit val project: Project) extends Annotator
   with FunctionAnnotator with ScopeAnnotator
-  with ConstructorInvocationAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
 
@@ -134,14 +133,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
       override def visitTypeProjection(proj: ScTypeProjection) {
         visitTypeElement(proj)
-      }
-
-      override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {
-        if (typeAware) {
-          ImplicitParametersAnnotator.annotate(constrInvocation, holder, typeAware)
-          annotateConstructorInvocation(constrInvocation, holder)
-        }
-        super.visitConstructorInvocation(constrInvocation)
       }
 
       override def visitModifierList(modifierList: ScModifierList) {

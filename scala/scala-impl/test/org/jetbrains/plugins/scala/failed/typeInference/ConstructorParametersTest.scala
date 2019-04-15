@@ -49,7 +49,6 @@ class ConstructorParametersTest extends SimpleTestCase {
 
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val annotator = new ConstructorInvocationAnnotator {}
     val file: ScalaFile = code.parse
     val mock = new AnnotatorHolderMock(file)
 
@@ -58,7 +57,7 @@ class ConstructorParametersTest extends SimpleTestCase {
 
     try {
       file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
-        annotator.annotateConstructorInvocation(_, mock)
+        _.annotate(mock, typeAware = true)
       }
 
       mock.annotations

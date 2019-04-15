@@ -170,8 +170,12 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
   }
 
   def testMissingArgumentClauseWithImplicit(): Unit = {
-    assertNothing(messages("class Test()(implicit impl: Test); new Test()"))
-    assertNothing(messages("class Test()(private implicit impl: Test); new Test()"))
+    assertMessagesSorted(messages("class Test()(implicit impl: Test); new Test()")) (
+      Error("Test()", "No implicit arguments of type: Test")
+    )
+    assertMessagesSorted(messages("class Test()(private implicit impl: Test); new Test()")) (
+      Error("Test()", "No implicit arguments of type: Test")
+    )
   }
 
   def testMissingAndTypeMismatch() {
@@ -372,7 +376,6 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
   //new AA[Int](0)
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = new ConstructorInvocationAnnotator {}
     val file: ScalaFile = (Header + code).parse
 
     val mock = new AnnotatorHolderMock(file)
@@ -382,7 +385,7 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
 
     try {
       file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
-        annotator.annotateConstructorInvocation(_, mock)
+        _.annotate(mock, typeAware = true)
       }
 
       mock.annotations

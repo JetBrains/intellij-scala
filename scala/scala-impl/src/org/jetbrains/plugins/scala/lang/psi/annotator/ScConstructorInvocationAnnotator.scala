@@ -1,25 +1,38 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
-import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
+import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ConstructorInvocationLike}
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, DefaultTypeParameterMismatch, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedParametersClause, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-trait ConstructorInvocationAnnotator {
+
+trait ScConstructorInvocationAnnotator extends Annotatable { self: ScConstructorInvocation =>
+
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
+    if (typeAware) {
+      ImplicitParametersAnnotator.annotate(this, holder, typeAware)
+      ScConstructorInvocationAnnotator.annotateConstructorInvocation(this, holder)
+    }
+  }
+}
+
+private object ScConstructorInvocationAnnotator {
   // TODO duplication with application annotator.
-  def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation, holder: AnnotationHolder) {
+  private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation, holder: AnnotationHolder) {
     constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>
         holder.createErrorAnnotation(constrInvocation.typeElement, s"Class type required but ($lit) found")
@@ -165,4 +178,3 @@ trait ConstructorInvocationAnnotator {
   }
 }
 
-object ConstructorInvocationAnnotator extends ConstructorInvocationAnnotator
