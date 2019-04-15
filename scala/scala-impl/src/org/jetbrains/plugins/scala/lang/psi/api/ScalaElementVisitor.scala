@@ -54,11 +54,16 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
   }
 }
 
+// TODO
+// The Visitor Pattern doesn't work well with there's an inheritance hierarchy.
+// For example, because of the need to support recursion, visitReferenceExpression doesn't call visitReference or visitExpression, or visitScalaElement.
+// This is inconsistent and misguiding. Even when ones knowns (and remembers) about that, one may need to replicate the inheritance hierarchy in each particular visitor.
 abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTypeAliasDefinition(alias: ScTypeAliasDefinition) {visitTypeAlias(alias)}
 
   def visitTypeAlias(alias: ScTypeAlias) {visitScalaElement(alias)}
 
+  // TODO visitDeclaration
   def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration) {visitTypeAlias(alias)}
 
   def visitParameters(parameters: ScParameters) {visitScalaElement(parameters)}
@@ -77,6 +82,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
 
   def visitFunctionDefinition(fun: ScFunctionDefinition) {visitFunction(fun)}
 
+  // TODO visitDeclaration
   def visitFunctionDeclaration(fun: ScFunctionDeclaration) {visitFunction(fun)}
 
   def visitMacroDefinition(fun: ScMacroDefinition) {visitFunction(fun)}
@@ -97,10 +103,16 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitParameter(parameter: ScParameter) {visitScalaElement(parameter)}
   def visitClassParameter(parameter: ScClassParameter) {visitParameter(parameter)}
   def visitPatternDefinition(pat: ScPatternDefinition) { visitValue(pat) }
+  // TODO visitDeclaration
+  // TODO visitValueOrVariable
   def visitValueDeclaration(v: ScValueDeclaration) {visitValue(v)}
   def visitVariableDefinition(varr: ScVariableDefinition) { visitVariable(varr) }
+  // TODO visitDeclaration
+  // TODO visitValueOrVariable
   def visitVariableDeclaration(varr: ScVariableDeclaration) {visitVariable(varr) }
+  // TODO visitValueOrVariable
   def visitVariable(varr: ScVariable) {visitScalaElement(varr)}
+  // TODO visitValueOrVariable
   def visitValue(v: ScValue) {visitScalaElement(v)}
   def visitCaseClause(cc: ScCaseClause) { visitScalaElement(cc) }
   def visitPattern(pat: ScPattern) { visitScalaElement(pat) }
@@ -121,16 +133,20 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitExpression(expr: ScExpression) { visitScalaElement(expr) }
   def visitThisReference(t: ScThisReference) {visitExpression(t)}
   def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
-  // TODO isn't a reference expression a reference?
-  // TODO isn't a reference expression an expression?
+  // TODO visitReference
+  // TODO visitExpression
   def visitReferenceExpression(ref: ScReferenceExpression) {}
+  // TODO visitMethodInvocation
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
+  // TODO visitMethodInvocation
   def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIf) { visitExpression(stmt) }
   def visitLiteral(l: ScLiteral) {visitExpression(l)}
   def visitAssignmentStatement(stmt: ScAssignment) { visitExpression(stmt) }
+  // TODO visitMethodInvocation
   def visitMethodCallExpression(call: ScMethodCall) { visitExpression(call) }
   def visitGenericCallExpression(call: ScGenericCall) { visitExpression(call) }
+  // TODO visitMethodInvocation
   def visitInfixExpression(infix: ScInfixExpr) {visitExpression(infix)}
   def visitWhileStatement(ws: ScWhile) { visitExpression(ws) }
   def visitReturnStatement(ret: ScReturn) { visitExpression(ret) }
@@ -154,6 +170,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTypeElement(te: ScTypeElement) {visitScalaElement(te)}
   def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitTypeElement(simple)}
   def visitWildcardTypeElement(wildcard: ScWildcardTypeElement) {visitTypeElement(wildcard)}
+  // TODO visitReference
   def visitTypeProjection(proj: ScTypeProjection) {}
   def visitTupleTypeElement(tuple: ScTupleTypeElement) {visitTypeElement(tuple)}
   def visitParenthesisedTypeElement(parenthesised: ScParenthesisedTypeElement) {visitTypeElement(parenthesised)}
@@ -166,6 +183,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = { visitTypeElement(tvar) }
 
   //scaladoc
+  // TODO visitScalaElement
   def visitDocComment(s: ScDocComment) {visitComment(s)}
   def visitScaladocElement(s: ScalaPsiElement) {visitScalaElement(s)}
   def visitWikiSyntax(s: ScDocSyntaxElement) {visitScalaElement(s)}
