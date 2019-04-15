@@ -14,6 +14,12 @@ import scala.reflect.ClassTag
  * Pavel Fatin
  */
 
+// TODO
+// In many tests, we test a particular part of annotation separately.
+// On the one hand, this is a good thing, as we can test the logic in isolation.
+// On the other hand, this couples a test with a very particular implementation, which makes the implementation less flexible.
+// Also, the SCL-15138 (Only highlight initial, not derivative errors) meta issue requires to test the interplay between different parts of the annotator implementation.
+// It's probably better to use otherwise valid code in the test, so that we can rely on the general "annotate" functionality (but we, obviously still may write specialized tests).
 abstract class AnnotatorTestBase[T <: ScalaPsiElement : ClassTag](annotator: (T, AnnotationHolder) => Unit =
                                                                   (e: T, holder: AnnotationHolder) => e.annotate(holder, typeAware = true)) extends SimpleTestCase {
 
