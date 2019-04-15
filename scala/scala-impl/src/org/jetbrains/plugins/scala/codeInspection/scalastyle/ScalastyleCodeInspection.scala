@@ -28,9 +28,6 @@ object ScalastyleCodeInspection {
   private type TimestampedScalastyleConfiguration = (Long, ScalastyleConfiguration)
   private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
 
-  def configuration(project: Project): Option[ScalastyleConfiguration] =
-    Locations.findIn(project, Locations.possibleSrcConfigFileNames).map(latest)
-
   def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
     val project = file.getProject
     val isTestSource = TestSourcesFilter.isTestSources(file.getVirtualFile, project)

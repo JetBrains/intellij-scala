@@ -47,7 +47,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 
-  protected def settings(project: Project): OptimizeImportSettings = OptimizeImportSettings(project)
+  protected def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportSettings(file)
 
   def processFile(file: PsiFile): Runnable = processFile(file, null)
 
@@ -128,7 +128,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       importsInfo.asScala.toSeq.sortBy(_.startOffset)
     }
 
-    val importsSettings = settings(project)
+    val importsSettings = settings(scalaFile)
 
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features

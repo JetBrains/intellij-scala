@@ -7,10 +7,10 @@ import java.io.File
 
 import _root_.com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.openapi.command.UndoConfirmationPolicy
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
@@ -27,10 +27,10 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
 
   def folderPath: String = baseRootPath() + "optimize/"
 
-  protected def settings = OptimizeImportSettings(getProjectAdapter)
+  protected def settings(file: PsiFile) = OptimizeImportSettings(file)
 
   def importOptimizer = new ScalaImportOptimizer() {
-    override def settings(project: Project): OptimizeImportSettings = OptimizeImportsTestBase.this.settings
+    override def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportsTestBase.this.settings(file)
   }
 
   protected def doTest() {

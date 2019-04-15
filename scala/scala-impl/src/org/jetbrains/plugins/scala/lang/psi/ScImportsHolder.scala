@@ -176,7 +176,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     //don't add wildcard imports here, it should be done only on explicit "Optimize Imports" action
-    val settings = OptimizeImportSettings(getProject).copy(classCountToUseImportOnDemand = Int.MaxValue)
+    val settings = OptimizeImportSettings(file).copy(classCountToUseImportOnDemand = Int.MaxValue)
 
     val optimizer: ScalaImportOptimizer = findOptimizerFor(file) match {
       case Some(o: ScalaImportOptimizer) => o

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import java.util.regex.Pattern
 
-import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -41,11 +41,12 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
 }
 
 object OptimizeImportSettings {
-  def apply(project: Project): OptimizeImportSettings = {
+  def apply(file: PsiFile): OptimizeImportSettings = {
+    val project = file.getProject
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val scalastyleSettings =
       if (codeStyleSettings.isSortAsScalastyle) {
-        val scalastyleConfig = ScalastyleCodeInspection.configuration(project)
+        val scalastyleConfig = ScalastyleCodeInspection.configurationFor(file)
         val scalastyleChecker = scalastyleConfig.flatMap(_.checks.find(_.className == ScalastyleSettings.importOrderChecker))
         val groups = scalastyleChecker.filter(_.enabled).flatMap(ScalastyleSettings.groups)
         ScalastyleSettings(scalastyleOrder = true, groups)
