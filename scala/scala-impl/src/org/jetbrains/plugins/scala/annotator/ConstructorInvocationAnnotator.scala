@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-trait ConstructorInvocationAnnotator extends ApplicationAnnotator {
+trait ConstructorInvocationAnnotator {
   // TODO duplication with application annotator.
   def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation, holder: AnnotationHolder) {
     constrInvocation.typeElement match {

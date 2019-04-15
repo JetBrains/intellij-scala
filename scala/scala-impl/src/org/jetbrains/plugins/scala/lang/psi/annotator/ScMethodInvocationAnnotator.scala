@@ -1,20 +1,29 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
-import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
+import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.{DefaultTypeParameterMismatch, DoesNotTakeParameters, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
- * Pavel.Fatin, 31.05.2010
- */
-trait ApplicationAnnotator {
-  def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder) {
+// TODO Why it's only used for ScMethodCall and ScInfixExp, but not for ScPrefixExp or ScPostfixExpr?
+trait ScMethodInvocationAnnotator extends Annotatable { self: MethodInvocation =>
+
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
+    if (typeAware) {
+      ScMethodInvocationAnnotator.annotateMethodInvocation(this, holder)
+    }
+  }
+}
+
+private object ScMethodInvocationAnnotator {
+  private def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder) {
     implicit val ctx: ProjectContext = call
 
     //do we need to check it:
@@ -69,5 +78,3 @@ trait ApplicationAnnotator {
     }
   }
 }
-
-object ApplicationAnnotator extends ApplicationAnnotator

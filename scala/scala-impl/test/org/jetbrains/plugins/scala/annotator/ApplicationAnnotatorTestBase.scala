@@ -23,7 +23,6 @@ trait ApplicationAnnotatorTestBase extends SimpleTestCase{
 
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = new ApplicationAnnotator() {}
     val file = (Header + code).parse
 
     val mock = new AnnotatorHolderMock(file)
@@ -37,7 +36,7 @@ trait ApplicationAnnotatorTestBase extends SimpleTestCase{
       }
 
       file.depthFirst().instancesOf[ScMethodCall].foreach {
-        annotator.annotateMethodInvocation(_, mock)
+        _.annotate(mock, typeAware = true)
       }
 
       mock.annotations

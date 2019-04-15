@@ -46,7 +46,6 @@ import scala.collection.{Seq, mutable}
  */
 abstract class ScalaAnnotator protected()(implicit val project: Project) extends Annotator
   with FunctionAnnotator with ScopeAnnotator
-  with ApplicationAnnotator
   with ConstructorInvocationAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
@@ -113,17 +112,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       override def visitFor(expr: ScFor) {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitFor(expr)
-      }
-
-      override def visitMethodCallExpression(call: ScMethodCall) {
-        registerUsedImports(call, call.getImportsUsed)
-        if (typeAware) annotateMethodInvocation(call, holder)
-        super.visitMethodCallExpression(call)
-      }
-
-      override def visitInfixExpression(infix: ScInfixExpr): Unit = {
-        if (typeAware) annotateMethodInvocation(infix, holder)
-        super.visitInfixExpression(infix)
       }
 
       override def visitFunctionDefinition(fun: ScFunctionDefinition) {
