@@ -43,7 +43,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
 
     if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)) return false
 
-    if (context != null) return true
+    if (this.context != null) return true
 
     if (place.kindProjectorPluginEnabled) {
       KindProjectorUtil(place.getProject)

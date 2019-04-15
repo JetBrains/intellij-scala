@@ -274,12 +274,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     putCopyableUserData(CHILD_KEY, child)
   }
 
-  override final def context: PsiElement = super.context
-
-  override final def context_=(context: PsiElement): Unit = super.context_=(context)
-
-  override final def getContext: PsiElement = super.getContext
-
   override def getPrevSibling: PsiElement = {
     getCopyableUserData(CHILD_KEY) match {
       case null => super.getPrevSibling

@@ -4,7 +4,7 @@ package psi
 package api
 
 import com.intellij.openapi.util.Key
-import com.intellij.psi.{PsiElement, PsiElementVisitor, search, tree}
+import com.intellij.psi._
 
 trait ScalaPsiElement extends PsiElement
   with project.ProjectContextOwner {
@@ -28,14 +28,8 @@ trait ScalaPsiElement extends PsiElement
     this.child = child
   }
 
-  def context: PsiElement = getCopyableUserData(ContextKey)
-
-  def context_=(context: PsiElement): Unit = {
-    putCopyableUserData(ContextKey, context)
-  }
-
   abstract override def getContext: PsiElement =
-    NullSafe(context).getOrElse(super.getContext)
+    NullSafe(this.context).getOrElse(super.getContext)
 
   def getSameElementInContext: PsiElement =
     child match {
@@ -46,7 +40,7 @@ trait ScalaPsiElement extends PsiElement
   def getDeepSameElementInContext: PsiElement =
     child match {
       case null => this
-      case _ if child == context => this
+      case _ if child == this.context => this
       case child: ScalaPsiElement => child.getDeepSameElementInContext
       case _ => child
     }
@@ -147,5 +141,23 @@ trait ScalaPsiElement extends PsiElement
 
 object ScalaPsiElement {
 
-  private val ContextKey = Key.create[PsiElement]("context.key")
+  private[this] val ContextKey = Key.create[PsiElement]("context.key")
+
+  implicit class ScalaPsiElementExt(private val element: ScalaPsiElement) extends AnyVal {
+
+    def context: PsiElement = apply(ContextKey)
+
+    def context_=(context: PsiElement): Unit = update(ContextKey, context)
+
+    private def apply[T](key: Key[T]) = element match {
+      case stubbed: StubBasedPsiElement[_] => stubbed.getUserData(key)
+      case _ => element.getCopyableUserData(key)
+    }
+
+    private def update[T](key: Key[T], value: T): Unit = element match {
+      case stubbed: StubBasedPsiElement[_] => stubbed.putUserData(key, value)
+      case _ => element.putCopyableUserData(key, value)
+    }
+  }
+
 }

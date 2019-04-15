@@ -15,12 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
   with ScalaPsiElement {
 
-  override final def context: PsiElement = super.context
-
-  override final def context_=(context: PsiElement): Unit = super.context_=(context)
-
-  override final def getContext: PsiElement = super.getContext
-
   override def getStartOffsetInParent: Int = {
     child match {
       case null => super.getStartOffsetInParent
@@ -80,15 +74,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
     with StubBasedPsiElement[S]
     with ScalaPsiElement {
 
-  private[this] var _context: PsiElement = _
-
   override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = super.getElementType
-
-  override final def context: PsiElement = _context
-
-  override final def context_=(context: PsiElement): Unit = {
-    _context = context
-  }
 
   override def getStartOffsetInParent: Int = {
     child match {
