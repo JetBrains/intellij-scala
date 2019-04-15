@@ -3,12 +3,15 @@ package lang
 package psi
 package api
 
+import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiElementVisitor, search, tree}
 
 trait ScalaPsiElement extends PsiElement
   with project.ProjectContextOwner {
 
-  protected var context: PsiElement = null
+  import ScalaPsiElement._
+  import extensions.NullSafe
+
   protected var child: PsiElement = null
 
   implicit def elementScope: ElementScope = ElementScope(this)
@@ -20,15 +23,19 @@ trait ScalaPsiElement extends PsiElement
     case _ => false
   }
 
-  def setContext(element: PsiElement, child: PsiElement) {
-    context = element
+  def setContext(context: PsiElement, child: PsiElement): Unit = {
+    this.context = context
     this.child = child
   }
 
-  abstract override def getContext: PsiElement = context match {
-    case null => super.getContext
-    case _ => context
+  def context: PsiElement = getCopyableUserData(ContextKey)
+
+  def context_=(context: PsiElement): Unit = {
+    putCopyableUserData(ContextKey, context)
   }
+
+  abstract override def getContext: PsiElement =
+    NullSafe(context).getOrElse(super.getContext)
 
   def getSameElementInContext: PsiElement =
     child match {
@@ -136,4 +143,9 @@ trait ScalaPsiElement extends PsiElement
     case element: ScalaPsiElement => element.accept(visitor)
     case _ =>
   }
+}
+
+object ScalaPsiElement {
+
+  private val ContextKey = Key.create[PsiElement]("context.key")
 }

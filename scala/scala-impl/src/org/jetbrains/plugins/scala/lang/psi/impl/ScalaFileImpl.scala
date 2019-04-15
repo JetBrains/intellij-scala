@@ -269,17 +269,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
-  override def setContext(element: PsiElement, child: PsiElement) {
-    putCopyableUserData(CONTEXT_KEY, element)
+  override def setContext(context: PsiElement, child: PsiElement): Unit = {
+    this.context = context
     putCopyableUserData(CHILD_KEY, child)
   }
 
-  override def getContext: PsiElement = {
-    getCopyableUserData(CONTEXT_KEY) match {
-      case null => super.getContext
-      case c => c
-    }
-  }
+  override final def context: PsiElement = super.context
+
+  override final def context_=(context: PsiElement): Unit = super.context_=(context)
+
+  override final def getContext: PsiElement = super.getContext
 
   override def getPrevSibling: PsiElement = {
     getCopyableUserData(CHILD_KEY) match {
@@ -335,7 +334,6 @@ object ScalaFileImpl {
   private val LOG = Logger.getInstance(getClass)
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
 
-  val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
 
   def pathIn(root: PsiElement): List[List[String]] =
