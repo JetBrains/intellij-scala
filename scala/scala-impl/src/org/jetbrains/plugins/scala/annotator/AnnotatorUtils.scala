@@ -4,12 +4,13 @@ package annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.Seq
 
@@ -96,6 +98,17 @@ object AnnotatorUtils {
       case _ => return true
     }
     rightType.conforms(leftType)
+  }
+
+  // TODO encapsulate
+  def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
+                                    elementToHighlight: PsiElement, holder: AnnotationHolder) {
+    if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
+      val range = elementToHighlight.getTextRange
+      val annotation: Annotation = holder.createInfoAnnotation(range, null)
+      annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
+      annotation.setAfterEndOfLine(false)
+    }
   }
 
   // TODO something more reliable

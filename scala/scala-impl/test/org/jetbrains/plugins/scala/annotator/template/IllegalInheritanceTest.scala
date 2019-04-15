@@ -86,8 +86,9 @@ class IllegalInheritanceTest extends AnnotatorTestBase() {
         |}
       """.stripMargin
 
-    //todo: the code above doesn't compile, so we probably should have an error message
-    //but at least we don't have an infinite recursion here (see SCL-13410)
-    assertNothing(messages(code))
+    // Avoid infinite recursion, see SCL-13410
+    assertMatches(messages(code)) {
+      case Error("a", "Type mismatch, expected: Holder.A#B, actual: Holder.A") :: Nil =>
+    }
   }
 }

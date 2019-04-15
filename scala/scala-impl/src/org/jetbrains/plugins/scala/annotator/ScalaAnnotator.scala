@@ -1,56 +1,42 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.util.{Condition, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
-import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromForBindingIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.light.scala.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
-import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.{Seq, mutable}
@@ -117,7 +103,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       }
 
       override def visitReferenceExpression(ref: ScReferenceExpression) {
-        referencePart(ref)
         visitExpression(ref)
       }
 
@@ -153,7 +138,8 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
             .exists {
               case enum@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, enumToken) =>
                 val holder = delegateHolderFor(enumToken)
-                desugaredEnum.callExpr.foreach(qualifierPart(_, holder))
+                // TODO decouple
+                desugaredEnum.callExpr.foreach(_.asInstanceOf[ScReferenceAnnotator].qualifierPart(holder, typeAware))
                 holder.hadError
               case _ =>
                 false
@@ -179,14 +165,16 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
                 if (!foundMonadicError) {
                   val holder = delegateHolderFor(nextGen)
-                  desugaredGenerator.callExpr.foreach(annotateReference(_, holder))
+                  // TODO decouple
+                  desugaredGenerator.callExpr.foreach(_.asInstanceOf[ScReferenceAnnotator].annotateReference(holder))
                   foundMonadicError = holder.hadError
                 }
               }
             }
 
             if (!foundMonadicError) {
-              desugaredGenerator.callExpr.foreach(qualifierPart(_, delegateHolderFor(generatorToken)))
+              // TODO decouple
+              desugaredGenerator.callExpr.foreach(_.asInstanceOf[ScReferenceAnnotator].qualifierPart(delegateHolderFor(generatorToken), typeAware))
             }
           }
         }
@@ -239,7 +227,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       }
 
       override def visitTypeProjection(proj: ScTypeProjection) {
-        referencePart(proj)
         visitTypeElement(proj)
       }
 
@@ -247,23 +234,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         checkUnboundUnderscore(under, holder)
         // TODO (otherwise there's no type conformance check)
         // super.visitUnderscoreExpression
-      }
-
-      private def referencePart(ref: ScReference, innerHolder: AnnotationHolder = holder) {
-        if (typeAware) annotateReference(ref, innerHolder)
-        qualifierPart(ref, innerHolder)
-      }
-
-      private def qualifierPart(ref: ScReference, innerHolder: AnnotationHolder): Unit = {
-        ref.qualifier match {
-          case None => checkNotQualifiedReferenceElement(ref, innerHolder)
-          case Some(_) => checkQualifiedReferenceElement(ref, innerHolder)
-        }
-      }
-
-      override def visitReference(ref: ScReference) {
-        referencePart(ref)
-        super.visitReference(ref)
       }
 
       override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {
@@ -385,267 +355,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
 
 
-  private def checkNotQualifiedReferenceElement(refElement: ScReference, holder: AnnotationHolder) {
-    refElement match {
-      case _: ScInterpolatedStringPartReference =>
-        return //do not inspect interpolated literal, it will be highlighted in other place
-      case _ =>
-    }
 
-    def getFixes: Seq[IntentionAction] = {
-      val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
-      if (classes.length == 0) return Seq.empty
-      Seq[IntentionAction](new ScalaImportTypeFix(classes, refElement))
-    }
-
-    val resolve = refElement.multiResolveScala(false)
-    def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
-      //todo remove when resolve of unqualified expression will be fully implemented
-      if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
-              (fixes.nonEmpty || countError)) {
-        val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        registerAddFixes(refElement, annotation, fixes: _*)
-        annotation.registerFix(ReportHighlightingErrorQuickFix)
-        registerCreateFromUsageFixesFor(refElement, annotation)
-      }
-    }
-
-    if (refElement.isSoft) {
-      return
-    }
-
-    refElement match {
-      case _: ScDocResolvableCodeReference =>
-        if (resolve.isEmpty) {
-          val annotation = holder.createAnnotation(HighlightSeverity.WARNING,
-            refElement.getTextRange,
-            ScalaBundle.message("cannot.resolve", refElement.refName))
-          registerAddFixes(refElement, annotation, getFixes: _*)
-        }
-        return
-
-      case _ =>
-    }
-
-    if (resolve.length != 1) {
-      if (resolve.length == 0) { //Let's try to hide dynamic named parameter usage
-        refElement match {
-          case e: ScReferenceExpression =>
-            e.getContext match {
-              case a: ScAssignment if a.leftExpression == e && a.isDynamicNamedAssignment => return
-              case _ =>
-            }
-          case _ =>
-        }
-      }
-      refElement match {
-        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
-                e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
-        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
-                e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
-        case _: ScReferenceExpression => processError(countError = false, fixes = getFixes)
-        case e: ScStableCodeReference if e.getParent.isInstanceOf[ScInfixPattern] &&
-                e.getParent.asInstanceOf[ScInfixPattern].operation == e => //todo: this is hide A op B in patterns
-        case _ => refElement.getParent match {
-          case _: ScImportSelector if resolve.length > 0 =>
-          case _ => processError(countError = true, fixes = getFixes)
-        }
-      }
-    } else {
-      def showError(): Unit = {
-        val error = ScalaBundle.message("forward.reference.detected")
-        holder.createErrorAnnotation(refElement.nameId, error)
-      }
-
-      refElement.getContainingFile match {
-        case file: ScalaFile if !file.allowsForwardReferences =>
-          resolve(0) match {
-            case r if r.isForwardReference =>
-              ScalaPsiUtil.nameContext(r.getActualElement) match {
-                case v: ScValue if !v.hasModifierProperty("lazy") => showError()
-                case _: ScVariable => showError()
-                case nameContext if nameContext.isValid =>
-                  //if it has not lazy val or var between reference and statement then it's forward reference
-                  val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
-                  if (context != null) {
-                    val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
-                      override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
-                    }) match {
-                      case s: ScalaPsiElement => s.getDeepSameElementInContext
-                      case elem => elem
-                    }).getPrevSibling
-
-                    def check(neighbour: PsiElement): Boolean = {
-                      if (neighbour == null ||
-                        neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
-                      neighbour match {
-                        case v: ScValue if !v.hasModifierProperty("lazy") => true
-                        case _: ScVariable => true
-                        case _ => check(neighbour.getPrevSibling)
-                      }
-                    }
-                    if (check(neighbour)) showError()
-                  }
-              }
-            case _ =>
-          }
-        case _ =>
-      }
-    }
-    UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
-
-    checkAccessForReference(resolve, refElement, holder)
-
-    if (resolve.length == 1) {
-      val resolveResult = resolve(0)
-      refElement match {
-        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
-                e.getParent.asInstanceOf[ScPrefixExpr].operation == e =>
-          resolveResult.implicitFunction match {
-            case Some(fun) =>
-              val pref = e.getParent.asInstanceOf[ScPrefixExpr]
-              val expr = pref.operand
-              highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
-            case _ =>
-          }
-        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
-                e.getParent.asInstanceOf[ScInfixExpr].operation == e =>
-          resolveResult.implicitFunction match {
-            case Some(fun) =>
-              val inf = e.getParent.asInstanceOf[ScInfixExpr]
-              val expr = inf.getBaseExpr
-              highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
-            case _ =>
-          }
-        case _ =>
-      }
-    }
-
-    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
-      val parent = refElement.getParent
-      def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
-        val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
-        if (refWithoutArgs != null && refWithoutArgs.multiResolveScala(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
-          // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
-          val error = ScalaBundle.message(messageKey, refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
-          refWithoutArgs match {
-            case ResolvesTo(obj: ScObject) => annotation.registerFix(fix(obj))
-            case InstanceOfClass(td: ScTypeDefinition) => annotation.registerFix(fix(td))
-            case _ =>
-          }
-          true
-        } else false
-      }
-
-      parent match {
-        case _: ScImportSelector if resolve.length > 0 => return
-        case _: ScMethodCall if resolve.length > 1 =>
-          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
-        case _: ScMethodCall if resolve.length > 1 =>
-          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
-        case mc: ScMethodCall if addCreateApplyOrUnapplyFix("cannot.resolve.apply.method", td => new CreateApplyQuickFix(td, mc)) =>
-          return
-        case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
-          val messageKey = "cannot.resolve.unapply.method"
-          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
-        case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
-        case _ =>
-          val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
-          // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
-          registerCreateFromUsageFixesFor(refElement, annotation)
-          UnresolvedReferenceFixProvider.implementations
-            .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
-      }
-    }
-  }
-
-  private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
-                                      fun: PsiNamedElement, holder: AnnotationHolder) {
-    val typeTo = resolveResult.implicitType match {
-      case Some(tp) => tp
-      case _ => Any
-    }
-    highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
-  }
-
-  private def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
-                                    elementToHighlight: PsiElement, holder: AnnotationHolder) {
-    if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
-      val range = elementToHighlight.getTextRange
-      val annotation: Annotation = holder.createInfoAnnotation(range, null)
-      annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
-      annotation.setAfterEndOfLine(false)
-    }
-  }
-
-  private def checkQualifiedReferenceElement(refElement: ScReference, holder: AnnotationHolder) {
-    val resolve = refElement.multiResolveScala(false)
-
-    UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
-
-    checkAccessForReference(resolve, refElement, holder)
-    val resolveCount = resolve.length
-    if (refElement.isInstanceOf[ScExpression] && resolveCount == 1) {
-      val resolveResult = resolve(0)
-      resolveResult.implicitFunction match {
-        case Some(fun) =>
-          val qualifier = refElement.qualifier.get
-          val expr = qualifier.asInstanceOf[ScExpression]
-          highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
-        case _ =>
-      }
-    }
-
-    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolveCount > 0 || refElement.isSoft) return
-    if (isAdvancedHighlightingEnabled(refElement) && resolveCount != 1) {
-      if (resolveCount == 1) {
-        return
-      }
-
-      refElement.getParent match {
-        case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return
-        case _: ScMethodCall if resolveCount > 1 =>
-          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
-        case _ =>
-          val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
-          // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
-          registerCreateFromUsageFixesFor(refElement, annotation)
-          UnresolvedReferenceFixProvider.implementations
-            .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
-      }
-    }
-  }
-
-  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference, holder: AnnotationHolder) {
-    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
-    resolve(0) match {
-      case r if !r.isAccessible =>
-        val error = "Symbol %s is inaccessible from this place".format(r.element.name)
-        holder.createErrorAnnotation(refElement.nameId, error)
-      //todo: add fixes
-      case _ =>
-    }
-  }
-
-  private def registerAddFixes(refElement: ScReference, annotation: Annotation, actions: IntentionAction*) {
-    for (action <- actions) {
-      annotation.registerFix(action)
-    }
-  }
 
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {

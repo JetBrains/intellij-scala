@@ -4,6 +4,7 @@ package annotator
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
@@ -77,7 +78,8 @@ trait ConstructorInvocationAnnotator extends ApplicationAnnotator {
   def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike, holder: AnnotationHolder): Unit = {
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
-    def signature = signatureOf(element)
+    // TODO decouple
+    def signature = ScReferenceAnnotator.signatureOf(element)
 
     // mark problematic clauses where parameters are missing
     element match {

@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.failed.resolve
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ApplicationAnnotator}
+import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
 import org.junit.experimental.categories.Category
 
 /**
@@ -66,12 +66,12 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
   )
 
   def messages(@Language(value = "Scala") code: String) = {
-    val annotator = new ApplicationAnnotator {}
     val file = code.parse
     val mock = new AnnotatorHolderMock(file)
 
-    file.depthFirst().filter(elem => elem.isInstanceOf[ScReferenceExpression]).foreach {
-      case ref: ScReferenceExpression => annotator.annotateReference(ref, mock)
+    // TODO use the general annotate() method
+    file.depthFirst().instancesOf[ScReferenceAnnotator].foreach {
+      _.annotateReference(mock)
     }
     mock.annotations
   }

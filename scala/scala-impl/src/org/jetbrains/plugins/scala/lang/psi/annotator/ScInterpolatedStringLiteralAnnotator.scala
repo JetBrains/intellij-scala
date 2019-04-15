@@ -5,7 +5,6 @@ import com.intellij.lang.annotation.{AnnotationHolder, AnnotationSession}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.ApplicationAnnotator
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
@@ -57,7 +56,7 @@ trait ScInterpolatedStringLiteralAnnotator extends Annotatable { self: ScInterpo
       def mapPosInExprToElement(range: TextRange) = elementsMap.getOrElse(range.getStartOffset - shift, prefix)
       val fakeAnnotator = new DelegateAnnotationHolder(mapPosInExprToElement(_).getTextRange, holder, sessionForExpr)
 
-      ApplicationAnnotator.annotateReference(ref, fakeAnnotator)
+      ref.annotate(fakeAnnotator, typeAware)
     }
 
     ref.bind() match {
