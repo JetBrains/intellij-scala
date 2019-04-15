@@ -148,12 +148,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         visitTypeElement(proj)
       }
 
-      override def visitUnderscoreExpression(under: ScUnderscoreSection) {
-        checkUnboundUnderscore(under, holder)
-        // TODO (otherwise there's no type conformance check)
-        // super.visitUnderscoreExpression
-      }
-
       override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {
         if (typeAware) {
           ImplicitParametersAnnotator.annotate(constrInvocation, holder, typeAware)
@@ -267,33 +261,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         case Some(bound) if !childHasAnnotation(Some(bound), "uncheckedVariance") =>
           checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, holder, checkTypeDeclaredSameBracket, insideParameterized)
         case _ =>
-      }
-    }
-  }
-
-
-
-
-
-  private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
-    if (under.getText == "_") {
-      under.parentOfType(classOf[ScValueOrVariable], strict = false).foreach {
-        case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
-          if (varDef.containingClass == null) {
-            val error = ScalaBundle.message("local.variables.must.be.initialized")
-            holder.createErrorAnnotation(under, error)
-          } else if (varDef.typeElement.isEmpty) {
-            val error = ScalaBundle.message("unbound.placeholder.parameter")
-            holder.createErrorAnnotation(under, error)
-          } else if (varDef.typeElement.exists(_.isInstanceOf[ScLiteralTypeElement])) {
-            holder.createErrorAnnotation(varDef.typeElement.get, ScalaBundle.message("default.init.prohibited.literal.types"))
-          }
-        case valDef @ ScPatternDefinition.expr(_) if valDef.expr.contains(under) =>
-          holder.createErrorAnnotation(under, ScalaBundle.message("unbound.placeholder.parameter"))
-        case _ =>
-          // TODO SCL-2610 properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
-          //  val error = ScalaBundle.message("unbound.placeholder.parameter")
-          //  val annotation: Annotation = holder.createErrorAnnotation(under, error)
       }
     }
   }
