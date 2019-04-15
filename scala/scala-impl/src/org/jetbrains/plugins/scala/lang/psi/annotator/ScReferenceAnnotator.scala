@@ -40,7 +40,7 @@ import scala.collection.Seq
 
 
 trait ScReferenceAnnotator extends Annotatable { self: ScReference =>
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     if (typeAware) {
       annotateReference(holder)
     }

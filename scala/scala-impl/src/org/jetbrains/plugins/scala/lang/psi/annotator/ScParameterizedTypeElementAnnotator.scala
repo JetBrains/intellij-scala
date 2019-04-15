@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 trait ScParameterizedTypeElementAnnotator extends Annotatable { self: ScParameterizedTypeElement =>
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     val typeParamOwner = typeElement.getTypeNoConstructor.toOption

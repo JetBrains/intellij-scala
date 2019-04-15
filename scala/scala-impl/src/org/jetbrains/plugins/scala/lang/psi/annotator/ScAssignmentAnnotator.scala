@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait ScAssignmentAnnotator extends Annotatable { self: ScAssignment =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     implicit val ctx: ProjectContext = this

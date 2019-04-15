@@ -17,7 +17,7 @@ import scala.collection.mutable
 
 trait ScInterpolatedStringLiteralAnnotator extends Annotatable { self: ScInterpolatedStringLiteral =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (getFirstChild == null) return

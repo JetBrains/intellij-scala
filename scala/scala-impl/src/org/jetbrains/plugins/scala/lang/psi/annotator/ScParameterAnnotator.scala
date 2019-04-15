@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterIm
 
 trait ScParameterAnnotator extends Annotatable { self: ScParameterImpl =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     owner match {

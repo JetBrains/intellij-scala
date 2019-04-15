@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 trait ScVariableDefinitionAnnotator extends Annotatable { self: ScVariableDefinition =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (typeAware && pList.simplePatterns) {

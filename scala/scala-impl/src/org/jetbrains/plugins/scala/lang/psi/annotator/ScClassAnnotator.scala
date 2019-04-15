@@ -13,7 +13,7 @@ import scala.annotation.tailrec
 
 trait ScClassAnnotator extends Annotatable { self: ScClass =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (typeAware && ValueClassType.extendsAnyVal(this)) {

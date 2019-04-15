@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 trait ScTypeBoundsOwnerAnnotator extends Annotatable { self: ScTypeBoundsOwner =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (!Option(PsiTreeUtil.getParentOfType(this, classOf[ScTypeParamClause])).flatMap(_.parent).exists(_.isInstanceOf[ScFunction])) {

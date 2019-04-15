@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.project._
 
 trait ScLiteralTypeElementAnnotator extends Annotatable { self: ScLiteralTypeElement =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (!holder.getCurrentAnnotationSession.getFile.literalTypesEnabled) {

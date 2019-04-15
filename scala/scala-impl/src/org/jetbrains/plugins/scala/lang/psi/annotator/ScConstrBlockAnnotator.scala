@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
 
 trait ScConstrBlockAnnotator extends Annotatable { self: ScConstrBlock =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     selfInvocation match {

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 trait ScSelfInvocationAnnotator extends Annotatable { self: ScSelfInvocation =>
   import ConstructorInvocationAnnotator._
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (!typeAware)

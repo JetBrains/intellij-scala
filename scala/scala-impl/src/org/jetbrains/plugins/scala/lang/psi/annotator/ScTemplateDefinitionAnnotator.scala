@@ -24,7 +24,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
 
   import ScTemplateDefinitionAnnotator._
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     annotateFinalClassInheritance(holder)

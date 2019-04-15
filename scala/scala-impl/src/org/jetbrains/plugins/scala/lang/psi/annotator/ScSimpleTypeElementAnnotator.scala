@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 trait ScSimpleTypeElementAnnotator extends Annotatable { self: ScSimpleTypeElement =>
 
   // TODO Shouldn't the ScExpressionAnnotator be enough?
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     //todo: check bounds conformance for parameterized type

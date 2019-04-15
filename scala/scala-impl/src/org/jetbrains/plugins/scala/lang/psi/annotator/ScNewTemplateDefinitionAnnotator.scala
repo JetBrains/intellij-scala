@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 
 trait ScNewTemplateDefinitionAnnotator extends Annotatable { self: ScNewTemplateDefinition =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     annotateAbstractInstantiation(holder)

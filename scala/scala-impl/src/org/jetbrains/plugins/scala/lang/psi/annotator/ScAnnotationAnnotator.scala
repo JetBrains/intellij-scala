@@ -14,7 +14,7 @@ import scala.meta.intellij.MetaExpansionsManager
 
 trait ScAnnotationAnnotator extends Annotatable { self: ScAnnotation =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     checkAnnotationType(holder)

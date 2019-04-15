@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 
 trait ScReturnAnnotator extends Annotatable { self: ScReturn =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     val function = method.getOrElse {

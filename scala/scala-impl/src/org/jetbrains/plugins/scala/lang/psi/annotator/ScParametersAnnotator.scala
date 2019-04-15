@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParametersI
 
 trait ScParametersAnnotator extends Annotatable { self: ScParametersImpl =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     def checkRepeatedParams() {

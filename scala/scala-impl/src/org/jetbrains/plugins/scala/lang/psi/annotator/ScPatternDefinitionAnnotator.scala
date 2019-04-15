@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 trait ScPatternDefinitionAnnotator extends Annotatable { self: ScPatternDefinition =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     implicit val ctx: ProjectContext = this

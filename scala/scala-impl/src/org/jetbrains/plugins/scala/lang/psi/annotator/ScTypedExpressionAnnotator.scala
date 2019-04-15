@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 trait ScTypedExpressionAnnotator extends Annotatable { self: ScTypedExpression =>
 
   // TODO Shouldn't the ScExpressionAnnotator be enough?
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     if (typeAware) {

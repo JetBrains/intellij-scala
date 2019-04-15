@@ -21,7 +21,7 @@ import scala.collection.Seq
 
 trait ScCatchBlockAnnotator extends Annotatable { self: ScCatchBlock =>
 
-  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
     expression match {
