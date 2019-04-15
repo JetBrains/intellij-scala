@@ -12,7 +12,7 @@ trait ScTuple extends ScInfixArgumentExpression {
   def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitTupleExpr(this)
+    visitor.visitTuple(this)
   }
 
 }

@@ -19,7 +19,7 @@ trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesized
   override def sameTreeParent: Option[ScExpression] = getParent.asOptionOf[ScExpression]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitExprInParent(this)
+    visitor.visitParenthesisedExpr(this)
   }
 }
 

@@ -110,11 +110,11 @@ trait TreeConverterBuilder {
 
       override def visitPrefixExpression(p: ScPrefixExpr) = super.visitPrefixExpression(p)
 
-      override def visitIfStatement(stmt: ScIf) = super.visitIfStatement(stmt)
+      override def visitIf(stmt: ScIf) = super.visitIf(stmt)
 
       override def visitLiteral(l: ScLiteral) = super.visitLiteral(l)
 
-      override def visitAssignmentStatement(stmt: ScAssignment) = super.visitAssignmentStatement(stmt)
+      override def visitAssignment(stmt: ScAssignment) = super.visitAssignment(stmt)
 
       override def visitMethodCallExpression(call: ScMethodCall) = super.visitMethodCallExpression(call)
 
@@ -122,29 +122,29 @@ trait TreeConverterBuilder {
 
       override def visitInfixExpression(infix: ScInfixExpr) = super.visitInfixExpression(infix)
 
-      override def visitWhileStatement(ws: ScWhile) = super.visitWhileStatement(ws)
+      override def visitWhile(ws: ScWhile) = super.visitWhile(ws)
 
-      override def visitReturnStatement(ret: ScReturn) = super.visitReturnStatement(ret)
+      override def visitReturn(ret: ScReturn) = super.visitReturn(ret)
 
-      override def visitMatchStatement(ms: ScMatch) = super.visitMatchStatement(ms)
+      override def visitMatch(ms: ScMatch) = super.visitMatch(ms)
 
-      override def visitForExpression(expr: ScFor) = super.visitForExpression(expr)
+      override def visitFor(expr: ScFor) = super.visitFor(expr)
 
-      override def visitDoStatement(stmt: ScDo) = super.visitDoStatement(stmt)
+      override def visitDo(stmt: ScDo) = super.visitDo(stmt)
 
       override def visitFunctionExpression(stmt: ScFunctionExpr) = super.visitFunctionExpression(stmt)
 
-      override def visitThrowExpression(throwStmt: ScThrow) = super.visitThrowExpression(throwStmt)
+      override def visitThrow(throwStmt: ScThrow) = super.visitThrow(throwStmt)
 
-      override def visitTryExpression(tryStmt: ScTry) = super.visitTryExpression(tryStmt)
+      override def visitTry(tryStmt: ScTry) = super.visitTry(tryStmt)
 
-      override def visitExprInParent(expr: ScParenthesisedExpr) = super.visitExprInParent(expr)
+      override def visitParenthesisedExpr(expr: ScParenthesisedExpr) = super.visitParenthesisedExpr(expr)
 
       override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) = super.visitNewTemplateDefinition(templ)
 
       override def visitTypedStmt(stmt: ScTypedExpression) = super.visitTypedStmt(stmt)
 
-      override def visitTupleExpr(tuple: ScTuple) = super.visitTupleExpr(tuple)
+      override def visitTuple(tuple: ScTuple) = super.visitTuple(tuple)
 
       override def visitBlockExpression(block: ScBlockExpr) = super.visitBlockExpression(block)
 

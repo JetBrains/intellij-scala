@@ -31,7 +31,7 @@ trait ScFor extends ScExpression {
   def getRightParenthesis: Option[PsiElement]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitForExpression(this)
+    visitor.visitFor(this)
   }
 }
 

@@ -22,7 +22,7 @@ trait ScIf extends ScExpression {
   def rightParen: Option[PsiElement]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitIfStatement(this)
+    visitor.visitIf(this)
   }
 }
 

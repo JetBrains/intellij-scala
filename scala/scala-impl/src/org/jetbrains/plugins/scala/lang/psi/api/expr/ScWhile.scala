@@ -19,7 +19,7 @@ trait ScWhile extends ScExpression {
   def rightParen: Option[PsiElement]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitWhileStatement(this)
+    visitor.visitWhile(this)
   }
 }
 

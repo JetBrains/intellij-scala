@@ -172,7 +172,7 @@ object ScExpression {
 
     def result: Set[ScExpression] = result_.toSet
 
-    override def visitTryExpression(statement: ScTry): Unit = {
+    override def visitTry(statement: ScTry): Unit = {
       acceptVisitor(statement.tryBlock)
 
       statement.catchBlock.collect {
@@ -183,23 +183,23 @@ object ScExpression {
         .foreach(acceptVisitor)
     }
 
-    override def visitExprInParent(expression: ScParenthesisedExpr): Unit = {
+    override def visitParenthesisedExpr(expression: ScParenthesisedExpr): Unit = {
       expression.innerElement match {
         case Some(innerExpression) => acceptVisitor(innerExpression)
-        case _ => super.visitExprInParent(expression)
+        case _ => super.visitParenthesisedExpr(expression)
       }
     }
 
-    override def visitMatchStatement(statement: ScMatch): Unit = {
+    override def visitMatch(statement: ScMatch): Unit = {
       statement.expressions.foreach(acceptVisitor)
     }
 
-    override def visitIfStatement(statement: ScIf): Unit = {
+    override def visitIf(statement: ScIf): Unit = {
       statement.elseExpression match {
         case Some(elseBranch) =>
           acceptVisitor(elseBranch)
           statement.thenExpression.foreach(acceptVisitor)
-        case _ => super.visitIfStatement(statement)
+        case _ => super.visitIf(statement)
       }
     }
 

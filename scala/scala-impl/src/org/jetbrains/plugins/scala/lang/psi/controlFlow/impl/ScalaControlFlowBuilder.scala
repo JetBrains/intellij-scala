@@ -168,7 +168,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitAssignmentStatement(stmt: ScAssignment) {
+  override def visitAssignment(stmt: ScAssignment) {
     stmt.rightExpression match {
       case Some(rv) =>
         rv.accept(this)
@@ -182,7 +182,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitDoStatement(stmt: ScDo) {
+  override def visitDo(stmt: ScDo) {
     startNode(Some(stmt)) {doStmtInstr =>
       checkPendingEdges(doStmtInstr)
       stmt.body foreach { e =>
@@ -220,7 +220,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitMatchStatement(ms: ScMatch) {
+  override def visitMatch(ms: ScMatch) {
     startNode(Some(ms)) {msInstr =>
       checkPendingEdges(msInstr)
       ms.expression match {
@@ -236,7 +236,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitWhileStatement(ws: ScWhile) {
+  override def visitWhile(ws: ScWhile) {
     startNode(Some(ws)) {instr =>
       checkPendingEdges(instr)
       // for breaks
@@ -303,7 +303,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if (pat != null) pat.accept(this)
   }
 
-  override def visitForExpression(forStmt: ScFor) {
+  override def visitFor(forStmt: ScFor) {
     startNode(Some(forStmt)) {instr =>
       checkPendingEdges(instr)
       addPendingEdge(forStmt, myHead)
@@ -321,7 +321,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitIfStatement(stmt: ScIf) {
+  override def visitIf(stmt: ScIf) {
     startNode(Some(stmt)) {ifStmtInstr =>
       checkPendingEdges(ifStmtInstr)
       stmt.condition match {
@@ -356,7 +356,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitReturnStatement(ret: ScReturn) {
+  override def visitReturn(ret: ScReturn) {
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != ret
       case None => false
@@ -439,7 +439,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitThrowExpression(throwStmt: ScThrow) {
+  override def visitThrow(throwStmt: ScThrow) {
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != throwStmt
       case None => false
@@ -458,7 +458,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
   case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
-  override def visitTryExpression(tryStmt: ScTry) {
+  override def visitTry(tryStmt: ScTry) {
     val handledExnTypes = tryStmt.catchBlock match {
       case None => Nil
       case Some(cb) => cb.expression match {

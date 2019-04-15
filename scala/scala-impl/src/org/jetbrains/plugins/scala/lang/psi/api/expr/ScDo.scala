@@ -19,7 +19,7 @@ trait ScDo extends ScExpression {
   def body: Option[ScExpression]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitDoStatement(this)
+    visitor.visitDo(this)
   }
 }
 

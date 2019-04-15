@@ -25,7 +25,7 @@ trait ScMatch extends ScExpression {
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitMatchStatement(this)
+    visitor.visitMatch(this)
   }
 }
 

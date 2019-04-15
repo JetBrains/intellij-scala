@@ -82,8 +82,8 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
     }
   }
 
-  override def visitTupleExpr(tuple: ScTuple): Unit = {
-    doVisit(tuple, super.visitTupleExpr, TRAILING_COMMA_TUPLE_ENABLED)(_.exprs.lastOption)
+  override def visitTuple(tuple: ScTuple): Unit = {
+    doVisit(tuple, super.visitTuple, TRAILING_COMMA_TUPLE_ENABLED)(_.exprs.lastOption)
   }
 
   override def visitTupleTypeElement(tuple: ScTupleTypeElement): Unit = {

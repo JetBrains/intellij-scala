@@ -11,6 +11,6 @@ trait ScThrow extends ScExpression {
   def expression: Option[ScExpression] = findChild(classOf[ScExpression])
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitThrowExpression(this)
+    visitor.visitThrow(this)
   }
 }

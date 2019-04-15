@@ -110,9 +110,9 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         super.visitGenericCallExpression(call)
       }
 
-      override def visitForExpression(expr: ScFor) {
+      override def visitFor(expr: ScFor) {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
-        super.visitForExpression(expr)
+        super.visitFor(expr)
       }
 
       override def visitMethodCallExpression(call: ScMethodCall) {

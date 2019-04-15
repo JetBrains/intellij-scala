@@ -140,26 +140,26 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
   // TODO visitMethodInvocation
   def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
-  def visitIfStatement(stmt: ScIf) { visitExpression(stmt) }
+  def visitIf(stmt: ScIf) { visitExpression(stmt) }
   def visitLiteral(l: ScLiteral) {visitExpression(l)}
-  def visitAssignmentStatement(stmt: ScAssignment) { visitExpression(stmt) }
+  def visitAssignment(stmt: ScAssignment) { visitExpression(stmt) }
   // TODO visitMethodInvocation
   def visitMethodCallExpression(call: ScMethodCall) { visitExpression(call) }
   def visitGenericCallExpression(call: ScGenericCall) { visitExpression(call) }
   // TODO visitMethodInvocation
   def visitInfixExpression(infix: ScInfixExpr) {visitExpression(infix)}
-  def visitWhileStatement(ws: ScWhile) { visitExpression(ws) }
-  def visitReturnStatement(ret: ScReturn) { visitExpression(ret) }
-  def visitMatchStatement(ms: ScMatch) { visitExpression(ms) }
-  def visitForExpression(expr: ScFor) { visitExpression(expr) }
-  def visitDoStatement(stmt: ScDo) { visitExpression(stmt) }
+  def visitWhile(ws: ScWhile) { visitExpression(ws) }
+  def visitReturn(ret: ScReturn) { visitExpression(ret) }
+  def visitMatch(ms: ScMatch) { visitExpression(ms) }
+  def visitFor(expr: ScFor) { visitExpression(expr) }
+  def visitDo(stmt: ScDo) { visitExpression(stmt) }
   def visitFunctionExpression(stmt: ScFunctionExpr) { visitExpression(stmt) }
-  def visitThrowExpression(throwStmt: ScThrow) { visitExpression(throwStmt) }
-  def visitTryExpression(tryStmt: ScTry) { visitExpression(tryStmt) }
-  def visitExprInParent(expr: ScParenthesisedExpr) {visitExpression(expr)}
+  def visitThrow(throwStmt: ScThrow) { visitExpression(throwStmt) }
+  def visitTry(tryStmt: ScTry) { visitExpression(tryStmt) }
+  def visitParenthesisedExpr(expr: ScParenthesisedExpr) {visitExpression(expr)}
   def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {visitExpression(templ)}
   def visitTypedStmt(stmt: ScTypedExpression) {visitExpression(stmt)}
-  def visitTupleExpr(tuple: ScTuple) {visitExpression(tuple)}
+  def visitTuple(tuple: ScTuple) {visitExpression(tuple)}
   def visitBlockExpression(block: ScBlockExpr) {visitExpression(block)}
   def visitUnderscoreExpression(under: ScUnderscoreSection) {visitExpression(under)}
   def visitConstrBlock(constr: ScConstrBlock) {visitBlockExpression(constr)}

@@ -82,7 +82,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       if (fun == null) return None
       var result: Option[ScType] = None
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReturnStatement(ret: ScReturn) {
+        override def visitReturn(ret: ScReturn) {
           val newFun = PsiTreeUtil.getParentOfType(ret, classOf[ScFunctionDefinition])
           if (newFun == fun) {
             result = Some(fun.returnType.getOrElse(Unit))

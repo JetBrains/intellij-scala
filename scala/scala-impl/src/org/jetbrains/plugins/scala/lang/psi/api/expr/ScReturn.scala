@@ -21,7 +21,7 @@ trait ScReturn extends ScExpression {
     this.parentOfType(classOf[ScFunctionDefinition])
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitReturnStatement(this)
+    visitor.visitReturn(this)
   }
 }
 

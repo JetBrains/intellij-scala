@@ -20,9 +20,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   private val commonSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
   private val myPostProcessor = new PostFormatProcessorHelper(commonSettings)
 
-  override def visitIfStatement(stmt: ScIf) {
+  override def visitIf(stmt: ScIf) {
     if (checkElementContainsRange(stmt)) {
-      super.visitIfStatement(stmt)
+      super.visitIf(stmt)
       stmt.thenExpression match {
         case Some(thenBranch) =>
           processExpression(thenBranch, stmt, commonSettings.IF_BRACE_FORCE)
@@ -37,9 +37,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitWhileStatement(ws: ScWhile) {
+  override def visitWhile(ws: ScWhile) {
     if (checkElementContainsRange(ws)) {
-      super.visitWhileStatement(ws)
+      super.visitWhile(ws)
       ws.expression match {
         case Some(b) =>
           processExpression(b, ws, commonSettings.WHILE_BRACE_FORCE)
@@ -48,9 +48,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitDoStatement(stmt: ScDo) {
+  override def visitDo(stmt: ScDo) {
     if (checkElementContainsRange(stmt)) {
-      super.visitDoStatement(stmt)
+      super.visitDo(stmt)
       stmt.body match {
         case Some(e) => processExpression(e, stmt, commonSettings.DOWHILE_BRACE_FORCE)
         case _ =>
@@ -58,9 +58,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitForExpression(expr: ScFor) {
+  override def visitFor(expr: ScFor) {
     if (checkElementContainsRange(expr)) {
-      super.visitForExpression(expr)
+      super.visitFor(expr)
       expr.body match {
         case Some(body) => processExpression(body, expr, commonSettings.FOR_BRACE_FORCE)
         case _ =>
@@ -83,9 +83,9 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   }
 
 
-  override def visitTryExpression(tryStmt: ScTry) {
+  override def visitTry(tryStmt: ScTry) {
     if (checkElementContainsRange(tryStmt)) {
-      super.visitTryExpression(tryStmt)
+      super.visitTry(tryStmt)
       tryStmt.tryBlock.children.toList.filter(!_.isInstanceOf[PsiWhiteSpace]).tail match {
         case tryChildren if tryChildren.nonEmpty => processExpressions(tryChildren, tryStmt, scalaSettings.TRY_BRACE_FORCE)
         case _ =>
