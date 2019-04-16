@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import scala.collection.JavaConverters
 
 /**
-  * @author Alexander Podkhalyuzin
-  */
+ * @author Alexander Podkhalyuzin
+ */
 final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaGlobalMembersCompletionContributor._
@@ -81,8 +81,7 @@ object ScalaGlobalMembersCompletionContributor {
     }
 
   private def addGlobalCompletions(lookupItems: Seq[ScalaLookupItem], resultSet: CompletionResultSet): Unit = {
-    if (CompletionService.getCompletionService.getAdvertisementText != null &&
-      lookupItems.exists(!_.shouldImport)) {
+    if (lookupItems.exists(!_.shouldImport)) {
       hintString.foreach(resultSet.addLookupAdvertisement)
     }
 

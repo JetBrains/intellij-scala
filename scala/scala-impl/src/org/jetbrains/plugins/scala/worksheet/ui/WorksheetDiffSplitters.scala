@@ -34,7 +34,7 @@ object WorksheetDiffSplitters {
   class SimpleWorksheetSplitter(editor1: Editor, editor2: Editor,
                                 private var intervals: Iterable[(Int, Int)],
                                 private var changes: Iterable[(Int, Int)], prop: Float)
-    extends Splitter (false, prop) with DiffSplitterI {
+    extends Splitter (false, prop) {
     setDividerWidth(30)
     setFirstComponent(editor1.getComponent)
     setSecondComponent(editor2.getComponent)
@@ -68,11 +68,11 @@ object WorksheetDiffSplitters {
       redrawDiffs()
     }
 
-    override def getComponent: JComponent = this
+     def getComponent: JComponent = this
 
-    override def getVisibleAreaListener: VisibleAreaListener = visibleAreaListener
+     def getVisibleAreaListener: VisibleAreaListener = visibleAreaListener
 
-    override def redrawDiffs(): Unit = getDivider.repaint()
+     def redrawDiffs(): Unit = getDivider.repaint()
 
     override def createDivider(): DividerImpl = new DividerImpl {
       override def paint(g: Graphics) {

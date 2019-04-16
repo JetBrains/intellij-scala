@@ -63,7 +63,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
     }
     val initialTargetPackageName: String = MoveClassesOrPackagesImpl.getInitialTargetPackageName(initialTargetElement, adjustedElements)
     val initialTargetDirectory: PsiDirectory = MoveClassesOrPackagesImpl.getInitialTargetDirectory(initialTargetElement, adjustedElements)
-    val searchTextOccurences: Boolean = adjustedElements.exists(TextOccurrencesUtil.isSearchTextOccurencesEnabled)
+    val searchTextOccurences: Boolean = adjustedElements.exists(TextOccurrencesUtil.isSearchTextOccurrencesEnabled)
     val searchInComments: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_IN_COMMENTS
     val searchForTextOccurences: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_FOR_TEXT
 

@@ -22,7 +22,6 @@ import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.codeInsight.hint.HintUtil;
 import com.intellij.codeInsight.navigation.AbstractDocumentationTooltipAction;
 import com.intellij.codeInsight.navigation.DocPreviewUtil;
-import com.intellij.codeInsight.navigation.ShowQuickDocAtPinnedWindowFromTooltipAction;
 import com.intellij.ide.IdeTooltipManager;
 import com.intellij.ide.PowerSaveMode;
 import com.intellij.lang.documentation.DocumentationProvider;
@@ -93,17 +92,17 @@ public class MouseHoverHandler implements ProjectComponent {
 
   private enum BrowseMode {None, Hover}
 
-  private final EditorMouseAdapter myEditorMouseAdapter = new EditorMouseAdapter() {
+  private final EditorMouseListener myEditorMouseAdapter = new EditorMouseListener() {
     @Override
-    public void mouseReleased(EditorMouseEvent e) {
+    public void mouseReleased(@NotNull EditorMouseEvent e) {
       myTooltipAlarm.cancelAllRequests();
       myTooltipProvider = null;
     }
   };
 
-  private final EditorMouseMotionListener myEditorMouseMotionListener = new EditorMouseMotionAdapter() {
+  private final EditorMouseMotionListener myEditorMouseMotionListener = new EditorMouseMotionListener() {
     @Override
-    public void mouseMoved(final EditorMouseEvent e) {
+    public void mouseMoved(@NotNull final EditorMouseEvent e) {
       if (myHint != null) {
         HintManager.getInstance().hideAllHints();
         myHint = null;

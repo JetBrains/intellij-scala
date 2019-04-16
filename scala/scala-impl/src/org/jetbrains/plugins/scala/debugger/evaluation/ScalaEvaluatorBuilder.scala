@@ -157,7 +157,7 @@ private[evaluation] trait SyntheticVariablesHelper {
   }
 
   protected def createSyntheticVariable(name: String): Unit = currentHolder.setInitialValue(name, null)
-  protected def syntheticVariableEvaluator(name: String) = new SyntheticVariableEvaluator(currentHolder, name)
+  protected def syntheticVariableEvaluator(name: String) = new SyntheticVariableEvaluator(currentHolder, name, null)
 }
 
 private object needsCompilation {
