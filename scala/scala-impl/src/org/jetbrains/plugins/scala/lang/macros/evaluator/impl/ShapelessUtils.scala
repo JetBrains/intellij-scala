@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.macros.evaluator.MacroContext
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+
+import scala.language.implicitConversions
 
 trait ShapelessUtils {
 
@@ -28,7 +31,7 @@ trait ShapelessUtils {
   }
 
   private def extractFiledsFromClass(c: ScClass):Seq[(String, ScType)] = {
-    c.constructor.map(_.parameters.map(p=> (p.name, p.`type`().getOrAny))).getOrElse(Seq.empty)
+    c.constructor.map(_.parameters.map(p => (p.name, p.`type`().getOrAny))).getOrElse(Seq.empty)
   }
 
   /**
@@ -45,5 +48,24 @@ trait ShapelessUtils {
   }
 
   protected def hlistText(componentTypes: Seq[ScType]): String =
-    componentTypes.foldRight(fqHNil)((p, suffix) => s"$fqColonColon[${p.canonicalText}, $suffix]")
+    componentTypes.foldRight(fqHNil)((p, acc) => s"$fqColonColon[${p.canonicalText}, $acc]")
+
+  protected def hListType(componentTypes: Seq[ScType], hNil: ScType, hCons: ScType): ScType = {
+    componentTypes.foldRight(hNil) { case (p, acc) =>
+      ScParameterizedType(hCons, Seq(p, acc))
+    }
+  }
+
+  protected def findClassType(fqn: String)(implicit scope: ElementScope): Option[ScType] =
+    scope.getCachedClass(fqn.stripPrefix("_root_.")).map(ScDesignatorType(_))
+
+  protected def findAliasProjectionType(objectFqn: String, aliasName: String)(implicit scope: ElementScope): Option[ScType] =
+    for {
+      obj   <- scope.getCachedObject(objectFqn.stripPrefix("_root_."))
+      alias <- obj.aliases.find(_.name == aliasName)
+    } yield {
+      ScProjectionType(ScDesignatorType(obj), alias)
+    }
+
+  protected implicit def toElementScope(implicit macroContext: MacroContext): ElementScope = ElementScope(macroContext.place)
 }
