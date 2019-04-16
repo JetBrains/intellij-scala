@@ -1,14 +1,13 @@
-package org.jetbrains.plugins.scala.lang
-package macros
-package evaluator
-package impl
+package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, TypeAliasSignature}
 
 /**
   * Generates accessor types for shapeless LabelledGeneric
@@ -52,7 +51,13 @@ object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
     if (name.isEmpty) return None
     val vt = findValType(name.get)(context.expectedType.get)
     val Out  = vt.map(_.canonicalText).getOrElse("Any")
-    ScalaPsiElementFactory
-      .createTypeFromText(s"${context.expectedType.get.canonicalText}{type Out = $Out}", context.place, null)
+
+    context.expectedType.map(withOutTypeAlias(_, Out, context.place))
+  }
+
+  private def withOutTypeAlias(tp: ScType, outTypeText: String, context: PsiElement): ScType = {
+    val outTypeAlias = ScalaPsiElementFactory.createTypeAliasDefinitionFromText(s"type Out = $outTypeText", context, null)
+    val typeAliasSig = TypeAliasSignature(outTypeAlias)
+    ScCompoundType(Seq(tp), typesMap = Map("Out" -> typeAliasSig))(context)
   }
 }

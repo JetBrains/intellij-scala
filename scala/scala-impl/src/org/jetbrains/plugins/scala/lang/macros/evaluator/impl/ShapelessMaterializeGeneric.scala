@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
   * generates HList types without tagging
@@ -18,10 +17,27 @@ object ShapelessMaterializeGeneric extends ScalaMacroTypeable with ShapelessUtil
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     if (context.expectedType.isEmpty) return None
-    val targetType = extractTargetType(context)
-    val fields      = extractFields(targetType).map(_._2)
-    val reprTpStr   = hlistText(fields)
-    val genericStr  = s"$fqGeneric.Aux[${targetType.canonicalText}, $reprTpStr]"
-    ScalaPsiElementFactory.createTypeFromText(genericStr, context.place, null)
+
+    typesInScope(context).map { foundTypes =>
+      import foundTypes._
+
+      val targetType = extractTargetType(context)
+      val fields     = extractFields(targetType).map(_._2)
+      val hList      = hListType(fields, hNil, hCons)
+
+      ScParameterizedType(genericAux, Seq(targetType, hList))
+    }
   }
+
+  private def typesInScope(implicit context: MacroContext): Option[TypesInScope] = {
+    for {
+      hNil   <- findClassType(fqHNil)
+      hCons  <- findClassType(fqColonColon)
+      aux    <- findAliasProjectionType(fqGeneric, "Aux")
+    } yield {
+      TypesInScope(hNil, hCons, aux)
+    }
+  }
+
+  private case class TypesInScope(hNil: ScType, hCons: ScType, genericAux: ScType)
 }
