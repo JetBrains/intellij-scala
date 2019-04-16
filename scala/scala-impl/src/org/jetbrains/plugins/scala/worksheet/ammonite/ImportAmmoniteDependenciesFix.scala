@@ -78,7 +78,7 @@ object ImportAmmoniteDependenciesFix {
           case mre"[success]$_" =>
             indicator.setText("Ammonite: adding dependencies...")
 
-            ScalaUtil.getModuleForFile(file.getVirtualFile, project).foreach { module =>
+            ScalaUtil.getModuleForFile(file.getVirtualFile).foreach { module =>
               invokeLater {
                 inWriteAction {
                   val tableModel = ProjectLibraryTable.getInstance(project).getModifiableModel

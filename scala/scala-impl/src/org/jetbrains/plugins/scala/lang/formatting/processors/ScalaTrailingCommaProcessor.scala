@@ -1,16 +1,17 @@
-package org.jetbrains.plugins.scala.lang.formatting.processors
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package processors
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PostFormatProcessor, PostFormatProcessorHelper}
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
-import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.TrailingCommaMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTupleTypeElement
@@ -40,11 +41,12 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
   private val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
   import scalaSettings._
+  import util.ScalaUtil.isTrailingCommasDisabled
 
   def processElement(source: PsiElement): PsiElement = {
     if (scalaSettings.TRAILING_COMMA_MODE == TrailingCommaMode.TRAILING_COMMA_KEEP ||
       scalaSettings.USE_SCALAFMT_FORMATTER ||
-      !ScalaPsiBuilderImpl.isTrailingCommasEnabled(source.getContainingFile)
+      isTrailingCommasDisabled(source.getContainingFile)
     ) {
       source
     } else {
@@ -57,7 +59,7 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
   def processText(source: PsiFile, rangeToReformat: TextRange): TextRange = {
     if (scalaSettings.TRAILING_COMMA_MODE == TrailingCommaMode.TRAILING_COMMA_KEEP ||
       scalaSettings.USE_SCALAFMT_FORMATTER ||
-      !ScalaPsiBuilderImpl.isTrailingCommasEnabled(source)
+      isTrailingCommasDisabled(source)
     ) {
       rangeToReformat
     } else {

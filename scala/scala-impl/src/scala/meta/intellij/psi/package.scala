@@ -5,7 +5,7 @@ import java.io.File
 import java.util.jar.Attributes.{Name => AttributeName}
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.module.{Module, ModuleUtilCore}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil
@@ -37,31 +37,31 @@ package object psi {
     }
   }
 
-  private implicit class ScalaPsiElementExt(val repr: PsiElement) extends AnyVal {
+  private implicit class ScalaPsiElementExt(private val repr: PsiElement) extends AnyVal {
 
-    def isMetaEnabled: Boolean = {
-      repr.isValid && (repr.getContainingFile match {
+    def isMetaEnabled: Boolean = repr.isValid &&
+      (repr.getContainingFile match {
         case file: ScalaFile if !file.isCompiled => file.isMetaEnabled(repr.getProject)
         case _ => false
       })
-    }
   }
 
-  implicit class PsiFileExt(val repr: PsiFile) extends AnyVal {
+  implicit class PsiFileExt(private val repr: PsiFile) extends AnyVal {
 
-    def isMetaEnabled(project: Project): Boolean =
+    def isMetaEnabled(implicit project: Project): Boolean =
       !ScStubElementType.Processing &&
         !DumbService.isDumb(project) &&
-        (ApplicationManager.getApplication.isUnitTestMode ||
-          findModule.exists(hasMetaParadiseJar))
+        (ApplicationManager.getApplication.isUnitTestMode || hasMetaParadiseJar)
 
-    private def findModule = Option {
-      ModuleUtilCore.findModuleForFile(repr.getOriginalFile)
-    }
-
-    private def hasMetaParadiseJar(module: Module) = ScalaCompilerConfiguration.instanceIn(repr.getProject)
-      .getSettingsForModule(module)
-      .plugins.exists(isMetaParadiseJar)
+    private def hasMetaParadiseJar(implicit project: Project) =
+      ModuleUtilCore.findModuleForFile(repr.getOriginalFile) match {
+        case null => false
+        case module =>
+          ScalaCompilerConfiguration.instanceIn(project)
+            .getSettingsForModule(module)
+            .plugins
+            .exists(isMetaParadiseJar)
+      }
   }
 
   implicit class AnnotationExt(val repr: ScAnnotation) extends AnyVal {

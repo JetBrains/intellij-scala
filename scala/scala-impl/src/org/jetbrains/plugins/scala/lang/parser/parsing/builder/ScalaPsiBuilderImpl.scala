@@ -1,43 +1,38 @@
-package org.jetbrains.plugins.scala.lang
-package parser
-package parsing
+package org.jetbrains.plugins.scala
+package lang
+package parser.parsing
 package builder
 
-import com.intellij.lang.PsiBuilder
-import com.intellij.lang.impl.PsiBuilderAdapter
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.lang.{PsiBuilder, impl}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.resolve.FileContextUtil
-import com.intellij.testFramework.LightVirtualFileBase
-import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.ScalaUtil
-
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.intellij.psi
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 class ScalaPsiBuilderImpl(delegate: PsiBuilder)
-  extends PsiBuilderAdapter(delegate) with ScalaPsiBuilder {
+  extends impl.PsiBuilderAdapter(delegate) with ScalaPsiBuilder {
 
-  private val newlinesEnabled = new mutable.Stack[Boolean]
+  implicit def project: Project = getProject
 
-  private lazy val maybePsiFile = Option {
+  private val newlinesEnabled = new collection.mutable.Stack[Boolean]
+
+  private lazy val containingFile = Option {
     myDelegate.getUserData(FileContextUtil.CONTAINING_FILE_KEY)
   }
 
-  private lazy val maybeScalaVersion =
-    maybePsiFile.flatMap(ScalaUtil.getScalaVersion)
-      .map(Version(_))
+  override lazy val isMetaEnabled: Boolean = containingFile.exists {
+    import meta.intellij.psi._
+    _.isMetaEnabled
+  }
 
-  override lazy val isMetaEnabled: Boolean = maybePsiFile.exists {
-    import psi._
-    _.isMetaEnabled(getProject)
+  override lazy val (isTrailingCommasEnabled, isIdBindingEnabled): (Boolean, Boolean) = {
+    import util.ScalaUtil.{isIdBindingEnabled => isIdBindingEnabledImpl, isTrailingCommasEnabled => isTrailingCommasEnabledImpl, _}
+
+    val actualVersion = containingFile.flatMap(findScalaVersion)
+    (isTrailingCommasEnabledImpl(containingFile)(actualVersion),
+      isIdBindingEnabledImpl(containingFile)(actualVersion))
   }
 
   override def newlineBeforeCurrentToken: Boolean =
@@ -62,15 +57,6 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     assert(newlinesEnabled.nonEmpty)
     newlinesEnabled.pop()
   }
-
-  override final def isTrailingCommasEnabled: Boolean =
-    ScalaPsiBuilderImpl.isTrailingCommasEnabled(getProject, maybePsiFile, maybeScalaVersion)
-
-  override final def isIdBindingEnabled: Boolean =
-    maybePsiFile.exists { file =>
-      ScalaPsiBuilderImpl.isTestFile(file) ||
-        maybeScalaVersion.exists(_ >= Version("2.12"))
-    }
 
   protected final def isNewlinesEnabled: Boolean = newlinesEnabled.isEmpty || newlinesEnabled.top
 
@@ -122,7 +108,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     case _ => true
   }
 
-  @tailrec
+  @annotation.tailrec
   private[this] def whiteSpacesAndComments(steps: Int): Option[String] =
     if (steps < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-steps))) {
       whiteSpacesAndComments(steps + 1)
@@ -135,29 +121,4 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
       if (originalSubText.contains('\n')) Some(originalSubText)
       else None
     }
-}
-
-object ScalaPsiBuilderImpl {
-
-  // TODO: move to more appropriate place, the code is reused in formatter
-  def isTrailingCommasEnabled(file: PsiFile): Boolean = {
-    if (file == null) false else isTrailingCommasEnabled(
-      file.getProject,
-      Some(file),
-      ScalaUtil.getScalaVersion(file).map(Version(_))
-    )
-  }
-
-  private def isTrailingCommasEnabled(project: Project, maybePsiFile: Option[PsiFile], maybeScalaVersion: Option[Version]): Boolean = {
-    import ScalaProjectSettings.TrailingCommasMode._
-    ScalaProjectSettings.getInstance(project).getTrailingCommasMode match {
-      case Enabled => true
-      case Disabled => false
-      case Auto => maybePsiFile.exists(isTestFile) || maybeScalaVersion.forall(_ >= Version("2.12.2"))
-    }
-  }
-
-  private def isTestFile(file: PsiFile): Boolean =
-    ApplicationManager.getApplication.isUnitTestMode &&
-      file.getVirtualFile.isInstanceOf[LightVirtualFileBase]
 }

@@ -48,7 +48,7 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
               model.commit()
               tableModel.commit()
 
-              Option(file.getVirtualFile).flatMap(f => ScalaUtil.getModuleForFile(f, project)).foreach {
+              Option(file.getVirtualFile).flatMap(ScalaUtil.getModuleForFile(_)(project)).foreach {
                 module =>
                   val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
                   moduleModel.addLibraryEntry(lib)

@@ -64,7 +64,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
       case profiles =>
         for {
           ScFile.VirtualFile(virtualFile) <- Some(file)
-          module <- ScalaUtil.getModuleForFile(virtualFile, fileProject)
+          module <- ScalaUtil.getModuleForFile(virtualFile)
           profile <- profiles.find(_.getModuleNames.contains(module.getName))
         } yield profile
     }
