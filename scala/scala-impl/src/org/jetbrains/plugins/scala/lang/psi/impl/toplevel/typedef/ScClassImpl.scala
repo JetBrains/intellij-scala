@@ -17,10 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.annotator.ScClassAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
+import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
@@ -126,7 +125,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     constructor.toArray
       .flatMap(_.getFunctionWrappers) ++
       secondaryConstructors
-        .flatMap(_.getFunctionWrappers(isStatic = false, isInterface = false, Some(this)))
+        .flatMap(_.getFunctionWrappers(isStatic = false, isAbstract = false, Some(this)))
 
   private def implicitMethodText: String = {
     val constr = constructor.getOrElse(return "")
@@ -181,7 +180,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
         param.`type`() match {
           case Right(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
             val psiTypeText: String = tp.toPsiType.getCanonicalText
-            val lightField = LightUtil.createLightField(s"public final $psiTypeText ${param.name};", this)
+            val lightField = ScLightField(param.getName, tp, this, PsiModifier.PUBLIC, PsiModifier.FINAL)
             Option(lightField)
           case _ => None
         }

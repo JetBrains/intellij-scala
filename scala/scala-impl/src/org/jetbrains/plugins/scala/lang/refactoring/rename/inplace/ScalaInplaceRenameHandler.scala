@@ -29,7 +29,7 @@ trait ScalaInplaceRenameHandler {
   def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {
       case null => false
-      case _: PsiMethodWrapper | _: PsiClassWrapper => true
+      case _: PsiMethodWrapper[_] | _: PsiClassWrapper => true
       case _ => element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     }
     val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null

@@ -2,11 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.impl.light.LightModifierList
-import com.intellij.psi.util.MethodSignature
+import com.intellij.psi.impl.light.{LightMethod, LightModifierList}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import _root_.scala.collection.immutable.HashMap
 
@@ -15,7 +13,7 @@ import _root_.scala.collection.immutable.HashMap
   * @since 27.02.12
   */
 class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: PsiClass)
-  extends PsiMethodWrapper(method.getManager, method, containingClass) {
+  extends LightMethod(method.getManager, method, containingClass) {
 
   override def getNavigationElement: PsiElement = method.getNavigationElement
 
@@ -44,17 +42,11 @@ class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: Psi
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
-  override protected def returnType: ScType = ???
-
-  override protected def parameterListText: String = ???
-
   override def getReturnType: PsiType = method.getReturnType
 
   override def getReturnTypeElement: PsiTypeElement = method.getReturnTypeElement
 
   override def getParameterList: PsiParameterList = method.getParameterList
-
-  override def getSignature(substitutor: PsiSubstitutor): MethodSignature = method.getSignature(substitutor)
 }
 
 object StaticPsiMethodWrapper {

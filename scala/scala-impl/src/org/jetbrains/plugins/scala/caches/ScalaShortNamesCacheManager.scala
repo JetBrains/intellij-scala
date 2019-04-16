@@ -184,7 +184,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
                               (implicit scope: GlobalSearchScope) =
     namesCache.getMethodsByName(cleanName, scope).filter {
       case _: ScFunction |
-           _: PsiMethodWrapper => false
+           _: PsiMethodWrapper[_] => false
       case _ => true
     }
 

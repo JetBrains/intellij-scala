@@ -2,17 +2,18 @@ package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import com.intellij.openapi.util.Pair
 import com.intellij.psi._
+import com.intellij.psi.impl.light.{LightMethod, LightParameter, LightParameterListBuilder}
 import com.intellij.psi.impl.search.JavaOverridingMethodsSearcher
 import com.intellij.psi.impl.source.PsiMethodImpl
 import com.intellij.psi.search.searches.{AllOverridingMethodsSearch, OverridingMethodsSearch}
-import com.intellij.psi.util.PsiUtil
+import com.intellij.psi.util.{MethodSignature, MethodSignatureBackedByPsiMethod, PsiUtil}
 import com.intellij.util.{Processor, QueryExecutor}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiTypeExt, inReadAction}
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher._
-import org.jetbrains.plugins.scala.lang.psi.light.{PsiMethodWrapper, ScFunctionWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -94,31 +95,29 @@ private[search] object JavaRawOverridingSearcher {
   }
 
   def rawMethodWrapper(m: PsiMethod, cClass: PsiClass): PsiMethod = {
-    val methodCopy = inReadAction(m.copy.asInstanceOf[PsiMethod])
-
-    new PsiMethodWrapper(m.getManager, methodCopy, cClass) {
-
-      override protected def returnType: ScType = {
-        Option(m.getReturnType).map(_.toScType()).orNull
+    new LightMethod(m.getManager, m, cClass) {
+      override def getParameterList: PsiParameterList = {
+        val lightList = new LightParameterListBuilder(m.getManager, m.getLanguage)
+        val originalParams = m.getParameterList.getParameters
+        originalParams.foreach(p => lightList.addParameter(asViewedFromScala(p)))
+        lightList
       }
 
-      override protected def parameterListText: String = {
-        val params = m.getParameterList.getParameters.map(withExistentials)
-        params.mkString("(", ", ", ")")
-      }
+      override def getSignature(substitutor: PsiSubstitutor): MethodSignature =
+        MethodSignatureBackedByPsiMethod.create(this, substitutor)
     }
   }
 
-  private def withExistentials(p: PsiParameter): String = {
+  private def asViewedFromScala(p: PsiParameter): PsiParameter = {
     val paramType: PsiType = p.getType
-    if (!isRaw(paramType)) return p.getText
+    if (!isRaw(paramType)) return p
 
     implicit val pc: ProjectContext = p.projectContext
+    val typeFromScala = paramType.toScType().toPsiType
 
-    val asViewedFromScala = paramType.toScType().toPsiType
-    val typeText = asViewedFromScala.getCanonicalText
-    s"$typeText ${p.getName}"
+    new LightParameter(p.getName, typeFromScala, p.getDeclarationScope, ScalaLanguage.INSTANCE, p.isVarArgs)
   }
+
 
   def isSuperMethodForScala(superMethod: PsiMethod, subMethod: PsiMethod): Boolean = {
     val scFun = subMethod match {

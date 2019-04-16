@@ -100,7 +100,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /** PsiMethod wrappers for java compatibility
     * @return Empty array, if containing class is null.
     */
-  def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper]
+  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper]
 
   def parameters: Seq[ScParameter] = paramClauses.params
 

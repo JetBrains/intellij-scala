@@ -197,16 +197,16 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     * @return Empty array, if containing class is null.
     */
   @Cached(ModCount.getBlockModificationCount, this)
-  def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
+  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
-      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
+      buffer += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
       for {
         clause <- clauses
         first <- clause.clauses.headOption
         if first.hasRepeatedParam && isJavaVarargs(this)
       } {
-        buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+        buffer += new ScFunctionWrapper(this, isStatic, isAbstract, cClass, isJavaVarargs = true)
       }
     }
     buffer

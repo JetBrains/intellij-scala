@@ -1,27 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
   * @author Alefas
   * @since 28.02.12
   */
-class StaticPsiTypedDefinitionWrapper(val delegate: ScTypedDefinition,
+class StaticPsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
                                       role: DefinitionRole,
-                                      containingClass: PsiClassWrapper) extends {
-  val method: PsiMethod = {
-    val methodText = StaticPsiTypedDefinitionWrapper.methodText(delegate, role, containingClass)
-    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
-  }
-
-} with PsiMethodWrapper(delegate.getManager, method, containingClass)
-  with NavigablePsiElementWrapper[ScTypedDefinition] {
+                                      containingClass: PsiClassWrapper)
+  extends PsiMethodWrapper(delegate, javaMethodName(delegate.name, role), containingClass) {
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
@@ -29,40 +20,17 @@ class StaticPsiTypedDefinitionWrapper(val delegate: ScTypedDefinition,
 
   override def getNextSibling: PsiElement = null
 
-  override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
+  override protected def returnScType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
-  override protected def parameterListText: String = {
-    PsiTypedDefinitionWrapper.parameterListText(delegate, role, Some(containingClass))
-  }
+  protected def parameters: Seq[PsiParameter] = PsiTypedDefinitionWrapper.propertyMethodParameters(delegate, role, Some(containingClass))
+
+  protected def typeParameters: Seq[PsiTypeParameter] = Seq.empty
+
+  protected def modifierList: PsiModifierList =
+    ScLightModifierList(delegate, isStatic = true)
 }
 
 object StaticPsiTypedDefinitionWrapper {
 
   def unapply(wrapper: StaticPsiTypedDefinitionWrapper): Option[ScTypedDefinition] = Some(wrapper.delegate)
-
-  def methodText(b: ScTypedDefinition, role: DefinitionRole, containingClass: PsiClassWrapper): String = {
-    val builder = new StringBuilder
-
-    ScalaPsiUtil.nameContext(b) match {
-      case m: ScModifierListOwner =>
-        builder.append(JavaConversionUtil.annotationsAndModifiers(m, isStatic = true))
-      case _ =>
-    }
-
-    builder.append("java.lang.Object")
-
-    builder.append(" ")
-    val name = javaMethodName(b.name, role)
-    builder.append(name)
-    builder.append("()")
-
-    val holder = PsiTreeUtil.getContextOfType(b, classOf[ScAnnotationsHolder])
-    if (holder != null) {
-      builder.append(LightUtil.getThrowsSection(holder))
-    }
-
-    builder.append(" {}")
-
-    builder.toString()
-  }
 }
