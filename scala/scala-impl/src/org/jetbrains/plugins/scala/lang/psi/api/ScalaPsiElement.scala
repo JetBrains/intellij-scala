@@ -146,11 +146,6 @@ object ScalaPsiElement {
 
     def child_=(child: PsiElement): Unit = update(ChildKey, child)
 
-    def setContext(context: PsiElement, child: PsiElement): Unit = {
-      this.context = context
-      this.child = child
-    }
-
     private def apply[T](key: Key[T]) = element match {
       case file: PsiFileBase => file.getCopyableUserData(key)
       case _ => element.getUserData(key)

@@ -26,9 +26,9 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
 
   def annotationExpr: Option[ScAnnotationExpr] = {
     getFromOptionalReference(annotationExprRef) {
-      case (context, child) =>
+      case (context, _) =>
         val annotationExpr = createAnnotationExpression(annotationText)(getProject)
-        annotationExpr.setContext(this.getPsi, null)
+        annotationExpr.context = context
         Some(annotationExpr)
     } (annotationExprRef = _)
 

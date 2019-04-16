@@ -23,7 +23,7 @@ class ScalaParameterTableModel(typeContext: PsiElement,
                                columnInfos: ColumnInfo[_, _]*)
         extends ParameterTableModelBase[ScalaParameterInfo, ScalaParameterTableModelItem](typeContext, defaultValueContext, columnInfos: _*) {
 
-  val project = defaultValueContext.getProject
+  private implicit val project: Project = defaultValueContext.getProject
   val initialParams: Seq[Seq[ScalaParameterInfo]] = methodDescriptor.parameters
 
   private val codeFragments = ArrayBuffer[PsiElement]()
@@ -38,15 +38,12 @@ class ScalaParameterTableModel(typeContext: PsiElement,
   override def createRowItem(parameterInfo: ScalaParameterInfo): ScalaParameterTableModelItem = {
     val info = Option(parameterInfo).getOrElse(ScalaParameterInfo(project))
 
-    val paramTypeCodeFragment = new ScalaCodeFragment(project, info.typeText(typeContext))
-    val defaultValueCodeFragment = new ScalaCodeFragment(project, info.getDefaultValue)
+    val paramTypeCodeFragment = ScalaCodeFragment(info.typeText(typeContext), typeContext.getParent, typeContext)
+    val defaultValueCodeFragment = ScalaCodeFragment(info.getDefaultValue, defaultValueContext.getParent, defaultValueContext)
 
     val fragments = Seq(paramTypeCodeFragment, defaultValueCodeFragment)
     codeFragments ++= fragments
     fragments.foreach(HighlightLevelUtil.forceRootHighlighting(_, FileHighlightingSetting.SKIP_HIGHLIGHTING))
-
-    paramTypeCodeFragment.setContext(typeContext.getParent, typeContext)
-    defaultValueCodeFragment.setContext(defaultValueContext.getParent, defaultValueContext)
 
     defaultValueCodeFragment.setVisibilityChecker(JavaCodeFragment.VisibilityChecker.EVERYTHING_VISIBLE)
 

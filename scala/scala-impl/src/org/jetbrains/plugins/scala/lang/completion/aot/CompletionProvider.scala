@@ -23,7 +23,8 @@ private[completion] trait CompletionProvider[E <: ScalaPsiElement] extends Deleg
       )
 
       val context = findContext(replacement)
-      replacement.setContext(context, context.getLastChild)
+      replacement.context = context
+      replacement.child = context.getLastChild
 
       val Some(typeElement) = findTypeElement(replacement)
       val newParameters = createParameters(typeElement, Some(prefix.length))

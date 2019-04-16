@@ -974,11 +974,12 @@ object JavaToScala {
     text
   }
 
-  def convertPsiToText(element: PsiElement): String = {
+  def convertPsiToText(element: PsiElement)
+                      (implicit project: Project = element.getProject): String = {
     val PrintWithComments(text) = convertPsiToIntermediate(element, null)(textMode = true)
 
-    val file = new ScalaCodeFragment(element.getProject, text)
-    ConverterUtil.cleanCode(file, element.getProject, 0, file.getTextLength)
+    val file = ScalaCodeFragment(text)
+    ConverterUtil.cleanCode(file, project, 0, file.getTextLength)
     file.getText
   }
 

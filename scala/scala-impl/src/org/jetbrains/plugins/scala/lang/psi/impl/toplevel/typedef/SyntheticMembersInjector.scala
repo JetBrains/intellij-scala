@@ -178,7 +178,7 @@ object SyntheticMembersInjector {
         case _ => source
       }
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
-      member.setContext(context, null)
+      member.context = context
       member.syntheticNavigationElement = context
       member.syntheticContainingClass = context
 
@@ -213,7 +213,8 @@ object SyntheticMembersInjector {
     @CachedInUserData(td, CachesUtil.libraryAwareModTracker(td))
     def syntheticTemplateBody: ScTemplateBody = {
       val body = ScalaPsiElementFactory.createTemplateBody(td.getProject)
-      body.setContext(extendsBlock, extendsBlock.getLastChild)
+      body.context = extendsBlock
+      body.child = extendsBlock.getLastChild
       body
     }
 

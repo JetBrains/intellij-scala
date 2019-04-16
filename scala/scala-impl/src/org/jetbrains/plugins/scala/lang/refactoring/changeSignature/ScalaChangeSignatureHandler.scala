@@ -28,10 +28,13 @@ import scala.annotation.tailrec
  */
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
-  def invokeWithDialog(project: Project, fun: ScMethodLike) {
+  def invokeWithDialog(fun: ScMethodLike)
+                      (implicit project: Project): Unit = {
     Stats.trigger(FeatureKey.changeSignature)
-    val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun), needSpecifyTypeChb = true)
-    dialog.show()
+    new ScalaChangeSignatureDialog(
+      new ScalaMethodDescriptor(fun),
+      needSpecifyTypeChb = true
+    ).show()
   }
 
   private def invokeOnElement(element: PsiElement)
@@ -81,7 +84,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
         val newMethod = SuperMethodWarningUtil.checkSuperMethod(method, RefactoringBundle.message("to.refactor"))
         unwrapMethod(newMethod) match {
           case Some(fun: ScMethodLike) =>
-            if (isSupportedFor(fun)) invokeWithDialog(project, fun)
+            if (isSupportedFor(fun)) invokeWithDialog(fun)
           case Some(m) if m != method => ChangeSignatureUtil.invokeChangeSignatureOn(m, project)
           case _ =>
         }

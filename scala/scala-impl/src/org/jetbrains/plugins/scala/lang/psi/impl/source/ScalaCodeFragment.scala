@@ -23,7 +23,7 @@ import scala.collection.mutable
 /**
   * @author Alexander Podkhalyuzin
   */
-final class ScalaCodeFragment(private var viewProvider: SingleRootFileViewProvider)
+final class ScalaCodeFragment private(private var viewProvider: SingleRootFileViewProvider)
   extends ScalaFileImpl(viewProvider)
     with JavaCodeFragment
     with IntentionFilterOwner
@@ -32,13 +32,6 @@ final class ScalaCodeFragment(private var viewProvider: SingleRootFileViewProvid
   import ScalaPsiElementFactory._
 
   getViewProvider.forceCachedPsi(this)
-
-  def this(project: Project, text: String) = this(
-    new SingleRootFileViewProvider(
-      PsiManager.getInstance(project),
-      new LightVirtualFile("Dummy.scala", ScalaFileType.INSTANCE, text),
-      true)
-  )
 
   private var thisType: PsiType = _
   private var superType: PsiType = _
@@ -159,6 +152,25 @@ final class ScalaCodeFragment(private var viewProvider: SingleRootFileViewProvid
     def redo(): Unit = {
       imports += path
     }
+  }
+
+}
+
+object ScalaCodeFragment {
+
+  def apply(text: String,
+            context: PsiElement = null,
+            child: PsiElement = null)
+           (implicit project: Project): ScalaCodeFragment = {
+    val viewProvider = new SingleRootFileViewProvider(
+      PsiManager.getInstance(project),
+      new LightVirtualFile("Dummy.scala", ScalaFileType.INSTANCE, text),
+      true
+    )
+    val fragment = new ScalaCodeFragment(viewProvider)
+    fragment.context = context
+    fragment.child = child
+    fragment
   }
 
 }

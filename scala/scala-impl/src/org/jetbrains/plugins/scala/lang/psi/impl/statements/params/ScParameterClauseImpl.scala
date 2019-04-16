@@ -62,7 +62,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
     val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
     syntheticParameters.foreach {
-      _.setContext(this, null)
+      _.context = this
     }
 
     syntheticParameters ++ parameters

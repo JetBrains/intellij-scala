@@ -22,7 +22,7 @@ import scala.util.Try
   * Created by Kate Ustyuzhanina on 12/13/16.
   */
 
-class ScalaFilePasteProvider extends PasteProvider {
+final class ScalaFilePasteProvider extends PasteProvider {
 
   import ScalaFilePasteProvider._
 
@@ -33,7 +33,7 @@ class ScalaFilePasteProvider extends PasteProvider {
     val text: String = CopyPasteManager.getInstance.getContents(stringFlavor)
     implicit val context = dataContext
 
-    maybeProject.flatMap(PlainTextCopyUtil.createScalaFile(text, _)).zip {
+    maybeProject.flatMap(PlainTextCopyUtil.createScalaFile(text)(_)).zip {
       maybeIdeView.flatMap(_.getOrChooseDirectory.toOption)
     }.foreach {
       case (scalaFile, directory) => createFileInDirectory(fileName(scalaFile), text, directory)(scalaFile.getProject)
@@ -78,7 +78,7 @@ class ScalaFilePasteProvider extends PasteProvider {
     maybeIdeView.nonEmpty &&
       maybeModule.exists(_.hasScala) && //don't affect NON scala projects even when scala plugin is turn on
       maybeContent.zip(maybeProject).exists {
-        case (text, project) => PlainTextCopyUtil.isValidScalaFile(text, project)
+        case (text, project) => PlainTextCopyUtil.isValidScalaFile(text)(project)
       }
   }
 }

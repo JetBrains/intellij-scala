@@ -50,7 +50,7 @@ import scala.reflect.NameTransformer
 private[evaluation] trait ScalaEvaluatorBuilderUtil {
   this: ScalaEvaluatorBuilder =>
 
-  import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
+  import ScalaEvaluatorBuilderUtil._
   private val stdTypes = projectContext.stdTypes
   import stdTypes._
 
@@ -842,8 +842,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             try evaluatorFor(expr)
             catch {
               case _: NeedCompilationException =>
-                val fragment = new ScalaCodeFragment(caseCl.getProject, expr.getText)
-                new ScalaCompilingEvaluator(expr, fragment)
+                new ScalaCompilingEvaluator(expr, ScalaCodeFragment(expr.getText)(caseCl.getProject))
             }
 
           val fromPatternEvaluator = evaluateSubpatternFromPattern(exprEval, pattern.get, namedElement.asInstanceOf[ScPattern])

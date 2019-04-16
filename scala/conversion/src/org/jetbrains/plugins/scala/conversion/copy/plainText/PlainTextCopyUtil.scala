@@ -33,20 +33,23 @@ object PlainTextCopyUtil {
   /**
     * Treat scala file as valid if it doesn't contain ";\n" or one word text or parsed correctly as scala and not parsed correctly as java
     */
-  def isValidScalaFile(text: String, project: Project): Boolean = {
+  def isValidScalaFile(text: String)
+                      (implicit project: Project): Boolean = {
     def withLastSemicolon(text: String): Boolean = (!text.contains("\n") && text.contains(";")) || text.contains(";\n")
 
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (withLastSemicolon(text) || isJavaClassWithPublic(text, project)) false
+    if (withLastSemicolon(text) || isJavaClassWithPublic(text)) false
     else if (isOneWord(text)) true
-    else createScalaFile(text, project).exists(isParsedCorrectly)
+    else createScalaFile(text).exists(isParsedCorrectly)
   }
 
-  def isJavaClassWithPublic(text: String, project: Project): Boolean =
-    createJavaFile(text, project).exists(_.getClasses.exists(_.hasModifierProperty("public")))
+  def isJavaClassWithPublic(text: String)
+                           (implicit project: Project): Boolean =
+    createJavaFile(text).exists(_.getClasses.exists(_.hasModifierProperty("public")))
 
-  def isValidJavaFile(text: String, project: Project): Boolean = createJavaFile(text, project).exists(isParsedCorrectly)
+  def isValidJavaFile(text: String)
+                     (implicit project: Project): Boolean = createJavaFile(text).exists(isParsedCorrectly)
 
   def isParsedCorrectly(file: PsiFile): Boolean = {
     val errorElements = file.depthFirst().instancesOf[PsiErrorElement].toList
@@ -64,8 +67,14 @@ object PlainTextCopyUtil {
     }
   }
 
-  def createScalaFile(text: String, project: Project): Option[ScalaFile] = Some(new ScalaCodeFragment(project, text))
+  def createScalaFile(text: String)
+                     (implicit project: Project): Some[ScalaFile] = Some(ScalaCodeFragment(text))
 
-  def createJavaFile(text: String, project: Project): Option[PsiJavaFile] =
-    PsiFileFactory.getInstance(project).createFileFromText("Dummy.java", JavaFileType.INSTANCE, text).asOptionOf[PsiJavaFile]
+  def createJavaFile(text: String)
+                    (implicit project: Project): Option[PsiJavaFile] =
+    PsiFileFactory.getInstance(project).createFileFromText(
+      "Dummy.java",
+      JavaFileType.INSTANCE,
+      text
+    ).asOptionOf[PsiJavaFile]
 }

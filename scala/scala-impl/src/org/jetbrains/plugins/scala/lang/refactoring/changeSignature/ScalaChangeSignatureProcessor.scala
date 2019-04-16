@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
  * Nikolay.Tropin
  * 2014-09-01
  */
-class ScalaChangeSignatureProcessor(project: Project, changeInfo: ScalaChangeInfo)
+final class ScalaChangeSignatureProcessor(changeInfo: ScalaChangeInfo)
+                                         (implicit project: Project)
         extends ChangeSignatureProcessorBase(project, changeInfo) {
 
   override def createUsageViewDescriptor(usages: Array[UsageInfo]): UsageViewDescriptor =

@@ -97,11 +97,11 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
           val paramInfo = new ScalaParameterInfo(data.paramName, -1, data.tp, project, false, false, data.defaultArg, isIntroducedParameter = true)
           val descriptor: ScalaMethodDescriptor = handler.createMethodDescriptor(data.methodToSearchFor, paramInfo)
-          val changeInfo = new ScalaChangeInfo(descriptor.getVisibility, data.methodToSearchFor, descriptor.getName, returnType,
+          val changeInfo = ScalaChangeInfo(descriptor.getVisibility, data.methodToSearchFor, descriptor.getName, returnType,
             descriptor.parameters, isDefaultParam)
 
           changeInfo.introducedParameterData = Some(data)
-          new ScalaChangeSignatureProcessor(project, changeInfo).run()
+          new ScalaChangeSignatureProcessor(changeInfo).run()
         }
       }
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

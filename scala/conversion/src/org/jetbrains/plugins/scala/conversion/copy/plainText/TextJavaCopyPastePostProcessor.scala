@@ -50,17 +50,15 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
     val ConvertedCode(_, text, _) = value
     if (text == null || text == "") return
 
-    if (PlainTextCopyUtil.isValidScalaFile(text, project)) return
+    if (PlainTextCopyUtil.isValidScalaFile(text)) return
 
     // TODO: Collect available imports in current scope. Use them while converting
-    computejavaContext(text, project).foreach { javaCodeWithContext =>
+    computejavaContext(text).foreach { javaCodeWithContext =>
 
       if (shownDialog(ScalaConversionBundle.message("scala.copy.from.text"))) {
         Stats.trigger(FeatureKey.convertFromJavaText)
 
         extensions.inWriteAction {
-          val project = javaCodeWithContext.project
-
           createFileWithAdditionalImports(javaCodeWithContext, file.resolveScope).foreach { javaFile =>
             //remove java pasted java code from file for treating file as a valid scala file
             //it needs for SCL-11425
@@ -127,19 +125,21 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
 
   case class ExpressionContext() extends CopyContext("class Dummy { Object field =", s"$lineSeparator}")
 
-  case class CodeWithContext(text: String, project: Project, context: CopyContext) {
+  case class CodeWithContext(text: String, context: CopyContext)
+                            (implicit project: Project) {
     def parseWithContextAsJava: Boolean =
-      PlainTextCopyUtil.isValidJavaFile(context.prefix + text + context.postfix, project)
+      PlainTextCopyUtil.isValidJavaFile(context.prefix + text + context.postfix)
 
     def javaFile: Option[PsiJavaFile] =
-      PlainTextCopyUtil.createJavaFile(context.prefix + text + context.postfix, project)
+      PlainTextCopyUtil.createJavaFile(context.prefix + text + context.postfix)
   }
 
-  def computejavaContext(text: String, project: Project): Option[CodeWithContext] = {
-    val asFile = CodeWithContext(text, project, FileContext())
-    val asClass = CodeWithContext(text, project, ClassContext())
-    val asBlock = CodeWithContext(text, project, BlockContext())
-    val asExpression = CodeWithContext(text, project, ExpressionContext())
+  def computejavaContext(text: String)
+                        (implicit project: Project): Option[CodeWithContext] = {
+    val asFile = CodeWithContext(text, FileContext())
+    val asClass = CodeWithContext(text, ClassContext())
+    val asBlock = CodeWithContext(text, BlockContext())
+    val asExpression = CodeWithContext(text, ExpressionContext())
 
     if (asFile.parseWithContextAsJava) Some(asFile)
     else if (asClass.parseWithContextAsJava) Some(asClass)

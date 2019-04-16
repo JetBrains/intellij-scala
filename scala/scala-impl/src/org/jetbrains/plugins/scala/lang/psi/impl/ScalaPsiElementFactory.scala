@@ -807,7 +807,9 @@ object ScalaPsiElementFactory {
         throw elementCreationException("expression", text, context)
       }
 
-    withContext(firstArgument, context, child)
+    firstArgument.context = context
+    firstArgument.child = child
+    firstArgument
   }
 
   def createMirrorElement(text: String, context: PsiElement, child: PsiElement): ScExpression = child match {
@@ -831,7 +833,10 @@ object ScalaPsiElementFactory {
                                                             (parse: builder.ScalaPsiBuilder => AnyVal)
                                                             (implicit tag: ClassTag[E]): E =
     createElement(text, context, checkLength = true)(parse)(context.getProject) match {
-      case element: E => withContext(element, context, child)
+      case element: E =>
+        element.context = context
+        element.child = child
+        element
       case element => throw elementCreationException(tag.getClass.getSimpleName, text + "; actual: " + element.getText, context)
     }
 
@@ -839,11 +844,6 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScModifierList]("", context, context.getFirstChild) {
       _.mark().done(parser.ScalaElementType.MODIFIERS)
     }
-
-  private def withContext[E <: ScalaPsiElement](element: E, context: PsiElement, child: PsiElement) = {
-    element.setContext(context, child)
-    element
-  }
 
   private def createElement[T <: AnyVal](text: String, context: PsiElement,
                                          checkLength: Boolean = false)

@@ -19,11 +19,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: ScMember) extends RefactoringDialog(project, canBeParent) {
 
-  private val targetObjectFragment: ScalaCodeFragment = {
-    val fragment = new ScalaCodeFragment(project, "")
-    fragment.setContext(memberToMove.getContext, memberToMove)
-    fragment
-  }
+  private val targetObjectFragment = ScalaCodeFragment("", memberToMove.getContext, memberToMove)(project)
 
   private val myTfTargetClassName: EditorComboBox = {
     val document = PsiDocumentManager.getInstance(project).getDocument(targetObjectFragment)

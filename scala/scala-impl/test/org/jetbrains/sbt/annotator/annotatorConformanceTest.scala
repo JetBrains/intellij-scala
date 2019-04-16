@@ -27,7 +27,7 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   def doConformanceTest(expression: ScExpression, typeNameExpected: String): Unit = {
     val file = loadTestFile() // just for the context. we can probably create a context without loading the file?
 
-    expression.setContext(file, null)
+    expression.context = file
 
     val isAllowed = isTypeAllowed(expression, expression.`type`().get, Seq(typeNameExpected))
     assertTrue(s"$expression should conform to $typeNameExpected", isAllowed)

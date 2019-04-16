@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
@@ -166,7 +167,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       if (paramTypes.size == names.size)
         names.zip(paramTypes).map {
           case (name, tpe) =>
-            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText, expr.getProject)
+            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText)(expr.getProject)
         }
       else names
     val clause = params.mkString("(", ", ", ")")
@@ -338,7 +339,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
               argExprs match {
                 case Seq(ScMethodCall(ElementText("Array"), arrayArgs)) => arrayArgs.map(_.getText)
                 case Seq(expr) =>
-                  val typedText = ScalaExtractMethodUtils.typedName(expr.getText, "_*", expr.getProject, byName = false)
+                  val typedText = ScalaExtractMethodUtils.typedName(expr.getText, "_*")(expr.getProject)
                   val naming = if (wasNamed) param.getName + " = " else ""
                   val text = naming + typedText
                   Seq(text)
@@ -416,14 +417,14 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   }
 
   private def parameterListText(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): String = {
-    implicit val project: ProjectContext = change.getMethod.getProject
+    implicit val project: Project = change.getMethod.getProject
 
     def paramType(paramInfo: ParameterInfo) = {
       val method = change.getMethod
       paramInfo match {
         case sInfo: ScalaParameterInfo =>
           val text = UsageUtil.substitutor(usage)(sInfo.scType).canonicalCodeText
-          val `=> ` = if (sInfo.isByName) ScalaPsiUtil.functionArrow(method.getProject) + " " else ""
+          val `=> ` = if (sInfo.isByName) ScalaPsiUtil.functionArrow + " " else ""
           val `*` = if (sInfo.isRepeatedParameter) "*" else ""
           `=> ` + text + `*`
         case jInfo: JavaParameterInfo =>
@@ -462,7 +463,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
 
     def paramText(p: ParameterInfo) = {
-      val typedName = ScalaExtractMethodUtils.typedName(newParamName(p), paramType(p), project, byName = false)
+      val typedName = ScalaExtractMethodUtils.typedName(newParamName(p), paramType(p))
       val default = scalaDefaultValue(p).fold("")(" = " + _)
       val keywordsAndAnnots = p match {
         case spi: ScalaParameterInfo => spi.keywordsAndAnnotations

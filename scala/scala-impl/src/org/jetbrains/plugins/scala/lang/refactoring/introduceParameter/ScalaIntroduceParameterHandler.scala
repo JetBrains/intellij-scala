@@ -3,8 +3,6 @@ package lang
 package refactoring
 package introduceParameter
 
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -35,6 +33,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -101,8 +101,8 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     afterMethodChoosing(elems.head) { methodLike =>
       val data = collectData(exprWithTypes, elems, methodLike, editor)
 
-      data.foreach { d =>
-        val dialog = createDialog(project, d)
+      data.foreach { data =>
+        val dialog = createDialog(data)
         if (dialog.showAndGet) {
           invokeLater {
             if (editor != null && !editor.isDisposed)
@@ -227,10 +227,11 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     enclosingMethods
   }
 
-  def createDialog(project: Project, data: ScalaIntroduceParameterData): ScalaIntroduceParameterDialog = {
+  def createDialog(data: ScalaIntroduceParameterData)
+                  (implicit project: Project): ScalaIntroduceParameterDialog = {
     val paramInfo = new ScalaParameterInfo(data.paramName, -1, data.tp, project, false, false, data.defaultArg, isIntroducedParameter = true)
     val descriptor = createMethodDescriptor(data.methodToSearchFor, paramInfo)
-    new ScalaIntroduceParameterDialog(project, descriptor, data)
+    new ScalaIntroduceParameterDialog(descriptor, data)
   }
 
   def createMethodDescriptor(method: ScMethodLike, paramInfo: ScalaParameterInfo): ScalaMethodDescriptor = {

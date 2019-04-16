@@ -47,8 +47,11 @@ object ScalaExtractMethodUtils {
 
     val typeParamsText = typeParametersText(settings)
 
-    def paramText(param: ExtractMethodParameter): String =
-      typedName(param.oldName, param.tp.canonicalCodeText, param.fromElement.getProject, param.isCallByNameParameter)
+    def paramText(param: ExtractMethodParameter): String = {
+      val ExtractMethodParameter(oldName, _, fromElement, tp, _) = param
+      typedName(oldName, tp.canonicalCodeText, param.isCallByNameParameter)(fromElement.getProject)
+    }
+
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
     val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ", ")") else ""
@@ -62,8 +65,9 @@ object ScalaExtractMethodUtils {
       else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
       else s": ${settings.calcReturnTypeText} ="
 
-    val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
-      val nameAndType = typedName(p.oldName, p.tp.canonicalCodeText, p.fromElement.getProject)
+    val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map {
+      case ExtractMethodParameter(oldName, _, fromElement, tp, _) =>
+        val nameAndType = typedName(oldName, tp.canonicalCodeText)(fromElement.getProject)
       s"val $nameAndType = ???\n"
     }
     val notPassedParamsText = notPassedParams.mkString
@@ -318,9 +322,10 @@ object ScalaExtractMethodUtils {
     list.toArray(new Array[ExtractMethodOutput](list.size))
   }
 
-  def typedName(name: String, typeText: String, project: Project, byName: Boolean = false): String = {
+  def typedName(name: String, typeText: String, byName: Boolean = false)
+               (implicit project: Project): String = {
     val colon = if (StringUtil.isEmpty(name) || ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
-    val arrow = ScalaPsiUtil.functionArrow(project) + " "
+    val arrow = ScalaPsiUtil.functionArrow + " "
     val byNameArrow = if (byName) arrow else ""
     s"$name$colon$byNameArrow$typeText"
   }
@@ -338,8 +343,10 @@ object ScalaExtractMethodUtils {
   }
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
-    def nameAndType(param: ExtractMethodParameter): String =
-      this.typedName(param.newName, param.tp.codeText(param.fromElement), param.fromElement.getProject, param.isCallByNameParameter)
+    def nameAndType(param: ExtractMethodParameter): String = {
+      val ExtractMethodParameter(oldName, newName, fromElement, tp, passAsParameter) = param
+      this.typedName(newName, tp.codeText(fromElement), param.isCallByNameParameter)(fromElement.getProject)
+    }
 
     val ics = settings.innerClassSettings
     val classText = if (ics.needClass) s"${ics.classText(canonTextForTypes = false)}\n\n" else ""
@@ -397,7 +404,7 @@ object ScalaExtractMethodUtils {
     var needExtractorsFromMultipleReturn = false
 
     val outputTypedNames = settings.outputs.map(o =>
-      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText, o.fromElement.getProject))
+      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText)(o.fromElement.getProject))
     val ics = settings.innerClassSettings
 
     def patternForDeclaration: String = {

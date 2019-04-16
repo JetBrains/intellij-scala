@@ -33,8 +33,8 @@ import scala.collection.mutable
 
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
-    val fragment = createCodeFragmentInner(item, context, project)
-    fragment.setContext(wrapContext(project, context), null)
+    implicit val p: Project = project
+    val fragment = createCodeFragmentInner(item, wrapContext(context))
 
     def evaluateType(expr: ScExpression): ScType = {
       val debuggerContext: DebuggerContextImpl = DebuggerManagerEx.getInstanceEx(project).getContext
@@ -68,13 +68,14 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
       }
       null
     }
-    fragment.putCopyableUserData(ScalaRuntimeTypeEvaluator.KEY, evaluateType: (ScExpression) => ScType)
+
+    fragment.putCopyableUserData(ScalaRuntimeTypeEvaluator.KEY, evaluateType: ScExpression => ScType)
     fragment
   }
 
-  private def createCodeFragmentInner(item: TextWithImports, context: PsiElement, project: Project): ScalaCodeFragment = {
-    val fragment = new ScalaCodeFragment(project, item.getText)
-    fragment.setContext(context, null)
+  private def createCodeFragmentInner(item: TextWithImports, context: PsiElement)
+                                     (implicit project: Project): ScalaCodeFragment = {
+    val fragment = ScalaCodeFragment(item.getText, context)
     fragment.addImportsFromString(item.getImports)
     fragment.putUserData(DefaultCodeFragmentFactory.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
     fragment
@@ -97,7 +98,8 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
 
   def getEvaluatorBuilder: EvaluatorBuilder = ScalaEvaluatorBuilder
 
-  private def wrapContext(project: Project, originalContext: PsiElement): PsiElement = {
+  private def wrapContext(originalContext: PsiElement)
+                         (implicit project: Project): PsiElement = {
     if (project.isDefault) return originalContext
     var context: PsiElement = originalContext
     val session: XDebugSession = XDebuggerManager.getInstance(project).getCurrentSession
@@ -108,7 +110,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         val (variablesText, reverseMap): (String, Map[String, Value]) = markupVariablesText(markupMap)
         val offset: Int = variablesText.length - 1
         val textWithImports: TextWithImportsImpl = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, variablesText, "", getFileType)
-        val codeFragment: JavaCodeFragment = createCodeFragmentInner(textWithImports, context, project)
+        val codeFragment: JavaCodeFragment = createCodeFragmentInner(textWithImports, context)
         codeFragment.accept(new ScalaRecursiveElementVisitor() {
           override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
             val bindingPattern = pat.bindings.head

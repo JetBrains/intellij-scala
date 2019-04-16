@@ -36,21 +36,20 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 /**
 * Nikolay.Tropin
 * 2014-08-29
 */
 //noinspection ConvertNullInitializerToUnderscore
-class ScalaChangeSignatureDialog(val project: Project,
-                                 val method: ScalaMethodDescriptor,
+class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
                                  val needSpecifyTypeChb: Boolean)
+                                (implicit val project: Project)
   extends {
     private var defaultValuesUsagePanel: DefaultValuesUsagePanel = null
     var mySpecifyTypeChb: JCheckBox = null
@@ -62,8 +61,6 @@ class ScalaChangeSignatureDialog(val project: Project,
     ScalaParameterTableModelItem,
     ScalaParameterTableModel](project, method, false, method.fun) {
 
-  implicit val projectContext: ProjectContext = project
-
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
@@ -74,7 +71,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     val changeInfo =
       ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, Some(mySpecifyTypeChb.isSelected))
 
-    new ScalaChangeSignatureProcessor(project, changeInfo)
+    new ScalaChangeSignatureProcessor(changeInfo)
   }
   
   override def createNorthPanel(): JComponent = {
@@ -185,9 +182,9 @@ class ScalaChangeSignatureDialog(val project: Project,
 
   override def createReturnTypeCodeFragment(): PsiCodeFragment = {
     val text = method.returnTypeText
-    val fragment = new ScalaCodeFragment(project, text)
+    val child = method.fun
+    val fragment = ScalaCodeFragment(text, child.getParent, child)
     HighlightLevelUtil.forceRootHighlighting(fragment, FileHighlightingSetting.SKIP_HIGHLIGHTING)
-    fragment.setContext(method.fun.getParent, method.fun)
     fragment
   }
 
@@ -214,7 +211,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {
       if (item.parameter.name == "") ""
-      else ScalaExtractMethodUtils.typedName(item.parameter.name, item.typeText, project, byName = false)
+      else ScalaExtractMethodUtils.typedName(item.parameter.name, item.typeText)
     }
 
     def itemText(item: ScalaParameterTableModelItem) = item.keywordsAndAnnotations + nameAndType(item)
@@ -245,7 +242,7 @@ class ScalaChangeSignatureDialog(val project: Project,
 
   override def validateAndCommitData(): String = {
     val paramItems = parameterItems
-    val problems = ListBuffer[String]()
+    val problems = mutable.ListBuffer.empty[String]
 
     if (myReturnTypeCodeFragment != null) {
       if (myReturnTypeCodeFragment.getText.isEmpty)
@@ -552,7 +549,7 @@ class ScalaChangeSignatureDialog(val project: Project,
         val typeTxt = typeText(item)
         val nameAndType =
           if (name == "" && typeTxt == "") ""
-          else ScalaExtractMethodUtils.typedName(name, typeTxt, project, byName /*already in type text*/ = false)
+          else ScalaExtractMethodUtils.typedName(name, typeTxt)
         val defText = defaultText(item)
         val text = s"$nameAndType $defText"
         val comp = JBListTable.createEditorTextFieldPresentation(project, getFileType, " " + text, selected, focused)

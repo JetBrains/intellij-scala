@@ -19,7 +19,9 @@ class PartiallyQualifySimpleReference extends AbstractTransformer {
 
         if (paths.length > 1) {
           val reference = createReferenceExpressionFromText(paths.takeRight(2).mkString("."))(e.getManager)
-          reference.setContext(e.getParent, e.getParent.getFirstChild)
+          val context = e.getParent
+          reference.context = context
+          reference.child = context.getFirstChild
           if (reference.bind().exists(_.element == result.element)) {
             e.replace(reference)
           }

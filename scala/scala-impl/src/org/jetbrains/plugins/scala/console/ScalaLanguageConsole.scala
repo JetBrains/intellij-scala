@@ -85,10 +85,10 @@ class ScalaLanguageConsole(project: Project, title: String)
     scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + ";\n1")(project)
   }
 
-  private def resetFileContext() {
-    getFile match {
-      case scala: ScalaFile => scala.setContext(scalaFile, scalaFile.getLastChild)
-      case _ => 
-    }
+  private def resetFileContext(): Unit = getFile match {
+    case scala: ScalaFile =>
+      scala.context = scalaFile
+      scala.child = scalaFile.getLastChild
+    case _ =>
   }
 }

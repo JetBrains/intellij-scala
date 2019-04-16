@@ -3,31 +3,31 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
 import java.awt._
 import java.util
 
-import javax.swing._
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
+import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ComboBox, ValidationInfo}
 import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.{EditorTextField, ToolbarDecorator}
 import com.intellij.util.IJSwingUtilities
+import javax.swing._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
-import org.jetbrains.plugins.scala.lang.refactoring._
 
 import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay.Tropin
  */
-class ScalaIntroduceParameterDialog(project: Project,
-                              method: ScalaMethodDescriptor,
-                              introduceData: ScalaIntroduceParameterData)
-        extends ScalaChangeSignatureDialog(project, method, false) {
+class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
+                                    introduceData: ScalaIntroduceParameterData)
+                                   (implicit project: Project)
+  extends ScalaChangeSignatureDialog(method, false) {
 
   private var paramNameField: EditorTextField = _
   private var typeCombobox: ComboBox[String] = _
@@ -67,14 +67,13 @@ class ScalaIntroduceParameterDialog(project: Project,
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
-    val changeInfo =
-      new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, None)
+    val changeInfo = ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, None)
 
     val newData = introduceData.copy(paramName = paramNameField.getText, tp = typeMap.get(typeCombobox.getSelectedItem),
       replaceAll = replaceOccurrencesChb.isSelected, defaultArg = defaultForIntroducedTextField.getText)
 
     changeInfo.introducedParameterData = Some(newData)
-    new ScalaChangeSignatureProcessor(project, changeInfo)
+    new ScalaChangeSignatureProcessor(changeInfo)
   }
 
   override def createOptionsPanel(): JComponent = {

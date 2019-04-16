@@ -133,10 +133,10 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
       Declaration(targetMethod, Visibility(newVisibility)), Location(targetMethod), Some(Definition(targetMethod)))
 
     val changeInfo =
-      new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,
+      ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,
         isAddDefaultValue, Some(annotationNeeded))
 
-    new ScalaChangeSignatureProcessor(getProjectAdapter, changeInfo)
+    new ScalaChangeSignatureProcessor(changeInfo)(getProjectAdapter)
   }
 }
 
