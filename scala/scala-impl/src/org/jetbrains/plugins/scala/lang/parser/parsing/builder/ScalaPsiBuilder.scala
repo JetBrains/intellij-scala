@@ -20,7 +20,7 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def restoreNewlinesState(): Unit
 
-  def isTrailingCommasEnabled: Boolean
+  def isTrailingComma: Boolean
 
   def isIdBindingEnabled: Boolean
 

@@ -12,7 +12,10 @@ import com.intellij.psi.impl.source.resolve.FileContextUtil
   * @author Alexander Podkhalyuzin
   */
 class ScalaPsiBuilderImpl(delegate: PsiBuilder)
-  extends impl.PsiBuilderAdapter(delegate) with ScalaPsiBuilder {
+  extends impl.PsiBuilderAdapter(delegate)
+    with ScalaPsiBuilder {
+
+  import lexer.{ScalaTokenTypes => T}
 
   implicit def project: Project = getProject
 
@@ -22,17 +25,24 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     myDelegate.getUserData(FileContextUtil.CONTAINING_FILE_KEY)
   }
 
-  override lazy val isMetaEnabled: Boolean = containingFile.exists {
-    import meta.intellij.psi._
-    _.isMetaEnabled
-  }
-
-  override lazy val (isTrailingCommasEnabled, isIdBindingEnabled): (Boolean, Boolean) = {
+  private lazy val (_isTrailingCommasEnabled, _isIdBindingEnabled) = {
     import util.ScalaUtil.{isIdBindingEnabled => isIdBindingEnabledImpl, isTrailingCommasEnabled => isTrailingCommasEnabledImpl, _}
 
     val actualVersion = containingFile.flatMap(findScalaVersion)
     (isTrailingCommasEnabledImpl(containingFile)(actualVersion),
       isIdBindingEnabledImpl(containingFile)(actualVersion))
+  }
+
+  override def isTrailingComma: Boolean = getTokenType match {
+    case T.tCOMMA => _isTrailingCommasEnabled
+    case _ => false
+  }
+
+  override def isIdBindingEnabled: Boolean = _isIdBindingEnabled
+
+  override lazy val isMetaEnabled: Boolean = containingFile.exists {
+    import meta.intellij.psi._
+    _.isMetaEnabled
   }
 
   override def newlineBeforeCurrentToken: Boolean =
@@ -68,8 +78,6 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
       canStartStatement &&
       findPreviousNewLine.exists(predicate)
 
-  import lexer.{ScalaTokenTypes => T}
-
   private def canStartStatement: Boolean = getTokenType match {
     case T.kCATCH |
          T.kELSE |
@@ -94,17 +102,12 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
          T.tRPARENTHESIS |
          T.tRBRACE => false
     case T.kCASE =>
-      val marker = mark
-      advanceLexer()
-
-      val result = getTokenType match {
-        case T.kOBJECT |
-             T.kCLASS => true
-        case _ => false
+      this.predict {
+        _.getTokenType match {
+          case T.kOBJECT | T.kCLASS => true
+          case _ => false
+        }
       }
-
-      marker.rollbackTo()
-      result
     case _ => true
   }
 
