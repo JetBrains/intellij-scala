@@ -79,7 +79,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     this.greenStub match {
       case Some(stub) => stub.getParentStubOfType(classOf[ScTemplateDefinition])
       case None =>
-        child match {
+        this.child match {
           // TODO is all of this mess still necessary?!
           case c: ScClass if c.isCase =>
             this match {

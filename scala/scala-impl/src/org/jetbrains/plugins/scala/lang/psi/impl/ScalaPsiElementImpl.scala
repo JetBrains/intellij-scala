@@ -5,6 +5,7 @@ package impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
@@ -15,25 +16,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
   with ScalaPsiElement {
 
-  override def getStartOffsetInParent: Int = {
-    child match {
-      case null => super.getStartOffsetInParent
-      case _ => child.getStartOffsetInParent
-    }
+  override def getStartOffsetInParent: Int = this.child match {
+    case null => super.getStartOffsetInParent
+    case element => element.getStartOffsetInParent
   }
 
-  override def getPrevSibling: PsiElement = {
-    child match {
-      case null => super.getPrevSibling
-      case _ => child.getPrevSibling
-    }
+  override def getPrevSibling: PsiElement = this.child match {
+    case null => super.getPrevSibling
+    case element => element.getPrevSibling
   }
 
-  override def getNextSibling: PsiElement = {
-    child match {
-      case null => super.getNextSibling
-      case _ => child.getNextSibling
-    }
+  override def getNextSibling: PsiElement = this.child match {
+    case null => super.getNextSibling
+    case element => element.getNextSibling
   }
 
   override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
@@ -76,25 +71,19 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
 
   override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = super.getElementType
 
-  override def getStartOffsetInParent: Int = {
-    child match {
-      case null => super.getStartOffsetInParent
-      case _ => child.getStartOffsetInParent
-    }
+  override def getStartOffsetInParent: Int = this.child match {
+    case null => super.getStartOffsetInParent
+    case element => element.getStartOffsetInParent
   }
 
-  override def getPrevSibling: PsiElement = {
-    child match {
-      case null => super.getPrevSibling
-      case _ => ScalaPsiUtil.getStubOrPsiSibling(child)
-    }
+  override def getPrevSibling: PsiElement = this.child match {
+    case null => super.getPrevSibling
+    case element => ScalaPsiUtil.getStubOrPsiSibling(element)
   }
 
-  override def getNextSibling: PsiElement = {
-    child match {
-      case null => super.getNextSibling
-      case _ => ScalaPsiUtil.getStubOrPsiSibling(child, next = true)
-    }
+  override def getNextSibling: PsiElement = this.child match {
+    case null => super.getNextSibling
+    case element => ScalaPsiUtil.getStubOrPsiSibling(element, next = true)
   }
 
   override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
@@ -130,5 +119,12 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   override def subtreeChanged(): Unit = {
     ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
+  }
+
+  override def copyCopyableDataTo(clone: UserDataHolderBase): Unit = {
+    super.copyCopyableDataTo(clone)
+
+    clone.asInstanceOf[ScalaStubBasedElementImpl[_, _]]
+      .setContext(this.context, this.child)
   }
 }

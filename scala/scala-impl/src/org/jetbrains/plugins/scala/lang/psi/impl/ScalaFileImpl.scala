@@ -9,7 +9,7 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
@@ -269,23 +269,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
-  override def setContext(context: PsiElement, child: PsiElement): Unit = {
-    this.context = context
-    putCopyableUserData(CHILD_KEY, child)
+  override def getPrevSibling: PsiElement = this.child match {
+    case null => super.getPrevSibling
+    case element => element.getPrevSibling
   }
 
-  override def getPrevSibling: PsiElement = {
-    getCopyableUserData(CHILD_KEY) match {
-      case null => super.getPrevSibling
-      case c => c.getPrevSibling
-    }
-  }
-
-  override def getNextSibling: PsiElement = {
-    getCopyableUserData(CHILD_KEY) match {
-      case null => super.getNextSibling
-      case c => c.getNextSibling
-    }
+  override def getNextSibling: PsiElement = this.child match {
+    case null => super.getNextSibling
+    case element => element.getNextSibling
   }
 
   override protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
@@ -327,8 +318,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 object ScalaFileImpl {
   private val LOG = Logger.getInstance(getClass)
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
-
-  val CHILD_KEY = new Key[PsiElement]("child.key")
 
   def pathIn(root: PsiElement): List[List[String]] =
     packagingsIn(root).map(packaging => toVector(packaging.packageName))

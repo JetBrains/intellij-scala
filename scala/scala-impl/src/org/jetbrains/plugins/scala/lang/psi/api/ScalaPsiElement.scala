@@ -3,6 +3,7 @@ package lang
 package psi
 package api
 
+import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 
@@ -10,9 +11,6 @@ trait ScalaPsiElement extends PsiElement
   with project.ProjectContextOwner {
 
   import ScalaPsiElement._
-  import extensions.NullSafe
-
-  protected var child: PsiElement = null
 
   implicit def elementScope: ElementScope = ElementScope(this)
 
@@ -23,33 +21,27 @@ trait ScalaPsiElement extends PsiElement
     case _ => false
   }
 
-  def setContext(context: PsiElement, child: PsiElement): Unit = {
-    this.context = context
-    this.child = child
+  abstract override def getContext: PsiElement = this.context match {
+    case null => super.getContext
+    case element => element
   }
 
-  abstract override def getContext: PsiElement =
-    NullSafe(this.context).getOrElse(super.getContext)
+  def getSameElementInContext: PsiElement = this.child match {
+    case null => this
+    case element => element
+  }
 
-  def getSameElementInContext: PsiElement =
-    child match {
-      case null => this
-      case _ => child
-    }
+  def getDeepSameElementInContext: PsiElement = this.child match {
+    case null => this
+    case element if element == this.context => this
+    case element: ScalaPsiElement => element.getDeepSameElementInContext
+    case element => element
+  }
 
-  def getDeepSameElementInContext: PsiElement =
-    child match {
-      case null => this
-      case _ if child == this.context => this
-      case child: ScalaPsiElement => child.getDeepSameElementInContext
-      case _ => child
-    }
-
-  def startOffsetInParent: Int =
-    child match {
-      case s: ScalaPsiElement => s.startOffsetInParent
-      case _ => getStartOffsetInParent
-    }
+  def startOffsetInParent: Int = this.child match {
+    case element: ScalaPsiElement => element.startOffsetInParent
+    case _ => getStartOffsetInParent
+  }
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
@@ -142,6 +134,7 @@ trait ScalaPsiElement extends PsiElement
 object ScalaPsiElement {
 
   private[this] val ContextKey = Key.create[PsiElement]("context.key")
+  private[this] val ChildKey = Key.create[PsiElement]("child.key")
 
   implicit class ScalaPsiElementExt(private val element: ScalaPsiElement) extends AnyVal {
 
@@ -149,14 +142,23 @@ object ScalaPsiElement {
 
     def context_=(context: PsiElement): Unit = update(ContextKey, context)
 
+    def child: PsiElement = apply(ChildKey)
+
+    def child_=(child: PsiElement): Unit = update(ChildKey, child)
+
+    def setContext(context: PsiElement, child: PsiElement): Unit = {
+      this.context = context
+      this.child = child
+    }
+
     private def apply[T](key: Key[T]) = element match {
-      case stubbed: StubBasedPsiElement[_] => stubbed.getUserData(key)
-      case _ => element.getCopyableUserData(key)
+      case file: PsiFileBase => file.getCopyableUserData(key)
+      case _ => element.getUserData(key)
     }
 
     private def update[T](key: Key[T], value: T): Unit = element match {
-      case stubbed: StubBasedPsiElement[_] => stubbed.putUserData(key, value)
-      case _ => element.putCopyableUserData(key, value)
+      case file: PsiFileBase => file.putCopyableUserData(key, value)
+      case _ => element.putUserData(key, value)
     }
   }
 
