@@ -3,6 +3,7 @@ package lang.psi.light
 
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.impl.light.LightElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /**
  * Nikolay.Tropin
@@ -11,11 +12,7 @@ import com.intellij.psi.impl.light.LightElement
 object isWrapper {
   def unapply(lightElem: LightElement): Option[PsiNamedElement] = lightElem match {
     case PsiClassWrapper(definition) => Some(definition)
-    case PsiTypedDefinitionWrapper(delegate) => Some(delegate)
-    case ScFunctionWrapper(delegate) => Some(delegate)
-    case StaticPsiMethodWrapper(method) => Some(method)
-    case StaticPsiTypedDefinitionWrapper(delegate) => Some(delegate)
-    case StaticTraitScFunctionWrapper(function) => Some(function)
+    case methodWrapper: PsiMethodWrapper[_] => methodWrapper.delegate.asOptionOf[PsiNamedElement]
     case _ => None
   }
 }

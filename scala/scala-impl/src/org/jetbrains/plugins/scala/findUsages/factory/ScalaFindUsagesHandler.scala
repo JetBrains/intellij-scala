@@ -92,7 +92,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
             case v: ScVariable if isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
             case _ => Array.empty[DefinitionRole]
           }
-          a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, role = role, cClass = None))
+          a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, role = role, cClass = None))
         }
       case _ => Array.empty
     }

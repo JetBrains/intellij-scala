@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiModifier._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
@@ -18,9 +19,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, LightUtil, PsiClassWrapper}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.moduleFieldName
+import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper, ScLightField}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -65,7 +68,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = name match {
-    case PsiModifier.FINAL => true
+    case FINAL => true
     case _ => super[ScTypeDefinitionImpl].hasModifierProperty(name)
   }
 
@@ -124,7 +127,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   private def getModuleField: Option[PsiField] = {
     if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))) None
     else {
-      Some(LightUtil.createLightField("public final static " + getQualifiedName + " MODULE$", this))
+      Some(ScLightField(moduleFieldName, ScDesignatorType(this), this, PUBLIC, FINAL, STATIC))
     }
   }
 
@@ -134,7 +137,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
     name match {
-      case "MODULE$" => getModuleField.orNull
+      case `moduleFieldName` => getModuleField.orNull
       case _ => null
     }
   }
@@ -203,6 +206,8 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 }
 
 object ScObjectImpl {
+
+  private val moduleFieldName: String = "MODULE$"
 
   private[this] val processing = new ThreadLocal[Long] {
     override def initialValue(): Long = 0

@@ -17,6 +17,7 @@ import com.intellij.refactoring.util.RefactoringUtil
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -24,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -59,7 +59,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
             case member: ScMember if member.containingClass != null =>
               Seq(GETTER, SETTER, IS_GETTER).foreach(
                 r => {
-                  val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, r, None)
+                  val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, r, None)
                   val name = wrapper.getName
                   val is = name.startsWith("is")
                   val prefix = if (is) "is" else name.substring(0, 3)

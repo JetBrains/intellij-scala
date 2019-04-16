@@ -33,9 +33,9 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
   }
 
   @Cached(ModCount.getBlockModificationCount, this)
-  def getTypedDefinitionWrapper(isStatic: Boolean, isInterface: Boolean, role: DefinitionRole,
+  def getTypedDefinitionWrapper(isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole,
                                 cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
-    new PsiTypedDefinitionWrapper(this, isStatic, isInterface, role, cClass)
+    new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass)
   }
 
   @Cached(ModCount.getBlockModificationCount, this)

@@ -2,96 +2,100 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import java.util
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiSuperMethodImplUtil
-import com.intellij.psi.impl.light.LightMethod
+import com.intellij.psi.impl.light._
 import com.intellij.psi.util.{MethodSignature, MethodSignatureBackedByPsiMethod}
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.light.LightUtil.javaTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
   * @author Alefas
   * @since 05.04.12
   */
-abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containingClass: PsiClass)
-  extends LightMethod(manager, method, containingClass, containingClass.getLanguage) {
+abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with NavigatablePsiElement](
+  val delegate: T,
+  methodName: String,
+  containingClass: PsiClass
+) extends LightMethodBuilder(delegate.getManager, containingClass.getLanguage, methodName)
+    with NavigablePsiElementWrapper[T] {
 
   implicit def elementScope: ElementScope = ElementScope(containingClass)
 
-  private var retTypeElement: Option[PsiTypeElement] = None
-  private var paramList: Option[PsiParameterList] = None
-  private var retType: Option[PsiType] = None
+  setContainingClass(containingClass)
 
-  protected def returnType: ScType
+  @volatile private var _returnType: PsiType = NullPsiType
 
-  protected def parameterListText: String
+  @volatile private var _typeParameterList: PsiTypeParameterList = _
 
-  override def getReturnType: PsiType = {
-    retType.getOrElse {
-      val computed = Option(returnType).map(_.toPsiType).orNull
-      retType = Some(computed)
-      retType.orNull
+  @volatile private var _modifierList: PsiModifierList = _
+
+  @volatile private var _parameterList: PsiParameterList = _
+
+  @volatile private var _throwsList: PsiReferenceList = _
+
+  protected def returnScType: ScType
+
+  protected def parameters: Seq[PsiParameter]
+
+  protected def typeParameters: Seq[PsiTypeParameter]
+
+  protected def modifierList: PsiModifierList
+
+  override def getThrowsList: PsiReferenceList = {
+    if (_throwsList == null) {
+      _throwsList = ScLightThrowsList(delegate)
     }
+    _throwsList
   }
 
-  override def getReturnTypeElement: PsiTypeElement = {
-    retTypeElement.getOrElse {
-      updateRetTypeElement()
-      retTypeElement.orNull
+  override def getModifierList: PsiModifierList = {
+    if (_modifierList == null) {
+      _modifierList = modifierList
     }
+    _modifierList
+  }
+
+  override def getTypeParameterList: PsiTypeParameterList = {
+    if (_typeParameterList == null) {
+      _typeParameterList = typeParameterList
+    }
+    _typeParameterList
+  }
+
+  override def getReturnType: PsiType = {
+    if (_returnType == NullPsiType) {
+      _returnType = returnType
+    }
+    _returnType
   }
 
   override def getParameterList: PsiParameterList = {
-    paramList.getOrElse {
-      updateParamList()
-      paramList.orNull
+    if (_parameterList == null) {
+      _parameterList = parameterList
     }
+    _parameterList
   }
 
-  private def updateRetTypeElement(): Unit = {
-    //`getReturnType` inside synchronized may lead to a deadlock
-    val fullTypeElem = Option(getReturnType)
-      .map(javaTypeElement(_, method, manager.getProject))
+  private def returnType = Option(returnScType).map(_.toPsiType).orNull
 
-    //we update not only retTypeElement, but also psi of `method`
-    synchronized {
-      if (retTypeElement.isEmpty) {
-        val simpleTypeElem = method.getReturnTypeElement
-        if (simpleTypeElem != null) {
-          val newTypeElem =
-            fullTypeElem.map(simpleTypeElem.replace(_).asInstanceOf[PsiTypeElement])
-              .getOrElse(simpleTypeElem)
+  private def parameterList: PsiParameterList = new ScLightParameterList(myManager, containingClass.getLanguage, parameters)
 
-          retTypeElement = Some(newTypeElem)
-        }
-      }
-    }
-  }
-
-  private def updateParamList(): Unit = {
-    val elementFactory = JavaPsiFacade.getInstance(getProject).getElementFactory
-    //`parameterListText` is heavy operation without side effects, so it should be outside synchronized
-    val dummyMethod = elementFactory.createMethodFromText(s"void method$parameterListText", method)
-
-    synchronized {
-      if (paramList.isEmpty) {
-        val newParamLis = method.getParameterList.replace(dummyMethod.getParameterList).asInstanceOf[PsiParameterList]
-        paramList = Some(newParamLis)
-      }
-    }
+  private def typeParameterList: PsiTypeParameterList = {
+    val list = new LightTypeParameterListBuilder(myManager, getLanguage)
+    typeParameters.foreach(list.addParameter)
+    list
   }
 
   override def getSignature(substitutor: PsiSubstitutor): MethodSignature = {
-    updateParamList()
-    updateRetTypeElement()
-    method.getSignature(substitutor)
+    MethodSignatureBackedByPsiMethod.create(this, substitutor)
   }
 
-  override final def getParent: PsiElement =
-    containingClass
+  override final def getParent: PsiElement = containingClass
 
   override final def findDeepestSuperMethods(): Array[PsiMethod] =
     PsiSuperMethodImplUtil.findDeepestSuperMethods(this)
@@ -114,29 +118,41 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
 
   override final def getHierarchicalMethodSignature: HierarchicalMethodSignature =
     PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
+
+  override def equals(other: Any): Boolean = other match {
+    case that: PsiMethodWrapper[_] =>
+      that.getName == getName &&
+        that.delegate == delegate &&
+        that.getContainingClass == getContainingClass
+    case _ => false
+  }
+
+  override def hashCode(): Int =
+    getName.hashCode + 31 * delegate.hashCode() + 31 * 31 * getContainingClass.hashCode()
 }
 
-trait NavigablePsiElementWrapper[E <: NavigatablePsiElement] extends NavigatablePsiElement {
-  val delegate: E
+object PsiMethodWrapper {
+  def containingClass(delegate: ScNamedElement, cClass: Option[PsiClass], isStatic: Boolean): PsiClass = {
+    val result = cClass.getOrElse {
+      delegate.nameContext match {
+        case s: ScMember =>
+          val res = s.containingClass match {
+            case null => s.syntheticContainingClass
+            case clazz => clazz
+          }
+          if (isStatic) {
+            res match {
+              case o: ScObject => o.fakeCompanionClassOrCompanionClass
+              case _ => res
+            }
+          } else res
+        case _ => null
+      }
+    }
 
-  override final def navigate(requestFocus: Boolean): Unit =
-    delegate.navigate(requestFocus)
+    assert(result != null, "Member: " + delegate.getText + "\nhas null containing class. isStatic: " + isStatic +
+      "\nContaining file text: " + delegate.getContainingFile.getText)
 
-  override final def canNavigate: Boolean =
-    delegate.canNavigate
-
-  override final def canNavigateToSource: Boolean =
-    delegate.canNavigateToSource
-
-  override def getPrevSibling: PsiElement =
-    delegate.getPrevSibling
-
-  override def getNextSibling: PsiElement =
-    delegate.getNextSibling
-
-  override def getTextRange: TextRange =
-    delegate.getTextRange
-
-  override def getTextOffset: Int =
-    delegate.getTextOffset
+    result
+  }
 }

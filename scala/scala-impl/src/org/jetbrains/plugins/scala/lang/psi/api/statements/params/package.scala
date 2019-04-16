@@ -5,8 +5,7 @@ import java.util.concurrent.atomic.AtomicLong
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
 import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 
 import scala.language.implicitConversions

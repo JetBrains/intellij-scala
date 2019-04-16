@@ -258,17 +258,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * @return Empty array, if containing class is null.
    */
   @Cached(ModCount.getBlockModificationCount, this)
-  def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
+  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
-      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
+      buffer += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
       for {
         clause <- clauses
         first <- clause.clauses.headOption
         if first.hasRepeatedParam
         if isJavaVarargs
       } {
-        buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+        buffer += new ScFunctionWrapper(this, isStatic, isAbstract, cClass, isJavaVarargs = true)
       }
     }
     buffer

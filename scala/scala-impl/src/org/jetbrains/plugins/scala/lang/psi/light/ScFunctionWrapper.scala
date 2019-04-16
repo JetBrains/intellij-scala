@@ -1,117 +1,64 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{IterableExt, TraversableExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
-
-import _root_.scala.collection.mutable.ArrayBuffer
-
-class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
-  val containingClass: PsiClass = {
-    val res: PsiClass = delegate.containingClass
-    assert(res != null, s"Method: ${delegate.getText}\nhas null containing class. \nContaining file text: ${delegate.getContainingFile.getText}")
-    res
-  }
-  val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = false, isInterface = false, None)
-    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
-  }
-
-} with PsiMethodWrapper(delegate.getManager, method, containingClass)
-  with NavigablePsiElementWrapper[ScPrimaryConstructor] {
-
-  override protected def returnType: ScType = null
-
-  override protected def parameterListText: String = {
-    val substitutor = ScFunctionWrapper.getSubstitutor(None, delegate)
-    ScFunctionWrapper.parameterListText(delegate, substitutor, isJavaVarargs)
-  }
-
-  override def isWritable: Boolean = getContainingFile.isWritable
-
-  override def isVarArgs: Boolean = isJavaVarargs
-}
-
-object ScPrimaryConstructorWrapper {
-
-  def unapply(wrapper: ScPrimaryConstructorWrapper): Option[ScPrimaryConstructor] = Some(wrapper.delegate)
-}
 
 /**
-  * Represents Scala functions for Java.
-  *
-  * @author Alefas
-  * @since 27.02.12
-  */
-class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface: Boolean,
-                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false) extends {
-  val containingClass: PsiClass = {
-    if (cClass.isDefined) cClass.get
-    else {
-      var res: PsiClass = delegate.containingClass
-      if (isStatic) {
-        res match {
-          case o: ScObject => res = o.fakeCompanionClassOrCompanionClass
-          case _ =>
-        }
-      }
-      assert(res != null, "Method: " + delegate.getText + "\nhas null containing class. isStatic: " + isStatic +
-        "\nContaining file text: " + delegate.getContainingFile.getText)
-      res
-    }
-  }
-  val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass)
-    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
+ * Represents Scala functions for Java.
+ *
+ * @author Alefas
+ * @since 27.02.12
+ */
+class ScFunctionWrapper(override val delegate: ScFunction,
+                        isStatic: Boolean,
+                        isAbstract: Boolean,
+                        cClass: Option[PsiClass],
+                        isJavaVarargs: Boolean = false)
+  extends PsiMethodWrapper(delegate, delegate.getName, PsiMethodWrapper.containingClass(delegate, cClass, isStatic)) {
+
+  override def isConstructor: Boolean = delegate.isConstructor
+
+  protected def modifierList: PsiModifierList = {
+    def isSyntheticMethodFromTrait = cClass.nonEmpty && delegate.containingClass.isInstanceOf[ScTrait]
+
+    val isOverride = !isStatic && (isSyntheticMethodFromTrait || delegate.hasModifierProperty("override"))
+    ScLightModifierList(delegate, isStatic, isAbstract, getContainingClass.isInstanceOf[ScTrait], isOverride)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass)
-  with NavigablePsiElementWrapper[ScFunction] {
+  protected def parameters: Seq[PsiParameter] =
+    delegate.effectiveParameterClauses
+      .flatMap(_.effectiveParameters)
+      .map(ScLightParameter.from(_, superSubstitutor.followed(methodTypeParamsSubstitutor), isJavaVarargs))
 
-  override def hasModifierProperty(name: String): Boolean = {
-    name match {
-      case "abstract" if isInterface => true
-      case "final" if containingClass.isInstanceOf[ScTrait] => false //fix for SCL-5824
-      case _ => super.hasModifierProperty(name)
-    }
-  }
+  protected def typeParameters: Seq[PsiTypeParameter] =
+    delegate.typeParameters.map(new ScLightTypeParam(_, superSubstitutor))
 
-  override protected def parameterListText: String = {
-    val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
-    ScFunctionWrapper.parameterListText(delegate, substitutor, isJavaVarargs)
-  }
-
-  override protected def returnType: ScType = {
+  override protected def returnScType: ScType = {
     val isConstructor = delegate.isConstructor
     if (isConstructor) null
     else {
-      val typeParameters = delegate.typeParameters
-      val methodTypeParameters = getTypeParameters
-      val generifySubst: ScSubstitutor =
-        if (typeParameters.nonEmpty && typeParameters.length == getTypeParameters.length)
-          ScSubstitutor.bind(typeParameters, methodTypeParameters.map(ScDesignatorType(_)))
-        else ScSubstitutor.empty
-
-
-      val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
-      val scalaType = {
-        val retType = substitutor(delegate.returnType.getOrAny)
-        generifySubst(retType)
-      }
-      scalaType
+      val originalReturnType = delegate.returnType.getOrAny
+      superSubstitutor.followed(methodTypeParamsSubstitutor)(originalReturnType)
     }
   }
+
+  private def superSubstitutor: ScSubstitutor = cClass match {
+    case Some(td: ScTypeDefinition) =>
+      td.signaturesByName(delegate.name).find(_.method == delegate) match {
+        case Some(sign) => sign.substitutor
+        case _ => ScSubstitutor.empty
+      }
+    case _ => ScSubstitutor.empty
+  }
+
+  private def methodTypeParamsSubstitutor: ScSubstitutor =
+    ScSubstitutor.bind(delegate.typeParameters, this.getTypeParameters.map(ScDesignatorType(_)))
 
   override def getNameIdentifier: PsiIdentifier = delegate.getNameIdentifier
 
@@ -129,13 +76,13 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
       return PsiMethod.EMPTY_ARRAY
 
     def wrap(superSig: PhysicalSignature): PsiMethod = superSig.method match {
-      case f: ScFunction => new ScFunctionWrapper(f, isStatic, isInterface = f.isAbstractMember, cClass = None, isJavaVarargs)
+      case f: ScFunction => new ScFunctionWrapper(f, isStatic, isAbstract = f.isAbstractMember, cClass = None, isJavaVarargs)
       case m => m
     }
 
     val signature = new PhysicalSignature(delegate, ScSubstitutor.empty)
     val superSignatures =
-      TypeDefinitionMembers.getSignatures(containingClass)
+      TypeDefinitionMembers.getSignatures(getContainingClass)
         .forName(delegate.name)._1
         .fastPhysicalSignatureGet(signature)
         .map(_.supers.map(_.info).filterBy[PhysicalSignature])
@@ -145,132 +92,5 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
 }
 
 object ScFunctionWrapper {
-
   def unapply(wrapper: ScFunctionWrapper): Option[ScFunction] = Some(wrapper.delegate)
-
-  /**
-    * This is for Java only.
-    */
-  private[light] def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass]): String = {
-    val builder = new StringBuilder
-
-    builder.append(JavaConversionUtil.annotationsAndModifiers(function, isStatic))
-
-    builder.append(javaTypeParameters(function, getSubstitutor(cClass, function)))
-
-    val isConstructor = function.isConstructor
-    if (!isConstructor) builder.append("java.lang.Object")
-
-    builder.append(" ")
-
-    val name =
-      if (function.isConstructor) function.containingClass.getName
-      else function.getName
-
-    builder.append(name)
-
-    builder.append("()")
-
-    function match {
-      case function: ScFunction =>
-        builder.append(LightUtil.getThrowsSection(function))
-      case _ =>
-    }
-
-    if (!isInterface) {
-      builder.append(" {}")
-    } else {
-      builder.append(";")
-    }
-
-    builder.toString()
-  }
-
-  private def javaTypeParameters(function: ScMethodLike, subst: ScSubstitutor): String = {
-    function match {
-      case fun: ScFunction if fun.typeParameters.nonEmpty =>
-        fun.typeParameters.map(tp => {
-          tp.upperTypeElement match {
-            case Some(_) =>
-              val classes = new ArrayBuffer[String]()
-              val project = fun.getProject
-              tp.upperBound.map(subst) match {
-                case Right(tp: ScCompoundType) =>
-                  tp.components.foreach { tp: ScType =>
-                    tp.extractClass match {
-                      case Some(clazz) => classes += clazz.getQualifiedName
-                      case _ =>
-                    }
-                  }
-                case Right(_: StdType) =>
-                case Right(tpt: TypeParameterType) =>
-                  classes += tpt.canonicalText
-                case Right(scType) =>
-                  scType.extractClass match {
-                    case Some(clazz) => classes += clazz.getQualifiedName
-                    case _ =>
-                  }
-                case _ =>
-              }
-              if (classes.nonEmpty) classes.mkString(s"${tp.name} extends ", " & ", "")
-              else tp.name
-            case _ =>
-              tp.name
-          }
-        }).mkString("<", ", ", ">")
-      case _ => ""
-    }
-  }
-
-  def getSubstitutor(cClass: Option[PsiClass], function: ScMethodLike): ScSubstitutor = {
-    (cClass, function) match {
-      case (Some(clazz), function: ScFunction) =>
-        clazz match {
-          case td: ScTypeDefinition =>
-            td.signaturesByName(function.name).find(_.method == function) match {
-              case Some(sign) => sign.substitutor
-              case _ => ScSubstitutor.empty
-            }
-          case _ => ScSubstitutor.empty
-        }
-      case _ => ScSubstitutor.empty
-    }
-  }
-
-  private def paramText(subst: ScSubstitutor, param: ScParameter, isJavaVarargs: Boolean): String = {
-    val paramAnnotations = JavaConversionUtil.annotations(param).mkString(" ")
-    val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
-
-    val paramType =
-      if (varargs) param.`type`()
-      else param.getRealParameterType
-
-    val typeText = paramType.map(subst) match {
-      case Right(tp) if param.isCallByNameParameter =>
-        val psiType = tp match {
-          case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)
-          case _ => tp.toPsiType
-        }
-        s"${FunctionType.TypeName}0<${psiType.getCanonicalText}>"
-      case Right(tp) =>
-        JavaConversionUtil.typeText(tp)
-      case _ => "java.lang.Object"
-    }
-    val vararg = if (varargs) "..." else ""
-    val paramName = escapeJavaKeywords(param.getName)
-
-    s"$paramAnnotations $typeText$vararg $paramName".trim
-  }
-
-  private def escapeJavaKeywords(name: String): String =
-    if (JavaLexer.isKeyword(name, LanguageLevel.HIGHEST)) name + "$" else name
-
-  private[light] def parameterListText(function: ScMethodLike, subst: ScSubstitutor, isJavaVarargs: Boolean): String = {
-    val parameterClauses = function.effectiveParameterClauses
-
-    parameterClauses.flatMap(_.effectiveParameters).map { param =>
-      paramText(subst, param, isJavaVarargs)
-    }.mkString("(", ", ", ")")
-  }
-
 }
