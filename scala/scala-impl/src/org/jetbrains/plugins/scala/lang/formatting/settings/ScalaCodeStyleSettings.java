@@ -52,7 +52,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
   public boolean ALIGN_COMPOSITE_PATTERN = true;
-  public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = false;
+  public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true;
   public boolean DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true;
   public boolean ALIGN_TUPLE_ELEMENTS = false;
   public boolean INDENT_FIRST_PARAMETER = true;
