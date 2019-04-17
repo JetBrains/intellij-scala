@@ -235,7 +235,7 @@ object getDummyBlocks {
         node.getPsi match {
           case params: ScParameters if settings.ALIGN_MULTILINE_PARAMETERS =>
             val firstParameterStartsFromNewLine =
-              params.clauses.headOption.flatMap(_.parameters.headOption).exists(_.startsFromNewLine()) ||
+              params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine()) ||
                 block.getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE
             if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
             else alignment

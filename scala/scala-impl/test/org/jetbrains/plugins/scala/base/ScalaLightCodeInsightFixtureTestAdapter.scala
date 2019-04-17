@@ -3,7 +3,6 @@ package base
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.folding.CodeFoldingManager
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VfsUtil.saveText
 import com.intellij.psi.PsiFile
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -88,8 +88,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 
   protected def getCurrentCodeStyleSettings: CodeStyleSettings = CodeStyle.getSettings(getProject)
-
-  protected def getCommonSettings = getCurrentCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)
+  protected def getCommonSettings: CommonCodeStyleSettings = getCurrentCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)
+  protected def getScalaSettings: ScalaCodeStyleSettings = getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {
