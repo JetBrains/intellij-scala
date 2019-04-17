@@ -46,10 +46,10 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
   }
 
   override def newlineBeforeCurrentToken: Boolean =
-    previousNewLineExists(Function.const(true))
+    findPreviousNewLineSafe.isDefined
 
   override def twoNewlinesBeforeCurrentToken: Boolean =
-    previousNewLineExists { text =>
+    findPreviousNewLineSafe.exists { text =>
       s"start $text end".split('\n').exists { line =>
         line.forall(StringUtil.isWhiteSpace)
       }
@@ -68,17 +68,15 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     newlinesEnabled.pop()
   }
 
-  protected final def isNewlinesEnabled: Boolean = newlinesEnabled.isEmpty || newlinesEnabled.top
+  protected final def isNewlinesEnabled: Boolean =
+    newlinesEnabled.isEmpty || newlinesEnabled.top
 
-  final def findPreviousNewLine: Option[String] = whiteSpacesAndComments(1)
-
-  private def previousNewLineExists(predicate: String => Boolean): Boolean =
-    isNewlinesEnabled &&
-      !eof &&
-      canStartStatement &&
-      findPreviousNewLine.exists(predicate)
+  private def findPreviousNewLineSafe =
+    if (isNewlinesEnabled && canStartStatement) this.findPreviousNewLine
+    else None
 
   private def canStartStatement: Boolean = getTokenType match {
+    case null => false
     case T.kCATCH |
          T.kELSE |
          T.kEXTENDS |
@@ -110,18 +108,4 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
       }
     case _ => true
   }
-
-  @annotation.tailrec
-  private[this] def whiteSpacesAndComments(steps: Int): Option[String] =
-    if (steps < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-steps))) {
-      whiteSpacesAndComments(steps + 1)
-    } else {
-      val originalSubText = getOriginalText.subSequence(
-        rawTokenTypeStart(1 - steps),
-        rawTokenTypeStart(0)
-      ).toString
-
-      if (originalSubText.contains('\n')) Some(originalSubText)
-      else None
-    }
 }

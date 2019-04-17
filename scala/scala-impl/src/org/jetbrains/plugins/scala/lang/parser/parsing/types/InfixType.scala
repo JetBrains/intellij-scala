@@ -99,7 +99,7 @@ trait InfixType {
     //final ops closing
     if (count>0) {
       if (assoc == 1) {
-        if (couldBeVarArg && builder.lookBack() == ScalaTokenTypes.tIDENTIFIER && count == 1) {
+        if (couldBeVarArg && builder.lookBack(ScalaTokenTypes.tIDENTIFIER) && count == 1) {
           infixTypeMarker.rollbackTo()
           parseId(builder)
           return false
