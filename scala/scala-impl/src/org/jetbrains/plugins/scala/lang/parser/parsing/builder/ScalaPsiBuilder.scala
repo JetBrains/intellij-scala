@@ -22,7 +22,7 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isTrailingComma: Boolean
 
-  def isIdBindingEnabled: Boolean
+  def isIdBinding: Boolean
 
   def isMetaEnabled: Boolean
 }

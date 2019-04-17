@@ -38,7 +38,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     case _ => false
   }
 
-  override def isIdBindingEnabled: Boolean = _isIdBindingEnabled
+  override def isIdBinding: Boolean =
+    this.invalidVarId || _isIdBindingEnabled
 
   override lazy val isMetaEnabled: Boolean = containingFile.exists {
     import meta.intellij.psi._

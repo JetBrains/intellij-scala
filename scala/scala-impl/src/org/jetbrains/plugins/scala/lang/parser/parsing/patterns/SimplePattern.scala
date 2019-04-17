@@ -96,7 +96,7 @@ object SimplePattern {
     if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER) &&
             !builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tDOT) &&
             !builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tLPARENTHESIS) &&
-            !ParserUtils.isCurrentVarId(builder)) {
+      builder.invalidVarId) {
       val rpm = builder.mark
       builder.getTokenText
       builder.advanceLexer()
@@ -143,9 +143,7 @@ object SimplePattern {
             else builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
             ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
               ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-              val wild = builder.mark
-              if (withComma) builder.advanceLexer() // ,
-              ParserUtils.parseVarIdWithWildcardBinding(builder, wild)
+              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma)
             } else false
           }
 

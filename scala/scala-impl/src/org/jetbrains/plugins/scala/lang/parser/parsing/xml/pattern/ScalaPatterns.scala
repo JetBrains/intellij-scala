@@ -61,8 +61,7 @@ object ScalaPatterns {
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
       else builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-        if (withComma) builder.advanceLexer() // ,
-        ParserUtils.parseVarIdWithWildcardBinding(builder, builder.mark())
+        ParserUtils.parseVarIdWithWildcardBinding(builder, withComma)
       } else false
     }
 

@@ -133,26 +133,16 @@ object ParserUtils {
     }
   }
 
-  def isBackticked(name: String): Boolean = name != "`" && name.startsWith("`") && name.endsWith("`")
-
-  def isCurrentVarId(builder: PsiBuilder): Boolean = {
-    val txt = builder.getTokenText
-    !txt.isEmpty && Character.isUpperCase(txt.charAt(0)) || isBackticked(txt)
-  }
-
-  def parseVarIdWithWildcardBinding(builder: PsiBuilder, rollbackMarker: PsiBuilder.Marker): Boolean = {
-    if (!ParserUtils.isCurrentVarId(builder)) builder.advanceLexer() else {
-      rollbackMarker.rollbackTo()
-      return false
+  def parseVarIdWithWildcardBinding(builder: PsiBuilder, withComma: Boolean): Boolean =
+    builder.build(ScalaElementType.NAMING_PATTERN) { repr =>
+      if (withComma) {
+        repr.advanceLexer() // ,
     }
 
-    builder.advanceLexer() // @
-    if (eatSeqWildcardNext(builder)) {
-      rollbackMarker.done(ScalaElementType.NAMING_PATTERN)
-      true
-    } else {
-      rollbackMarker.rollbackTo()
-      false
-    }
+      if (repr.invalidVarId) {
+        repr.advanceLexer()
+        repr.advanceLexer() // @
+        eatSeqWildcardNext(repr)
+      } else false
   }
 }

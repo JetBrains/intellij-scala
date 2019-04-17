@@ -6,7 +6,6 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,9 +24,7 @@ object Pattern1 {
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        if (ParserUtils.isCurrentVarId(builder) && !builder.isIdBindingEnabled) {
-          backupMarker.rollbackTo()
-        } else {
+        if (builder.isIdBinding) {
           builder.advanceLexer() //Ate id
           builder.getTokenType match {
             case ScalaTokenTypes.tCOLON =>
@@ -38,10 +35,11 @@ object Pattern1 {
               }
               pattern1Marker.done(ScalaElementType.TYPED_PATTERN)
               return true
-
             case _ =>
               backupMarker.rollbackTo()
           }
+        } else {
+          backupMarker.rollbackTo()
         }
       case ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() //Ate _

@@ -55,6 +55,11 @@ package object parser {
           }
         case _ => (steps, accumulator)
       }
+
+    def invalidVarId: Boolean = !(repr.getTokenText match {
+      case "" | "`" => false
+      case text => text.head.isUpper || (text.head == '`' && text.last == '`')
+    })
   }
 
   implicit class ScalaPsiBuilderExt(private val repr: parser.parsing.builder.ScalaPsiBuilder) extends AnyVal {
