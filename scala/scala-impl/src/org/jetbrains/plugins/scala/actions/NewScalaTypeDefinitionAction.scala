@@ -36,8 +36,8 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
                             builder: CreateFileFromTemplateDialog.Builder) {
     builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
     builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
-    builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
     builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
+    builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
     builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
 
     for {
