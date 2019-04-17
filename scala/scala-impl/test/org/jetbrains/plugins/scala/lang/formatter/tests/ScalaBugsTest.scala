@@ -2206,6 +2206,25 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def testSCL4167_EmptyParams_1(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+    doTextTest(
+      s"""def foo(
+         |)""".stripMargin
+    )
+  }
+
+
+  def testSCL4167_EmptyParams_2(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = true
+    doTextTest(
+      s"""def foo(
+         |       )""".stripMargin
+    )
+  }
+
   def testSCL15126_ShouldIndentIfFirstParameterIsOnNewLine_MultipleParamClauses_LegacySetting(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
     getScalaSettings.INDENT_FIRST_PARAMETER = true
