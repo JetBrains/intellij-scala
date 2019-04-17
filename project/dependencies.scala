@@ -6,7 +6,7 @@ object Versions {
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
-  val ideaVersion = "191.6183.20"
+  val ideaVersion = "191.6183.87"
   val bspVersion = "2.0.0-M3"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
@@ -164,7 +164,7 @@ object DependencyGroups {
       .exclude("com.google.code.gson", "gson") // included in IDEA platform
       .exclude("com.google.guava", "guava") // included in IDEA platform
     ,
-//    "ch.epfl.scala" %% "bsp-testkit" % bspVersion % "test",
+    "ch.epfl.scala" %% "bsp-testkit" % bspVersion % "test",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test"
   )
 
