@@ -9,6 +9,7 @@ import com.intellij.framework.library.FrameworkLibraryVersionFilter
 import com.intellij.ide.util.projectWizard.{JavaModuleBuilder, ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.util.Disposer
 import javax.swing.{JComponent, JLabel}
@@ -23,7 +24,8 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
   private var libraryCompositionSettings: LibraryCompositionSettings = _
 
   addModuleConfigurationUpdater((_: Module, rootModel: ModifiableRootModel) => {
-    libraryCompositionSettings.addLibraries(rootModel, ju.Collections.emptyList(), librariesContainer)
+    val mutableEmptyList = new ju.ArrayList[Library]()
+    libraryCompositionSettings.addLibraries(rootModel, mutableEmptyList, librariesContainer)
   })
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
