@@ -6,8 +6,9 @@ import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
-import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, fixtures}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * User: Dmitry Naydanov
@@ -80,7 +81,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   protected def getCurrentCodeStyleSettings: CodeStyleSettings = CodeStyle.getSettings(getProject)
 
-  protected def getCommonSettings = getCurrentCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)
+  protected def getCommonSettings: CommonCodeStyleSettings = getCurrentCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)
+
+  protected def getScalaSettings: ScalaCodeStyleSettings = getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
   private def testHighlighting(virtualFile: VirtualFile): Unit = getFixture.testHighlighting(
     false,
