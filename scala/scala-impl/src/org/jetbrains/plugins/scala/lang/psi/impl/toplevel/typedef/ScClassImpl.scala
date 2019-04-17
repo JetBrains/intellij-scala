@@ -13,7 +13,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScClassAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -37,7 +36,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   nodeType: ScTemplateDefinitionElementType[ScClass],
                   node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node)
-    with ScClass with ScTypeParametersOwner with ScTemplateDefinition with ScClassAnnotator {
+    with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
 
   override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 

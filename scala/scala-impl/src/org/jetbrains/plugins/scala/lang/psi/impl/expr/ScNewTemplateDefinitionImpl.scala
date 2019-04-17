@@ -13,7 +13,6 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.annotator.{ScExpressionAnnotator, ScNewTemplateDefinitionAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -41,7 +40,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
                                                      node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScNewTemplateDefinition with ScTemplateDefinitionImpl with PsiClassFake with ScExpressionAnnotator with ScNewTemplateDefinitionAnnotator {
+    with ScNewTemplateDefinition with ScTemplateDefinitionImpl with PsiClassFake {
 
   override def toString: String = "NewTemplateDefinition"
 

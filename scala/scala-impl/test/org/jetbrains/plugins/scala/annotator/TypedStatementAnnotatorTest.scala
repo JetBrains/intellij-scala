@@ -4,6 +4,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.annotator.element.ScTypedExpressionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 
 class TypedStatementAnnotatorTest extends SimpleTestCase {
@@ -40,7 +41,7 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
     val expression = file.depthFirst().instanceOf[ScTypedExpression].get
 
     val mock = new AnnotatorHolderMock(file)
-    expression.annotate(mock, typeAware = true)
+    ScTypedExpressionAnnotator.annotate(expression, mock, typeAware = true)
     mock.annotations
   }
   

@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.TYPE_DECLARATION
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScTypeBoundsOwnerAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -32,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 */
 
 class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration with ScTypeBoundsOwnerAnnotator {
+  extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration {
 
   def this(node: ASTNode) = this(null, node)
 

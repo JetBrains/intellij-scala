@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.util.UIFreezingGuard
   * Nikolay.Tropin
   * 19-Jan-17
   */
-abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReference with ScReferenceAnnotator {
+abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReference {
   def resolve(): PsiElement = {
     bind() match {
       case Some(result) => result.element

@@ -11,6 +11,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
@@ -70,7 +71,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     }
 
     element match {
-      case e: ScalaPsiElement => e.annotate(holder, typeAware)
+      case e: ScalaPsiElement => ElementAnnotator.annotate(e, holder, typeAware)
       case _ =>
     }
 

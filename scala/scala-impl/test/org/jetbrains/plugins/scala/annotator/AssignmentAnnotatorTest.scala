@@ -4,6 +4,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 
 /**
@@ -178,7 +179,7 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     
     val mock = new AnnotatorHolderMock(file)
     
-    assignment.annotate(mock, typeAware = true)
+    ScAssignmentAnnotator.annotate(assignment, mock, typeAware = true)
     mock.annotations
   }
   

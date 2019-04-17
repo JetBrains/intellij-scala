@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.annotator.template
 
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
+import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
+import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * Pavel Fatin
  */
 
-class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitionImpl](_.annotateObjectCreationImpossible(_)) {
+class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateObjectCreationImpossible(_, _)) {
   def testFineNew() {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))

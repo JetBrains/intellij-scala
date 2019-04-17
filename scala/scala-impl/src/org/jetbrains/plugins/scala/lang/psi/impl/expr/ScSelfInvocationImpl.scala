@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScSelfInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -30,8 +29,7 @@ import scala.collection.Seq
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node)
-  with ScSelfInvocation with ScSelfInvocationAnnotator {
+class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation {
 
   override def args: Option[ScArgumentExprList] =
     findChild(classOf[ScArgumentExprList])

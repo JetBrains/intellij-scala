@@ -11,7 +11,6 @@ import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ANNOTATION
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScAnnotationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
@@ -27,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   *         Date: 07.03.2008
   */
 class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation with ScAnnotationAnnotator {
+  extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation {
 
   def this(node: ASTNode) = this(null, node)
 

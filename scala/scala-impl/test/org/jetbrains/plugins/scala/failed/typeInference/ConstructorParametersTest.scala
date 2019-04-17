@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -57,7 +58,7 @@ class ConstructorParametersTest extends SimpleTestCase {
 
     try {
       file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
-        _.annotate(mock, typeAware = true)
+        ScConstructorInvocationAnnotator.annotate(_, mock, typeAware = true)
       }
 
       mock.annotations

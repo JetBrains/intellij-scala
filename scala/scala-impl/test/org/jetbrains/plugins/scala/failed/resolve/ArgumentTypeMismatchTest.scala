@@ -5,7 +5,8 @@ import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
+import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.experimental.categories.Category
 
 /**
@@ -70,8 +71,8 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     val mock = new AnnotatorHolderMock(file)
 
     // TODO use the general annotate() method
-    file.depthFirst().instancesOf[ScReferenceAnnotator].foreach {
-      _.annotateReference(mock)
+    file.depthFirst().instancesOf[ScReference].foreach {
+      ScReferenceAnnotator.annotateReference(_, mock)
     }
     mock.annotations
   }

@@ -5,14 +5,13 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.annotator.{ScMethodCallAnnotator, ScMethodInvocationAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScMethodCall with ScMethodInvocationAnnotator with ScMethodCallAnnotator {
+class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScMethodCall {
 
   def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 

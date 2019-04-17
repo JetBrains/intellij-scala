@@ -7,7 +7,6 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScConstructorInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
@@ -38,7 +37,7 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 22.02.2008
 */
 
-class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructorInvocation with ScConstructorInvocationAnnotator {
+class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructorInvocation {
 
   override def typeElement: ScTypeElement =
     findNotNullChildByClass(classOf[ScTypeElement])

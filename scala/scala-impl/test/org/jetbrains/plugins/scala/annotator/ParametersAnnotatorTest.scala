@@ -4,6 +4,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
@@ -87,9 +88,9 @@ class ParametersAnnotatorTest extends SimpleTestCase {
       case named: ScNamedElement if !Set("A", "B", "C").contains(named.name) => named
     }.get
 
-    owner.clauses.get.annotate(mock, typeAware = true)
+    ScParametersAnnotator.annotate(owner.clauses.get, mock, typeAware = true)
     for (p <- owner.parameters) {
-      p.annotate(mock, typeAware = true)
+      ScParameterAnnotator.annotate(p, mock, typeAware = true)
     }
     mock.annotations
   }

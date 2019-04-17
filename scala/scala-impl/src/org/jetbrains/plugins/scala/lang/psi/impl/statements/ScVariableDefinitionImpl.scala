@@ -7,7 +7,6 @@ package statements
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScVariableDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -24,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariableDefinition],
                                                   nodeType: ScPropertyElementType[ScVariableDefinition],
                                                   node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition with ScVariableDefinitionAnnotator {
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
 
   def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 

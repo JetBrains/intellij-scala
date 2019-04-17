@@ -9,7 +9,6 @@ import java.util
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.ILazyParseableElementType
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScExpressionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
@@ -18,8 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiEl
 * Date: 06.03.2008
 */
 class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequence)
-  extends LazyParseablePsiElement(elementType, buffer)
-    with ScBlockExpr with ScExpressionAnnotator {
+  extends LazyParseablePsiElement(elementType, buffer) with ScBlockExpr {
 
   //todo: bad architecture to have it duplicated here, as ScBlockExprImpl is not instance of ScalaPsiElementImpl
   override def getContext: PsiElement = {

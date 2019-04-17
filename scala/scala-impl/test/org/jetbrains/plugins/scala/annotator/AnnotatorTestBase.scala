@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -21,7 +22,7 @@ import scala.reflect.ClassTag
 // Also, the SCL-15138 (Only highlight initial, not derivative errors) meta issue requires to test the interplay between different parts of the annotator implementation.
 // It's probably better to use otherwise valid code in the test, so that we can rely on the general "annotate" functionality (but we, obviously still may write specialized tests).
 abstract class AnnotatorTestBase[T <: ScalaPsiElement : ClassTag](annotator: (T, AnnotationHolder) => Unit =
-                                                                  (e: T, holder: AnnotationHolder) => e.annotate(holder, typeAware = true)) extends SimpleTestCase {
+                                                                  (e: T, holder: AnnotationHolder) => ElementAnnotator.annotate(e, holder, typeAware = true)) extends SimpleTestCase {
 
   final val Prefix = "object Holder { class Object; "
   final val Suffix = " }"

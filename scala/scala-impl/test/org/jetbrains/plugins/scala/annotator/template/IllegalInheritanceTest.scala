@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+
 /**
   * Pavel Fatin
   */
-class IllegalInheritanceTest extends AnnotatorTestBase() {
+class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateIllegalInheritance(_, _)) {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -86,9 +89,8 @@ class IllegalInheritanceTest extends AnnotatorTestBase() {
         |}
       """.stripMargin
 
-    // Avoid infinite recursion, see SCL-13410
-    assertMatches(messages(code)) {
-      case Error("a", "Type mismatch, expected: Holder.A#B, actual: Holder.A") :: Nil =>
-    }
+    //todo: the code above doesn't compile, so we probably should have an error message
+    //but at least we don't have an infinite recursion here (see SCL-13410)
+    assertNothing(messages(code))
   }
 }

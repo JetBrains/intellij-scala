@@ -5,7 +5,8 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScReferenceAnnotator
+import org.jetbrains.plugins.scala.annotator.element.{ScMethodInvocationAnnotator, ScReferenceAnnotator}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
@@ -31,12 +32,12 @@ trait ApplicationAnnotatorTestBase extends SimpleTestCase{
     Compatibility.seqClass = seq
     try {
       // TODO use the general annotate() method
-      file.depthFirst().instancesOf[ScReferenceAnnotator].foreach {
-        _.annotateReference(mock)
+      file.depthFirst().instancesOf[ScReference].foreach {
+        ScReferenceAnnotator.annotateReference(_, mock)
       }
 
       file.depthFirst().instancesOf[ScMethodCall].foreach {
-        _.annotate(mock, typeAware = true)
+        ScMethodInvocationAnnotator.annotateMethodInvocation(_, mock)
       }
 
       mock.annotations

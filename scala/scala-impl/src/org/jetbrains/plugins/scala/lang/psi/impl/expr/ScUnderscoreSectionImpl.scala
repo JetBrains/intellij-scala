@@ -7,7 +7,6 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScUnderscoreSectionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
  * @author Alexander Podkhalyuzin, ilyas
  */
 
-class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection with ScUnderscoreSectionAnnotator {
+class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection {
   protected override def innerType: TypeResult = {
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>

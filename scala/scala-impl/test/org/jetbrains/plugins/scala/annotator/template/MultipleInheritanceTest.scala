@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+
 /**
   * Pavel Fatin
   */
-class MultipleInheritanceTest extends AnnotatorTestBase {
+class MultipleInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateMultipleInheritance(_, _)) {
 
   def testMultipleTraitInheritance(): Unit = {
     assertNothing(messages("trait T; new T {}"))

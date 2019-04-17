@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaUseScope}
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
 
-  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit =
-    super.annotate(holder, typeAware)
-
   override def getContext: PsiElement = {
     context match {
       case null => super.getContext

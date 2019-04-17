@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiField, ResolveState}
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
@@ -21,8 +20,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 /**
   * @author Alexander Podkhalyuzin
   */
-class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node)
-  with ScAssignment with ScAssignmentAnnotator {
+class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
 
   protected override def innerType: TypeResult = {
     leftExpression match {

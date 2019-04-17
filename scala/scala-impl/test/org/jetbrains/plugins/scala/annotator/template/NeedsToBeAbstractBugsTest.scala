@@ -3,11 +3,13 @@ package annotator
 package template
 
 import com.intellij.openapi.extensions.Extensions
+import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9446Injector, SCL9446InjectorNoOverride}
 
 
-class NeedsToBeAbstractBugsTest extends AnnotatorTestBase {
+class NeedsToBeAbstractBugsTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(_, _, typeAware = true)) {
 
   def testSCL2981(): Unit = {
     assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T = Int; def t(p: T) = ()}")) {
