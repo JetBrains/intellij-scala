@@ -260,16 +260,8 @@ private object GutterUtil {
     member match {
       case Constructor(_) => None
       case _ =>
-        val namedElems: Seq[ScNamedElement] = member match {
-          case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
-          case param: ScClassParameter     => Seq(param)
-          case ta: ScTypeAlias             => Seq(ta)
-          case _                           => Seq.empty
-        }
 
-        val overrides = namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = false, withSelfType = true))
-
-        overrides.nonEmpty.option {
+        ScalaMarkerType.findOverrides(member).nonEmpty.option {
           ArrowUpOrDownLineMarkerInfo(
             anchor,
             if (isAbstract(member)) ImplementedMethod else OverridenMethod,
