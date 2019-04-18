@@ -61,6 +61,18 @@ object ScalaMarkerType {
     navigateToSuperMember(event, superMethods, title, findUsagesTitle)
   }
 
+  def findOverrides(member: ScMember): Seq[PsiNamedElement] = {
+
+    val namedElems: Seq[ScNamedElement] = member match {
+      case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
+      case param: ScClassParameter => Seq(param)
+      case ta: ScTypeAlias => Seq(ta)
+      case _ => Seq.empty
+    }
+
+    namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = false, withSelfType = true))
+  }
+
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
     element =>
       namedParent(element)
@@ -135,15 +147,11 @@ object ScalaMarkerType {
     (event, element) =>
       namedParent(element).collect {
         case member: ScMember =>
-          val namedElement = member match {
-            case memb: ScNamedElement => Seq(memb)
-            case _                    => Seq.empty
-          }
 
-          val overrides = namedElement.flatMap(ScalaOverridingMemberSearcher.search(_, withSelfType = true))
+          val overrides = findOverrides(member)
 
           if (overrides.nonEmpty) {
-            val name = namedElement.headOption.fold("")(_.name)
+            val name = overrides.headOption.fold("")(_.name)
 
             val keyBuilder = (isFindUsages: Boolean, isAbstract: Boolean) => {
               val windowType = if (isFindUsages) "findUsages." else ""
