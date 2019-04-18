@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Insp
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExpressionExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -25,7 +26,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
       checkResolve(ref, getLikeCollectionClasses) =>
 
       for {
-        expression <- ScExpression.calculateReturns(body)
+        expression <- body.calculateTailReturns
         argumentType = arg.`type`().getOrAny
 
         quickFixes = if (isFixable(call)) Seq(new ChangeReferenceNameQuickFix(ref))
