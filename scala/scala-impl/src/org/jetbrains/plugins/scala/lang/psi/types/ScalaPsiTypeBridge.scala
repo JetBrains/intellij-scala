@@ -211,7 +211,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case ScThisType(clazz) => createType(clazz)
       case TypeParameterType.ofPsi(typeParameter) => psiTypeOf(typeParameter)
       case ex: ScExistentialType => toPsiTypeInner(ex.quantified, noPrimitives)
-      case argument: ScExistentialArgument =>
+      case argument: ScExistentialArgument if !visitedExistentialArgs(argument) =>
         val upper = argument.upper
         val manager: PsiManager = projectContext
         if (upper.equiv(Any)) {
