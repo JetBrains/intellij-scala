@@ -1165,5 +1165,85 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromJavaCode(scalaText, javaText, "JavaTest"))
   }
+
+  def testOverrideParameterTypeWithWildcard(): Unit = {
+    val java =
+      """
+        |public interface A<T extends Foo> {
+        |    void foo(A<?> a)
+        |}
+      """.stripMargin
+    val scala =
+      """
+        |class B extends A[Foo] {
+        |  def foo(a: A[_]): Unit = ???
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+  def testOverrideRawParameterType(): Unit = {
+    val java =
+      """
+        |public interface A<T extends Foo> {
+        |    void foo(A a)
+        |}
+      """.stripMargin
+    val scala =
+      """
+        |class B extends A[Foo] {
+        |  def foo(a: A[_ <: Foo]): Unit = ???
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+  def testWrongOverrideRawParameterType(): Unit = {
+    val java =
+      """
+        |public class A<T extends Foo> {
+        |    public void foo(A a)
+        |}
+      """.stripMargin
+    val scala =
+      """
+        |class B extends A[Foo] {
+        |  override def foo(a: A[_]): Unit = ???
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    assertMessages(errorsFromScalaCode(scala, java))(
+      Error("foo", ScalaBundle.message("member.overrides.nothing", "Method", "foo"))
+    )
+  }
+
+  def testWrongOverrideParameterTypeWithWildcard(): Unit = {
+    val java =
+      """
+        |public class A<T extends Foo> {
+        |    public void foo(A<?> a) {}
+        |}
+      """.stripMargin
+    val scala =
+      """
+        |class B extends A[Foo] {
+        |  override def foo(a: A[_ <: Foo]): Unit = ???
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    assertMessages(errorsFromScalaCode(scala, java))(
+      Error("foo", ScalaBundle.message("member.overrides.nothing", "Method", "foo"))
+    )
+  }
 }
 

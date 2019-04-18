@@ -344,4 +344,62 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("find", java, scala, expected, isImplement = true)
   }
 
+  def testParameterTypeWithWildcard(): Unit = {
+    val java =
+      """
+        |public interface A<T extends Foo> {
+        |    void foo(A<?> a)
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |class B extends A[Foo] {
+        |  <caret>
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    val expected =
+      """
+        |class B extends A[Foo] {
+        |  def foo(a: A[_]): Unit = ???
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    runTest("foo", java, scala, expected, isImplement = true)
+  }
+
+  def testRawParameterType(): Unit = {
+    val java =
+      """
+        |public interface A<T extends Foo> {
+        |    void foo(A a)
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |class B extends A[Foo] {
+        |  <caret>
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    val expected =
+      """
+        |class B extends A[Foo] {
+        |  def foo(a: A[_ <: Foo]): Unit = ???
+        |}
+        |
+        |trait Foo
+      """.stripMargin
+
+    runTest("foo", java, scala, expected, isImplement = true)
+  }
+
 }

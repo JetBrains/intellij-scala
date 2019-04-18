@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
@@ -41,25 +42,21 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
           val substitutor = result.getSubstitutor
 
-          def upper(tp: PsiTypeParameter) = {
+          def upperForRaw(tp: PsiTypeParameter) = {
             def mapper = substitutor.substitute(_: PsiType).toScType(visitedRawTypes + clazz)
 
-            tp.getExtendsListTypes ++ tp.getImplementsListTypes match {
-              case Array() => None
+            tp.getExtendsListTypes match {
+              case Array()     => None
               case Array(head) => Some(mapper(head))
-              case components => Some(ScCompoundType(components.map(mapper)))
+              case components  => Some(ScCompoundType(components.map(mapper)))
             }
           }
 
+          @tailrec
           def convertTypeParameter(typeParameter: PsiType, tp: PsiTypeParameter, index: Int): ScType = typeParameter match {
             case wildcardType: PsiWildcardType =>
               val (maybeLower, maybeUpper) = bounds(wildcardType, paramTopLevel = true)
-
-              createParameter(
-                maybeLower,
-                maybeUpper.orElse(if (visitedRawTypes(clazz)) None else upper(tp)),
-                index
-              )
+              createParameter(maybeLower, maybeUpper, index)
             case wildcardType: PsiCapturedWildcardType =>
               convertTypeParameter(wildcardType.getWildcard, tp, index)
             case _ =>
@@ -81,7 +78,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case typeParameters =>
               val typeArgs = typeParameters.zipWithIndex.map {
                 case (tp, index) if classType.isRaw =>
-                  createParameter(None, upper(tp), index)
+                  createParameter(None, upperForRaw(tp), index)
                 case (tp, index) =>
                   substitutor.substitute(tp) match {
                     case null => TypeParameterType(tp)
