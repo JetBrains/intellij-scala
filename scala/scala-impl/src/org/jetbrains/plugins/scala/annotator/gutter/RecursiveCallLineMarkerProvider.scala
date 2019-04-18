@@ -8,6 +8,7 @@ import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment
 import com.intellij.psi.PsiElement
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
@@ -17,12 +18,11 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
 
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] =
     element.getParent match {
-      case function: ScFunctionDefinition if element.getNode.getElementType == lang.lexer.ScalaTokenTypes.tIDENTIFIER =>
-        (function.recursiveReferencesGrouped match {
-          case references if references.tailRecursionOnly => createLineMarkerInfo(TAIL_RECURSION, "method.is.tail.recursive")
-          case references if references.noRecursion => Function.const(null)(_: PsiElement)
-          case _ => createLineMarkerInfo(RECURSION, "method.is.recursive")
-        }).apply(function.nameId)
+      case function: ScFunctionDefinition if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
+        val references = function.recursiveReferencesGrouped
+        if (references.tailRecursionOnly) createLineMarkerInfo(TAIL_RECURSION, "method.is.tail.recursive", function.nameId)
+        else if (!references.noRecursion) createLineMarkerInfo(RECURSION, "method.is.recursive", function.nameId)
+        else null
       case _ => null
     }
 
@@ -31,9 +31,8 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
 }
 
 object RecursiveCallLineMarkerProvider {
-
-  private def createLineMarkerInfo(icon: Icon, key: String) =
-    (element: PsiElement) => new LineMarkerInfo(
+  private def createLineMarkerInfo(icon: Icon, key: String, element: PsiElement): LineMarkerInfo[PsiElement] =
+    new LineMarkerInfo(
       element,
       element.getTextRange,
       icon,

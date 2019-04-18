@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 /**
   * @author ilyas, Alexander Podkhalyuzin
@@ -159,73 +158,6 @@ trait ScExpression extends ScBlockStatement
 }
 
 object ScExpression {
-
-  def calculateReturns(expression: ScExpression): Set[ScExpression] = {
-    val visitor = new ReturnsVisitor
-    expression.accept(visitor)
-    visitor.result
-  }
-
-  private[api] class ReturnsVisitor extends ScalaElementVisitor {
-
-    private val result_ = mutable.LinkedHashSet.empty[ScExpression]
-
-    def result: Set[ScExpression] = result_.toSet
-
-    override def visitTry(statement: ScTry): Unit = {
-      acceptVisitor(statement.tryBlock)
-
-      statement.catchBlock.collect {
-        case ScCatchBlock(clauses) => clauses
-      }.toSeq
-        .flatMap(_.caseClauses)
-        .flatMap(_.expr)
-        .foreach(acceptVisitor)
-    }
-
-    override def visitParenthesisedExpr(expression: ScParenthesisedExpr): Unit = {
-      expression.innerElement match {
-        case Some(innerExpression) => acceptVisitor(innerExpression)
-        case _ => super.visitParenthesisedExpr(expression)
-      }
-    }
-
-    override def visitMatch(statement: ScMatch): Unit = {
-      statement.expressions.foreach(acceptVisitor)
-    }
-
-    override def visitIf(statement: ScIf): Unit = {
-      statement.elseExpression match {
-        case Some(elseBranch) =>
-          acceptVisitor(elseBranch)
-          statement.thenExpression.foreach(acceptVisitor)
-        case _ => super.visitIf(statement)
-      }
-    }
-
-    override def visitReferenceExpression(reference: ScReferenceExpression): Unit = {
-      visitExpression(reference)
-    }
-
-    override def visitExpression(expression: ScExpression): Unit = {
-      val maybeLastExpression = expression match {
-        case block: ScBlock => block.lastExpr
-        case _ => None
-      }
-
-      maybeLastExpression match {
-        case Some(lastExpression) =>
-          acceptVisitor(lastExpression)
-        case _ =>
-          super.visitExpression(expression)
-          result_ += expression
-      }
-    }
-
-    protected def acceptVisitor(expression: ScExpression): Unit = {
-      expression.accept(this)
-    }
-  }
 
   case class ExpressionTypeResult(tr: TypeResult,
                                   importsUsed: scala.collection.Set[ImportUsed] = Set.empty,

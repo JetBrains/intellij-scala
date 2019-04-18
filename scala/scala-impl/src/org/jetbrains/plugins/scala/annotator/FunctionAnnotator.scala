@@ -77,7 +77,8 @@ trait FunctionAnnotator {
 
     for {
       functionType <- function.returnType
-      usage <- function.returnUsages
+      returnUsages = function.returnUsages
+      usage <- returnUsages
       usageType <- typeOf(usage)
     } {
 
@@ -102,7 +103,7 @@ trait FunctionAnnotator {
 
       def needsTypeAnnotation(): Unit = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
-        val returnTypes = function.returnUsages.collect {
+        val returnTypes = returnUsages.collect {
           case retStmt: ScReturn => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
@@ -170,16 +171,15 @@ object FunctionAnnotator {
     }
 
   private final class RemoveAnnotationQuickFix(annotation: ScAnnotation) extends IntentionAction {
-
     override def getText = "Remove @tailrec annotation"
 
     override def getFamilyName = ""
 
-    override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = annotation.isValid
+    override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+      annotation.isValid
 
-    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
       annotation.delete()
-    }
 
     override def startInWriteAction = true
   }

@@ -18,6 +18,9 @@ class ResolvePropertyKeyTest extends ScalaResolveTestCase {
 
   protected override def rootPath: String = folderPath
 
-  def testMain(): Unit =
-    Assert.assertTrue(findReferenceAtCaret.resolve.isInstanceOf[IProperty])
+  def testMain(): Unit = {
+    val reference = findReferenceAtCaret
+    val resolved = reference.resolve()
+    Assert.assertTrue(resolved.isInstanceOf[IProperty])
+  }
 }
