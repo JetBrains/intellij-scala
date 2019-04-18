@@ -14,7 +14,7 @@ abstract class ElementAnnotator[T: ClassTag] {
   }
 }
 
-object ElementAnnotator {
+object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
   private val All: Seq[ElementAnnotator[_]] = Seq(
     ScAnnotationAnnotator,
     ScAssignmentAnnotator,
