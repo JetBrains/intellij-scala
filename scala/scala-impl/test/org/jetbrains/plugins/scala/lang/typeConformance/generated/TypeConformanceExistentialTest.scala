@@ -82,4 +82,43 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
       """.stripMargin)
   }
 
+  def testEquivalentRecursive(): Unit = {
+    doTest(checkEquivalence = true, fileText =
+      """
+        |trait Foo[T]
+        |
+        |val x: Foo[T] forSome {type T <: Foo[T]} = null
+        |
+        |val y: Foo[T1] forSome {type T1 <: Foo[T1]} = x
+        |//true
+      """.stripMargin)
+  }
+
+  def testEquivalentRecursive2(): Unit = {
+    doTest(checkEquivalence = true, fileText =
+      """
+        |trait Bar[X, Y]
+        |
+        |val b1: Bar[X1, Y1] forSome {type X1 <: Bar[X1, Y1]; type Y1 <: Bar[X1, Y1]} = null
+        |
+        |val b2: Bar[X2, Y2] forSome {type X2 <: Bar[X2, Y2]; type Y2 <: Bar[X2, Y2]} = b1
+        |//true
+      """.stripMargin
+    )
+  }
+
+  //todo:
+//  def testEquivalentDifferentOrder(): Unit = {
+//    doTest(checkEquivalence = true, fileText =
+//      """
+//        |trait Bar[X, Y]
+//        |
+//        |val b1: Bar[X1, Y1] forSome {type X1 <: Bar[X1, Y1]; type Y1 <: Bar[X1, Y1]} = null
+//        |
+//        |val b2: Bar[X2, Y2] forSome {type Y2 <: Bar[X2, Y2]; type X2 <: Bar[X2, Y2]} = b1
+//        |//true
+//      """.stripMargin
+//    )
+//  }
+
 }

@@ -26,11 +26,19 @@ trait ScExistentialArgument extends NamedType with ValueType {
     r match {
       case arg: ScExistentialArgument =>
         val s = ScSubstitutor.bind(arg.typeParameters, typeParameters)(TypeParameterType(_))
-        val t = lower.equiv(s(arg.lower), constraints, falseUndef)
 
-        if (t.isLeft) return ConstraintsResult.Left
+        def update(bound: ScType): ScType = s(bound).updateRecursively {
+          case `arg` => this
+        }
 
-        upper.equiv(s(arg.upper), t.constraints, falseUndef)
+        val updatedArgLower = update(arg.lower)
+        val t = lower.equiv(updatedArgLower, constraints, falseUndef)
+
+        if (t.isLeft)
+          return ConstraintsResult.Left
+
+        val updatedArgUpper = update(arg.upper)
+        upper.equiv(updatedArgUpper, t.constraints, falseUndef)
       case _ => ConstraintsResult.Left
     }
   }
