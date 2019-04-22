@@ -22,6 +22,8 @@ trait ScExistentialArgument extends NamedType with ValueType {
 
   def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument
 
+  def initialize(): Unit = {}
+
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     r match {
       case arg: ScExistentialArgument =>
@@ -51,8 +53,55 @@ trait ScExistentialArgument extends NamedType with ValueType {
 
 object ScExistentialArgument {
 
-  //quantification may have a reference to itself in it's bound, so lower and upper calculation should be deferred
-  private case class Lazy(ta: ScTypeAlias) extends ScExistentialArgument {
+  //used for representing type parameters of a java raw class type
+  //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
+  private class Deferred(val name: String,
+                         val typeParameters: Seq[TypeParameter],
+                         lowerBound: () => ScType,
+                         upperBound: () => ScType) extends ScExistentialArgument {
+    @volatile
+    private var isInitialized: Boolean = false
+
+    private def assertInitialized(): Unit = {
+      if (!isInitialized)
+        throw new IllegalStateException("Access to existential argument methods before initialization")
+    }
+
+    private var _lower: ScType = _
+    private var _upper: ScType = _
+
+    override def initialize(): Unit = {
+      if (isInitialized)
+        throw new IllegalStateException("Existential argument is already initialized")
+
+      _lower = lowerBound()
+      _upper = upperBound()
+
+      isInitialized = true
+    }
+
+    def lower: ScType = {
+      assertInitialized()
+      _lower
+    }
+
+    def upper: ScType = {
+      assertInitialized()
+      _upper
+    }
+
+    def isLazy: Boolean = true
+
+    override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+      assertInitialized()
+      super.equivInner(r, constraints, falseUndef)
+    }
+
+    //todo: how to properly implement it without introducing recursion and breaking hashCode/equals ?
+    override def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument = this
+  }
+
+  private case class FromTypeAlias(ta: ScTypeAlias) extends ScExistentialArgument {
     override val name: String = ta.name
 
     def typeParameters: Seq[TypeParameter] = ta.typeParameters.map(TypeParameter(_))
@@ -81,10 +130,15 @@ object ScExistentialArgument {
       Complete(name, typeParameters, newLower, newUpper)
   }
 
-  def apply(ta: ScTypeAlias): ScExistentialArgument = Lazy(ta)
+  def apply(ta: ScTypeAlias): ScExistentialArgument = FromTypeAlias(ta)
 
   def apply(name: String, typeParameters: Seq[TypeParameter], lower: ScType, upper: ScType): ScExistentialArgument =
     Complete(name, typeParameters, lower, upper)
+
+  def deferred(name: String,
+               typeParameters: Seq[TypeParameter],
+               lower: () => ScType,
+               upper: () => ScType): ScExistentialArgument = new Deferred(name, typeParameters, lower, upper)
 
   def unapply(arg: ScExistentialArgument): Option[(String, Seq[TypeParameter], ScType, ScType)] =
     Some((arg.name, arg.typeParameters, arg.lower, arg.upper))

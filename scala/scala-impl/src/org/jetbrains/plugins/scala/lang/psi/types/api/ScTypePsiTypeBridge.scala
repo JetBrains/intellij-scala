@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import scala.collection.JavaConverters._
 
+import java.util.{HashMap => JMap}
+
 /**
   * @author adkozlov
   */
@@ -22,13 +24,21 @@ trait PsiTypeBridge {
   def toScType(`type`: PsiType,
                treatJavaObjectAsAny: Boolean,
                paramTopLevel: Boolean): ScType = {
-    toScTypeInner(`type`, treatJavaObjectAsAny, paramTopLevel)(Set.empty)
+    val rawExistentialArgs = new JMap[PsiTypeParameter, ScExistentialArgument]
+    val converted = toScTypeInner(`type`, treatJavaObjectAsAny, paramTopLevel)(rawExistentialArgs)
+
+    rawExistentialArgs.values().asScala.foreach(_.initialize())
+
+    //preventing memory leak, this map is captured by existential arguments
+    rawExistentialArgs.clear()
+
+    converted.unpackedType
   }
 
   protected def toScTypeInner(psiType: PsiType,
                               paramTopLevel: Boolean = false,
                               treatJavaObjectAsAny: Boolean = true)
-                             (implicit visitedRawTypes: Set[PsiClass]): ScType = psiType match {
+                             (implicit rawExistentialArguments: JMap[PsiTypeParameter, ScExistentialArgument]): ScType = psiType match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID    => Unit

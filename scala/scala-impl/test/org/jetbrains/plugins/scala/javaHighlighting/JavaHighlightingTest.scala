@@ -1245,5 +1245,29 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
       Error("foo", ScalaBundle.message("member.overrides.nothing", "Method", "foo"))
     )
   }
+
+  def testRecursiveRawExistential(): Unit = {
+    val java =
+      """public class Test {
+        |    public static interface JwsHeader<T extends JwsHeader<T>> {}
+        |
+        |    public static class SigningKeyResolverAdapter {
+        |        public void resolveSigningKeyBytes(JwsHeader header, String payload) {}
+        |    }
+        |}""".stripMargin
+
+    val scala =
+      """
+        |import Test.JwsHeader
+        |import Test.SigningKeyResolverAdapter
+        |
+        |class Resolver extends SigningKeyResolverAdapter {
+        |  override def resolveSigningKeyBytes(header: JwsHeader[T] forSome {type T <: JwsHeader[T]}, payload: String): Unit =
+        |    super.resolveSigningKeyBytes(header, payload)
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
 

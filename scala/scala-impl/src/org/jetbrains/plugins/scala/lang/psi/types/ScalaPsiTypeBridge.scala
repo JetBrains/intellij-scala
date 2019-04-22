@@ -3,6 +3,8 @@ package lang
 package psi
 package types
 
+import java.util.{HashMap => JMap}
+
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiSubstitutorImpl
 import org.jetbrains.plugins.scala.extensions._
@@ -24,7 +26,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   override protected def toScTypeInner(psiType: PsiType,
                                        paramTopLevel: Boolean,
                                        treatJavaObjectAsAny: Boolean)
-                                      (implicit visitedRawTypes: Set[PsiClass]): ScType = psiType match {
+                                      (implicit rawExistentialArguments: JMap[PsiTypeParameter, ScExistentialArgument]): ScType = psiType match {
     case classType: PsiClassType =>
       val result = classType.resolveGenerics
       result.getElement match {
@@ -38,30 +40,29 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case o: ScObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(o)
             case _ => c
           }
-          if (classType.isRaw && visitedRawTypes.contains(clazz)) return Any
 
           val substitutor = result.getSubstitutor
 
-          def upperForRaw(tp: PsiTypeParameter) = {
+          def upperForRaw(tp: PsiTypeParameter): ScType = {
             def convertBound(bound: PsiType) = {
               val substedBound = substitutor.substitute(bound)
-              toScTypeInner(substedBound, paramTopLevel)(visitedRawTypes + clazz)
+              toScTypeInner(substedBound, paramTopLevel)
             }
 
             tp.getExtendsListTypes match {
-              case Array() => None
-              case Array(head) => Some(convertBound(head))
-              case components => Some(ScCompoundType(components.map(convertBound)))
+              case Array() => api.Any
+              case Array(head) => convertBound(head)
+              case components => ScCompoundType(components.map(convertBound))
             }
           }
 
           @tailrec
-          def convertTypeParameter(typeParameter: PsiType, tp: PsiTypeParameter, index: Int): ScType = typeParameter match {
+          def convertTypeParameter(typeParameter: PsiType, tp: PsiTypeParameter): ScType = typeParameter match {
             case wildcardType: PsiWildcardType =>
-              val (maybeLower, maybeUpper) = bounds(wildcardType, paramTopLevel = true)
-              createParameter(maybeLower, maybeUpper, index)
+              val (lower, upper) = bounds(wildcardType, paramTopLevel = true)
+              ScExistentialArgument(name, Nil, lower, upper)
             case wildcardType: PsiCapturedWildcardType =>
-              convertTypeParameter(wildcardType.getWildcard, tp, index)
+              convertTypeParameter(wildcardType.getWildcard, tp)
             case _ =>
               toScTypeInner(typeParameter, paramTopLevel)
           }
@@ -80,49 +81,44 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case Array() => designator
             case typeParameters =>
               val typeArgs = typeParameters.zipWithIndex.map {
-                case (tp, index) if classType.isRaw =>
-                  createParameter(None, upperForRaw(tp), index)
+                case (tp, _) if classType.isRaw =>
+                  rawTypeParamExistentialArg(tp, () => upperForRaw(tp))
                 case (tp, index) =>
                   substitutor.substitute(tp) match {
                     case null => TypeParameterType(tp)
-                    case substituted => convertTypeParameter(substituted, tp, index)
+                    case substituted => convertTypeParameter(substituted, tp)
                   }
               }
-              ScParameterizedType(designator, typeArgs).unpackedType
+              ScParameterizedType(designator, typeArgs)
           }
       }
     case wildcardType: PsiWildcardType =>
-      val (maybeLower, maybeUpper) = bounds(wildcardType, paramTopLevel = false)
-      ScExistentialType(createParameter(maybeLower, maybeUpper))
+      val (lower, upper) = bounds(wildcardType, paramTopLevel = false)
+      ScExistentialType(ScExistentialArgument(name, Nil, lower, upper))
     case _: PsiDisjunctionType => Any
     case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny)
   }
 
-  private def createParameter(maybeLower: Option[ScType],
-                              maybeUpper: Option[ScType],
-                              index: Int = 0) = ScExistentialArgument(
-    s"_$$${index + 1}",
-    Nil,
-    maybeLower.getOrElse(Nothing),
-    maybeUpper.getOrElse(Any)
-  )
+  //existential argument for a type parameter of a raw class type
+  //it may have recursive reference to itself in it's upper bound, so we should not compute it right away
+  private def rawTypeParamExistentialArg(typeParameter: PsiTypeParameter, upperBound: () => ScType)
+                                        (implicit map: JMap[PsiTypeParameter, ScExistentialArgument]): ScExistentialArgument = {
+    map.computeIfAbsent(typeParameter, _ => ScExistentialArgument.deferred(typeParameter.getName, Seq.empty, () => Nothing, upperBound))
+  }
 
   private def bounds(wildcardType: PsiWildcardType, paramTopLevel: Boolean)
-                    (implicit visitedRawTypes: Set[PsiClass]): (Option[ScType], Option[ScType]) = {
-    def bound(collector: PartialFunction[PsiWildcardType, PsiType]) =
-      Some(wildcardType)
-        .collect(collector)
-        .map(toScTypeInner(_, paramTopLevel))
+                    (implicit rawExistentialArguments: JMap[PsiTypeParameter, ScExistentialArgument]): (ScType, ScType) = {
+    def scType(bound: PsiType): ScType = toScTypeInner(bound, paramTopLevel)
 
-    val maybeLower = bound {
-      case t if t.isSuper => t.getSuperBound
-    }
+    val lower =
+      if (wildcardType.isSuper) scType(wildcardType.getSuperBound)
+      else api.Nothing
 
-    val maybeUpper = bound {
-      case t if t.isExtends => t.getExtendsBound
-    }
+    val upper =
+      if (wildcardType.isExtends) scType(wildcardType.getExtendsBound)
+      else api.Any
 
-    (maybeLower, maybeUpper)
+    (lower, upper)
   }
 
   private def constructTypeForClass(clazz: PsiClass, subst: ScSubstitutor, withTypeParameters: Boolean = false): ScType = clazz match {
