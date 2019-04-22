@@ -17,17 +17,17 @@ import scala.collection.JavaConverters._
 trait DottyPsiTypeBridge extends api.PsiTypeBridge {
   typeSystem: api.TypeSystem =>
 
-  override def toScType(`type`: PsiType,
-                        treatJavaObjectAsAny: Boolean)
-                       (implicit visitedRawTypes: Set[PsiClass],
-                        paramTopLevel: Boolean): ScType = `type` match {
+  override protected def toScTypeInner(psiType: PsiType,
+                                       paramTopLevel: Boolean,
+                                       treatJavaObjectAsAny: Boolean)
+                                      (implicit visitedRawTypes: Set[PsiClass]): ScType = psiType match {
     case _: PsiClassType => Any
     case _: PsiWildcardType => Any
     case disjunctionType: PsiDisjunctionType =>
       DottyOrType(disjunctionType.getDisjunctions.asScala.map {
-        toScType(_, treatJavaObjectAsAny)
+        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny)
       })
-    case _ => super.toScType(`type`, treatJavaObjectAsAny)
+    case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny)
   }
 
   override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = {

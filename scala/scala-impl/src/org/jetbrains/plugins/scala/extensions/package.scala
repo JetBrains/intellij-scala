@@ -616,11 +616,10 @@ package object extensions {
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
-    def toScType(visitedRawTypes: Set[PsiClass] = Set.empty,
-                 paramTopLevel: Boolean = false,
+    def toScType(paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
                 (implicit project: ProjectContext): ScType =
-      project.typeSystem.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
+      project.typeSystem.toScType(`type`, treatJavaObjectAsAny, paramTopLevel)
   }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {

@@ -20,9 +20,15 @@ trait PsiTypeBridge {
     *                             See SCL-3036 and SCL-2375
     */
   def toScType(`type`: PsiType,
-               treatJavaObjectAsAny: Boolean)
-              (implicit visitedRawTypes: Set[PsiClass],
-               paramTopLevel: Boolean): ScType = `type` match {
+               treatJavaObjectAsAny: Boolean,
+               paramTopLevel: Boolean): ScType = {
+    toScTypeInner(`type`, treatJavaObjectAsAny, paramTopLevel)(Set.empty)
+  }
+
+  protected def toScTypeInner(psiType: PsiType,
+                              paramTopLevel: Boolean = false,
+                              treatJavaObjectAsAny: Boolean = true)
+                             (implicit visitedRawTypes: Set[PsiClass]): ScType = psiType match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID    => Unit
@@ -38,19 +44,19 @@ trait PsiTypeBridge {
     case null            => Any
     case diamondType: PsiDiamondType =>
       diamondType.resolveInferredTypes().getInferredTypes.asScala.toList.map {
-        toScType(_, treatJavaObjectAsAny)
+        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny)
       } match {
         case Nil if paramTopLevel && treatJavaObjectAsAny => Any
         case Nil => AnyRef
         case head :: _ => head
       }
     case wildcardType: PsiCapturedWildcardType =>
-      toScType(wildcardType.getWildcard, treatJavaObjectAsAny)
+      toScTypeInner(wildcardType.getWildcard, paramTopLevel, treatJavaObjectAsAny)
     case intersectionType: PsiIntersectionType =>
       typeSystem.andType(intersectionType.getConjuncts.map {
-        toScType(_, treatJavaObjectAsAny)
+        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny)
       })
-    case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
+    case _ => throw new IllegalArgumentException(s"psi type ${psiType} should not be converted to ${typeSystem.name} type")
   }
 
   def toPsiType(`type`: ScType, noPrimitives: Boolean = false): PsiType

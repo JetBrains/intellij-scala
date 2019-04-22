@@ -21,10 +21,10 @@ import scala.collection.JavaConverters._
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   typeSystem: api.TypeSystem =>
 
-  override def toScType(psiType: PsiType,
-                        treatJavaObjectAsAny: Boolean)
-                       (implicit visitedRawTypes: Set[PsiClass],
-                        paramTopLevel: Boolean): ScType = psiType match {
+  override protected def toScTypeInner(psiType: PsiType,
+                                       paramTopLevel: Boolean,
+                                       treatJavaObjectAsAny: Boolean)
+                                      (implicit visitedRawTypes: Set[PsiClass]): ScType = psiType match {
     case classType: PsiClassType =>
       val result = classType.resolveGenerics
       result.getElement match {
@@ -43,12 +43,15 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val substitutor = result.getSubstitutor
 
           def upperForRaw(tp: PsiTypeParameter) = {
-            def mapper = substitutor.substitute(_: PsiType).toScType(visitedRawTypes + clazz)
+            def convertBound(bound: PsiType) = {
+              val substedBound = substitutor.substitute(bound)
+              toScTypeInner(substedBound, paramTopLevel)(visitedRawTypes + clazz)
+            }
 
             tp.getExtendsListTypes match {
-              case Array()     => None
-              case Array(head) => Some(mapper(head))
-              case components  => Some(ScCompoundType(components.map(mapper)))
+              case Array() => None
+              case Array(head) => Some(convertBound(head))
+              case components => Some(ScCompoundType(components.map(convertBound)))
             }
           }
 
@@ -60,14 +63,14 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case wildcardType: PsiCapturedWildcardType =>
               convertTypeParameter(wildcardType.getWildcard, tp, index)
             case _ =>
-              typeParameter.toScType(visitedRawTypes)
+              toScTypeInner(typeParameter, paramTopLevel)
           }
 
           val scSubst = substitutor match {
             case impl: PsiSubstitutorImpl =>
               val entries = impl.getSubstitutionMap.entrySet().asScala.toSeq
               val psiParams = entries.map(_.getKey)
-              val scTypes = entries.map(e => e.getValue.toScType(visitedRawTypes))
+              val scTypes = entries.map(e => toScTypeInner(e.getValue, paramTopLevel))
               ScSubstitutor.bind(psiParams, scTypes)
             case _ => ScSubstitutor.empty
           }
@@ -92,7 +95,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val (maybeLower, maybeUpper) = bounds(wildcardType, paramTopLevel = false)
       ScExistentialType(createParameter(maybeLower, maybeUpper))
     case _: PsiDisjunctionType => Any
-    case _ => super.toScType(psiType, treatJavaObjectAsAny)
+    case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny)
   }
 
   private def createParameter(maybeLower: Option[ScType],
@@ -109,7 +112,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     def bound(collector: PartialFunction[PsiWildcardType, PsiType]) =
       Some(wildcardType)
         .collect(collector)
-        .map(_.toScType(visitedRawTypes, paramTopLevel = paramTopLevel))
+        .map(toScTypeInner(_, paramTopLevel))
 
     val maybeLower = bound {
       case t if t.isSuper => t.getSuperBound
@@ -146,7 +149,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   private def toPsiTypeInner(`type`: ScType,
                              noPrimitives: Boolean = false,
                              visitedAliases: Set[ScTypeAlias] = Set.empty)
-                             (implicit visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty): PsiType = {
+                            (implicit visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
