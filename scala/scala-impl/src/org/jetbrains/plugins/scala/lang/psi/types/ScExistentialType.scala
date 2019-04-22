@@ -3,6 +3,7 @@ package lang
 package psi
 package types
 
+import gnu.trove.{THashMap, TObjectHashingStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
@@ -80,16 +81,7 @@ final class ScExistentialType private (val quantified: ScType,
       case ex: ScExistentialType =>
         val simplified = ex.simplify()
         if (ex != simplified) return this.equiv(simplified, constraints, falseUndef)
-        val list = wildcards.zip(ex.wildcards)
-        val iterator = list.iterator
-        var lastConstraints = constraints
-        while (iterator.hasNext) {
-          val (w1, w2) = iterator.next()
-          val t = w2.equivInner(w1, lastConstraints, falseUndef)
-          if (t.isLeft) return ConstraintsResult.Left
-          lastConstraints = t.constraints
-        }
-        quantified.equiv(ex.quantified, constraints, falseUndef) //todo: probable problems with different positions of skolemized types.
+        ScExistentialType.equivImpl(this, ex, constraints, falseUndef)
       case poly: ScTypePolymorphicType if poly.typeParameters.length == wildcards.length =>
         val list = wildcards.zip(poly.typeParameters)
         val iterator = list.iterator
@@ -227,4 +219,57 @@ object ScExistentialType {
     }
     result
   }
+
+  private def equivImpl(left : ScExistentialType,
+                        right: ScExistentialType,
+                        constraints: ConstraintSystem,
+                        falseUndef: Boolean): ConstraintsResult = {
+
+    val rightToLeft: java.util.Map[ScExistentialArgument, ScExistentialArgument] = {
+      val byName: TObjectHashingStrategy[ScExistentialArgument] = new TObjectHashingStrategy[ScExistentialArgument] {
+        def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
+        def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
+      }
+      val map = new THashMap[ScExistentialArgument, ScExistentialArgument](byName)
+      right.wildcards.zip(left.wildcards).foreach {
+        case (x, y) => map.put(x, y)
+      }
+      map
+    }
+
+    def replaceRightToLeft(rightSubtype: ScType): ScType = rightSubtype.updateRecursively {
+      case arg: ScExistentialArgument =>
+        rightToLeft.getOrDefault(arg, arg)
+    }
+
+    var lastConstraints = constraints
+    val leftIterator = left.wildcards.iterator
+    val rightIterator = right.wildcards.iterator
+
+    while (leftIterator.hasNext && rightIterator.hasNext) {
+      val left = leftIterator.next
+      val right = rightIterator.next
+
+      val subst = ScSubstitutor.bind(right.typeParameters, left.typeParameters)(TypeParameterType(_))
+      val updatedRightLower = replaceRightToLeft(subst(right.lower))
+
+      val lowerResult = left.lower.equiv(updatedRightLower, lastConstraints, falseUndef)
+      if (lowerResult.isLeft)
+        return ConstraintsResult.Left
+
+      lastConstraints = lowerResult.constraints
+
+      val updatedRightUpper = replaceRightToLeft(subst(right.upper))
+      val upperResult = left.upper.equiv(updatedRightUpper, lastConstraints, falseUndef)
+
+      if (upperResult.isLeft)
+        return ConstraintsResult.Left
+
+      lastConstraints = upperResult.constraints
+    }
+
+    val updatedRightQuantified = replaceRightToLeft(right.quantified)
+    updatedRightQuantified.equiv(left.quantified, constraints, falseUndef)
+  }
+
 }
