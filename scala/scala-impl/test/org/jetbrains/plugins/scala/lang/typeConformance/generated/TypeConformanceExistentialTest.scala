@@ -107,18 +107,17 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
     )
   }
 
-  //todo:
-//  def testEquivalentDifferentOrder(): Unit = {
-//    doTest(checkEquivalence = true, fileText =
-//      """
-//        |trait Bar[X, Y]
-//        |
-//        |val b1: Bar[X1, Y1] forSome {type X1 <: Bar[X1, Y1]; type Y1 <: Bar[X1, Y1]} = null
-//        |
-//        |val b2: Bar[X2, Y2] forSome {type Y2 <: Bar[X2, Y2]; type X2 <: Bar[X2, Y2]} = b1
-//        |//true
-//      """.stripMargin
-//    )
-//  }
+  def testEquivalentDifferentOrder(): Unit = {
+    doTest(checkEquivalence = true, fileText =
+      """
+        |trait Bar[X, Y]
+        |
+        |val b1: Bar[X1, Y1] forSome {type X1 <: Bar[X1, Y1]; type Y1 <: Bar[X1, Y1]} = null
+        |
+        |val b2: Bar[X2, Y2] forSome {type Y2 <: Bar[X2, Y2]; type X2 <: Bar[X2, Y2]} = b1
+        |//true
+      """.stripMargin
+    )
+  }
 
 }
