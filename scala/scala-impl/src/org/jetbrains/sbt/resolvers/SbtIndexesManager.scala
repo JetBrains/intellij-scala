@@ -34,7 +34,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 
   def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
     if (!project.isDisposed) {
-      ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating indexes") {
+      ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating Indices") {
         override def run(indicator: ProgressIndicator): Unit = {
           indicator.setIndeterminate(true)
           indicator.setText(s"Updating: $name")
@@ -68,10 +68,10 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
   }
 
   def updateWithProgress(resolvers: Seq[SbtResolver]): Unit =
-  for {
-    resolver <- resolvers
-    index <- resolver.getIndex(project)
-  } doUpdateResolverIndexWithProgress(resolver.name, index)
+    for {
+      resolver <- resolvers
+      index <- resolver.getIndex(project)
+    } doUpdateResolverIndexWithProgress(resolver.name, index)
 
   def getIvyIndex(name: String, root: String): ResolverIndex = {
     indexes.getOrElseUpdate(root, createNewIvyIndex(name, root))
@@ -107,7 +107,6 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 }
 
 object SbtIndexesManager {
-
   def getInstance(project: Project): Option[SbtIndexesManager] = Option(project.getComponent(classOf[SbtIndexesManager]))
 
   def cleanUpCorruptedIndex(indexDir: File): Unit = {
