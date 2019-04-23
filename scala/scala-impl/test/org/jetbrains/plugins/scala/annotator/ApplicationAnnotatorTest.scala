@@ -106,4 +106,24 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       case Error("Any", "Too many type arguments for f") :: Nil =>
     }
   }
+
+  def testNonApplicable(): Unit = {
+    assertMatches(messages("object Test; Test()")) {
+      case Error("()", "'Test.type' does not take parameters") :: Nil =>
+    }
+
+    assertMatches(messages("3()")) {
+      case Error("()", "'Int' does not take parameters") :: Nil =>
+    }
+
+    assertMatches(messages("val a: Any = ???; a(3)")) {
+      case Error("(3)", "'a.type' does not take parameters") :: Nil =>
+    }
+  }
+
+  def testNonApplicableInUpdate(): Unit = {
+    assertMatches(messages("object Test; Test(3) = 3")) {
+      case Error("(3)", "'Test.type' does not take parameters") :: Nil =>
+    }
+  }
 }

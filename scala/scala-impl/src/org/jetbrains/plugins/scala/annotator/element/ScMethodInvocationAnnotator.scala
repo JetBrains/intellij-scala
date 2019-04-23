@@ -44,7 +44,10 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     //todo: duplicate
     problems.foreach {
       case DoesNotTakeParameters() =>
-        val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        val targetName = call.getInvokedExpr.`type`().toOption
+          .map("'" + _.presentableText + "'")
+          .getOrElse("Application")
+        val annotation = holder.createErrorAnnotation(call.argsElement, s"$targetName does not take parameters")
         (call, call.getInvokedExpr) match {
           case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
             annotation.registerFix(new CreateApplyQuickFix(td, c))

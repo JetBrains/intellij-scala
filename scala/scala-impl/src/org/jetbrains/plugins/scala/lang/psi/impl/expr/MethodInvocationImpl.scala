@@ -36,6 +36,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
     case RegularCase(_, problems, _) => problems
     case SyntheticCase(RegularCase(_, problems, _), _, _) => problems
+    case FailureCase(Failure(`noSuitableMethodFoundError`)) => Seq(DoesNotTakeParameters())
     case _ => Seq.empty
   }
 
@@ -106,7 +107,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                   result,
                   maybeRegularCase.isDefined
                 )
-              case _ => FailureCase(Failure("Suitable method not found"))
+              case _ => FailureCase(Failure(noSuitableMethodFoundError))
             }
         }
       case left@Left(_) => FailureCase(left)
@@ -199,6 +200,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 }
 
 object MethodInvocationImpl {
+  private val noSuitableMethodFoundError = "Suitable method not found"
 
   private object FunctionTypeParameters {
 
