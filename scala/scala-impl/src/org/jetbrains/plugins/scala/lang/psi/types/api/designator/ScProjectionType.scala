@@ -118,6 +118,8 @@ final class ScProjectionType private(val projected: ScType,
           return Some(element, ScSubstitutor(projected).followed(p.substitutor))
         case p: ScProjectionType =>
           p.actualElement match {
+            case `element` => //rare case of recursive projection, see SCL-15345
+              return Some(element, p.actualSubst)
             case clazz: PsiClass
               if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
               return Some(element, ScSubstitutor(projected).followed(p.actualSubst))

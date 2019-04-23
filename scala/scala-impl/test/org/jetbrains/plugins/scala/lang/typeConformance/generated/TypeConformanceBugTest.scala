@@ -86,4 +86,17 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
        |}
        |//true
     """.stripMargin)
+
+  def testSCL15345(): Unit = doTest(
+    s"""
+       |trait Foo {
+       |  type Self <: Foo { type Self <: Foo.this.Self }
+       |  def chain: Self
+       |}
+       |val a: Foo = null
+       |val a1: Foo = a.chain
+       |val a2: Foo = a.chain.chain
+       |//true
+     """.stripMargin
+  )
 }
