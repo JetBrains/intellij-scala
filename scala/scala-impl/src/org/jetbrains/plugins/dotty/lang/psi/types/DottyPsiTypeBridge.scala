@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.dotty.lang.psi.types
 
-import java.util.{HashMap => JMap}
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -23,7 +21,7 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
   override protected def toScTypeInner(psiType: PsiType,
                                        paramTopLevel: Boolean,
                                        treatJavaObjectAsAny: Boolean)
-                                      (implicit rawExistentialArguments: JMap[PsiTypeParameter, ScExistentialArgument]): ScType = psiType match {
+                                      (implicit rawExistentialArguments: Option[RawExistentialArgs]): ScType = psiType match {
     case _: PsiClassType => Any
     case _: PsiWildcardType => Any
     case disjunctionType: PsiDisjunctionType =>

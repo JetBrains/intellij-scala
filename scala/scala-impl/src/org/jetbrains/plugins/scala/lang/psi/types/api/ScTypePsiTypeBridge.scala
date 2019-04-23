@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import java.util.{Map => JMap}
+
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -7,9 +9,8 @@ import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import scala.collection.JavaConverters._
 
-import java.util.{HashMap => JMap}
+import scala.collection.JavaConverters._
 
 /**
   * @author adkozlov
@@ -21,24 +22,21 @@ trait PsiTypeBridge {
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
     */
-  def toScType(`type`: PsiType,
+  def toScType(psiType: PsiType,
                treatJavaObjectAsAny: Boolean,
                paramTopLevel: Boolean): ScType = {
-    val rawExistentialArgs = new JMap[PsiTypeParameter, ScExistentialArgument]
-    val converted = toScTypeInner(`type`, treatJavaObjectAsAny, paramTopLevel)(rawExistentialArgs)
-
-    rawExistentialArgs.values().asScala.foreach(_.initialize())
-
-    //preventing memory leak, this map is captured by existential arguments
-    rawExistentialArgs.clear()
-
-    converted.unpackedType
+    toScTypeInner(psiType, treatJavaObjectAsAny, paramTopLevel)(rawExistentialArguments = None)
+      .unpackedType
   }
 
+  protected type RawExistentialArgs = JMap[PsiTypeParameter, ScExistentialArgument]
+
+  //Result of this method may contain not-bound existential arguments,
+  //because we need to defer initialization of wildcard if it is called recursively.
   protected def toScTypeInner(psiType: PsiType,
                               paramTopLevel: Boolean = false,
                               treatJavaObjectAsAny: Boolean = true)
-                             (implicit rawExistentialArguments: JMap[PsiTypeParameter, ScExistentialArgument]): ScType = psiType match {
+                             (implicit rawExistentialArguments: Option[RawExistentialArgs]): ScType = psiType match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID    => Unit
