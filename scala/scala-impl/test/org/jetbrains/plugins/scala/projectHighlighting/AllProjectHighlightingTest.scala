@@ -4,7 +4,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
@@ -92,8 +92,10 @@ object AllProjectHighlightingTest {
   private val LocalPath = new Regex(".*/localProjects/.*?/(.*)")
   private val ScalacPath = new Regex("temp:///.*?/(.*)")
 
+  private def originalDirName(file: PsiFile): String = Option(file.getUserData(originalDirNameKey)).getOrElse("")
+
   private def relativePathOf(psiFile: PsiFile): String = psiFile.getVirtualFile.getUrl match {
-    case ScalacPath(relative) => relative
+    case ScalacPath(relative) => originalDirName(psiFile) + "/" + relative
     case LocalPath(relative) => relative
     case RemotePath(relative) => relative
     case path => throw new IllegalArgumentException(s"Unknown test path: $path")
@@ -130,4 +132,6 @@ object AllProjectHighlightingTest {
       }
     }
   }
+
+  val originalDirNameKey: Key[String] = Key.create("original.dir.name")
 }

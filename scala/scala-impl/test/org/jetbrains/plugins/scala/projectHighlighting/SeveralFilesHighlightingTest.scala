@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.util.PsiFileTestUtil
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.originalDirNameKey
 
 import scala.io.Source
 
@@ -48,7 +49,10 @@ trait SeveralFilesHighlightingTest {
   private def addFileToProject(file: File, relativeTo: File): PsiFile = {
     val text: String = content(file)
     val path = relativeTo.toPath.relativize(file.toPath)
-    PsiFileTestUtil.addFileToProject(path, text, getProject)
+    val originalDirName = relativeTo.getName
+    val psiFile = PsiFileTestUtil.addFileToProject(path, text, getProject)
+    psiFile.putUserData(originalDirNameKey, originalDirName)
+    psiFile
   }
 
   private def content(file: File) = using(Source.fromFile(file))(_.getLines.mkString("\n"))
