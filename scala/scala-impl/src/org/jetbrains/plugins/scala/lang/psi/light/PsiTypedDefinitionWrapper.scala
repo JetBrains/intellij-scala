@@ -64,6 +64,9 @@ class PsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
 
     superSignatures.getOrElse(Seq.empty).flatMap(wrap).toArray
   }
+
+  override def copy(): PsiElement =
+    new PsiTypedDefinitionWrapper(delegate.asInstanceOf[ScTypedDefinition], isStatic, isAbstract, role, cClass)
 }
 
 object PsiTypedDefinitionWrapper {

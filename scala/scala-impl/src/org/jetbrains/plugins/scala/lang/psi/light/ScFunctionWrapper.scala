@@ -88,6 +88,9 @@ class ScFunctionWrapper(override val delegate: ScFunction,
 
     superSignatures.getOrElse(Seq.empty).mapToArray(wrap)(PsiMethod.ARRAY_FACTORY)
   }
+
+  override def copy(): PsiElement =
+    new ScFunctionWrapper(delegate.copy().asInstanceOf[ScFunction], isStatic, isAbstract, cClass, isJavaVarargs)
 }
 
 object ScFunctionWrapper {

@@ -28,6 +28,9 @@ class StaticPsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
 
   protected def modifierList: PsiModifierList =
     ScLightModifierList(delegate, isStatic = true)
+
+  override def copy(): PsiElement =
+    new StaticPsiTypedDefinitionWrapper(delegate.copy().asInstanceOf[ScTypedDefinition], role, containingClass)
 }
 
 object StaticPsiTypedDefinitionWrapper {

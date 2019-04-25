@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.{PsiModifierList, PsiParameter, PsiTypeParameter}
+import com.intellij.psi.{PsiElement, PsiModifierList, PsiParameter, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -24,6 +24,9 @@ class ScPrimaryConstructorWrapper(override val delegate: ScPrimaryConstructor, i
   protected def modifierList: PsiModifierList = ScLightModifierList(delegate)
 
   override def isConstructor: Boolean = true
+
+  override def copy(): PsiElement =
+    new ScPrimaryConstructorWrapper(delegate.copy().asInstanceOf[ScPrimaryConstructor], isJavaVarargs)
 }
 
 object ScPrimaryConstructorWrapper {
