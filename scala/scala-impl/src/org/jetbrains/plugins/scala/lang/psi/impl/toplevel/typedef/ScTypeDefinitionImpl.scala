@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
@@ -266,25 +266,35 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   import ScTypeDefinitionImpl._
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override final def getQualifiedName: String = byStubOrPsi(_.javaQualifiedName) {
-    val suffix = this match {
-      case o: ScObject if o.isPackageObject => ".package$"
-      case _: ScObject => "$"
-      case _ => ""
+  override final def getQualifiedName: String = {
+    if (hasNoJavaFQName(this))
+      return null
+
+    byStubOrPsi(_.javaQualifiedName) {
+      val suffix = this match {
+        case o: ScObject if o.isPackageObject => ".package$"
+        case _: ScObject => "$"
+        case _ => ""
+      }
+
+      import ScalaNamesUtil.{isBacktickedName, toJavaName}
+      val result = qualifiedName(DefaultSeparator)(toJavaName)
+        .split('.')
+        .map(isBacktickedName(_).orNull)
+        .mkString(DefaultSeparator)
+
+      result + suffix
     }
-
-    import ScalaNamesUtil.{isBacktickedName, toJavaName}
-    val result = qualifiedName(DefaultSeparator)(toJavaName)
-      .split('.')
-      .map(isBacktickedName(_).orNull)
-      .mkString(DefaultSeparator)
-
-    result + suffix
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override def qualifiedName: String = byStubOrPsi(_.getQualifiedName) {
-    qualifiedName(DefaultSeparator)(identity)
+  override def qualifiedName: String = {
+    if (isLocalOrInsideAnonymous(this))
+      return name
+
+    byStubOrPsi(_.getQualifiedName) {
+      qualifiedName(DefaultSeparator)(identity)
+    }
   }
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
@@ -486,4 +496,17 @@ object ScTypeDefinitionImpl {
     case Right(definition) => nameTransformer(definition.name)
     case Left(string) => string
   }.mkString
+
+  private def isLocalOrInsideAnonymous(td: ScTypeDefinition): Boolean =
+    td.isLocal || PsiTreeUtil.getStubOrPsiParentOfType(td, classOf[ScNewTemplateDefinition]) != null
+
+  private def isInPackageObject(td: ScTypeDefinition): Boolean =
+    td.containingClass match {
+      case o: ScObject => o.isPackageObject
+      case _ => false
+    }
+
+  private def hasNoJavaFQName(td: ScTypeDefinition): Boolean = {
+    isLocalOrInsideAnonymous(td) || isInPackageObject(td)
+  }
 }

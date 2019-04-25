@@ -115,7 +115,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     case None =>
       val qualName = Option(getQualifiedName).map(_.stripSuffix("$"))
       val name = Option(getName).map(_.stripSuffix("$"))
-      qualName.map(qn => new PsiClassWrapper(this, qn, name.getOrElse(qn)))
+      name.map(new PsiClassWrapper(this, qualName.orNull, _))
   }
 
   def fakeCompanionClassOrCompanionClass: PsiClass = fakeCompanionClass match {
