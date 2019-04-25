@@ -1269,5 +1269,29 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testStaticTraitForwarder(): Unit = {
+    val java =
+      """public class ExtendTrait implements ScalaTrait {
+        |	public int foo(int j) {
+        |		return j * 10;
+        |	}
+        |
+        |	public int bar(int k) {
+        |		return ScalaTrait$class.bar(this, k);
+        |	}
+        |}""".stripMargin
+
+    val scala =
+      """
+        |trait ScalaTrait {
+        |  def foo(j: Int): Int
+        |
+        |  def bar(k: Int): Int = foo(k * 2) + 3
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "ExtendTrait"))
+  }
 }
 

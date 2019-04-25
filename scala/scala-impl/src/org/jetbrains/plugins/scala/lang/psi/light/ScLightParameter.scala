@@ -28,8 +28,10 @@ class ScLightParameter(name: String, tpe: () => PsiType, scope: PsiElement, isVa
 }
 
 private object ScLightParameter {
-  def fromThis(containingClass: PsiClass, scope: PsiElement): PsiParameter = {
-    val result = new ScLightParameter("This", () => new PsiImmediateClassType(containingClass, PsiSubstitutor.EMPTY), scope, isVarargs = false)
+  //this parameter for static forwarders in TraitName$class
+  def fromThis(containingClass: PsiClassWrapper, scope: PsiElement): PsiParameter = {
+    val originalTrait = containingClass.definition
+    val result = new ScLightParameter("This", () => new PsiImmediateClassType(originalTrait, PsiSubstitutor.EMPTY), scope, isVarargs = false)
 
     result.setModifierList(ScLightModifierList.empty(containingClass.getManager))
     result
