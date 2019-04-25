@@ -47,6 +47,9 @@ class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: Psi
   override def getReturnTypeElement: PsiTypeElement = method.getReturnTypeElement
 
   override def getParameterList: PsiParameterList = method.getParameterList
+
+  override def copy(): PsiElement =
+    new StaticPsiMethodWrapper(method.copy().asInstanceOf[PsiMethod], containingClass)
 }
 
 object StaticPsiMethodWrapper {

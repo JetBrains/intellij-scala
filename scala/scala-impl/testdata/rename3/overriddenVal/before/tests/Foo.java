@@ -6,4 +6,11 @@ public class Foo {
         int b3 = Baz3.baz/*caret*/();
         (new Baz()).baz();
     }
+
+    public static class JavaBaz extends Baz {
+        @Override
+        public int /*caret*/baz() {
+            return 4;
+        }
+    }
 }

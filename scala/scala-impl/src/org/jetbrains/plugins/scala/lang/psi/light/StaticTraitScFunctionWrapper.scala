@@ -28,6 +28,8 @@ class StaticTraitScFunctionWrapper(override val delegate: ScFunction, containing
   protected def modifierList: PsiModifierList =
     ScLightModifierList(delegate, isStatic = true)
 
+  override def copy(): PsiElement =
+    new StaticTraitScFunctionWrapper(delegate.copy().asInstanceOf[ScFunction], containingClass)
 }
 
 object StaticTraitScFunctionWrapper {
