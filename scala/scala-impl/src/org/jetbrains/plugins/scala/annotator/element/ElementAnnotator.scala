@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.annotator.ScopeAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 import scala.reflect.ClassTag
@@ -46,6 +47,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
     ScTypedExpressionAnnotator,
     ScUnderscoreSectionAnnotator,
     ScVariableDeclarationAnnotator,
+    ScopeAnnotator,
   )
 
   def annotate(element: ScalaPsiElement, holder: AnnotationHolder, typeAware: Boolean): Unit =

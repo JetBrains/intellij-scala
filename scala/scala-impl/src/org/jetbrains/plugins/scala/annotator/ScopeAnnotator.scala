@@ -3,16 +3,19 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isScope
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -23,78 +26,120 @@ import scala.collection.mutable.ArrayBuffer
  * Pavel.Fatin, 25.05.2010
  */
 
-trait ScopeAnnotator {
-  private type Definitions = List[ScNamedElement]
-  private val TypeParameters = """\[.*\]""".r
+object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
+  private case class Definitions(types: List[ScNamedElement],
+                                 functions: List[ScFunction],
+                                 parameterless: List[ScNamedElement],
+                                 fieldLike: List[ScNamedElement],
+                                 classParameters: List[ScClassParameter])
 
-  def annotateScope(element: PsiElement, holder: AnnotationHolder) {
+  def annotate(element: ScalaPsiElement, holder: AnnotationHolder, typeAware: Boolean): Unit =
+    annotateScope(element, holder)
+
+  def annotateScope(element: PsiElement, holder: AnnotationHolder): Unit = {
     if (!isScope(element)) return
+
     def checkScope(elements: PsiElement*) {
-      val (types, terms, parameters, caseClasses, objects) = definitionsIn(elements : _*)
+      val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements: _*)
 
-      val jointTerms = terms ::: parameters
+      val clashes =
+        clashesOf(functions) :::
+        clashesOf(parameterless) :::
+        clashesOf(types) :::
+        clashesOf(fieldLikes) ::: Nil
 
-      val complexClashes = clashesOf(jointTerms ::: objects) :::
-        clashesOf(types ::: caseClasses) :::
-        clashesOf(jointTerms ::: caseClasses)
+      //clashed class parameters were already highlighted
+      val withoutClassParameters = clashes.toSet -- clashesOf(classParameters)
 
-      val clashes = complexClashes.distinct diff clashesOf(parameters)
-
-      clashes.foreach {
+      withoutClassParameters.foreach {
         e =>
           holder.createErrorAnnotation(e.getNameIdentifier,
             ScalaBundle.message("id.is.already.defined", nameOf(e)))
       }
     }
+
     element match {
       case f: ScFor =>
         f.enumerators.foreach {
-          case enumerator =>
+          enumerator =>
             val elements = new ArrayBuffer[PsiElement]()
             enumerator.children.foreach {
               case generator: ScGenerator =>
-                checkScope(elements.toSeq: _*)
+                checkScope(elements: _*)
                 elements.clear()
                 elements += generator
               case child => elements += child
             }
-            checkScope(elements.toSeq: _*)
+            checkScope(elements: _*)
         }
       case _ => checkScope(element)
     }
   }
 
   private def definitionsIn(elements: PsiElement*) = {
-    var types: Definitions = List()
-    var terms: Definitions = List()
-    var parameters: Definitions = List()
-    var caseClasses: Definitions = List()
-    var objects: Definitions = List()
-    elements.foreach {
-      case element =>
-        if(element.isInstanceOf[ScTemplateBody]) element match {
-          case Parent(Parent(aClass: ScClass)) => parameters :::= aClass.parameters.toList
+    var types: List[ScNamedElement] = Nil
+    var functions: List[ScFunction] = Nil
+    var parameterless: List[ScNamedElement] = Nil
+    var fieldLike: List[ScNamedElement] = Nil
+    var classParameters: List[ScClassParameter] = Nil
+    elements.foreach { element =>
+
+      val classParams = containingClassParams(element)
+      classParameters :::= classParams
+      fieldLike     :::= classParams.filter(_.isPrivateThis)
+      parameterless :::= classParams.filterNot(_.isPrivateThis)
+
+      element.children.foreach {
+        _.depthFirst(!isScope(_)).foreach {
+          case e: ScObject =>
+            parameterless ::= e
+            fieldLike ::= e
+          case e: ScFunction  =>
+            if (e.typeParameters.isEmpty) { //generic functions are not supported
+              functions ::= e
+              if (e.parameters.isEmpty || e.getContext.isInstanceOf[ScBlockExpr]) {
+                parameterless ::= e
+              }
+            }
+          case e: ScTypedDefinition =>
+            if (generatesFunction(e)) {
+              parameterless ::= e
+            }
+            fieldLike ::= e
+          case e: ScTypeAlias => types ::= e
+          case e: ScTypeParam => types ::= e
+          case e: ScClass  =>
+            if (e.isCase && e.baseCompanionModule.isEmpty) { //add synthtetic companion
+              parameterless ::= e
+              fieldLike ::= e
+            }
+            types ::= e
+          case e: ScTypeDefinition => types ::= e
           case _ =>
         }
-
-        element.children.foreach {
-          _.depthFirst(!isScope(_)).foreach {
-            case e: ScObject => objects ::= e
-            case e: ScFunction => if(e.typeParameters.isEmpty) terms ::= e
-            case e: ScTypedDefinition => terms ::= e
-            case e: ScTypeAlias => types ::= e
-            case e: ScTypeParam => types ::= e
-            case e: ScClass if e.isCase => caseClasses ::= e
-            case e: ScTypeDefinition => types ::= e
-            case _ =>
-          }
-        }
+      }
     }
 
-    (types, terms, parameters, caseClasses, objects)
+    Definitions(types, functions, parameterless, fieldLike, classParameters)
   }
 
-  private def clashesOf(elements: Definitions): Definitions = {
+  private def containingClassParams(scope: PsiElement): List[ScClassParameter] = scope match {
+    case (_: ScTemplateBody) && Parent(Parent(aClass: ScClass)) =>
+      aClass.parameters.toList
+    case _ => Nil
+  }
+
+  private def generatesFunction(td: ScTypedDefinition): Boolean = td.nameContext match {
+    case f: ScFunction => true
+    case v: ScValueOrVariable =>
+      v.getModifierList.accessModifier match {
+        case Some(am) => !(am.isPrivate && am.isThis)
+        case None     => true
+      }
+    case _ => false
+  }
+
+  private def clashesOf(elements: List[ScNamedElement]): List[ScNamedElement] = {
     val names = elements.map(nameOf).filterNot(_ == "_")
     val clashedNames = names.diff(names.distinct)
     elements.filter(e => clashedNames.contains(nameOf(e)))
@@ -108,29 +153,45 @@ trait ScopeAnnotator {
   }
 
   private def signatureOf(f: ScFunction): String = {
-    if(f.parameters.isEmpty)
+    if (f.parameters.isEmpty)
       ""
-    else
-      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes.map(_.recursiveUpdate{
-        //during erasure literal types collapse into widened types
-        case lit: ScLiteralType => ReplaceWith(lit.wideType)
-        case proj: ScProjectionType =>
-          proj.element match {
-            case sc: Typeable => sc.`type`().map(_.widen).map(ReplaceWith).getOrElse(ProcessSubtypes)
-            case _ => ProcessSubtypes
-          }
-        case _ => ProcessSubtypes
-      }))).mkString
+    else {
+      val isInStructuralType = f.getContext.isInstanceOf[ScRefinement]
+      val params = f.paramClauses.clauses.map(format(_, isInStructuralType)).mkString
+      val returnType =
+        if (!isInStructuralType) erased(f.returnType.getOrAny.removeAliasDefinitions()).canonicalText
+        else ""
+      params + returnType
+    }
   }
 
-  private def eraseType(s: String) =
-    if (s.startsWith("Array[") || s.startsWith("_root_.scala.Array[")) s
-    else TypeParameters.replaceFirstIn(s, "")
+  private def erased(t: ScType): ScType = {
+    val stdTypes = StdTypes.instance(t.projectContext)
 
-  private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
-    val parts = parameters.zip(types).map {
-      case (p, t) => eraseType(t.canonicalText) + (if(p.isRepeatedParameter) "*" else "")
+    t.updateRecursively {
+      //during erasure literal types collapse into widened types
+      case lit: ScLiteralType => lit.wideType
+      case ScProjectionType(_, element: Typeable) => element.`type`().map(_.widen).getOrAny
+
+      case arrayType(inner) => JavaArrayType(erased(inner)) //array types are not erased
+      case p: ParameterizedType => p.designator
+      case tpt: TypeParameterType => tpt.upperType
+      case stdTypes.Any | stdTypes.AnyVal => stdTypes.AnyRef
     }
-    "(%s)".format(parts.mkString(", "))
+  }
+
+  private def format(clause: ScParameterClause, isInStructuralType: Boolean) = {
+    val parts = clause.parameters.map { p =>
+      val `=>` = if (p.isCallByNameParameter) " => " else ""
+      val `*` = if (p.isRepeatedParameter) "*" else ""
+
+      val paramType = p.`type`().getOrAny.removeAliasDefinitions()
+      val erasedType =
+        if (!isInStructuralType) erased(paramType)
+        else paramType
+
+      `=>` + erasedType.canonicalText + `*`
+    }
+    parts.mkString("(", ", ", ")")
   }
 }

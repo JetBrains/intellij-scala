@@ -66,8 +66,8 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testParameterized_1(): Unit = doTest()
 
   def testSip23t8323(): Unit = doTest(
-     Error("f", "f(_root_.java.lang.String) is already defined in the scope") ::
-      Error("f", "f(_root_.java.lang.String) is already defined in the scope") ::
+     Error("f", "f(_root_.java.lang.String)_root_.java.lang.String is already defined in the scope") ::
+      Error("f", "f(_root_.java.lang.String)_root_.java.lang.String is already defined in the scope") ::
       Nil
   )
 

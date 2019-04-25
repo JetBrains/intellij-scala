@@ -44,7 +44,7 @@ import scala.collection.{Seq, mutable}
  * Date: 23.06.2008
  */
 abstract class ScalaAnnotator protected()(implicit val project: Project) extends Annotator
-  with FunctionAnnotator with ScopeAnnotator
+  with FunctionAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
 
@@ -195,7 +195,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         super.visitTemplateParents(tp)
       }
     }
-    annotateScope(element, holder)
     element.accept(visitor)
 
     element match {

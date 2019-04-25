@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -25,13 +26,15 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Asser
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     val mock = new AnnotatorHolderMock(getFile)
-    val annotator = ScalaAnnotator.forProject
+    val annotator = getAnnotator
 
-    getFile.depthFirst().foreach(annotator.annotate(_, mock))
+    getFile.depthFirst().foreach(annotator(_, mock))
     mock.annotations.filter {
       case Error(_, null) | Error(null, _) => false
       case Error(_, _) => true
       case _ => false
     }
   }
+
+  def getAnnotator: (PsiElement, AnnotationHolder) => Unit = ScalaAnnotator.forProject.annotate(_, _)
 }
