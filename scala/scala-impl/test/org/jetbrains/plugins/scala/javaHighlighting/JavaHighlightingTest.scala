@@ -1189,5 +1189,31 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromJavaCode(scala, java, "ExtendTrait"))
   }
-}
 
+  def testExistentialArgType(): Unit = {
+    val scala =
+      """package test
+        |
+        |object ScalaStuff {
+        |  trait Stepper[X]
+        |  trait StepperShape[S <: Stepper[_]]
+        |  class IntStepper extends Stepper[Int]
+        |
+        |  def stepper[S <: Stepper[_]](implicit ss: StepperShape[S]): S = ???
+        |
+        |  val intShape: StepperShape[IntStepper] = ???
+        |}
+      """.stripMargin
+    val java =
+      """
+        |import static test.ScalaStuff.*;
+        |
+        |public class Test {
+        |    public void foo() {
+        |        IntStepper stepper = stepper(intShape());
+        |    }
+        |}""".stripMargin
+
+    assertNothing(errorsFromJavaCode(scala , java, "Test"))
+  }
+}

@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.psi.impl.light.{LightReferenceListBuilder, LightTypeParameter}
-import com.intellij.psi.impl.source.PsiImmediateClassType
-import com.intellij.psi.{PsiReferenceList, PsiSubstitutor}
+import com.intellij.psi.{PsiClassType, PsiReferenceList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 
@@ -25,12 +24,10 @@ private class ScLightTypeParam(scTypeParam: ScTypeParam, subst: ScSubstitutor)
     val refList = new LightReferenceListBuilder(scTypeParam.getManager, PsiReferenceList.Role.EXTENDS_BOUNDS_LIST)
 
     def addReference(tp: ScType): Unit = {
-      val psiClassType = tp match {
-        case tpt: TypeParameterType => Some(new PsiImmediateClassType(tpt.psiTypeParameter, PsiSubstitutor.EMPTY))
-        case ExtractClass(clazz)    => Some(new PsiImmediateClassType(clazz, PsiSubstitutor.EMPTY))
-        case _                      => None
+      tp.toPsiType match {
+        case classType: PsiClassType => refList.addReference(classType)
+        case _ =>
       }
-      psiClassType.foreach(refList.addReference)
     }
 
     scTypeParam.upperBound.map(subst) match {
