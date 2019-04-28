@@ -15,7 +15,7 @@ private[resolver] object BspResolverDescriptors {
   private[resolver] case class ModuleDescriptionData(targets: Seq[BuildTarget],
                                                      targetDependencies: Seq[BuildTargetIdentifier],
                                                      targetTestDependencies: Seq[BuildTargetIdentifier],
-                                                     basePath: File,
+                                                     basePath: Option[File],
                                                      output: Option[File],
                                                      testOutput: Option[File],
                                                      sourceDirs: Seq[SourceDirectory],
