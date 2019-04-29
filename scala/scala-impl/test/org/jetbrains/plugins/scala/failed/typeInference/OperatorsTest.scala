@@ -13,15 +13,6 @@ class OperatorsTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL8595() = {
-    val text =
-      """
-        |def test(b: Boolean, i: Int): Boolean = b == /*start*/i < 4/*end*/
-        |
-        |//Boolean""".stripMargin
-    doTest(text)
-  }
-
   def testSCL5723(): Unit = doTest {
     """
       |trait Foo {
