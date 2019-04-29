@@ -126,4 +126,17 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       case Error("(3)", "'Test.type' does not take parameters") :: Nil =>
     }
   }
+
+  def testDoubleDefinedUpdate(): Unit = {
+    val code =
+      """
+        |object Test {
+        |  protected def update(propName: String, p: Any): Unit = ()
+        |  def update(propName: String, p: => Any): Unit = ()
+        |}
+        |Test("test") = true
+      """.stripMargin
+
+    assertNothing(messages(code))
+  }
 }
