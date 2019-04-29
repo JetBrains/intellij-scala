@@ -1026,12 +1026,12 @@ package object extensions {
   implicit class PsiParameterExt(val param: PsiParameter) extends AnyVal {
     implicit def project: ProjectContext = param.getProject
 
-    def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
+    def paramType(extractVarargComponent: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
       case parameter: FakePsiParameter => parameter.parameter.paramType
       case parameter: ScParameter => parameter.`type`().getOrAny
       case _ =>
         val paramType = param.getType match {
-          case arrayType: PsiArrayType if exact && param.isVarArgs =>
+          case arrayType: PsiArrayType if extractVarargComponent && param.isVarArgs =>
             arrayType.getComponentType
           case tp => tp
         }

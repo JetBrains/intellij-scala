@@ -12,20 +12,20 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTypeParamatersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
-import scala.collection.mutable
+import scala.collection.{Seq, mutable}
 
 class TermSignature(_name: String,
                     private val typesEval: Seq[Seq[() => ScType]],
@@ -246,13 +246,17 @@ import com.intellij.psi.PsiMethod
 object PhysicalMethodSignature {
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
-      fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.mapToLazyTypesSeq(clause.effectiveParameters)).toList
+      fun.effectiveParameterClauses.toList
+        .map(_.effectiveParameters.map(p => () => scalaParamType(p)))
+
     case wrapper: ScFunctionWrapper => typesEval(wrapper.delegate)
     case wrapper: ScPrimaryConstructorWrapper => typesEval(wrapper.delegate)
-    case _ => List(ScalaPsiUtil.mapToLazyTypesSeq(method.getParameterList match {
-      case p: ScParameters => p.params
-      case p => p.getParameters.toSeq
-    }))
+    case _ =>
+      val lazyParamTypes = method.getParameterList match {
+        case ps: ScParameters => ps.params.map(p => () => scalaParamType(p))
+        case p => p.getParameters.toSeq.map(p => () => javaParamType(p))
+      }
+      List(lazyParamTypes)
   }
 
   def hasRepeatedParam(method: PsiMethod): Array[Int] = {
@@ -283,6 +287,31 @@ object PhysicalMethodSignature {
 
   def unapply(signature: PhysicalMethodSignature): Option[(PsiMethod, ScSubstitutor)] = {
     Some(signature.method, signature.substitutor)
+  }
+
+  private def javaParamType(p: PsiParameter): ScType = {
+    val treatJavaObjectAsAny = p.parentsInFile.instanceOf[PsiClass] match {
+      case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
+      case _ => false
+    }
+    val paramTypeNoVarargs = p.paramType(extractVarargComponent = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
+
+    implicit val scope: ElementScope = ElementScope(p.getProject)
+
+    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType
+    else paramTypeNoVarargs
+  }
+
+  private def scalaParamType(p: ScParameter): ScType = {
+    val typeElementType = p.`type`().getOrAny
+    implicit val scope: ElementScope = p.elementScope
+
+    if (p.isRepeatedParameter)
+      typeElementType.tryWrapIntoSeqType(scope)
+    else if (p.isCallByNameParameter)
+      FunctionType(typeElementType, Seq.empty)
+    else
+      typeElementType
   }
 }
 

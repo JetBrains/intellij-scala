@@ -381,7 +381,7 @@ object Compatibility {
   }
 
   def toParameter(p: PsiParameter): Parameter = {
-    val tp = p.paramType(exact = false)
+    val tp = p.paramType(extractVarargComponent = false)
     Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, None, tp, tp, false, p.isVarArgs, false, p.index,
       p match {
         case param: ScParameter => Some(param)

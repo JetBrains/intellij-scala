@@ -57,7 +57,7 @@ object Parameter {
         psiParam = Some(scParameter),
         defaultType = scParameter.getDefaultExpression.flatMap(_.`type`().toOption))
     case _ =>
-      val `type` = parameter.paramType(exact = false)
+      val `type` = parameter.paramType(extractVarargComponent = false)
 
       new Parameter(name = parameter.getName,
         deprecatedName = None,

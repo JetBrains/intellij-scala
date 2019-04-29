@@ -429,9 +429,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def formatJavaParams(parameters: Seq[PsiParameter]): String = {
-    val types = ScalaPsiUtil.mapToLazyTypesSeq(parameters)
+    val types = parameters.map(_.paramType())
     val parts = parameters.zip(types).map {
-      case (p, t) => t().presentableText + (if(p.isVarArgs) "*" else "")
+      case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
     }
     parenthesise(parts)
   }

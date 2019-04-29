@@ -325,20 +325,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {
-    elems.map(param => () =>
-      param match {
-        case scp: ScParameter => scp.`type`().getOrNothing
-        case p: PsiParameter =>
-          val treatJavaObjectAsAny = p.parentsInFile.instanceOf[PsiClass] match {
-            case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
-            case _ => false
-          }
-          p.paramType(treatJavaObjectAsAny = treatJavaObjectAsAny)
-      }
-    )
-  }
-
   /**
     * This method doesn't collect things like
     * val a: Type = b //after implicit convesion
