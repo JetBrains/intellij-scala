@@ -188,18 +188,20 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     def getFixes: Seq[IntentionAction] = {
       val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
-      Seq[IntentionAction](new ScalaImportTypeFix(classes, refElement))
+      Seq(new ScalaImportTypeFix(classes, refElement))
     }
 
     val resolve = refElement.multiResolveScala(false)
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
+      lazy val cachedFixes = fixes
       //todo remove when resolve of unqualified expression will be fully implemented
-      if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
-        (fixes.nonEmpty || countError)) {
+      if (refElement.getManager.isInProject(refElement) &&
+          resolve.length == 0 &&
+          (cachedFixes.nonEmpty || countError)) {
         val error = ScalaBundle.message("cannot.resolve", refElement.refName)
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        registerAddFixes(refElement, annotation, fixes: _*)
+        registerAddFixes(refElement, annotation, cachedFixes: _*)
         annotation.registerFix(ReportHighlightingErrorQuickFix)
         registerCreateFromUsageFixesFor(refElement, annotation)
       }
