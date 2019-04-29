@@ -6,6 +6,7 @@ import java.awt.Point
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
+import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.{FileModificationService, JavaProjectCodeInsightSettings}
 import com.intellij.codeInspection.HintAction
 import com.intellij.openapi.application.ApplicationManager
@@ -49,7 +50,8 @@ import scala.util.Sorting
   * Date: 15.07.2009
   */
 
-class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReference) extends HintAction {
+class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReference)
+  extends HintAction with HighPriorityAction {
 
   private val project = ref.getProject
 
