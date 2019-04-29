@@ -52,10 +52,28 @@ object Generators {
     Version(dotted + suffix)
   }
 
-  def genSourceDirectory(root: Path): Gen[SourceDirectory] = for {
+  def genSourceDirectoryUnder(root: Path): Gen[SourceDirectory] = for {
     path <- genPathBelow(root)
     generated <- arbitrary[Boolean]
   } yield SourceDirectory(path.toFile, generated)
+
+  def genSourceDirectory: Gen[SourceDirectory] = for {
+    path <- arbitrary[Path]
+    generated <- arbitrary[Boolean]
+  } yield SourceDirectory(path.toFile, generated)
+
+  def genSourceDirs(root: Option[Path]): Gen[List[SourceDirectory]] = Gen.sized { size =>
+    for {
+      size1 <- Gen.choose(0,size)
+      size2 = size - size1
+      free <- Gen.listOfN(size1, genSourceDirectory)
+      underRoot <- root
+        .map(p => Gen.listOfN(size2, genSourceDirectoryUnder(p)))
+        .getOrElse(Gen.const[List[SourceDirectory]](List.empty))
+    } yield {
+      free ++ underRoot
+    }
+  }
 
   def genScalaBuildTargetWithoutTags(withoutTags: List[String]): Gen[BuildTarget] = for {
     target <- genBuildTargetWithScala
@@ -85,18 +103,18 @@ object Generators {
     targets <- arbitrary[List[BuildTarget]]
     targetDependencies <- arbitrary[Seq[BuildTargetIdentifier]]
     targetTestDependencies <- arbitrary[Seq[BuildTargetIdentifier]]
-    basePath <- arbitrary[Path]
+    basePath <- arbitrary[Path].optional
     output <- arbitrary[Option[File]]
     testOutput <- arbitrary[Option[File]]
-    sourceDirs <- Gen.listOf(genSourceDirectory(basePath))
-    testSourceDirs <- Gen.listOf(genSourceDirectory(basePath))
+    sourceDirs <- genSourceDirs(basePath)
+    testSourceDirs <- genSourceDirs(basePath)
     classPath <- arbitrary[Seq[File]]
     classPathSources <- arbitrary[Seq[File]]
     testClassPath <- arbitrary[Seq[File]]
     testClassPathSources <- arbitrary[Seq[File]]
     moduleKind <- genModuleKind
   } yield {
-    val data = ModuleDescriptionData(targets, targetDependencies, targetTestDependencies, basePath.toFile, output, testOutput,
+    val data = ModuleDescriptionData(targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
       sourceDirs, testSourceDirs, classPath, classPathSources, testClassPath, testClassPathSources)
     ModuleDescription(data, moduleKind)
   }

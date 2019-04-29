@@ -11,11 +11,11 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
+import org.jetbrains.bsp.{BSP, BspErrorMessage}
 import org.jetbrains.plugins.scala.project.Version
 
 import scala.collection.JavaConverters._
@@ -102,7 +102,9 @@ private[resolver] object BspResolverLogic {
     }
 
     // merge modules with the same module base
-    moduleDescriptions.groupBy(_.data.basePath).values.map(mergeModules)
+    val (noBase, withBase) = moduleDescriptions.partition(_.data.basePath.isEmpty)
+    val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules)
+    noBase ++ mergedBase
   }
 
   private[resolver] def moduleDescriptionForTarget(target: BuildTarget,
@@ -142,7 +144,6 @@ private[resolver] object BspResolverLogic {
 
     val moduleBase = Option(target.getBaseDirectory)
       .map(_.toURI.toFile)
-      .orElse(commonBase(sourceRoots.map(_.directory)))
 
     val outputPath = scalacOptions.map(_.getClassDirectory.toURI.toFile)
 
@@ -177,11 +178,10 @@ private[resolver] object BspResolverLogic {
 
     // TODO warning output when modules are skipped because of missing base or scala module data
     for {
-      baseDir <- moduleBase
       moduleKind <- scalaModule
     } yield {
       val moduleDescriptionData = createScalaModuleDescription(
-        target, tags, baseDir, outputPath, sourceRoots,
+        target, tags, moduleBase, outputPath, sourceRoots,
         classPathWithoutDependencyOutputs, dependencySourcePaths)
 
       ModuleDescription(moduleDescriptionData, moduleKind)
@@ -190,7 +190,7 @@ private[resolver] object BspResolverLogic {
 
   private[resolver] def createScalaModuleDescription(target: BuildTarget,
                                                      tags: Seq[String],
-                                                     moduleBase: File,
+                                                     moduleBase: Option[File],
                                                      outputPath: Option[File],
                                                      sourceRoots: Seq[SourceDirectory],
                                                      classPath: Seq[File],
@@ -279,7 +279,7 @@ private[resolver] object BspResolverLogic {
 
     // synthetic root module when no natural module is at root
     val rootModule =
-      if (moduleDescriptions.exists (_.data.basePath == projectRoot)) None
+      if (moduleDescriptions.exists (_.data.basePath.exists(_ == projectRoot))) None
       else {
         val name = projectRoot.getName + "-root"
         val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
@@ -318,20 +318,30 @@ private[resolver] object BspResolverLogic {
 
     val moduleDescriptionData = moduleDescription.data
 
-    val basePath = moduleDescriptionData.basePath.getCanonicalPath
-    val contentRootData = new ContentRootData(BSP.ProjectSystemId, basePath)
-    moduleDescriptionData.sourceDirs.foreach { dir =>
-      val sourceType = if (dir.generated) SOURCE_GENERATED else SOURCE
-      contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
+    val moduleBase = moduleDescriptionData.basePath.map { path =>
+      val base = path.getCanonicalPath
+      new ContentRootData(BSP.ProjectSystemId, base)
     }
-    moduleDescriptionData.testSourceDirs.foreach { dir =>
-      val sourceType = if (dir.generated) TEST_GENERATED else TEST
-      contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
+    val sourceContentRoots = moduleDescriptionData.sourceDirs.map { dir =>
+      val sourceType = if (dir.generated) SOURCE_GENERATED else SOURCE
+      (sourceType, dir)
     }
 
+    val testContentRoots = moduleDescriptionData.testSourceDirs.map { dir =>
+      val sourceType = if (dir.generated) TEST_GENERATED else TEST
+      (sourceType, dir)
+    }
+
+    val contentRoots = (sourceContentRoots ++ testContentRoots).toSet
+
     val primaryTarget = moduleDescriptionData.targets.headOption
-    val moduleId = primaryTarget.map(_.getId.getUri).getOrElse(moduleDescriptionData.basePath.toURI.toString)
+    val moduleId = primaryTarget
+      .map(_.getId.getUri)
+      .orElse(moduleDescriptionData.basePath.map(_.toURI.toString))
+      .orElse(contentRoots.headOption.map(_._2.directory.toURI.toString))
+      .getOrElse(throw BspErrorMessage(s"unable to determine unique module id for module description: $moduleDescription"))
     val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
+
     val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
     moduleDescriptionData.output.foreach { outputPath =>
@@ -370,15 +380,17 @@ private[resolver] object BspResolverLogic {
 
     val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
 
-
     val libraryDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryDependencyData, moduleNode)
     moduleNode.addChild(libraryDependencyNode)
     val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
-    val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
-    moduleNode.addChild(contentRootDataNode)
-
+    contentRoots.foreach { case (sourceType, root) =>
+      val data = getContentRoot(root.directory, moduleBase)
+      data.storePath(sourceType, root.directory.getCanonicalPath)
+      val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
+      moduleNode.addChild(contentRootDataNode)
+    }
     val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
     moduleNode.addChild(metadataNode)
 
@@ -386,6 +398,17 @@ private[resolver] object BspResolverLogic {
 
     moduleNode
   }
+
+  /** Use moduleBase content root when possible, or create a new content root if dir is not within moduleBase. */
+  private def getContentRoot(dir: File, moduleBase: Option[ContentRootData]) = {
+    val baseRoot = for {
+      contentRoot <- moduleBase
+      if FileUtil.isAncestor(contentRoot.getRootPath, dir.getCanonicalPath, false)
+    } yield contentRoot
+
+    baseRoot.getOrElse(new ContentRootData(BSP.ProjectSystemId, dir.getCanonicalPath))
+  }
+
 
   private[resolver] def createModuleDependencies(moduleDescriptions: Iterable[ModuleDescription], idToModule: Map[String, DataNode[ModuleData]]):
   Iterable[(DataNode[ModuleData], Seq[DataNode[ModuleData]])] = {

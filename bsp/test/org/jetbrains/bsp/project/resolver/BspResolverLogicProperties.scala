@@ -76,8 +76,8 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
   @Test @Ignore
   def `test createScalaModuleDescription`(): Unit = check(
     forAll(genPath, Gen.listOf(genBuildTargetTag)) { (basePath: Path, tags: List[String]) =>
-      forAll(Gen.listOf(genSourceDirectory(basePath))) { sourceRoots: List[SourceDirectory] =>
-        forAll { (target: BuildTarget, moduleBase: File, outputPath: Option[File], classpath: List[File], dependencySources: List[File]) =>
+      forAll(Gen.listOf(genSourceDirectoryUnder(basePath))) { sourceRoots: List[SourceDirectory] =>
+        forAll { (target: BuildTarget, moduleBase: Option[File], outputPath: Option[File], classpath: List[File], dependencySources: List[File]) =>
           val description = createScalaModuleDescription(target, tags, moduleBase, outputPath, sourceRoots, classpath, dependencySources)
 
           val p1 = (description.basePath == moduleBase) :| "base path should be set"
