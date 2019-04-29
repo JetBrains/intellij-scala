@@ -15,7 +15,7 @@ import scala.collection.mutable
 
 class ScalastyleCodeInspection extends LocalInspectionTool {
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    def converter = MessageToProblemDescriptorConverter(file, manager)
+    val converter = MessageToProblemDescriptorConverter(file, manager)
     configurationFor(file)
       .map(checkWithScalastyle(file, _))
       .map(_.flatMap(converter.toProblemDescriptor).toArray)
@@ -86,7 +86,7 @@ object ScalastyleCodeInspection {
 
   private case class MessageToProblemDescriptorConverter(file: PsiFile, manager: InspectionManager) {
 
-    private val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+    private val maybeDocument = PsiDocumentManager.getInstance(file.getProject).getDocument(file).toOption
 
     def toProblemDescriptor(msg: Message[SourceSpec]): Option[ProblemDescriptor] = msg match {
       case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
@@ -100,12 +100,12 @@ object ScalastyleCodeInspection {
 
     private def isAtPosition(e: PsiElement, line: Int, column: Option[Int]): Boolean = {
       val correctLine = if (line > 0) line - 1 else 0
-      val sameLine = correctLine == document.getLineNumber(e.getTextOffset)
-      column match {
-        case Some(col) =>
+      val sameLine = maybeDocument.exists(correctLine == _.getLineNumber(e.getTextOffset))
+      (column, maybeDocument) match {
+        case (Some(col), Some(document)) =>
           val offset = document.getLineStartOffset(correctLine) + col
           sameLine && e.getTextRange.contains(offset)
-        case None => sameLine
+        case _ => sameLine
       }
     }
 
