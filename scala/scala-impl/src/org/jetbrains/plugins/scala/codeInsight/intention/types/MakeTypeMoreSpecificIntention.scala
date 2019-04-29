@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle.message
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -28,40 +28,22 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
 
   override protected def descriptionStrategy: Strategy = new Strategy {
 
-    override def variableWithType(variable: ScVariableDefinition,
-                                  typeElement: ScTypeElement): Boolean = {
-      for {
-        declared <- variable.declaredType
-        expr <- variable.expr
-        tp <- expr.`type`().toOption
-        if computeBaseTypes(declared, tp).nonEmpty
-      } setText(message("make.type.more.specific"))
+    override def variableWithType(variable: ScVariableDefinition, typeElement: ScTypeElement): Boolean =
+      setTextIfCanBeMoreSpecific(variable.declaredType, variable.expr, message("make.type.more.specific"))
 
-      true
-    }
+    override def valueWithType(value: ScPatternDefinition, typeElement: ScTypeElement): Boolean =
+      setTextIfCanBeMoreSpecific(value.declaredType, value.expr, message("make.type.more.specific"))
 
-    override def valueWithType(value: ScPatternDefinition,
-                               typeElement: ScTypeElement): Boolean = {
-      for {
-        declared <- value.declaredType
-        expr <- value.expr
-        tp <- expr.`type`().toOption
-        if computeBaseTypes(declared, tp).nonEmpty
-      } setText(message("make.type.more.specific"))
+    override def functionWithType(function: ScFunctionDefinition, typeElement: ScTypeElement): Boolean =
+      setTextIfCanBeMoreSpecific(function.returnType.toOption, function.body, message("make.type.more.specific.fun"))
 
-      true
-    }
-
-    override def functionWithType(function: ScFunctionDefinition,
-                                  typeElement: ScTypeElement): Boolean = {
-      for {
-        declared <- function.returnType
-        expr <- function.body
-        tp <- expr.`type`().toOption
-        if computeBaseTypes(declared, tp).nonEmpty
-      } setText(message("make.type.more.specific.fun"))
-
-      true
+    private def setTextIfCanBeMoreSpecific(declTypeOpt: Option[ScType], exprOpt: Option[ScExpression], text: String): Boolean = {
+      if (canBeMoreSpecific(declTypeOpt, exprOpt)) {
+        setText(text)
+        true
+      } else {
+        false
+      }
     }
 
     override def functionWithoutType(function: ScFunctionDefinition): Boolean = false
@@ -146,5 +128,15 @@ object MakeTypeMoreSpecificIntention {
     val baseTypes = dynamicType +: BaseTypes.get(dynamicType)
     baseTypes.filter(_.conforms(declaredType))
       .filter(!_.equiv(declaredType))
+  }
+
+  private def canBeMoreSpecific(declTypeOpt: Option[ScType], exprOpt: Option[ScExpression]): Boolean = {
+    val baseTypes = for {
+      declared <- declTypeOpt
+      expr <- exprOpt
+      tp <- expr.`type`().toOption
+    } yield computeBaseTypes(declared, tp)
+
+    baseTypes.exists(_.nonEmpty)
   }
 }

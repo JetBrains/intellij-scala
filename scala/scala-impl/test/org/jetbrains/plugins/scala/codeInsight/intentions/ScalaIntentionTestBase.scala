@@ -8,7 +8,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
-import org.junit.Assert.{assertFalse, assertTrue, fail}
+import org.junit.Assert.{assertFalse, assertTrue}
 
 import scala.collection.JavaConverters._
 
@@ -16,7 +16,7 @@ import scala.collection.JavaConverters._
   * @author Ksenia.Sautina
   * @since 4/11/12
   */
-abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
 
@@ -24,11 +24,17 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
 
   def caretTag: String = EditorTestUtil.CARET_TAG
 
-  protected def doTest(text: String, resultText: String): Unit = {
+  protected def doTest(text: String, resultText: String, expectedIntentionText: Option[String] = None): Unit = {
+    import org.junit.Assert._
     implicit val project: Project = getProject
 
     findIntention(text) match {
       case Some(action) =>
+
+        expectedIntentionText.foreach { expectedText =>
+          assertEquals(expectedText, action.getText)
+        }
+
         executeWriteActionCommand("Test Intention") {
           action.invoke(project, getEditor, getFile)
         }
