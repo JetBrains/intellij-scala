@@ -57,8 +57,8 @@ object ScExistentialArgument {
   //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
   private class Deferred(val name: String,
                          val typeParameters: Seq[TypeParameter],
-                         lowerBound: () => ScType,
-                         upperBound: () => ScType) extends ScExistentialArgument {
+                         var lowerBound: () => ScType,
+                         var upperBound: () => ScType) extends ScExistentialArgument {
     @volatile
     private var isInitialized: Boolean = false
 
@@ -76,6 +76,9 @@ object ScExistentialArgument {
 
       _lower = lowerBound()
       _upper = upperBound()
+
+      lowerBound = null
+      upperBound = null
 
       isInitialized = true
     }

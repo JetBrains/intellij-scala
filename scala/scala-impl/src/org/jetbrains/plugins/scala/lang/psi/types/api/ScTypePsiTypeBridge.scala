@@ -25,18 +25,18 @@ trait PsiTypeBridge {
   def toScType(psiType: PsiType,
                treatJavaObjectAsAny: Boolean,
                paramTopLevel: Boolean): ScType = {
-    toScTypeInner(psiType, treatJavaObjectAsAny, paramTopLevel)(rawExistentialArguments = None)
+    toScTypeInner(psiType, treatJavaObjectAsAny, paramTopLevel, rawExistentialArguments = None)
       .unpackedType
   }
 
-  protected type RawExistentialArgs = JMap[PsiTypeParameter, ScExistentialArgument]
+  protected type RawExistentialArgs = Map[PsiTypeParameter, ScExistentialArgument]
 
   //Result of this method may contain not-bound existential arguments,
   //because we need to defer initialization of wildcard if it is called recursively.
   protected def toScTypeInner(psiType: PsiType,
                               paramTopLevel: Boolean = false,
-                              treatJavaObjectAsAny: Boolean = true)
-                             (implicit rawExistentialArguments: Option[RawExistentialArgs]): ScType = psiType match {
+                              treatJavaObjectAsAny: Boolean = true,
+                              rawExistentialArguments: Option[RawExistentialArgs] = None): ScType = psiType match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID    => Unit
@@ -52,19 +52,19 @@ trait PsiTypeBridge {
     case null            => Any
     case diamondType: PsiDiamondType =>
       diamondType.resolveInferredTypes().getInferredTypes.asScala.toList.map {
-        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny)
+        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
       } match {
         case Nil if paramTopLevel && treatJavaObjectAsAny => Any
         case Nil => AnyRef
         case head :: _ => head
       }
     case wildcardType: PsiCapturedWildcardType =>
-      toScTypeInner(wildcardType.getWildcard, paramTopLevel, treatJavaObjectAsAny)
+      toScTypeInner(wildcardType.getWildcard, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
     case intersectionType: PsiIntersectionType =>
       typeSystem.andType(intersectionType.getConjuncts.map {
-        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny)
+        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
       })
-    case _ => throw new IllegalArgumentException(s"psi type ${psiType} should not be converted to ${typeSystem.name} type")
+    case _ => throw new IllegalArgumentException(s"psi type $psiType should not be converted to ${typeSystem.name} type")
   }
 
   def toPsiType(`type`: ScType, noPrimitives: Boolean = false): PsiType

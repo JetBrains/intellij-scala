@@ -56,7 +56,7 @@ class ImplementationSearchTest extends JavaCodeInsightFixtureTestCase {
         |  override def foo(list: JavaClass.List[_]): Unit = ()
         |}
         |
-        |class ScalaClass extends JavaClass {
+        |class ScalaClass2 extends JavaClass {
         |  override def foo(list: JavaClass.List[_ <: AnyRef]): Unit = ()
         |}
         |""".stripMargin

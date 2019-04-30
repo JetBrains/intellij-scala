@@ -1320,4 +1320,36 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromJavaCode(scala , java, "Test"))
   }
+
+  //example is adapted from com.google.protobuf.AbstractMessageLite
+  def testRawTypeSpanTwoClasses(): Unit = {
+    val java =
+      """
+        |public class MessageLite<MessageT extends MessageLite<MessageT, BuilderT>, BuilderT extends MessageLite.Builder<MessageT, BuilderT>> {
+        |
+        |  public static class Builder<MessageT extends MessageLite<MessageT, BuilderT>, BuilderT extends MessageLite.Builder<MessageT, BuilderT>> {
+        |  }
+        |
+        |  public static MessageLite raw() {
+        |    return null;
+        |  }
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |object Test {
+        |
+        |  val x0 = MessageLite.raw()
+        |
+        |  val x1: (MessageLite[MT, BT]) forSome {type MT <: MessageLite[MT, BT]; type BT <: MessageLite.Builder[MT, BT]} = MessageLite.raw()
+        |
+        |}
+        |
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+
 }

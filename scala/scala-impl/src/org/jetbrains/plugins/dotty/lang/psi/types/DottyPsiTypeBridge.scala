@@ -20,15 +20,15 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
 
   override protected def toScTypeInner(psiType: PsiType,
                                        paramTopLevel: Boolean,
-                                       treatJavaObjectAsAny: Boolean)
-                                      (implicit rawExistentialArguments: Option[RawExistentialArgs]): ScType = psiType match {
+                                       treatJavaObjectAsAny: Boolean,
+                                       rawExistentialArguments: Option[RawExistentialArgs]): ScType = psiType match {
     case _: PsiClassType => Any
     case _: PsiWildcardType => Any
     case disjunctionType: PsiDisjunctionType =>
       DottyOrType(disjunctionType.getDisjunctions.asScala.map {
-        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny)
+        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
       })
-    case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny)
+    case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
   }
 
   override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = {
