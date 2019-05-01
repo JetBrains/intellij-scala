@@ -18,7 +18,8 @@ class BspResolverLogicTest {
 
     val descriptions = BspResolverLogic.calculateModuleDescriptions(List(target), List(), List(), List())
 
-    assert(descriptions.isEmpty)
+    assert(descriptions.modules.isEmpty)
+    assert(descriptions.synthetic.isEmpty)
   }
 
 }

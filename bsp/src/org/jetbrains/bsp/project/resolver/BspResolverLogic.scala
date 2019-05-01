@@ -71,14 +71,17 @@ private[resolver] object BspResolverLogic {
                                                     optionsItems: Seq[ScalacOptionsItem],
                                                     sourcesItems: Seq[SourcesItem],
                                                     dependencySourcesItems: Seq[DependencySourcesItem]
-                                                   ): Iterable[ModuleDescription] = {
+                                                   ): ProjectModules = {
 
     implicit val gson: Gson = new Gson()
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = optionsItems.map(item => (item.getTarget, item)).toMap
     val idToDepSources = dependencySourcesItems.map(item => (item.getTarget, item)).toMap
-    val idToSources = sourcesItems.map(item => (item.getTarget, item)).toMap
+    val idToSources = sourcesItems
+      .map(item => (item.getTarget, sourceDirectories(item)))
+      .toMap
+
 
     def transitiveDependencyOutputs(start: BuildTarget): Seq[File] = {
       val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
@@ -91,51 +94,80 @@ private[resolver] object BspResolverLogic {
       (start +: (direct ++ transitive)).distinct
     }
 
+    val sharedSources = sharedSourceDirs(idToSources)
+
     val moduleDescriptions = buildTargets.flatMap { target: BuildTarget =>
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
       val depSourcesOpt = idToDepSources.get(id)
-      val sourcesOpt = idToSources.get(id)
+      val sources = idToSources
+        .getOrElse(id, Seq.empty)
+        .filterNot(sharedSources.contains)
       val dependencyOutputs = transitiveDependencyOutputs(target)
 
-      moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sourcesOpt, dependencyOutputs)
+      moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sources, dependencyOutputs)
     }
+
+    val syntheticModules = sharedSources.map { case (src, targetIds) =>
+      val targets = targetIds.map(idToTarget)
+      val data = createModuleDescriptionData(targets, Seq.empty, None, None, Seq(src), Seq.empty, Seq.empty)
+      val desc = ModuleDescription(data, UnspecifiedModule())
+
+      val sharingModules = moduleDescriptions.filter(_.data.targets.intersect(targetIds).nonEmpty)
+      val inherited = inheritModuleDescriptions(desc, sharingModules)
+
+      inherited
+    }
+
 
     // merge modules with the same module base
     val (noBase, withBase) = moduleDescriptions.partition(_.data.basePath.isEmpty)
     val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules)
-    noBase ++ mergedBase
+    val modules = noBase ++ mergedBase
+
+    ProjectModules(modules, syntheticModules.toSeq)
   }
 
-  private[resolver] def moduleDescriptionForTarget(target: BuildTarget,
-                                                   scalacOptions: Option[ScalacOptionsItem],
-                                                   depSourcesOpt: Option[DependencySourcesItem],
-                                                   sourcesOpt: Option[SourcesItem],
-                                                   dependencyOutputs: Seq[File]
-                                                  )(implicit gson: Gson): Option[ModuleDescription] = {
+  private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
+    val idToSrc = for {
+      (id, sources) <- idToSources
+      dir <- sources
+    } yield (id, dir)
 
-    val sourceItems: Seq[SourceItem] = (for {
-      sources <- sourcesOpt.toSeq
-      src <- sources.getSources.asScala
-    } yield src).distinct
+    idToSrc
+      .groupBy(_._2) // TODO merge source dirs with mixed generated flag?
+      .mapValues(_.keys.toSeq)
+      .filter(_._2.size > 1)
+  }
 
-    val dependencySourcePaths = for {
-      depSources <- depSourcesOpt.toSeq
-      depSrc <- depSources.getSources.asScala
-    } yield depSrc.toURI.toFile
+  private def sourceDirectories(sourcesItem: SourcesItem) = {
+    val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.distinct
 
-    val sourceDirs = sourceItems
+    sourceItems
       .map { item =>
         val file = item.getUri.toURI.toFile
         // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
         if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
           SourceDirectory(file, item.getGenerated)
         else
-          // use the file's immediate parent as best guess of source dir
-          // IntelliJ project model doesn't have a concept of individual source files
+        // use the file's immediate parent as best guess of source dir
+        // IntelliJ project model doesn't have a concept of individual source files
           SourceDirectory(file.getParentFile, item.getGenerated)
       }
       .distinct
+  }
+
+  private[resolver] def moduleDescriptionForTarget(target: BuildTarget,
+                                                   scalacOptions: Option[ScalacOptionsItem],
+                                                   depSourcesOpt: Option[DependencySourcesItem],
+                                                   sourceDirs: Seq[SourceDirectory],
+                                                   dependencyOutputs: Seq[File],
+                                                  )(implicit gson: Gson): Option[ModuleDescription] = {
+
+    val dependencySourcePaths = for {
+      depSources <- depSourcesOpt.toSeq
+      depSrc <- depSources.getSources.asScala
+    } yield depSrc.toURI.toFile
 
     // all subdirectories of a source dir are automatically source dirs
     val sourceRoots = sourceDirs.filter { dir =>
@@ -180,26 +212,26 @@ private[resolver] object BspResolverLogic {
     for {
       moduleKind <- scalaModule
     } yield {
-      val moduleDescriptionData = createScalaModuleDescription(
-        target, tags, moduleBase, outputPath, sourceRoots,
+      val moduleDescriptionData = createModuleDescriptionData(
+        Seq(target), tags, moduleBase, outputPath, sourceRoots,
         classPathWithoutDependencyOutputs, dependencySourcePaths)
 
       ModuleDescription(moduleDescriptionData, moduleKind)
     }
   }
 
-  private[resolver] def createScalaModuleDescription(target: BuildTarget,
-                                                     tags: Seq[String],
-                                                     moduleBase: Option[File],
-                                                     outputPath: Option[File],
-                                                     sourceRoots: Seq[SourceDirectory],
-                                                     classPath: Seq[File],
-                                                     dependencySources: Seq[File]
-                                                    ): ModuleDescriptionData = {
+  private[resolver] def createModuleDescriptionData(targets: Seq[BuildTarget],
+                                                    tags: Seq[String],
+                                                    moduleBase: Option[File],
+                                                    outputPath: Option[File],
+                                                    sourceRoots: Seq[SourceDirectory],
+                                                    classPath: Seq[File],
+                                                    dependencySources: Seq[File]
+                                               ): ModuleDescriptionData = {
     import BuildTargetTag._
 
     val dataBasic = ModuleDescriptionData(
-      Seq(target),
+      targets,
       Seq.empty, Seq.empty,
       moduleBase,
       None, None,
@@ -208,9 +240,11 @@ private[resolver] object BspResolverLogic {
       Seq.empty, Seq.empty
     )
 
+    val targetDeps = targets.flatMap(_.getDependencies.asScala)
+
     val data1 = if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
       dataBasic.copy(
-        targetDependencies = target.getDependencies.asScala,
+        targetDependencies = targetDeps,
         output = outputPath,
         sourceDirs = sourceRoots,
         classpath = classPath,
@@ -219,7 +253,7 @@ private[resolver] object BspResolverLogic {
 
     val data2 = if(tags.contains(TEST))
       data1.copy(
-        targetTestDependencies = target.getDependencies.asScala,
+        targetTestDependencies = targetDeps,
         testOutput = outputPath,
         testSourceDirs = sourceRoots,
         testClasspath = classPath,
@@ -259,6 +293,28 @@ private[resolver] object BspResolverLogic {
     }
   }
 
+  /** "Inherits" data from other modules into the inheritor.
+   * This is a heuristic to for sharing source directories between modules. If those modules have conflicting dependencies,
+   * this mapping may break in unspecified ways.
+   */
+  private[resolver] def inheritModuleDescriptions(inheritor: ModuleDescription, descriptions: Seq[ModuleDescription]): ModuleDescription = {
+    val merged = mergeModules(descriptions)
+    val data = merged.data
+    // take all the data from merged ancestors, except source paths and target ids
+    val inheritorData = inheritor.data.copy(
+      targetDependencies = data.targetDependencies,
+      targetTestDependencies = data.targetTestDependencies,
+      basePath = data.basePath,
+      output = data.output,
+      testOutput = data.testOutput,
+      classpath = data.classpath,
+      classpathSources = data.classpathSources,
+      testClasspath = data.testClasspath,
+      testClasspathSources = data.testClasspathSources
+    )
+    inheritor.copy(inheritorData, merged.moduleKindData)
+  }
+
   private def mergeBTIs(a: Seq[BuildTargetIdentifier], b: Seq[BuildTargetIdentifier]) =
     (a++b).sortBy(_.getUri).distinct
 
@@ -271,7 +327,7 @@ private[resolver] object BspResolverLogic {
 
   private[resolver] def projectNode(projectRootPath: String,
                                     moduleFilesDirectoryPath: String,
-                                    moduleDescriptions: Iterable[ModuleDescription]): DataNode[ProjectData] = {
+                                    projectModules: ProjectModules): DataNode[ProjectData] = {
 
     val projectRoot = new File(projectRootPath)
     val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
@@ -279,7 +335,7 @@ private[resolver] object BspResolverLogic {
 
     // synthetic root module when no natural module is at root
     val rootModule =
-      if (moduleDescriptions.exists (_.data.basePath.exists(_ == projectRoot))) None
+      if (projectModules.modules.exists (_.data.basePath.exists(_ == projectRoot))) None
       else {
         val name = projectRoot.getName + "-root"
         val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
@@ -291,22 +347,31 @@ private[resolver] object BspResolverLogic {
         Some(moduleNode)
       }
 
-    val modules = moduleDescriptions.map { moduleDescription =>
-      (moduleDescription.data.targets, createModuleNode(projectRootPath, moduleFilesDirectoryPath, moduleDescription, projectNode))
-    } ++ rootModule.toSeq.map((Seq.empty, _))
+    def toModuleNode(moduleDescription: ModuleDescription) = {
+      val node = createModuleNode(projectRootPath, moduleFilesDirectoryPath, moduleDescription, projectNode)
+      (moduleDescription.data.targets, node)
+    }
 
-    val idToModule = (for {
-      (targets,module) <- modules
-      target <- targets
-    } yield {
-      (target.getId.getUri, module)
-    }).toMap
+    val modules = projectModules.modules.map(toModuleNode) ++ rootModule.toSeq.map((Seq.empty, _))
+    val syntheticModules = projectModules.synthetic.map(toModuleNode)
 
-    createModuleDependencies(moduleDescriptions, idToModule)
+    // we expect exactly one IDEA module per build target (but possibly multiple targets per module)
+    val idToModuleMap = idToModule(modules).toMap
+    // but there may be several synthetic modules with shared sources that a module may depend on
+    val idToSyntheticModuleMap = idToModule(syntheticModules).groupBy(_._1).mapValues(_.map(_._2))
+
+    createModuleDependencies(projectModules, idToModuleMap, idToSyntheticModuleMap)
 
     modules.foreach(m => projectNode.addChild(m._2))
 
     projectNode
+  }
+
+  private def idToModule(modules: Seq[(scala.Seq[BuildTarget], DataNode[ModuleData])]) = for {
+    (targets,module) <- modules
+    target <- targets
+  } yield {
+    (target.getId.getUri, module)
   }
 
   private[resolver] def createModuleNode(projectRootPath: String,
@@ -410,12 +475,18 @@ private[resolver] object BspResolverLogic {
   }
 
 
-  private[resolver] def createModuleDependencies(moduleDescriptions: Iterable[ModuleDescription], idToModule: Map[String, DataNode[ModuleData]]):
+  private[resolver] def createModuleDependencies(moduleDescriptions: ProjectModules,
+                                                 idToModule: Map[String, DataNode[ModuleData]],
+                                                 idToSyntheticModule: Map[String, Seq[DataNode[ModuleData]]]
+                                                ):
   Iterable[(DataNode[ModuleData], Seq[DataNode[ModuleData]])] = {
+
     for {
-      moduleDescription <- moduleDescriptions
-      aTarget <- moduleDescription.data.targets.headOption // any id will resolve the module in idToModule
+      moduleDescription <- moduleDescriptions.modules
+      moduleTargets = moduleDescription.data.targets
+      aTarget <- moduleTargets.headOption // any id will resolve the module in idToModule
       id = aTarget.getId.getUri
+      // TODO get ids for synthetic modules
       module <- idToModule.get(id)
     } yield {
       val compileDeps = moduleDescription.data.targetDependencies.map((_, DependencyScope.COMPILE))
@@ -424,17 +495,26 @@ private[resolver] object BspResolverLogic {
       val moduleDeps = for {
         (moduleDepId, scope) <- compileDeps ++ testDeps
         moduleDep <- idToModule.get(moduleDepId.getUri)
-      } yield {
-        val data = new ModuleDependencyData(module.getData, moduleDep.getData)
-        data.setScope(scope)
-        data.setExported(true)
+      } yield createDep(module, moduleDep, scope)
 
-        val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, module)
-        module.addChild(node)
-        moduleDep
-      }
+      // synthetic modules are the workaround for sharing source directories between modules
+      for {
+        target <- moduleTargets
+        syntheticDep <- idToSyntheticModule.getOrElse(target.getId.getUri, Seq.empty)
+      } yield createDep(module, syntheticDep, DependencyScope.COMPILE)
+
       (module, moduleDeps)
     }
+  }
+
+  private def createDep(dependentNode: DataNode[ModuleData], dependencyNode: DataNode[ModuleData], scope: DependencyScope) = {
+    val data = new ModuleDependencyData(dependentNode.getData, dependencyNode.getData)
+    data.setScope(scope)
+    data.setExported(true)
+
+    val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, dependentNode)
+    dependentNode.addChild(node)
+    dependencyNode
   }
 
   private[resolver] def addNodeKindData(moduleNode: DataNode[ModuleData], moduleKind: ModuleKind): Unit = {

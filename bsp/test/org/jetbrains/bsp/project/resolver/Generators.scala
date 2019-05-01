@@ -26,6 +26,7 @@ object Generators {
   implicit val arbModuleDescription: Arbitrary[ModuleDescription] = Arbitrary(genModuleDescription)
   implicit val arbVersion: Arbitrary[Version] = Arbitrary(genVersion)
   implicit val arbPath: Arbitrary[Path] = Arbitrary(genPath)
+  implicit val arbSourceDirectory: Arbitrary[SourceDirectory] = Arbitrary(genSourceDirectory)
 
   /** A system-dependent file path. */
   def genPathBelow(root: Path): Gen[Path] = for {

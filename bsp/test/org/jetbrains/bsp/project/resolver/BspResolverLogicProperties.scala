@@ -9,7 +9,7 @@ import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, ScalaModule, SourceDirectory}
+import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, ProjectModules, ScalaModule, SourceDirectory}
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.project.resolver.Generators._
 import org.jetbrains.plugins.scala.SlowTests
@@ -55,7 +55,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
     forAll(Gen.listOf(genScalaBuildTargetWithoutTags(List(BuildTargetTag.NO_IDE)))) { buildTargets: List[BuildTarget] =>
       forAll { (optionsItems: List[ScalacOptionsItem], sourcesItems: List[SourcesItem], dependencySourcesItems: List[DependencySourcesItem]) =>
         val descriptions = calculateModuleDescriptions(buildTargets, optionsItems, sourcesItems, dependencySourcesItems)
-        (buildTargets.nonEmpty && buildTargets.exists(_.getBaseDirectory != null)) ==> descriptions.nonEmpty
+        (buildTargets.nonEmpty && buildTargets.exists(_.getBaseDirectory != null)) ==> descriptions.modules.nonEmpty
       }
     }
   )
@@ -63,8 +63,8 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
   @Test @Ignore
   def `test moduleDescriptionForTarget succeeds for build targets with Scala`(): Unit = check(
     forAll(genBuildTargetWithScala) { target: BuildTarget =>
-      forAll { (scalacOptions: Option[ScalacOptionsItem], depSourcesOpt: Option[DependencySourcesItem], sourcesOpt: Option[SourcesItem], dependencyOutputs: List[File]) =>
-        val description = moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sourcesOpt, dependencyOutputs)
+      forAll { (scalacOptions: Option[ScalacOptionsItem], depSourcesOpt: Option[DependencySourcesItem], sources: Seq[SourceDirectory], dependencyOutputs: List[File]) =>
+        val description = moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sources, dependencyOutputs)
         val emptyForNOIDE = target.getTags.contains(BuildTargetTag.NO_IDE) ==> description.isEmpty :| "contained NO_IDE tag, but created anyway"
         val definedForBaseDir = target.getBaseDirectory != null ==> description.isDefined :| "base dir defined, but not created"
         val hasScalaModule = description.isDefined ==> description.get.moduleKindData.isInstanceOf[ScalaModule]
@@ -78,7 +78,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
     forAll(genPath, Gen.listOf(genBuildTargetTag)) { (basePath: Path, tags: List[String]) =>
       forAll(Gen.listOf(genSourceDirectoryUnder(basePath))) { sourceRoots: List[SourceDirectory] =>
         forAll { (target: BuildTarget, moduleBase: Option[File], outputPath: Option[File], classpath: List[File], dependencySources: List[File]) =>
-          val description = createScalaModuleDescription(target, tags, moduleBase, outputPath, sourceRoots, classpath, dependencySources)
+          val description = createModuleDescriptionData(Seq(target), tags, moduleBase, outputPath, sourceRoots, classpath, dependencySources)
 
           val p1 = (description.basePath == moduleBase) :| "base path should be set"
           val p2 = (tags.contains(BuildTargetTag.LIBRARY) || tags.contains(BuildTargetTag.APPLICATION)) ==>
@@ -122,7 +122,8 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
       (root: Path, moduleFilesDir: Path, moduleDescriptions: List[ModuleDescription]) =>
 
         val projectRootPath = root.toString
-        val node = projectNode(projectRootPath, moduleFilesDir.toString, moduleDescriptions)
+        val projectModules = ProjectModules(moduleDescriptions, Seq.empty)
+        val node = projectNode(projectRootPath, moduleFilesDir.toString, projectModules)
 
         // TODO more thorough properties
         node.getChildren.size >= moduleDescriptions.size
