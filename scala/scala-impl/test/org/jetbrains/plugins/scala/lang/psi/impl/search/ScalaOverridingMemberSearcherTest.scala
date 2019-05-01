@@ -70,7 +70,7 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     )
   )
 
-  def test_trait_override(): Unit =check(
+  def test_trait_chain_override(): Unit =check(
     """
       |trait Trait {
       |  def test(): Unit
@@ -138,6 +138,50 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     path("Trait", "test"),
     Seq(
       path("Impl", "test")
+    )
+  )
+
+  def test_multiple_parallel_overrides(): Unit = check(
+    """
+      |trait Base {
+      |  def test(): Unit = ()
+      |}
+      |
+      |class Impl extends Base {
+      |  override def test(): Unit = ()
+      |}
+      |
+      |class Impl2 extends Base {
+      |  override def test(): Unit = ()
+      |}
+      |
+    """.stripMargin,
+    path("Base", "test"),
+    Seq(
+      path("Impl", "test"),
+      path("Impl2", "test")
+    )
+  )
+
+  def test_multiple_protected_parallel_overrides(): Unit = check(
+    """
+      |trait Base {
+      |  protected def test(): Unit = ()
+      |}
+      |
+      |class Impl extends Base {
+      |  protected override def test(): Unit = ()
+      |}
+      |
+      |class Impl2 extends Base {
+      |  protected override def test(): Unit = ()
+      |}
+      |
+    """.stripMargin,
+    path("Base", "test"),
+    Seq(
+      path("Impl", "test"),
+      path("Impl2", "test")
     )
   )
 

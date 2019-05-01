@@ -61,7 +61,7 @@ object ScalaMarkerType {
     navigateToSuperMember(event, superMethods, title, findUsagesTitle)
   }
 
-  def findOverrides(member: ScMember): Seq[PsiNamedElement] = {
+  def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
 
     val namedElems: Seq[ScNamedElement] = member match {
       case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
@@ -70,7 +70,7 @@ object ScalaMarkerType {
       case _ => Seq.empty
     }
 
-    namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = false, withSelfType = true))
+    namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = deep, withSelfType = true))
   }
 
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
@@ -148,7 +148,7 @@ object ScalaMarkerType {
       namedParent(element).collect {
         case member: ScMember =>
 
-          val overrides = findOverrides(member)
+          val overrides = findOverrides(member, deep = true)
 
           if (overrides.nonEmpty) {
             val name = overrides.headOption.fold("")(_.name)

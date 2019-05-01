@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
@@ -261,7 +260,7 @@ private object GutterUtil {
       case Constructor(_) => None
       case _ =>
 
-        ScalaMarkerType.findOverrides(member).nonEmpty.option {
+        ScalaMarkerType.findOverrides(member, deep = false).nonEmpty.option {
           ArrowUpOrDownLineMarkerInfo(
             anchor,
             if (isAbstract(member)) ImplementedMethod else OverridenMethod,
