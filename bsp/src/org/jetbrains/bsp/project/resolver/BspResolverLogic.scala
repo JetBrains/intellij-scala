@@ -404,17 +404,17 @@ private[resolver] object BspResolverLogic {
       val base = path.getCanonicalPath
       new ContentRootData(BSP.ProjectSystemId, base)
     }
-    val sourceContentRoots = moduleDescriptionData.sourceDirs.map { dir =>
+    val sourceRoots = moduleDescriptionData.sourceDirs.map { dir =>
       val sourceType = if (dir.generated) SOURCE_GENERATED else SOURCE
       (sourceType, dir)
     }
 
-    val testContentRoots = moduleDescriptionData.testSourceDirs.map { dir =>
+    val testRoots = moduleDescriptionData.testSourceDirs.map { dir =>
       val sourceType = if (dir.generated) TEST_GENERATED else TEST
       (sourceType, dir)
     }
 
-    val contentRoots = (sourceContentRoots ++ testContentRoots).toSet
+    val allSourceRoots = (sourceRoots ++ testRoots).toSet
 
     val moduleName = moduleDescriptionData.name
     val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
@@ -460,9 +460,12 @@ private[resolver] object BspResolverLogic {
     val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
-    contentRoots.foreach { case (sourceType, root) =>
+    allSourceRoots.map { case (sourceType, root) =>
       val data = getContentRoot(root.directory, moduleBase)
       data.storePath(sourceType, root.directory.getCanonicalPath)
+      data
+    }.foreach { data =>
+      // because we map on a set, `data` is deduplicated before creating content root data nodes. thus each node is only added once
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
       moduleNode.addChild(contentRootDataNode)
     }
@@ -475,7 +478,7 @@ private[resolver] object BspResolverLogic {
   }
 
   /** Use moduleBase content root when possible, or create a new content root if dir is not within moduleBase. */
-  private def getContentRoot(dir: File, moduleBase: Option[ContentRootData]) = {
+  private[resolver] def getContentRoot(dir: File, moduleBase: Option[ContentRootData]) = {
     val baseRoot = for {
       contentRoot <- moduleBase
       if FileUtil.isAncestor(contentRoot.getRootPath, dir.getCanonicalPath, false)
@@ -508,12 +511,12 @@ private[resolver] object BspResolverLogic {
       } yield createDep(module, moduleDep, scope)
 
       // synthetic modules are the workaround for sharing source directories between modules
-      for {
+      val syntheticDeps = for {
         target <- moduleTargets
         syntheticDep <- idToSyntheticModule.getOrElse(target.getId.getUri, Seq.empty)
       } yield createDep(module, syntheticDep, DependencyScope.COMPILE)
 
-      (module, moduleDeps)
+      (module, moduleDeps ++ syntheticDeps)
     }
   }
 
