@@ -12,7 +12,9 @@ private[resolver] object BspResolverDescriptors {
   private[resolver] case class ModuleDescription(data: ModuleDescriptionData,
                                                  moduleKindData: ModuleKind)
 
-  private[resolver] case class ModuleDescriptionData(targets: Seq[BuildTarget],
+  private[resolver] case class ModuleDescriptionData(id: String,
+                                                     name: String,
+                                                     targets: Seq[BuildTarget],
                                                      targetDependencies: Seq[BuildTargetIdentifier],
                                                      targetTestDependencies: Seq[BuildTargetIdentifier],
                                                      basePath: Option[File],

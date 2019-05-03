@@ -101,6 +101,8 @@ object Generators {
   } yield ScalaModule(scalaSdkData)
 
   def genModuleDescription: Gen[ModuleDescription] = for {
+    id <- arbitrary[String]
+    name <- arbitrary[String]
     targets <- arbitrary[List[BuildTarget]]
     targetDependencies <- arbitrary[Seq[BuildTargetIdentifier]]
     targetTestDependencies <- arbitrary[Seq[BuildTargetIdentifier]]
@@ -115,7 +117,7 @@ object Generators {
     testClassPathSources <- arbitrary[Seq[File]]
     moduleKind <- genModuleKind
   } yield {
-    val data = ModuleDescriptionData(targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
+    val data = ModuleDescriptionData(id, name, targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
       sourceDirs, testSourceDirs, classPath, classPathSources, testClassPath, testClassPathSources)
     ModuleDescription(data, moduleKind)
   }

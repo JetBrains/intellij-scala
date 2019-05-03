@@ -108,15 +108,15 @@ private[resolver] object BspResolverLogic {
       moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sources, dependencyOutputs)
     }
 
+    val idToModule = (for {
+      m <- moduleDescriptions
+      t <- m.data.targets
+    } yield (t.getId, m)).toMap
+
     val syntheticModules = sharedSources.map { case (src, targetIds) =>
       val targets = targetIds.map(idToTarget)
-      val data = createModuleDescriptionData(targets, Seq.empty, None, None, Seq(src), Seq.empty, Seq.empty)
-      val desc = ModuleDescription(data, UnspecifiedModule())
-
-      val sharingModules = moduleDescriptions.filter(_.data.targets.intersect(targetIds).nonEmpty)
-      val inherited = inheritModuleDescriptions(desc, sharingModules)
-
-      inherited
+      val sharingModules = targetIds.map(idToModule)
+      createSyntheticModuleDescription(targets, Seq(src), sharingModules)
     }
 
 
@@ -130,13 +130,13 @@ private[resolver] object BspResolverLogic {
 
   private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
     val idToSrc = for {
-      (id, sources) <- idToSources
+      (id, sources) <- idToSources.toSeq
       dir <- sources
     } yield (id, dir)
 
     idToSrc
       .groupBy(_._2) // TODO merge source dirs with mixed generated flag?
-      .mapValues(_.keys.toSeq)
+      .map { case (dir, derp) => (dir, derp.map(_._1)) }
       .filter(_._2.size > 1)
   }
 
@@ -230,7 +230,17 @@ private[resolver] object BspResolverLogic {
                                                ): ModuleDescriptionData = {
     import BuildTargetTag._
 
+    val primaryTarget = targets.headOption
+    val moduleId = primaryTarget
+      .map(_.getId.getUri)
+      .orElse(moduleBase.map(_.toURI.toString))
+      .orElse(sourceRoots.headOption.map(_.directory.toURI.toString))
+      .getOrElse(throw BspErrorMessage(s"unable to determine unique module id for module targets: $targets"))
+    val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
+
     val dataBasic = ModuleDescriptionData(
+      moduleId,
+      moduleName,
       targets,
       Seq.empty, Seq.empty,
       moduleBase,
@@ -265,54 +275,61 @@ private[resolver] object BspResolverLogic {
     data2
   }
 
-
-  /** Merge modules assuming they have the same base path. */
-  private[resolver] def mergeModules(descriptions: Seq[ModuleDescription]): ModuleDescription = {
-    descriptions.reduce { (combined, next) =>
-      val dataCombined = combined.data
-      val dataNext = next.data
-      val targets = (dataCombined.targets ++ dataNext.targets).sortBy(_.getId.getUri).distinct
-      val targetDependencies = mergeBTIs(dataCombined.targetDependencies, dataNext.targetDependencies)
-      val targetTestDependencies = mergeBTIs(dataCombined.targetTestDependencies, dataNext.targetTestDependencies)
-      val output = dataCombined.output.orElse(dataNext.output)
-      val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
-      val sourceDirs = mergeSourceDirs(dataCombined.sourceDirs, dataNext.sourceDirs)
-      val testSourceDirs  = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
-      val classPath = mergeFiles(dataCombined.classpath, dataNext.classpath)
-      val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
-      val testClassPath = mergeFiles(dataCombined.testClasspath, dataNext.testClasspath)
-      val testClassPathSources = mergeFiles(dataCombined.testClasspathSources, dataNext.testClasspathSources)
-
-      val newData = ModuleDescriptionData(
-        targets, targetDependencies, targetTestDependencies, dataCombined.basePath,
-        output, testOutput, sourceDirs, testSourceDirs,
-        classPath, classPathSources, testClassPath, testClassPathSources,
-      )
-
-      combined.copy(data = newData)
-    }
-  }
-
-  /** "Inherits" data from other modules into the inheritor.
+  /** "Inherits" data from other modules into newly created synthetic module description.
    * This is a heuristic to for sharing source directories between modules. If those modules have conflicting dependencies,
    * this mapping may break in unspecified ways.
    */
-  private[resolver] def inheritModuleDescriptions(inheritor: ModuleDescription, descriptions: Seq[ModuleDescription]): ModuleDescription = {
-    val merged = mergeModules(descriptions)
-    val data = merged.data
-    // take all the data from merged ancestors, except source paths and target ids
-    val inheritorData = inheritor.data.copy(
-      targetDependencies = data.targetDependencies,
-      targetTestDependencies = data.targetTestDependencies,
-      basePath = data.basePath,
-      output = data.output,
-      testOutput = data.testOutput,
-      classpath = data.classpath,
-      classpathSources = data.classpathSources,
-      testClasspath = data.testClasspath,
-      testClasspathSources = data.testClasspathSources
+  private[resolver] def createSyntheticModuleDescription(targets: Seq[BuildTarget],
+                                                         sourceRoots: Seq[SourceDirectory],
+                                                         ancestors: Seq[ModuleDescription]): ModuleDescription = {
+    // the synthetic module "inherits" most of the "ancestors" data
+    val merged = mergeModules(ancestors)
+    val id = sourceRoots.headOption
+      .map(_.directory.getCanonicalPath.toURI.toString)
+      .getOrElse(merged.data.id + "-shared")
+    val name = sourceRoots.headOption
+      .map(_.directory.getName)
+      .getOrElse(merged.data.name + "-shared")
+
+    val inheritorData = merged.data.copy(
+      id = id,
+      name = name,
+      targets = targets,
+      sourceDirs = sourceRoots,
+      testSourceDirs = Seq.empty
     )
-    inheritor.copy(inheritorData, merged.moduleKindData)
+    merged.copy(data = inheritorData)
+  }
+
+
+  /** Merge modules assuming they have the same base path. */
+  private[resolver] def mergeModules(descriptions: Seq[ModuleDescription]): ModuleDescription = {
+    descriptions
+      .sortBy(_.data.id)
+      .reduce { (combined, next) =>
+        val dataCombined = combined.data
+        val dataNext = next.data
+        val targets = (dataCombined.targets ++ dataNext.targets).sortBy(_.getId.getUri).distinct
+        val targetDependencies = mergeBTIs(dataCombined.targetDependencies, dataNext.targetDependencies)
+        val targetTestDependencies = mergeBTIs(dataCombined.targetTestDependencies, dataNext.targetTestDependencies)
+        val output = dataCombined.output.orElse(dataNext.output)
+        val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
+        val sourceDirs = mergeSourceDirs(dataCombined.sourceDirs, dataNext.sourceDirs)
+        val testSourceDirs  = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
+        val classPath = mergeFiles(dataCombined.classpath, dataNext.classpath)
+        val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
+        val testClassPath = mergeFiles(dataCombined.testClasspath, dataNext.testClasspath)
+        val testClassPathSources = mergeFiles(dataCombined.testClasspathSources, dataNext.testClasspathSources)
+
+        val newData = ModuleDescriptionData(
+          dataCombined.id, dataCombined.name,
+          targets, targetDependencies, targetTestDependencies, dataCombined.basePath,
+          output, testOutput, sourceDirs, testSourceDirs,
+          classPath, classPathSources, testClassPath, testClassPathSources,
+        )
+
+        combined.copy(data = newData)
+      }
   }
 
   private def mergeBTIs(a: Seq[BuildTargetIdentifier], b: Seq[BuildTargetIdentifier]) =
@@ -362,7 +379,7 @@ private[resolver] object BspResolverLogic {
 
     createModuleDependencies(projectModules, idToModuleMap, idToSyntheticModuleMap)
 
-    modules.foreach(m => projectNode.addChild(m._2))
+    (modules ++ syntheticModules).foreach(m => projectNode.addChild(m._2))
 
     projectNode
   }
@@ -399,15 +416,8 @@ private[resolver] object BspResolverLogic {
 
     val contentRoots = (sourceContentRoots ++ testContentRoots).toSet
 
-    val primaryTarget = moduleDescriptionData.targets.headOption
-    val moduleId = primaryTarget
-      .map(_.getId.getUri)
-      .orElse(moduleDescriptionData.basePath.map(_.toURI.toString))
-      .orElse(contentRoots.headOption.map(_._2.directory.toURI.toString))
-      .getOrElse(throw BspErrorMessage(s"unable to determine unique module id for module description: $moduleDescription"))
-    val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
-
-    val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
+    val moduleName = moduleDescriptionData.name
+    val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
     moduleDescriptionData.output.foreach { outputPath =>
       moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPath)

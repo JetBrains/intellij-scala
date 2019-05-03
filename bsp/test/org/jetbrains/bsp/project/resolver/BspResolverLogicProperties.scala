@@ -55,7 +55,10 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
     forAll(Gen.listOf(genScalaBuildTargetWithoutTags(List(BuildTargetTag.NO_IDE)))) { buildTargets: List[BuildTarget] =>
       forAll { (optionsItems: List[ScalacOptionsItem], sourcesItems: List[SourcesItem], dependencySourcesItems: List[DependencySourcesItem]) =>
         val descriptions = calculateModuleDescriptions(buildTargets, optionsItems, sourcesItems, dependencySourcesItems)
-        (buildTargets.nonEmpty && buildTargets.exists(_.getBaseDirectory != null)) ==> descriptions.modules.nonEmpty
+        val moduleIds = (descriptions.modules ++ descriptions.synthetic).map(_.data.id)
+        val moduleForEveryTarget = (buildTargets.nonEmpty && buildTargets.exists(_.getBaseDirectory != null)) ==> descriptions.modules.nonEmpty
+        val noDuplicateIds = moduleIds.size == moduleIds.distinct.size // TODO generator needs to create shared source dirs
+        moduleForEveryTarget
       }
     }
   )
