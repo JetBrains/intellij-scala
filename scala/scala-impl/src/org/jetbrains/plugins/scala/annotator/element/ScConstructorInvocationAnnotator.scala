@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatch
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -89,17 +89,22 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     def signature = ScReferenceAnnotator.signatureOf(element)
 
     // mark problematic clauses where parameters are missing
-    element match {
+    val missedParams = problems.collect { case MissedValueParameter(p) => p}
+    val missedParamsPerArgList = element match {
       case ScalaConstructor(constr) =>
-        val missedParams = problems.collect { case MissedValueParameter(p) => p}
-        missedParams.groupBy(parameterToArgClause(_, constr, constrInvocation.arguments)).foreach {
-          case (param, missing) =>
-            val problematicClause = param.map(_.getTextRange).getOrElse(argsElements)
-
-            holder.createErrorAnnotation(problematicClause,
-              "Unspecified value parameters: " + missing.map(p => p.name + ": " + p.paramType.presentableText).mkString(", "))
-        }
+        missedParams.groupBy(parameterToArgClause(_, constr, constrInvocation.arguments))
+      case _ if missedParams.nonEmpty =>
+        Map(None -> missedParams)
       case _ =>
+        Map.empty
+    }
+
+    missedParamsPerArgList.foreach {
+      case (param, missing) =>
+        val problematicClause = param.map(_.getTextRange).getOrElse(argsElements)
+
+        holder.createErrorAnnotation(problematicClause,
+          "Unspecified value parameters: " + missing.map(p => p.name + ": " + p.paramType.presentableText).mkString(", "))
     }
 
     // check if the found element can even be used as a constructor
