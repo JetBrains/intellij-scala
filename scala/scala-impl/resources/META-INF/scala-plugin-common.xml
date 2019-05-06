@@ -236,7 +236,6 @@
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"
                            id="scalaUsageTypeProvider" order="first"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
-        <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
         <internalFileTemplate name="Scala Class"/>
         <internalFileTemplate name="Scala CaseClass"/>
         <internalFileTemplate name="Scala CaseObject"/>

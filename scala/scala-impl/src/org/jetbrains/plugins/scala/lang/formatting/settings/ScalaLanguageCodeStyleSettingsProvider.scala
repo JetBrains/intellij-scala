@@ -1,18 +1,40 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
-import com.intellij.application.options.SmartIndentOptionsEditor
+import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
+import com.intellij.application.options.{CodeStyleAbstractConfigurable, CodeStyleAbstractPanel, SmartIndentOptionsEditor}
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationBundle
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.OptionAnchor
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
-import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, CommonCodeStyleSettings, DisplayPriority, LanguageCodeStyleSettingsProvider}
-import org.jetbrains.plugins.scala.ScalaLanguage
+import com.intellij.psi.codeStyle._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider._
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
+  //custom groups
+  private val METHOD_DEFINITION = "Method definition"
+  private val ANONYMOUS_METHOD = "Anonymous method definition"
+  private val CLASS_DEFINITION = "Class definition"
+  private val XML_FORMATTING = "Xml formatting"
+  private val TUPLES_WRAP = "Tuple"
+
+  override def createConfigurable(baseSettings: CodeStyleSettings, modelSettings: CodeStyleSettings): CodeStyleConfigurable =
+    new ScalaCodeStyleAbstractConfigurable(baseSettings, modelSettings)
+
+  override def getConfigurableDisplayName: String = ScalaBundle.message("title.scala.settings")
+
+  override def getDisplayPriority = DisplayPriority.COMMON_SETTINGS
+
+  override def getLanguage: Language = ScalaLanguage.INSTANCE
+
+  override def getIndentOptionsEditor = new SmartIndentOptionsEditor
+
+  override def createCustomSettings(settings: CodeStyleSettings) = new ScalaCodeStyleSettings(settings)
+
   def getCodeSample(settingsType: SettingsType): String = {
     settingsType match {
       case SettingsType.INDENT_SETTINGS => IndentsCodeSample
@@ -25,7 +47,15 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
   }
 
-  override def getLanguage: Language = ScalaLanguage.INSTANCE
+  override def getDefaultCommonSettings: CommonCodeStyleSettings = {
+    val commonSettings = new CommonCodeStyleSettings(getLanguage)
+    val indentOptions = commonSettings.initIndentOptions
+    indentOptions.INDENT_SIZE = 2
+    indentOptions.TAB_SIZE = 2
+    indentOptions.CONTINUATION_INDENT_SIZE = 2
+    commonSettings.KEEP_FIRST_COLUMN_COMMENT = false //added here to comply with prior default behavior
+    commonSettings
+  }
 
   override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
     val buffer: ArrayBuffer[String] = new ArrayBuffer
@@ -284,37 +314,37 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       opt("SD_PRESERVE_SPACES_IN_TAGS", "Preserve spaces in tags", ScalaDocFormattingPanel.OTHER_GROUP)
     }
-
   }
-
-  //custom groups
-  private val METHOD_DEFINITION = "Method definition"
-  private val ANONYMOUS_METHOD = "Anonymous method definition"
-  private val CLASS_DEFINITION = "Class definition"
-  private val XML_FORMATTING = "Xml formatting"
-  private val TUPLES_WRAP = "Tuple"
-
-  override def getDefaultCommonSettings: CommonCodeStyleSettings = {
-    val commonSettings = new CommonCodeStyleSettings(getLanguage)
-    val indentOptions = commonSettings.initIndentOptions
-    indentOptions.INDENT_SIZE = 2
-    indentOptions.TAB_SIZE = 2
-    indentOptions.CONTINUATION_INDENT_SIZE = 2
-    commonSettings.KEEP_FIRST_COLUMN_COMMENT = false //added here to comply with prior default behavior
-    commonSettings
-  }
-
-  override def getDisplayPriority = DisplayPriority.COMMON_SETTINGS
-
-  override def getIndentOptionsEditor = new SmartIndentOptionsEditor
 }
 
 object ScalaLanguageCodeStyleSettingsProvider {
+  private val Log = Logger.getInstance(getClass)
+
+  private class ScalaCodeStyleAbstractConfigurable(settings: CodeStyleSettings, cloneSettings: CodeStyleSettings)
+    extends CodeStyleAbstractConfigurable(settings, cloneSettings, "Scala") {
+
+    protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = {
+      panel = try new ScalaTabbedCodeStylePanel(getCurrentSettings, settings) catch {
+        case ex: Throwable =>
+          Log.error("Error occurred during scala code style panel initialization", ex)
+          throw ex
+      }
+      panel
+    }
+
+    override def setModel(model: CodeStyleSchemesModel): Unit = {
+      super.setModel(model)
+      panel.onProjectSet(model.getProject)
+      panel.onModelSet(model)
+    }
+
+    private var panel: ScalaTabbedCodeStylePanel = _
+  }
+
   private val BRACE_OPTION_AND_VALUES: (Array[String], Array[Int]) = (
     CodeStyleSettingsCustomizable.BRACE_OPTIONS,
     CodeStyleSettingsCustomizable.BRACE_VALUES
   )
-
 
   private val IndentsCodeSample =
     """class A {
