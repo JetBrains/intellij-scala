@@ -15,13 +15,13 @@ final class ScFileViewProviderFactory extends FileViewProviderFactory {
                                       language: Language,
                                       manager: PsiManager,
                                       eventSystemEnabled: Boolean) =
-    new ScFileViewProviderFactory.ScFileViewProvider(eventSystemEnabled)(manager, file)
+    new ScFileViewProviderFactory.ScFileViewProvider(file, eventSystemEnabled)(manager)
 }
 
 object ScFileViewProviderFactory {
 
-  class ScFileViewProvider(eventSystemEnabled: Boolean)
-                          (implicit manager: PsiManager, file: VirtualFile)
+  class ScFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
+                          (implicit manager: PsiManager)
     extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE) {
 
     override final def createFile(project: Project,
@@ -32,12 +32,8 @@ object ScFileViewProviderFactory {
     override def createFile(language: Language): ScalaFileImpl =
       super.createFile(language).asInstanceOf[ScalaFileImpl]
 
-    protected def createCopy(eventSystemEnabled: Boolean)
-                            (implicit manager: PsiManager, file: VirtualFile) =
-      new ScFileViewProvider(eventSystemEnabled)
-
-    override final def createCopy(copy: VirtualFile): ScFileViewProvider =
-      createCopy(eventSystemEnabled = false)(getManager, copy)
+    override def createCopy(copy: VirtualFile): ScFileViewProvider =
+      new ScFileViewProvider(copy, eventSystemEnabled = false)
   }
 
 }

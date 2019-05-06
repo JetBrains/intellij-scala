@@ -6,6 +6,7 @@ import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets.UTF_8
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.text.StringUtil
 import org.apache.bcel.classfile._
 
 import scala.reflect.internal.pickling.ByteCodecs
@@ -22,7 +23,7 @@ object Decompiler {
 
   private val ScalaSigBytes = "ScalaSig".getBytes(UTF_8)
 
-  def apply(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
+  def sourceNameAndText(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
     if (!containsMarker(bytes)) return None
 
     val parsed = new ClassParser(new ByteArrayInputStream(bytes), fileName).parse()
@@ -37,7 +38,7 @@ object Decompiler {
       signature = Parser.parseScalaSig(bytes, fileName)
 
       text <- decompiledText(signature, parsed.getClassName, fileName == "package.class")
-    } yield (parsed.getSourceFileName, text)
+    } yield (parsed.getSourceFileName, StringUtil.convertLineSeparators(text))
   }
 
   private def isScalaSignatureAnnotation(entry: AnnotationEntry) =

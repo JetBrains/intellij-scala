@@ -5,8 +5,7 @@ package compiled
 
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.lang.{Language, LanguageParserDefinitions}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.vfs.{VirtualFile, newvfs}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
 import com.intellij.util.indexing.FileContent
 
@@ -18,22 +17,24 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
-  override def createFileViewProvider(file: VirtualFile, manager: PsiManager,
+  override def createFileViewProvider(file: VirtualFile,
+                                      manager: PsiManager,
                                       eventSystemEnabled: Boolean): SingleRootFileViewProvider =
-    createFileViewProvider(eventSystemEnabled)(manager, file)
-
-  private def createFileViewProvider(eventSystemEnabled: Boolean)
-                                    (implicit manager: PsiManager, file: VirtualFile) =
-    file match {
-      case DecompilationResult(sourceName, contents) => new ScClsFileViewProvider(sourceName, contents, eventSystemEnabled)
-      case _ => new NonScalaClassFileViewProvider(eventSystemEnabled)
-    }
-
+    ScClassFileDecompiler.createFileViewProvider(file, eventSystemEnabled)(manager)
 }
 
 object ScClassFileDecompiler {
 
   import impl.ScFileViewProviderFactory
+
+  def createFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
+                            (implicit manager: PsiManager): ScFileViewProviderFactory.ScFileViewProvider =
+    DecompilationResult.tryDecompile(file) match {
+      case Some(decompilationResult) =>
+        new ScClsFileViewProvider(file, decompilationResult, eventSystemEnabled)
+      case _ =>
+        new NonScalaClassFileViewProvider(file, eventSystemEnabled)
+    }
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
@@ -52,7 +53,7 @@ object ScClassFileDecompiler {
 
     private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
       case original if isTopLevelScalaClass(original) =>
-        DecompilationResult.unapply(original)(content.getContent).map {
+        DecompilationResult.sourceNameAndText(original, content.getContent).map {
           case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
             sourceName,
             ScalaLanguage.INSTANCE,
@@ -67,17 +68,16 @@ object ScClassFileDecompiler {
     }
   }
 
-  private final class NonScalaClassFileViewProvider(eventSystemEnabled: Boolean)
-                                                   (implicit manager: PsiManager, file: VirtualFile)
-    extends ScFileViewProviderFactory.ScFileViewProvider(eventSystemEnabled) {
+  private final class NonScalaClassFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
+                                                   (implicit manager: PsiManager)
+    extends ScFileViewProviderFactory.ScFileViewProvider(file, eventSystemEnabled) {
 
     override def createFile(language: Language): Null = null
 
     override def getContents = ""
 
-    override protected def createCopy(eventSystemEnabled: Boolean)
-                                     (implicit manager: PsiManager, file: VirtualFile) =
-      new NonScalaClassFileViewProvider(eventSystemEnabled)
+    override def createCopy(file: VirtualFile) =
+      new NonScalaClassFileViewProvider(file, eventSystemEnabled)
   }
 
   private def isTopLevelScalaClass(file: VirtualFile): Boolean = topLevelScalaClassFor(file).contains(file.getNameWithoutExtension)

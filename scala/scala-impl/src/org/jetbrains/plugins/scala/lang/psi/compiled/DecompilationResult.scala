@@ -5,128 +5,152 @@ package compiled
 
 import java.io.{DataInputStream, DataOutputStream, IOException}
 
-import com.intellij.openapi.util.{Key, text}
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId, newvfs}
 import com.intellij.reference.SoftReference
+import org.jetbrains.plugins.scala.decompiler.Decompiler
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 
-private[compiled] sealed abstract class DecompilationResult(val isScala: Boolean,
-                                                            val sourceName: String)
-                                                           (implicit val timeStamp: Long) {
-  protected def rawSourceText: String = ""
+private sealed trait DecompilationResult {
+  val isScala: Boolean
+  val sourceName: String
+  val timeStamp: Long
 }
 
-private[compiled] object DecompilationResult {
+private sealed trait ScalaDecompilationResult extends DecompilationResult {
+  val isScala = true
+  val sourceName: String
+  def sourceText: String
+}
+
+private object DecompilationResult {
+
+  private sealed trait WritableResult extends DecompilationResult {
+    def writeTo(outputStream: DataOutputStream): Unit = {
+      outputStream.writeBoolean(isScala)
+      outputStream.writeUTF(sourceName)
+      outputStream.writeLong(timeStamp)
+    }
+  }
+
+  private case class NonScala(timeStamp: Long) extends WritableResult {
+    val isScala: Boolean = false
+    val sourceName: String = ""
+  }
+
+  private case class PartialScala(sourceName: String, timeStamp: Long) extends WritableResult {
+    val isScala: Boolean = true
+  }
+
+  private case class Full(sourceName: String, sourceText: String, timeStamp: Long) extends ScalaDecompilationResult
+
+  private case class Lazy(sourceName: String, timeStamp: Long, sourceTextComputation: () => String) extends ScalaDecompilationResult {
+    lazy val sourceText: String = sourceTextComputation()
+  }
+
+  private def toWritable(decompilationResult: DecompilationResult): WritableResult = decompilationResult match {
+    case result: ScalaDecompilationResult => PartialScala(result.sourceName, result.timeStamp)
+    case _                                => NonScala(decompilationResult.timeStamp)
+  }
+
+  private val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-  private val DecompilerFileAttribute =
+  private[compiled] val DecompilerFileAttribute =
     if (ScalaLoader.isUnderUpsource) None
     else Some(new newvfs.FileAttribute("_is_scala_compiled_new_key_", getStubVersion, true))
 
-  private[this] object Cache {
-
-    private[this] val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
-
-    def apply(file: VirtualFile): DecompilationResult =
-      file.getUserData(Key) match {
-        case null => null
-        case data => data.get()
-      }
-
-    def update(file: VirtualFile, result: DecompilationResult): Unit = {
-      file.putUserData(Key, new SoftReference(result))
+  private def getFromUserData(file: VirtualFile): DecompilationResult =
+    file.getUserData(Key) match {
+      case null => null
+      case data => data.get()
     }
 
+  private def cacheInUserData(file: VirtualFile, result: DecompilationResult): Unit = {
+    file.putUserData(Key, new SoftReference(result))
   }
 
-  def unapply(file: VirtualFile)
-             (implicit bytes: Array[Byte] = null): Option[(String, String)] =
+  private[compiled] def sourceNameAndText(file: VirtualFile, bytes: Array[Byte] = null): Option[(String, String)] =
     tryDecompile(file, bytes).map { result =>
-      (result.sourceName, text.StringUtil.convertLineSeparators(result.rawSourceText))
+      (result.sourceName, result.sourceText)
     }
 
-  def tryDecompile(file: VirtualFile, bytes: Array[Byte] = null): Option[DecompilationResult] =
+  private[compiled] def tryDecompile(file: VirtualFile, bytes: Array[Byte] = null): Option[ScalaDecompilationResult] = {
+    val maybeContent: Option[() => Array[Byte]] = bytes match {
+      case null =>
+        if (file.isDirectory || !file.isInstanceOf[VirtualFileWithId]) None
+        else Some(() => file.contentsToByteArray)
+      case content => Some(() => content)
+    }
     try {
-      val maybeContent = bytes match {
-        case null => if (file.isDirectory) None else Some(() => file.contentsToByteArray)
-        case content => Some(() => content)
-      }
-
-      for {
-        content <- maybeContent
-        if file.isInstanceOf[VirtualFileWithId]
-
-        result = decompile(file) {
-          decompiler.Decompiler(file.getName, content())
-        }(file.getTimeStamp)
-        if result.isScala
-      } yield result
-    } catch {
+      maybeContent.flatMap(decompile(file, _))
+    }
+    catch {
       case _: IOException => None
     }
-
-  private[this] def decompile(file: VirtualFile)
-                             (decompile: => Option[(String, String)])
-                             (implicit timeStamp: Long) = {
-
-    var cached = Cache(file)
-
-    if (cached == null || cached.timeStamp != timeStamp) {
-      val maybeResult = for {
-        attribute <- DecompilerFileAttribute
-        readAttribute <- Option(attribute.readAttribute(file))
-
-        result <- readFrom(readAttribute)
-        if result.timeStamp == timeStamp
-      } yield result
-
-      cached = maybeResult match {
-        case Some(result) =>
-          new DecompilationResult(result.isScala, result.sourceName) {
-            override protected lazy val rawSourceText: String = {
-              val decompiled = if (result.isScala) decompile else None
-              decompiled.fold("")(_._2)
-            }
-          }
-        case _ =>
-          val decompiled = decompile
-          val (sourceName, sourceText) = decompile.getOrElse("", "")
-
-          val result: DecompilationResult = new DecompilationResult(decompiled.isDefined, sourceName) {
-            override protected val rawSourceText: String = sourceText
-          }
-
-          for {
-            attribute <- DecompilerFileAttribute
-            outputStream = attribute.writeAttribute(file)
-          } writeTo(result, outputStream)
-
-          result
-      }
-
-      Cache(file) = cached
-    }
-
-    cached
   }
 
-  private[this] def readFrom(inputStream: DataInputStream) = try {
+  private def decompile(file: VirtualFile, content: () => Array[Byte]): Option[ScalaDecompilationResult] = {
+    val timeStamp = file.getTimeStamp
+
+    val fromCache = getFromUserData(file)
+    if (fromCache != null && fromCache.timeStamp == timeStamp)
+      return fromCache.asOptionOf[ScalaDecompilationResult]
+
+    val result: DecompilationResult = getFromFileAttribute(file) match {
+      case Some(nonScala: NonScala) => nonScala
+      case Some(PartialScala(sourceName, _)) =>
+        Lazy(sourceName, timeStamp, () => Decompiler.sourceNameAndText(file.getName, content()).map(_._2).getOrElse(""))
+      case None =>
+        val recomputedResult = Decompiler.sourceNameAndText(file.getName, content()) match {
+          case Some((sourceName, sourceText)) => Full(sourceName, sourceText, timeStamp)
+          case None                           => NonScala(timeStamp)
+        }
+
+        writeToFileAttribute(file, recomputedResult)
+
+        recomputedResult
+
+    }
+    cacheInUserData(file, result)
+
+    result.asOptionOf[ScalaDecompilationResult]
+  }
+
+  private def getFromFileAttribute(file: VirtualFile): Option[DecompilationResult.WritableResult] = {
+    for {
+      attribute <- DecompilerFileAttribute
+      readAttribute <- Option(attribute.readAttribute(file))
+
+      result <- readFrom(readAttribute)
+      if result.timeStamp == file.getTimeStamp
+    } yield result
+  }
+
+  private[this] def readFrom(inputStream: DataInputStream): Option[DecompilationResult.WritableResult] = try {
     val isScala = inputStream.readBoolean()
     val sourceName = inputStream.readUTF()
     val timeStamp = inputStream.readLong()
-
-    Some(new DecompilationResult(isScala, sourceName)(timeStamp) {})
+    Some {
+      if (isScala) PartialScala(sourceName, timeStamp)
+      else NonScala(timeStamp)
+    }
   } catch {
     case _: IOException => None
   }
 
-  private[this] def writeTo(result: DecompilationResult,
-                            outputStream: DataOutputStream): Unit = try {
-    outputStream.writeBoolean(result.isScala)
-    outputStream.writeUTF(result.sourceName)
-    outputStream.writeLong(result.timeStamp)
-    outputStream.close()
-  } catch {
-    case _: IOException =>
+  private def writeToFileAttribute(file: VirtualFile, result: DecompilationResult): Unit = {
+    for {
+      attribute <- DecompilerFileAttribute
+      outputStream = attribute.writeAttribute(file)
+    } {
+      try {
+        toWritable(result).writeTo(outputStream)
+        outputStream.close()
+      } catch {
+        case _: IOException =>
+      }
+    }
   }
 }
