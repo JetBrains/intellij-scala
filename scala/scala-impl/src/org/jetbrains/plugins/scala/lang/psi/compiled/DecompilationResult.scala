@@ -6,8 +6,9 @@ package compiled
 import java.io.{DataInputStream, DataOutputStream, IOException}
 
 import com.intellij.openapi.util.{Key, text}
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId, newvfs}
 import com.intellij.reference.SoftReference
+import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 
 private[compiled] sealed abstract class DecompilationResult(val isScala: Boolean,
                                                             val sourceName: String)
@@ -16,6 +17,11 @@ private[compiled] sealed abstract class DecompilationResult(val isScala: Boolean
 }
 
 private[compiled] object DecompilationResult {
+
+  // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
+  private val DecompilerFileAttribute =
+    if (ScalaLoader.isUnderUpsource) None
+    else Some(new newvfs.FileAttribute("_is_scala_compiled_new_key_", getStubVersion, true))
 
   private[this] object Cache {
 
@@ -62,7 +68,6 @@ private[compiled] object DecompilationResult {
   private[this] def decompile(file: VirtualFile)
                              (decompile: => Option[(String, String)])
                              (implicit timeStamp: Long) = {
-    import ScClassFileDecompiler.ScClsStubBuilder.DecompilerFileAttribute
 
     var cached = Cache(file)
 

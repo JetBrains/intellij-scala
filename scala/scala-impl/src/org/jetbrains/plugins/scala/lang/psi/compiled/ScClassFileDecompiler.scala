@@ -39,21 +39,6 @@ object ScClassFileDecompiler {
 
     override val getStubVersion = 317
 
-    // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-    private[compiled] val DecompilerFileAttribute = ApplicationManager.getApplication match {
-      // The following check is hardly bulletproof, however (currently) there is no API to query that
-      case application if application.getClass.getSimpleName.contains("Upsource") => None
-      case application =>
-        debugger.ScalaJVMNameMapper(application)
-
-        val attribute = new newvfs.FileAttribute(
-          "_is_scala_compiled_new_key_",
-          getStubVersion,
-          true
-        )
-        Some(attribute)
-    }
-
     override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] = content match {
       case ScClsStubBuilder(scalaFile) =>
         LanguageParserDefinitions.INSTANCE
