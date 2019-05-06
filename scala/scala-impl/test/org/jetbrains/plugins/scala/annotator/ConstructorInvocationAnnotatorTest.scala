@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.psi.PsiFileFactory
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -365,7 +367,6 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
     )
   }
 
-
   // TODO: Type Aliases
   //class A(a: Int)
   //class B[X](a: X)
@@ -376,8 +377,9 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
   //new BB(0)
   //new AA[Int](0)
 
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file: ScalaFile = (Header + code).parse
+    val file: ScalaFile = (Header + code).parseWithEventSystem
 
     val mock = new AnnotatorHolderMock(file)
 
@@ -394,5 +396,48 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
     finally {
       Compatibility.seqClass = None
     }
+  }
+}
+
+class ConstructorInvocationAnnotatorExTest extends ScalaHighlightingTestBase with AssertMatches {
+  val javaCode =
+    """
+      |public class JavaClass {
+      |  private final int x;
+      |  private final int y;
+      |  public JavaClass(int x, int y) {
+      |    this.x = x;
+      |    this.y = y;
+      |  }
+      |}
+    """.stripMargin
+
+  private def setup(): Unit = {
+    getFixture.configureByText("JavaClass.java", javaCode)
+  }
+
+  def messages(scalaText: String): List[Message] = {
+    setup()
+    errorsFromScalaCode(scalaText)
+  }
+
+  def test_SCL15398_ok_new(): Unit = {
+    assertNothing(messages("new JavaClass(1, 2)"))
+  }
+
+  def test_SCL15398_ok_extends(): Unit = {
+    assertNothing(messages("class Impl extends JavaClass(1, 2)"))
+  }
+
+  def test_SCL15398_missing_parameter_new(): Unit = {
+    assertMessages(messages("new JavaClass(1)"))(
+      Error(")", "Unspecified value parameter: x: Int")
+    )
+  }
+
+  def test_SCL15398_missing_parameter_extends(): Unit = {
+    assertMessages(messages("class Impl extends JavaClass(1)"))(
+      Error(")", "Unspecified value parameter: x: Int")
+    )
   }
 }
