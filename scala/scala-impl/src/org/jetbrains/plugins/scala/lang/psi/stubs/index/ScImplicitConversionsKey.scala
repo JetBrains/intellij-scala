@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
  * @author Alexander Podkhalyuzin
  */
 
-class ScImplicitsKey extends ScStringStubIndexExtension[ScMember] {
+class ScImplicitConversionsKey extends ScStringStubIndexExtension[ScMember] {
 
   override def getKey: StubIndexKey[String, ScMember] =
-    ScalaIndexKeys.IMPLICITS_KEY
+    ScalaIndexKeys.IMPLICIT_CONVERSION_KEY
 }

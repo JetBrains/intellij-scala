@@ -148,7 +148,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         else fqn.substring(0, i)
       sink.occurrence(CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) sink.occurrence(IMPLICIT_OBJECT_KEY, pack)
-      if (stub.isImplicitClass) IMPLICITS_KEY.occurence(sink)
+      if (stub.isImplicitClass) IMPLICIT_CONVERSION_KEY.occurence(sink)
     }
     if (stub.isPackageObject) {
       val packageName = fqn.stripSuffix(".package")

@@ -26,7 +26,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.hasAssign)
-    dataStream.writeBoolean(stub.isImplicit)
+    dataStream.writeBoolean(stub.isImplicitConversion)
     dataStream.writeBoolean(stub.isLocal)
   }
 
@@ -40,7 +40,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     typeText = dataStream.readOptionName,
     bodyText = dataStream.readOptionName,
     hasAssign = dataStream.readBoolean,
-    isImplicit = dataStream.readBoolean,
+    isImplicitConversion = dataStream.readBoolean,
     isLocal = dataStream.readBoolean
   )
 
@@ -70,6 +70,14 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
         text.substring(text.lastIndexOf('.') + 1)
       }
 
+    val isImplicit = function.hasModifierProperty("implicit")
+    val hasSingleNonImplicitParam = {
+      val clauses = function.paramClauses.clauses
+      clauses.nonEmpty &&
+        clauses.head.parameters.size == 1 && !clauses.head.isImplicit &&
+        clauses.drop(1).forall(_.isImplicit)
+    }
+
     new ScFunctionStubImpl(parentStub, this,
       name = function.name,
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
@@ -77,14 +85,16 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       typeText = returnTypeText,
       bodyText = bodyText,
       hasAssign = maybeDefinition.exists(_.hasAssign),
-      isImplicit = function.hasModifierProperty("implicit"),
+      isImplicitConversion = isImplicit && hasSingleNonImplicitParam,
       isLocal = function.containingClass == null)
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
     sink.occurrences(METHOD_NAME_KEY, stub.getName)
-    IMPLICITS_KEY.occurence(sink)
+
+    if (stub.isImplicitConversion)
+      IMPLICIT_CONVERSION_KEY.occurence(sink)
   }
 }
 

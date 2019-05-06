@@ -6,6 +6,7 @@ package index
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubIndexKey.createIndexKey
 import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.CommonProcessors
@@ -27,17 +28,13 @@ import scala.collection.JavaConverters
  */
 object ScalaIndexKeys {
 
-  import java.lang.{Integer => JInteger}
-
-  import StubIndexKey.createIndexKey
-
   val ALL_CLASS_NAMES: StubIndexKey[String, PsiClass] = createIndexKey("sc.all.class.names")
   val SHORT_NAME_KEY: StubIndexKey[String, PsiClass] = createIndexKey("sc.class.shortName")
   val NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY: StubIndexKey[String, PsiClass] = createIndexKey("sc.not.visible.in.java.class.shortName")
-  val FQN_KEY: StubIndexKey[JInteger, PsiClass] = createIndexKey("sc.class.fqn")
-  val PACKAGE_OBJECT_KEY: StubIndexKey[JInteger, PsiClass] = createIndexKey("sc.package.object.fqn")
+  val FQN_KEY: StubIndexKey[Integer, PsiClass] = createIndexKey("sc.class.fqn")
+  val PACKAGE_OBJECT_KEY: StubIndexKey[Integer, PsiClass] = createIndexKey("sc.package.object.fqn")
   val PACKAGE_OBJECT_SHORT_NAME_KEY: StubIndexKey[String, PsiClass] = createIndexKey("sc.package.object.short")
-  val PACKAGE_FQN_KEY: StubIndexKey[JInteger, ScPackaging] = createIndexKey("sc.package.fqn")
+  val PACKAGE_FQN_KEY: StubIndexKey[Integer, ScPackaging] = createIndexKey("sc.package.fqn")
   val METHOD_NAME_KEY: StubIndexKey[String, ScFunction] = createIndexKey("sc.method.name")
   val CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = createIndexKey("sc.class.name.in.package")
   val JAVA_CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = createIndexKey("sc.java.class.name.in.package")
@@ -49,7 +46,11 @@ object ScalaIndexKeys {
   val STABLE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = createIndexKey("sc.stable.alias.name")
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = createIndexKey("sc.super.class.name")
   val SELF_TYPE_CLASS_NAME_KEY: StubIndexKey[String, ScSelfTypeElement] = createIndexKey("sc.self.type.class.name.key")
-  val IMPLICITS_KEY: StubIndexKey[String, ScMember] = createIndexKey("sc.implicit.function.name")
+
+  //only implicit classes and implicit conversion defs are indexed
+  //there is also a case when implicit conversion is provided by an implicit val with function type, but I think it is too exotic to support
+  //no meaningful keys are provided, we just need to be able to enumerate all implicit conversions in a project
+  val IMPLICIT_CONVERSION_KEY: StubIndexKey[String, ScMember] = createIndexKey("sc.implicit.conversion")
 
   implicit class StubIndexKeyExt[Key, Psi <: PsiElement](private val indexKey: StubIndexKey[Key, Psi]) extends AnyVal {
 
@@ -80,19 +81,20 @@ object ScalaIndexKeys {
     }
   }
 
-  implicit class ImplicitKeyExt(private val indexKey: IMPLICITS_KEY.type) extends AnyVal {
+  implicit class ImplicitKeyExt(private val indexKey: IMPLICIT_CONVERSION_KEY.type) extends AnyVal {
+    private def key: String = "implicit_conversion"
 
     def implicitElements(scope: GlobalSearchScope)
                         (implicit context: ProjectContext): Iterable[ScMember] =
-      indexKey.elements("implicit", scope, classOf[ScMember])
+      indexKey.elements(key, scope, classOf[ScMember])
 
     def occurence(sink: IndexSink): Unit =
-      sink.occurrence(indexKey, "implicit")
+      sink.occurrence(indexKey, key)
   }
 
-  implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[JInteger, Psi]) extends AnyVal {
+  implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[Integer, Psi]) extends AnyVal {
 
-    private def key(fqn: String): JInteger = ScalaNamesUtil.cleanFqn(fqn).hashCode
+    private def key(fqn: String): Integer = ScalaNamesUtil.cleanFqn(fqn).hashCode
 
     def integerElements(name: String, requiredClass: Class[Psi])
                        (implicit project: Project): Iterable[Psi] =

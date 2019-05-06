@@ -226,26 +226,28 @@ object ScalaGlobalMembersCompletionContributor {
     private def implicitCandidates = {
       val processor = new CollectImplicitsProcessor(place, true)
 
-      implicitElements.foreach {
-        case (member, elements) =>
-          member.containingClass match {
-            case _: ScObject =>
-              elements().filter {
-                isStatic
-              }.foreach {
-                processor.execute(_, ResolveState.initial)
-              }
-            case definition: ScTemplateDefinition =>
-              val processedObjects = mutable.HashSet.empty[String]
-              getClassInheritors(definition, definition.resolveScope).collectFirst {
-                case o: ScObject if o.isStatic && processedObjects.add(o.qualifiedName) => o
-              }.flatMap {
-                _.`type`().toOption
-              }.foreach {
-                processor.processType(_, place)
-              }
-            case _ =>
-          }
+      implicitElements.foreach { member =>
+        member.containingClass match {
+          case o: ScObject if o.isStatic =>
+            //member is implicit function or implicit class
+            val function = member match {
+              case f: ScFunction => Some(f)
+              case c: ScClass    => c.getSyntheticImplicitMethod
+              case _             => None
+            }
+            function.foreach(processor.execute(_, ResolveState.initial))
+
+          case definition @ (_: ScTrait | _: ScClass) =>
+            val processedObjects = mutable.HashSet.empty[String]
+            getClassInheritors(definition, definition.resolveScope).collectFirst {
+              case o: ScObject if o.isStatic && processedObjects.add(o.qualifiedName) => o
+            }.flatMap {
+              _.`type`().toOption
+            }.foreach {
+              processor.processType(_, place)
+            }
+          case _ =>
+        }
       }
 
       processor.candidates
@@ -329,14 +331,10 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  private[this] def implicitElements(implicit place: ScReferenceExpression): Iterable[(ScMember, () => Seq[ScTypedDefinition])] = {
+  private[this] def implicitElements(implicit place: ScReferenceExpression): Iterable[ScMember] = {
     import ScalaIndexKeys._
 
-    IMPLICITS_KEY.implicitElements(place.resolveScope).collect {
-      case v: ScValue => (v, () => v.declaredElements)
-      case f: ScFunction => (f, () => Seq(f))
-      case c: ScClass => (c, () => c.getSyntheticImplicitMethod.toSeq)
-    }
+    IMPLICIT_CONVERSION_KEY.implicitElements(place.resolveScope)
   }
 
   private[this] def contextContainingClass(element: PsiNamedElement) =

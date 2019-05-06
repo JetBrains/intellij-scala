@@ -16,7 +16,7 @@ trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScTypeElementOwnerStub[F]
   with ScExpressionOwnerStub[F] {
 
-  def isImplicit: Boolean
+  def isImplicitConversion: Boolean
 
   def isDeclaration: Boolean
 
