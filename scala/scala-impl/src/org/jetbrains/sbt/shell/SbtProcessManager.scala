@@ -160,7 +160,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
       injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: plugins)
 
       if (addPluginCommandSupported)
-        commandLine.addParameter(s"""early(addPluginSbtFile="${settingsFile.getAbsolutePath}")""")
+        commandLine.addParameter(s"--addPluginSbtFile=${settingsFile.getAbsolutePath}")
 
       val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
       val ideaPort                    = SbtCompilationSupervisor().actualPort
