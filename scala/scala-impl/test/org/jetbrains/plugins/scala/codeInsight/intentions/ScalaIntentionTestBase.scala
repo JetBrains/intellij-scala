@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package intentions
 
+import org.jetbrains.plugins.scala.editor._
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.EditorTestUtil
@@ -42,8 +44,11 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
     }
 
     executeWriteActionCommand("Test Intention Formatting") {
+      val document = FileDocumentManager.getInstance().getDocument(getFile.getVirtualFile)
+      document.commit(project)
       CodeStyleManager.getInstance(project).reformat(getFile)
-      getFixture.checkResult(normalize(resultText))
+      val normalizedResultText = normalize(resultText)
+      getFixture.checkResult(normalizedResultText)
     }
   }
 
