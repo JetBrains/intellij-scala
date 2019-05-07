@@ -28,7 +28,7 @@ class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm) extends 
       conf => conf.getDisplayName == "Scala Compiler"
     } map {
       compilerConf => 
-        ShowSettingsUtilImpl.getDialog(project, groups, compilerConf)
+        ShowSettingsUtilImpl.getDialog(project, groups.toList.asJava, compilerConf)
     }
   }
   

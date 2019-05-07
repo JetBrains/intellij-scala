@@ -12,8 +12,8 @@ import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.notification.{Notification, NotificationAction, NotificationType, Notifications}
-import com.intellij.openapi.compiler.ex.CompilerPathsEx
+import com.intellij.notification.{NotificationAction, NotificationType}
+import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
@@ -29,11 +29,11 @@ import com.intellij.task._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.sbt.{SbtNotifications, SbtUtil}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.{SbtNotifications, SbtUtil}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -162,7 +162,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
-    val outputRoots = CompilerPathsEx.getOutputPaths(modules)
+    val outputRoots = CompilerPaths.getOutputPaths(modules)
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
