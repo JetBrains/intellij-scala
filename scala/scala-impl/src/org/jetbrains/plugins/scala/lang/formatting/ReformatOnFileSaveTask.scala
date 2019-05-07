@@ -35,7 +35,7 @@ class ReformatOnFileSaveTask(project: Project) extends ProjectComponent {
       psiFile <- PsiDocumentManager.getInstance(project).getPsiFile(document).nullSafe
       if isFileSupported(psiFile) && isInProjectSources(psiFile, vFile)
     } CommandProcessor.runUndoTransparentAction {
-      ScalaFmtPreFormatProcessor.formatWithoutCommit(psiFile, respectProjectMatcher = true)
+      ScalaFmtPreFormatProcessor.formatWithoutCommit(psiFile, document, respectProjectMatcher = true)
     }
   }
 
