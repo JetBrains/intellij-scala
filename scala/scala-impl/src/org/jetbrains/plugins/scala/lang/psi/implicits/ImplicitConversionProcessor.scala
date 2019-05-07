@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 /**
   * @author adkozlov
   */
-final class CollectImplicitsProcessor(override val getPlace: ScExpression,
-                                      override protected val withoutPrecedence: Boolean)
+final class ImplicitConversionProcessor(override val getPlace: ScExpression,
+                                        override protected val withoutPrecedence: Boolean)
   extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
   override protected def execute(namedElement: PsiNamedElement)
@@ -33,7 +33,7 @@ final class CollectImplicitsProcessor(override val getPlace: ScExpression,
     namedElement match {
       //there is special case for Predef.conforms method
       case f: ScFunction if f.hasModifierProperty("implicit") &&
-        !CollectImplicitsProcessor.isConformsMethod(f) =>
+        !ImplicitConversionProcessor.isConformsMethod(f) =>
         if (!checkFunctionIsEligible(f) ||
           !ResolveUtils.isAccessible(f, getPlace)) return true
         val clauses = f.paramClauses.clauses
@@ -78,7 +78,7 @@ final class CollectImplicitsProcessor(override val getPlace: ScExpression,
 }
 
 
-object CollectImplicitsProcessor {
+object ImplicitConversionProcessor {
   private def isConformsMethod(f: ScFunction) =
     (f.name == "conforms" || f.name == "$conforms") &&
       Option(f.containingClass).flatMap(cls => Option(cls.qualifiedName)).contains("scala.Predef")

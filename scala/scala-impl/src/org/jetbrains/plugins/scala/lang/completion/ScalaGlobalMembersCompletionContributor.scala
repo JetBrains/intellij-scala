@@ -19,10 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.implicits.{CollectImplicitsProcessor, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitConversionProcessor, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -223,8 +222,8 @@ object ScalaGlobalMembersCompletionContributor {
       item <- completeImplicits(candidate, resultType)
     } yield item
 
-    private def implicitCandidates = {
-      val processor = new CollectImplicitsProcessor(place, true)
+    private def implicitCandidates: Iterable[ScalaResolveResult] = {
+      val processor = new ImplicitConversionProcessor(place, true)
 
       implicitElements.foreach { member =>
         member.containingClass match {

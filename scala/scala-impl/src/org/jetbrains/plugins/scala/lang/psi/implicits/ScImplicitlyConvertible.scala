@@ -86,7 +86,7 @@ object ScImplicitlyConvertible {
       case _: UndefinedType => Set.empty
       case _ if placeType.isNothing => Set.empty
       case _ =>
-        val candidates = new CollectImplicitsProcessor(place, false)
+        val candidates = new ImplicitConversionProcessor(place, false)
           .candidatesByPlace
 
         adaptResults(candidates, placeType) {
@@ -105,7 +105,7 @@ object ScImplicitlyConvertible {
       case seq => TupleType(Seq(placeType) ++ seq)(place.elementScope)
     }
 
-    val candidates = new CollectImplicitsProcessor(place, true)
+    val candidates = new ImplicitConversionProcessor(place, true)
       .candidatesByType(expandedType)
 
     adaptResults(candidates, placeType) {
