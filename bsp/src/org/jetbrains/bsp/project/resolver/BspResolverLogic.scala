@@ -285,15 +285,17 @@ private[resolver] object BspResolverLogic {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
     val id = sourceRoots.headOption
-      .map(_.directory.getCanonicalPath.toURI.toString)
+      .map { dir =>
+        val idPath = commonBase(ancestors.flatMap(_.data.basePath))
+            .map(_.toPath.relativize(dir.directory.toPath))
+            .getOrElse(dir.directory.toPath)
+        "shared:" + idPath.toUri.toString
+      }
       .getOrElse(merged.data.id + "-shared")
-    val name = sourceRoots.headOption
-      .map(_.directory.getName)
-      .getOrElse(merged.data.name + "-shared")
 
     val inheritorData = merged.data.copy(
       id = id,
-      name = name,
+      name = id,
       targets = targets,
       sourceDirs = sourceRoots,
       testSourceDirs = Seq.empty
@@ -371,6 +373,7 @@ private[resolver] object BspResolverLogic {
 
     val modules = projectModules.modules.map(toModuleNode) ++ rootModule.toSeq.map((Seq.empty, _))
     val syntheticModules = projectModules.synthetic.map(toModuleNode)
+    val allModules = modules ++ syntheticModules
 
     // we expect exactly one IDEA module per build target (but possibly multiple targets per module)
     val idToModuleMap = idToModule(modules).toMap
