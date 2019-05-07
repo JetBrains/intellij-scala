@@ -70,14 +70,6 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
         text.substring(text.lastIndexOf('.') + 1)
       }
 
-    val isImplicit = function.hasModifierProperty("implicit")
-    val hasSingleNonImplicitParam = {
-      val clauses = function.paramClauses.clauses
-      clauses.nonEmpty &&
-        clauses.head.parameters.size == 1 && !clauses.head.isImplicit &&
-        clauses.drop(1).forall(_.isImplicit)
-    }
-
     new ScFunctionStubImpl(parentStub, this,
       name = function.name,
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
@@ -85,7 +77,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       typeText = returnTypeText,
       bodyText = bodyText,
       hasAssign = maybeDefinition.exists(_.hasAssign),
-      isImplicitConversion = isImplicit && hasSingleNonImplicitParam,
+      isImplicitConversion = function.isImplicitConversion,
       isLocal = function.containingClass == null)
   }
 

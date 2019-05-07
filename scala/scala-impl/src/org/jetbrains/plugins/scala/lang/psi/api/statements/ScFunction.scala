@@ -147,6 +147,17 @@ object ScFunction {
 
     /** Is this function sometimes invoked without it's name appearing at the call site? */
     def isSpecial: Boolean = Special(function.name)
+
+    def isImplicitConversion: Boolean = {
+      val isImplicit = function.hasModifierProperty("implicit")
+      val hasSingleNonImplicitParam = {
+        val clauses = function.paramClauses.clauses
+        clauses.nonEmpty &&
+          clauses.head.parameters.size == 1 && !clauses.head.isImplicit &&
+          clauses.drop(1).forall(_.isImplicit)
+      }
+      isImplicit && hasSingleNonImplicitParam
+    }
   }
 
   object CommonNames {
