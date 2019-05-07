@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitConversionProcessor, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionProcessor
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.targetTypeAndSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -217,15 +218,15 @@ object ScalaGlobalMembersCompletionContributor {
                                                    (implicit place: ScReferenceExpression) extends GlobalMembersFinder {
 
     override protected def candidates: Iterable[GlobalMemberResult] = for {
-      candidate <- implicitCandidates.toSeq
-      (resultType, _) <- ScImplicitlyConvertible.forMap(candidate, originalType)(place).toSeq
-      item <- completeImplicits(candidate, resultType)
+      candidate       <- collectImplicitConversions
+      (resultType, _) <- targetTypeAndSubstitutor(candidate, originalType)(place).toSeq
+      item            <- completeImplicits(candidate, resultType)
     } yield item
 
-    private def implicitCandidates: Iterable[ScalaResolveResult] = {
+    private def collectImplicitConversions: Iterable[ScalaResolveResult] = {
       val processor = new ImplicitConversionProcessor(place, true)
 
-      implicitElements.foreach { member =>
+      allImplicitConversions.foreach { member =>
         member.containingClass match {
           case o: ScObject if o.isStatic =>
             //member is implicit function or implicit class
@@ -330,10 +331,10 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  private[this] def implicitElements(implicit place: ScReferenceExpression): Iterable[ScMember] = {
+  private[this] def allImplicitConversions(implicit place: ScReferenceExpression): Iterable[ScMember] = {
     import ScalaIndexKeys._
 
-    IMPLICIT_CONVERSION_KEY.implicitElements(place.resolveScope)
+    IMPLICIT_CONVERSION_KEY.allElements(place.resolveScope)
   }
 
   private[this] def contextContainingClass(element: PsiNamedElement) =
