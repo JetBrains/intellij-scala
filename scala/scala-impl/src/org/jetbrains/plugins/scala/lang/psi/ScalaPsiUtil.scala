@@ -23,9 +23,9 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, _}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -50,6 +50,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import scala.annotation.tailrec
@@ -1344,17 +1345,12 @@ object ScalaPsiUtil {
   }
 
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
-    val maybeModifierListOwner = namedElement match {
-      case owner: ScModifierListOwner => Some(owner)
-      case named: ScNamedElement =>
-        Option(named.nameContext).collect {
-          case owner: ScModifierListOwner => owner
-        }
-      case _ => None
+    namedElement match {
+      case Implicit0Binding()                        => true /** See [[org.jetbrains.plugins.scala.util.BetterMonadicForSupport]] */
+      case owner: ScModifierListOwner                => isImplicit(owner: ScModifierListOwner)
+      case inNameContext(owner: ScModifierListOwner) => isImplicit(owner)
+      case _                                         => false
     }
-
-    maybeModifierListOwner
-      .exists(isImplicit)
   }
 
   def isImplicit(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {

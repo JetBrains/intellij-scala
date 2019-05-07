@@ -76,10 +76,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
       val accessible = isNamedParameter || isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
-      val s = fromType match {
-        case Some(tp) => getSubst(state).followUpdateThisType(tp)
-        case _ => getSubst(state)
-      }
+      val s = getSubstWithThisType(state)
+
       namedElement match {
         case m: PsiMethod =>
           addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow, implicitConversionClass,

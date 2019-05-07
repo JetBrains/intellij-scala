@@ -9,17 +9,17 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScAbstractType, ScCompoundType, ScExistentialType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -106,23 +106,6 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
 
   override def isImplicitProcessor: Boolean = true
 
-  protected final def checkFunctionIsEligible(function: ScFunction): Boolean = {
-
-    if (function.hasExplicitType || !isContextAncestor(function.getContainingFile, getPlace, false))
-      return true
-
-    val commonContext = PsiTreeUtil.findCommonContext(function, getPlace)
-
-    //weird case, it covers situation, when function comes from object, not treeWalkUp
-    if (getPlace == commonContext)
-      return true
-
-    if (function == commonContext)
-      return false
-
-    strictlyOrderedByContext(before = function, after = getPlace, topLevel = Some(commonContext))
-  }
-
   final def candidatesByPlace: Set[ScalaResolveResult] = {
     // Collect implicit conversions from bottom to up
     @tailrec
@@ -152,6 +135,31 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
 }
 
 object ImplicitProcessor {
+
+  def isAccessible(namedElement: PsiNamedElement, place: PsiElement): Boolean =
+    namedElement match {
+      case f: ScFunction              => ResolveUtils.isAccessible(f, place) && checkFunctionIsEligible(f, place)
+      case inNameContext(m: ScMember) => ResolveUtils.isAccessible(m, place)
+      case _                          => true
+    }
+
+  private def checkFunctionIsEligible(function: ScFunction, place: PsiElement): Boolean = {
+
+    if (function.hasExplicitType || !isContextAncestor(function.getContainingFile, place, false))
+      return true
+
+    val commonContext = PsiTreeUtil.findCommonContext(function, place)
+
+    //weird case, it covers situation, when function comes from object, not treeWalkUp
+    if (place == commonContext)
+      return true
+
+    if (function == commonContext)
+      return false
+
+    strictlyOrderedByContext(before = function, after = place, topLevel = Some(commonContext))
+  }
+
 
   private def findImplicitObjects(`type`: ScType, scope: GlobalSearchScope)
                                  (implicit context: ProjectContext): Seq[ScType] = {

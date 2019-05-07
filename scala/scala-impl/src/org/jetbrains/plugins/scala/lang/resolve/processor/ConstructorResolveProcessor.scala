@@ -26,10 +26,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
                                 (implicit state: ResolveState): Boolean = {
     val fromType = getFromType(state)
 
-    val initialSubstitutor = getSubst(state)
-    val defaultSubstitutor = fromType map {
-      initialSubstitutor.followUpdateThisType
-    } getOrElse initialSubstitutor
+    val defaultSubstitutor = getSubstWithThisType(state)
 
     if (nameMatches(namedElement)) {
       val accessible = isAccessible(namedElement, ref)

@@ -9,14 +9,13 @@ import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.strictlyOrderedByContext
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, strictlyOrderedByContext}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, functionTypeNoImplicits}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
@@ -29,10 +28,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MostSpecificUtil}
+import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
 
 import scala.collection.Set
 
@@ -204,31 +202,10 @@ class ImplicitCollector(place: PsiElement,
 
     override protected def execute(namedElement: PsiNamedElement)
                                   (implicit state: ResolveState): Boolean = {
-      def addResultForElement(): Boolean = {
-        val subst = state.get(BaseProcessor.FROM_TYPE_KEY) match {
-          case null => getSubst(state)
-          case t => getSubst(state).followUpdateThisType(t)
-        }
-        addResult(new ScalaResolveResult(namedElement, subst, getImports(state), implicitSearchState = Some(collectorState)))
-      }
 
-      namedElement match {
-        case p: ScParameter if p.isImplicitParameter =>
-          p match {
-            case c: ScClassParameter if !isAccessible(c) => return true
-            case _ =>
-          }
-          addResultForElement()
-        case member: ScMember if member.hasModifierProperty("implicit") =>
-          if (isAccessible(member)) addResultForElement()
-        case Implicit0Binding() => addResultForElement() /** See [[org.jetbrains.plugins.scala.util.BetterMonadicForSupport]] */
-        case _: ScBindingPattern | _: ScFieldId =>
-          val member = ScalaPsiUtil.getContextOfType(namedElement, true, classOf[ScValue], classOf[ScVariable]) match {
-            case m: ScMember if m.hasModifierProperty("implicit") => m
-            case _ => return true
-          }
-          if (isAccessible(member)) addResultForElement()
-        case _ =>
+      if (isImplicit(namedElement) && isAccessible(namedElement, getPlace)) {
+        val subst = getSubstWithThisType(state)
+        addResult(new ScalaResolveResult(namedElement, subst, getImports(state), implicitSearchState = Some(collectorState)))
       }
 
       true
@@ -237,11 +214,8 @@ class ImplicitCollector(place: PsiElement,
     override def candidatesS: Set[ScalaResolveResult] =
       super.candidatesS.filterNot(c => lowerInFileWithoutType(c) || isContextAncestor(c))
 
-    private def isAccessible(member: ScMember): Boolean = {
-      isPredefPriority || (member match {
-        case fun: ScFunction => checkFunctionIsEligible(fun) && ResolveUtils.isAccessible(member, getPlace)
-        case _ => ResolveUtils.isAccessible(member, getPlace)
-      })
+    private def isAccessible(namedElement: PsiNamedElement, place: PsiElement): Boolean = {
+      isPredefPriority || ImplicitProcessor.isAccessible(namedElement, getPlace)
     }
 
     private def lowerInFileWithoutType(c: ScalaResolveResult) = {

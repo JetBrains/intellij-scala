@@ -320,6 +320,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     if (subst == null) ScSubstitutor.empty else subst
   }
 
+  protected def getSubstWithThisType(state: ResolveState): ScSubstitutor =
+    state.get(BaseProcessor.FROM_TYPE_KEY) match {
+      case null => getSubst(state)
+      case t => getSubst(state).followUpdateThisType(t)
+    }
+
   protected def getImports(state: ResolveState): Set[ImportUsed] = {
     val used = state.get(ImportUsed.key)
     if (used == null) Set[ImportUsed]() else used
