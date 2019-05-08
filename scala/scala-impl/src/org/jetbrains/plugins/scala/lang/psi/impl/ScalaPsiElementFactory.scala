@@ -350,8 +350,9 @@ object ScalaPsiElementFactory {
                                  modifiers: String = "",
                                  isVariable: Boolean = false)
                                 (implicit context: ProjectContext): ScMember = {
-    def stmtText: ScBlockStatement => String = {
-      case block@ScBlock(st) if !block.hasRBrace => stmtText(st)
+    def stmtText(expr: ScBlockStatement): String = expr match {
+      case block@ScBlock(st) if !block.hasRBrace =>
+        stmtText(st)
       case fun@ScFunctionExpr(parSeq, Some(result)) =>
         val paramText = parSeq match {
           case Seq(parameter) if parameter.typeElement.isDefined && parameter.getPrevSiblingNotWhitespace == null =>
@@ -361,9 +362,8 @@ object ScalaPsiElementFactory {
 
         val resultText = result match {
           case block: ScBlock if !block.hasRBrace && block.statements.size != 1 =>
-            s"""{
-               |${block.getText}
-               |}""".stripMargin
+            // see ScalaPsiElementFactory.createClassWithBody comment
+            s"{\n${block.getText}\n}"
           case block@ScBlock(st) if !block.hasRBrace => stmtText(st)
           case _ => result.getText
         }
@@ -425,12 +425,8 @@ object ScalaPsiElementFactory {
       s": $name"
     }.getOrElse("")
     val enumText = s"$name$typeText = ${expr.getText}"
-
-    val text =
-      s"""for {
-          |  i <- 1 to 239
-          |  $enumText
-          |}""".stripMargin
+    // see ScalaPsiElementFactory.createClassWithBody comment
+    val text = s"for {\n  i <- 1 to 239\n  $enumText\n}"
     val forStmt = createElementFromText(text, classOf[ScFor])
     forStmt.enumerators.flatMap {
       _.forBindings.headOption
@@ -448,18 +444,20 @@ object ScalaPsiElementFactory {
     createScalaFileFromText(text).getNode.getFirstChildNode
 
   def createBlockFromExpr(expression: ScExpression)
-                         (implicit context: ProjectContext): ScExpression =
-    getExprFromFirstDef(
-      s"""val b = {
-         |${expression.getText}
-         |}""".stripMargin)
+                         (implicit context: ProjectContext): ScExpression = {
+    // see ScalaPsiElementFactory.createClassWithBody comment
+    val definition = s"val b = {\n${expression.getText}\n}"
+    getExprFromFirstDef(definition)
+  }
 
   def createAnonFunBlockFromFunExpr(expression: ScFunctionExpr)
-                                   (implicit context: ProjectContext): ScExpression =
-    getExprFromFirstDef(
-      s"""val b = {${expression.params.getText}=>
-         |${expression.result.map(_.getText).getOrElse("")}
-         |}""".stripMargin)
+                                   (implicit context: ProjectContext): ScExpression = {
+    val params = expression.params.getText
+    val body = expression.result.map(_.getText).getOrElse("")
+    // see ScalaPsiElementFactory.createClassWithBody comment
+    val definition = s"val b = {$params=>\n$body\n}"
+    getExprFromFirstDef(definition)
+  }
 
   def createPatternDefinition(name: String, typeName: String, body: ScExpression,
                               modifiers: String = "",
@@ -1031,10 +1029,9 @@ object ScalaPsiElementFactory {
 
   private[this] def createClassWithBody(body: String)
                                        (implicit context: ProjectContext): ScTypeDefinition = {
-    val fileText =
-      s"""class a {
-         |  $body
-         |}""".stripMargin
+    // ATTENTION!  Do not use `stripMargin` here!
+    // If the injected `body` contains multiline string with margins '|' they will be whipped out (see SCL-14585)
+    val fileText = s"class a {\n  $body\n}"
     createScalaFileFromText(fileText).typeDefinitions.head
   }
 

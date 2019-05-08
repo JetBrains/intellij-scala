@@ -47,7 +47,7 @@ class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcesso
         val manager = PsiDocumentManager.getInstance(file.getProject)
         manager.doPostponedOperationsAndUnblockDocument(manager.getDocument(file))
 
-        ScalaRefactoringUtil.replaceOccurences(textRangeUsages.map(usage => TextRange.create(usage.range)), text, file)
+        ScalaRefactoringUtil.replaceOccurrences(textRangeUsages.map(usage => TextRange.create(usage.range)), text, file)
         textRangeUsages.foreach(_.processed = true)
         true
       case _ => false

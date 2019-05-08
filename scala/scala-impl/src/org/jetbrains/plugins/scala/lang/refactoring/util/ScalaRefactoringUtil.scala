@@ -26,6 +26,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -39,11 +40,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -96,7 +96,7 @@ object ScalaRefactoringUtil {
       i = i - 1
     }
 
-    implicit val projectContext = e.projectContext
+    implicit val projectContext: ProjectContext = e.projectContext
     if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
     e.getParent match {
       case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
@@ -467,7 +467,7 @@ object ScalaRefactoringUtil {
     (occurrences, validators)
   }
 
-
+  @scala.annotation.tailrec
   def unparExpr(expression: ScExpression): ScExpression = expression match {
     case ScParenthesisedExpr(innerExpression) => unparExpr(innerExpression)
     case ScBlock(inner: ScExpression) => unparExpr(inner)
@@ -944,7 +944,7 @@ object ScalaRefactoringUtil {
     Option(errorMessage)
   }
 
-  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {
+  private def replaceOccurrence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {
     val documentManager = PsiDocumentManager.getInstance(file.getProject)
     val document = documentManager.getDocument(file)
     var shift = 0
@@ -1005,15 +1005,15 @@ object ScalaRefactoringUtil {
     val newEnd = newStart + newString.length
     val newExpr = findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
     val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
-    Option(newExpr).orElse(Option(newPattern))
+    val rangeMarker = Option(newExpr).orElse(Option(newPattern))
       .map(elem => document.createRangeMarker(elem.getTextRange))
       .getOrElse(throw new IntroduceException)
+    rangeMarker
   }
 
-
-  def replaceOccurences(occurrences: Seq[TextRange], newString: String, file: PsiFile): Seq[TextRange] = {
-    val revercedRangeMarkers = occurrences.reverseMap(replaceOccurence(_, newString, file))
-    revercedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
+  def replaceOccurrences(occurrences: Seq[TextRange], newString: String, file: PsiFile): Seq[TextRange] = {
+    val reversedRangeMarkers = occurrences.reverseMap(replaceOccurrence(_, newString, file))
+    reversedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
   }
 
   def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {

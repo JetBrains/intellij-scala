@@ -1,0 +1,19 @@
+class a {
+  foo(
+    <begin>"""line1
+      |line2""".stripMargin<end>
+  )
+
+  def foo(x: String): Unit
+}
+------
+class a {
+  private val value: String =
+    """line1
+      |line2""".stripMargin
+  foo(
+    value
+  )
+
+  def foo(x: String): Unit
+}

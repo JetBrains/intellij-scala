@@ -34,7 +34,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
     val maybeSelectedElement = getTypeElement(file).orElse(getExpression(file))
 
-    def getTypeElementAtOffset = {
+    def getTypeElementAtOffset: Option[ScTypeElement] = {
       val offset = editor.getCaretModel.getOffset
       val diff = file.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset => 1

@@ -1,0 +1,21 @@
+class a {
+  for {
+    x <- Option(1)
+    y <- Option(
+      <begin>"""one
+        |two""".stripMargin<end>
+    )
+  } yield x
+}
+------
+class a {
+  for {
+    x <- Option(1)
+    value: String =
+    """one
+      |two""".stripMargin
+    y <- Option(
+      value
+    )
+  } yield x
+}

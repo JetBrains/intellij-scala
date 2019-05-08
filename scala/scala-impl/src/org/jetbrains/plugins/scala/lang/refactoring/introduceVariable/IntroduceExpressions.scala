@@ -67,8 +67,11 @@ trait IntroduceExpressions {
       val suggestedNames = SuggestedNames(expr, types)
       val occurrencesInFile = OccurrencesInFile(file, new TextRange(startOffset, endOffset), occurrences)
 
-      if (isInplaceAvailable(editor)) runInplace(suggestedNames, occurrencesInFile)
-      else runWithDialog(suggestedNames, occurrencesInFile)
+      if (isInplaceAvailable(editor)) {
+        runInplace(suggestedNames, occurrencesInFile)
+      } else {
+        runWithDialog(suggestedNames, occurrencesInFile)
+      }
     }
 
     catch {
@@ -94,7 +97,7 @@ trait IntroduceExpressions {
 
       executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
         val SuggestedNames(expression, types, names) = suggestedNames
-        val reference = inWriteAction {
+        val reference: SmartPsiElementPointer[PsiElement] = inWriteAction {
           runRefactoringInside(occurrences, expression, names.head, types.head, replaceAll, isVariable = false, fromDialogMode = false)
         }
         performInplaceRefactoring(reference.getElement, types.headOption, replaceAll, forceInferType(expression), names)
@@ -243,7 +246,7 @@ object IntroduceExpressions {
       }
     }
 
-    def isOneLiner = {
+    def isOneLiner: Boolean = {
       val lineText = getLineText(editor)
       val model = editor.getSelectionModel
       val document = editor.getDocument
@@ -278,26 +281,28 @@ object IntroduceExpressions {
     val fastDefinition = occurrences.length == 1 && isOneLiner
 
     //changes document directly
-    val replacedOccurences = replaceOccurences(occurrences, varName, file)
+    val replacedOccurrences = replaceOccurrences(occurrences, varName, file)
 
     //only Psi-operations after this moment
-    var firstRange = replacedOccurences.head
+    var firstRange = replacedOccurrences.head
     val firstElement = findParentExpr(file, firstRange)
     val parentExprs =
-      if (occurrences.length == 1)
+      if (occurrences.length == 1) {
         firstElement match {
-          case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
+          case _ childOf ((block: ScBlock) childOf (_ childOf (call: ScMethodCall)))
             if forceType && block.statements.size == 1 => Seq(call)
           case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
             if forceType && block.statements.size == 1 => Seq(infix)
           case expr => Seq(expr)
         }
-      else replacedOccurences.toSeq.map(findParentExpr(file, _))
+      } else {
+        replacedOccurrences.map(findParentExpr(file, _))
+      }
     val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs: _*)
 
     val nextParentInFile = nextParent(commonParent, file)
 
-    editor.getCaretModel.moveToOffset(replacedOccurences(mainOccurence).getEndOffset)
+    editor.getCaretModel.moveToOffset(replacedOccurrences(mainOccurence).getEndOffset)
 
     def createForBindingIn(forStmt: ScFor): ScForBinding = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
@@ -352,7 +357,9 @@ object IntroduceExpressions {
                 case _ =>
               }
               replaced
-            } else container(commonParent).getOrElse(file)
+            } else {
+              container(commonParent).getOrElse(file)
+            }
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
@@ -360,11 +367,13 @@ object IntroduceExpressions {
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
           result
-        } else throw new IntroduceException
+        } else {
+          throw new IntroduceException
+        }
       }
     }
 
-    val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParentInFile, firstRange) match {
+    val createdDeclaration: PsiElement = isIntroduceForBinding(commonParent, nextParentInFile, firstRange) match {
       case Some(forStmt) => createForBindingIn(forStmt)
       case _ => createVariableDefinition()
     }
@@ -385,7 +394,7 @@ object IntroduceExpressions {
     editor.getCaretModel.moveToOffset(startOffset + text.length)
   }
 
-  private[this] def isIntroduceEnumerator(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScFor] = {
+  private[this] def isIntroduceForBinding(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScFor] = {
     val maybeParent = element match {
       case statement: ScFor if statement.body.contains(parent) => None
       case statement: ScFor => Some(statement)
