@@ -10,3 +10,9 @@ trait HighlightingTests
 trait DebuggerTests
 
 trait ScalacTests
+
+trait TypecheckerTests
+
+trait TestingSupportTests
+
+trait UltimateTests

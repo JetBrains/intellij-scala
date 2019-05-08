@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 11.02.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_1_9_2_SelectedTestsTest extends {
   override val featureSpecConfigTestName = "Feature 1 Scenario: Scenario A"
   override val featureSpecTestPath = List("[root]", "Feature 1 Scenario: Scenario A")

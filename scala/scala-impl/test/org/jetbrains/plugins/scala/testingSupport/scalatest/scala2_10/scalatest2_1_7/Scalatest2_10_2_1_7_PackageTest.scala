@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
   * @author Roman.Shein
   * @since 05.09.2015.
   */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_2_1_7_PackageTest extends Scalatest2_10_2_1_7_Base with ScalaTestPackageTest

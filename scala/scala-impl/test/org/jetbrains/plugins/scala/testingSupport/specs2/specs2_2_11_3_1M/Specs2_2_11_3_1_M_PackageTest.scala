@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
   * @author Roman.Shein
   * @since 06.09.2015.
   */
-@Category(Array(classOf[SlowTests]))
 class Specs2_2_11_3_1_M_PackageTest extends Specs2PackageTest with Specs2_2_11_3_1_M_Base

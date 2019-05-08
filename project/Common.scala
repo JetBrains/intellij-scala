@@ -9,12 +9,6 @@ object Common {
   lazy val communityFullClasspath: TaskKey[Classpath] =
     taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
 
-  lazy val testConfigDir: SettingKey[File] =
-    settingKey[File]("IDEA's config directory for tests")
-
-  lazy val testSystemDir: SettingKey[File] =
-    settingKey[File]("IDEA's system directory for tests")
-
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
@@ -60,6 +54,8 @@ object Common {
     val highlightingTests: String = cat("HighlightingTests")
     val debuggerTests: String = cat("DebuggerTests")
     val scalacTests: String = cat("ScalacTests")
+    val typecheckerTests: String = cat("TypecheckerTests")
+    val testingSupportTests: String = cat("TestingSupportTests")
   }
 
   def pluginVersion: String =

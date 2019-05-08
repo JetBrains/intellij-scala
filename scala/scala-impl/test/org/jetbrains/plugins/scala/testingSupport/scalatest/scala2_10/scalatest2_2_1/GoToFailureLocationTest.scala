@@ -11,7 +11,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 31.01.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
   addSourceFile("FailureLocationTest.scala",
     """

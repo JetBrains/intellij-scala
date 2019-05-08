@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 11.02.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_1_9_2_GoToSourceTest extends Scalatest2_10_1_9_2_Base with ScalaTest1GoToSourceTest

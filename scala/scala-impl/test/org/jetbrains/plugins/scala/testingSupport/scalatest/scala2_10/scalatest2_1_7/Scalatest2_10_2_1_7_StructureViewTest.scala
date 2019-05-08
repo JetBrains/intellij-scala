@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 20.04.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_2_1_7_StructureViewTest extends Scalatest2_10_2_1_7_Base with FeatureSpecFileStructureViewTest with
 FlatSpecFileStructureViewTest with FreeSpecFileStructureViewTest with FunSuiteFileStructureViewTest with
 PropSpecFileStructureViewTest with WordSpecFileStructureViewTest with FunSpecFileStructureViewTest

@@ -18,12 +18,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.junit.Assert.fail
+import org.junit.experimental.categories.Category
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 10.03.2009
   */
 
+@Category(Array(classOf[TypecheckerTests]))
 abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with FailableTest {
   protected val caretMarker = "/*caret*/"
 

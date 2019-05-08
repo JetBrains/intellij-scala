@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 06.09.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Specs2_2_10_2_4_6_PackageTest extends Specs2PackageTest with Specs2_2_10_2_4_6_Base {
   override protected def compilerVmOptions = Some("-Xmx1280M")
 }

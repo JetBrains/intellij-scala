@@ -11,7 +11,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 16.10.2014.
  */
-@Category(Array(classOf[SlowTests]))
 abstract class Scalatest2_10_2_1_7_Base extends ScalaTestTestCase {
 
   override implicit val version: ScalaVersion = Scala_2_10

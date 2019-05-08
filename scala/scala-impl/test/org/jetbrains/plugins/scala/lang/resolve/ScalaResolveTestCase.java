@@ -19,14 +19,17 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.psi.PsiReference;
+import org.jetbrains.plugins.scala.TypecheckerTests;
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
 /**
  * @author ilyas
  */
+@Category(TypecheckerTests.class)
 public abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   public String folderPath() {
     return TestUtils.getTestDataPath() + "/";

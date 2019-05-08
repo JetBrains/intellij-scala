@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 22.01.2015
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_11_2_1_7_SelectedTestsTest extends Scalatest2_11_2_1_7_Base with ScalaTestSelectedTests

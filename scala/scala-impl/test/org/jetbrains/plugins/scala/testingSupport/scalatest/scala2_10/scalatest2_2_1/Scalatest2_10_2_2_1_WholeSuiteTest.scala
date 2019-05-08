@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 11.02.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_2_2_1_WholeSuiteTest extends Scalatest2_10_2_2_1_Base with ScalaTestWholeSuiteTest

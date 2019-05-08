@@ -15,12 +15,14 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
+import org.junit.experimental.categories.Category
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 10.03.2009
   */
 
+@Category(Array(classOf[TypecheckerTests]))
 abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with TypeInferenceDoTest {
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 

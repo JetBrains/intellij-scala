@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 10.02.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_2_1_7_FindersApiTest extends Scalatest2_10_2_1_7_Base with FindersApiTest

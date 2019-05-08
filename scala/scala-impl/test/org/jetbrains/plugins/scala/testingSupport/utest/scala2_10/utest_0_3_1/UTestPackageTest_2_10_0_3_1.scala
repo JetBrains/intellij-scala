@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
   * @author Roman.Shein
   * @since 05.09.2015.
   */
-@Category(Array(classOf[SlowTests]))
 class UTestPackageTest_2_10_0_3_1 extends UTestTestBase_2_10_0_3_1 with UTestPackageTest

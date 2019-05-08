@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
   * @author Roman.Shein
   * @since 18.06.2015.
   */
-@Category(Array(classOf[SlowTests]))
 class Specs2_2_11_3_1_M_StaticStringTest extends Specs2StaticStringTest with Specs2_2_11_3_1_M_Base

@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
   * @author Roman.Shein
   * @since 04.09.2015.
   */
-@Category(Array(classOf[SlowTests]))
 class UTestStaticStringTest_2_11_0_4_3 extends UTestTestBase_2_11_0_4_3 with UTestStaticStringTest

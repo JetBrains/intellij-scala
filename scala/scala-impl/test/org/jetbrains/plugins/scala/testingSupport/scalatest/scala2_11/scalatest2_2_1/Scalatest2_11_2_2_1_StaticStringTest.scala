@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 24.06.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_11_2_2_1_StaticStringTest extends Scalatest2_11_2_2_1_Base with FeatureSpecStaticStringTest with
   FlatSpecStaticStringTest with FreeSpecStaticStringTest with FunSpecStaticStringTest with FunSuiteStaticStringTest with
   PropSpecStaticStringTest with WordSpecStaticStringTest with MethodsStaticStringTest

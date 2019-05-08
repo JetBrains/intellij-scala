@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 20.04.2015.
  */
-@Category(Array(classOf[SlowTests]))
 class Specs2_2_10_2_4_6_FileStructureViewTest extends Specs2FileStructureViewTest with Specs2_2_10_2_4_6_Base

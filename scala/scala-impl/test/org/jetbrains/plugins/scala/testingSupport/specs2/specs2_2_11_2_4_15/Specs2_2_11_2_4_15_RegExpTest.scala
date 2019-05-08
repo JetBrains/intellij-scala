@@ -8,5 +8,4 @@ import org.junit.experimental.categories.Category
   * @author Roman.Shein
   * @since 03.07.2015.
   */
-@Category(Array(classOf[SlowTests]))
 class Specs2_2_11_2_4_15_RegExpTest extends Specs2RegExpTestNameTest with Specs2_2_11_2_4_15_Base

@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category
  * @author Roman.Shein
  * @since 16.10.2014.
  */
-@Category(Array(classOf[SlowTests]))
 class Scalatest2_10_2_1_7_SingleTestTestDynamic extends Scalatest2_10_2_1_7_Base with FunSuiteSingleTestTest {
   override val useDynamicClassPath = true
 }
