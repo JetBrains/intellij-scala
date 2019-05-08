@@ -4,7 +4,7 @@ package annotator
 /**
   * Created by mucianm on 22.03.16.
   */
-trait OverridingAnnotatorTestBase extends base.SimpleTestCase {
+trait OverridingAnnotatorTestBase extends AnnotatorSimpleTestCase {
 
   import lang.psi.api._
   import statements._

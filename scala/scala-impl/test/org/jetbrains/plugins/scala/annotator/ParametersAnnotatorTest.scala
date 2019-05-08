@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
  * Pavel.Fatin, 18.05.2010
  */
 
-class ParametersAnnotatorTest extends SimpleTestCase {
+class ParametersAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = "class A; class B; class C;\n"
   
   def testFine(): Unit = {

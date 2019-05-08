@@ -9,10 +9,11 @@ import com.intellij.openapi.editor.markup.SeparatorPlacement
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -20,7 +21,7 @@ import scala.io.Source
 /**
  * Pavel.Fatin, 14.01.2010
  */
-
+@Category(Array(classOf[TypecheckerTests]))
 abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
   val marker = "// -"
 

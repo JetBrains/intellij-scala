@@ -3,7 +3,6 @@ package annotator
 
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.{ScMethodInvocationAnnotator, ScReferenceAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -14,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 /**
   * Created by kate on 3/24/16.
   */
-trait ApplicationAnnotatorTestBase extends SimpleTestCase{
+
+abstract class ApplicationAnnotatorTestBase extends AnnotatorSimpleTestCase {
   final val Header = """
   class Seq[+A]
   object Seq { def apply[A](a: A) = new Seq[A] }

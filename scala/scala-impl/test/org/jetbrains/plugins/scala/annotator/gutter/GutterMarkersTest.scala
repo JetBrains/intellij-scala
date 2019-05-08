@@ -3,11 +3,14 @@ package org.jetbrains.plugins.scala.annotator.gutter
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => caret}
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
+import org.jetbrains.plugins.scala.TypecheckerTests
 import org.junit.Assert._
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.junit.Test
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class GutterMarkersTest extends ScalaFixtureTestCase {
   override implicit val version: ScalaVersion = Scala_2_12
 

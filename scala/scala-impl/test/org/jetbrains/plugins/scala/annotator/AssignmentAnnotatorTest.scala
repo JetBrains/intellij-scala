@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
@@ -10,8 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 /**
  * Pavel.Fatin, 18.05.2010
  */
-
-class AssignmentAnnotatorTest extends SimpleTestCase {
+class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = """
   class A; class B
   object A extends A; object B extends B

@@ -7,13 +7,16 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiFileFactory
 import com.intellij.testFramework.PlatformTestCase
+import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.{SbtFileImpl, SbtFileType}
 import org.jetbrains.sbt.resolvers.ArtifactInfo
+import org.junit.experimental.categories.Category
 
 /**
   * Created by afonichkin on 8/29/17.
   */
+@Category(Array(classOf[TypecheckerTests]))
 abstract class AddSbtDependencyTestBase extends PlatformTestCase {
   def toArtifactInfo(s: String) = {
     val parts = s.replaceAll("\"", "").split("%").map(_.trim)

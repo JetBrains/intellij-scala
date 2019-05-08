@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   * User: Dmitry.Naydanov
   * Date: 24.03.16.
   */
-class CantCreateTempDefTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class CantCreateTempDefTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL7062(): Unit = {
     checkTextHasNoErrors(
       """  object Test {

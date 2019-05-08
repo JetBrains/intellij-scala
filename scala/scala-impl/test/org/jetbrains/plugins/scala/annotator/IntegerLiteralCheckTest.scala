@@ -14,7 +14,7 @@ import scala.util.Random
  * @author Ye Xianjin
  * @since  11/27/14
  */
-class IntegerLiteralCheckTest extends SimpleTestCase {
+class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
   final val Header = ""
 
   def randomIntValues(num: Int): List[Int] = {

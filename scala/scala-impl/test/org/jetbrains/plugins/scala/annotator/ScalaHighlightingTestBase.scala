@@ -2,14 +2,18 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.junit.experimental.categories.Category
 
 /**
   * @author Alefas
   * @since 23/03/16
   */
+@Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with AssertMatches {
 
   private var filesCreated: Boolean = false

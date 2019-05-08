@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 /**
   * @author Nikolay.Tropin
   */
-class ApplicationTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ApplicationTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL9931(): Unit = {
     checkTextHasNoErrors(
       """

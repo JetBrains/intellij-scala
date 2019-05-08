@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
-class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
+class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = """
   class Seq[+A] 
   object Seq { def apply[A](a: A) = new Seq[A] }

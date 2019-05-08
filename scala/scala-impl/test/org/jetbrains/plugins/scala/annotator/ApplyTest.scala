@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-
 /**
   * Created by kate on 6/7/16.
   */
-class ApplyTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL10253(): Unit = {
     val code =
       """

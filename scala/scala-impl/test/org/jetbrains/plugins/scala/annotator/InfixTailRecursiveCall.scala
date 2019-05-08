@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 /**
   * Created by kate on 3/29/16.
   */
-class InfixTailRecursiveCall extends ScalaLightCodeInsightFixtureTestAdapter{
+class InfixTailRecursiveCall extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL8792(): Unit = {
     checkTextHasNoErrors(
       """

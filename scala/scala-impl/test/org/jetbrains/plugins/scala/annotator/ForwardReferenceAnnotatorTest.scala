@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
   * @author Alefas
   * @since 02/11/16
   */
-class ForwardReferenceAnnotatorTest extends SimpleTestCase {
+class ForwardReferenceAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = ""
 
   def testFine(): Unit = {

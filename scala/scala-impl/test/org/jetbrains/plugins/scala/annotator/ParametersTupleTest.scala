@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   * @author Roman.Shein
   *         Date: 13.12.2016
   */
-class ParametersTupleTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ParametersTupleTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL11092(): Unit = {
     checkTextHasNoErrors(
       """

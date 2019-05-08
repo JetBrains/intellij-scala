@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-
 /**
   * Created by Anton.Yalyshev on 04/12/17.
   */
 
-class AsteriskTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class AsteriskTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
 
   def testSCL13015(): Unit = {
     checkTextHasNoErrors(

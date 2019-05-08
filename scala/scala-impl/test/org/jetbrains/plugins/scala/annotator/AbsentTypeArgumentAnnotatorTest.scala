@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
   * @author Nikolay.Tropin
   */
-class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
+class AbsentTypeArgumentAnnotatorTest extends AnnotatorSimpleTestCase {
   private val prefix =
     """object Test {
       |  class A0
