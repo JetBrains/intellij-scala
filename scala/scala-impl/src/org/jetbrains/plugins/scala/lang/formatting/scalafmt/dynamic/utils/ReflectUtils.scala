@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 
 object ReflectUtils {
 
-  implicit class ObjectReflectOps[T](val target: T) extends AnyVal {
+  implicit class ObjectReflectOps[T](private val target: T) extends AnyVal {
     def invokeAs[R](methodName: String, args: (Class[_], Object)*): R = {
       invoke(methodName, args: _*).asInstanceOf[R]
     }
@@ -20,7 +20,7 @@ object ReflectUtils {
     }
   }
 
-  implicit class ClassReflectOps(val clazz: Class[_]) extends AnyVal {
+  implicit class ClassReflectOps(private val clazz: Class[_]) extends AnyVal {
     def invokeStaticAs[T](methodName: String, args: (Class[_], Object)*): T = {
       invokeStatic(methodName, args: _*).asInstanceOf[T]
     }

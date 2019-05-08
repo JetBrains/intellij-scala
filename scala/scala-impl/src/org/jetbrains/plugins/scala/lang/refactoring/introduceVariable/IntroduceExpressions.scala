@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.{util => ju}
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pass, TextRange}
 import com.intellij.psi.PsiModifier.PRIVATE
@@ -171,6 +171,7 @@ object IntroduceExpressions {
     maybeNamedElement.filter(_.isValid).foreach { named =>
       editor.getCaretModel.moveToOffset(named.getTextOffset)
       editor.getSelectionModel.removeSelection()
+      editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
 
       if (isInplaceAvailable(editor)) {
         (editor.getDocument, PsiDocumentManager.getInstance(project)) match {
