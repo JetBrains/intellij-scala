@@ -52,16 +52,15 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
   }
 
   def parseConfigFromString(configText: String): ScalafmtDynamicConfig = {
-    val configured: Object = try { // scalafmt >= 1.6.0
-      scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
-    } catch {
-      case _: NoSuchMethodException =>
-        // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
-        val fromHoconEmptyPath = configCls.invokeStatic("fromHoconString$default$2")
-        configCls.invokeStatic("fromHoconString", configText.asParam, (optionCls, fromHoconEmptyPath))
-    }
-
     try {
+      val configured: Object = try { // scalafmt >= 1.6.0
+        scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
+      } catch {
+        case _: NoSuchMethodException =>
+          // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
+          val fromHoconEmptyPath = configCls.invokeStatic("fromHoconString$default$2")
+          configCls.invokeStatic("fromHoconString", configText.asParam, (optionCls, fromHoconEmptyPath))
+      }
       new ScalafmtDynamicConfig(this, configured.invoke("get"), classLoader)
     } catch {
       case ReflectionException(e) =>
