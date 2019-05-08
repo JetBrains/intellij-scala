@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiNamedElement, ResolveState}
-import org.jetbrains.plugins.scala.caches.CachesUtil._
+import com.intellij.psi.{PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 
 /**
@@ -50,16 +48,7 @@ object ImplicitResolveResult {
 
     ProgressManager.checkCanceled()
 
-    private[this] var innerState: ResolveState = {
-      val state = ResolveState.initial.put(IMPLICIT_FUNCTION, result.resolveResult)
-
-      result.element.getParent match {
-        case body: ScTemplateBody =>
-          val parent = PsiTreeUtil.getParentOfType(body, classOf[PsiClass])
-          state.put(IMPLICIT_RESOLUTION, parent)
-        case _ => state
-      }
-    }
+    private[this] var innerState: ResolveState = ResolveState.initial.put(IMPLICIT_FUNCTION, result.resolveResult)
 
     def state: ResolveState = innerState
 

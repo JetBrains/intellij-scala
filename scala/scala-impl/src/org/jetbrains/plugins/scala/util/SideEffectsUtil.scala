@@ -138,7 +138,7 @@ object SideEffectsUtil {
   private def hasImplicitConversion(refExpr: ScExpression) = {
     refExpr match {
       case ref: ScReferenceExpression =>
-        ref.bind().exists(rr => rr.implicitConversionClass.isDefined || rr.implicitFunction.isDefined)
+        ref.bind().exists(rr => rr.implicitFunction.isDefined)
       case _ => false
     }
   }

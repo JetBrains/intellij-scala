@@ -40,6 +40,12 @@ object BaseProcessor {
 
   val FORWARD_REFERENCE_KEY: Key[java.lang.Boolean] = Key.create("forward.reference.key")
 
+  val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
+  
+  val IMPLICIT_FUNCTION: Key[ScalaResolveResult] = Key.create("implicit.function")
+
+  val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
+
   def isImplicitProcessor(processor: PsiScopeProcessor): Boolean = {
     processor match {
       case b: BaseProcessor => b.isImplicitProcessor

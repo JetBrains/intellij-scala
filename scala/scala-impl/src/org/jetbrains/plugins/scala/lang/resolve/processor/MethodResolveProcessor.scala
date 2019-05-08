@@ -5,7 +5,6 @@ package processor
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
-import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -60,7 +60,6 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    def implicitConversionClass: Option[PsiClass] = state.get(IMPLICIT_RESOLUTION).toOption
 
     def implFunction: Option[ScalaResolveResult] = state.get(IMPLICIT_FUNCTION).toOption
 
@@ -80,7 +79,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
       namedElement match {
         case m: PsiMethod =>
-          addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow, implicitConversionClass,
+          addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _: ScClass =>
@@ -104,26 +103,26 @@ class MethodResolveProcessor(override val ref: PsiElement,
           }.toSeq
           val seq = sigs.map {
             case (m, subst) =>
-              new ScalaResolveResult(m, subst, getImports(state), nameShadow, implicitConversionClass,
+              new ScalaResolveResult(m, subst, getImports(state), nameShadow,
                 implicitConversion = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(obj),
                 isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference,
                 unresolvedTypeParameters = unresolvedTypeParameters)
           }.filter { r => !accessibility || r.isAccessible }
           if (seq.nonEmpty) addResults(seq)
-          else addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow, implicitConversionClass,
+          else addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))
         case synthetic: ScSyntheticFunction =>
-          addResult(new ScalaResolveResult(synthetic, s, getImports(state), nameShadow, implicitConversionClass,
+          addResult(new ScalaResolveResult(synthetic, s, getImports(state), nameShadow,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), nameShadow, implicitConversionClass,
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), nameShadow,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow, implicitConversionClass,
+          addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -40,17 +40,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                                    expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
       case Some(rr) if expandInnerResult =>
-        new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, r.substitutor)
+        new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, r.substitutor)
       case _ =>
-        new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor)
+        new InnerScalaResolveResult(r.element, implicitConversionClass(r), r, r.substitutor)
     }), noImplicit = false).map(_.repr)
   }
 
   def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map { r =>
       r.innerResolveResult match {
-        case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, r.substitutor, implicitCase = true)
-        case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor, implicitCase = true)
+        case Some(rr) => new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, r.substitutor, implicitCase = true)
+        case None => new InnerScalaResolveResult(r.element, implicitConversionClass(r), r, r.substitutor, implicitCase = true)
       }
     }, noImplicit = true).map(_.repr)
   }
@@ -63,8 +63,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   private def toInnerSRR(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
     r.innerResolveResult match {
-      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
-      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
+      case Some(rr) => new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, ScSubstitutor.empty, implicitCase = true)
+      case None => new InnerScalaResolveResult(r.element, implicitConversionClass(r), r, ScSubstitutor.empty, implicitCase = true)
     }
   }
 
@@ -336,4 +336,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case tp => tp
     }
   }
+
+  private def implicitConversionClass(srr: ScalaResolveResult): Option[ScTemplateDefinition] =
+    for {
+      conversion <- srr.implicitConversion
+      member     <- conversion.element.nameContext.asOptionOf[ScMember]
+      psiClass   <- Option(member.containingClass)
+    } yield {
+      psiClass
+    }
 }

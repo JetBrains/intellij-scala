@@ -5,7 +5,6 @@ package resolve
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -30,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor.NAMED_PARAM_KEY
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -280,13 +280,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           case ScalaResolveResult(fun: ScFunction, _) if isApplyDynamicNamed(r) =>
             //add synthetic parameter
             if (!processor.isInstanceOf[CompletionProcessor]) {
-              val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+              val state: ResolveState = ResolveState.initial().put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
               processor.execute(createParameterFromText(refName + ": Any"), state)
             }
           case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
             //add synthetic parameter
             if (!processor.isInstanceOf[CompletionProcessor]) {
-              val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+              val state: ResolveState = ResolveState.initial().put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
               processor.execute(createParameterFromText(refName + ": Any"), state)
             }
           case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
@@ -295,7 +295,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                 //todo: why -1?
                 case Some(param) =>
                   var state = ResolveState.initial.put(ScSubstitutor.key, subst).
-                    put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+                    put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
                   if (!ScalaNamesUtil.equivalent(param.name, refName)) {
                     state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(param.deprecatedName.get))
                   }
@@ -315,7 +315,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                     method.parameters.foreach {
                       p =>
                         processor.execute(p, ResolveState.initial().put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                          put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
                     }
                   case _ =>
                 }
@@ -375,7 +375,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                 }
                 for (method <- methods) {
                   baseProcessor.execute(method, ResolveState.initial.put(ScSubstitutor.key, subst).
-                    put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                    put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
                 }
               }
             }
@@ -403,7 +403,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                     getParamByName(fun, refName, arguments.indexOf(args)) match {
                       case Some(param) =>
                         var state = ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+                          put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
                         if (!ScalaNamesUtil.equivalent(param.name, refName)) {
                           state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(param.deprecatedName.get))
                         }
@@ -419,7 +419,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                     getParamByName(constructor, refName, arguments.indexOf(args)) match {
                       case Some(param) =>
                         baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                          put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
                       case None =>
                     }
                   else {
@@ -487,7 +487,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         }
         for (param <- params) {
           processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-            put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+            put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
         }
       }
     }

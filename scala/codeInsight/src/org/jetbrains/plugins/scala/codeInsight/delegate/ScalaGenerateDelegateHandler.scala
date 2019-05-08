@@ -152,7 +152,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       val ScalaResolveResult(element, subst) = srr
       implicit val ctx: ProjectContext = element
 
-      if (srr.implicitConversionClass.nonEmpty || srr.implicitFunction.nonEmpty) return None
+      if (srr.implicitFunction.nonEmpty) return None
       element match {
         case method: PsiMethod if method.isConstructor || method.getContainingClass == null => None
         case method: PsiMethod if method.getContainingClass.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT => None

@@ -68,13 +68,6 @@ object CachesUtil {
     }
   }
 
-  //keys for getUserData
-  val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
-  val IMPLICIT_FUNCTION: Key[ScalaResolveResult] = Key.create("implicit.function")
-  val IMPLICIT_RESOLUTION: Key[PsiClass] = Key.create("implicit.resolution")
-  val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
-  val PACKAGE_OBJECT_KEY: Key[(ScObject, java.lang.Long)] = Key.create("package.object.key")
-
   def libraryAwareModTracker(element: PsiElement): ModificationTracker = {
     val rootManager = ProjectRootManager.getInstance(element.getProject)
     element.getContainingFile match {

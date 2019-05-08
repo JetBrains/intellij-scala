@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.CachesUtil._
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
@@ -22,7 +22,6 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
           addResult(new ScalaResolveResult(m,
             substitutor = getSubst(state),
             importsUsed = getImports(state),
-            implicitConversionClass = Option(state.get(IMPLICIT_RESOLUTION)),
             implicitConversion = Option(state.get(IMPLICIT_FUNCTION)),
             implicitType = Option(state.get(IMPLICIT_TYPE)),
             isAccessible = accessible))

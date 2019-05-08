@@ -5,7 +5,6 @@ package processor
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
@@ -89,7 +88,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     if (candidates.isEmpty) return true
 
     val substitutor = findByKey(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
-    val implicitFunction = findByKey(CachesUtil.IMPLICIT_FUNCTION)
+    val implicitFunction = findByKey(BaseProcessor.IMPLICIT_FUNCTION)
 
     val resolveResults = createResolveResults(candidates, substitutor, implicitFunction)
     val maybeSignature = getSignature(namedElement, substitutor)
@@ -110,7 +109,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case definition: ScTypeDefinition =>
         (Seq(definition) ++ getCompanionModule(definition)).map((_, false))
       case _ =>
-        val isNamedParameter = findByKey(CachesUtil.NAMED_PARAM_KEY).exists(_.booleanValue())
+        val isNamedParameter = findByKey(BaseProcessor.NAMED_PARAM_KEY).exists(_.booleanValue())
         Seq((namedElement, isNamedParameter))
     }
 
