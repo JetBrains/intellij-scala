@@ -14,14 +14,14 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
  * Pavel Fatin
  */
-
 sealed trait StringPart
 
 case class Text(s: String) extends StringPart {
   def withEscapedPercent(implicit ctx: ProjectContext): List[StringPart] = {
     val literal = createExpressionFromText("\"%\"")
-    if (s == "%") List(Text(""), Injection(literal, None), Text(""))
-    else {
+    if (s == "%") {
+      List(Text(""), Injection(literal, None), Text(""))
+    } else {
       val splitted = s.split('%')
       val list = splitted.flatMap(text => List(Injection(literal, None), Text(text))).toList
       if (list.nonEmpty) list.tail else Nil
@@ -30,6 +30,8 @@ case class Text(s: String) extends StringPart {
 }
 
 case class Injection(expression: ScExpression, specifier: Option[Specifier]) extends StringPart {
+  import Injection._
+
   private implicit def ctx: ProjectContext = expression
 
   def text: String = expression.getText
@@ -71,6 +73,12 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
   }
 }
 
+object Injection {
+  sealed trait InjectionProblem
+  case object Inapplicable extends InjectionProblem
+  case object Malformed extends InjectionProblem
+}
+
 case class UnboundSpecifier(specifier: Specifier) extends StringPart
 
 case class UnboundPositionalSpecifier(specifier: Specifier, position: Int) extends StringPart
@@ -80,9 +88,3 @@ case class UnboundExpression(expression: ScExpression) extends StringPart
 case class Specifier(span: Span, format: String)
 
 case class Span(element: PsiElement, start: Int, end: Int)
-
-sealed trait InjectionProblem
-
-case object Inapplicable extends InjectionProblem
-
-case object Malformed extends InjectionProblem

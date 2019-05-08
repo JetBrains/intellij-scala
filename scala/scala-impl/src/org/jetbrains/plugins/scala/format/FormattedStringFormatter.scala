@@ -9,9 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 /**
  * Pavel Fatin
  */
-
 object FormattedStringFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]): String = {
+  override def format(parts: Seq[StringPart]): String = {
     val bindings = parts.collect {
       case Text(s) => (StringUtil.escapeStringCharacters(s), None)
       case injection @ Injection(_, specifier) =>

@@ -5,6 +5,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.format.Injection._
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 
 /**

@@ -8,9 +8,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 /**
  * Pavel Fatin
  */
-
 object InterpolatedStringFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]): String = {
+  override def format(parts: Seq[StringPart]): String = {
     val toMultiline = parts.exists {
       case Text(s) => s.contains("\n")
       case i: Injection => i.value == "\n"
@@ -19,7 +18,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     format(parts, toMultiline)
   }
 
-  def format(parts: Seq[StringPart], toMultiline: Boolean): String = {
+  private def format(parts: Seq[StringPart], toMultiline: Boolean): String = {
     val prefix = {
       val injections = parts.filterBy[Injection]
 
@@ -56,7 +55,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     else StringUtil.escapeStringCharacters(s1)
   }
 
-  def noBraces(parts: Seq[StringPart], it: Injection): Boolean =  {
+  private def noBraces(parts: Seq[StringPart], it: Injection): Boolean =  {
     val ind = parts.indexOf(it)
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {

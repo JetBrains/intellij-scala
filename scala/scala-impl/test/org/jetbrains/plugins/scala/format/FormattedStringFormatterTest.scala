@@ -105,7 +105,7 @@ class FormattedStringFormatterTest extends SimpleTestCase {
     FormattedStringFormatter.format(parts)
   }
 
-  def call(formatter: String, arguments: String) =
+  private def call(formatter: String, arguments: String) =
     '"' + formatter + '"' + ".format(%s)".format(arguments)
 
   private def exp(s: String): ScExpression = {

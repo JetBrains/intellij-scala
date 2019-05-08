@@ -39,9 +39,14 @@ sealed abstract class FormatConversionIntention(override val getText: String,
     findTargetIn(element).isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val Some((target, parts)) = findTargetIn(element)
+    val (target, parts) = findTargetIn(element) match {
+      case Some(value) => value
+      case _ => return
+    }
 
-    val replacement = ScalaPsiElementFactory.createExpressionFromText(formatter.format(parts))(element.getManager)
+
+    val stringFormatted = formatter.format(parts)
+    val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted)(element.getManager)
 
     target.replace(replacement) match {
       case literal: ScLiteral if literal.isMultiLineString =>
@@ -51,40 +56,42 @@ sealed abstract class FormatConversionIntention(override val getText: String,
   }
 
   private object Parts {
-
     def unapply(element: PsiElement): Option[Seq[StringPart]] = parser.parse(element)
   }
 
 }
 
 object FormatConversionIntention {
+  private val ConvertToStringConcat = "Convert to string concatenation"
+  private val ConvertToInterpolated = "Convert to interpolated string"
+  private val ConvertToFormatted = "Convert to formatted string"
 
   final class FormattedToInterpolated extends FormatConversionIntention(
-    "Convert to interpolated string",
+    ConvertToInterpolated,
     FormattedStringParser,
     InterpolatedStringFormatter
   )
 
   final class FormattedToStringConcatenation extends FormatConversionIntention(
-    "Convert to string concatenation",
+    ConvertToStringConcat,
     FormattedStringParser,
     StringConcatenationFormatter
   )
 
   final class InterpolatedToFormatted extends FormatConversionIntention(
-    "Convert to formatted string",
+    ConvertToFormatted,
     InterpolatedStringParser,
     FormattedStringFormatter
   )
 
   final class InterpolatedToStringConcatenation extends FormatConversionIntention(
-    "Convert to string concatenation",
+    ConvertToStringConcat,
     InterpolatedStringParser,
     StringConcatenationFormatter
   )
 
   final class StringConcatenationToFormatted extends FormatConversionIntention(
-    "Convert to formatted string",
+    ConvertToFormatted,
     StringConcatenationParser,
     FormattedStringFormatter
   ) {
@@ -92,7 +99,7 @@ object FormatConversionIntention {
   }
 
   final class StringConcatenationToInterpolated extends FormatConversionIntention(
-    "Convert to interpolated string",
+    ConvertToInterpolated,
     StringConcatenationParser,
     InterpolatedStringFormatter
   ) {

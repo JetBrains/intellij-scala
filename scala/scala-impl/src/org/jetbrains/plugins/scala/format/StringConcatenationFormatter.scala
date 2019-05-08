@@ -6,9 +6,8 @@ import com.intellij.openapi.util.text.StringUtil
 /**
  * Pavel Fatin
  */
-
 object StringConcatenationFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]): String = {
+  override def format(parts: Seq[StringPart]): String = {
     if (parts.isEmpty) quoted("") else {
       val strings = parts.collect {
         case Text(s) => quoted(StringUtil.escapeStringCharacters(s))

@@ -30,7 +30,7 @@ object StripMarginParser extends StringParser {
 }
 
 object WithStrippedMargin {
-  val STRIP_MARGIN = "stripMargin"
+  private[format] val STRIP_MARGIN = "stripMargin"
 
   def unapply(literal: ScLiteral): Option[(ScExpression, Char)] = {
     literal.getParent match {
@@ -46,7 +46,7 @@ object WithStrippedMargin {
 }
 
 object IsStripMargin {
-  val STRIP_MARGIN = WithStrippedMargin.STRIP_MARGIN
+  import WithStrippedMargin.STRIP_MARGIN
 
   def unapply(expr: ScExpression): Option[(ScLiteral, Char)] = {
     expr match {

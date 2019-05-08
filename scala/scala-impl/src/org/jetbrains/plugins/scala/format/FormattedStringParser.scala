@@ -13,11 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 /**
  * Pavel Fatin
  */
-
 object FormattedStringParser extends StringParser {
   private val FormatSpecifierPattern = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])".r
 
-  def parse(element: PsiElement): Option[Seq[StringPart]] = {
+  override def parse(element: PsiElement): Option[Seq[StringPart]] = {
     extractFormatCall(element).map(p => parseFormatCall(p._1, p._2))
   }
 
