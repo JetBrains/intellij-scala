@@ -4,18 +4,19 @@ package intention
 package stringLiteral
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
-  * Pavel Fatin
-  */
+ * Pavel Fatin
+ */
 sealed abstract class FormatConversionIntention(override val getText: String,
                                                 parser: StringParser,
                                                 formatter: StringFormatter) extends PsiElementBaseIntentionAction {
@@ -47,10 +48,29 @@ sealed abstract class FormatConversionIntention(override val getText: String,
     val stringFormatted = formatter.format(parts)
     val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted)(element.getManager)
 
+    val needToWrapConcatWithBrackets = target.getParent match {
+      case ref: ScReferenceExpression if ref.qualifier.contains(target) => true
+      // in case of postfix/infix expressions brackets are not necessary, but the code becomes readable
+      case postfix: ScPostfixExpr if postfix.operand == target => true
+      case infix: ScInfixExpr if infix.rightOption.contains(target) => true
+      case _ => false
+    }
+
     target.replace(replacement) match {
       case literal: ScLiteral if literal.isMultiLineString =>
         MultilineStringUtil.addMarginsAndFormatMLString(literal, editor.getDocument)
+      case concat: ScInfixExpr if needToWrapConcatWithBrackets =>
+        surroundWithBrackets(concat, editor.getDocument)
       case _ =>
+    }
+  }
+
+  private def surroundWithBrackets(element: PsiElement, document: Document): Unit = {
+    PsiDocumentManager.getInstance(element.getProject).doPostponedOperationsAndUnblockDocument(document)
+    inWriteAction {
+      val range = element.getTextRange
+      document.insertString(range.getEndOffset, ")")
+      document.insertString(range.getStartOffset, "(")
     }
   }
 
@@ -61,9 +81,9 @@ sealed abstract class FormatConversionIntention(override val getText: String,
 }
 
 object FormatConversionIntention {
-  private val ConvertToStringConcat = "Convert to string concatenation"
-  private val ConvertToInterpolated = "Convert to interpolated string"
-  private val ConvertToFormatted = "Convert to formatted string"
+  val ConvertToStringConcat = "Convert to string concatenation"
+  val ConvertToInterpolated = "Convert to interpolated string"
+  val ConvertToFormatted = "Convert to formatted string"
 
   final class FormattedToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,
