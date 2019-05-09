@@ -435,7 +435,7 @@ object Compatibility {
         checkParameterListConformance(checkNames = true, parameters, firstArgumentListArgs)
       case method: PsiMethod =>
         val parameters = method.parameters.map(param =>
-          Parameter(substitutor(param.paramType()), isRepeated = param.isVarArgs, index = -1)
+          Parameter(substitutor(param.paramType()), isRepeated = param.isVarArgs, index = -1, param.getName)
         )
 
         checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)

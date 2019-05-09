@@ -32,8 +32,9 @@ case class Parameter(name: String,
 object Parameter {
   def apply(paramType: ScType,
             isRepeated: Boolean,
-            index: Int): Parameter =
-    new Parameter(name = "",
+            index: Int,
+            name: String): Parameter =
+    new Parameter(name,
       deprecatedName = None,
       paramType = paramType,
       expectedType = paramType,
@@ -41,6 +42,11 @@ object Parameter {
       isRepeated = isRepeated,
       isByName = false,
       index = index)
+
+  def apply(paramType: ScType,
+            isRepeated: Boolean,
+            index: Int): Parameter =
+    apply(paramType, isRepeated, index, "")
 
   def apply(parameter: PsiParameter): Parameter = parameter match {
     case scParameter: ScParameter =>

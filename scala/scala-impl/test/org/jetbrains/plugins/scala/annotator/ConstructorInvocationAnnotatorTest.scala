@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.psi.PsiFileFactory
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase, SimpleTestCase}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
+import org.jetbrains.plugins.scala.base.{AssertMatches, SimpleTestCase}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -399,7 +397,7 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
   }
 }
 
-class ConstructorInvocationAnnotatorExTest extends ScalaHighlightingTestBase with AssertMatches {
+class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase with AssertMatches {
   val javaCode =
     """
       |public class JavaClass {
@@ -431,13 +429,13 @@ class ConstructorInvocationAnnotatorExTest extends ScalaHighlightingTestBase wit
 
   def test_SCL15398_missing_parameter_new(): Unit = {
     assertMessages(messages("new JavaClass(1)"))(
-      Error(")", "Unspecified value parameter: x: Int")
+      Error("(1)", "Unspecified value parameters: y: Int")
     )
   }
 
   def test_SCL15398_missing_parameter_extends(): Unit = {
     assertMessages(messages("class Impl extends JavaClass(1)"))(
-      Error(")", "Unspecified value parameter: x: Int")
+      Error("(1)", "Unspecified value parameters: y: Int")
     )
   }
 }
