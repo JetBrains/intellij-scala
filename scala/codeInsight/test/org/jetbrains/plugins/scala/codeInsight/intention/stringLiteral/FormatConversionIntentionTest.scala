@@ -44,6 +44,24 @@ class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
     doTest(before, after)
   }
 
+  def testInterpolatedToConcatenation_WithMethodCall2() {
+    val before =
+      s"""object A {
+         |  val x = 42
+         |  ${CARET}s"one $$x two".substring(23)
+         |}
+         |"""
+
+    val after =
+      s"""object A {
+         |  val x = 42
+         |  $CARET("one " + x + " two").substring(23)
+         |}
+         |"""
+
+    doTest(before, after)
+  }
+
   def testInterpolatedToConcatenation_WithPostfixMethodCall() {
     val before =
       s"""object A {
