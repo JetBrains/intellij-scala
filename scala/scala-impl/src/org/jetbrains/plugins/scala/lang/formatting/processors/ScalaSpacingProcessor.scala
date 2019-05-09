@@ -317,8 +317,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
       psiElem match {
         case ml: ScLiteral if ml.isMultiLineString =>
-          right.getTextRange.contains(new TextRange(rightNode.getTextRange.getStartOffset, rightNode.getTextRange.getStartOffset + 3))
-        case _: ScInfixExpr | _: ScReferenceExpression | _: ScMethodCall => isMultiLineStringCase(psiElem.getFirstChild)
+          val nodeOffset = rightNode.getTextRange.getStartOffset
+          val magicCondition = right.getTextRange.contains(new TextRange(nodeOffset, nodeOffset + 3))
+          val actuallyMultiline = rightBlockString.contains("\n")
+          magicCondition && actuallyMultiline
+
+        case _: ScInfixExpr | _: ScReferenceExpression | _: ScMethodCall =>
+          isMultiLineStringCase(psiElem.getFirstChild)
         case _ => false
       }
     }
