@@ -4,11 +4,12 @@ package format
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Pavel Fatin
@@ -17,7 +18,12 @@ object FormattedStringParser extends StringParser {
   private val FormatSpecifierPattern = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])".r
 
   override def parse(element: PsiElement): Option[Seq[StringPart]] = {
-    extractFormatCall(element).map(p => parseFormatCall(p._1, p._2))
+    extractFormatCall(element)
+      // string interpolators that are used in interpolated strings
+      // have a higher priority over `.format` method call (see SCL-15414)
+      // so we shouldn't detect them as formatted
+      .filter(!_._1.isInstanceOf[ScInterpolatedStringLiteral])
+      .map(p => parseFormatCall(p._1, p._2))
   }
 
   def extractFormatCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
@@ -65,12 +71,13 @@ object FormattedStringParser extends StringParser {
   private def isStringFormatMethod(holder: String, method: String) =
     holder == "java.lang.String" && method == "format"
 
+  private[format]
   def parseFormatCall(literal: ScLiteral, arguments: Seq[ScExpression]): Seq[StringPart] = {
     val remainingArguments = arguments.toIterator
     val shift = if (literal.isMultiLineString) 3 else 1
     val formatString = literal.getText.drop(shift).dropRight(shift)
 
-    var refferredArguments: List[ScExpression] = Nil
+    var referredArguments: List[ScExpression] = Nil
 
     val bindings = FormatSpecifierPattern.findAllMatchIn(formatString).map { it =>
       val specifier = {
@@ -85,13 +92,13 @@ object FormattedStringParser extends StringParser {
       if (positional) {
         val position = it.group(1).dropRight(1).toInt
         arguments.lift(position - 1).map { argument =>
-          refferredArguments ::= argument
+          referredArguments ::= argument
           Injection(argument, Some(specifier))
         } getOrElse {
           UnboundPositionalSpecifier(specifier, position)
         }
       } else {
-        implicit val projectContext = literal.projectContext
+        implicit val projectContext: ProjectContext = literal.projectContext
         if (it.toString().equals("%n")) Injection(createExpressionFromText("\"\\n\""), None)
         else if (it.toString == "%%") Injection(createExpressionFromText("\"%\""), None)
         else if (remainingArguments.hasNext) Injection(remainingArguments.next(), Some(specifier))
@@ -108,7 +115,7 @@ object FormattedStringParser extends StringParser {
       case _ => true
     }
 
-    val unusedArguments = remainingArguments.filterNot(refferredArguments.contains).map(UnboundExpression).toList
+    val unusedArguments = remainingArguments.filterNot(referredArguments.contains).map(UnboundExpression).toList
 
     prefix ++ unusedArguments
   }

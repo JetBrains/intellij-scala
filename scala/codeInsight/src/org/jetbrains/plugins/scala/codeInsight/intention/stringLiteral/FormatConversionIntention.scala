@@ -44,7 +44,6 @@ sealed abstract class FormatConversionIntention(override val getText: String,
       case _ => return
     }
 
-
     val stringFormatted = formatter.format(parts)
     val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted)(element.getManager)
 
