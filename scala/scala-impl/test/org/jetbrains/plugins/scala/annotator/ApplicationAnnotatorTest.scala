@@ -127,8 +127,59 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
 
-  def testDoubleDefinedUpdate(): Unit = {
+  def testNonApplicableOverloadedApply(): Unit = {
     val code =
+      """
+        |object Test {
+        |  def apply(int: Int): Unit = ???
+        |  def apply(str: Float): Unit = ???
+        |}
+        |Test(true)
+      """.stripMargin
+
+    assertMessagesSorted(messages(code))(
+      Error("true", "Type mismatch, expected: Float, actual: Boolean"),
+      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+    )
+  }
+
+  def testNonApplicableOverloadedApplyFromDef(): Unit = {
+    val code =
+      """
+        |class Test {
+        |  def apply(int: Int): Unit = ???
+        |  def apply(str: Float): Unit = ???
+        |}
+        |def test: Test = ???
+        |test(true)
+      """.stripMargin
+
+    assertMessagesSorted(messages(code))(
+      Error("true", "Type mismatch, expected: Float, actual: Boolean"),
+      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+    )
+  }
+
+  def testNonApplicableOverloadedApplyFromFuncWithMultipleArgLists(): Unit = {
+    val code =
+      """
+        |class Test {
+        |  def apply(int: Int): Unit = ???
+        |  def apply(str: Float): Unit = ???
+        |}
+        |def test(i: Int)(i: Int): Test = ???
+        |test(3)(3)(true)
+      """.stripMargin
+
+    assertMessagesSorted(messages(code))(
+      Error("true", "Type mismatch, expected: Float, actual: Boolean"),
+      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+    )
+  }
+
+
+  def testDoubleDefinedUpdate(): Unit = {
+      val code =
       """
         |object Test {
         |  protected def update(propName: String, p: Any): Unit = ()

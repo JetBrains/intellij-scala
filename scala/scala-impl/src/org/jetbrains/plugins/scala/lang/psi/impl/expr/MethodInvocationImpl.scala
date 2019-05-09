@@ -36,7 +36,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
     case RegularCase(_, problems, _) => problems
     case SyntheticCase(RegularCase(_, problems, _), _, _) => problems
-    case FailureCase(Failure(`noSuitableMethodFoundError`)) => Seq(DoesNotTakeParameters())
+    case FailureCase(_, problems) if problems.nonEmpty => problems
+    case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters())
     case _ => Seq.empty
   }
 
@@ -93,7 +94,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         checkApplication(nonValueType, invokedResolveResult) match {
           case Some(regularCase) => updateImplicitParameters(regularCase)
           case _ =>
-            this.findApplyUpdateOrDynamic(nonValueType) match {
+            val applyOrUpdateCandidates = this.findPossibleApplyOrUpdateCandidates(nonValueType)
+            applyOrUpdateCandidates.collect { case Array(result) => this.updateGenericType(nonValueType, result) } match {
               case Some((processedType, result)) =>
                 val updatedProcessedType = updateType(processedType)
 
@@ -107,7 +109,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                   result,
                   maybeRegularCase.isDefined
                 )
-              case _ => FailureCase(Failure(noSuitableMethodFoundError))
+              case _ =>
+                val problems = applyOrUpdateCandidates
+                  .getOrElse(Array.empty)
+                  .flatMap(_.problems)
+                FailureCase(Failure(noSuitableMethodFoundError), problems)
             }
         }
       case left@Left(_) => FailureCase(left)
@@ -245,25 +251,28 @@ object MethodInvocationImpl {
         .expandMacro(result.element, MacroInvocationContext(invocation, result))
         .flatMap(_.getNonValueType().toOption)
 
-    def findApplyUpdateOrDynamic(`type`: ScType): Option[(ScType, ScalaResolveResult)] = {
-      def findApplyUpdateOrDynamic(isDynamic: Boolean) =
+
+    def findPossibleApplyOrUpdateCandidates(`type`: ScType): Option[Array[ScalaResolveResult]] = {
+      def findApplyOrUpdate(isDynamic: Boolean) =
         processTypeForUpdateOrApplyCandidates(invocation, `type`, isShape = false, isDynamic = isDynamic) match {
-          case Array(result) if result.element.isInstanceOf[PsiMethod] => Some(result)
+          case Array() => None
+          case results if results.forall(_.element.isInstanceOf[PsiMethod]) => Some(results)
           case _ => None
         }
 
-      findApplyUpdateOrDynamic(isDynamic = false)
-        .orElse(findApplyUpdateOrDynamic(isDynamic = true))
-        .map { result =>
-          val updatedType = (`type`, polymorphicType(result)) match {
-            case (ScTypePolymorphicType(_, head), ScTypePolymorphicType(internal, tail)) =>
-              removeBadBounds(ScTypePolymorphicType(internal, head ++ tail))
-            case (ScTypePolymorphicType(_, head), internalType) => ScTypePolymorphicType(internalType, head)
-            case (_, polymorphicType) => polymorphicType
-          }
+      findApplyOrUpdate(isDynamic = false)
+        .orElse(findApplyOrUpdate(isDynamic = true))
+    }
 
-          (updatedType, result)
-        }
+    def updateGenericType(`type`: ScType, resolveResult: ScalaResolveResult): (ScType, ScalaResolveResult) = {
+      val updatedType = (`type`, polymorphicType(resolveResult)) match {
+        case (ScTypePolymorphicType(_, head), ScTypePolymorphicType(internal, tail)) =>
+          removeBadBounds(ScTypePolymorphicType(internal, head ++ tail))
+        case (ScTypePolymorphicType(_, head), internalType) => ScTypePolymorphicType(internalType, head)
+        case (_, polymorphicType) => polymorphicType
+      }
+
+      (updatedType, resolveResult)
     }
 
     private def polymorphicType(result: ScalaResolveResult) =
@@ -299,6 +308,7 @@ object MethodInvocationImpl {
     override def typeResult: TypeResult = full.typeResult
   }
 
-  private case class FailureCase(typeResult: Left[Failure, ScType]) extends InvocationData
+  private case class FailureCase(typeResult: Left[Failure, ScType],
+                                 problems: Seq[ApplicabilityProblem] = Seq.empty) extends InvocationData
 
 }
