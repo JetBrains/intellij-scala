@@ -4,6 +4,7 @@ package psi
 package api
 package expr
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
 /**
@@ -22,4 +23,7 @@ trait ScEnumerators extends ScalaPsiElement {
   def namings: Seq[ScPatterned]
 
   def patterns: Seq[ScPattern]
+
+  // get semicolons that are wrongly placed inside the for-expression
+  def erroneousSemicolons: Seq[PsiElement]
 }

@@ -193,7 +193,7 @@ object Expr1 {
                 builder error ErrMsg("enumerators.expected")
               }
             }
-            ParserUtils.parseLoopUntilRBrace(builder, foo _)
+            ParserUtils.parseLoopUntilRBrace(builder, foo)
             builder.restoreNewlinesState()
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
@@ -293,7 +293,7 @@ object Expr1 {
                     builder error ErrMsg("case.clauses.expected")
                   }
                 }
-                ParserUtils.parseLoopUntilRBrace(builder, foo _)
+                ParserUtils.parseLoopUntilRBrace(builder, foo)
                 builder.restoreNewlinesState()
               case _ => builder error ErrMsg("case.clauses.expected")
             }

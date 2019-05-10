@@ -7,7 +7,8 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -63,4 +64,29 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   }
 
   override def patterns: Seq[ScPattern] = namings.reverse.flatMap(_.pattern.toOption)
+
+  override def erroneousSemicolons: Seq[PsiElement] = {
+    val allChildren = this.children.filter(!_.isInstanceOf[PsiWhiteSpace]).toSeq
+    if (allChildren.isEmpty)
+      return Seq.empty
+
+    var lastInitialSemicolon = Option.empty[PsiElement]
+    val errSemiBuilder = Seq.newBuilder[PsiElement]
+    allChildren.foldLeft(false) {
+      case (canHaveSemicolon, elem) =>
+        elem match {
+          case Whitespace(_) => canHaveSemicolon
+          case semi@ElementType(ScalaTokenTypes.tSEMICOLON) =>
+            if (canHaveSemicolon) lastInitialSemicolon = Some(semi)
+            else errSemiBuilder += semi
+
+            false
+          case _ =>
+            lastInitialSemicolon = None
+            true
+        }
+    }
+    errSemiBuilder ++= lastInitialSemicolon
+    errSemiBuilder.result()
+  }
 }

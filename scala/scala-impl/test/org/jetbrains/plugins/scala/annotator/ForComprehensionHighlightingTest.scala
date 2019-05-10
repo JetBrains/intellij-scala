@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -451,4 +452,27 @@ class ForComprehensionHighlightingTest_WithBetterMonadicFor extends ForComprehen
 
     assertNothing(errorsFromScalaCode(code))
   }
+}
+
+class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase {
+
+  import org.junit.Assert.assertEquals
+  val errorText = ScalaBundle.message("semicolon.not.allowed.here")
+  def errors(code: String) = {
+    val msgs = errorsFromScalaCode(code)
+    msgs.foreach { msg => assertEquals(Error(";", errorText), msg)}
+    msgs.length
+  }
+
+  def test_ok(): Unit =
+    assertEquals(0, errors("for(x<-Seq(1); if x==3;y = x; a <- Seq(2); if a == x) ()"))
+
+  def test_error_semicolons(): Unit =
+    assertEquals(2 + 2 + 3 + 3, errors("for(;;x<-Seq(1);;;if x==3;;;;y = x;;;) ()"))
+
+  def test_error_semicolons_with_spaces(): Unit =
+    assertEquals(2 + 2 + 3 + 3, errors("for( ; ; x <- Seq(1)  ; ; ; if x == 3 ; ; ; ; y = x ; ; ; ) ()"))
+
+  def test_error_semicolons_with_newlines(): Unit =
+    assertEquals(2 + 2 + 3 + 3, errors("for{\n; \n; \nx <- Seq(1)\n;\n;\n;\nif x == 3\n;\n;;;\n y = x\n;;\n;} ()"))
 }

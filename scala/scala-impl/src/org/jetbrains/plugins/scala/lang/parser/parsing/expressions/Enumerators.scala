@@ -20,6 +20,10 @@ object Enumerators {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark
+
+    // eat all semicolons (which is not correct), show error in ScForAnnotator
+    CommonUtils.eatAllSemicolons(builder)
+
     if (!Generator.parse(builder)) {
       enumsMarker.drop()
       return false
@@ -29,6 +33,8 @@ object Enumerators {
       val guard = builder.getTokenType match {
         case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer()
+          // eat all semicolons (which is not correct), show error in ScForAnnotator
+          CommonUtils.eatAllSemicolons(builder)
           false
         case _ if builder.newlineBeforeCurrentToken => false
         case _ if Guard.parse(builder) => true

@@ -57,4 +57,10 @@ object CommonUtils {
     else patternArgsMarker.drop()
     if (!builder.eof()) builder.advanceLexer()
   }
+
+  def eatAllSemicolons(builder: ScalaPsiBuilder): Unit = {
+    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+      builder.advanceLexer()
+    }
+  }
 }
