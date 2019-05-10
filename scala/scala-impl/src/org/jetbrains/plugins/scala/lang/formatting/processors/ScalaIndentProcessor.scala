@@ -226,8 +226,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _: ScCaseClause | _: ScFunctionExpr=>
             childPsi match {
               case _: ScBlockExpr =>
-                if(isBraceNextLineShifted) Indent.getNormalIndent
-                else Indent.getNoneIndent
+                if(isBraceNextLineShifted || block.getChildren.length > 1) {
+                  Indent.getNormalIndent
+                } else {
+                  Indent.getNoneIndent
+                }
               case _ =>
                 if (scalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY && blockParent.startsFromNewLine()) Indent.getNoneIndent
                 else Indent.getNormalIndent

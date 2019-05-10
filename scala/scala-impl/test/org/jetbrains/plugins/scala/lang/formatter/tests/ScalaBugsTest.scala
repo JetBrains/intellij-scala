@@ -461,6 +461,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
     doTextTest(before, after)
   }
+
   def testSCL3126AllFalse() {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false
@@ -3308,6 +3309,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       |class A extends B
       |with C
     """.stripMargin
+
   def testSCL3536(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_EXTENDS_LIST = true
     getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_TOKEN
@@ -3340,6 +3342,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       """.stripMargin
     doTextTest(beforeSCL3536, after)
   }
+
   def testSCL3536_3(): Unit = {
     getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_TOKEN
     val before =
@@ -3365,6 +3368,32 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       """.stripMargin
     doTextTest(before)
   }
+
+  def testSCL14979_1(): Unit = doTextTest(
+    """Seq(1, 2, 3)
+      |  .map { x =>
+      |    val y = x
+      |
+      |    {
+      |      println("")
+      |      y + x
+      |    }
+      |  }
+    """.stripMargin
+  )
+
+  def testSCL14979_2(): Unit = doTextTest(
+    """42 match {
+      |  case 23 =>
+      |    val x = 9000
+      |
+      |    {
+      |      println("")
+      |    }
+      |  case _ =>
+      |}
+    """.stripMargin
+  )
 
   def testSCL15090_WithTrailingComma(): Unit = {
     val before =

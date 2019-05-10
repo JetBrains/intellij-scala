@@ -1107,7 +1107,6 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-
   def testDoNotIndentCaseClauseBody_2(): Unit = {
     getScalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY = true
     val before =
