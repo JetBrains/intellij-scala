@@ -31,17 +31,18 @@ ScalaFile
           TryBlock
             PsiElement(try)('try')
             PsiWhiteSpace(' ')
-            PsiElement({)('{')
-            PsiWhiteSpace('\n    ')
-            InfixExpression
-              Literal
-                PsiElement(integer)('0')
-              ReferenceExpression: /
-                PsiElement(identifier)('/')
-              Literal
-                PsiElement(integer)('0')
-            PsiWhiteSpace('\n  ')
-            PsiElement(})('}')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              InfixExpression
+                Literal
+                  PsiElement(integer)('0')
+                ReferenceExpression: /
+                  PsiElement(identifier)('/')
+                Literal
+                  PsiElement(integer)('0')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
           PsiWhiteSpace('\n  ')
           FinallyBlock
             PsiElement(finally)('finally')

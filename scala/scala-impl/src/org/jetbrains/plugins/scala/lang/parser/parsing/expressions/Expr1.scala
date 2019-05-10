@@ -108,21 +108,8 @@ object Expr1 {
       case ScalaTokenTypes.kTRY =>
         val tryMarker = builder.mark
         builder.advanceLexer() //Ate try
-        builder.getTokenType match {
-          case ScalaTokenTypes.tLBRACE =>
-            builder.advanceLexer() //Ate {
-            builder.enableNewlines()
-            def foo() {
-              if (!Block.parse(builder, hasBrace = false)) {
-                builder error ErrMsg("block.expected")
-              }
-            }
-            ParserUtils.parseLoopUntilRBrace(builder, foo _)
-            builder.restoreNewlinesState()
-          case _ =>
-            if (!Block.parse(builder, hasBrace = false)) {
-              builder error ErrMsg("block.expected")
-            }
+        if (!Expr.parse(builder)) {
+          builder error ErrMsg("wrong.expression")
         }
         tryMarker.done(ScalaElementType.TRY_BLOCK)
         val catchMarker = builder.mark

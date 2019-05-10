@@ -31,12 +31,13 @@ ScalaFile
           TryBlock
             PsiElement(try)('try')
             PsiWhiteSpace(' ')
-            PsiElement({)('{')
-            PsiWhiteSpace('\n        ')
-            ReferenceExpression: abc
-              PsiElement(identifier)('abc')
-            PsiWhiteSpace('\n    ')
-            PsiElement(})('}')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n        ')
+              ReferenceExpression: abc
+                PsiElement(identifier)('abc')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
           PsiWhiteSpace(' ')
           CatchBlock
             PsiElement(catch)('catch')
