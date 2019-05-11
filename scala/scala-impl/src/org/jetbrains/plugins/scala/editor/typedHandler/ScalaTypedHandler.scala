@@ -519,22 +519,24 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  def wrapDefinitionWithBraces(offset: Int, definition: PsiElement, assignElement: PsiElement, body: PsiElement,
-                               project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
+  private def wrapDefinitionWithBraces(offset: Int, definition: PsiElement, assignElement: PsiElement, body: PsiElement,
+                                       project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     val document = editor.getDocument
 
     val caretLine = document.getLineNumber(offset)
     val assignLine = document.getLineNumber(assignElement.getTextRange.getStartOffset)
     val bodyStartLine = document.getLineNumber(body.getTextRange.getStartOffset)
 
-    val assignAndBodyOnSameLine = assignLine == bodyStartLine
-    val caretAndBodyOnSameLine = caretLine == bodyStartLine
+    val caretIsBeforeBody = offset <= body.getTextRange.getStartOffset
+    val caretAndAssignOnSameLine = caretLine == assignLine
+    val singleLineDefinition = assignLine == bodyStartLine
 
-    if (assignAndBodyOnSameLine || isElementIndented(definition, body, settings)) {
+    if (caretIsBeforeBody && caretAndAssignOnSameLine && (singleLineDefinition || isElementIndented(definition, body, settings))) {
       document.insertString(offset, "{")
 
       // if left brace is inserted on the same line with body we expect the user to press Enter after that
       // in this case we rely that EnterAfterUnmatchedBraceHandler will insert missing closing brace
+      val caretAndBodyOnSameLine = caretLine == bodyStartLine
       if (caretAndBodyOnSameLine) {
         editor.getCaretModel.moveToOffset(offset + 1)
       } else {

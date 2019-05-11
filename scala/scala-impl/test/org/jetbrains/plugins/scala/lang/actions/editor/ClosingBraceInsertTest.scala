@@ -14,7 +14,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     val after = s"for (_ <- Seq()) {$CARET}"
     doTest(before, after)
   }
-  
+
   def testInsertClosingBrace_EmptyFunctionBody(): Unit = {
     val before = s"def foo = $CARET"
     val after = s"def foo = {$CARET}"
@@ -313,6 +313,25 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |
          |someUnrelatedCode()
          |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testNotInsertIfBraceIsInsideString(): Unit = {
+    val quotes = "\"\"\""
+    val before =
+      s"""val x =
+         |  $quotes
+         |  |$CARET
+         |  $quotes
+         |""".stripMargin
+
+    val after =
+      s"""val x =
+         |  $quotes
+         |  |{$CARET
+         |  $quotes
+         |""".stripMargin
+
     doTest(before, after)
   }
 
