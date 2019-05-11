@@ -51,19 +51,21 @@
       <option name="SCALA_XML" value="true"/>
     </context>
   </template>
-  <template name="unapply" value="def unapply(arg: $ARG_TYPE$): Option[$RET_TYPE$] = $END$"
+  <template name="unapply" value="def unapply(arg: $ARG_TYPE$): Option[$RET_TYPE$] = $BODY$$END$"
             description="Template for unapply" toReformat="true" toShortenFQNames="true">
 	<variable name="ARG_TYPE" expression="scala_className" defaultValue="X" alwaysStopAt="false"/>
-	<variable name="RET_TYPE" expression="scala_primaryConstructorParamTypes(scala_primaryConstructorParams)" defaultValue="Int" alwaysStopAt="true"/>
+	<variable name="RET_TYPE" expression="scala_primaryConstructorParamTypes" defaultValue="Int" alwaysStopAt="true"/>
+    <!-- TODO: we could try auto-generate unapply body? -->
+    <variable name="BODY" expression="" defaultValue="&quot;???&quot;" alwaysStopAt="true"/>
 	<context>
 	  <option name="SCALA_CODE" value="true"/>
 	</context>
   </template>
-  <template name="apply" value="def apply$ARGS$: $RET_TYPE$ = new $RET_TYPE$($ARGS_NO_TYPES$)" description="Template for apply"
-            toReformat="true" toShortenFQNames="true">
+  <template name="apply" value="def apply($ARGS$): $RET_TYPE$ = new $RET_TYPE$($ARGS_NO_TYPES$)"
+            description="Template for apply" toReformat="true" toShortenFQNames="true">
     <variable name="ARGS" expression="scala_primaryConstructorParams" defaultValue="x" alwaysStopAt="true"/>
-	<variable name="RET_TYPE" expression="scala_className" defaultValue="x" alwaysStopAt="false"/>
-	<variable name="ARGS_NO_TYPES" expression="scala_primaryConstructorParamNames(ARGS)" defaultValue="x" alwaysStopAt="true"/>
+	<variable name="RET_TYPE" expression="scala_className" alwaysStopAt="false"/>
+	<variable name="ARGS_NO_TYPES" expression="scala_primaryConstructorParamNames(ARGS)" alwaysStopAt="true"/>
 	<context>
 	  <option name="SCALA_CODE" value="true"/>
 	</context>
