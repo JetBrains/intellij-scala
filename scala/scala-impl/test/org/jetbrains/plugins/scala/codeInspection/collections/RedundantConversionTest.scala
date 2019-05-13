@@ -29,6 +29,12 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
       "Seq(1, 2)")
   }
 
+  def test_2_with_implicit_generic() {
+    doTest(s"val x: List[Int] = List(1, 2).${START}to$END",
+      "val x: List[Int] = List(1, 2).to",
+      "val x: List[Int] = List(1, 2)")
+  }
+
   def test_3(): Unit = {
     doTest(s"Map(1 -> true).${START}toMap[Int, Boolean]$END",
       "Map(1 -> true).toMap[Int, Boolean]",
