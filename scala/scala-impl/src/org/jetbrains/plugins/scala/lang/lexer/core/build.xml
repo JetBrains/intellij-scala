@@ -32,7 +32,7 @@
     <delete file="${lexer.log}"/>
 
     <java classname="JFlex.Main" output="jflexCore.log" fork="true" maxmemory="1024m" failonerror="true">
-      <classpath path="JFlex.jar"/>
+      <classpath path="JFlex_patched.jar"/>
       <jvmarg line="-XX:MaxPermSize=200M"/>
       <arg value="-sliceandcharat"/>
       <arg value="-skel"/>
@@ -45,7 +45,7 @@
     <delete file="${split.lexer.file}"/>
     <delete file="${split.lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflexSplitting.log" fork="true" maxmemory="512m" >
+    <java jar="JFlex_patched.jar" output="jflexSplitting.log" fork="true" maxmemory="512m" >
       <arg value="-sliceandcharat"/>
       <arg value="-skel"/>
       <arg value="${splitting.skeleton}"/>
@@ -57,8 +57,8 @@
     <delete file="${scaladoc.lexer.file}"/>
     <delete file="${scaladoc.lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflexDoc.log" fork="true" maxmemory="512m" >
-      <!--<arg value="-sliceandcharat"/>-->
+    <java jar="JFlex_patched.jar" output="jflexDoc.log" fork="true" maxmemory="512m" >
+      <arg value="-sliceandcharat"/>
       <arg value="-skel"/>
       <arg value="${scaladoc.skeleton}"/>
       <arg value="${scaladoc.lexer.source}"/>
