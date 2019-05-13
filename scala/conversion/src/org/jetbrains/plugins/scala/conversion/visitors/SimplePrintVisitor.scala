@@ -3,6 +3,7 @@ package conversion
 package visitors
 
 import com.intellij.openapi.util._
+import org.jetbrains.annotations.Nullable
 
 import scala.collection.mutable
 
@@ -825,16 +826,18 @@ class SimplePrintVisitor protected() {
     }
   }
 
-  protected def visitJavaCodeRef(statement: JavaCodeReferenceStatement, qualifier: Option[IntermediateNode],
-                                 parametrList: Option[IntermediateNode], name: String): Unit = {
+  protected def visitJavaCodeRef(statement: JavaCodeReferenceStatement,
+                                 qualifier: Option[IntermediateNode],
+                                 parametrList: Option[IntermediateNode],
+                                 @Nullable name: String): Unit = {
     if (qualifier.isDefined) {
       visit(qualifier.get)
       printer.append(".")
     }
 
     val escapedName = name match {
-      case "this" |
-           "super" => name
+      case "this" | "super" => name
+      case null => ""
       case _ => escapeKeyword(name)
     }
     this (statement) = escapedName
