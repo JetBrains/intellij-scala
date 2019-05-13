@@ -21,10 +21,17 @@ trait ScInterpolated extends ScalaPsiElement {
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = {
     val quote = if (isMultiLineString) "\"\"\"" else "\""
-    val parts = getStringParts.mkString(quote, s"$quote, $quote", quote) //making list of string literals
+    val parts = getStringParts
+    val partsString = parts.mkString(quote, s"$quote, $quote", quote) //making list of string literals
     val params = getInjections.map(_.getText).mkString("(", ",", ")")
-    if (getContext == null) None else Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
-      s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, ScInterpolated.this))
+    val context = getContext
+    if (context == null) {
+      None
+    } else {
+      val text = s"_root_.scala.StringContext($partsString).${getFirstChild.getText}$params"
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, ScInterpolated.this)
+      Option(expr)
+    }
   }
 
   def getInjections: Seq[ScExpression] =

@@ -1,0 +1,18 @@
+val x = 42
+s"""one "$x/* two"""
+-----
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+integer {42}
+white space in line {
+}
+interpolated string id {s}
+interpolatedmultiline string {"""one "}
+interpolated string injection {$}
+identifier {x}
+interpolatedmultiline string {/* two}
+interpolated string end {"""}
