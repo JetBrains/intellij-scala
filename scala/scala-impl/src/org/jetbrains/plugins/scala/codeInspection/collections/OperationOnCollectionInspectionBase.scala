@@ -45,13 +45,19 @@ object OperationOnCollectionInspectionBase {
     likeCollectionKey -> InspectionBundle.message("operation.on.collection.like.collection.panel.title"),
     likeOptionKey -> InspectionBundle.message("operation.on.collection.like.option.panel.title")
   )
+
+  object SimplifiableExpression {
+    def unapply(expr: ScExpression): Option[ScExpression] =
+      if (expr.isInstanceOf[ScBlock] || expr.isInstanceOf[ScParenthesisedExpr]) None
+      else Some(expr)
+  }
 }
 
 abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionName) {
   private val settings = ScalaApplicationSettings.getInstance()
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case expr: ScExpression => simplifications(expr).foreach {
+    case SimplifiableExpression(expr) => simplifications(expr).foreach {
       case s@Simplification(toReplace, _, hint, rangeInParent) =>
         val quickFix = OperationOnCollectionQuickFix(s)
         holder.registerProblem(toReplace.getElement, hint, highlightType, rangeInParent, quickFix)

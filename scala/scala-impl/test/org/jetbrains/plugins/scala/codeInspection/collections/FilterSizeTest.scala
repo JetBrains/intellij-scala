@@ -50,6 +50,42 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
+  def test_SCL15437(): Unit = {
+    val selected =
+      s"""
+        |trait LengthTest {
+        |  def foo(): Unit = {
+        |    Seq().${START}filter(_ => true).size$END
+        |
+        |
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasError(selected)
+
+    val text =
+      """
+        |trait LengthTest {
+        |  def foo(): Unit = {
+        |    Seq().filter(_ => true).size
+        |
+        |
+        |  }
+        |}
+      """.stripMargin
+
+    val result =
+      """
+        |trait LengthTest {
+        |  def foo(): Unit = {
+        |    Seq().count(_ => true)
+        |
+        |
+        |  }
+        |}
+      """.stripMargin
+    testQuickFix(text, result, hint)
+  }
 
   override val classOfInspection = classOf[FilterSizeInspection]
 }
