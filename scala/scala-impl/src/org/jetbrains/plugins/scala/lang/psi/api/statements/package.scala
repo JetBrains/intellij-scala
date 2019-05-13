@@ -194,7 +194,7 @@ package object statements {
 
     override def visitExpression(expression: ScExpression): Unit = {
       val maybeLastExpression = expression match {
-        case block: ScBlock => block.lastExpr
+        case block: ScBlock => block.resultExpression
         case _ => None
       }
 

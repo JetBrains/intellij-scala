@@ -34,7 +34,7 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
 
     thenBranch match {
       case tb: ScBlockExpr =>
-        val lastExpr = tb.lastExpr.orNull
+        val lastExpr = tb.resultExpression.orNull
         if (lastExpr == null) return false
         if (lastExpr.isInstanceOf[ScReturn]) return true
         if (lastExpr.isInstanceOf[ScThrow]) return true

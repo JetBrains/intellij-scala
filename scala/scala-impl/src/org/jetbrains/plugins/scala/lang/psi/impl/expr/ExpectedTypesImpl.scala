@@ -143,7 +143,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     val result: Array[ParameterType] = expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
-      case b: ScBlockExpr => b.lastExpr match {
+      case b: ScBlockExpr => b.resultExpression match {
         case Some(e) if b.needCheckExpectedType && e == sameInContext => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
@@ -304,7 +304,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case b: ScBlock if b.getContext.isInstanceOf[ScTry]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause]
-              || b.getContext.isInstanceOf[ScFunctionExpr] => b.lastExpr match {
+              || b.getContext.isInstanceOf[ScFunctionExpr] => b.resultExpression match {
         case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }

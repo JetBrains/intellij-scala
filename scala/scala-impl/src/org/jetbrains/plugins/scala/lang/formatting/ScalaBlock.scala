@@ -88,9 +88,9 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
-      case b: ScBlockExpr if b.lastExpr.exists(_.isInstanceOf[ScFunctionExpr]) =>
+      case b: ScBlockExpr if b.resultExpression.exists(_.isInstanceOf[ScFunctionExpr]) =>
         val indent = {
-          val nodeBeforeLast = b.lastExpr.get.getNode.getTreePrev
+          val nodeBeforeLast = b.resultExpression.get.getNode.getTreePrev
           val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
           val extraIndent =
             if (isLineBreak) getSubBlocks().size - newChildIndex

@@ -294,8 +294,8 @@ object ScalaPsiUtil {
     expr match {
       case b: ScBlockExpr =>
         if (b.statements.length != 1) (-1, expr)
-        else if (b.lastExpr.isEmpty) (-1, expr)
-        else isAnonymousExpression(b.lastExpr.get)
+        else if (b.resultExpression.isEmpty) (-1, expr)
+        else isAnonymousExpression(b.resultExpression.get)
       case p: ScParenthesisedExpr => p.innerElement match {
         case Some(x) => isAnonymousExpression(x)
         case _ => (-1, expr)

@@ -1076,7 +1076,7 @@ object ScalaRefactoringUtil {
       case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>
         fE.getContext match {
-          case be: ScBlock if be.lastExpr.contains(fE) => false
+          case be: ScBlock if be.resultExpression.contains(fE) => false
           case _ => true
         }
       case _ => false

@@ -22,7 +22,7 @@ package object codeInspection {
       isInUnitFunctionReturnPosition(expression)
 
   private[this] def isNonLastInBlock(expression: ScExpression) = expression.getParent match {
-    case block: ScBlock => !block.lastExpr.contains(expression)
+    case block: ScBlock => !block.resultExpression.contains(expression)
     case _ => false
   }
 

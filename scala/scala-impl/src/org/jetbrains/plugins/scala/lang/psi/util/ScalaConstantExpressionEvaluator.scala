@@ -54,7 +54,7 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
               def evaluateHelper(expr: ScExpression): Option[(String, Boolean)] = Option(computeConstantExpression(expr)).map { it => (acc + it, false) }
 
               child match {
-                case block: ScBlockExpr => block.lastExpr.flatMap(evaluateHelper).getOrElse(return null)
+                case block: ScBlockExpr => block.resultExpression.flatMap(evaluateHelper).getOrElse(return null)
                 case ref: ScReferenceExpression if expectingRef => evaluateHelper(ref).getOrElse(return null)
                 case _ if child.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION => (acc, true)
                 case _ if (child.getText != quotes) && child.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING => (acc + child.getText, false)

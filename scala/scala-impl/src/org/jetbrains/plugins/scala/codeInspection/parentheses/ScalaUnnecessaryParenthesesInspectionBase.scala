@@ -38,7 +38,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
 
     // If an anonymous function (x: T) => e with a single typed parameter appears as the result expression of a block, it can be abbreviated to x: T => e.
     def isBlockResultExpr: Boolean = f.getParent match {
-      case block: ScBlockExpr if block.lastExpr.contains(f) => true
+      case block: ScBlockExpr if block.resultExpression.contains(f) => true
       case _ => false
     }
     // In the case of a single untyped formal parameter, (x) => e can be abbreviated to x => e

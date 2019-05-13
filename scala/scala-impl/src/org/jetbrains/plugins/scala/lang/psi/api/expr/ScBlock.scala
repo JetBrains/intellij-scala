@@ -9,7 +9,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScCaseClauses}
@@ -76,7 +76,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
       }
     }
-    val inner = lastExpr match {
+    val inner = resultExpression match {
       case None =>
         ScalaPsiUtil.fileContext(this) match {
           case scalaFile: ScalaFile if scalaFile.isCompiled => Nothing
@@ -101,7 +101,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     case _ => None
   }
 
-  def lastExpr: Option[ScExpression] = findLastChild(classOf[ScExpression])
+  def resultExpression: Option[ScExpression] = findLastChild(classOf[ScBlockStatement]).flatMap(_.asOptionOf[ScExpression])
   def lastStatement: Option[ScBlockStatement] = findLastChild(classOf[ScBlockStatement])
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
