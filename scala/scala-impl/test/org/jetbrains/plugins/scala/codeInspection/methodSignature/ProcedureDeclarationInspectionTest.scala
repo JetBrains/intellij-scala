@@ -35,7 +35,8 @@ class ProcedureDeclarationInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasError(
       s"""def haha()
          |def ${START}hoho$END()
-         |def hihi()"""
+         |def hihi()""",
+      allowAdditionalHighlights = true
     )
 
     testQuickFix(
@@ -44,7 +45,8 @@ class ProcedureDeclarationInspectionTest extends ScalaQuickFixTestBase {
          |def hihi()""",
       """def haha()
         |def hoho(): Unit
-        |def hihi()"""
+        |def hihi()
+      """
     )
   }
 

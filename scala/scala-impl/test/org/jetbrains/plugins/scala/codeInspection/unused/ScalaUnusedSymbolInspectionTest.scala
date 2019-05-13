@@ -132,7 +132,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaQuickFixTestBase {
          |  }
          |}
       """.stripMargin
-    checkTextHasError(code)
+    checkTextHasError(code, allowAdditionalHighlights = true)
     val before =
       s"""
          |class Bar {

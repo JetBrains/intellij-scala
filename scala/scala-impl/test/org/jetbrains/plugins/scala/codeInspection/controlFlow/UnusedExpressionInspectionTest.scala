@@ -30,7 +30,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
   }
 
   def testTuple(): Unit = checkTextHasError {
-    s"""def foo(): Unit = {
+    s"""def foo(): Int = {
        |    var x = 0
        |    $START(0, 2)$END
        |    0
@@ -38,14 +38,14 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
   }
 
   def testReference(): Unit = checkTextHasError {
-    s"""def foo(): Unit = {
+    s"""def foo(): Int = {
        |    $START(0, 2)._1$END
        |    0
        |}"""
   }
 
   def testReferenceToVal(): Unit = checkTextHasError {
-    s"""def foo(): Unit = {
+    s"""def foo(): Int = {
        |  val a = 1
        |  ${START}a$END
        |  0
@@ -53,7 +53,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
   }
 
   def testTypedAndParenthesized(): Unit = checkTextHasError {
-    s"""def foo(): Unit = {
+    s"""def foo(): Int = {
        |  val s = "aaa"
        |  $START(s: String).substring(0)$END
        |  0

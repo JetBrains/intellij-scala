@@ -79,7 +79,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
                           |val a = true
                           |${START}true && (a || false)$END
       """.stripMargin
-    checkTextHasError(selectedText)
+    checkTextHasError(selectedText, allowAdditionalHighlights = true)
 
     val text = s"""
         |val a = true
@@ -97,7 +97,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
          |val a = true
          |true && (${START}a || false$END)
       """.stripMargin
-    checkTextHasError(selectedText)
+    checkTextHasError(selectedText, allowAdditionalHighlights = true)
 
     val text = s"""
                   |val a = true
@@ -127,7 +127,7 @@ class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
   def test_SimplifyInParentheses() {
     val selectedText = s"""val a = true
                           |!(${START}true != a$END)""".stripMargin
-    checkTextHasError(selectedText)
+    checkTextHasError(selectedText, allowAdditionalHighlights = true)
 
     val text = """val a = true
                   |!(true != a)""".stripMargin

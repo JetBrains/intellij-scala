@@ -37,15 +37,25 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
       !shouldPass ^ ranges.isEmpty)
   }
 
-  protected final def checkTextHasError(text: String): Unit = {
-    val ranges = findRanges(text)
-    val range = selectedRange(getEditor.getSelectionModel)
+  protected final def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
+    val foundRanges = findRanges(text)
+    val expectedHighlightRange = selectedRange(getEditor.getSelectionModel)
     if (shouldPass) {
-      assertTrue(s"Highlights not found: $description", ranges.nonEmpty)
-      assertTrue(s"Highlights found at: ${ranges.mkString(", ")}, not found: $range", ranges.contains(range))
+      assertTrue(s"Highlights not found: $description", foundRanges.nonEmpty)
+      assertTrue(s"Highlights found at: ${foundRanges.mkString(", ")}, not found: $expectedHighlightRange", foundRanges.contains(expectedHighlightRange))
+      val duplicatedHighlights = foundRanges
+        .groupBy(identity)
+        .mapValues(_.length)
+        .toSeq
+        .collect { case (highlight, count) if count > 1 => highlight }
+
+      assertTrue(s"Some highlights were duplicated: ${duplicatedHighlights.mkString(", ")}", duplicatedHighlights.isEmpty)
+      if (!allowAdditionalHighlights) {
+        assertTrue(s"Found too many highlights: ${foundRanges.mkString(", ")}", foundRanges.length == 1)
+      }
     } else {
-      assertTrue(failingPassed, ranges.isEmpty)
-      assertFalse(failingPassed, ranges.contains(range))
+      assertTrue(failingPassed, foundRanges.isEmpty)
+      assertFalse(failingPassed, foundRanges.contains(expectedHighlightRange))
     }
   }
 

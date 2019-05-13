@@ -66,7 +66,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaQuickFixTestBase {
          |${START}new$END Node(1, new Node(2, Empty))
           """.stripMargin
 
-    checkTextHasError(program)
+    checkTextHasError(program, allowAdditionalHighlights = true)
 
     val expected =
       s"""

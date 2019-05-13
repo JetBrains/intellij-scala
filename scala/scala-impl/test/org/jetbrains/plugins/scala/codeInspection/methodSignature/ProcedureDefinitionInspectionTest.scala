@@ -40,7 +40,8 @@ class ProcedureDefinitionInspectionTest extends ScalaQuickFixTestBase {
       text =
         s"""def haha() {}
            |def ${START}hoho$END() {}
-           |def hihi()"""
+           |def hihi()""",
+      allowAdditionalHighlights = true
     )
 
     testQuickFix(

@@ -74,8 +74,8 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
          |  case even if $START(even % 2 == 0)$END => (even + 1)
          |  case odd => 1 + (odd * 3)
          |}
-                """
-    checkTextHasError(selected)
+       """
+    checkTextHasError(selected, allowAdditionalHighlights = true)
 
     val text =
       s"""
@@ -83,7 +83,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
          |  case even if (${CARET_MARKER}even % 2 == 0) => (even + 1)
          |  case odd => 1 + (odd * 3)
          |}
-      """
+       """
     val result =
       """
         |def f(n: Int): Int = n match {
@@ -102,8 +102,8 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
          |  case even if (even % 2 == 0) => $START(even + 1)$END
          |  case odd => 1 + (odd * 3)
          |}
-                """
-    checkTextHasError(selected)
+       """
+    checkTextHasError(selected, allowAdditionalHighlights = true)
 
     val text =
       s"""
