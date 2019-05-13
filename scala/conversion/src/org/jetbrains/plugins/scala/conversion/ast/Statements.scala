@@ -34,7 +34,7 @@ case class SwitchLabelStatement(caseValue: Option[IntermediateNode], arrow: Stri
 
 case class SwitchStatemtnt(expession: Option[IntermediateNode], body: Option[IntermediateNode]) extends IntermediateNode
 
-case class TryCatchStatement(resourcesList: Seq[(String, IntermediateNode)], tryBlock: Option[IntermediateNode],
+case class TryCatchStatement(resourcesList: Seq[(String, IntermediateNode)], tryBlock: Seq[IntermediateNode],
                              catchStatements: Seq[(IntermediateNode, IntermediateNode)],
                              finallyStatements: Option[Seq[IntermediateNode]], arrow: String) extends IntermediateNode
 object WhileStatement {

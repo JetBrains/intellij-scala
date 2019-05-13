@@ -454,7 +454,9 @@ object JavaToScala {
             }
           }
         }
-        val tryBlock = Option(t.getTryBlock).map((c: PsiCodeBlock) => convertPsiToIntermediate(c, externalProperties))
+        val tryBlock = Option(t.getTryBlock)
+          .map((f: PsiCodeBlock) => f.getStatements.map(convertPsiToIntermediate(_, externalProperties)).toSeq)
+          .getOrElse(Seq.empty)
         val catches = t.getCatchSections.map((cb: PsiCatchSection) =>
           (convertPsiToIntermediate(cb.getParameter, externalProperties),
             convertPsiToIntermediate(cb.getCatchBlock, externalProperties)))

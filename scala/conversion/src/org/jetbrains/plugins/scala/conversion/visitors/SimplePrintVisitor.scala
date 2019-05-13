@@ -705,7 +705,7 @@ class SimplePrintVisitor protected() {
     else if (whileType == WhileStatement.POST_TEST_LOOP) printDoWhile()
   }
 
-  protected def visitTryCatch(resourcesList: Seq[(String, IntermediateNode)], tryBlock: Option[IntermediateNode],
+  protected def visitTryCatch(resourcesList: Seq[(String, IntermediateNode)], tryBlock: Seq[IntermediateNode],
                               catchStatements: Seq[(IntermediateNode, IntermediateNode)],
                               finallyStatements: Option[Seq[IntermediateNode]], arrow: String): Any = {
     if (resourcesList != null && resourcesList.nonEmpty) {
@@ -717,8 +717,15 @@ class SimplePrintVisitor protected() {
     }
 
     printer.append("try ")
-    tryBlock.foreach { t =>
-      printBodyWithBraces(t)(visit(t))
+    tryBlock match {
+      case Seq() => printer.append("{\n}")
+      case Seq(stmt) =>
+        visit(stmt)
+        printer.appendNewLine()
+      case stmts =>
+        printer.appendLeftBrace()
+        printWithSeparator(stmts, "\n")
+        printer.appendRightBrace()
     }
 
     if (catchStatements.nonEmpty) {
