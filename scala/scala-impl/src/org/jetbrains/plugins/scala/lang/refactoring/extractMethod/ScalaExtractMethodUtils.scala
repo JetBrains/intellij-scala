@@ -6,7 +6,7 @@ import java.util
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.util.VariableData
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations._
 
@@ -375,7 +375,7 @@ object ScalaExtractMethodUtils {
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element) {
       override val includePrefixImports: Boolean = false
     }
-    PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
+    PsiTreeUtil.treeWalkUp(processor, element, null, ScalaResolveState.empty)
     val allNames = new mutable.HashSet[String]()
     allNames ++= processor.candidatesS.map(rr => rr.element.name)
     def generateFreshName(s: String): String = {

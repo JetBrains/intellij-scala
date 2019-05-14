@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -61,7 +61,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   private def getVisibleVariables(elem: PsiElement, evaluationContext: EvaluationContext, alreadyCollected: util.Set[String]) = {
     val initialCandidates = inReadAction {
       val completionProcessor = new CollectingProcessor(elem)
-      PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ResolveState.initial)
+      PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ScalaResolveState.empty)
       completionProcessor.candidates
         .filter(srr => !alreadyCollected.asScala.map(ScalaParameterNameAdjuster.fixName).contains(srr.name))
         .filter(canEvaluate(_, elem))

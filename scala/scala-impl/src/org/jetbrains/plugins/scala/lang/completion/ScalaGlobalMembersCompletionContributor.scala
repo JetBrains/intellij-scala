@@ -27,10 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, ScalaResolveState, StdKinds}
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.{JavaConverters, mutable}
 
 /**
@@ -236,7 +235,7 @@ object ScalaGlobalMembersCompletionContributor {
               case c: ScClass    => c.getSyntheticImplicitMethod
               case _             => None
             }
-            function.foreach(processor.execute(_, ResolveState.initial))
+            function.foreach(processor.execute(_, ScalaResolveState.empty))
 
           case definition @ (_: ScTrait | _: ScClass) =>
             val processedObjects = mutable.HashSet.empty[String]
@@ -244,21 +243,14 @@ object ScalaGlobalMembersCompletionContributor {
               case o: ScObject if o.isStatic && processedObjects.add(o.qualifiedName) => o
             }.flatMap {
               _.`type`().toOption
-            }.foreach { objectType =>
-              processor.processType(objectType, place)
+            }.foreach {
+              processor.processType(_, place)
             }
           case _ =>
         }
       }
 
-      val candidates = processor.candidates
-      val buffer = new ArrayBuffer[Option[ScType]]
-      var idx = 0
-      while (idx < candidates.length) {
-        buffer += candidates(idx).fromType
-        idx += 1
-      }
-      candidates
+      processor.candidates
     }
 
     private def completeImplicits(resolveResult: ScalaResolveResult, resultType: ScType): Iterable[ImplicitMemberResult] = {

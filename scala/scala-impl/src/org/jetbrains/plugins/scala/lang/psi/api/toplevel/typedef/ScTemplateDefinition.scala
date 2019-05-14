@@ -34,8 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -312,7 +312,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
                                          lastParent: PsiElement,
                                          place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
-    var state = oldState
     //exception cases
     this match {
       case s: ScTypeParametersOwner => s.typeParametersClause match {
@@ -324,12 +323,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
     // Process selftype reference
     selfTypeElement match {
-      case Some(se) if se.name != "_" => if (!processor.execute(se, state)) return false
+      case Some(se) if se.name != "_" => if (!processor.execute(se, oldState)) return false
       case _ =>
     }
-    state = state.put(BaseProcessor.FROM_TYPE_KEY,
+
+    val fromType =
       if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
-      else ScalaType.designator(this))
+      else ScalaType.designator(this)
+
+    val state = oldState.withFromType(fromType)
+
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if PsiTreeUtil.isContextAncestor(p, place, false) =>

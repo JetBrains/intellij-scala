@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
 import scala.collection.Seq
 
@@ -67,10 +67,10 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
       Seq.empty /*todo: ? */ , StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
       enableTupling = true, selfConstructorResolve = true)
     for (constr <- clazz.secondaryConstructors.filter(_ != method) if constr != method) {
-      proc.execute(constr, ResolveState.initial)
+      proc.execute(constr, ScalaResolveState.empty)
     }
     clazz.constructor match {
-      case Some(constr) => proc.execute(constr, ResolveState.initial())
+      case Some(constr) => proc.execute(constr, ScalaResolveState.empty)
       case _ =>
     }
     proc.candidates

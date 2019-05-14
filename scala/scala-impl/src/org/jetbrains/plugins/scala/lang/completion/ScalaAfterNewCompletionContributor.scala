@@ -170,7 +170,7 @@ object ScalaAfterNewCompletionContributor {
           presentation.setStrikeout(isDeprecated)
 
           val nameText = isRenamed match {
-            case Some(nameShadow) => s"$nameShadow <= $name"
+            case Some(newName) => s"$newName <= $name"
             case _ => name
           }
           val parametersText = typeParameters match {

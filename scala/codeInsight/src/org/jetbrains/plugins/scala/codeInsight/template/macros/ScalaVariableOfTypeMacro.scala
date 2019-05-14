@@ -8,13 +8,13 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.TextExpression
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
 /**
   * @author Roman.Shein
@@ -143,7 +143,7 @@ object ScalaVariableOfTypeMacro {
     */
   private[this] def variablesForScope(element: PsiElement) = {
     val processor = new VariablesCompletionProcessor(StdKinds.valuesRef)(element)
-    PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
+    PsiTreeUtil.treeWalkUp(processor, element, null, ScalaResolveState.empty)
     processor.candidates.toList
   }
 

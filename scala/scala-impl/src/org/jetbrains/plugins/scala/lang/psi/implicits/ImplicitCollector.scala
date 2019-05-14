@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
@@ -204,8 +205,9 @@ class ImplicitCollector(place: PsiElement,
                                   (implicit state: ResolveState): Boolean = {
 
       if (isImplicit(namedElement) && isAccessible(namedElement, getPlace)) {
-        val subst = getSubstWithThisType(state)
-        addResult(new ScalaResolveResult(namedElement, subst, getImports(state), implicitSearchState = Some(collectorState)))
+        addResult(new ScalaResolveResult(namedElement, state.substitutorWithThisType,
+          importsUsed =  state.importsUsed,
+          implicitSearchState = Some(collectorState)))
       }
 
       true

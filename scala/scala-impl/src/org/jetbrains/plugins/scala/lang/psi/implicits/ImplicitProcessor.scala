@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScAbstractType, ScCompoundType, ScExistentialType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -111,7 +111,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
     @tailrec
     def treeWalkUp(element: PsiElement, lastParent: PsiElement): Unit =
       if (element != null &&
-        element.processDeclarations(this, ResolveState.initial, lastParent, getPlace)) {
+        element.processDeclarations(this, ScalaResolveState.empty, lastParent, getPlace)) {
         val isNewLevel = element match {
           case _: ScTemplateBody | _: ScExtendsBlock => true // template body and inherited members are at the same level
           case _ => changedLevel
@@ -128,7 +128,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
 
   final def candidatesByType(expandedType: ScType): Set[ScalaResolveResult] = {
     ImplicitProcessor.findImplicitObjects(expandedType.removeAliasDefinitions(), getPlace.resolveScope).foreach {
-      processType(_, getPlace, ResolveState.initial)
+      processType(_, getPlace, ScalaResolveState.empty)
     }
     candidatesS
   }

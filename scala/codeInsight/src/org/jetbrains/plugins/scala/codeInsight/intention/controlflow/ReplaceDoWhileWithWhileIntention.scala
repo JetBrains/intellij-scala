@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveState}
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
@@ -140,7 +140,7 @@ object ReplaceDoWhileWithWhileIntention {
 
     val firstChild: PsiElement = element.getFirstChild
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, isImplicit = true)
-    element.processDeclarations(processor, ResolveState.initial(), firstChild, firstChild)
+    element.processDeclarations(processor, ScalaResolveState.empty, firstChild, firstChild)
     val candidates: Set[ScalaResolveResult] = processor.candidatesS
 
     candidates.map(_.name)

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -31,7 +32,7 @@ class ExtractorResolveProcessor(ref: ScReference,
 
       def resultsForTypedDef(obj: ScTypedDefinition) {
         def resultsFor(unapplyName: String) = {
-          val typeResult = getFromType(state) match {
+          val typeResult = state.fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))
             case _ => obj.`type`()
           }
@@ -43,10 +44,10 @@ class ExtractorResolveProcessor(ref: ScReference,
           }.toSeq
           addResults(sigs.map {
             case (m, subst, parent) =>
-              val resolveToMethod = new ScalaResolveResult(m, subst, getImports(state),
-                fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
-              val resolveToNamed = new ScalaResolveResult(namedElement, subst, getImports(state),
-                fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
+              val resolveToMethod = new ScalaResolveResult(m, subst, state.importsUsed,
+                fromType = state.fromType, parentElement = parent, isAccessible = accessible)
+              val resolveToNamed = new ScalaResolveResult(namedElement, subst, state.importsUsed,
+                fromType = state.fromType, parentElement = parent, isAccessible = accessible)
 
               resolveToMethod.copy(innerResolveResult = Option(resolveToNamed))
           })
@@ -60,8 +61,8 @@ class ExtractorResolveProcessor(ref: ScReference,
           obj match {
             case FakeCompanionClassOrCompanionClass(cl: ScClass)
               if cl.tooBigForUnapply && cl.scalaLanguageLevel.exists(_ >= Scala_2_11) =>
-              addResult(new ScalaResolveResult(namedElement, ScSubstitutor.empty, getImports(state),
-                  fromType = getFromType(state), parentElement = Option(obj), isAccessible = accessible))
+              addResult(new ScalaResolveResult(namedElement, ScSubstitutor.empty, state.importsUsed,
+                  fromType = state.fromType, parentElement = Option(obj), isAccessible = accessible))
             case _ =>
           }
         }

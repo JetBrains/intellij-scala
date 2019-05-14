@@ -47,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePol
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
@@ -200,13 +201,12 @@ object ScalaPsiUtil {
 
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
                               lastParent: PsiElement, typeResult: => TypeResult): Boolean = {
-    val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
     lastParent match {
       case _: ScImportStmt =>
         typeResult match {
           case Right(t) =>
             (processor, place) match {
-              case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst(t), p, state)
+              case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(state.substitutor(t), p, state)
               case _ => true
             }
           case _ => true

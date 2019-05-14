@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -61,40 +61,40 @@ class MethodResolveProcessor(override val ref: PsiElement,
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
 
-    def implFunction: Option[ScalaResolveResult] = state.get(IMPLICIT_FUNCTION).toOption
+    def implFunction: Option[ScalaResolveResult] = state.implicitConversion
 
-    def implType: Option[ScType] = state.get(IMPLICIT_TYPE).toOption
+    def implType: Option[ScType] = state.implicitType
 
-    def isNamedParameter: Boolean = state.get(NAMED_PARAM_KEY).toOption.exists(_.booleanValue)
-    def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
-    def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.get(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY).toOption
-    def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
-    def forwardReference: Boolean = isForwardReference(state)
+    def isNamedParameter: Boolean = state.isNamedParameter
+    def fromType: Option[ScType] = state.fromType
+    def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.unresolvedTypeParams
+    def renamed: Option[String] = state.renamed
+    def forwardReference: Boolean = state.isForwardRef
+    def importsUsed = state.importsUsed
 
     if (nameMatches(namedElement) || constructorResolve) {
       val accessible = isNamedParameter || isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
-      val s = getSubstWithThisType(state)
+      val s = state.substitutorWithThisType
 
       namedElement match {
         case m: PsiMethod =>
-          addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow,
+          addResult(new ScalaResolveResult(m, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           val functionName = if (isUpdate) "update" else "apply"
-          val typeResult = getFromType(state) match {
+          val typeResult = fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))
             case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, functionName)
 
-          import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
           // keep information about imports for proper precedence
-          val newState = ResolveState.initial.put(ImportUsed.key,  state.get(ImportUsed.key))
+          val newState = ScalaResolveState.withImportsUsed(state.importsUsed)
           typeResult.foreach(t => processor.processType(t, ref, newState))
 
           val sigs = processor.candidatesS.flatMap {
@@ -103,26 +103,26 @@ class MethodResolveProcessor(override val ref: PsiElement,
           }.toSeq
           val seq = sigs.map {
             case (m, subst) =>
-              new ScalaResolveResult(m, subst, getImports(state), nameShadow,
+              new ScalaResolveResult(m, subst, importsUsed, renamed,
                 implicitConversion = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(obj),
                 isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference,
                 unresolvedTypeParameters = unresolvedTypeParameters)
           }.filter { r => !accessibility || r.isAccessible }
           if (seq.nonEmpty) addResults(seq)
-          else addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow,
+          else addResult(new ScalaResolveResult(namedElement, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))
         case synthetic: ScSyntheticFunction =>
-          addResult(new ScalaResolveResult(synthetic, s, getImports(state), nameShadow,
+          addResult(new ScalaResolveResult(synthetic, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), nameShadow,
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow,
+          addResult(new ScalaResolveResult(namedElement, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))

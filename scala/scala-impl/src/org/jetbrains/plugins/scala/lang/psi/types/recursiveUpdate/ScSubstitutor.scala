@@ -3,7 +3,6 @@ package types
 package recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.ArrayExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -170,8 +169,6 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 
 object ScSubstitutor {
   val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor")
-
-  val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 
   val empty: ScSubstitutor = new ScSubstitutor(Array.empty)
 

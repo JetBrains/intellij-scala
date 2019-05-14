@@ -31,8 +31,8 @@ import scala.annotation.tailrec
 
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor = ScSubstitutor.empty,
-                         val importsUsed: collection.Set[ImportUsed] = collection.Set[ImportUsed](),
-                         val nameShadow: Option[String] = None,
+                         val importsUsed: Set[ImportUsed] = Set.empty,
+                         val renamed: Option[String] = None,
                          val problems: Seq[ApplicabilityProblem] = Seq.empty,
                          val implicitConversion: Option[ScalaResolveResult] = None,
                          val implicitType: Option[ScType] = None,
@@ -85,7 +85,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def isValidResult: Boolean = isAccessible && isApplicable()
 
-  def isRenamed: Option[String] = nameShadow
+  def isRenamed: Option[String] = renamed
 
   def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
 
@@ -106,12 +106,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
            nameArgForDynamic: Option[String] = nameArgForDynamic,
            isForwardReference: Boolean = isForwardReference,
            implicitParameterType: Option[ScType] = implicitParameterType,
-           importsUsed: collection.Set[ImportUsed] = importsUsed,
+           importsUsed: Set[ImportUsed] = importsUsed,
            implicitParameters: Seq[ScalaResolveResult] = implicitParameters,
            implicitReason: ImplicitResult = implicitReason,
            implicitSearchState: Option[ImplicitState] = implicitSearchState,
            unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters): ScalaResolveResult =
-    new ScalaResolveResult(element, subst, importsUsed, nameShadow, problems,
+    new ScalaResolveResult(element, subst, importsUsed, renamed, problems,
       implicitConversion, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isAssignment, notCheckedResolveResult,
       isAccessible, resultUndef, nameArgForDynamic = nameArgForDynamic, isForwardReference = isForwardReference,
@@ -123,13 +123,13 @@ class ScalaResolveResult(val element: PsiNamedElement,
   override def equals(other: Any): Boolean = other match {
     case rr: ScalaResolveResult =>
       if (element ne rr.element) return false
-      if (nameShadow != rr.nameShadow) return false
+      if (renamed != rr.renamed) return false
       if (implicitFunction != rr.implicitFunction) return false
       innerResolveResult == rr.innerResolveResult
     case _ => false
   }
 
-  override def hashCode: Int = Objects.hash(element, innerResolveResult, nameShadow, implicitFunction)
+  override def hashCode: Int = Objects.hash(element, innerResolveResult, renamed, implicitFunction)
 
   override def toString: String =  {
     val name = element match {

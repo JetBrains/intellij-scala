@@ -353,7 +353,7 @@ object ResolveUtils {
         case Some(t) => processor.processType(t, place)
         case None => superRef.drvTemplate match {
           case Some(c) =>
-            TypeDefinitionMembers.processSuperDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, ScSubstitutor.empty), null, place)
+            TypeDefinitionMembers.processSuperDeclarations(c, processor, ScalaResolveState.withSubstitutor(ScSubstitutor.empty), null, place)
           case None =>
         }
       }

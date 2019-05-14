@@ -32,14 +32,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
+
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -277,14 +278,14 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p: ScTypeElement if p.analog.isDefined =>
               // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
               // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
-              if (!p.processDeclarations(processor, ResolveState.initial(), lastParent, this)) return
+              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this)) return
               treeWalkUp(p.analog.get, lastParent)
                 // annotation should not walk through it's own annotee while resolving
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place)
             case p =>
-              if (!p.processDeclarations(processor, ResolveState.initial, lastParent, this)) return
+              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this)) return
               place match {
                 case _: ScTemplateBody | _: ScExtendsBlock => // template body and inherited members are at the same level.
                 case _ => if (!processor.changedLevel) return
@@ -340,7 +341,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     var withDynamicResult: Option[Array[ScalaResolveResult]] = None
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
-        val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
+        val state = ScalaResolveState.withSubstitutor(substitutor)
 
         td match {
           case obj: ScObject =>
@@ -350,7 +351,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             }
             fromType match {
               case Right(qualType) =>
-                val stateWithType = state.put(BaseProcessor.FROM_TYPE_KEY, qualType)
+                val stateWithType = state.withFromType(qualType)
                 processor.processType(qualType, this, stateWithType)
 
                 withDynamicResult = withDynamic(qualType, stateWithType, processor)
@@ -366,7 +367,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         typeFromMacro.foreach(processor.processType(_, qualifier))
       case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
         val fromType = s(tp)
-        val state = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType)
+        val state = ScalaResolveState.withFromType(fromType)
         processor.processType(fromType, this, state)
         withDynamicResult = withDynamic(fromType, state, processor)
         processor match {
@@ -389,10 +390,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(clazz: PsiClass, _) =>
         processor.processType(ScDesignatorType.static(clazz), this) //static Java import
       case ScalaResolveResult(pack: ScPackage, s) =>
-        pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
+        pack.processDeclarations(processor, ScalaResolveState.withSubstitutor(s),
           null, this)
       case other: ScalaResolveResult =>
-        other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
+        other.element.processDeclarations(processor, ScalaResolveState.withSubstitutor(other.substitutor),
           null, this)
       case _ =>
     }
@@ -497,8 +498,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           val manager = ScalaPsiManager.instance(getProject)
           val classes = manager.getCachedClasses(getResolveScope, refText)
           val pack = facade.findPackage(refText)
-          if (pack != null) processor.execute(pack, ResolveState.initial)
-          for (clazz <- classes) processor.execute(clazz, ResolveState.initial)
+          if (pack != null) processor.execute(pack, ScalaResolveState.empty)
+          for (clazz <- classes) processor.execute(clazz, ScalaResolveState.empty)
           val candidates = processor.candidatesS
           val filtered = candidates.filter(candidatesFilter)
 

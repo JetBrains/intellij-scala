@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+
 
 /**
   * @author adkozlov
@@ -36,17 +38,19 @@ final class ImplicitConversionProcessor(override val getPlace: ScExpression,
 
   private def addIfHasFunctionType(namedElement: PsiNamedElement with Typeable)
                                   (implicit state: ResolveState): Unit = {
-    val subst: ScSubstitutor = getSubstWithThisType(state)
+    val subst: ScSubstitutor = state.substitutorWithThisType
     val elemType = subst(namedElement.`type`().getOrAny)
 
-    if (functionType.exists(!elemType.conforms(_))) true
-    else addResult(new ScalaResolveResult(namedElement, subst, getImports(state)))
+    if (functionType.exists(elemType.conforms(_))) {
+      addResult(new ScalaResolveResult(namedElement, subst, state.importsUsed))
+    }
   }
 
   private def addIfImplicitConversion(function: ScFunction)
                                      (implicit state: ResolveState): Unit = {
-    if (!function.isImplicitConversion) true
-    else addResult(new ScalaResolveResult(function, getSubstWithThisType(state), getImports(state)))
+    if (function.isImplicitConversion) {
+      addResult(new ScalaResolveResult(function, state.substitutorWithThisType, state.importsUsed))
+    }
   }
 }
 

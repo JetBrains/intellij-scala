@@ -4,6 +4,7 @@ package resolve
 package processor
 
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import com.intellij.psi.search.GlobalSearchScope
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -121,7 +123,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
+    def renamed: Option[String] = state.renamed
 
     if (nameMatches(namedElement)) {
       val accessible = isAccessible(namedElement, ref)
@@ -131,16 +133,16 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
           val resolveResult: ScalaResolveResult =
-            new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible)
+            new ScalaResolveResult(ScPackageImpl(pack), state.substitutor, state.importsUsed, renamed, isAccessible = accessible)
           addResult(resolveResult)
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
-          addResult(new ScalaResolveResult(namedElement, getSubst(state),
-            getImports(state), nameShadow, fromType = getFromType(state), isAccessible = accessible))
+          addResult(new ScalaResolveResult(namedElement, state.substitutor,
+            state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible))
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, getSubst(state),
-            getImports(state), nameShadow, fromType = getFromType(state), isAccessible = accessible))
+          addResult(new ScalaResolveResult(namedElement, state.substitutor,
+            state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible))
       }
     }
 
@@ -149,16 +151,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   protected final def nameMatches(namedElement: PsiNamedElement)
                                  (implicit state: ResolveState): Boolean = {
-    val elementName = state.get(ResolverEnv.nameKey) match {
-      case null =>
-        namedElement.name match {
-          case null | "" => return false
-          case byElementName => byElementName
-        }
+    val elementName = state.renamed.getOrElse(namedElement.name)
 
-      case byStateName => byStateName
-    }
-    ScalaNamesUtil.equivalent(elementName, name)
+    !StringUtil.isEmpty(elementName) && ScalaNamesUtil.equivalent(elementName, name)
   }
 
   override def getHint[T](hintKey: Key[T]): T = {
@@ -242,10 +237,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   object ScalaNameHint extends NameHint {
-    def getName(state: ResolveState): String = {
-      val stateName = state.get(ResolverEnv.nameKey)
-      if (stateName == null) name else stateName
-    }
+    def getName(state: ResolveState): String = state.renamed.getOrElse(name)
   }
 
   override def toString = s"ResolveProcessor($name)"

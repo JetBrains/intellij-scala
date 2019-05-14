@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -139,7 +139,7 @@ final class ScProjectionType private(val projected: ScType,
           true
         }
       }
-      processor.processType(projected, resolvePlace, ResolveState.initial, updateWithProjectionSubst)
+      processor.processType(projected, resolvePlace, ScalaResolveState.empty, updateWithProjectionSubst)
 
       processor.candidates match {
         case Array(candidate) => candidate.element match {

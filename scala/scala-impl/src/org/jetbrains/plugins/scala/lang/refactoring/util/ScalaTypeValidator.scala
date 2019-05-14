@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
@@ -51,7 +51,7 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
         true
       }
     }
-    PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
+    PsiTreeUtil.treeWalkUp(processor, position, null, ScalaResolveState.empty)
 
     result
   }

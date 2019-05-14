@@ -122,11 +122,11 @@ object ScalaClassNameCompletionContributor {
         case (ClassTypeToImport(clazz), Some(createLookups)) =>
           Seq(createLookups(clazz, renamesMap))
         case _ =>
-          val nameShadow = renamesMap.get(name).collect {
+          val renamed = renamesMap.get(name).collect {
             case (`element`, s) => s
           }
 
-          new ScalaResolveResult(element, nameShadow = nameShadow).getLookupElement(
+          new ScalaResolveResult(element, renamed = renamed).getLookupElement(
             isClassName = true,
             isInImport = isInImport,
             isInStableCodeReference = stableRefElement != null,

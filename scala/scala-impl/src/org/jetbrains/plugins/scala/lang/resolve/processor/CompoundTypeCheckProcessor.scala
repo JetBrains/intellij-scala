@@ -16,7 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter,
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
+
 
 /**
  * @author Alexander Podkhalyuzin
@@ -42,7 +44,7 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    val subst = getSubst(state)
+    val subst = state.substitutor
     if (ScalaNamesUtil.clean(namedElement.name) != s.name) return true
 
     var undef = constraints
@@ -171,7 +173,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    val subst = getSubst(state)
+    val subst = state.substitutor
     if (namedElement.name != name) return true
 
     var undef = constraints

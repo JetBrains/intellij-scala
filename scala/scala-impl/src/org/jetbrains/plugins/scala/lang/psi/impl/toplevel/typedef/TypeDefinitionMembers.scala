@@ -24,9 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI
 
 /**
  * @author ven
@@ -279,9 +279,8 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    val compThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).flatten
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(comp, compThisType)))
+    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(comp, state.compoundOrThisType)))
       return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
@@ -335,7 +334,7 @@ object TypeDefinitionMembers {
                                          isSupers: Boolean = false
                                         ): Boolean = {
 
-    val subst = Option(state.get(ScSubstitutor.key)).getOrElse(ScSubstitutor.empty)
+    val subst = state.substitutor
     val nameHint = getNameHint(processor, state)
 
     val isScalaProcessor = processor.isInstanceOf[BaseProcessor]
@@ -348,7 +347,7 @@ object TypeDefinitionMembers {
 
     def process(signature: Signature): Boolean = {
       if (signature.namedElement.isValid) {
-        processor.execute(signature.namedElement, state.put(ScSubstitutor.key, signature.substitutor.followed(subst)))
+        processor.execute(signature.namedElement, state.withSubstitutor(signature.substitutor.followed(subst)))
       } else true
     }
 

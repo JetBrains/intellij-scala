@@ -9,17 +9,16 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.{BetterMonadicForSupport, KindProjectorUtil}
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
@@ -63,14 +62,9 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     val manager = ScalaPsiManager.instance(getProject)
 
     place match {
-      case ref: ScStableCodeReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
+      case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
         val top = ScPackageImpl(manager.getCachedPackage("").orNull)
-        if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
-        state.put(ResolverEnv.nameKey, null)
-      case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier.isEmpty =>
-        val top = ScPackageImpl(manager.getCachedPackage("").orNull)
-        if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
-        state.put(ResolverEnv.nameKey, null)
+        if (top != null && !processor.execute(top, state.withRename("_root_"))) return false
       case _ =>
         val defaultPackage = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
@@ -142,10 +136,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
 
             clazz match {
               case td: ScTypeDefinition if !isScalaPredefinedClass =>
-                var newState = state
-                td.`type`().foreach {
-                  tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-                }
+                val newState = state.withFromType(td.`type`().toOption)
                 if (!clazz.processDeclarations(processor, newState, null, place)) return false
               case _ =>
             }

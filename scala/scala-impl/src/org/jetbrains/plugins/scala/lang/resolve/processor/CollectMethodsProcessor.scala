@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+
 
 /**
  * @author Alexander Podkhalyuzin
@@ -18,13 +19,13 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
       if (accessibility && !accessible) return true
 
       namedElement match {
-        case m: PsiMethod =>
-          addResult(new ScalaResolveResult(m,
-            substitutor = getSubst(state),
-            importsUsed = getImports(state),
-            implicitConversion = Option(state.get(IMPLICIT_FUNCTION)),
-            implicitType = Option(state.get(IMPLICIT_TYPE)),
-            isAccessible = accessible))
+        case method: PsiMethod =>
+          addResult(new ScalaResolveResult(method,
+            substitutor        = state.substitutor,
+            importsUsed        = state.importsUsed,
+            implicitConversion = state.implicitConversion,
+            implicitType       = state.implicitType,
+            isAccessible       = accessible))
         case _ =>
       }
     }

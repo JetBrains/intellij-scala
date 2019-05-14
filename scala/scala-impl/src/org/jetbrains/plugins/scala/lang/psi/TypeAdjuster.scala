@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScalaTypePresentation, TypePr
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -388,7 +388,7 @@ object TypeAdjuster extends ApplicationAdapter {
         }
       }
       val processor = new FindTypeAliasProcessor
-      PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
+      PsiTreeUtil.treeWalkUp(processor, position, null, ScalaResolveState.empty)
       processor.collected
     }
   }

@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
@@ -90,7 +90,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     if (DumbService.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
-      val newState = state.put(BaseProcessor.FROM_TYPE_KEY, null)
+      val newState = state.withFromType(None)
       val qual = qualifiedName
       val facade = JavaPsiFacade.getInstance(getProject)
       val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE

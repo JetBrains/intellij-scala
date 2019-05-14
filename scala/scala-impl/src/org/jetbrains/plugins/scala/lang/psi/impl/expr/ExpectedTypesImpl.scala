@@ -29,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -572,7 +572,7 @@ private object ExpectedTypesImpl {
       val applyProc =
         new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */ ,
           StdKinds.methodsOnly, isShapeResolve = true)
-      applyProc.processType(tp, expr, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, tp))
+      applyProc.processType(tp, expr, ScalaResolveState.withFromType(tp))
       var cand = applyProc.candidates
       if (cand.length == 0 && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr

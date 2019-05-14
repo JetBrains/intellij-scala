@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+
 
 /**
   * @author adkozlov
@@ -48,23 +48,23 @@ object ImplicitResolveResult {
 
     ProgressManager.checkCanceled()
 
-    private[this] var innerState: ResolveState = ResolveState.initial.put(IMPLICIT_FUNCTION, result.resolveResult)
+    private[this] var innerState: ResolveState = ScalaResolveState.withImplicitConversion(result.resolveResult)
 
     def state: ResolveState = innerState
 
     def withType: ResolverStateBuilder = {
-      innerState = innerState.put(BaseProcessor.FROM_TYPE_KEY, result.`type`)
-      innerState = innerState.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, result.unresolvedTypeParameters)
+      innerState = innerState.withFromType(result.`type`)
+      innerState = innerState.withUnresolvedTypeParams(result.unresolvedTypeParameters)
       this
     }
 
     def withImports: ResolverStateBuilder = {
-      innerState = innerState.put(ImportUsed.key, result.resolveResult.importsUsed)
+      innerState = innerState.withImportsUsed(result.resolveResult.importsUsed)
       this
     }
 
     def withImplicitType: ResolverStateBuilder = {
-      innerState = innerState.put(IMPLICIT_TYPE, result.`type`)
+      innerState = innerState.withImplicitType(result.`type`)
       this
     }
   }

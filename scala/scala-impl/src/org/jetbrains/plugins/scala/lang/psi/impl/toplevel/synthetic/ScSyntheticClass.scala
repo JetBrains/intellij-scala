@@ -23,7 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Seq, mutable}
@@ -115,8 +116,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
                                   place: PsiElement): Boolean = {
     processor match {
       case p : ResolveProcessor =>
-        val nameSet = state.get(ResolverEnv.nameKey)
-        val name = ScalaNamesUtil.clean(if (nameSet == null) p.name else nameSet)
+        val name = ScalaNamesUtil.clean(state.renamed.getOrElse(p.name))
         methods.get(name) match {
           case Some(ms) => for (method <- ms) {
             if (!processor.execute(method, state)) return false

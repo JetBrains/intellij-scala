@@ -6,14 +6,13 @@ package processor
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TermSignature}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, PrecedenceHelper, TopPrecedenceHolder}
 
 import scala.collection.{Set, mutable}
@@ -35,16 +34,15 @@ object CompletionProcessor {
                                    substitutor: ScSubstitutor,
                                    implcitConversion: Option[ScalaResolveResult])
                                   (implicit state: ResolveState): Seq[ScalaResolveResult] = {
-    val isRenamed = findByKey(ResolverEnv.nameKey)
-    val fromType = findByKey(BaseProcessor.FROM_TYPE_KEY)
-    val importsUsed = findByKey(ImportUsed.key).getOrElse(Set.empty)
-    val prefixCompletion = findByKey(ScalaCompletionUtil.PREFIX_COMPLETION_KEY).getOrElse(false)
-
     candidates.map {
-      case (element, isNamedParameter) => new ScalaResolveResult(element, substitutor,
-        nameShadow = isRenamed, implicitConversion = implcitConversion,
-        isNamedParameter = isNamedParameter, fromType = fromType,
-        importsUsed = importsUsed, prefixCompletion = prefixCompletion)
+      case (element, isNamedParameter) =>
+        new ScalaResolveResult(element, substitutor,
+          renamed            = state.renamed,
+          implicitConversion = implcitConversion,
+          isNamedParameter   = isNamedParameter,
+          fromType           = state.fromType,
+          importsUsed        = state.importsUsed,
+          prefixCompletion   = state.isPrefixCompletion)
     }
   }
 }
@@ -87,14 +85,14 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     val candidates = findCandidates(namedElement)
     if (candidates.isEmpty) return true
 
-    val substitutor = findByKey(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
-    val implicitFunction = findByKey(BaseProcessor.IMPLICIT_FUNCTION)
+    val substitutor = state.substitutor
+    val implicitConversion = state.implicitConversion
 
-    val resolveResults = createResolveResults(candidates, substitutor, implicitFunction)
+    val resolveResults = createResolveResults(candidates, substitutor, implicitConversion)
     val maybeSignature = getSignature(namedElement, substitutor)
 
     resolveResults.filter {
-      case _ if implicitFunction.isDefined && maybeSignature.isDefined => implicitCase(maybeSignature.get)
+      case _ if implicitConversion.isDefined && maybeSignature.isDefined => implicitCase(maybeSignature.get)
       case result => regularCase(result, maybeSignature)
     }.foreach(addResult)
 
@@ -109,7 +107,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case definition: ScTypeDefinition =>
         (Seq(definition) ++ getCompanionModule(definition)).map((_, false))
       case _ =>
-        val isNamedParameter = findByKey(BaseProcessor.NAMED_PARAM_KEY).exists(_.booleanValue())
+        val isNamedParameter = state.isNamedParameter
         Seq((namedElement, isNamedParameter))
     }
 

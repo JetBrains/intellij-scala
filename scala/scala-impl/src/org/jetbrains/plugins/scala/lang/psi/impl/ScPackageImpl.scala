@@ -9,13 +9,14 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
@@ -44,13 +45,13 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
         def alreadyContains(className: String) = namesSet.contains(className)
 
         for (synth <- SyntheticClasses.get(getProject).getAll) {
-          if (!alreadyContains(synth.name)) processor.execute(synth, ResolveState.initial)
+          if (!alreadyContains(synth.name)) processor.execute(synth, ScalaResolveState.empty)
         }
         for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects.valuesIterator) {
 
           // Assume that is the scala package contained a class with the same names as the synthetic object,
           // then it must also contain the object.
-          if (!alreadyContains(synthObj.name)) processor.execute(synthObj, ResolveState.initial)
+          if (!alreadyContains(synthObj.name)) processor.execute(synthObj, ScalaResolveState.empty)
         }
       }
     } else {
@@ -71,7 +72,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
 
       maybeObject.forall { obj =>
         val newState = obj.`type`().toOption.fold(state) {
-          state.put(BaseProcessor.FROM_TYPE_KEY, _)
+          state.withFromType(_)
         }
 
         obj.processDeclarations(processor, newState, lastParent, place)

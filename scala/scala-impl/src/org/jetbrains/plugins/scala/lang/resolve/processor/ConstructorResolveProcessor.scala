@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
 import scala.collection.Set
@@ -24,9 +25,9 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    val fromType = getFromType(state)
+    val fromType = state.fromType
 
-    val defaultSubstitutor = getSubstWithThisType(state)
+    val defaultSubstitutor = state.substitutorWithThisType
 
     if (nameMatches(namedElement)) {
       val accessible = isAccessible(namedElement, ref)
@@ -77,8 +78,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
 
           new ScalaResolveResult(namedElement,
             substitutor,
-            getImports(state),
-            Option(state.get(ResolverEnv.nameKey)),
+            state.importsUsed,
+            state.renamed,
             parentElement = parentElement,
             fromType = fromType,
             isAccessible = elementIsAccessible)

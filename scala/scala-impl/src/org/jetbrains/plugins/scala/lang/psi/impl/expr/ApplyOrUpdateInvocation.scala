@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
@@ -10,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{conformsToDynamic, getDynamicNameForMethodInvocation}
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 
 import scala.collection.{Seq, Set}
 
@@ -84,11 +83,8 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
   private def shouldProcess(fromType: ScType): Boolean =
     !isDynamic || conformsToDynamic(fromType, call.resolveScope)
 
-  private def initialState(fromType: ScType) =
-    ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, fromType)
-
   private def processType(processor: MethodResolveProcessor, fromType: ScType): Set[ScalaResolveResult] = {
-    processor.processType(fromType, call.getEffectiveInvokedExpr, initialState(fromType))
+    processor.processType(fromType, call.getEffectiveInvokedExpr, ScalaResolveState.withFromType(fromType))
     processor.candidatesS
   }
 }

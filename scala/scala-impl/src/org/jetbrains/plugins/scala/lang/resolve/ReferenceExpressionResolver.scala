@@ -28,8 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor.NAMED_PARAM_KEY
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -227,9 +227,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       @tailrec
       def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
         if (place == null) return
-        if (!place.processDeclarations(processor, ResolveState.initial(), lastParent, ref)) return
+        if (!place.processDeclarations(processor, ScalaResolveState.empty, lastParent, ref)) return
         place match {
-          case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
+          case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
           case _ => if (!processor.changedLevel) return
         }
         treeWalkUp(place.getContext, place)
@@ -275,30 +275,32 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def processAnyAssignment(exprs: Seq[ScExpression], call: MethodInvocation, callReference: ScReferenceExpression, invocationCount: Int,
                              assign: PsiElement, processor: BaseProcessor) {
       val refName = ref.refName
+
+      def addParamForApplyDynamicNamed(): Unit = {
+        if (!processor.isInstanceOf[CompletionProcessor]) {
+          processor.execute(createParameterFromText(refName + ": Any"), ScalaResolveState.withNamedParam)
+        }
+      }
+
       for (variant <- callReference.multiResolveScala(false)) {
         def processResult(r: ScalaResolveResult) = r match {
           case ScalaResolveResult(fun: ScFunction, _) if isApplyDynamicNamed(r) =>
-            //add synthetic parameter
-            if (!processor.isInstanceOf[CompletionProcessor]) {
-              val state: ResolveState = ResolveState.initial().put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-              processor.execute(createParameterFromText(refName + ": Any"), state)
-            }
+            addParamForApplyDynamicNamed()
           case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
-            //add synthetic parameter
-            if (!processor.isInstanceOf[CompletionProcessor]) {
-              val state: ResolveState = ResolveState.initial().put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-              processor.execute(createParameterFromText(refName + ": Any"), state)
-            }
+            addParamForApplyDynamicNamed()
           case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
             if (!processor.isInstanceOf[CompletionProcessor]) {
               getParamByName(fun, refName, invocationCount - 1) match {
                 //todo: why -1?
                 case Some(param) =>
-                  var state = ResolveState.initial.put(ScSubstitutor.key, subst).
-                    put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-                  if (!ScalaNamesUtil.equivalent(param.name, refName)) {
-                    state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(param.deprecatedName.get))
-                  }
+                  val rename =
+                    if (!equivalent(param.name, refName)) param.deprecatedName
+                    else None
+                  val state = ScalaResolveState
+                    .withSubstitutor(subst)
+                    .withNamedParam
+                    .withRename(rename)
+
                   processor.execute(param, state)
                 case None =>
               }
@@ -312,10 +314,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               case args: ScArgumentExprList =>
                 args.getContext match {
                   case methodCall: ScMethodCall if methodCall.isNamedParametersEnabledEverywhere =>
+                    val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
                     method.parameters.foreach {
-                      p =>
-                        processor.execute(p, ResolveState.initial().put(ScSubstitutor.key, subst).
-                          put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                      processor.execute(_, state)
                     }
                   case _ =>
                 }
@@ -339,8 +340,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               for (method <- clazz.getMethods) {
                 method match {
                   case p: PsiAnnotationMethod =>
-                    if (ScalaNamesUtil.equivalent(p.name, ref.refName)) {
-                      baseProcessor.execute(p, ResolveState.initial)
+                    if (equivalent(p.name, ref.refName)) {
+                      baseProcessor.execute(p, ScalaResolveState.empty)
                     }
                   case _ =>
                 }
@@ -364,7 +365,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                     case assignStmt: ScAssignment =>
                       assignStmt.leftExpression match {
                         case ref: ScReferenceExpression =>
-                          val ind = methods.indexWhere(p => ScalaNamesUtil.equivalent(p.name, ref.refName))
+                          val ind = methods.indexWhere(p => equivalent(p.name, ref.refName))
                           if (ind != -1) methods.remove(ind)
                           else tail()
                         case _ => tail()
@@ -373,9 +374,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                   }
                   i = i + 1
                 }
+                val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
                 for (method <- methods) {
-                  baseProcessor.execute(method, ResolveState.initial.put(ScSubstitutor.key, subst).
-                    put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                  baseProcessor.execute(method, state)
                 }
               }
             }
@@ -383,7 +384,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             val processor: MethodResolveProcessor = new MethodResolveProcessor(elem, "this",
               arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, Seq.empty /* todo: ? */ ,
               constructorResolve = true, enableTupling = true)
-            val state = ResolveState.initial.put(ScSubstitutor.key, subst)
+            val state = ScalaResolveState.withSubstitutor(subst)
             clazz match {
               case clazz: ScClass =>
                 for (constr <- secondaryConstructors(clazz)) {
@@ -402,11 +403,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                   if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
                     getParamByName(fun, refName, arguments.indexOf(args)) match {
                       case Some(param) =>
-                        var state = ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-                        if (!ScalaNamesUtil.equivalent(param.name, refName)) {
-                          state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(param.deprecatedName.get))
-                        }
+                        val rename =
+                          if (equivalent(param.name, refName)) None
+                          else param.deprecatedName.map(clean)
+
+                        val state = ScalaResolveState
+                          .withSubstitutor(subst)
+                          .withNamedParam
+                          .withRename(rename)
+
                         baseProcessor.execute(param, state)
                       case None =>
                     }
@@ -418,8 +423,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                   if (!baseProcessor.isInstanceOf[CompletionProcessor])
                     getParamByName(constructor, refName, arguments.indexOf(args)) match {
                       case Some(param) =>
-                        baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                        baseProcessor.execute(param, ScalaResolveState.withSubstitutor(subst).withNamedParam)
                       case None =>
                     }
                   else {
@@ -476,7 +480,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             case assignStmt: ScAssignment =>
               assignStmt.leftExpression match {
                 case ref: ScReferenceExpression =>
-                  val ind = params.indexWhere(p => ScalaNamesUtil.equivalent(p.name, ref.refName))
+                  val ind = params.indexWhere(p => equivalent(p.name, ref.refName))
                   if (ind != -1) params.remove(ind)
                   else tail()
                 case _ => tail()
@@ -485,9 +489,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           }
           i = i + 1
         }
+        val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
         for (param <- params) {
-          processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-            put(NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+          processor.execute(param, state)
         }
       }
     }
@@ -532,9 +536,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
 
       val state = fromType match {
-        case ScDesignatorType(_: PsiPackage) => ResolveState.initial()
-        case _ =>
-          ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType)
+        case ScDesignatorType(_: PsiPackage) => ScalaResolveState.empty
+        case _                               => ScalaResolveState.withFromType(fromType)
       }
       processor.processType(aType, qualifier, state)
 
@@ -633,7 +636,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
 
     parameters.find { param =>
-      ScalaNamesUtil.equivalent(param.name, name) || param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
+      equivalent(param.name, name) || param.deprecatedName.exists(equivalent(_, name))
     }
   }
 

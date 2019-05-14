@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -37,9 +38,9 @@ class ExpandedExtractorResolveProcessor(ref: ScReference,
       if (accessibility && !accessible) return true
       namedElement match {
         case bind: ScTypedDefinition => {
-          val parentSubst = getSubst(state)
-          val parentImports = getImports(state)
-          val typez = getFromType(state) match {
+          val parentSubst = state.substitutor
+          val parentImports = state.importsUsed
+          val typez = state.fromType match {
             case Some(tp) => ScProjectionType(tp, bind)
             case _ => bind.`type`().getOrAny
           }
@@ -52,19 +53,19 @@ class ExpandedExtractorResolveProcessor(ref: ScReference,
               namedElement match {
                 case fun: ScFunction if fun.name == "unapply" || (seq && fun.name == "unapplySeq") =>
                   buffer += new ScalaResolveResult(fun,
-                    parentSubst.followed(getSubst(state)), parentImports, parentElement = Some(bind),
+                    parentSubst.followed(state.substitutor), parentImports, parentElement = Some(bind),
                     isAccessible = accessible)
                 case _ =>
               }
               true
             }
           }
-          proc.processType(parentSubst(typez), ref, ResolveState.initial)
+          proc.processType(parentSubst(typez), ref, ScalaResolveState.empty)
           addResults(buffer)
           if (candidatesSet.isEmpty && levelSet.isEmpty) {
             buffer.clear()
             seq = true
-            proc.processType(parentSubst(typez), ref, ResolveState.initial)
+            proc.processType(parentSubst(typez), ref, ScalaResolveState.empty)
             addResults(buffer)
           }
         }

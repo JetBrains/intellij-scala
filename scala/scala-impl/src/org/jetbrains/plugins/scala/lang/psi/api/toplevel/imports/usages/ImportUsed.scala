@@ -7,7 +7,6 @@ package imports
 package usages
 
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
@@ -56,8 +55,6 @@ abstract sealed class ImportUsed(_e: PsiElement) {
 }
 
 object ImportUsed {
-  val key: Key[_root_.scala.collection.Set[ImportUsed]] = Key.create("scala.used.imports.key")
-
   def unapply(importUsed: ImportUsed): Option[PsiElement] = Option(importUsed.element)
 }
 

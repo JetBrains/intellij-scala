@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Seq, Set}
@@ -108,7 +107,7 @@ object ExtensionConversionHelper {
         processor.expectedOption, processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve,
         noImplicitsForArgs = withoutImplicitsForArgs)
     }.flatMap { processor =>
-      processor.processType(tp, place, ResolveState.initial)
+      processor.processType(tp, place, ScalaResolveState.empty)
       processor.candidatesS.find(_.isApplicable())
     }
   }
@@ -117,7 +116,7 @@ object ExtensionConversionHelper {
     import data._
 
     val newProc = new ResolveProcessor(kinds, ref, refName)
-    newProc.processType(tp, place, ResolveState.initial)
+    newProc.processType(tp, place, ScalaResolveState.empty)
     newProc.candidatesS.nonEmpty
   }
 }
