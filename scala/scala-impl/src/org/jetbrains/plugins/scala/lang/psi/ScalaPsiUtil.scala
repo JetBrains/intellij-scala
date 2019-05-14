@@ -1109,10 +1109,12 @@ object ScalaPsiUtil {
     case other                              => s"`${other.getText.replaceAll("\\s+", "")}`"
   }
 
-  private def contextBoundParameterName(typeParameter: ScTypeParam, bound: ScTypeElement, idx: Int): String = {
-    val boundName = simpleBoundName(bound)
+  private def contextBoundParameterName(typeParameter: ScTypeParam,
+                                        typeElement: ScTypeElement,
+                                        index: Int): String = {
+    val boundName = simpleBoundName(typeElement)
     val tpName    = NameTransformer.encode(typeParameter.name)
-    StringUtil.decapitalize(s"$boundName$$$tpName$$$idx")
+    StringUtil.decapitalize(boundName + "$" + tpName + "$" + index)
   }
 
   def originalContextBound(parameter: ScParameter): Option[(ScTypeParam, ScTypeElement)] = {
@@ -1143,11 +1145,22 @@ object ScalaPsiUtil {
                           (hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicit)): Option[ScParameterClause] = {
     if (hasImplicit) return None
 
-    val typeParameters = parameterOwner.typeParameters
+    val namedTypeParameters = parameterOwner.typeParameters.zipMapped(_.name)
+    if (namedTypeParameters.isEmpty) return None
 
-    val views = typeParameters.flatMap { typeParameter =>
-      val parameterName = typeParameter.name
-      typeParameter.viewTypeElement.map { typeElement =>
+    case class ParameterDescriptor(typeParameter: ScTypeParam,
+                                   name: String,
+                                   typeElement: ScTypeElement,
+                                   index: Int)
+
+    val views = namedTypeParameters.flatMap {
+      case (typeParameter, name) => typeParameter.viewTypeElement.map((typeParameter, name, _))
+    }.zipWithIndex.map {
+      case ((typeParameter, name, typeElement), index) => ParameterDescriptor(typeParameter, name, typeElement, index + 1)
+    }
+
+    val viewsTexts = views.map {
+      case ParameterDescriptor(_, name, typeElement, index) =>
         val needParenthesis = typeElement match {
           case _: ScCompoundTypeElement |
                _: ScInfixTypeElement |
@@ -1155,32 +1168,29 @@ object ScalaPsiUtil {
                _: ScExistentialTypeElement => true
           case _ => false
         }
-
-        val elementText = typeElement.getText.parenthesize(needParenthesis)
         import typeElement.projectContext
-        s"$parameterName $functionArrow $elementText"
-      }
+        s"ev$$$index: $name $functionArrow ${typeElement.getText.parenthesize(needParenthesis)}"
     }
 
-    val bounds = typeParameters.flatMap { typeParameter =>
-      val parameterName = typeParameter.name
-      typeParameter.contextBoundTypeElement.zipWithIndex.map {
-        case (typeElement, idx) =>
-          val syntheticName = contextBoundParameterName(typeParameter, typeElement, idx)
-          s"$syntheticName : (${typeElement.getText})[$parameterName]"
-      }
+    val bounds = for {
+      (typeParameter, name) <- namedTypeParameters
+      (typeElement, index) <- typeParameter.contextBoundTypeElement.zipWithIndex
+    } yield ParameterDescriptor(typeParameter, name, typeElement, index)
+
+    val boundsTexts = bounds.map {
+      case ParameterDescriptor(typeParameter, name, typeElement, index) =>
+        s"${contextBoundParameterName(typeParameter, typeElement, index)} : (${typeElement.getText})[$name]"
     }
 
-    val clauses = views.zipWithIndex.map {
-      case (text, index) => s"ev$$${index + 1}: $text"
-    } ++ bounds
-    if (clauses.isEmpty) return None
+    val clausesTexts = viewsTexts ++ boundsTexts
+    if (clausesTexts.isEmpty) return None
 
-    val result = createImplicitClauseFromTextWithContext(clauses, paramClauses, isClassParameter)
-    result.parameters.flatMap(_.typeElement)
-      .zip(typeParameters.flatMap(_.viewTypeElement) ++ typeParameters.flatMap(_.contextBoundTypeElement))
+    val result = createImplicitClauseFromTextWithContext(clausesTexts, paramClauses, isClassParameter)
+    result.parameters
+      .flatMap(_.typeElement)
+      .zip(views ++ bounds)
       .foreach {
-        case (typeElement, context) => context.analog = typeElement
+        case (typeElement, ParameterDescriptor(_, _, context, _)) => context.analog = typeElement
       }
 
     Some(result)
