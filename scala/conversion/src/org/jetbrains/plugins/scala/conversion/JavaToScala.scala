@@ -11,8 +11,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.conversion.ast._
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
+import org.jetbrains.plugins.scala.conversion.ast.{ModifierType, _}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt, ObjectExt, OptionExt}
 import org.jetbrains.plugins.scala.lang.dependency.Path
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -784,16 +784,18 @@ object JavaToScala {
               .flatMap(p => Option(p.getParent))
               .collect { case p: PsiExpressionStatement => p }
 
-          field.zip(statement).foreach { case (f, s) if s.getParent == constructor.getBody =>
-            dropInfo += ((f, s))
-            if (f.getName != param.getName) fieldParameterMap += ((param.getName, f.getName))
+          field.zip(statement).foreach { case (f, s) =>
+            if (s.getParent == constructor.getBody) {
+              dropInfo += ((f, s))
+              if (f.getName != param.getName) fieldParameterMap += ((param.getName, f.getName))
+            }
           }
         }
 
         dropInfo
       }
 
-      def createContructor: PrimaryConstruction = {
+      def createConstructor: PrimaryConstruction = {
         val params = constructor.parameters
         val updatedParams = mutable.ArrayBuffer[IntermediateNode]()
         val dropStatements = mutable.ArrayBuffer[PsiExpressionStatement]()
@@ -827,7 +829,7 @@ object JavaToScala {
         }.orNull
       }
 
-      createContructor
+      createConstructor
     }
 
     //If can't choose one - return emptyConstructor
@@ -867,7 +869,7 @@ object JavaToScala {
     }
   }
 
-  val SIMPLE_MODIFIERS_MAP = Map(
+  private val SIMPLE_MODIFIERS_MAP: Map[String, ModifierType.Value] = Map(
     (PsiModifier.VOLATILE, ModifierType.VOLATILE),
     (PsiModifier.PRIVATE, ModifierType.PRIVATE),
     (PsiModifier.PROTECTED, ModifierType.PROTECTED),
