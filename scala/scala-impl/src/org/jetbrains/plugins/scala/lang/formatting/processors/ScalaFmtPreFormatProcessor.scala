@@ -307,17 +307,16 @@ object ScalaFmtPreFormatProcessor {
     if (config == null || respectProjectMatcher && !configManager.isIncludedInProject(file, config))
       return
 
-    formatWithoutCommit(file, Some(document), config) match {
+    formatWithoutCommit(document, config) match {
       case Left(error: ScalafmtFormatError) =>
         reportInvalidCodeFailure(file, Some(error))(file.getProject)
       case _ =>
     }
   }
 
-  private def formatWithoutCommit(file: PsiFile, optDocument: Option[Document], config: ScalafmtDynamicConfig): Either[FormattingError, Unit] = {
+  private def formatWithoutCommit(document: Document, config: ScalafmtDynamicConfig): Either[FormattingError, Unit] = {
     val scalaFmt: ScalafmtReflect = config.fmtReflect
     for {
-      document <- optDocument.orElse(Option(PsiDocumentManager.getInstance(file.getProject).getDocument(file))).toRight(DocumentNotFoundError)
       formattedText <- scalaFmt.tryFormat(document.getText, config)
     } yield {
       inWriteAction(document.setText(formattedText))
@@ -335,7 +334,7 @@ object ScalaFmtPreFormatProcessor {
 
     var wholeFileFormatError: Option[ScalafmtFormatError] = None
     if (rangeIncludesWholeFile) {
-      formatWithoutCommit(file, None, config) match {
+      formatWithoutCommit(document, config) match {
         case Right(_) =>
           manager.commitDocument(document)
           return None
