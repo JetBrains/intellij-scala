@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
+import java.awt.Insets
 import java.lang.reflect.{Field, Modifier}
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.InlayModel
+import com.intellij.openapi.editor.{Editor, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.implicits.Hint._
@@ -16,6 +17,7 @@ private case class Hint(parts: Seq[Text],
                         element: PsiElement,
                         suffix: Boolean,
                         menu: Option[String] = None,
+                        margin: Option[Insets] = None,
                         relatesToPrecedingElement: Boolean = false) { //gives more natural behaviour
 
   def addTo(model: InlayModel): Inlay = {
@@ -24,7 +26,9 @@ private case class Hint(parts: Seq[Text],
     val existingInlays = model.getInlineElementsInRange(offset, offset).asScala.filter(isImplicitHint)
 
     val inlay = {
-      val renderer = new TextRenderer(parts, menu)
+      val renderer = new TextRenderer(parts, menu) {
+        override protected def getMargin(editor: Editor): Insets = margin.getOrElse(EmptyInsets)
+      }
       if (ImplicitHints.expanded) {
         renderer.expand()
       }
@@ -50,6 +54,8 @@ private case class Hint(parts: Seq[Text],
 
 private object Hint {
   private val ElementKey: Key[PsiElement] = Key.create("SCALA_IMPLICIT_HINT_ELEMENT")
+
+  private val EmptyInsets = new Insets(0, 0, 0, 0)
 
   def elementOf(inlay: Inlay): PsiElement = ElementKey.get(inlay)
 
