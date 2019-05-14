@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package editor.backspaceHandler
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.util.IndentUtil
 
 /**
  * User: Dmitry Naydanov
@@ -127,14 +129,19 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         case Some(block: ScBlockExpr) if block.statements.size == 1 =>
           block.getRBrace match {
             case Some(rBrace) =>
-              val start = rBrace.getTreePrev match {
-                case ws if ws.getElementType == TokenType.WHITE_SPACE => ws.getStartOffset
-                case _ => rBrace.getStartOffset
+              val project = file.getProject
+              val settings = CodeStyle.getSettings(project)
+              val tabsSize = settings.getTabSize(ScalaFileType.INSTANCE)
+              if(IndentUtil.calcIndent(rBrace, tabsSize) >= IndentUtil.calcIndent(definition, tabsSize)) {
+                val start = rBrace.getTreePrev match {
+                  case ws if ws.getElementType == TokenType.WHITE_SPACE => ws.getStartOffset
+                  case _ => rBrace.getStartOffset
+                }
+                val end = rBrace.getStartOffset + 1
+                val document = editor.getDocument
+                document.deleteString(start, end)
+                document.commit(project)
               }
-              val end = rBrace.getStartOffset + 1
-              val document = editor.getDocument
-              document.deleteString(start, end)
-              document.commit(file.getProject)
             case _ =>
           }
         case _ =>
