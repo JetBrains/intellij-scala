@@ -10,11 +10,13 @@ trait SelectionTest extends AbstractScalaFormatterTestBase with Markers {
 
   override def doTextTest(text: String, textAfter: String): Unit = {
     val inputWithMarkers = StringUtil.convertLineSeparators(text)
+    val outputWithMarkers = StringUtil.convertLineSeparators(textAfter)
     val (inputWithoutMarkers, extractedTextRanges) = extractMarkers(inputWithMarkers)
+    val (outputWithoutMarkers, _) = extractMarkers(outputWithMarkers)
 
     myTextRanges = seqAsJavaList(extractedTextRanges)
 
-    super.doTextTest(inputWithoutMarkers, StringUtil.convertLineSeparators(textAfter))
+    super.doTextTest(inputWithoutMarkers, outputWithoutMarkers)
   }
 
 }

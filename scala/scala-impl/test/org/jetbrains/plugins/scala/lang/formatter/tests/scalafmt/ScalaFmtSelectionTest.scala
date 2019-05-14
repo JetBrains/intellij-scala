@@ -974,4 +974,21 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
+  def testClassNameInCaseClause_SCL15406(): Unit = {
+    val before =
+      s"""object Test {
+        |  sealed trait SuperName
+        |  case class Name(firstName: String, lastName: String) extends SuperName
+        |
+        |  def behavior(sn: SuperName): String = {
+        |    sn match {
+        |      case ${startMarker}Name${endMarker}(firstName, lastName) =>
+        |        s"$$firstName$$lastName"
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
 }

@@ -49,13 +49,6 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
   def bind(): Option[ScalaResolveResult]
 
-  private def isBackQuoted = {
-    val id: PsiElement = nameId
-    assert(id != null, s"nameId is null for reference with text: $getText")
-    val text: String = id.getText
-    text.charAt(0) == '`' && text.length > 1
-  }
-
   private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferencePattern]
 
   override def getElement: ScReference = this
