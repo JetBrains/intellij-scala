@@ -1138,11 +1138,12 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
 
-  def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
-    contextBoundParameterInfo(parameter).getOrElse {
-      simpleParameterInfo(parameter, subst)
+  def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String =
+    ScalaPsiUtil.withOriginalContextBound(parameter)(simpleParameterInfo(parameter, subst)) {
+      case (typeParam, ElementText(boundText), _) =>
+        val clause = typeParam.typeParametersClause.fold("")(_.getText)
+        s"context bound ${typeParam.name}$clause : $boundText"
     }
-  }
 
   private def simpleParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
     val name = parameter.name
@@ -1162,18 +1163,6 @@ object ScalaDocumentationProvider {
       case _ => ""
     }
     prefix + defaultText
-  }
-
-  private def contextBoundParameterInfo(parameter: ScParameter): Option[String] = {
-    ScalaPsiUtil.originalContextBound(parameter).map {
-
-      case (typeParam, boundTypeElem) =>
-        val tpName = typeParam.name
-        val boundText = boundTypeElem.getText
-
-        val clause = typeParam.typeParametersClause.map(_.getText).getOrElse("")
-        s"context bound $tpName$clause : $boundText"
-    }
   }
 
   private def getModifiersPresentableText(modList: ScModifierList): String = {

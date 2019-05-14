@@ -1117,26 +1117,27 @@ object ScalaPsiUtil {
     StringUtil.decapitalize(boundName + "$" + tpName + "$" + index)
   }
 
-  def originalContextBound(parameter: ScParameter): Option[(ScTypeParam, ScTypeElement)] = {
-    if (parameter.isPhysical) return None
-
-    val owner =
-      parameter.owner match {
+  def withOriginalContextBound[T](parameter: ScParameter)
+                                 (default: => T)
+                                 (function: ((ScTypeParam, ScTypeElement, Int)) => T): T =
+    if (parameter.isPhysical) default
+    else {
+      val maybeOwner = parameter.owner match {
         case ScPrimaryConstructor.ofClass(cls) => Option(cls)
-        case other: ScTypeParametersOwner      => Option(other)
-        case _                                 => None
+        case other: ScTypeParametersOwner => Option(other)
+        case _ => None
       }
 
-    val ownerTypeParams = owner.toSeq.flatMap(_.typeParameters)
+      val bounds = for {
+        owner <- maybeOwner.toSeq
+        typeParameter <- owner.typeParameters
+        (bound, idx) <- typeParameter.contextBoundTypeElement.zipWithIndex
+      } yield (typeParameter, bound, idx)
 
-    val bounds = ownerTypeParams.flatMap(tp =>
-      tp.contextBoundTypeElement.zipWithIndex.map { case (bound, idx) => (tp, bound, idx) }
-    )
-
-    bounds.collectFirst {
-      case (tp, te, idx) if contextBoundParameterName(tp, te, idx) == parameter.name => (tp, te)
+      bounds.find {
+        case (typeParameter, typeElement, index) => contextBoundParameterName(typeParameter, typeElement, index) == parameter.name
+      }.fold(default)(function)
     }
-  }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
