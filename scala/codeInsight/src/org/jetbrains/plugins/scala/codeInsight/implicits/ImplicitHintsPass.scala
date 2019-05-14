@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.Color
+import java.awt.{Color, Insets}
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
@@ -14,7 +14,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, TypeMismatchError, TypeMismatchHighlightingMode}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -36,7 +36,35 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     hints = Seq.empty
 
     if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
+      collectTypeMismatches()
       collectConversionsAndArguments()
+    }
+  }
+
+  // TODO experimental feature
+  private def collectTypeMismatches() {
+    val mode = TypeMismatchHighlightingMode.in(editor.getProject)
+
+    if (mode != TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION) {
+      rootElement.elements.foreach { e =>
+        TypeMismatchError(e).foreach { case TypeMismatchError(expectedType, actualType, message, _) =>
+          val (shownType, attributeKey) = mode match {
+            case TypeMismatchHighlightingMode.UNDERLINE_ACTUAL_TYPE_HINT => (actualType, CodeInsightColors.ERRORS_ATTRIBUTES)
+            case TypeMismatchHighlightingMode.STRIKETHROUGH_ACTUAL_TYPE_HINT => (actualType, CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)
+            case TypeMismatchHighlightingMode.UNDERLINE_EXPECTED_TYPE_HINT => (expectedType, CodeInsightColors.ERRORS_ATTRIBUTES)
+            case TypeMismatchHighlightingMode.STRIKETHROUGH_EXPECTED_TYPE_HINT => (expectedType, CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)
+          }
+          val needsParentheses = e.isInstanceOf[ScInfixExpr] || e.isInstanceOf[ScPostfixExpr]
+          if (needsParentheses) {
+            hints +:= Hint(Seq(Text("(")), e, suffix = false)
+          }
+          val parts = Seq(Text(": "), Text(shownType.map(_.presentableText).mkString, attributes = Some(editor.getColorsScheme.getAttributes(attributeKey)), errorTooltip = Some(message))) |> { parts =>
+            if (needsParentheses) Text(")") +: parts else parts
+          }
+          val spaceWidth = editor.getComponent.getFontMetrics(editor.getColorsScheme.getFont(EditorFontType.PLAIN)).charWidth(' ')
+          hints +:= Hint(parts, e, margin = if (needsParentheses) None else Some(new Insets(0, spaceWidth, 0, 0)), suffix = true, relatesToPrecedingElement = true)
+        }
+      }
     }
   }
 

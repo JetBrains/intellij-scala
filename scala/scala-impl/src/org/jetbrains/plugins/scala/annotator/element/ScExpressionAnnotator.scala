@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, smartCheckConformance}
+import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.extensions._
@@ -11,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -100,15 +100,9 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                 case assign: ScAssignment if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
                 case _ =>
               }
-              val markedPsi = (element, element.getParent) match {
-                case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(element)
-                case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(element)
-                case _ => element
+              val annotation = TypeMismatchError.register(holder, element, tp, exprType.getOrNothing, blockLevel = 2) { (expected, actual) =>
+                ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
               }
-
-              val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, tp)
-              val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
-              val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
               if (WrapInOptionQuickFix.isAvailable(element, expectedType, exprType)) {
                 val wrapInOptionFix = new WrapInOptionQuickFix(element, expectedType, exprType)
                 annotation.registerFix(wrapInOptionFix)

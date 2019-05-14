@@ -5,6 +5,7 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.annotator.TypeMismatchHighlightingMode;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -108,6 +109,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public static final int COLLECTION_TYPE_HIGHLIGHTING_ALL = 2;
   public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
   public static final int COLLECTION_TYPE_HIGHLIGHTING_NONE = 0;
+
+  private TypeMismatchHighlightingMode TYPE_MISMATCH_HIGHLIGHTING_MODE = TypeMismatchHighlightingMode.STRIKETHROUGH_EXPECTED_TYPE_HINT;
 
   public static ScalaProjectSettings getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, ScalaProjectSettings.class);
@@ -289,6 +292,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setScalaPriority(boolean value) {
     SCALA_CLASSES_PRIORITY = value;
+  }
+
+  public TypeMismatchHighlightingMode getTypeMismatchHighlightingMode() {
+    return TYPE_MISMATCH_HIGHLIGHTING_MODE;
+  }
+
+  public void setTypeMismatchHighlightingMode(TypeMismatchHighlightingMode mode) {
+    TYPE_MISMATCH_HIGHLIGHTING_MODE = mode;
   }
 
   public int getCollectionTypeHighlightingLevel() {
