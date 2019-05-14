@@ -15,7 +15,8 @@ import scala.collection.JavaConverters._
 private case class Hint(parts: Seq[Text],
                         element: PsiElement,
                         suffix: Boolean,
-                        menu: Option[String] = None) {
+                        menu: Option[String] = None,
+                        relatesToPrecedingElement: Boolean = false) { //gives more natural behaviour
 
   def addTo(model: InlayModel): Inlay = {
     val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
@@ -27,9 +28,7 @@ private case class Hint(parts: Seq[Text],
       if (ImplicitHints.expanded) {
         renderer.expand()
       }
-      //gives more natural behaviour
-      val relatesToPrecedingText = false
-      model.addInlineElement(offset, relatesToPrecedingText, renderer)
+      model.addInlineElement(offset, relatesToPrecedingElement, renderer)
     }
 
     if (existingInlays.nonEmpty) {
