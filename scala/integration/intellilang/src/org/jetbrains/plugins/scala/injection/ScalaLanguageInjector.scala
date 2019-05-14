@@ -188,41 +188,43 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     literal.implicitElement().flatMap(_.asOptionOf[ScFunction]).flatMap(_.parameters.headOption)
   }
 
-  private def injectInInterpolation(registrar: MultiHostRegistrar, hostElement: PsiElement,
-                                    literals: scala.Seq[ScLiteral]) = {
-    hostElement match {
-      case host: PsiLanguageInjectionHost =>
-        withInjectionSupport { support =>
-          val mapping = ScalaProjectSettings.getInstance(host.getProject).getIntInjectionMapping
-          val allInjections =
-            new mutable.HashMap[InjectedLanguage, util.ArrayList[Trinity[PsiLanguageInjectionHost, InjectedLanguage, TextRange]]]()
+  private def injectInInterpolation(registrar: MultiHostRegistrar,
+                                    hostElement: PsiElement,
+                                    literals: Seq[ScLiteral]) = {
+    val result = for {
+      host <- Option(hostElement).filterByType[PsiLanguageInjectionHost]
+      support <- injectionSupport
+    } yield {
+      val allInjections =
+        new mutable.HashMap[InjectedLanguage, util.ArrayList[Trinity[PsiLanguageInjectionHost, InjectedLanguage, TextRange]]]()
 
-          literals filter {
-            case interpolated: ScInterpolatedStringLiteral
-              if interpolated.reference.exists(r => mapping.containsKey(r.getText)) => true
-            case _ => false
-          } foreach {
-            case literal: ScInterpolatedStringLiteral =>
-              val languageId = mapping.get(literal.reference.get.getText)
-              val injectedLanguage = InjectedLanguage.create(languageId)
-              val list = new util.ArrayList[Trinity[PsiLanguageInjectionHost, InjectedLanguage, TextRange]]
+      val mapping = ScalaProjectSettings.getInstance(host.getProject).getIntInjectionMapping
+      literals
+        .collect {
+          case interpolated: ScInterpolatedStringLiteral if interpolated.reference.exists(r => mapping.containsKey(r.getText)) =>
+            interpolated
+        }
+        .foreach { literal =>
+          val languageId = mapping.get(literal.reference.get.getText)
+          val prefix = if (literal.isMultiLineString) " " else ""
+          val injectedLanguage = InjectedLanguage.create(languageId, prefix, "", false)
+          val list = new util.ArrayList[Trinity[PsiLanguageInjectionHost, InjectedLanguage, TextRange]]
 
-              if (injectedLanguage != null) {
-                handleInjectionImpl(literal, injectedLanguage, new BaseInjection(support.getId), list)
-                allInjections(injectedLanguage) = list
-              }
+          if (injectedLanguage != null) {
+            handleInjectionImpl(literal, injectedLanguage, new BaseInjection(support.getId), list)
+            allInjections(injectedLanguage) = list
           }
+        }
 
-          for ((injectedLang, list) <- allInjections) {
-            val lang = injectedLang.getLanguage
-            InjectorUtils.registerInjection(lang, list, host.getContainingFile, registrar)
-            InjectorUtils.registerSupport(support, true, registrar)
-          }
+      for ((injectedLang, list) <- allInjections) {
+        val lang = injectedLang.getLanguage
+        InjectorUtils.registerInjection(lang, list, host.getContainingFile, registrar)
+        InjectorUtils.registerSupport(support, true, registrar)
+      }
 
-          allInjections.nonEmpty
-        } getOrElse false
-      case _ => false //something is wrong
+      allInjections.nonEmpty
     }
+    result.getOrElse(false)
   }
 
   private def assignmentTarget(assignment: ScAssignment): Option[PsiAnnotationOwner with PsiElement] = {
