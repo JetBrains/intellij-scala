@@ -58,15 +58,15 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
   private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferencePattern]
 
-  def getElement: ScReference = this
+  override def getElement: ScReference = this
 
-  def getRangeInElement: TextRange = {
+  override def getRangeInElement: TextRange = {
     val start = nameId.getTextRange.getStartOffset - getTextRange.getStartOffset
     val len = getTextLength
     new TextRange(start, len)
   }
 
-  def getCanonicalText: String = {
+  override def getCanonicalText: String = {
     resolve() match {
       case clazz: ScObject if clazz.isStatic => clazz.qualifiedName
       case c: ScTypeDefinition => if (c.containingClass == null) c.qualifiedName else c.name
@@ -76,9 +76,9 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     }
   }
 
-  def isSoft: Boolean = false
+  override def isSoft: Boolean = false
 
-  def handleElementRename(newElementName: String): PsiElement = {
+  override def handleElementRename(newElementName: String): PsiElement = {
     val needBackticks = patternNeedBackticks(newElementName) || isKeyword(newElementName)
     val newName = if (needBackticks) "`" + newElementName + "`" else newElementName
     if (!isIdentifier(newName)) return this
@@ -88,7 +88,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     this
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = {
+  override def isReferenceTo(element: PsiElement): Boolean = {
     element match {
       case _: ScClassParameter =>
       case param: ScParameter if !PsiTreeUtil.isContextAncestor(param.owner, this, true) =>
@@ -131,6 +131,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
                   case _ =>
                 }
               case _ if method.containingClass.sameOrInheritor(td) => return true
+              case _ =>
             }
           case obj: ScObject if obj.isSyntheticObject =>
             ScalaPsiUtil.getCompanionModule(td) match {
