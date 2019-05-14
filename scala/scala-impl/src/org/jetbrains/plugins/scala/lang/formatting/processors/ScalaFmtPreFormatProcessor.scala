@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConf
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -171,35 +172,35 @@ object ScalaFmtPreFormatProcessor {
   }
 
   /** The method tries to wrap psi elements with all it's parents until root is reached, removing
-    * all unrelated sibling elements.
-    *
-    * @example suppose elements are `val x = 2` and `val y = 42` in following code:
-    * {{{
-    *  class A { ... }
-    *  class B {
-    *    def foo: Int = ???
-    *    def bar: Unit = {
-    *      object X {
-    *        val x = 2
-    *        val y = 42
-    *      }
-    *    }
-    *    private val mur = ???
-    *  }
-    *  class C { ... }
-    * }}}
-    * the resulting wrapped code text will be:
-    * {{{
-    *  class B {
-    *    def bar: Unit = {
-    *      object X {
-    *        val x = 2
-    *        val y = 42
-    *      }
-    *    }
-    *  }
-    * }}}
-    */
+   * all unrelated sibling elements.
+   *
+   * @example suppose elements are `val x = 2` and `val y = 42` in following code:
+   * {{{
+   *  class A { ... }
+   *  class B {
+   *    def foo: Int = ???
+   *    def bar: Unit = {
+   *      object X {
+   *        val x = 2
+   *        val y = 42
+   *      }
+   *    }
+   *    private val mur = ???
+   *  }
+   *  class C { ... }
+   * }}}
+   * the resulting wrapped code text will be:
+   * {{{
+   *  class B {
+   *    def bar: Unit = {
+   *      object X {
+   *        val x = 2
+   *        val y = 42
+   *      }
+   *    }
+   *  }
+   * }}}
+   */
   private def wrap(elements: Seq[PsiElement])(implicit project: Project): WrappedCode = {
     require(elements.nonEmpty, "expected elements to be non empty")
 
@@ -422,8 +423,8 @@ object ScalaFmtPreFormatProcessor {
   }
 
   /** this is a partial copy of [[PsiTreeUtil.getElementsOfRange]] except this method does not fail
-    * if sibling element becomes null, it simply stops iterating
-    */
+   * if sibling element becomes null, it simply stops iterating
+   */
   private def getElementsOfRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
     val result = new ArrayBuffer[PsiElement]
     var e: PsiElement = start
@@ -466,25 +467,30 @@ object ScalaFmtPreFormatProcessor {
       ScalaPsiUtil.getParentWithProperty(parent, strict = false, isProperUpperLevelPsi).toList
     }
 
-    val commonParent = Option(PsiTreeUtil.findCommonParent(startElement, endElement))
+    val commonParent =
+      if (startElement == endElement) Option(startElement.getParent)
+      else Option(PsiTreeUtil.findCommonParent(startElement, endElement))
     val res: Seq[PsiElement] = commonParent match {
       case Some(parent: LeafPsiElement) =>
+        findProperParent(parent)
+      case Some(parent@Parent(_: ScConstructorPattern)) =>
         findProperParent(parent)
       case Some(parent) =>
         val childrenAll = parent.children.toArray
         val childrenFitRange = childrenAll.filter(_.getTextRange.intersects(range))
         val children = trimWhitespacesOrEmpty(childrenFitRange)
+        val parentIsProper = isProperUpperLevelPsi(parent)
 
         if (children.isEmpty) {
           Seq.empty
         } else if (selectChildren && children.forall(isProperUpperLevelPsi) && !parent.isInstanceOf[ScExpression]) {
           //for uniformity use the upper-most of embedded elements with same contents
-          if (children.length == childrenAll.length && isProperUpperLevelPsi(parent)) {
+          if (children.length == childrenAll.length && parentIsProper) {
             Seq(parent)
           } else {
             children
           }
-        } else if (isProperUpperLevelPsi(parent)) {
+        } else if (parentIsProper) {
           Seq(parent)
         } else {
           findProperParent(parent)
@@ -907,11 +913,11 @@ object ScalaFmtPreFormatProcessor {
   private implicit class PsiWhiteSpaceExt(val ws: PsiWhiteSpace) extends AnyVal {
 
     /** @return Some(whitespace) with `indent` spaces after last new line character or ws beginning <br>
-      *         None if resulting whitespace text is empty, due to PsiWhitespace can't contain empty text
-      * @example (" \n \n ", 3) -> Some(" \n \n   ")
-      * @example ("", 3)      -> Some("   ")
-      * @example ("", 0)      -> None
-      */
+     *         None if resulting whitespace text is empty, due to PsiWhitespace can't contain empty text
+     * @example (" \n \n ", 3) -> Some(" \n \n   ")
+     * @example ("", 3)      -> Some("   ")
+     * @example ("", 0)      -> None
+     */
     def withIndent(indent: Int)(implicit project: Project): Option[PsiElement] = {
       require(indent >= 0, "expecting non negative indent")
 
@@ -941,8 +947,8 @@ object ScalaFmtPreFormatProcessor {
     }
 
     /** @example {{{"\t " -> "\t "}}}
-      * @example {{{" \n \n\t " -> "\t "}}}
-      */
+     * @example {{{" \n \n\t " -> "\t "}}}
+     */
     def getWhitespaceAfterFirstNewLine(implicit project: Project): Option[PsiElement] = {
       val text = ws.getText
       val index = text.indexOf('\n')
@@ -966,15 +972,15 @@ object ScalaFmtPreFormatProcessor {
   private case class ScalafmtFormatError(cause: Throwable) extends FormattingError
 
   /** This is a helper class to keep information about how formatted elements were wrapped
-    */
+   */
   private class WrappedCode(val text: String, val wrapped: Boolean, val wrappedInHelperClass: Boolean) {
     def withText(newText: String): WrappedCode = new WrappedCode(newText, wrapped, wrappedInHelperClass)
   }
 
   /** Marker whitespace implementation that indicates absence of whitespace.
-    * It is more convenient to use Replace psi change instead of Remove, but there is no way
-    * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
-    */
+   * It is more convenient to use Replace psi change instead of Remove, but there is no way
+   * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
+   */
   private object EmptyPsiWhitespace extends PsiWhiteSpaceImpl("") {
     override def isValid: Boolean = true
   }
