@@ -35,7 +35,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     private static final ThirdPartyLibraryLoader[] EMPTY_LOADERS_ARRAY = new ThirdPartyLibraryLoader[0];
 
-    protected String rootPath() {
+    protected String sourceRootPath() {
         return null;
     }
 
@@ -74,7 +74,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         ScalaSDKLoader scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary());
         back.add(scalaLoader);
 
-        String path = rootPath();
+        String path = sourceRootPath();
         if (path != null) {
             back.add(new SourcesLoader(path));
         }

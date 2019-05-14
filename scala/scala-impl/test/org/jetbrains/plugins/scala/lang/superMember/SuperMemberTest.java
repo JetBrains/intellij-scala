@@ -17,7 +17,7 @@ public class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapte
   private static final String CARET_MARKER = "<caret>";
 
   @Override
-  protected String rootPath() {
+  protected String sourceRootPath() {
     return TestUtils.getTestDataPath() + "/supers/";
   }
 
@@ -52,7 +52,7 @@ public class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapte
   }
 
   private void runTest(String name) throws Exception {
-    String filePath = rootPath() + name;
+    String filePath = sourceRootPath() + name;
     final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(filePath.
         replace(File.separatorChar, '/'));
     assertNotNull("file " + filePath + " not found", vFile);

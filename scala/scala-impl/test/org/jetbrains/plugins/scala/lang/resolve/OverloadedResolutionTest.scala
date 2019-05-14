@@ -10,8 +10,6 @@ class OverloadedResolutionTest extends ScalaResolveTestCase {
 
   override def folderPath(): String = s"${super.folderPath()}resolve/overloadedResolution"
 
-  override def rootPath(): String = folderPath()
-
   def testSCL7890(): Unit = doTest()
 
   def testSCL12277_1(): Unit = doTest()

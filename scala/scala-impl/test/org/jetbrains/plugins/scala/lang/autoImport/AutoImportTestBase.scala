@@ -27,7 +27,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
 
   protected def folderPath = baseRootPath() + "autoImport/"
 
-  protected override def rootPath(): String = folderPath
+  protected override def sourceRootPath(): String = folderPath
 
   import ScalaImportTypeFix._
   import org.junit.Assert._

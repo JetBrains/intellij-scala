@@ -9,7 +9,7 @@ import org.junit.Assert._
 class ResolvePackagesWithBacktickeds extends ScalaResolveTestCase {
   override def folderPath: String = s"${super.folderPath()}resolve/packages/backtickeds"
 
-  override protected def rootPath: String = folderPath
+  override protected def sourceRootPath: String = folderPath
 
   private def checkReference() = {
     val ref: PsiReference = findReferenceAtCaret

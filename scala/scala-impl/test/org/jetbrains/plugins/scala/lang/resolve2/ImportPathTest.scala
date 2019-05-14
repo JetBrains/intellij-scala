@@ -8,7 +8,7 @@ class ImportPathTest extends ResolveTestBase {
     super.folderPath + "import/path/"
   }
 
-  protected override def rootPath(): String = folderPath
+  protected override def sourceRootPath(): String = folderPath
 
   def testDir() = doTest()
   //TODO ok

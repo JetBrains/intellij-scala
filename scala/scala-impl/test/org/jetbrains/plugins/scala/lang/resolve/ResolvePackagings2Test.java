@@ -14,7 +14,7 @@ public class ResolvePackagings2Test extends ScalaResolveTestCase {
   }
 
   @Override
-  protected String rootPath() {
+  protected String sourceRootPath() {
     return super.folderPath() + "resolve/packages/";
   }
 

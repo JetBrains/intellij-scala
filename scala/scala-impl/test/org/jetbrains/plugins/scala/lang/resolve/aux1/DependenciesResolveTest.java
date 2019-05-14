@@ -17,7 +17,7 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
   }
 
   @Override
-  protected String rootPath() {
+  protected String sourceRootPath() {
     return folderPath();
   }
 

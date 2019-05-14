@@ -16,7 +16,7 @@ class ResolvePropertyKeyTest extends ScalaResolveTestCase {
     util.TestUtils.findTestDataDir(pathname) + "/resolve/propertyKey/"
   }
 
-  protected override def rootPath: String = folderPath
+  protected override def sourceRootPath: String = folderPath
 
   def testMain(): Unit = {
     val reference = findReferenceAtCaret

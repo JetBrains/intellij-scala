@@ -12,7 +12,7 @@ abstract class FailedResolveTest(dirName: String) extends ScalaResolveTestCase w
 
   override def folderPath(): String = s"${super.folderPath()}resolve/failed/$dirName"
 
-  override def rootPath(): String = folderPath()
+  override def sourceRootPath(): String = folderPath()
 
   override protected def shouldPass: Boolean = false
 
