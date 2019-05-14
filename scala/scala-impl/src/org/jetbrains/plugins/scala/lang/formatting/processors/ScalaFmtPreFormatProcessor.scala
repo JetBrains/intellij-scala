@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -457,7 +458,8 @@ object ScalaFmtPreFormatProcessor {
     case _ => false
   }
 
-  private def elementsInRangeWrapped(file: PsiFile, range: TextRange, selectChildren: Boolean = true)(implicit fileText: String): Seq[PsiElement] = {
+  private def elementsInRangeWrapped(file: PsiFile, range: TextRange, selectChildren: Boolean = true)
+                                    (implicit fileText: String): Seq[PsiElement] = {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
     if (startElement == null || endElement == null)
@@ -474,6 +476,8 @@ object ScalaFmtPreFormatProcessor {
       case Some(parent: LeafPsiElement) =>
         findProperParent(parent)
       case Some(parent@Parent(_: ScConstructorPattern)) =>
+        findProperParent(parent)
+      case Some(parent@Parent(Parent(_: ScParameterizedTypeElement))) =>
         findProperParent(parent)
       case Some(parent) =>
         val childrenAll = parent.children.toArray

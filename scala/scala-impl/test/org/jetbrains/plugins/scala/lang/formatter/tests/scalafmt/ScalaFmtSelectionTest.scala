@@ -974,21 +974,72 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
-  def testClassNameInCaseClause_SCL15406(): Unit = {
+  def testScConstructorPattern_SCL15406(): Unit = {
     val before =
       s"""object Test {
-        |  sealed trait SuperName
-        |  case class Name(firstName: String, lastName: String) extends SuperName
-        |
-        |  def behavior(sn: SuperName): String = {
-        |    sn match {
-        |      case ${startMarker}Name${endMarker}(firstName, lastName) =>
-        |        s"$$firstName$$lastName"
-        |    }
-        |  }
-        |}
+         |  sealed trait SuperName
+         |  case class Name(firstName: String, lastName: String) extends SuperName
+         |
+         |  def behavior(sn: SuperName): String = {
+         |    sn match {
+         |      case ${startMarker}Name${endMarker}(firstName, lastName) =>
+         |        s"$$firstName$$lastName"
+         |    }
+         |  }
+         |}
       """.stripMargin
     doTextTest(before)
   }
 
+  def testClassName_SCL15338(): Unit = {
+    doTextTest(
+      s"""object Test {
+         |  class SomeClass{}
+         |
+         |  def foo(param: ${startMarker}SomeClass${endMarker}): SomeClass = {
+         |    println(42)
+         |    ???
+         |  }
+         |}
+      """.stripMargin
+    )
+
+    doTextTest(
+      s"""object Test {
+         |  trait SomeClass{}
+         |
+         |  def foo(param: SomeClass): ${startMarker}SomeClass${endMarker} = {
+         |    println(42)
+         |    ???
+         |  }
+         |}
+      """.stripMargin
+    )
+  }
+
+  def testParametrizedClassName_SCL15338(): Unit = {
+    doTextTest(
+      s"""object Test {
+         |  class SomeClass[T]{}
+         |
+         |  def foo(param: ${startMarker}SomeClass${endMarker}[String]): SomeClass[String] = {
+         |    println(42)
+         |    ???
+         |  }
+         |}
+      """.stripMargin
+    )
+
+    doTextTest(
+      s"""object Test {
+         |  trait SomeClass[T]{}
+         |
+         |  def foo(param: SomeClass[String]): ${startMarker}SomeClass${endMarker}[String] = {
+         |    println(42)
+         |    ???
+         |  }
+         |}
+      """.stripMargin
+    )
+  }
 }
