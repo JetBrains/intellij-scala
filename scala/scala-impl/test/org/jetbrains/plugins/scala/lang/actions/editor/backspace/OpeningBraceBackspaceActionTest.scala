@@ -111,6 +111,20 @@ class OpeningBraceBackspaceActionTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
+  def testNotRemoveClosingBraceIfItsIndentIsSmallerThenDefElement(): Unit = {
+    // here there is an error - C closing brace is considered as foo closing brace, we do not want to remove it
+    val before =
+      s"""class C {
+         |  def foo() = {$CARET
+         |    someMethod2()
+         |}""".stripMargin
+    val after =
+      s"""class C {
+         |  def foo() = $CARET
+         |    someMethod2()
+         |}""".stripMargin
+    doTest(before, after)
+  }
 
 
 }

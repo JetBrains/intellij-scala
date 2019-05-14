@@ -1,7 +1,12 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.Whitespace
+
 object IndentUtil {
-  def calcIndent(text: CharSequence, offset: Int, tabSize: Int): Int = {
+  private def calcIndent(text: CharSequence, offset: Int, tabSize: Int): Int = {
     var result = 0
 
     var idx = offset
@@ -26,5 +31,19 @@ object IndentUtil {
   def calcLastLineIndent(text: String, tabSize: Int): Int = {
     val idx = text.lastIndexOf('\n')
     calcIndent(text, idx + 1, tabSize)
+  }
+
+  def calcIndent(element: PsiElement, tabSize: Int): Int = {
+    PsiTreeUtil.prevLeaf(element) match {
+      case Whitespace(ws) => IndentUtil.calcLastLineIndent(ws, tabSize)
+      case _ => 0
+    }
+  }
+
+  def calcIndent(node: ASTNode, tabSize: Int): Int = {
+    node.getTreePrev match {
+      case Whitespace(ws) => IndentUtil.calcLastLineIndent(ws, tabSize)
+      case _ => 0
+    }
   }
 }

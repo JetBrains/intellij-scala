@@ -560,14 +560,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  private def isElementIndented(parent: PsiElement, child: PsiElement, settings: CodeStyleSettings) =
-    calcIndent(child, settings) > calcIndent(parent, settings)
-
-  private def calcIndent(element: PsiElement, settings: CodeStyleSettings): Int = {
-    PsiTreeUtil.prevLeaf(element) match {
-      case Whitespace(ws) => IndentUtil.calcLastLineIndent(ws, settings.getTabSize(ScalaFileType.INSTANCE))
-      case _ => 0
-    }
+  private def isElementIndented(parent: PsiElement, child: PsiElement, settings: CodeStyleSettings) = {
+    val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
+    IndentUtil.calcIndent(child, tabSize) > IndentUtil.calcIndent(parent, tabSize)
   }
 }
 
