@@ -63,4 +63,20 @@ class EnterActionCodeTest extends EditorActionTestBase {
     checkGeneratedTextAfterEnter(before, after)
   }
 
+  def testInsertUnmatchedBraceAfterTripleQuestionMark(): Unit = {
+    val before =
+      s"""class A {
+         |  def bar = {$CARET???
+         |}
+       """.stripMargin
+    val after =
+      s"""class A {
+         |  def bar = {
+         |    $CARET???
+         |  }
+         |}
+       """.stripMargin
+    checkGeneratedTextAfterEnter(before, after)
+  }
+
 }
