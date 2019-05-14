@@ -4,6 +4,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.notification._
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.project.Project
@@ -300,24 +301,23 @@ object ScalaFmtPreFormatProcessor {
     elementsFormatted.collect { case (el, Some(code)) => (el, code) }
   }
 
-  def formatWithoutCommit(file: PsiFile, respectProjectMatcher: Boolean): Unit = {
+  def formatWithoutCommit(file: PsiFile, document: Document, respectProjectMatcher: Boolean): Unit = {
     val configManager = ScalafmtDynamicConfigManager.instanceIn(file.getProject)
     val config = configManager.configForFile(file).orNull
     if (config == null || respectProjectMatcher && !configManager.isIncludedInProject(file, config))
       return
 
-    formatWithoutCommit(file, config) match {
+    formatWithoutCommit(document, config) match {
       case Left(error: ScalafmtFormatError) =>
         reportInvalidCodeFailure(file, Some(error))(file.getProject)
       case _ =>
     }
   }
 
-  private def formatWithoutCommit(file: PsiFile, config: ScalafmtDynamicConfig): Either[FormattingError, Unit] = {
+  private def formatWithoutCommit(document: Document, config: ScalafmtDynamicConfig): Either[FormattingError, Unit] = {
     val scalaFmt: ScalafmtReflect = config.fmtReflect
     for {
-      document <- Option(PsiDocumentManager.getInstance(file.getProject).getDocument(file)).toRight(DocumentNotFoundError)
-      formattedText <- scalaFmt.tryFormat(file.getText, config)
+      formattedText <- scalaFmt.tryFormat(document.getText, config)
     } yield {
       inWriteAction(document.setText(formattedText))
     }
@@ -334,7 +334,7 @@ object ScalaFmtPreFormatProcessor {
 
     var wholeFileFormatError: Option[ScalafmtFormatError] = None
     if (rangeIncludesWholeFile) {
-      formatWithoutCommit(file, config) match {
+      formatWithoutCommit(document, config) match {
         case Right(_) =>
           manager.commitDocument(document)
           return None
