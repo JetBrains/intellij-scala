@@ -100,7 +100,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         }
         new ChildAttributes(indent, null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody |
-           _: ScFor | _: ScWhile | _: ScTryBlock | _: ScCatchBlock =>
+           _: ScFor | _: ScWhile | _: ScCatchBlock =>
         val indent =
           if (braceShifted) {
             Indent.getNoneIndent
@@ -180,7 +180,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
   private def isBlockOnlyScope(scope: PsiElement): Boolean = {
     !isLeaf && ScalaTokenTypes.LBRACE_LPARENT_TOKEN_SET.contains(scope.getNode.getElementType) &&
       (scope.getParent match {
-        case _: ScTryBlock | _: ScFor | _: ScPackaging => true
+        case _: ScFor | _: ScPackaging => true
         case _ => false
       })
   }

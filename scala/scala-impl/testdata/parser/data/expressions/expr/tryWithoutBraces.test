@@ -17,18 +17,17 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         TryStatement
-          TryBlock
-            PsiElement(try)('try')
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            Literal
+              PsiElement(integer)('2')
             PsiWhiteSpace(' ')
-            InfixExpression
-              Literal
-                PsiElement(integer)('2')
-              PsiWhiteSpace(' ')
-              ReferenceExpression: +
-                PsiElement(identifier)('+')
-              PsiWhiteSpace(' ')
-              Literal
-                PsiElement(integer)('2')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            Literal
+              PsiElement(integer)('2')
           PsiWhiteSpace(' ')
           CatchBlock
             PsiElement(catch)('catch')

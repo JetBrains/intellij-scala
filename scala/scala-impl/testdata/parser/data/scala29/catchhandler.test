@@ -6,11 +6,10 @@ try a catch this
 -----
 ScalaFile
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -19,11 +18,10 @@ ScalaFile
         PsiElement(identifier)('b')
   PsiWhiteSpace('\n')
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -35,11 +33,10 @@ ScalaFile
         PsiElement(})('}')
   PsiWhiteSpace('\n')
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -51,11 +48,10 @@ ScalaFile
         PsiElement())(')')
   PsiWhiteSpace('\n')
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -70,11 +66,10 @@ ScalaFile
         PsiElement(identifier)('b')
   PsiWhiteSpace('\n')
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')

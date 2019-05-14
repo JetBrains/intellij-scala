@@ -271,7 +271,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           case t: ScTrait => s"Extract method to trait ${t.name}"
           case _: ScNewTemplateDefinition => "Extract method to anonymous class"
         }
-      case _: ScTryBlock => local("try block")
+      case _: ScTry => local("try block")
       case _: ScConstrBlock => local("constructor")
       case b: ScBlock  =>
         b.getParent match {

@@ -7,11 +7,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
@@ -77,7 +75,7 @@ object RemoveBracesIntention {
   }
 
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
-    val classes = Seq(classOf[ScPatternDefinition], classOf[ScIf], classOf[ScFunctionDefinition], classOf[ScTryBlock],
+    val classes = Seq(classOf[ScPatternDefinition], classOf[ScIf], classOf[ScFunctionDefinition], classOf[ScTry],
       classOf[ScFinallyBlock], classOf[ScWhile], classOf[ScDo], classOf[ScCaseClause])
 
     def isAncestorOfElement(ancestor: PsiElement) = PsiTreeUtil.isContextAncestor(ancestor, element, false)
@@ -88,28 +86,8 @@ object RemoveBracesIntention {
         ifStmt.thenExpression.filter(isAncestorOfElement).orElse(ifStmt.elseExpression.filter(isAncestorOfElement))
       case funDef: ScFunctionDefinition if !funDef.hasUnitResultType =>
         funDef.body.filter(isAncestorOfElement)
-      case tryBlock: ScTryBlock if tryBlock.hasRBrace =>
-        def couldRemoveBraces(block: ScTryBlock): Boolean = {
-          val blockStatements = block.statements
-          blockStatements.length == 1 && (blockStatements.head match {
-            case b: ScBlock => b.statements.length == 1
-            case _ => true
-          })
-        }
-
-        // special handling for try block, which itself is parent to the (optional) pair of braces.
-        val lBrace = tryBlock.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tLBRACE))
-        val rBrace = tryBlock.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE))
-        (lBrace, rBrace) match {
-          case (Array(lBraceNode), Array(rBraceNode)) if couldRemoveBraces(tryBlock) =>
-            val action = () => {
-              Seq(lBraceNode, rBraceNode).foreach(tryBlock.getNode.removeChild)
-              CodeEditUtil.markToReformat(tryBlock.getParent.getNode, true)
-              // TODO clean up excess newlines.
-            }
-            return Some(action)
-          case _ => None
-        }
+      case tryExpr: ScTry =>
+        tryExpr.expression.filter(isAncestorOfElement)
       case finallyBlock: ScFinallyBlock =>
         finallyBlock.expression.filter(isAncestorOfElement)
       case whileStmt: ScWhile =>

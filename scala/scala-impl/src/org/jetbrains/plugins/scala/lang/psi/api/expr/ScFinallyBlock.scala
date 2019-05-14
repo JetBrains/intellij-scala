@@ -11,3 +11,7 @@ package expr
 trait ScFinallyBlock extends ScalaPsiElement {
   def expression: Option[ScExpression] = findChild(classOf[ScExpression])
 }
+
+object ScFinallyBlock {
+  def unapply(block: ScFinallyBlock): Option[ScExpression] = block.expression
+}

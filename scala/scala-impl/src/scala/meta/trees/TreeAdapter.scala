@@ -329,17 +329,17 @@ trait TreeAdapter {
       case t: ScThrow =>
         m.Term.Throw(expression(t.expression).getOrElse(throw new AbortException(t, "Empty throw expression")))
       case t@ScTry(tryBlock, catchBlock, finallyBlock) =>
-        val fblk = finallyBlock match {
-          case Some(b:ScFinallyBlock) => b.expression.map(expression)
-          case _ => None
+        val fblk = finallyBlock.collect  {
+          case ScFinallyBlock(expr) => expression(expr)
         }
+        def tryTerm = expression(tryBlock).getOrElse(unreachable)
         val res = catchBlock match {
           case Some(ScCatchBlock(clauses)) if clauses.caseClauses.size == 1 =>
-            m.Term.TryWithTerm(expression(tryBlock), clauses.caseClause.expr.map(expression).getOrElse(unreachable), fblk)
+            m.Term.TryWithTerm(tryTerm, clauses.caseClause.expr.map(expression).getOrElse(unreachable), fblk)
           case Some(ScCatchBlock(clauses)) =>
-            m.Term.TryWithCases(expression(tryBlock), Seq(clauses.caseClauses.map(caseClause):_*), fblk)
+            m.Term.TryWithCases(tryTerm, Seq(clauses.caseClauses.map(caseClause):_*), fblk)
           case None =>
-            m.Term.TryWithCases(expression(tryBlock), Seq.empty, fblk)
+            m.Term.TryWithCases(tryTerm, Seq.empty, fblk)
           case _ => unreachable
         }
         res

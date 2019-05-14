@@ -11,15 +11,14 @@ ScalaFile
     PsiElement({)('{')
     PsiWhiteSpace('\n  ')
     TryStatement
-      TryBlock
-        PsiElement(try)('try')
-        PsiWhiteSpace('\n    ')
-        MethodCall
-          ReferenceExpression: print
-            PsiElement(identifier)('print')
-          ArgumentList
-            PsiElement(()('(')
-            PsiElement())(')')
+      PsiElement(try)('try')
+      PsiWhiteSpace('\n    ')
+      MethodCall
+        ReferenceExpression: print
+          PsiElement(identifier)('print')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
     PsiWhiteSpace('\n    ')
     MethodCall
       ReferenceExpression: print

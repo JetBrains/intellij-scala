@@ -8,11 +8,10 @@ try a catch {catch}
 -----
 ScalaFile
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -27,11 +26,10 @@ ScalaFile
         PsiElement(})('}')
   PsiWhiteSpace('\n\n')
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -45,11 +43,10 @@ ScalaFile
   PsiElement(})('}')
   PsiWhiteSpace('\n\n')
   TryStatement
-    TryBlock
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      ReferenceExpression: a
-        PsiElement(identifier)('a')
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
@@ -63,11 +60,10 @@ ScalaFile
         PsiElement())(')')
         PsiWhiteSpace('\n\n')
         TryStatement
-          TryBlock
-            PsiElement(try)('try')
-            PsiWhiteSpace(' ')
-            ReferenceExpression: a
-              PsiElement(identifier)('a')
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: a
+            PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           CatchBlock
             PsiElement(catch)('catch')

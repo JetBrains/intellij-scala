@@ -34,7 +34,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
   }
 
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
-    val classes = Seq(classOf[ScPatternDefinition], classOf[ScIf], classOf[ScFunctionDefinition], classOf[ScTryBlock],
+    val classes = Seq(classOf[ScPatternDefinition], classOf[ScIf], classOf[ScFunctionDefinition], classOf[ScTry],
       classOf[ScFinallyBlock], classOf[ScWhile], classOf[ScDo])
     def isAncestorOfElement(ancestor: PsiElement) = PsiTreeUtil.isContextAncestor(ancestor, element, false)
 
@@ -44,11 +44,8 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
         ifStmt.thenExpression.filter(isAncestorOfElement).orElse(ifStmt.elseExpression.filter(isAncestorOfElement))
       case funDef: ScFunctionDefinition =>
         funDef.body.filter(isAncestorOfElement)
-      case tryBlock: ScTryBlock if !tryBlock.hasRBrace =>
-        tryBlock.statements match {
-          case Seq(x: ScExpression) if isAncestorOfElement(x) => Some(x)
-          case _ => None
-        }
+      case tryExpr: ScTry =>
+        tryExpr.expression.filter(isAncestorOfElement)
       case finallyBlock: ScFinallyBlock =>
         finallyBlock.expression.filter(isAncestorOfElement)
       case whileStmt: ScWhile =>

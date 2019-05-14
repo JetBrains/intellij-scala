@@ -4,7 +4,7 @@ package codeInsight.unwrap
 import java.util
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTry
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTry}
 
 /**
  * Nikolay.Tropin
@@ -12,15 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTry
  */
 class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e.getParent match {
-    case ScTry(tryBl, _, Some(finBl)) if finBl.expression.isDefined && (tryBl == e || finBl == e)  => true
+    case ScTry(Some(tryBl), _, Some(finBl@ScFinallyBlock(_))) if tryBl == e || finBl == e  => true
     case _ => false
   }
 
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element.getParent match {
-    case stmt @ ScTry(tryBl, _, Some(finBl)) if finBl.expression.isDefined =>
+    case stmt @ ScTry(Some(tryBl), _, Some(finBl@ScFinallyBlock(fExpr))) =>
       context.extractBlockOrSingleStatement(tryBl, stmt)
       context.insertNewLine()
-      context.extractBlockOrSingleStatement(finBl.expression.get, stmt)
+      context.extractBlockOrSingleStatement(fExpr, stmt)
       context.delete(stmt)
     case _ =>
   }

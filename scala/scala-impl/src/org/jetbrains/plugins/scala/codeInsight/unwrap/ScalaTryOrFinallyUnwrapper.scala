@@ -5,7 +5,7 @@ import java.util
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTryBlock, ScTry}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTry}
 
 /**
  * Nikolay.Tropin
@@ -13,23 +13,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTryBlock
  */
 class ScalaTryOrFinallyUnwrapper extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e match {
-    case _: ScTryBlock => true
+    case _: ScTry => true
     case fBl: ScFinallyBlock if fBl.expression.isDefined => true
     case _ => false
   }
 
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element.getParent match {
-    case stmt @ ScTry(tryBlock, _, _) if tryBlock == element =>
-      context.extractBlockOrSingleStatement(tryBlock, stmt)
+    case stmt @ ScTry(Some(tryExpr), _, _) if tryExpr == element =>
+      context.extractBlockOrSingleStatement(tryExpr, stmt)
       context.delete(stmt)
-    case stmt @ ScTry(_, _, Some(fBl)) if fBl == element && fBl.expression.isDefined =>
-      context.extractBlockOrSingleStatement(fBl.expression.get, stmt)
+    case stmt @ ScTry(_, _, Some(fBl@ScFinallyBlock(fExpr))) if fBl == element =>
+      context.extractBlockOrSingleStatement(fExpr, stmt)
       context.delete(stmt)
     case _ =>
   }
 
   override def getDescription(e: PsiElement): String = e match {
-    case _: ScTryBlock => CodeInsightBundle.message("unwrap.try")
+    case _: ScTry => CodeInsightBundle.message("unwrap.try")
     case _: ScFinallyBlock => ScalaBundle.message("unwrap.finally")
     case _ => ""
   }

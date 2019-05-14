@@ -106,12 +106,10 @@ object Expr1 {
         return true
       //---------------------try statement------------------------//
       case ScalaTokenTypes.kTRY =>
-        val tryMarker = builder.mark
         builder.advanceLexer() //Ate try
         if (!Expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
-        tryMarker.done(ScalaElementType.TRY_BLOCK)
         val catchMarker = builder.mark
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
@@ -180,7 +178,7 @@ object Expr1 {
                 builder error ErrMsg("enumerators.expected")
               }
             }
-            ParserUtils.parseLoopUntilRBrace(builder, foo)
+            ParserUtils.parseLoopUntilRBrace(builder, foo _)
             builder.restoreNewlinesState()
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
@@ -280,7 +278,7 @@ object Expr1 {
                     builder error ErrMsg("case.clauses.expected")
                   }
                 }
-                ParserUtils.parseLoopUntilRBrace(builder, foo)
+                ParserUtils.parseLoopUntilRBrace(builder, foo _)
                 builder.restoreNewlinesState()
               case _ => builder error ErrMsg("case.clauses.expected")
             }

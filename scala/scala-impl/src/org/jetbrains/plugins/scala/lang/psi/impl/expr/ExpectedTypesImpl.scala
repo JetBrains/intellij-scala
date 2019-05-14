@@ -151,10 +151,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case cond: ScIf if cond.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case cond: ScIf if cond.elseExpression.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
-      case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
-        case _ => Array.empty
-      }
+      case tr@ScTry(Some(e), _, _) if e == expr =>
+        tr.expectedTypesEx(fromUnderscore = true)
       case wh: ScWhile if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case _: ScWhile => Array((Unit, None))
       case d: ScDo if d.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
@@ -303,7 +301,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
           case _ => Array.empty
         }
-      case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
+      case b: ScBlock if b.getContext.isInstanceOf[ScTry]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause]
               || b.getContext.isInstanceOf[ScFunctionExpr] => b.lastExpr match {

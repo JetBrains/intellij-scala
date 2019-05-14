@@ -482,8 +482,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     startNode(Some(tryStmt)) {tryStmtInstr =>
       checkPendingEdges(tryStmtInstr)
       // process try block
-      val tb = tryStmt.tryBlock
-      if (tb != null) {
+      tryStmt.expression.foreach { tb =>
         tb.accept(this)
         val head = Option(myHead).getOrElse(tryStmtInstr)
         advancePendingEdges(tb, tryStmt)

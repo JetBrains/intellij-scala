@@ -35,7 +35,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     ScalaTokenTypes.tLINE_COMMENT
   )
   private val TryOrPackaging = TokenSet.create(
-    ScalaElementType.TRY_BLOCK,
+    ScalaElementType.TRY_STMT,
     ScalaElementType.PACKAGING
   )
   private val IfOrElse = TokenSet.create(
@@ -152,13 +152,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _: PsiComment => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
-      case _: ScTryBlock =>
+      case _: ScTry =>
         childElementType match {
-          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE if parent.lastNode == null =>
-            //getting indent for braces from tryBlock
-            if (isBraceNextLineShifted) Indent.getNormalIndent
-            else Indent.getNoneIndent
-          case ScalaTokenTypes.kTRY => Indent.getNoneIndent
+          case ScalaTokenTypes.kTRY | ScalaElementType.CATCH_BLOCK | ScalaElementType.FINALLY_BLOCK => Indent.getNoneIndent
+          case _ if settings.BRACE_STYLE == NEXT_LINE => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
       case _: ScCatchBlock =>
@@ -185,7 +182,6 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ if isBraceNextLineShifted1 => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
-      case _: ScTry => Indent.getNoneIndent
       case _: ScFunction => funIndent
       case _ if nodeElementType == ScalaTokenTypes.kDEF ||
         TokenSets.FUNCTIONS.contains(nodeTreeParentElementType) &&

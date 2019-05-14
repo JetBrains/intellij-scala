@@ -152,7 +152,7 @@ package object statements {
     def result: Set[ScExpression] = result_.toSet
 
     override def visitTry(statement: ScTry): Unit = {
-      acceptVisitor(statement.tryBlock)
+      statement.expression.foreach(acceptVisitor)
       visitCatchBlock(statement.catchBlock)
     }
 

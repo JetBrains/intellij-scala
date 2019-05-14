@@ -245,9 +245,6 @@ object ScalaElementType {
   val TRY_STMT: ScExpressionElementType = new ScExpressionElementType("try statement") {
     override def createElement(node: ASTNode) = new ScTryImpl(node)
   }
-  val TRY_BLOCK: ScExpressionElementType = new ScExpressionElementType("try block") {
-    override def createElement(node: ASTNode) = new ScTryBlockImpl(node)
-  }
   val CATCH_BLOCK: ScExpressionElementType = new ScExpressionElementType("catch block") {
     override def createElement(node: ASTNode) = new ScCatchBlockImpl(node)
   }

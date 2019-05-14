@@ -45,7 +45,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val BLOCK_ELEMENT_TYPES = {
     import ScCodeBlockElementType.BlockExpression
     import ScalaElementType._
-    TokenSet.create(BlockExpression, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
+    TokenSet.create(BlockExpression, TEMPLATE_BODY, PACKAGING, MATCH_STMT, CATCH_BLOCK)
   }
 
   private def getText(node: ASTNode, fileText: CharSequence): String = {
@@ -452,7 +452,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               ON_NEW_LINE
           }
         } else rightPsiParent match {
-          case _: ScBlock | _: ScEarlyDefinitions | _: ScTemplateBody if !rightPsiParent.isInstanceOf[ScTryBlock] => ON_NEW_LINE
+          case _: ScBlock | _: ScEarlyDefinitions | _: ScTemplateBody => ON_NEW_LINE
           case _: ScArgumentExprList if rightPsi.isInstanceOf[ScBlock] => WITH_SPACING //don't add/remove newlines for partial function arguments
           case parent =>
             val (needSpace, braceStyle, startElement) =
@@ -569,8 +569,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightElementType == ScalaTokenTypes.tRBRACE) {
       val rightTreeParent = rightNode.getTreeParent
       return rightTreeParent.getPsi match {
-        case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatch |
-                    _: ScTryBlock | _: ScCatchBlock) =>
+        case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging |
+                    _: ScBlockExpr | _: ScMatch | _: ScCatchBlock) =>
           val checkKeepOneLineLambdas =
             scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST && leftPsi.isInstanceOf[PsiComment]
 
@@ -647,7 +647,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case b: ScBlockExpr if scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && !getText(b.getNode, fileText).contains('\n') &&
           scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST && b.getParent.is[ScArgumentExprList, ScInfixExpr] =>
           WITH_SPACING
-        case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatch | _: ScTryBlock | _: ScCatchBlock) =>
+        case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatch | _: ScCatchBlock) =>
           val prev = block.getPrevSibling
           if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE || prev != null &&
             prev.getNode.getElementType == tINTERPOLATED_STRING_INJECTION) {

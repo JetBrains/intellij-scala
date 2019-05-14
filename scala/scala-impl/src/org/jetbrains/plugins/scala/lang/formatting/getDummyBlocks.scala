@@ -153,21 +153,6 @@ class getDummyBlocks(private val block: ScalaBlock) {
         ss.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         subBlocks.addAll(getMultilineStringBlocks(node))
         return subBlocks
-      case _: ScTryBlock if children.headOption.exists(_.getElementType == ScalaTokenTypes.kTRY) =>
-        //add try block
-        subBlocks.add(subBlock(children.head))
-        //add try expression block
-        val tail = children.filter(isCorrectBlock).tail
-        if (tail.nonEmpty) {
-          val singleExpressionUnderTry = tail.length == 1 && tail.head.isInstanceOf[ScExpression]
-          val tailBlock = if (singleExpressionUnderTry) {
-            subBlock(tail.head)
-          } else {
-            subBlock(tail.head, tail.last)
-          }
-          subBlocks.add(tailBlock)
-        }
-        return subBlocks
       case pack: ScPackaging if pack.isExplicit =>
         val correctChildren = children.filter(isCorrectBlock)
         val (beforeOpenBrace, afterOpenBrace) = correctChildren.span(_.getElementType != ScalaTokenTypes.tLBRACE)

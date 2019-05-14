@@ -86,18 +86,12 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   override def visitTry(tryStmt: ScTry) {
     if (checkElementContainsRange(tryStmt)) {
       super.visitTry(tryStmt)
-      tryStmt.tryBlock.children.toList.filter(!_.isInstanceOf[PsiWhiteSpace]).tail match {
-        case tryChildren if tryChildren.nonEmpty => processExpressions(tryChildren, tryStmt, scalaSettings.TRY_BRACE_FORCE)
-        case _ =>
-      }
-      tryStmt.finallyBlock match {
-        case Some(fin) =>
-          fin.expression match {
-            case Some(expr) => processExpression(expr, tryStmt, scalaSettings.FINALLY_BRACE_FORCE)
-            case _ =>
-          }
-        case _ =>
-      }
+
+      for (tryExpr <- tryStmt.expression)
+        processExpression(tryExpr, tryStmt, scalaSettings.TRY_BRACE_FORCE)
+
+      for (fin <- tryStmt.finallyBlock; expr <- fin.expression)
+        processExpression(expr, tryStmt, scalaSettings.FINALLY_BRACE_FORCE)
     }
   }
 

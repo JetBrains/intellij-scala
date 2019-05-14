@@ -1062,7 +1062,6 @@ object ScalaRefactoringUtil {
 
   def needBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
     prev match {
-      case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
       case (_: ScFunction) && (_ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
@@ -1073,6 +1072,7 @@ object ScalaRefactoringUtil {
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhile if whSt.expression.orNull == parExpr => true
       case doSt: ScDo if doSt.body.orNull == parExpr => true
+      case tryExpr: ScTry if tryExpr.expression.orNull == parExpr => true
       case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>
         fE.getContext match {

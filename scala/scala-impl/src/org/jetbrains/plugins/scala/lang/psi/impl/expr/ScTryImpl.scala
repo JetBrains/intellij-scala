@@ -21,8 +21,14 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry {
 
   import ScTryImpl._
 
+  override def expression: Option[ScExpression] = findChild(classOf[ScExpression])
+
+  override def catchBlock: Option[ScCatchBlock] = findChild(classOf[ScCatchBlock])
+
+  override def finallyBlock: Option[ScFinallyBlock] = findChild(classOf[ScFinallyBlock])
+
   protected override def innerType: TypeResult =
-    tryBlock.`type`().flatMap { tryBlockType =>
+    expression.map(_.`type`().flatMap { tryBlockType =>
       val maybeExpression = catchBlock.flatMap(_.expression)
 
       val candidates = maybeExpression.toSeq.flatMap { expr =>
@@ -40,7 +46,7 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry {
             .map(tryBlockType.lub(_))
         case _ => Right(tryBlockType)
       }
-    }
+    }).getOrElse(Failure(ScalaBundle.message("nothing.to.type")))
 
   override def toString: String = "TryStatement"
 }
