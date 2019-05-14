@@ -7,6 +7,7 @@ import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -50,6 +51,24 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
 
 object StdType {
   def unapply(t: StdType): Option[(String, Option[StdType])] = Some((t.name, t.tSuper))
+
+  object Name {
+    val Any       = "Any"
+    val AnyRef    = "AnyRef"
+    val Null      = "Null"
+    val Nothing   = "Nothing"
+    val Singleton = "Singleton"
+    val AnyVal    = "AnyVal"
+    val Unit      = "Unit"
+    val Boolean   = "Boolean"
+    val Char      = "Char"
+    val Byte      = "Byte"
+    val Short     = "Short"
+    val Int       = "Int"
+    val Long      = "Long"
+    val Float     = "Float"
+    val Double    = "Double"
+  }
 }
 
 sealed class ValType(override val name: String)(implicit projectContext: ProjectContext)
@@ -60,41 +79,41 @@ sealed class ValType(override val name: String)(implicit projectContext: Project
 
 class StdTypes(implicit private val projectContext: ProjectContext) extends ProjectComponent {
 
-  lazy val Any = new StdType("Any", None)
+  lazy val Any = new StdType(Name.Any, None)
 
-  lazy val AnyRef = new StdType("AnyRef", Some(Any))
+  lazy val AnyRef = new StdType(Name.AnyRef, Some(Any))
 
-  lazy val Null = new StdType("Null", Some(AnyRef)) {
+  lazy val Null = new StdType(Name.Null, Some(AnyRef)) {
     override def isFinalType = true
   }
 
-  lazy val Nothing = new StdType("Nothing", Some(Any)) {
+  lazy val Nothing = new StdType(Name.Nothing, Some(Any)) {
     override def isFinalType = true
   }
 
-  lazy val Singleton = new StdType("Singleton", Some(AnyRef)) {
+  lazy val Singleton = new StdType(Name.Singleton, Some(AnyRef)) {
     override def isFinalType = true
   }
 
-  lazy val AnyVal = new StdType("AnyVal", Some(Any))
+  lazy val AnyVal = new StdType(Name.AnyVal, Some(Any))
 
-  lazy val Unit = new ValType("Unit")
+  lazy val Unit = new ValType(Name.Unit)
 
-  lazy val Boolean = new ValType("Boolean")
+  lazy val Boolean = new ValType(Name.Boolean)
 
-  lazy val Char = new ValType("Char")
+  lazy val Char = new ValType(Name.Char)
 
-  lazy val Byte = new ValType("Byte")
+  lazy val Byte = new ValType(Name.Byte)
 
-  lazy val Short = new ValType("Short")
+  lazy val Short = new ValType(Name.Short)
 
-  lazy val Int = new ValType("Int")
+  lazy val Int = new ValType(Name.Int)
 
-  lazy val Long = new ValType("Long")
+  lazy val Long = new ValType(Name.Long)
 
-  lazy val Float = new ValType("Float")
+  lazy val Float = new ValType(Name.Float)
 
-  lazy val Double = new ValType("Double")
+  lazy val Double = new ValType(Name.Double)
 
   lazy val QualNameToType: Map[String, StdType] = Seq(
     Any, AnyRef, AnyVal,

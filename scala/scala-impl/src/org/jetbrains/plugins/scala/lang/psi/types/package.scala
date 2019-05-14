@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
@@ -78,19 +79,24 @@ package object types {
       typeSystem.lub(scType, `type`, checkWeak)
     }
 
-    def isBoolean: Boolean = scType == stdTypes.Boolean
+    private def isStdType(name: String) = scType match {
+      case StdType(`name`, _) => true
+      case _ => false
+    }
 
-    def isAny: Boolean = scType == stdTypes.Any
+    def isBoolean: Boolean = isStdType(Name.Boolean)
 
-    def isAnyRef: Boolean = scType == stdTypes.AnyRef
+    def isAny: Boolean = isStdType(Name.Any)
 
-    def isAnyVal: Boolean = scType == stdTypes.AnyVal
+    def isAnyRef: Boolean = isStdType(Name.AnyRef)
 
-    def isNothing: Boolean = scType == stdTypes.Nothing
+    def isAnyVal: Boolean = isStdType(Name.AnyVal)
 
-    def isUnit: Boolean = scType == stdTypes.Unit
+    def isNothing: Boolean = isStdType(Name.Nothing)
 
-    def isNull: Boolean = scType == stdTypes.Null
+    def isUnit: Boolean = isStdType(Name.Unit)
+
+    def isNull: Boolean = isStdType(Name.Null)
 
     def isPrimitive: Boolean = scType match {
       case v: ValType => !isUnit
