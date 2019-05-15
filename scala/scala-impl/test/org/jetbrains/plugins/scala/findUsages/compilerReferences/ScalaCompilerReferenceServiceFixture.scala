@@ -23,7 +23,7 @@ import scala.util.control.NonFatal
 @Category(Array(classOf[SlowTests]))
 abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtureTestCase with ScalaSdkOwner {
   override implicit val version: ScalaVersion                 = Scala_2_12
-  override implicit protected def module: Module              = myModule
+  override implicit protected def module: Module              = getModule
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader(includeScalaReflect = true))
 
   private[this] val compilerIndexLock: Lock                = new ReentrantLock()
@@ -37,8 +37,8 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   override def setUp(): Unit = {
     super.setUp()
     try {
-      setUpLibrariesFor(myModule)
-      PsiTestUtil.addSourceRoot(myModule, myFixture.getTempDirFixture.findOrCreateDir("src"), true)
+      setUpLibrariesFor(getModule)
+      PsiTestUtil.addSourceRoot(getModule, myFixture.getTempDirFixture.findOrCreateDir("src"), true)
       val project = getProject
       compiler = new CompilerTester(project, project.modules.asJava, null)
     } catch {

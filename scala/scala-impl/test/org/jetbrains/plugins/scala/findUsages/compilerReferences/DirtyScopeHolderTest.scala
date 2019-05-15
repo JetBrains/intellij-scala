@@ -18,8 +18,8 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
     moduleB = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType, "B", myFixture.getTempDirFixture.findOrCreateDir("B"))
     PsiTestUtil.addSourceRoot(moduleA, myFixture.getTempDirFixture.findOrCreateDir("A/test"), true)
     PsiTestUtil.addSourceRoot(moduleB, myFixture.getTempDirFixture.findOrCreateDir("B/test"), true)
-    ModuleRootModificationUtil.addDependency(moduleA, myModule)
-    ModuleRootModificationUtil.addDependency(moduleB, myModule)
+    ModuleRootModificationUtil.addDependency(moduleA, getModule)
+    ModuleRootModificationUtil.addDependency(moduleB, getModule)
     setUpLibrariesFor(moduleA, moduleB)
   }
 
@@ -49,11 +49,11 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
     assertTrue(dirtyScopes.isEmpty)
     myFixture.openFileInEditor(rootFile.getVirtualFile)
     myFixture.`type`("/*bla bla bla*/")
-    val scopes = Set(myModule, moduleA, moduleB).flatMap(moduleScopes) - ScopedModule.test(myModule)
+    val scopes = Set(getModule, moduleA, moduleB).flatMap(moduleScopes) - ScopedModule.test(getModule)
     assertEquals(scopes, dirtyScopes)
     FileDocumentManager.getInstance().saveAllDocuments()
     assertEquals(scopes, dirtyScopes)
-    compiler.compileModule(myModule)
+    compiler.compileModule(getModule)
     assertEquals(moduleScopes(moduleA) ++ moduleScopes(moduleB), dirtyScopes)
   }
 

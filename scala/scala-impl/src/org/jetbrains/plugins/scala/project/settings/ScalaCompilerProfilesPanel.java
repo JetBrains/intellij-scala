@@ -206,7 +206,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     while (true);
   }
 
-  private class MyTreeModel extends DefaultTreeModel implements EditableTreeModel{
+  private class MyTreeModel extends DefaultTreeModel implements EditableTreeModel {
     public MyTreeModel() {
       super(new RootNode());
     }
@@ -277,7 +277,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     }
 
     @Override
-    public void removeNodes(Collection<TreePath> path) {
+    public void removeNodes(Collection<? extends TreePath> path) {
       // TODO looks like we don't need it
     }
 

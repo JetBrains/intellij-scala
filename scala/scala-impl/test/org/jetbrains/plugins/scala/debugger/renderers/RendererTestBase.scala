@@ -26,7 +26,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     val frameTree = new ThreadsDebuggerTree(getProject)
     Disposer.register(getTestRootDisposable, frameTree)
-    var testVariableChildren: util.List[DebuggerTreeNode] = null
+    var testVariableChildren: util.List[_ <: DebuggerTreeNode] = null
 
     val testVariable = inSuspendContextAction(10.seconds, s"Too long rendering of $variableName") {
       val context = evaluationContext()
@@ -38,7 +38,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
       val value = testVariable.calcValue(context)
 
       renderer.buildChildren(value, new ChildrenBuilder {
-        override def setChildren(children: util.List[DebuggerTreeNode]) {testVariableChildren = children}
+        override def setChildren(children: util.List[_ <: DebuggerTreeNode]): Unit = {testVariableChildren = children}
 
         override def getDescriptorManager: NodeDescriptorFactory = frameTree.getNodeFactory
 

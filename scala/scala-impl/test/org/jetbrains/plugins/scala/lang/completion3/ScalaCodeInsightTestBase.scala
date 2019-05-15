@@ -111,7 +111,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     configureFromFileText(fileText)
 
     new CodeCompletionHandlerBase(completionType, false, false, true)
-      .invokeCompletion(getProject, getEditor, time, false, false)
+      .invokeCompletion(getProject, getEditor, time, false)
   }
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =

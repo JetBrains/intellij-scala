@@ -40,20 +40,4 @@ class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsa
     res = 31 * res + (if (isOnlyNewInstances) 1 else 0)
     res
   }
-
-  protected override def addUsageTypes(strings: util.LinkedHashSet[String]) {
-    if (isOnlyNewInstances) {
-      strings.add(ScalaBundle.message("find.usages.instances.title"))
-    } else if (isUsages || isMembersUsages) {
-      strings.add(FindBundle.message("find.usages.panel.title.usages"))
-    }
-
-    if (isImplementingTypeDefinitions) {
-      strings.add(ScalaBundle.message("find.usages.implementing.type.definition"))
-    }
-
-    if (isSearchCompanionModule) {
-      strings.add(ScalaBundle.message("find.usages.companin.module"))
-    }
-  }
 }

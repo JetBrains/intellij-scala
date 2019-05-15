@@ -28,7 +28,7 @@ import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_V
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
 
-  override implicit protected def module: Module = myModule
+  override implicit protected def module: Module = getModule
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
   protected var compiler: CompilerTester = _
 
@@ -51,7 +51,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
     addMetaSource(source)
-    val cache = new CompilationCache(myModule, Seq(version.minor, META_MINOR_VERSION))
+    val cache = new CompilationCache(getModule, Seq(version.minor, META_MINOR_VERSION))
     val errors = cache.withModuleOutputCache(Iterable[String]()) {
       enableParadisePlugin()
       compiler.make()
