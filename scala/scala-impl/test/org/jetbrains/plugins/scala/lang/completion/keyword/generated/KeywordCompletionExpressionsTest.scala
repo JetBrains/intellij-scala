@@ -21,6 +21,10 @@ class KeywordCompletionExpressionsTest extends KeywordCompletionTestBase {
 
   def testfinally(): Unit = doTest()
 
+  def testfinally2(): Unit = doTest()
+
+  def testfinally3(): Unit = doTest()
+
   def testfor(): Unit = doTest()
 
   def testinfix(): Unit = doTest()
@@ -34,6 +38,10 @@ class KeywordCompletionExpressionsTest extends KeywordCompletionTestBase {
   def testnoExpr(): Unit  = doTest()
 
   def testtry(): Unit  = doTest()
+
+  def testtry2(): Unit  = doTest()
+
+  def testtry3(): Unit  = doTest()
 
   def testyield1(): Unit  = doTest()
 

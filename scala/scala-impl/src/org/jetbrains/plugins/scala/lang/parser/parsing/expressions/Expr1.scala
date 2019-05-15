@@ -107,7 +107,7 @@ object Expr1 {
       //---------------------try statement------------------------//
       case ScalaTokenTypes.kTRY =>
         builder.advanceLexer() //Ate try
-        if (!Expr.parse(builder)) {
+        if (!SimpleExpr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
         val catchMarker = builder.mark
