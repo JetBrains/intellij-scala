@@ -3,18 +3,14 @@ package org.jetbrains.plugins.scala.performance.typing
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Roman.Shein
-  *         Date: 15.12.2015
-  */
-@Category(Array(classOf[PerfCycleTests]))
-class TypedHandlerTest extends TypingTestWithPerformanceTestBase {
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.language.postfixOps
 
-  val typingTimeout = 200
+@Category(Array(classOf[PerfCycleTests]))
+class ScalaTypedHandlerTest extends TypingTestWithPerformanceTestBase {
+  implicit val typingTimeout: Duration = 200 milliseconds
 
   override protected def folderPath: String = super.folderPath + "/typedHandler/"
-
-  def doTest(stringsToType: String*): Unit = doTest(stringsToType.toList, typingTimeout)
 
   def testCase(): Unit = doTest("case _")
 
