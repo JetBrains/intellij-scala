@@ -52,7 +52,7 @@ object ScalaStubsUtil {
           }
       }
     }
-    inheritors.toVector
+    inheritors
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {

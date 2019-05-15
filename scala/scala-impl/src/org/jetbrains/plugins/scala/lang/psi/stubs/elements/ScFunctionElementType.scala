@@ -86,7 +86,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     sink.occurrences(METHOD_NAME_KEY, stub.getName)
 
     if (stub.isImplicitConversion)
-      IMPLICIT_CONVERSION_KEY.occurence(sink)
+      ImplicitConversionKey.occurence(sink)
   }
 }
 

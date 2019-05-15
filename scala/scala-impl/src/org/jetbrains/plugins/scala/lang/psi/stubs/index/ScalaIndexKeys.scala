@@ -81,15 +81,15 @@ object ScalaIndexKeys {
     }
   }
 
-  implicit class ImplicitConversionKeyExt(private val indexKey: IMPLICIT_CONVERSION_KEY.type) extends AnyVal {
+  object ImplicitConversionKey {
     private def key: String = "implicit_conversion"
 
     def allElements(scope: GlobalSearchScope)
                    (implicit context: ProjectContext): Iterable[ScMember] =
-      indexKey.elements(key, scope, classOf[ScMember])
+      IMPLICIT_CONVERSION_KEY.elements(key, scope, classOf[ScMember])
 
     def occurence(sink: IndexSink): Unit =
-      sink.occurrence(indexKey, key)
+      sink.occurrence(IMPLICIT_CONVERSION_KEY, key)
   }
 
   implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[Integer, Psi]) extends AnyVal {
