@@ -93,6 +93,12 @@ trait ScUnderscoreSection extends ScExpression {
   }
 }
 
+object ScUnderscoreSection {
+  object binding {
+    def unapply(under: ScUnderscoreSection): Option[ScExpression] = under.bindingExpr
+  }
+}
+
 object ScUnderScoreSectionUtil {
   @tailrec
   def isUnderscore(expr: ScExpression): Boolean = {

@@ -478,4 +478,37 @@ class ConvertibleToMethodValueInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def test_SCL15450(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def func(): Int = 3
+      |  def test(f: () => Int): Unit = ()
+      |
+      |  test(func _)
+      |}
+    """.stripMargin
+  )
+
+  def test_SCL15450_2(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def func()(): Int = 3
+      |  def test(f: () => () => Int): Unit = ()
+      |
+      |  test(func _)
+      |}
+    """.stripMargin
+  )
+
+  def test_SCL15450_3(): Unit = checkTextHasError(
+    s"""
+      |object Test {
+      |  def func(i: Int)(): Int = 3
+      |  def test(f: Int => () => Int): Unit = ()
+      |
+      |  test(${START}func _$END)
+      |}
+    """.stripMargin
+  )
 }

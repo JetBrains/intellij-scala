@@ -59,11 +59,11 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
     case MethodRepr(expr, qualOpt, Some(_), args) =>
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
-    case und: ScUnderscoreSection if und.bindingExpr.isDefined =>
+    case und@ScUnderscoreSection.binding(bindingExpr) =>
       val isInParameterOfParameterizedClass = und.parentOfType(classOf[ScClassParameter])
         .exists(_.containingClass.hasTypeParameters)
-      def mayReplace() = und.bindingExpr.get match {
-        case ResolvesTo(fun) if hasByNameOrImplicitParam(fun) => false
+      def mayReplace() = bindingExpr match {
+        case ResolvesTo(fun) if hasByNameOrImplicitParam(fun) || hasInitialEmptyArgList(fun) => false
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
         case _ => true
       }
@@ -71,6 +71,16 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
       if (!isInParameterOfParameterizedClass && mayReplace())
         registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
   }
+
+  private def hasInitialEmptyArgList(element: PsiElement): Boolean =
+    element match {
+      case func: ScMethodLike =>
+        func.effectiveParameterClauses.headOption.exists(_.parameters.isEmpty)
+      case method: PsiMethod =>
+        !method.hasParameters
+      case _ =>
+        false
+    }
 
   private def involvesImplicitsOrByNameParams(srr: ScalaResolveResult): Boolean = {
     srr.implicitType.nonEmpty ||
