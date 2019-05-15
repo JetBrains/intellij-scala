@@ -23,49 +23,83 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
   def test1(): Unit = {
     doTest(
       s"""
-        |Seq("1", "2").map { x =>
-        |  if (x.startsWith("1")) x
-        |  else $START{
-        |    val y = x + 2
-        |  }$END
+        |{
+        |  Seq("1", "2").map { x =>
+        |    if (x.startsWith("1")) x
+        |    else $START{
+        |      val y = x + 2
+        |    }$END
+        |  }
+        |
+        |  ()
         |}
       """.stripMargin,
       """
-        |Seq("1", "2").map { x =>
-        |  if (x.startsWith("1")) x
-        |  else {
-        |    val y = x + 2
+        |{
+        |  Seq("1", "2").map { x =>
+        |    if (x.startsWith("1")) x
+        |    else {
+        |      val y = x + 2
+        |    }
         |  }
+        |
+        |  ()
         |}
       """.stripMargin,
       """
-        |Seq("1", "2").foreach { x =>
-        |  if (x.startsWith("1")) x
-        |  else {
-        |    val y = x + 2
+        |{
+        |  Seq("1", "2").foreach { x =>
+        |    if (x.startsWith("1")) x
+        |    else {
+        |      val y = x + 2
+        |    }
         |  }
+        |
+        |  ()
         |}
       """.stripMargin
     )
   }
 
-  def test2(): Unit = {
-    checkTextHasError(s"val mapped = Seq(1, 2).map(${START}println(_)$END)")
-    checkTextHasError(
-      s"""
-         |Seq(1, 2).map {
-         |  ${START}println(_)$END
-         |}
-       """.stripMargin)
-    checkTextHasError(
-      s"""
-         |Seq(1, 2).map { x =>
-         |  ${START}println(x)$END
-         |}
-       """.stripMargin)
-  }
+  def test2(): Unit = checkTextHasNoErrors(
+    "val mapped = Seq(1, 2).map(println(_))"
+  )
 
-  def testFunctionToFunctionToUnit(): Unit = {
-    checkTextHasNoErrors(s"Seq(1, 2).map(x => $START() => println(x)$END)")
-  }
+  def test3(): Unit = checkTextHasNoErrors(
+    """
+      |val a = {
+      |  println("")
+      |  Seq(1, 2).map(println(_))
+      |}
+    """.stripMargin
+  )
+
+  def test4(): Unit = checkTextHasError(
+    s"""
+       |{
+       |  Seq(1, 2).map(${START}println$END)
+       |  3
+       |}
+     """
+  )
+
+  def test_Unit(): Unit = checkTextHasError(
+    s"""
+       |{
+       |  Seq(1).map(_ => ${START}Unit$END)
+       |  3
+       |}
+     """.stripMargin
+  )
+
+  def test_SCL15417(): Unit = checkTextHasNoErrors(
+      """
+        |val o:Option[Int] = ???
+        |o.map{ case i => () }.getOrElse{???}
+      """.stripMargin
+  )
+
+  def testFunctionToFunctionToUnit(): Unit = checkTextHasNoErrors(
+    "Seq(1, 2).map(x => () => println(x))"
+  )
 }

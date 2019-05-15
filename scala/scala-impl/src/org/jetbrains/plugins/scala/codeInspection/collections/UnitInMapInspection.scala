@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -23,7 +24,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(call, _, Some(ref), Seq(arg@lambdaWithBody(body))) if ref.refName == "map" &&
-      checkResolve(ref, getLikeCollectionClasses) =>
+      checkResolve(ref, getLikeCollectionClasses) && expressionResultIsNotUsed(call) =>
 
       for {
         expression <- body.calculateTailReturns
@@ -70,10 +71,16 @@ object UnitInMapInspection {
       expression.isPhysical &&
       expression.`type`().exists {
         case scType@api.FunctionType(returnType, _) =>
-          returnType.isUnit &&
+          isUnitLike(returnType) &&
             argumentType.equiv(scType)
-        case scType => scType.isUnit
+        case scType => isUnitLike(scType)
       }
+
+  private def isUnitLike(ty: ScType): Boolean =
+    ty.isUnit || isUnitObjectType(ty)
+
+  private def isUnitObjectType(ty: ScType): Boolean =
+    ty.canonicalText == "_root_.scala.Unit.type"
 
   private class ChangeReferenceNameQuickFix(reference: ScReference)
     extends AbstractFixOnPsiElement(
