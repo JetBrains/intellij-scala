@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -156,22 +157,22 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     s"${accessModifier}implicit def $name$typeParametersText$parametersText : $returnType = throw new Error()"
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
-  def getSyntheticImplicitMethod: Option[ScFunction] = {
-    if (hasModifierProperty("implicit")) {
-      constructor match {
-        case Some(_: ScPrimaryConstructor) =>
-          try {
-            val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-            method.syntheticNavigationElement = this
-            Some(method)
-          } catch {
-            case p: ProcessCanceledException => throw p
-            case _: Exception => None
-          }
-        case None => None
-      }
-    } else None
+  override def getSyntheticImplicitMethod: Option[ScFunction] = {
+    if (hasModifierProperty("implicit") && constructor.nonEmpty)
+      syntheticImplicitMethod
+    else None
+  }
+
+  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  private def syntheticImplicitMethod: Option[ScFunction] = {
+    try {
+      val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+      method.syntheticNavigationElement = this
+      Some(method)
+    } catch {
+      case p: ProcessCanceledException => throw p
+      case _: Exception => None
+    }
   }
 
   override def psiFields: Array[PsiField] = {
