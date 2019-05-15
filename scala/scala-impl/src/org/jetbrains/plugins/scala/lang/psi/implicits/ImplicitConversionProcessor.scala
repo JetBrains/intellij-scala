@@ -4,8 +4,8 @@ package psi
 package implicits
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isImplicit
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 /**
   * @author adkozlov
   */
-final class ImplicitConversionProcessor(override val getPlace: ScExpression,
+final class ImplicitConversionProcessor(override val getPlace: PsiElement,
                                         override protected val withoutPrecedence: Boolean)
   extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
@@ -25,7 +25,7 @@ final class ImplicitConversionProcessor(override val getPlace: ScExpression,
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
 
-    if (ImplicitConversionProcessor.shouldProcess(namedElement, getPlace)) {
+    if (ImplicitConversionProcessor.applicable(namedElement, getPlace)) {
       namedElement match {
         case f: ScFunction if !f.isParameterless => addIfImplicitConversion(f)
         case t: Typeable                         => addIfHasFunctionType(t)
@@ -42,21 +42,21 @@ final class ImplicitConversionProcessor(override val getPlace: ScExpression,
     val elemType = subst(namedElement.`type`().getOrAny)
 
     if (functionType.exists(elemType.conforms(_))) {
-      addResult(new ScalaResolveResult(namedElement, subst, state.importsUsed))
+      addResult(new ScalaResolveResult(namedElement, subst, state.importsUsed, fromType = state.fromType))
     }
   }
 
   private def addIfImplicitConversion(function: ScFunction)
                                      (implicit state: ResolveState): Unit = {
     if (function.isImplicitConversion) {
-      addResult(new ScalaResolveResult(function, state.substitutorWithThisType, state.importsUsed))
+      addResult(new ScalaResolveResult(function, state.substitutorWithThisType, state.importsUsed, fromType = state.fromType))
     }
   }
 }
 
 
 object ImplicitConversionProcessor {
-  private def shouldProcess(namedElement: PsiNamedElement, place: PsiElement): Boolean = {
+  def applicable(namedElement: PsiNamedElement, place: PsiElement): Boolean = {
     isImplicit(namedElement) &&
       !isConformsMethod(namedElement) &&
       ImplicitProcessor.isAccessible(namedElement, place)

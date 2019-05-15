@@ -23,14 +23,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueO
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionProcessor
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.targetTypeAndSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, ScalaResolveState, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.JavaConverters
 
 /**
   * @author Alexander Podkhalyuzin
@@ -53,12 +50,14 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
           case expression: ScReferenceExpression if PsiTreeUtil.getContextOfType(expression, classOf[ScalaFile]) != null =>
             implicit val place: ScReferenceExpression = expression
 
-            val finder = place.qualifier.orElse {
+            val qualifier = place.qualifier.orElse {
               Option(place.getContext).collect {
                 case ScSugarCallExpr(baseExpression, `place`, _) => baseExpression
               }
-            }.fold(StaticMembersFinder(resultSet.getPrefixMatcher, accessAll = invocationCount >= 3): GlobalMembersFinder) {
-              ImplicitMembersFinder(_)
+            }
+            val finder = qualifier match {
+              case None       => staticMembersFinder(place, resultSet.getPrefixMatcher, accessAll = invocationCount >= 3)
+              case Some(qual) => extensionMethodsFinder(qual)
             }
 
             if (finder == null) return
@@ -135,12 +134,12 @@ object ScalaGlobalMembersCompletionContributor {
 
   }
 
-  private final class StaticMembersFinder private(accessAll: Boolean)
-                                                 (nameMatches: String => Boolean)
-                                                 (implicit place: ScReferenceExpression) extends GlobalMembersFinder {
+  private final class StaticMembersFinder(place: ScReferenceExpression, matcher: PrefixMatcher, accessAll: Boolean)
+    extends GlobalMembersFinder {
 
     private implicit val ElementScope(project, scope) = place.elementScope
     private val cacheManager = ScalaShortNamesCacheManager.getInstance
+    private def nameMatches(s: String): Boolean = matcher.prefixMatches(s)
 
     override protected def candidates: Iterable[GlobalMemberResult] = methodsLookups ++ fieldsLookups ++ propertiesLookups
 
@@ -206,77 +205,34 @@ object ScalaGlobalMembersCompletionContributor {
 
   }
 
-  private object StaticMembersFinder {
+  private def staticMembersFinder(place: ScReferenceExpression, prefixMatcher: PrefixMatcher, accessAll: Boolean): StaticMembersFinder =
+    if (prefixMatcher.getPrefix.nonEmpty) new StaticMembersFinder(place, prefixMatcher, accessAll)
+    else null
 
-    def apply(prefixMatcher: PrefixMatcher, accessAll: Boolean)
-             (implicit place: ScReferenceExpression): StaticMembersFinder =
-      if (prefixMatcher.getPrefix.nonEmpty) new StaticMembersFinder(accessAll)(prefixMatcher.prefixMatches)
-      else null
-  }
 
-  private final class ImplicitMembersFinder private(originalType: ScType)
-                                                   (implicit place: ScReferenceExpression) extends GlobalMembersFinder {
+  private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpression) extends GlobalMembersFinder {
 
     override protected def candidates: Iterable[GlobalMemberResult] = for {
-      candidate       <- collectImplicitConversions
-      (resultType, _) <- targetTypeAndSubstitutor(candidate, originalType)(place).toSeq
-      item            <- completeImplicits(candidate, resultType)
+      (key, conversionData) <- ImplicitConversionCache.getOrScheduleUpdate(place.elementScope)
+
+      if ImplicitConversionProcessor.applicable(key.function, place)
+
+      (resultType, _)       <- targetTypeAndSubstitutor(conversionData, originalType, place).toIterable
+      item                  <- completeImplicits(key.function, key.containingObject, resultType)
     } yield item
 
-    private def collectImplicitConversions: Iterable[ScalaResolveResult] = {
-      val processor = new ImplicitConversionProcessor(place, true)
-
-      allImplicitConversions.foreach { member =>
-        member.containingClass match {
-          case o: ScObject if o.isStatic =>
-            //member is implicit function or implicit class
-            val function = member match {
-              case f: ScFunction => Some(f)
-              case c: ScClass    => c.getSyntheticImplicitMethod
-              case _             => None
-            }
-            function.foreach(processor.execute(_, ScalaResolveState.empty))
-
-          case definition @ (_: ScTrait | _: ScClass) =>
-            val processedObjects = mutable.HashSet.empty[String]
-            getClassInheritors(definition, definition.resolveScope).collectFirst {
-              case o: ScObject if o.isStatic && processedObjects.add(o.qualifiedName) => o
-            }.flatMap {
-              _.`type`().toOption
-            }.foreach {
-              processor.processType(_, place)
-            }
-          case _ =>
-        }
-      }
-
-      processor.candidates
-    }
-
-    private def completeImplicits(resolveResult: ScalaResolveResult, resultType: ScType): Iterable[ImplicitMemberResult] = {
+    private def completeImplicits(conversion: ScFunction, conversionContainer: ScObject, resultType: ScType): Iterable[ExtensionMethodCandidate] = {
       val processor = new CompletionProcessor(StdKinds.methodRef, place)
       processor.processType(resultType, place)
 
-      val ScalaResolveResult(element, substitutor) = resolveResult
-
-      val elementToImport = Some(element)
-      val objectOfElementToImport = contextContainingClass(element).collect {
-        case definition@(_: ScClass |
-                         _: ScTrait) =>
-          val thisType = ScThisType(definition.asInstanceOf[ScTypeDefinition])
-          substitutor(thisType)
-      }.flatMap(_.extractClass).collect {
-        case o: ScObject => o
-      }
-
       processor.candidates.map {
-        ImplicitMemberResult(_, elementToImport, objectOfElementToImport)
+        ExtensionMethodCandidate(_, conversion, conversionContainer)
       }
     }
 
-    private final case class ImplicitMemberResult(resolveResult: ScalaResolveResult,
-                                                  elementToImport: Option[PsiNamedElement],
-                                                  objectOfElementToImport: Option[ScObject]) extends GlobalMemberResult {
+    private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
+                                                      elementToImport: ScFunction,
+                                                      objectOfElementToImport: ScObject) extends GlobalMemberResult {
 
       override protected val isOverloadedForClassName = false
       override protected val containingClass: PsiClass = null
@@ -286,8 +242,8 @@ object ScalaGlobalMembersCompletionContributor {
         val lookupItem = super.createLookupItem
 
         lookupItem.usedImportStaticQuickfix = true
-        lookupItem.elementToImport = elementToImport
-        lookupItem.objectOfElementToImport = objectOfElementToImport
+        lookupItem.elementToImport = Some(elementToImport)
+        lookupItem.objectOfElementToImport = Some(objectOfElementToImport)
 
         lookupItem
       }
@@ -295,12 +251,10 @@ object ScalaGlobalMembersCompletionContributor {
 
   }
 
-  private object ImplicitMembersFinder {
+  private def extensionMethodsFinder(qualifier: ScExpression): ExtensionMethodsFinder = {
+    val qualifierType = qualifier.getTypeWithoutImplicits().toOption
 
-    def apply(qualifier: ScExpression)
-             (implicit place: ScReferenceExpression): ImplicitMembersFinder =
-      qualifier.getTypeWithoutImplicits()
-        .fold(Function.const(null), new ImplicitMembersFinder(_))
+    qualifierType.map(new ExtensionMethodsFinder(_, qualifier)).orNull
   }
 
   private def hintString: Option[String] =
@@ -331,16 +285,9 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  private[this] def allImplicitConversions(implicit place: ScReferenceExpression): Iterable[ScMember] = {
-    import ScalaIndexKeys._
-
-    IMPLICIT_CONVERSION_KEY.allElements(place.resolveScope)
-  }
-
   private[this] def contextContainingClass(element: PsiNamedElement) =
     element.nameContext match {
       case member: PsiMember => Option(member.containingClass)
       case _ => None
     }
-
 }

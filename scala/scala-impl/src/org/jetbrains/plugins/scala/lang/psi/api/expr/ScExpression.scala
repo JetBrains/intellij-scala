@@ -366,7 +366,7 @@ object ScExpression {
     }
 
     def implicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
-      ScImplicitlyConvertible.implicits(fromUnderscore)(expr)
+      ScImplicitlyConvertible.implicits(expr, fromUnderscore)
         .sortWith {
           case (first, second) =>
             val firstName = first.name

@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -15,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ImplicitConversionData private (element: PsiNamedElement,
@@ -25,7 +23,7 @@ class ImplicitConversionData private (element: PsiNamedElement,
 
   override def toString: String = element.name
 
-  def isCompatible(fromType: ScType)(implicit place: ScExpression): Either[String, (ScType, ScSubstitutor)] = {
+  def isCompatible(fromType: ScType, place: PsiElement): Either[String, (ScType, ScSubstitutor)] = {
     // to prevent infinite recursion
     if (PsiTreeUtil.isContextAncestor(element.nameContext, place, false))
       return Left("Conversion is not available in it's own definition")
@@ -37,7 +35,7 @@ class ImplicitConversionData private (element: PsiNamedElement,
       case system: ConstraintSystem =>
         element match {
           case f: ScFunction if f.hasTypeParameters =>
-            returnTypeWithLocalTypeInference(f, fromType, system)
+            returnTypeWithLocalTypeInference(f, fromType, place, system)
           case _ =>
             Right((returnType, ScSubstitutor.empty))
         }
@@ -46,8 +44,10 @@ class ImplicitConversionData private (element: PsiNamedElement,
 
   private def returnTypeWithLocalTypeInference(function: ScFunction,
                                                fromType: ScType,
-                                               constraints: ConstraintSystem)
-                                              (implicit place: ScExpression): Either[String, (ScType, ScSubstitutor)] = {
+                                               place: PsiElement,
+                                               constraints: ConstraintSystem): Either[String, (ScType, ScSubstitutor)] = {
+
+    implicit val projectContext = function.projectContext
 
     constraints match {
       case ConstraintSystem(unSubst) =>
@@ -133,13 +133,13 @@ class ImplicitConversionData private (element: PsiNamedElement,
 
 object ImplicitConversionData {
 
-  def apply(srr: ScalaResolveResult): Option[ImplicitConversionData] = {
+  def apply(element: PsiNamedElement, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
     ProgressManager.checkCanceled()
 
-    srr.element match {
-      case function: ScFunction if function.isImplicitConversion => fromRegularImplicitConversion(function, srr.substitutor)
+    element match {
+      case function: ScFunction if function.isImplicitConversion => fromRegularImplicitConversion(function, substitutor)
       case function: ScFunction if !function.isParameterless     => None
-      case typeable: Typeable                                    => fromElementWithFunctionType(typeable, srr.substitutor)
+      case typeable: Typeable                                    => fromElementWithFunctionType(typeable, substitutor)
       case _                                                     => None
     }
   }
