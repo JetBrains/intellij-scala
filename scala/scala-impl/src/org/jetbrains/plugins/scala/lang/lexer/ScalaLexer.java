@@ -31,16 +31,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
-
-
 /**
  * @author ilyas
  */
 public class ScalaLexer extends Lexer {
 
-  protected final Lexer myScalaPlainLexer;
-  private final Lexer myXmlLexer = new ScalaXmlTokenTypes.PatchedXmlLexer();
+  private final ScalaPlainLexer myScalaPlainLexer;
+  private final ScalaXmlTokenTypes.PatchedXmlLexer myXmlLexer;
 
   protected Lexer myCurrentLexer;
 
@@ -48,7 +45,6 @@ public class ScalaLexer extends Lexer {
   protected static final int XML_SHIFT = 6;
   protected TIntStack myBraceStack = new TIntStack();
   protected Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<Stack<MyOpenXmlTag>>();
-
 
   protected int myBufferEnd;
   protected int myBufferStart;
@@ -73,12 +69,17 @@ public class ScalaLexer extends Lexer {
   }
 
   public ScalaLexer(boolean treatDocCommentAsBlockComment) {
-    myScalaPlainLexer = new ScalaLayeredPlainLexer(treatDocCommentAsBlockComment);
+    myScalaPlainLexer = new ScalaPlainLexer(treatDocCommentAsBlockComment);
+    myXmlLexer = new ScalaXmlTokenTypes.PatchedXmlLexer();
+    myCurrentLexer = myScalaPlainLexer;
+  }
+
+  protected final void setScalaLexer() {
     myCurrentLexer = myScalaPlainLexer;
   }
 
   public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
-    myCurrentLexer = myScalaPlainLexer;
+    setScalaLexer();
     myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);
     myBraceStack.clear();
     myLayeredTagStack.clear();
@@ -117,12 +118,12 @@ public class ScalaLexer extends Lexer {
       int start = myCurrentLexer.getTokenStart();
       CharSequence tokenText = myCurrentLexer.getBufferSequence().subSequence(start, myCurrentLexer.getTokenEnd());
       if (myCurrentLexer == myXmlLexer && xmlSteps == 0) {
-        myCurrentLexer = myScalaPlainLexer;
+        setScalaLexer();
         myCurrentLexer.start(getBufferSequence(), start, myXmlLexer.getBufferEnd(), 0);
       }
 
       --xmlSteps;
-      if (type == SCALA_XML_CONTENT_START) {
+        if (type == ScalaTokenTypesEx.SCALA_XML_CONTENT_START) {
         final XmlTagValidator xmlTagValidator = new XmlTagValidator(myCurrentLexer);
         if (!xmlTagValidator.validate()) {
           xmlSteps = xmlTagValidator.step;
@@ -138,16 +139,17 @@ public class ScalaLexer extends Lexer {
       } else if ((/*type == XML_ATTRIBUTE_VALUE_TOKEN || */type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS()) && //todo: Dafuq???
           startsWith(tokenText, "{") && !startsWith(tokenText, "{{") && !inCdata) {
         myXmlState = myCurrentLexer.getState();
-        (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
+          setScalaLexer();
+            myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, 0);
         locateTextRange();
         myBraceStack.push(1);
-        myTokenType = SCALA_IN_XML_INJECTION_START;
+            myTokenType = ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START;
       } else if (type == ScalaTokenTypes.tRBRACE && myBraceStack.size() > 0) {
         int currentLayer = myBraceStack.pop();
         if (currentLayer == 1) {
           locateTextRange();
           (myCurrentLexer = myXmlLexer).start(getBufferSequence(), start + 1, myBufferEnd, myXmlState);
-          myTokenType = SCALA_IN_XML_INJECTION_END;
+            myTokenType = ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END;
         } else {
           myBraceStack.push(--currentLayer);
         }
@@ -264,7 +266,8 @@ public class ScalaLexer extends Lexer {
   }
 
   private void startScalaPlainLexer(int start) {
-    (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd);
+    setScalaLexer();
+      myCurrentLexer.start(getBufferSequence(), start, myBufferEnd);
   }
 
   private void locateTextRange() {

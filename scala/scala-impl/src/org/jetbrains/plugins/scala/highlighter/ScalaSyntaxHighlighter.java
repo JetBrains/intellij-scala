@@ -339,7 +339,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     }
 
     public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
-      myCurrentLexer = myScalaPlainLexer;
+        setScalaLexer();
       myCurrentLexer.start(buffer, startOffset, endOffset, initialState);
       myBraceStack.clear();
       myLayeredTagStack.clear();

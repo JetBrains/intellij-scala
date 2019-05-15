@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{getInstance =>
 //noinspection TypeAnnotation
 abstract class ScalaParserDefinitionBase(override val getFileNodeType: ScStubFileElementType) extends ParserDefinition {
 
-  override def createLexer(project: Project) = new lexer.ScalaLexer {
-    ScalaProjectSettings(project).isTreatDocCommentAsBlockComment
+  override def createLexer(project: Project) = {
+    val treatDocCommentAsBlockComment = ScalaProjectSettings(project).isTreatDocCommentAsBlockComment
+    new lexer.ScalaLexer(treatDocCommentAsBlockComment)
   }
 
   override def createParser(project: Project) = new ScalaParser
