@@ -37,7 +37,7 @@ import java.util.List;
 public class ScalaLexer extends Lexer {
 
   private final ScalaPlainLexer myScalaPlainLexer;
-  private final ScalaXmlTokenTypes.PatchedXmlLexer myXmlLexer;
+  private final ScalaXmlLexer myXmlLexer;
 
   protected Lexer myCurrentLexer;
 
@@ -70,7 +70,7 @@ public class ScalaLexer extends Lexer {
 
   public ScalaLexer(boolean treatDocCommentAsBlockComment) {
     myScalaPlainLexer = new ScalaPlainLexer(treatDocCommentAsBlockComment);
-    myXmlLexer = new ScalaXmlTokenTypes.PatchedXmlLexer();
+    myXmlLexer = new ScalaXmlLexer();
     myCurrentLexer = myScalaPlainLexer;
   }
 
@@ -235,7 +235,7 @@ public class ScalaLexer extends Lexer {
           type == XmlTokenType.TAG_WHITE_SPACE) &&
           tokenText.toString().matches("\\s*\n(\n|\\s)*")) {
         type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
-      } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlTokenTypes.isSubstituted(type)) {
+        } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlLexer.ScalaXmlTokenType$.MODULE$.unapply(type)) {
         ++xmlSteps;
       }
       if (myTokenType == null) {
@@ -323,8 +323,12 @@ public class ScalaLexer extends Lexer {
     myTokenStart = pos.getOffset();
     myTokenEnd = pos.end;
     myLayeredTagStack = pos.state.tagStack;
-    myCurrentLexer.start(myCurrentLexer.getBufferSequence(), myTokenStart, myBufferEnd,
-        myCurrentLexer instanceof ScalaXmlTokenTypes.PatchedXmlLexer ? pos.state.xmlState : 0);
+    myCurrentLexer.start(
+            myCurrentLexer.getBufferSequence(),
+            myTokenStart,
+            myBufferEnd,
+            myCurrentLexer instanceof ScalaXmlLexer ? pos.state.xmlState : 0
+    );
   }
 
   @NotNull
@@ -399,13 +403,13 @@ public class ScalaLexer extends Lexer {
 
     final private Lexer lexer;
     final private LinkedList<IElementType> xmlTokens;
-    final private ScalaXmlTokenTypes.PatchedXmlLexer valLexer;
+    final private ScalaXmlLexer valLexer;
     private int step = 0;
 
     private XmlTagValidator(Lexer lexer) {
       this.lexer = lexer;
-      xmlTokens = new LinkedList<IElementType>();
-      valLexer = new ScalaXmlTokenTypes.PatchedXmlLexer();
+      xmlTokens = new LinkedList<>();
+      valLexer = new ScalaXmlLexer();
     }
 
     private boolean validate() {

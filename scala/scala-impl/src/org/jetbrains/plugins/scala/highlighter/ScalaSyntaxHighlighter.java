@@ -29,6 +29,7 @@ import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
@@ -417,7 +418,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public IElementType getTokenType() {
-      final IElementType htmlType = ScalaXmlTokenTypes.substitute(super.getTokenType());
+      final IElementType htmlType = ScalaXmlLexer.ScalaXmlTokenType$.MODULE$.apply(super.getTokenType());
 
       if (htmlType == ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF()) {
         return ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT;

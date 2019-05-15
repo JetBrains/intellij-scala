@@ -18,8 +18,7 @@ import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -495,7 +494,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS && element.getText == "/" &&
       element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
-      val xmlLexer = new PatchedXmlLexer
+      val xmlLexer = new ScalaXmlLexer
       xmlLexer.start(element.getPrevSibling.getText + "/>")
       xmlLexer.advance()
 
