@@ -15,6 +15,8 @@ class KeywordCompletionExpressionsTest extends KeywordCompletionTestBase {
 
   def testcatch4(): Unit = doTest()
 
+  def testcatch5(): Unit = doTest()
+
   def testelse(): Unit = doTest()
 
   def testelse2(): Unit = doTest()

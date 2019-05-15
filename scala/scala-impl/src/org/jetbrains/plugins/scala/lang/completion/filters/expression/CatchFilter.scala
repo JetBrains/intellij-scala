@@ -33,13 +33,13 @@ class CatchFilter extends ElementFilter {
           case _: ScParenthesisedExpr | _: ScArguments if !prevIsRParan =>
             return false
           case _: ScBlock if !prevIsRBrace =>
-           return false
+            return false
           case _ =>
         }
         leaf1 = leaf1.getParent
       }
       if (leaf1 == null) return false
-      if (leaf1.getTextRange.getEndOffset != i + 1) return false
+      //if (leaf1.getNode.getChildren(null).exists(_.getElementType == ScalaElementType.CATCH_BLOCK)) return false
       i = getNextNotWhitespaceAndComment(context.getTextRange.getEndOffset, context)
       if (leaf1.asInstanceOf[ScTry].catchBlock.isDefined) return false
       if ("catch" == getLeafByOffset(i, context).getText) return false

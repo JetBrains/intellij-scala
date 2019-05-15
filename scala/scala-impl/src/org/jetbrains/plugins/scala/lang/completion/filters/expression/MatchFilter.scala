@@ -21,7 +21,7 @@ class MatchFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       if (parent.isInstanceOf[ScExpression] && (parent.getParent.isInstanceOf[ScInfixExpr] ||
-              parent.getParent.isInstanceOf[ScPostfixExpr])) {
+          (parent.getParent.isInstanceOf[ScPostfixExpr] && !parent.getParent.getParent.isInstanceOf[ScTry]))) {
         return true
       }
     }
