@@ -33,3 +33,5 @@ class ScalaCommenter extends CodeDocumentationAwareCommenter  {
     prefix != null && element.getText.startsWith(prefix)
   }
 }
+
+object ScalaCommenter extends ScalaCommenter

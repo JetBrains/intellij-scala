@@ -10,7 +10,6 @@ import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert._
 
 import scala.concurrent.duration.Duration
 
@@ -20,29 +19,27 @@ import scala.concurrent.duration.Duration
  */
 abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
-  def doTest(stringsToType: String*)(implicit timeout: Duration) {
+  def doFileTest(stringsToType: String*)(implicit timeout: Duration) {
     val fileName = getTestName(true) + ".scala"
     val filePath = folderPath + fileName
     val ioFile = new File(filePath)
-    val fileText = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8).withNormalizedSeparator
+    val fileText = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     val (input, expectedOpt) = separateText(fileText)
-    doTest(input, expectedOpt.orNull, stringsToType)
+    doTest(stringsToType)(input, expectedOpt.orNull)
   }
 
-  def doTest(input: String, expected: String, stringsToType: Seq[String])
-            (implicit timeout: Duration): Unit = {
+  def doTest(stringsToType: Seq[String])(input: String, expectedOutput: String)(implicit timeout: Duration): Unit = {
     val fileName = getTestName(true) + ".scala"
     val testName = s"TypingTest${getTestName(false)}"
 
-    myFixture.configureByText(fileName, input)
+    myFixture.configureByText(fileName, input.withNormalizedSeparator.trim)
 
     val testBody: ThrowableRunnable[_] = () => {
       stringsToType.foreach(myFixture.`type`)
       PsiDocumentManager.getInstance(myFixture.getProject).commitAllDocuments()
-      if (expected != null) {
-        val actual = myFixture.getFile.getText.trim
-        assertEquals(expected, actual)
-        myFixture.configureByText(fileName, input) //reset fixture file text
+      if (expectedOutput != null) {
+        myFixture.checkResult(expectedOutput.withNormalizedSeparator.trim)
+        myFixture.configureByText(fileName, input.withNormalizedSeparator.trim) //reset fixture file text
       }
     }
 
@@ -52,8 +49,11 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
       .assertTiming()
   }
 
-  def doTest(input: String, expected: String, stringToType: String)(implicit timeout: Duration): Unit =
-    doTest(input, expected, Seq(stringToType))
+  def doTest(stringToType: String)(input: String, expected: String)(implicit timeout: Duration): Unit =
+    doTest(Seq(stringToType))(input, expected)
+
+  def doTest(charsToType: Char*)(input: String, expected: String)(implicit timeout: Duration, d: DummyImplicit): Unit =
+    doTest(Seq(charsToType.mkString("")))(input, expected)
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typing/"
 
