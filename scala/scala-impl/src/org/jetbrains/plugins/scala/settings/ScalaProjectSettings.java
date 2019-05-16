@@ -110,7 +110,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
   public static final int COLLECTION_TYPE_HIGHLIGHTING_NONE = 0;
 
-  private TypeMismatchHighlightingMode TYPE_MISMATCH_HIGHLIGHTING_MODE = TypeMismatchHighlightingMode.STRIKETHROUGH_EXPECTED_TYPE_HINT;
+  private TypeMismatchHighlightingMode TYPE_MISMATCH_HIGHLIGHTING_MODE = TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION;
 
   public static ScalaProjectSettings getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, ScalaProjectSettings.class);
