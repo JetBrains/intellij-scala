@@ -461,4 +461,35 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "bar",
     time = 2
   )
+
+  def testImportStringInterpolator(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object StringInterpol {
+         |  implicit class Xy(val sc: StringContext) extends AnyVal {
+         |    def xy(args: Any*): BigDecimal = BigDecimal(sc.parts.head)
+         |  }
+         |}
+         |
+         |object Test {
+         |  xy$CARET"abc"
+         |}
+       """.stripMargin,
+    resultText =
+      s"""
+         |import StringInterpol.Xy
+         |
+         |object StringInterpol {
+         |  implicit class Xy(val sc: StringContext) extends AnyVal {
+         |    def xy(args: Any*): BigDecimal = BigDecimal(sc.parts.head)
+         |  }
+         |}
+         |
+         |object Test {
+         |  xy$CARET"abc"
+         |}
+        """.stripMargin,
+    item = "xy",
+    time = 2
+  )
 }

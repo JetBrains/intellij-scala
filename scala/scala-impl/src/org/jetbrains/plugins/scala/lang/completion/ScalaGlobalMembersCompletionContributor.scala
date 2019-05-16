@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -47,22 +48,18 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
         if (invocationCount < 2) return
 
         positionFromParameters(parameters).getContext match {
-          case expression: ScReferenceExpression if PsiTreeUtil.getContextOfType(expression, classOf[ScalaFile]) != null =>
-            implicit val place: ScReferenceExpression = expression
+          case refExpr: ScReferenceExpression if PsiTreeUtil.getContextOfType(refExpr, classOf[ScalaFile]) != null =>
 
-            val qualifier = place.qualifier.orElse {
-              Option(place.getContext).collect {
-                case ScSugarCallExpr(baseExpression, `place`, _) => baseExpression
-              }
-            }
+            val qualifier = refExpr.qualifier.orElse(desugaredQualifier(refExpr))
+
             val finder = qualifier match {
-              case None       => staticMembersFinder(place, resultSet.getPrefixMatcher, accessAll = invocationCount >= 3)
+              case None       => staticMembersFinder(refExpr, resultSet.getPrefixMatcher, accessAll = invocationCount >= 3)
               case Some(qual) => extensionMethodsFinder(qual)
             }
 
             if (finder == null) return
 
-            val lookupItems = finder.lookupItems(parameters.getOriginalFile)
+            val lookupItems = finder.lookupItems(parameters.getOriginalFile, refExpr)
             if (CompletionService.getCompletionService.getAdvertisementText != null &&
               lookupItems.exists(!_.shouldImport)) {
               hintString.foreach(resultSet.addLookupAdvertisement)
@@ -83,8 +80,7 @@ object ScalaGlobalMembersCompletionContributor {
 
     FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
 
-    final def lookupItems(originalFile: PsiFile)
-                         (implicit place: ScReferenceExpression): Seq[ScalaLookupItem] =
+    final def lookupItems(originalFile: PsiFile, place: ScReferenceExpression): Seq[ScalaLookupItem] =
       candidates.toSeq match {
         case Seq() => Seq.empty
         case seq =>
@@ -289,5 +285,18 @@ object ScalaGlobalMembersCompletionContributor {
     element.nameContext match {
       case member: PsiMember => Option(member.containingClass)
       case _ => None
+    }
+
+  private def stringContextQualifier(lit: ScInterpolatedStringLiteral): Option[ScExpression] =
+    lit.getStringContextExpression.flatMap {
+      case ScMethodCall(ref: ScReferenceExpression, _) => ref.qualifier
+      case _                                           => None
+    }
+
+  private def desugaredQualifier(refExpr: ScReferenceExpression): Option[ScExpression] =
+    refExpr.getContext match {
+      case ScSugarCallExpr(baseExpression, `refExpr`, _) => Option(baseExpression)
+      case lit: ScInterpolatedStringLiteral              => stringContextQualifier(lit)
+      case _                                             => None
     }
 }
