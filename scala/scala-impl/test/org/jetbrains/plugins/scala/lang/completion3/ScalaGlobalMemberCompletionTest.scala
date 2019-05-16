@@ -312,7 +312,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  def bar(): Unit = {}
          |}
          |
-         |object Foo {
+         |object Conversions {
          |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
          |
          |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
@@ -323,7 +323,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin,
     resultText =
       s"""
-         |import Foo.toBar
+         |import Conversions.toBar
          |
          |class Foo[T]
          |
@@ -335,7 +335,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  def bar(): Unit = {}
          |}
          |
-         |object Foo {
+         |object Conversions {
          |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
          |
          |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
@@ -369,14 +369,14 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
          |}
          |
-         |object Foo extends BarConversions with BarDoubleConversions
+         |object Conversions extends BarConversions with BarDoubleConversions
          |
          |val foo = new Foo[Boolean]()
          |foo.$CARET
        """.stripMargin,
     resultText =
       s"""
-         |import Foo.toBar
+         |import Conversions.toBar
          |
          |class Foo[T]
          |
@@ -396,7 +396,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
          |}
          |
-         |object Foo extends BarConversions with BarDoubleConversions
+         |object Conversions extends BarConversions with BarDoubleConversions
          |
          |val foo = new Foo[Boolean]()
          |foo.bar()$CARET
@@ -426,14 +426,14 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
          |}
          |
-         |object Foo extends BarConversions with BarDoubleConversions
+         |object Conversions extends BarConversions with BarDoubleConversions
          |
          |val foo = new Foo[Double]()
          |foo.$CARET
        """.stripMargin,
     resultText =
       s"""
-         |import Foo.toBar
+         |import Conversions.toBar
          |
          |class Foo[T]
          |
@@ -453,7 +453,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
          |}
          |
-         |object Foo extends BarConversions with BarDoubleConversions
+         |object Conversions extends BarConversions with BarDoubleConversions
          |
          |val foo = new Foo[Double]()
          |foo.bar()$CARET
