@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.extensions.PsiFileExt
   */
 
 class ScalaIsCommentComplete extends CommentCompleteHandler {
-  def isApplicable(comment: PsiComment, commenter: CodeDocumentationAwareCommenter): Boolean = {
+  override def isApplicable(comment: PsiComment, commenter: CodeDocumentationAwareCommenter): Boolean = {
     comment.getParent.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   //same code in com.intellij.codeInsight.editorActions.EnterHandler
-  def isCommentComplete(comment: PsiComment, commenter: CodeDocumentationAwareCommenter, editor: Editor): Boolean = {
+  override def isCommentComplete(comment: PsiComment, commenter: CodeDocumentationAwareCommenter, editor: Editor): Boolean = {
     val commentText: String = comment.getText
     val docComment: Boolean = isDocComment(comment, commenter)
     val expectedCommentEnd: String = if (docComment) commenter.getDocumentationCommentSuffix else commenter.getBlockCommentSuffix
@@ -88,3 +88,5 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
     false
   }
 }
+
+object ScalaIsCommentComplete extends ScalaIsCommentComplete

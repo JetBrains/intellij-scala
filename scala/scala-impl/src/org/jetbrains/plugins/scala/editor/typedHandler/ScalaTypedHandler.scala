@@ -16,6 +16,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
+import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -37,6 +38,7 @@ import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 
 
 /**
@@ -66,6 +68,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       }
     }
 
+    // TODO: we can avoid allocations by comparing strings inplace, without substring
     @inline
     def hasPrefix(prefix: String): Boolean =
       prefix.length <= offset && offset < text.length &&
@@ -151,6 +154,10 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (c == '"' && isClosingScalaString(offset, element, elementType)) {
       moveCaret()
       Result.STOP
+    } else if (c == ' ' && needClosingScaladocTag(element, prevElement, editor)) {
+      insertClosingScaladocTag(offset, element, editor)
+      moveCaret()
+      Result.STOP
     } else if (isClosingScaladocTagOrMarkup(c, element, elementType)) {
       moveCaret()
       Result.STOP
@@ -173,10 +180,10 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
       if (elementType != ScalaTokenTypes.tSTRING && prevType == ScalaTokenTypes.tSTRING &&
         prevElement.getParent.getText == "\"\"") {
-        completeMultilineString(editor, project, element, offset)
+        completeMultilineString(offset, editor, project)
       } else if (prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END && elementType != ScalaTokenTypes.tINTERPOLATED_STRING_END &&
         Set("f\"\"", "s\"\"", "q\"\"").contains(prevElement.getParent.getText)) {
-        completeMultilineString(editor, project, element, offset)
+        completeMultilineString(offset, editor, project)
       }
       Result.CONTINUE
     } else if (c == '{' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
@@ -204,6 +211,24 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   @inline
   private def isInDocComment(element: PsiElement): Boolean = isInPlace(element, classOf[ScDocComment])
+
+  private def needClosingScaladocTag(element: PsiElement, prevElement: PsiElement, editor: Editor): Boolean = {
+    prevElement.elementType == ScalaDocTokenType.DOC_COMMENT_START && (prevElement.getParent match {
+      case comment: ScDocComment =>
+        val isAtNewLine = element match {
+          case DocWhitespace(ws) => ws.contains("\n")
+          case _ => false
+        }
+        isAtNewLine && !ScalaIsCommentComplete.isCommentComplete(comment, ScalaCommenter, editor)
+      case _ =>
+        false
+    })
+  }
+
+  private def insertClosingScaladocTag(offset: Int, element: PsiElement, editor: Editor): Unit = {
+    val docEnd = ScalaCommenter.getDocumentationCommentSuffix
+    insertAndCommit(offset, "  " + docEnd, editor.getDocument, editor.getProject)
+  }
 
   private def isInPlace(element: PsiElement, place: Class[_ <: PsiElement]*): Boolean = {
     if (element == null || place == null) return false
@@ -273,10 +298,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  private def completeMultilineString(editor: Editor, project: Project, element: PsiElement, offset: Int) {
+  private def completeMultilineString(offset: Int, editor: Editor, project: Project) {
     val document = editor.getDocument
-    document.insertString(offset, "\"\"\"")
-    document.commit(project)
+    insertAndCommit(offset, "\"\"\"", document, project)
   }
 
   private def insertAndCommit(offset: Int, text: String, document: Document, project: Project) {

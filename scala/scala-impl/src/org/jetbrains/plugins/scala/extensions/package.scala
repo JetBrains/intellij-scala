@@ -371,6 +371,11 @@ package object extensions {
     def parenthesize(needParenthesis: Boolean = true): String =
       if (needParenthesis) s"($string)" else string
 
+    def braced(needBraces: Boolean = true, withNewLines: Boolean = true): String = {
+      val nl = if(withNewLines) "\n" else ""
+      if (needBraces) s"{$nl$string$nl}" else string
+    }
+
     def withNormalizedSeparator: String =
       StringUtil.convertLineSeparators(string)
   }
@@ -613,6 +618,10 @@ package object extensions {
 
     def createSmartPointer: SmartPsiElementPointer[E] =
       SmartPointerManager.getInstance(element.getProject).createSmartPsiElementPointer(element)
+
+    def startsWithToken(token: IElementType): Boolean = {
+      PsiTreeUtil.firstChild(element).elementType == token
+    }
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
