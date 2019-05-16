@@ -381,7 +381,7 @@ private[resolver] object BspResolverLogic {
     // but there may be several synthetic modules with shared sources that a module may depend on
     val idToSyntheticModuleMap = idToModule(syntheticModules).groupBy(_._1).mapValues(_.map(_._2))
 
-    val moduleDeps = createModuleDependencies(projectModules)
+    val moduleDeps = calculateModuleDependencies(projectModules)
     val addedDeps = addModuleDependencies(moduleDeps, idToModuleMap, idToSyntheticModuleMap)
 
     (modules ++ syntheticModules).foreach(m => projectNode.addChild(m._2))
@@ -493,7 +493,7 @@ private[resolver] object BspResolverLogic {
   }
 
 
-  private[resolver] def createModuleDependencies(moduleDescriptions: ProjectModules): Seq[ModuleDep] = {
+  private[resolver] def calculateModuleDependencies(moduleDescriptions: ProjectModules): Seq[ModuleDep] = {
 
     val allDeps = for {
       moduleDescription <- moduleDescriptions.modules
@@ -547,7 +547,7 @@ private[resolver] object BspResolverLogic {
 
     val data = new ModuleDependencyData(dependentNode.getData, dependencyNode.getData)
     data.setScope(scope)
-    data.setExported(true)
+    data.setExported(exported)
 
     val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, dependentNode)
     dependentNode.addChild(node)
