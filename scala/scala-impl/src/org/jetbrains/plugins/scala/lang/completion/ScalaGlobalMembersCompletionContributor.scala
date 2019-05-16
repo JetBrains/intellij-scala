@@ -207,6 +207,7 @@ object ScalaGlobalMembersCompletionContributor {
 
 
   private final class ExtensionMethodsFinder(originalType: ScType, place: ScExpression) extends GlobalMembersFinder {
+    lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
 
     override protected def candidates: Iterable[GlobalMemberResult] = for {
       (key, conversionData) <- ImplicitConversionCache.getOrScheduleUpdate(place.elementScope)
@@ -214,16 +215,23 @@ object ScalaGlobalMembersCompletionContributor {
       if ImplicitConversionProcessor.applicable(key.function, place)
 
       (resultType, _)       <- targetTypeAndSubstitutor(conversionData, originalType, place).toIterable
-      item                  <- completeImplicits(key.function, key.containingObject, resultType)
+      item                  <- extensionCandidates(key.function, key.containingObject, resultType)
     } yield item
 
-    private def completeImplicits(conversion: ScFunction, conversionContainer: ScObject, resultType: ScType): Iterable[ExtensionMethodCandidate] = {
-      val processor = new CompletionProcessor(StdKinds.methodRef, place)
-      processor.processType(resultType, place)
+    private def extensionCandidates(conversion: ScFunction, conversionContainer: ScObject, resultType: ScType): Iterable[ExtensionMethodCandidate] = {
+      val newCandidates =
+        candidatesForType(resultType)
+          .filterNot(c => originalTypeMemberNames.contains(c.name))
 
-      processor.candidates.map {
+      newCandidates.map {
         ExtensionMethodCandidate(_, conversion, conversionContainer)
       }
+    }
+
+    private def candidatesForType(tp: ScType): collection.Set[ScalaResolveResult] = {
+      val processor = new CompletionProcessor(StdKinds.methodRef, place)
+      processor.processType(tp, place)
+      processor.candidatesS
     }
 
     private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
