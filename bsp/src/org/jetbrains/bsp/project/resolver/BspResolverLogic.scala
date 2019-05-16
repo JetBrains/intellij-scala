@@ -539,19 +539,19 @@ private[resolver] object BspResolverLogic {
     }
   }
 
-  private def addDep(dependentNode: DataNode[ModuleData],
-                     dependencyNode: DataNode[ModuleData],
+  private def addDep(parent: DataNode[ModuleData],
+                     child: DataNode[ModuleData],
                      scope: DependencyScope,
                      exported: Boolean
                     ): DataNode[ModuleData] = {
 
-    val data = new ModuleDependencyData(dependentNode.getData, dependencyNode.getData)
+    val data = new ModuleDependencyData(parent.getData, child.getData)
     data.setScope(scope)
     data.setExported(exported)
 
-    val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, dependentNode)
-    dependentNode.addChild(node)
-    dependencyNode
+    val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, parent)
+    parent.addChild(node)
+    child
   }
 
   private[resolver] def addNodeKindData(moduleNode: DataNode[ModuleData], moduleKind: ModuleKind): Unit = {
