@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 public enum TypeMismatchHighlightingMode {
-    HIGHLIGHT_EXPRESSION("Hightlight expression"),
+    HIGHLIGHT_EXPRESSION("Highlight expression"),
     UNDERLINE_ACTUAL_TYPE_HINT("Underline actual type hint"),
     STRIKETHROUGH_ACTUAL_TYPE_HINT("Strikethrough actual type hint"),
     UNDERLINE_EXPECTED_TYPE_HINT("Underline expected type hint"),
