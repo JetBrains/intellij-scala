@@ -1,39 +1,53 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.module.Module
+import com.intellij.ide.util.projectWizard.ModuleBuilder
+import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.LightProjectDescriptor
-import com.intellij.util.ThrowableRunnable
 
 /**
   * Nikolay.Tropin
   * 22-Sep-17
   */
-abstract class DelegatingProjectDescriptor(val delegate: LightProjectDescriptor) extends LightProjectDescriptor {
-  override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler) =
-    delegate.setUpProject(project, handler)
+abstract class DelegatingProjectDescriptor(val delegate: LightProjectDescriptor)(newModuleCallback: Module => Unit) extends LightProjectDescriptor {
 
-  override def createSourcesRoot(module: Module) =
+  class ModuleCapturingHandlerDelegate(handlerDelegate: LightProjectDescriptor.SetupHandler) extends LightProjectDescriptor.SetupHandler {
+    override def moduleCreated(module: Module): Unit = {
+      handlerDelegate.moduleCreated(module)
+      newModuleCallback(module)
+    }
+
+    override def sourceRootCreated(sourceRoot: VirtualFile): Unit = handlerDelegate.sourceRootCreated(sourceRoot)
+  }
+
+  override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler): Unit = {
+    delegate.setUpProject(project, new ModuleCapturingHandlerDelegate(handler))
+  }
+
+  override def createSourcesRoot(module: Module): VirtualFile =
     delegate.createSourcesRoot(module)
 
-  override def getModuleType =
+  override def getModuleType: ModuleType[_ <: ModuleBuilder] =
     delegate.getModuleType
 
-  override def createMainModule(project: Project) =
+  override def createMainModule(project: Project): Module =
     delegate.createMainModule(project)
 
-  override def getSdk =
+  override def getSdk: Sdk =
     delegate.getSdk
 }
 
 object DelegatingProjectDescriptor {
-  def withAfterSetupProject(delegate: LightProjectDescriptor)(work: ThrowableRunnable[Nothing]): LightProjectDescriptor = {
-    new DelegatingProjectDescriptor(delegate) {
-      override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler): Unit = {
-        super.setUpProject(project, handler)
-        WriteAction.run(work)
-      }
-    }
+  def withAfterSetupProject(delegate: LightProjectDescriptor)(callback: Module => Unit): LightProjectDescriptor = {
+    new DelegatingProjectDescriptor(delegate)(callback) { }
   }
+  def withAfterSetupProjectJava(delegate: LightProjectDescriptor)(callback: ModuleCallback): LightProjectDescriptor = {
+    new DelegatingProjectDescriptor(delegate)(callback.run) { }
+  }
+}
+
+trait ModuleCallback {
+  def run(module: Module)
 }

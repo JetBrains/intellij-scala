@@ -25,7 +25,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase
 
   override protected def setUp(): Unit = {
     super.setUp()
-    setUpLibraries()
+    setUpLibraries(myModule)
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
   }
 

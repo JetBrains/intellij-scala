@@ -4,6 +4,7 @@ package refactoring.move
 import java.io.File
 import java.util
 
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -114,8 +115,8 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private var rootDirBefore: VirtualFile = _
   private var rootDirAfter: VirtualFile = _
 
-  override protected def afterSetUpProject() = {
-    super.afterSetUpProject()
+  override protected def afterSetUpProject(module: Module): Unit = {
+    super.afterSetUpProject(module)
     val rootBefore = root + "/before"
     val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)

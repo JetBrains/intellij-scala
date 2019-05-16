@@ -41,7 +41,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
-    setUpLibraries()
+    setUpLibraries(module)
     addTestFileToModuleSources()
     setUpProjectSettings()
     inWriteAction {

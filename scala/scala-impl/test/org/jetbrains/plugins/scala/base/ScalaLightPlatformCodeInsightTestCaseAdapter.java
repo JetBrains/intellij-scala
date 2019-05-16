@@ -90,12 +90,12 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     @NotNull
     @Override
     protected LightProjectDescriptor getProjectDescriptor() {
-        return DelegatingProjectDescriptor.withAfterSetupProject(super.getProjectDescriptor(), this::afterSetUpProject);
+        return DelegatingProjectDescriptor.withAfterSetupProjectJava(super.getProjectDescriptor(), this::afterSetUpProject);
     }
 
-    protected void afterSetUpProject() {
+    protected void afterSetUpProject(Module module) {
         Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable());
-        setUpLibraries();
+        setUpLibraries(module);
     }
 
 

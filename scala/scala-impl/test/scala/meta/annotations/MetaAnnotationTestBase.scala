@@ -35,7 +35,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   override def setUp(): Unit = {
     super.setUp()
-    setUpLibraries()
+    setUpLibraries(module)
     PsiTestUtil.addSourceRoot(module, myFixture.getTempDirFixture.findOrCreateDir("test"), true)
     compiler = new CompilerTester(module)
   }

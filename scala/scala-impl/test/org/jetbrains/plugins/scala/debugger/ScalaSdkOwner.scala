@@ -20,7 +20,7 @@ trait ScalaSdkOwner {
 
   private lazy val myLoaders = mutable.ListBuffer.empty[LibraryLoader]
 
-  protected def setUpLibraries(): Unit = librariesLoaders.foreach { loader =>
+  protected def setUpLibraries(implicit module: Module): Unit = librariesLoaders.foreach { loader =>
     myLoaders += loader
     loader.init
   }

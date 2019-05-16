@@ -31,7 +31,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
 
   override def setUp(): Unit = {
     super.setUp()
-    setUpLibraries()
+    setUpLibraries(module)
     val testJar = new File(getTestDataPath + testJarPath)
     assertTrue(s"Test jar not found at $testJar", testJar.exists())
     PsiTestUtil.addLibrary(getModule, testJar.getAbsolutePath)

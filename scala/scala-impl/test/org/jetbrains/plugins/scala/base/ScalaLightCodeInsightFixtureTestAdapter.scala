@@ -3,6 +3,7 @@ package base
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.folding.CodeFoldingManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
@@ -35,15 +36,15 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   )
 
   override protected def getProjectDescriptor =
-    DelegatingProjectDescriptor.withAfterSetupProject(super.getProjectDescriptor) { () =>
-      afterSetUpProject()
+    DelegatingProjectDescriptor.withAfterSetupProject(super.getProjectDescriptor) { module =>
+      afterSetUpProject(module)
     }
 
-  protected def afterSetUpProject(): Unit = {
+  protected def afterSetUpProject(module: Module): Unit = {
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
-      setUpLibraries()
+      setUpLibraries(module)
     }
   }
 

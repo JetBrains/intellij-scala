@@ -7,6 +7,7 @@ import java.util
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
@@ -37,8 +38,8 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   private def rootBefore = (folderPath + getTestName(true) + "/before").replace(File.separatorChar, '/')
   private def rootAfter = (folderPath + getTestName(true) + "/after").replace(File.separatorChar, '/')
 
-  override protected def afterSetUpProject() = {
-    super.afterSetUpProject()
+  override protected def afterSetUpProject(module: Module): Unit = {
+    super.afterSetUpProject(module)
     LocalFileSystem.getInstance().refresh(false)
     myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
     filesBefore =
