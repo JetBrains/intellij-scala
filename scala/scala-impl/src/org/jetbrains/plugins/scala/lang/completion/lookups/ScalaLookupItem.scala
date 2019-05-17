@@ -4,7 +4,6 @@ package lang.completion.lookups
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.{CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupItem}
-import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IconUtil
@@ -58,7 +57,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var isInStableCodeReference: Boolean = false
   var usedImportStaticQuickfix: Boolean = false
   var elementToImport: Option[PsiNamedElement] = None
-  var objectOfElementToImport: Option[ScObject] = None
+  var classToImport: Option[PsiClass] = None
   var someSmartCompletion: Boolean = false
   var typeParametersProblem: Boolean = false
   var typeParameters: Seq[ScType] = Seq.empty
@@ -73,10 +72,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
 
-  val containingClass: PsiClass = containingClass0.getOrElse(ScalaPsiUtil.nameContext(element) match {
-    case memb: PsiMember => memb.containingClass
-    case _ => null
-  })
+  val containingClass: PsiClass =
+    containingClass0.orElse(element.containingClassOfNameContext).orNull
 
   override def equals(o: Any): Boolean = {
     if (!super.equals(o)) return false
@@ -324,7 +321,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                             case None => ref.bindToElement(element, Some(containingClass))
                             case Some(named@ScalaPsiUtil.inNameContext(ContainingClass(clazz))) =>
                               if (clazz.qualifiedName != null) {
-                                getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(named, null, objectOfElementToImport)
+                                getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(named, null, classToImport)
                               }
                           }
                         }

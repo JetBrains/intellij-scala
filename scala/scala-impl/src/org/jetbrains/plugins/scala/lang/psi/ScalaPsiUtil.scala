@@ -707,28 +707,29 @@ object ScalaPsiUtil {
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
-    @tailrec
-    def hasStablePathInner(m: PsiMember): Boolean = {
-      m.getContext match {
-        case _: PsiFile => return true
-        case _: ScPackaging | _: PsiPackage => return true
-        case _ =>
-      }
-      m.containingClass match {
-        case null => false
-        case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
-        case o: ScObject => hasStablePathInner(o)
-        case j if isStaticJava(m) => hasStablePathInner(j)
-        case _ => false
-      }
-    }
-
     o.nameContext match {
-      case member: PsiMember => hasStablePathInner(member)
+      case member: PsiMember => isStatic(member)
       case _: ScPackaging | _: PsiPackage => true
       case _ => false
     }
   }
+
+  @tailrec
+  final def isStatic(m: PsiMember): Boolean = {
+    m.getContext match {
+      case _: PsiFile => return true
+      case _: ScPackaging | _: PsiPackage => return true
+      case _ =>
+    }
+    m.containingClass match {
+      case null => false
+      case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
+      case o: ScObject => isStatic(o)
+      case j if isStaticJava(m) => isStatic(j)
+      case _ => false
+    }
+  }
+
 
   def getPsiSubstitutor(subst: ScSubstitutor)
                        (implicit elementScope: ElementScope): PsiSubstitutor = {

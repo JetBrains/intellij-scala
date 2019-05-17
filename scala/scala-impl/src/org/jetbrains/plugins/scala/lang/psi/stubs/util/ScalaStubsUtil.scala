@@ -7,7 +7,7 @@ package util
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
@@ -15,9 +15,11 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isStatic
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -109,6 +111,25 @@ object ScalaStubsUtil {
 
     if (clazz.isEffectivelyFinal) Seq.empty
     else selfTypeInheritorsInner()
+  }
+
+  def classesToImportFor(m: PsiMember): Seq[PsiClass] = {
+    val cClass = m.containingClass
+    if (cClass == null)
+      return Seq.empty
+
+    if (isStatic(m)) Seq(cClass)
+    else inheritorOrThisObjects(cClass)
+  }
+
+  def inheritorOrThisObjects(clazz: PsiClass): Seq[ScObject] = clazz match {
+    case o: ScObject if o.isStatic                      => Seq(o)
+    case td: ScTypeDefinition if !td.isEffectivelyFinal =>
+      getClassInheritors(clazz, clazz.resolveScope)
+        .collect {
+          case o: ScObject if o.isStatic && o.isInheritor(clazz, deep = false) => o
+        }
+    case _ => Seq.empty
   }
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil")

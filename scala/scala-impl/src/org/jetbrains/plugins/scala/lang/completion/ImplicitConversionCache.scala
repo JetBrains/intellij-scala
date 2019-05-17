@@ -6,6 +6,7 @@ import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
 import com.intellij.openapi.util.LowMemoryWatcher
 import com.intellij.openapi.util.LowMemoryWatcher.LowMemoryWatcherType
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
@@ -19,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionData
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.{getClassInheritors, inheritorOrThisObjects}
 
 import scala.collection.mutable
 import scala.util.Try
@@ -109,24 +111,18 @@ private object ImplicitConversionCache {
   }
 
   private def collectImplicitConversions(elementScope: ElementScope): Iterable[GlobalImplicitConversion] = {
+    val inheritorObjectsCache = mutable.Map.empty[PsiClass, Seq[ScObject]]
+
+    def containingObjects(function: ScFunction): Seq[ScObject] =
+      Option(function.containingClass)
+        .map(cClass => inheritorObjectsCache.getOrElseUpdate(cClass, inheritorOrThisObjects(cClass)))
+        .getOrElse(Seq.empty)
+
     allImplicitConversions(elementScope).flatMap { member =>
       val conversion = member match {
         case f: ScFunction => Some(f)
         case c: ScClass    => c.getSyntheticImplicitMethod
         case _             => None
-      }
-      val inheritorObjects = mutable.Map.empty[ScTypeDefinition, Seq[ScObject]]
-
-      def inheritorObjectsFor(td: ScTypeDefinition): Seq[ScObject] =
-        inheritorObjects.getOrElseUpdate(td,
-          getClassInheritors(td, td.resolveScope).collect {
-            case o: ScObject if o.isStatic && o.isInheritor(td, deep = false) => o
-          })
-
-      def containingObjects(function: ScFunction): Seq[ScObject] = function.containingClass match {
-        case o: ScObject if o.isStatic                      => Seq(o)
-        case td: ScTypeDefinition if !td.isEffectivelyFinal => inheritorObjectsFor(td)
-        case _                                              => Seq.empty
       }
 
       for {

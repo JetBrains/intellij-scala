@@ -797,6 +797,12 @@ package object extensions {
             .orNull
       }
     }
+
+    def containingClassOfNameContext: Option[PsiClass] = named.nameContext match {
+      case m: PsiMember => Option(m.containingClass)
+      case _            => None
+    }
+
   }
 
   implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal {
