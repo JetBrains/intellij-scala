@@ -368,23 +368,30 @@ private[resolver] object BspResolverLogic {
         Some(moduleNode)
       }
 
-    def toModuleNode(moduleDescription: ModuleDescription) = {
-      val node = createModuleNode(projectRootPath, moduleFilesDirectoryPath, moduleDescription, projectNode)
-      (moduleDescription.data.targets, node)
-    }
+    def toModuleNode(moduleDescription: ModuleDescription) =
+      createModuleNode(projectRootPath, moduleFilesDirectoryPath, moduleDescription, projectNode)
 
-    val modules = projectModules.modules.map(toModuleNode) ++ rootModule.toSeq.map((Seq.empty, _))
-    val syntheticModules = projectModules.synthetic.map(toModuleNode)
+    val idsToTargetModule: Seq[(Seq[TargetId], DataNode[ModuleData])] =
+      projectModules.modules.map { m =>
+        val targetIds = m.data.targets.map(t => TargetId(t.getId.getUri))
+        val node = toModuleNode(m)
+        targetIds -> node
+      }
 
-    // we expect exactly one IDEA module per build target (but possibly multiple targets per module)
-    val idToModuleMap = idToModule(modules).toMap
-    // but there may be several synthetic modules with shared sources that a module may depend on
-    val idToSyntheticModuleMap = idToModule(syntheticModules).groupBy(_._1).mapValues(_.map(_._2))
+    val idToRootModule = rootModule.toSeq.map(m => SynthId(m.getData.getId) -> m)
+    val idToSyntheticModule = projectModules.synthetic.map { m => SynthId(m.data.id) -> toModuleNode(m) }
+    val idToTargetModule = idsToTargetModule.flatMap { case (ids,m) => ids.map(_ -> m)}
+    val idToModuleMap: Map[DependencyId, DataNode[ModuleData]] =
+      (idToRootModule ++ idToTargetModule ++ idToSyntheticModule).toMap
+
 
     val moduleDeps = calculateModuleDependencies(projectModules)
-    val addedDeps = addModuleDependencies(moduleDeps, idToModuleMap, idToSyntheticModuleMap)
+    val synthDeps = calculateSyntheticDependencies(moduleDeps, projectModules)
+    val modules = idsToTargetModule.map(_._2) ++ idToSyntheticModule.map(_._2)
 
-    (modules ++ syntheticModules).foreach(m => projectNode.addChild(m._2))
+    // effects
+    addModuleDependencies(moduleDeps ++ synthDeps, idToModuleMap)
+    modules.foreach(projectNode.addChild)
 
     projectNode
   }
@@ -393,7 +400,7 @@ private[resolver] object BspResolverLogic {
     (targets,module) <- modules
     target <- targets
   } yield {
-    (target.getId.getUri, module)
+    (TargetId(target.getId.getUri), module)
   }
 
   private[resolver] def createModuleNode(projectRootPath: String,
@@ -493,46 +500,50 @@ private[resolver] object BspResolverLogic {
   }
 
 
-  private[resolver] def calculateModuleDependencies(moduleDescriptions: ProjectModules): Seq[ModuleDep] = {
-
-    val allDeps = for {
-      moduleDescription <- moduleDescriptions.modules
-      moduleTargets = moduleDescription.data.targets
-      aTarget <- moduleTargets.headOption // any id will resolve the module in idToModule
-    } yield {
+  private[resolver] def calculateModuleDependencies(projectModules: ProjectModules): Seq[ModuleDep] = for {
+    moduleDescription <- projectModules.modules
+    moduleTargets = moduleDescription.data.targets
+    aTarget <- moduleTargets.headOption.toSeq // any id will resolve the module in idToModule
+    d <- {
       val moduleId = aTarget.getId.getUri
       val compileDeps = moduleDescription.data.targetDependencies.map((_, DependencyScope.COMPILE))
       val testDeps = moduleDescription.data.targetTestDependencies.map((_, DependencyScope.TEST))
 
-      val moduleDeps =
-        (compileDeps ++ testDeps).map { case (moduleDepId, scope) =>
-          ModuleDep(moduleId, moduleDepId.getUri, scope, export = true)
+      (compileDeps ++ testDeps)
+        .filterNot(d => moduleTargets.exists(t => t.getId == d._1))
+        .map { case (moduleDepId, scope) =>
+          ModuleDep(TargetId(moduleId), TargetId(moduleDepId.getUri), scope, export = true)
         }
-
-      // synthetic modules are the workaround for sharing source directories between modules
-      val syntheticDeps =
-        moduleTargets.flatMap { target =>
-          val synthDepId = target.getId.getUri
-          val depOnSynth = ModuleDep(moduleId, synthDepId, DependencyScope.COMPILE, export = true)
-          // synthetic dependencies inherit the dependencies of their parents
-          val synthDeps = moduleDeps.map { d => ModuleDep(synthDepId, d.child, d.scope, export = false) }
-          depOnSynth +: synthDeps
-      }
-
-      moduleDeps ++ syntheticDeps
     }
+  } yield d
 
-    allDeps.flatten
+  private[resolver] def calculateSyntheticDependencies(moduleDependencies: Seq[ModuleDep], projectModules: ProjectModules) = {
+    // 1. synthetic module is depended on by all its parent targets
+    // 2. synthetic module depends on all parent target's dependencies
+    val dependencyByParent = moduleDependencies.groupBy(_.parent)
+
+    for {
+      moduleDescription <- projectModules.synthetic
+      synthParent <- moduleDescription.data.targets
+      dep <- {
+        val synthId = SynthId(moduleDescription.data.id)
+        val parentId = TargetId(synthParent.getId.getUri)
+
+        val parentDeps = dependencyByParent.getOrElse(parentId, Seq.empty)
+        val inheritedDeps = parentDeps.map { d => ModuleDep(synthId, d.child, d.scope, export = false)}
+
+        val parentSynthDependency = ModuleDep(parentId, synthId, DependencyScope.COMPILE, export = true)
+        parentSynthDependency +: inheritedDeps
+      }
+    } yield dep
   }
 
   private[resolver] def addModuleDependencies(dependencies: Seq[ModuleDep],
-                                              idToModule: Map[String, DataNode[ModuleData]],
-                                              idToSyntheticModule: Map[String, Seq[DataNode[ModuleData]]]): Seq[DataNode[ModuleData]] = {
-    val idToModules = idToModule.mapValues(List.apply(_)) ++ idToSyntheticModule
+                                              idToModules: Map[DependencyId, DataNode[ModuleData]]): Seq[DataNode[ModuleData]] = {
     dependencies.flatMap { dep =>
       for {
-        parent <- idToModules.getOrElse(dep.parent, Seq.empty)
-        child <- idToModules.getOrElse(dep.child, Seq.empty)
+        parent <- idToModules.get(dep.parent)
+        child <- idToModules.get(dep.child)
       } yield {
         addDep(parent, child, dep.scope, dep.export)
       }
@@ -582,7 +593,11 @@ private[resolver] object BspResolverLogic {
     }
   }
 
-  private[resolver] case class ModuleDep(parent: String, child: String, scope: DependencyScope, export: Boolean)
+  private[resolver] sealed abstract class DependencyId(id: String)
+  private[resolver] case class SynthId(id: String) extends DependencyId(id)
+  private[resolver] case class TargetId(id: String) extends DependencyId(id)
+
+  private[resolver] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, export: Boolean)
 
 }
 
