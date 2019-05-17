@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import java.util.concurrent.{Callable, ConcurrentHashMap, ConcurrentMap, TimeUnit}
 
@@ -12,31 +12,28 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.concurrency.CancellablePromise
 import org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionData
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.{getClassInheritors, inheritorOrThisObjects}
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.inheritorOrThisObjects
 
 import scala.collection.mutable
 import scala.util.Try
 
-private case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
-  def toImplicitConversionData: Option[ImplicitConversionData] = {
-    val node = TypeDefinitionMembers.getSignatures(containingObject).forName(function.name).findNode(function)
-    val substitutor = node.map(_.info.substitutor)
-    substitutor.flatMap {
-      ImplicitConversionData(function, _)
+object ImplicitConversionCache {
+
+  case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
+    def toImplicitConversionData: Option[ImplicitConversionData] = {
+      val node = TypeDefinitionMembers.getSignatures(containingObject).forName(function.name).findNode(function)
+      val substitutor = node.map(_.info.substitutor)
+      substitutor.flatMap {
+        ImplicitConversionData(function, _)
+      }
     }
   }
-}
-
-private object ImplicitConversionCache {
 
   type ImplicitConversionMap = collection.Map[GlobalImplicitConversion, ImplicitConversionData]
 
