@@ -7,16 +7,15 @@ package util
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isStatic
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
@@ -45,13 +44,9 @@ object ScalaStubsUtil {
 
     while (extendsBlocks.hasNext) {
       val extendsBlock = extendsBlocks.next
-      extendsBlock.greenStub match {
-        case Some(stub: ScTemplateDefinitionStub[_]) => inheritors += stub.getPsi
+      extendsBlock.getParent match {
+        case tp: ScTemplateDefinition => inheritors += tp
         case _ =>
-          extendsBlock.getParent match {
-            case tp: ScTemplateDefinition => inheritors += tp
-            case _ =>
-          }
       }
     }
     inheritors
