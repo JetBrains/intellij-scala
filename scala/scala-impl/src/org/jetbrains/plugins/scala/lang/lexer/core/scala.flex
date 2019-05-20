@@ -1,15 +1,11 @@
 package org.jetbrains.plugins.scala.lang.lexer.core;
 
 import com.intellij.lexer.FlexLexer;
-import com.intellij.psi.tree.IElementType;
-import java.util.*;
-import java.lang.reflect.Field;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import com.intellij.openapi.util.text.StringUtil;
-
+import com.intellij.psi.tree.IElementType;
+import com.intellij.util.containers.Stack;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 %%
 
 %class _ScalaCoreLexer
@@ -63,16 +59,11 @@ import com.intellij.openapi.util.text.StringUtil;
       }
     }
 
-    //do we need to close interpolated String ${}
-    private boolean insideInterpolatedStringBracers = false;
-    private boolean insideInterpolatedMultilineStringBracers = false;
     //to get id after $ in interpolated String
     private boolean haveIdInString = false;
     private boolean haveIdInMultilineString = false;
-    //bracers count inside injection
-    private int structuralBracers = 0;
-    // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String 
-    private Stack<InterpolatedStringLevel> nestedString = new Stack<InterpolatedStringLevel>();
+    // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String
+    private Stack<InterpolatedStringLevel> nestedString = new Stack<>();
     
     public boolean isInterpolatedStringState() {
         return shouldProcessBracesForInterpolated()    || haveIdInString || haveIdInMultilineString || 
@@ -80,7 +71,7 @@ import com.intellij.openapi.util.text.StringUtil;
     }
     
     private boolean shouldProcessBracesForInterpolated() {
-      return !nestedString.empty();      
+      return !nestedString.empty();
     }
     
     private void changeStringLevel() {
