@@ -67,21 +67,27 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
                                  treatJavaObjectAsAny: Boolean)
                                 (rawExistentialArgs: Option[RawExistentialArgs]): ScType = {
 
-    val clazz = rawClassResult.getElement
+    try {
+      val clazz = rawClassResult.getElement
 
-    val map = rawExistentialArgs.getOrElse {
-      new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
+      val map = rawExistentialArgs.getOrElse {
+        new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
+      }
+
+      val quantified = constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
+        map.getOrElse(tp, TypeParameterType(tp))
+      }
+
+      if (rawExistentialArgs.isEmpty) { //it is a first invocation for this raw type
+        map.values.foreach(_.initialize())
+      }
+
+      quantified.unpackedType
+
+    } catch {
+      case e: IllegalStateException =>
+        throw new IllegalStateException(s"Wrong conversion of java raw type ${rawClassResult.getElement.qualifiedName}", e)
     }
-
-    val quantified = constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
-      map.getOrElse(tp, TypeParameterType(tp))
-    }
-
-    if (rawExistentialArgs.isEmpty) { //it is a first invocation for this raw type
-      map.values.foreach(_.initialize())
-    }
-
-    quantified.unpackedType
   }
 
   def typeParamType(psiTypeParameter: PsiTypeParameter, rawExistentialArgs: Option[RawExistentialArgs]): ScType =
