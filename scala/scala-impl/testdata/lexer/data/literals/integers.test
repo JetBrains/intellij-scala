@@ -1,15 +1,15 @@
 0
-21
-0xFFFFFFFF
-0777L
+2_1_
+0x_FF_FF__FF___FF_
+0_777_L
 -----
 integer {0}
 white space in line {
 }
-integer {21}
+integer {2_1_}
 white space in line {
 }
-integer {0xFFFFFFFF}
+integer {0x_FF_FF__FF___FF_}
 white space in line {
 }
-integer {0777L}
+integer {0_777_L}

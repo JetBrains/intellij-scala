@@ -114,14 +114,14 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 /////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-integerLiteral = ({decimalNumeral} | {hexNumeral} | {octalNumeral}) (L | l)?
-decimalNumeral = 0 | {nonZeroDigit} {digit}*
-hexNumeral = 0 (x | X) {hexDigit}+
-octalNumeral = 0{octalDigit}+
+integerLiteral = ({decimalNumeral} | {hexNumeral} | {octalNumeral}) [Ll]?
+decimalNumeral = 0 | [1-9] {digitOrUnderscore}*
+hexNumeral = 0 [Xx] {hexDigitOrUnderscore}+
+octalNumeral = 0 {octalDigitOrUndescrore}+
 digit = [0-9]
-nonZeroDigit = [1-9]
-octalDigit = [0-7]
-hexDigit = [0-9A-Fa-f]
+digitOrUnderscore = [_0-9]
+octalDigitOrUndescrore = [_0-7]
+hexDigitOrUnderscore = [_0-9A-Fa-f]
 
 floatingPointLiteral =
       {digit}+ "." {digit}* {exponentPart}? {floatType}?
@@ -129,8 +129,8 @@ floatingPointLiteral =
     | {digit}+ {exponentPart} {floatType}?
     | {digit}+ {exponentPart}? {floatType}
 
-exponentPart = (E | e) ("+" | "-")? {digit}+
-floatType = F | f | D | d
+exponentPart = [Ee] [+-]? {digit}+
+floatType = [DdFf]
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,6 @@ floatType = F | f | D | d
 
 identifier = {plainid} | "`" {stringLiteralExtra} "`"
 
-digit = [0-9]
 special = \u0021 | \u0023
           | [\u0025-\u0026]
           | [\u002A-\u002B]
@@ -172,7 +171,8 @@ SH_COMMENT="#!" [^]* "!#" | "::#!" [^]* "::!#"
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+hexDigit = [0-9A-Fa-f]
+octalDigit = [0-7]
 ESCAPE_SEQUENCE=\\[^\r\n]
 UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
 SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
