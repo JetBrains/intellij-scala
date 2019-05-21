@@ -4,7 +4,7 @@ import com.intellij.formatting.{Wrap, WrapType}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{childOf, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCompositePattern, ScInfixPattern, ScPattern, ScPatternArgumentList}
@@ -70,9 +70,9 @@ object ScalaWrapManager {
         Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.lastNode != null =>
         Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.EXTENDS_LIST_WRAP), true)
-      case _: ScParameterClause if psi.getParent.nullSafe.map(_.getParent).get.isInstanceOf[ScMember]=>
+      case (_: ScParameterClause) childOf _ childOf(_: ScMember) =>
         Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
-      case _: ScParameters if psi.getParent.isInstanceOf[ScMember] =>
+      case (_: ScParameters) childOf (_: ScMember) =>
         Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, true)
       case annot: ScAnnotations if annot.getAnnotations.length > 0 =>
         annot.getParent match {
