@@ -584,9 +584,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  private def isElementIndented(parent: PsiElement, child: PsiElement, settings: CodeStyleSettings) = {
+  private def isElementIndented(parent: PsiElement, child: PsiElement, settings: CodeStyleSettings): Boolean = {
     val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
-    IndentUtil.calcIndent(child, tabSize) > IndentUtil.calcIndent(parent, tabSize)
+    IndentUtil.compare(child, parent, tabSize) > 0
   }
 }
 

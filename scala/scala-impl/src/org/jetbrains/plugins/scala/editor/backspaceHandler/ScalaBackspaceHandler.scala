@@ -5,6 +5,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.psi._
@@ -128,11 +129,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       bodyOpt match {
         case Some(block: ScBlockExpr) if block.statements.size == 1 =>
           block.getRBrace match {
-            case Some(rBrace) =>
+            case Some(rBrace: ASTNode) =>
               val project = file.getProject
               val settings = CodeStyle.getSettings(project)
-              val tabsSize = settings.getTabSize(ScalaFileType.INSTANCE)
-              if(IndentUtil.calcIndent(rBrace, tabsSize) >= IndentUtil.calcIndent(definition, tabsSize)) {
+              val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
+              if(IndentUtil.compare(rBrace.getPsi, definition, tabSize) >= 0) {
                 val start = rBrace.getTreePrev match {
                   case ws if ws.getElementType == TokenType.WHITE_SPACE => ws.getStartOffset
                   case _ => rBrace.getStartOffset
