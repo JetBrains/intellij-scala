@@ -13,7 +13,7 @@ import com.intellij.psi.PsiFile
 class CellCollectPass(val file: PsiFile, editor: Editor, val document: Document,
                       highlightInfoProcessor: HighlightInfoProcessor)
   extends ProgressableTextEditorHighlightingPass(file.getProject, document,
-    "Scala worksheet collect cells", file, editor, file.getTextRange, true, highlightInfoProcessor) {
+    "Scala worksheet collect cells", file, editor, file.getTextRange, /*runIntentionPassAfter*/ false, highlightInfoProcessor) {
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
     val cellManager = CellManager.getInstance(myProject)
 

@@ -35,7 +35,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
     file,
     editor,
     if (file.getTextRange == null) throw new AssertionError(s"File text range is null: ${file.getClass}") else file.getTextRange,
-    true,
+    /*runIntentionPassAfter*/ false,
     highlightInfoProcessor
   ) with ScalaUnusedImportPassBase {
 

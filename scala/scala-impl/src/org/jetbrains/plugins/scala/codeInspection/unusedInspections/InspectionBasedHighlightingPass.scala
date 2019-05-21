@@ -21,7 +21,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option[Document], inspection: HighlightingPassInspection)
-  extends TextEditorHighlightingPass(file.getProject, document.orNull) {
+  extends TextEditorHighlightingPass(file.getProject, document.orNull, /*runIntentionPassAfter*/ false) {
 
   private val highlightInfos = mutable.Buffer[HighlightInfo]()
 

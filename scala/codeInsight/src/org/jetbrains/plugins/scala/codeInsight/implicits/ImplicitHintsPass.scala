@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
-  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, true) {
+  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false) {
 
   private var hints: Seq[Hint] = Seq.empty
 
