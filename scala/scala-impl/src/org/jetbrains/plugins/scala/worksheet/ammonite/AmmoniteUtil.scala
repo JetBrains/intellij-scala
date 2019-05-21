@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
+import org.apache.commons.lang.SystemUtils
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -291,7 +292,11 @@ object AmmoniteUtil {
 
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
 
-  def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
+  def getCoursierCachePath: String = System.getProperty("user.home") + {
+    if (SystemUtils.IS_OS_MAC) "/Library/Caches/Coursier/v1"
+    else if(SystemUtils.IS_OS_WINDOWS) "\\AppData\\Local\\Coursier\\Cache\\v1"
+    else "/.coursier/cache/v1"
+  }
   
   class RegexExtractor {
     private val patternCache = mutable.HashMap[String, Regex]()
