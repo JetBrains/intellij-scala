@@ -354,20 +354,21 @@ object ScalaLanguageInjector {
 
       val lineHasMargin = wsPrefixLength < line.length && line.charAt(wsPrefixLength) == marginChar
 
-      val start = if (lineHasMargin) wsPrefixLength + 1 + count else count
-      val end = count + lineLength
-      rangesCollected += new TextRange(start + rangeStartOffset, end + rangeStartOffset)
+      val shift = if (lineHasMargin) wsPrefixLength + 1 else 0
+      val start = rangeStartOffset + count + shift
+      rangesCollected += TextRange.from(start, lineLength - shift)
 
       count += lineLength + 1
     }
+
     if (extractedText.last == '\n') {
       // last empty line is not treat as a line by WrappedString,
       // but we need to add an empty range in order to be able to edit this line in `Edit code fragment` panel
       val end = count + 1 + rangeStartOffset
-      rangesCollected += new TextRange(end, end)
+      rangesCollected += TextRange.create(end, end)
     }
     if (rangesCollected.isEmpty) {
-      rangesCollected += new TextRange(rangeStartOffset, rangeStartOffset)
+      rangesCollected += TextRange.create(rangeStartOffset, rangeStartOffset)
     }
 
     rangesCollected
