@@ -207,18 +207,19 @@ object JavaToScala {
       case r: PsiReferenceExpression =>
         val args = Option(r.getParameterList).map(convertPsiToIntermediate(_, externalProperties))
 
-        def nameForReference: String = {
+        val refName: Option[String] = {
           val nameWithPrefix: String = if (textMode && r.getQualifier == null) r.resolve() match {
             case clazz: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(clazz)
             case _ => r.getReferenceName
           } else r.getReferenceName
 
-          if (externalProperties.isInstanceOf[WithReferenceExpression])
+          val name: String = if (externalProperties.isInstanceOf[WithReferenceExpression]) {
             fieldParameterMap.getOrElse(r.getReferenceName, nameWithPrefix)
-          else nameWithPrefix
+          } else {
+            nameWithPrefix
+          }
+          Option(name)
         }
-
-        val refName: String = nameForReference
 
         var iResult = JavaCodeReferenceStatement(None, args, refName)
         if (r.getQualifierExpression != null) {
@@ -243,7 +244,7 @@ object JavaToScala {
       case p: PsiJavaCodeReferenceElement =>
         val qualifier = Option(p.getQualifier).map(convertPsiToIntermediate(_, externalProperties))
         val args = Option(p.getParameterList).map(convertPsiToIntermediate(_, externalProperties))
-        JavaCodeReferenceStatement(qualifier, args, p.getReferenceName)
+        JavaCodeReferenceStatement(qualifier, args, Option(p.getReferenceName))
       case be: PsiBinaryExpression =>
         def isOk: Boolean = {
           if (be.getLOperand.getType.isInstanceOf[PsiPrimitiveType]) return false
