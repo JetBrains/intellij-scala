@@ -3,7 +3,6 @@ package conversion
 package visitors
 
 import com.intellij.openapi.util._
-import org.jetbrains.annotations.Nullable
 
 import scala.collection.mutable
 
@@ -87,8 +86,8 @@ class SimplePrintVisitor protected() {
       visitParameters(modifiers, name, scCompType, isVar, isArray)
     case ParameterListConstruction(list) => visitParameterList(list)
     //statements
-    case r@JavaCodeReferenceStatement(qualifier, parametrList, name) =>
-      visitJavaCodeRef(r, qualifier, parametrList, name)
+    case r@JavaCodeReferenceStatement(qualifier, parameterList, name) =>
+      visitJavaCodeRef(r, qualifier, parameterList, name)
     case IfStatement(condition, thenBranch, elseBranch) => visitIfStatement(condition, thenBranch, elseBranch)
     case ReturnStatement(value) => visitWithExtraWord(Some(value), "return ")
     case ThrowStatement(value) => visitWithExtraWord(Some(value), "throw ")
@@ -121,8 +120,8 @@ class SimplePrintVisitor protected() {
 
     if (name.isDefined) {
       name.get match {
-        case deprecated: JavaCodeReferenceStatement if deprecated.name == "Deprecated" =>
-          printer.append(deprecated.name.toLowerCase)
+        case JavaCodeReferenceStatement(_, _, Some(name@"Deprecated")) =>
+          printer.append(name.toLowerCase)
         case otherName => visit(otherName)
       }
     }
@@ -835,22 +834,24 @@ class SimplePrintVisitor protected() {
 
   protected def visitJavaCodeRef(statement: JavaCodeReferenceStatement,
                                  qualifier: Option[IntermediateNode],
-                                 parametrList: Option[IntermediateNode],
-                                 @Nullable name: String): Unit = {
+                                 parameterList: Option[IntermediateNode],
+                                 nameOpt: Option[String]): Unit = {
     if (qualifier.isDefined) {
       visit(qualifier.get)
       printer.append(".")
     }
 
-    val escapedName = name match {
-      case "this" | "super" => name
-      case null => ""
-      case _ => escapeKeyword(name)
-    }
+    val escapedName = nameOpt
+      .map {
+        case n@("this" | "super") => n
+        case b => escapeKeyword(b)
+      }
+      .getOrElse("")
+
     this (statement) = escapedName
     printer.append(escapedName)
 
-    if (parametrList.isDefined) visit(parametrList.get)
+    if (parameterList.isDefined) visit(parameterList.get)
   }
 
   protected def visitType(t: TypeConstruction, inType: String): Unit = {
