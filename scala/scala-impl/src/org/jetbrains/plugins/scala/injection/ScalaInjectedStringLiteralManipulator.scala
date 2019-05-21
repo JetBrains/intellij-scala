@@ -4,9 +4,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.AbstractElementManipulator
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * User: Dmitry.Naydanov
@@ -17,14 +19,17 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
     val oldText = expr.getText
     val contentString = expr.getFirstChild.getNode.getElementType match {
       case ScalaTokenTypes.tMULTILINE_STRING => newContent
-      case _ => StringUtil escapeStringCharacters newContent
+      case _ => StringUtil.escapeStringCharacters(newContent)
     }
     val newText = oldText.substring(0, range.getStartOffset) + contentString + oldText.substring(range.getEndOffset)
 
-    implicit val projectContext = expr.projectContext
+    implicit val projectContext: ProjectContext = expr.projectContext
+
+    @inline def fail(): Nothing = throw new IncorrectOperationException("cannot handle content change")
+
     expr match {
       case inter: ScInterpolatedStringLiteral =>
-        val quotes = if (inter.isMultiLineString) "\"\"\"" else "\""
+        val quotes = if (inter.isMultiLineString) TripleQuotes else SingleQuote
 
         inter.reference.map { ref =>
           createExpressionFromText(s"${ref.getText}$quotes$newContent$quotes")
@@ -32,7 +37,7 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
           case Some(l: ScLiteral) => 
             expr.replace(l)
             l
-          case _ => throw new IncorrectOperationException("cannot handle content change")
+          case _ => fail()
         }
       case str if str.isString =>
         val newExpr = createExpressionFromText(newText)
@@ -44,7 +49,7 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
         firstChild.replace(newElement)
 
         str
-      case _ => throw new IncorrectOperationException("cannot handle content change")
+      case _ => fail()
     }
   }
 
@@ -62,9 +67,15 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
   }
 
   private def getLiteralRange(text: String): TextRange = {
-    val tripleQuote = "\"\"\""
-    
-    if (text.length >= 6 && text.startsWith(tripleQuote) && text.endsWith(tripleQuote)) 
-      new TextRange(3, text.length - 3) else new TextRange(1, Math.max(1, text.length - 1))
+    if (text.length >= 6 && text.startsWith(TripleQuotes) && text.endsWith(TripleQuotes)) {
+      new TextRange(3, text.length - 3)
+    } else {
+      new TextRange(1, Math.max(1, text.length - 1))
+    }
   }
+}
+
+object ScalaInjectedStringLiteralManipulator {
+  private val SingleQuote = "\""
+  private val TripleQuotes = "\"\"\""
 }
