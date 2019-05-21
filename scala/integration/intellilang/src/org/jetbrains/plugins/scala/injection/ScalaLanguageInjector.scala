@@ -221,10 +221,6 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 
 
   private def injectUsingPatterns(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]): Boolean = {
-    // FIXME: looks like this does not work for now, see SCL-15462
-    //  return false for now in order that tests can pass
-    return false
-
     val injectionsList = myInjectionConfiguration.getInjections(support.getId)
     val injections = injectionsList.iterator()
 

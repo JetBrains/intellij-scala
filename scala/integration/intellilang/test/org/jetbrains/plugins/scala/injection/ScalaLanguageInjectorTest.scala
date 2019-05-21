@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.injection
 
+import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import com.intellij.testFramework.EditorTestUtil
+import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.junit.Assert._
 
 import scala.collection.JavaConverters._
 
@@ -341,26 +344,24 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   // String concatenation injection tests
   ////////////////////////////////////////
 
-  // FIXME: should be uncommented when SCL-15462 is fixed
-  //
-  //  def testThatAllInjectionPatternsAreCompiled(): Unit = {
-  //    val injections: Seq[BaseInjection] = intelliLangConfig.getInjections("scala").asScala
-  //    for {
-  //      injection <- injections
-  //      place: InjectionPlace <- injection.getInjectionPlaces
-  //    } {
-  //      // for now if pattern compilation fails IntelliJ only generates warning in logs but continue to work properly
-  //      // we would like to detect compilation failure in tests
-  //      val pattern = place.getElementPattern match {
-  //        case laz: LazyPresentablePattern[_] =>
-  //          // in case of failure `PatternCompilerImpl.onCompilationFailed` will be called and test will fail
-  //          laz.getCompiledPattern
-  //        case p => p
-  //      }
-  //      if (pattern.getClass.getName.contains("False")) {
-  //        fail(s"injection `${injection.getDisplayName}` has non-compiled pattern `${place.getText}`")
-  //      }
-  //    }
-  //  }
+  def testThatAllInjectionPatternsAreCompiled(): Unit = {
+    val injections: Seq[BaseInjection] = intelliLangConfig.getInjections("scala").asScala
+    for {
+      injection <- injections
+      place: InjectionPlace <- injection.getInjectionPlaces
+    } {
+      // for now if pattern compilation fails IntelliJ only generates warning in logs but continue to work properly
+      // we would like to detect compilation failure in tests
+      val pattern = place.getElementPattern match {
+        case laz: LazyPresentablePattern[_] =>
+          // in case of failure `PatternCompilerImpl.onCompilationFailed` will be called and test will fail
+          laz.getCompiledPattern
+        case p => p
+      }
+      if (pattern.getClass.getName.contains("False")) {
+        fail(s"injection `${injection.getDisplayName}` has non-compiled pattern `${place.getText}`")
+      }
+    }
+  }
 
 }

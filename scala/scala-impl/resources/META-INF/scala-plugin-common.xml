@@ -639,6 +639,8 @@
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                                  implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 
+        <patterns.patternClass className="org.jetbrains.plugins.scala.patterns.ScalaPatterns" alias="scala"/>
+
         <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.internal.ScalaInternalInspectionsProvider"/>
 
         <!-- inspections -->
