@@ -7,6 +7,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.hasScala
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
 import org.jetbrains.plugin.scala.compilerReferences.Builder.rebuildPropertyKey
 import org.jetbrains.plugin.scala.compilerReferences.Messages._
@@ -27,7 +28,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     if (shouldBeNonIncremental) {
       val pd                      = context.getProjectDescriptor
       val (allClasses, timestamp) = getAllClassesInfo(context)
-      val allModules: Set[String] = pd.getProject.getModules.asScala.map(_.getName)(collection.breakOut)
+      val allModules = pd.getProject.getModules.asScala.filter(hasScala(context, _)).map(_.getName).toSet
 
       val info = JpsCompilationInfo(
         allModules,
@@ -57,7 +58,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
     outputConsumer:   ModuleLevelBuilder.OutputConsumer
   ): ExitCode = if (!shouldBeNonIncremental) {
-    val affectedModules: Set[String] = chunk.getModules.asScala.map(_.getName)(collection.breakOut)
+    val affectedModules = chunk.getModules.asScala.filter(hasScala(context, _)).map(_.getName).toSet
 
     val compiledClasses =
       outputConsumer.getCompiledClasses

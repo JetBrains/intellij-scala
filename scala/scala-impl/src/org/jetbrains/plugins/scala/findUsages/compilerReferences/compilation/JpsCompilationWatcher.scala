@@ -11,6 +11,7 @@ import com.intellij.openapi.util.Key
 import org.jetbrains.plugin.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
+import org.jetbrains.plugins.scala.project.ModuleExt
 
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:          Project,
@@ -83,8 +84,8 @@ private[compilerReferences] class JpsCompilationWatcher(
 
         val modules =
           Option(compileContext.getCompileScope)
-            .fold(Array.empty[String])(
-              _.getAffectedModules.map(_.getName)
+            .fold(Set.empty[String])(
+              _.getAffectedModules.filter(_.hasScala).map(_.getName).toSet
             )
 
         // @TODO: handle the following scenario:
@@ -94,7 +95,7 @@ private[compilerReferences] class JpsCompilationWatcher(
           if (wasUpToDate) {
             publisher.startIndexing(false)
             buildCompilationDiff -= 1
-            val info = JpsCompilationInfo(modules.toSet, Set.empty, Set.empty, timestamp)
+            val info = JpsCompilationInfo(modules, Set.empty, Set.empty, timestamp)
             publisher.processCompilationInfo(info, offline = false)
             publisher.onCompilationFinish(success = true)
           } else publisher.onCompilationFinish(success = !aborted && errors == 0)
