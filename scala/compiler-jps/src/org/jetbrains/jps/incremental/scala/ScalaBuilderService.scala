@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.resources.ResourcesBuilder
 import org.jetbrains.jps.incremental.scala.sources.{SbtModuleType, SharedSourcesModuleType}
-import org.jetbrains.plugin.scala.compilerReferences.ScalaCompilerReferenceIndexBuilder
 
 /**
  * Nikolay.Tropin

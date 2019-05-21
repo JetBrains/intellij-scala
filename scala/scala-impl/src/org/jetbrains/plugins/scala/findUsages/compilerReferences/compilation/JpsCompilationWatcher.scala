@@ -8,7 +8,7 @@ import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageH
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugin.scala.compilerReferences.{ScalaCompilerReferenceIndexBuilder => Builder}
+import org.jetbrains.plugin.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 
@@ -34,8 +34,8 @@ private[compilerReferences] class JpsCompilationWatcher(
     publisher:   CompilerIndicesEventPublisher
   ): Unit =
     messageType match {
-      case Builder.compilationDataType =>
-        val buildData = Builder.decompressCompilationInfo(messageText)
+      case Messages.compilationDataType =>
+        val buildData = Messages.decompressCompilationInfo(messageText)
 
         buildData.fold(
           error => {
@@ -43,11 +43,11 @@ private[compilerReferences] class JpsCompilationWatcher(
           },
           publisher.processCompilationInfo(_, offline = false)
         )
-      case Builder.compilationStartedType =>
+      case Messages.compilationStartedType =>
         val isCleanBuild = java.lang.Boolean.valueOf(messageText)
         buildCompilationDiff -= 1
         publisher.startIndexing(isCleanBuild)
-      case Builder.compilationFinishedType => publisher.finishIndexing()
+      case Messages.compilationFinishedType => publisher.finishIndexing()
       case _                               => ()
     }
 
