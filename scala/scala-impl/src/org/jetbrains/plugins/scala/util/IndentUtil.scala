@@ -35,15 +35,20 @@ object IndentUtil {
 
   def calcIndent(element: PsiElement, tabSize: Int): Int = {
     PsiTreeUtil.prevLeaf(element) match {
-      case Whitespace(ws) => IndentUtil.calcLastLineIndent(ws, tabSize)
+      case Whitespace(ws) => calcLastLineIndent(ws, tabSize)
       case _ => 0
     }
   }
 
   def calcIndent(node: ASTNode, tabSize: Int): Int = {
     node.getTreePrev match {
-      case Whitespace(ws) => IndentUtil.calcLastLineIndent(ws, tabSize)
+      case Whitespace(ws) => calcLastLineIndent(ws, tabSize)
       case _ => 0
     }
+  }
+
+  @inline
+  def compare(first: PsiElement, second: PsiElement, tabSize: Int): Int = {
+    calcIndent(first, tabSize) - calcIndent(second, tabSize)
   }
 }
