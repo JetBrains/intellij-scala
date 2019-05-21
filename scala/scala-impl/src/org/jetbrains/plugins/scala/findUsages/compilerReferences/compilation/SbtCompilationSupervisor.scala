@@ -59,7 +59,7 @@ class SbtCompilationSupervisor() extends BaseComponent {
       actualPort = Option(server.getLocalPort)
       logger.info(s"Listening to incoming sbt compilation events on port $port.")
       executeOnPooledThread {
-        while (true) {
+        while (server != null && !server.isClosed) {
           try {
             val client = server.accept()
             executeOnPooledThread(handleConnection(client))
