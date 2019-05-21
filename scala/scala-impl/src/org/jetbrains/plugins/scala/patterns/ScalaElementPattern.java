@@ -34,21 +34,6 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
     });
   }
 
-  public Self callTarget(final ElementPattern<? extends PsiMethod> methodPattern) {
-    return with(new PatternCondition<T>("callTarget") {
-      public boolean accepts(@NotNull final T host, final ProcessingContext context) {
-        final PsiElement element = host.getParent();
-        if (element instanceof ScReferenceExpression) {
-          final ScReferenceExpression expression = (ScReferenceExpression) element;
-          for (final ResolveResult result : expression.multiResolveScala(false))
-            if (methodPattern.accepts(result.getElement(), context))
-              return true;
-        }
-        return false;
-      }
-    });
-  }
-
   public Self callArgument(final int index, final ElementPattern<? extends PsiMethod> methodPattern) {
     return with(new PatternCondition<T>("callArgument") {
       public boolean accepts(@NotNull final T host, final ProcessingContext context) {
