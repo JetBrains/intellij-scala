@@ -100,15 +100,18 @@ object MultilineStringUtil {
 
   def getMarginChar(element: PsiElement): Char = {
     val calls = findAllMethodCallsOnMLString(element, "stripMargin")
-    val defaultMargin =
-      CodeStyle.getSettings(element.getProject).
-        getCustomSettings(classOf[ScalaCodeStyleSettings]).getMarginChar
+    val defaultMargin: Char =
+      CodeStyle.getSettings(element.getProject)
+        .getCustomSettings(classOf[ScalaCodeStyleSettings])
+        .getMarginChar
 
-    if (calls.isEmpty) return defaultMargin
-
-    calls.apply(0).headOption match {
-      case Some(ScLiteral(c: Character)) => c
-      case _ => defaultMargin
+    if (calls.isEmpty) {
+      defaultMargin
+    } else {
+      calls.apply(0).headOption match {
+        case Some(ScLiteral(c: Character)) => c
+        case _ => defaultMargin
+      }
     }
   }
 
