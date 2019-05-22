@@ -710,7 +710,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.VariablePatternShadowInspection"
                          displayName="Suspicious shadowing by a Variable Pattern" groupPath="Scala" groupName="General"
                          shortName="VariablePatternShadow" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.TypeParameterShadowInspection"
                          displayName="Suspicious shadowing by a Type Parameter" groupPath="Scala" groupName="General"
                          shortName="TypeParameterShadow" level="WARNING"

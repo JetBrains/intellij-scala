@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package shadow
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -12,30 +12,48 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createP
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
-class VariablePatternShadowInspection extends AbstractInspection("Suspicious shadowing by a Variable Pattern") {
+class VariablePatternShadowInspection extends AbstractRegisteredInspection {
+  import VariablePatternShadowInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case refPat: ScReferencePattern => check(refPat, holder)
-  }
+  override protected def problemDescriptor(element: PsiElement,
+                                           maybeQuickFix: Option[LocalQuickFix],
+                                           descriptionTemplate: String,
+                                           highlightType: ProblemHighlightType)
+                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
+    element match {
+      case refPat: ScReferencePattern if isInCaseClause(refPat) && doesShadowOtherPattern(refPat) =>
+        val quickFixes = Array[LocalQuickFix](
+          new ConvertToStableIdentifierPatternFix(refPat),
+          new RenameVariablePatternFix(refPat)
+        )
+        val descriptor =
+          manager.createProblemDescriptor(refPat.nameId, description, isOnTheFly, quickFixes, ProblemHighlightType.WARNING)
 
-  private def check(refPat: ScReferencePattern, holder: ProblemsHolder) {
-    val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
-    if (isInCaseClause) {
-      val dummyRef: ScStableCodeReference = createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
-      
-      if (dummyRef == null) return //can happen in invalid code, e.g. if ')' is absent in case pattern
-      val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
-      val results = dummyRef.asInstanceOf[ScStableCodeReference].doResolve(proc)
-
-      if (results.exists(rr => proc.isAccessible(rr.getElement, refPat))) {
-        holder.registerProblem(refPat.nameId, getDisplayName, new ConvertToStableIdentifierPatternFix(refPat), new RenameVariablePatternFix(refPat))
-      }
+        Some(descriptor)
+      case _ =>
+        None
     }
   }
 }
 
+object VariablePatternShadowInspection {
+  def description: String = InspectionBundle.message("suspicious.shadowing.by.a.variable.pattern")
+
+  def isInCaseClause(ref: ScReferencePattern): Boolean =
+    ScalaPsiUtil.nameContext(ref).isInstanceOf[ScCaseClause]
+
+  def doesShadowOtherPattern(ref: ScReferencePattern): Boolean = (
+    for {
+      // createReferenceFromText might return null in invalid code, e.g. if ')' is absent in case pattern
+      dummyRef <- Option(createReferenceFromText(ref.name, ref.getContext.getContext, ref))
+      proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, ref.name)
+      results = dummyRef.asInstanceOf[ScStableCodeReference].doResolve(proc)
+    } yield results.exists(rr => proc.isAccessible(rr.getElement, ref))
+  ).getOrElse(false)
+}
+
 class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
-  extends AbstractFixOnPsiElement(s"Convert to Stable Identifier Pattern `${r.getText}`", r) {
+  extends AbstractFixOnPsiElement(InspectionBundle.message("convert.to.stable.identifier.pattern", r.getText), r) {
 
   override protected def doApplyFix(ref: ScReferencePattern)
                                    (implicit project: Project): Unit = {
@@ -44,4 +62,4 @@ class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
   }
 }
 
-class RenameVariablePatternFix(ref: ScReferencePattern) extends RenameElementQuickfix(ref, "Rename Variable Pattern")
+class RenameVariablePatternFix(ref: ScReferencePattern) extends RenameElementQuickfix(ref, InspectionBundle.message("rename.variable.pattern"))

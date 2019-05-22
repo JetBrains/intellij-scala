@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
   * @author Pavel Fatin
   *         use [[org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection]] instead
   */
-@Deprecated
+@deprecated("use org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection instead")
 abstract class AbstractInspection protected(customDisplayName: String = null) extends LocalInspectionTool {
 
   override final def getDisplayName: String = customDisplayName match {
