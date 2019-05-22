@@ -41,10 +41,14 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         case named: PsiNamedElement =>
           val context = ScalaPsiUtil.nameContext(named)
 
-          val deprecatedElement = context.asOptionOf[PsiDocCommentOwner].collect {
-            case Constructor(constr) if constr.isDeprecated => constr
-            case Constructor.ofClass(clazz) if clazz.isDeprecated => clazz
-            case other if other.isDeprecated => other
+          val deprecatedElement = context.asOptionOf[PsiDocCommentOwner].flatMap {
+            case Constructor(constr) if constr.isDeprecated => Some(constr)
+            case Constructor.ofClass(clazz) if clazz.isDeprecated => Some(clazz)
+            case other if other.isDeprecated => Some(other)
+            case func: ScFunction =>
+              result.getActualElement.asOptionOf[PsiDocCommentOwner].filter(_.isDeprecated)
+            case _ =>
+              None
           }
 
           deprecatedElement.foreach { deprecatedElement =>

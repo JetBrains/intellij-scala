@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class ScalaDeprecationInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecationInspection]
@@ -82,4 +82,107 @@ class ScalaDeprecationInspectionTest extends ScalaInspectionTestBase {
        """.stripMargin
     checkTextHasNoErrors(methodOfDeprecatedClass)
   }
+
+  def test_apply_on_case_class(): Unit = checkTextHasError(
+    s"""
+      |@deprecated
+      |case class Test(i: Int)
+      |${START}Test$END(29)
+    """.stripMargin
+  )
+
+  // this case should not have errors because the creation of the case class is
+  // is already reported
+  def test_unapply_on_case_class(): Unit = checkTextHasNoErrors(
+    """
+      |@deprecated
+      |case class Test(i: Int)
+      |
+      |null match {
+      |  case Test(2) =>
+      |}
+    """.stripMargin
+  )
+
+  def test_apply(): Unit = checkTextHasError(
+    s"""
+      |object Test {
+      |  @deprecated
+      |  def apply() = ()
+      |}
+      |
+      |${START}Test$END()
+    """.stripMargin
+  )
+
+  def test_apply_on_deprecated(): Unit = checkTextHasError(
+    s"""
+       |@deprecated
+       |object Test {
+       |  def apply() = ()
+       |}
+       |
+       |${START}Test$END()
+    """.stripMargin
+  )
+
+  def test_unapply(): Unit = checkTextHasError(
+    s"""
+      |object Test {
+      |  @deprecated
+      |  def unapply(i: Int) = Some(i)
+      |}
+      |
+      |3 match {
+      |  case ${START}Test$END(x) =>
+      |}
+    """.stripMargin
+  )
+
+  def test_unapply_on_deprecated(): Unit = checkTextHasError(
+    s"""
+      |@deprecated
+      |object Test {
+      |  def unapply(i: Int) = Some(i)
+      |}
+      |
+      |3 match {
+      |  case ${START}Test$END(x) =>
+      |}
+    """.stripMargin
+  )
+
+  def test_update(): Unit = checkTextHasError(
+    s"""
+       |object Test {
+       |  @deprecated
+       |  def update(i: Int, i2: Int) = ()
+       |}
+       |
+      |${START}Test$END(3) = 3
+    """.stripMargin
+  )
+
+  def test_update_on_deprecated(): Unit = checkTextHasError(
+    s"""
+      |@deprecated
+      |object Test {
+      |  def update(i: Int, i2: Int) = ()
+      |}
+      |
+      |${START}Test$END(3) = 3
+    """.stripMargin
+  )
+
+  def test_method_on_deprecated_class(): Unit = checkTextHasError(
+    s"""
+      |@deprecated
+      |class Test {
+      |  def test(): Unit = ()
+      |}
+      |
+      |val x: ${START}Test$END = null
+      |x.test()
+    """.stripMargin
+  )
 }
