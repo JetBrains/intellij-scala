@@ -70,10 +70,6 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       }
     }
 
-    if (TypeMismatchError(element).exists(_.modificationCount < element.getManager.getModificationTracker.getModificationCount)) {
-      TypeMismatchError.clear(element)
-    }
-
     element match {
       case e: ScalaPsiElement => ElementAnnotator.annotate(e, holder, typeAware)
       case _ =>

@@ -23,20 +23,7 @@ object TypeMismatchError {
       formatMessage(expectedTypeText, actualTypeText)
     }
 
-    val annotatedElement = blockLevel match {
-      case 2 =>
-        (element, element.getParent) match {
-          case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(element)
-          case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(element)
-          case _ => element
-        }
-      case 1 =>
-        element match {
-          case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
-          case _ => element
-        }
-      case 0 => element
-    }
+    val annotatedElement = elementAt(element, blockLevel)
 
     // TODO type mismatch hints are experimental, don't affect annotator / highlighting tests
     val annotation: Annotation = if (ApplicationManager.getApplication.isUnitTestMode ||
@@ -56,12 +43,22 @@ object TypeMismatchError {
   }
 
   def clear(element: PsiElement): Unit = {
-    val annotatedElement = (element, element.getParent) match {
-      case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(element)
-      case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(element)
-      case _ => element
-    }
-    annotatedElement.putUserData(TypeMismatchErrorKey, null)
+    element.putUserData(TypeMismatchErrorKey, null)
+  }
+
+  private def elementAt(element: PsiElement, blockLevel: Int) = blockLevel match {
+    case 2 =>
+      (element, element.getParent) match {
+        case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(element)
+        case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(element)
+        case _ => element
+      }
+    case 1 =>
+      element match {
+        case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
+        case _ => element
+      }
+    case 0 => element
   }
 
   private def adjustTextAttributesOf(annotation: Annotation) = {

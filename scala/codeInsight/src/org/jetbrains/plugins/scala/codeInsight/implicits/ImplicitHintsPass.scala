@@ -41,7 +41,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     }
   }
 
-  // TODO experimental feature
+  // TODO experimental feature (SCL-15250)
   private def collectTypeMismatches() {
     val mode = TypeMismatchHighlightingMode.in(editor.getProject)
 
