@@ -4,7 +4,7 @@ import com.intellij.formatting.{Wrap, WrapType}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{childOf, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCompositePattern, ScInfixPattern, ScPattern, ScPatternArgumentList}
@@ -70,7 +70,7 @@ object ScalaWrapManager {
         Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.lastNode != null =>
         Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.EXTENDS_LIST_WRAP), true)
-      case (_: ScParameterClause) childOf _ childOf(_: ScMember) =>
+      case (_: ScParameterClause) childOf (_ childOf (_: ScMember)) =>
         Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
       case (_: ScParameters) childOf (_: ScMember) =>
         Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, true)
@@ -109,7 +109,7 @@ object ScalaWrapManager {
     if (childIsExtends)
       return Wrap.createWrap(settings.EXTENDS_KEYWORD_WRAP, true)
 
-    def arrangeBinary(elementCollect: PartialFunction[PsiElement, (() => PsiElement,  PsiElement, () => PsiElement)]): Wrap = {
+    def arrangeBinary(elementCollect: PartialFunction[PsiElement, (() => PsiElement, PsiElement, () => PsiElement)]): Wrap = {
       elementCollect.lift(childPsi.getParent).map { case (left, operation, right) =>
         if (operation == childPsi) null
         else if (parent != parentPsi) suggestedWrap
@@ -123,9 +123,9 @@ object ScalaWrapManager {
       case _: ScInfixExpr =>
         arrangeBinary { case e: ScInfixExpr => (() => e.left, e.operation, () => e.right) }
       case _: ScInfixPattern =>
-        arrangeBinary { case p: ScInfixPattern => (() => p.left, p.operation, () => p.rightOption.orNull)}
+        arrangeBinary { case p: ScInfixPattern => (() => p.left, p.operation, () => p.rightOption.orNull) }
       case _: ScInfixTypeElement =>
-        arrangeBinary { case p: ScInfixTypeElement => (() => p.left, p.operation, () => p.rightOption.orNull)}
+        arrangeBinary { case p: ScInfixTypeElement => (() => p.left, p.operation, () => p.rightOption.orNull) }
       case _: ScCompositePattern =>
         if (childPsi.isInstanceOf[ScPattern]) suggestedWrap
         else null
