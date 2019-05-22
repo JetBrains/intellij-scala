@@ -160,6 +160,10 @@ object ScFunction {
     }
   }
 
+  object inSynthetic {
+    def unapply(func: ScFunction): Option[ScClass] = Option(func.syntheticCaseClass)
+  }
+
   object CommonNames {
     val Copy = "copy"
 
