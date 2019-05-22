@@ -21,5 +21,6 @@ final class ScPropertyStubImpl[P <: ScValueOrVariable](parent: StubElement[_ <: 
                                                        val names: Array[String],
                                                        val typeText: Option[String],
                                                        val bodyText: Option[String],
-                                                       val isLocal: Boolean)
+                                                       val isLocal: Boolean,
+                                                       val implicitType: Option[String])
   extends StubBase[P](parent, elementType) with ScPropertyStub[P]

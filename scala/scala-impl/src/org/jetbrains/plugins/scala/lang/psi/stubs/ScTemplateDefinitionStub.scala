@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  */
 trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
   extends PsiClassStub[T]
-    with ScMemberOrLocal {
+    with ScMemberOrLocal
+    with ScImplicitInstanceStub {
 
   def javaQualifiedName: String
 

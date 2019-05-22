@@ -7,11 +7,11 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 
 /**
   * @author adkozlov
@@ -27,6 +27,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.isLocal)
+    dataStream.writeOptionName(stub.implicitType)
   }
 
   override final def deserialize(dataStream: StubInputStream,
@@ -38,24 +39,28 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     names = dataStream.readNames,
     typeText = dataStream.readOptionName,
     bodyText = dataStream.readOptionName,
-    isLocal = dataStream.readBoolean
+    isLocal = dataStream.readBoolean,
+    implicitType = dataStream.readOptionName
   )
 
   override protected final def createStubImpl(property: P,
-                                              parentStub: StubElement[_ <: PsiElement]) = new ScPropertyStubImpl(
-    parentStub,
-    this,
-    isDeclaration = property.isInstanceOf[ScVariableDeclaration],
-    isImplicit = property.hasModifierProperty("implicit"),
-    names = property.declaredNames.toArray,
-    typeText = property.typeElement.map(_.getText),
-    bodyText = body(property).map(_.getText),
-    isLocal = property.containingClass == null
-  )
+                                              parentStub: StubElement[_ <: PsiElement]) =
+    new ScPropertyStubImpl(
+      parentStub,
+      this,
+      isDeclaration = property.isInstanceOf[ScVariableDeclaration],
+      isImplicit = property.hasModifierProperty("implicit"),
+      names = property.declaredNames.toArray,
+      typeText = property.typeElement.map(_.getText),
+      bodyText = body(property).map(_.getText),
+      isLocal = property.containingClass == null,
+      implicitType = ScImplicitInstanceStub.implicitType(property, property.typeElement)
+    )
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
     sink.occurrences(PROPERTY_NAME_KEY, stub.names: _*)
+    ImplicitInstanceIndex.occurrence(sink, stub.implicitType)
   }
 
   protected def body(property: P): Option[ScExpression] = None

@@ -6,22 +6,17 @@ package index
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.psi.stubs.StubIndexKey.createIndexKey
-import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
-import com.intellij.util.CommonProcessors
-import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.JavaConverters
 
 /**
  * @author ilyas
@@ -47,50 +42,8 @@ object ScalaIndexKeys {
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = createIndexKey("sc.super.class.name")
   val SELF_TYPE_CLASS_NAME_KEY: StubIndexKey[String, ScSelfTypeElement] = createIndexKey("sc.self.type.class.name.key")
 
-  //only implicit classes and implicit conversion defs are indexed
-  //there is also a case when implicit conversion is provided by an implicit val with function type, but I think it is too exotic to support
-  //no meaningful keys are provided, we just need to be able to enumerate all implicit conversions in a project
-  val IMPLICIT_CONVERSION_KEY: StubIndexKey[String, ScMember] = createIndexKey("sc.implicit.conversion")
-
-  implicit class StubIndexKeyExt[Key, Psi <: PsiElement](private val indexKey: StubIndexKey[Key, Psi]) extends AnyVal {
-
-    import StubIndex._
-
-    import JavaConverters._
-
-    def elements(key: Key, scope: GlobalSearchScope,
-                 requiredClass: Class[Psi])
-                (implicit context: ProjectContext): Iterable[Psi] =
-      getElements(indexKey,
-        key,
-        context,
-        ScalaFilterScope(context, scope),
-        requiredClass
-      ).asScala
-
-    def allKeys(implicit project: Project): Iterable[Key] =
-      getInstance.getAllKeys(indexKey, project).asScala
-
-    def hasElements(key: Key, scope: GlobalSearchScope, requiredClass: Class[Psi])
-                   (implicit project: Project): Boolean = {
-
-      //processElements will return true only there is no elements
-      val noElementsExistsProcessor = CommonProcessors.alwaysFalse[Psi]()
-
-      !getInstance().processElements(indexKey, key, project, scope, requiredClass, noElementsExistsProcessor)
-    }
-  }
-
-  object ImplicitConversionKey {
-    private def key: String = "implicit_conversion"
-
-    def allElements(scope: GlobalSearchScope)
-                   (implicit context: ProjectContext): Iterable[ScMember] =
-      IMPLICIT_CONVERSION_KEY.elements(key, scope, classOf[ScMember])
-
-    def occurence(sink: IndexSink): Unit =
-      sink.occurrence(IMPLICIT_CONVERSION_KEY, key)
-  }
+  implicit class StubIndexKeyExt[Key, Psi <: PsiElement](val indexKey: StubIndexKey[Key, Psi])
+    extends AnyVal with StubIndexExt[Key, Psi]
 
   implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[Integer, Psi]) extends AnyVal {
 

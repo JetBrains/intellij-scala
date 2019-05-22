@@ -418,7 +418,8 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScClassNameInPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScJavaClassNameInPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScImplicitObjectKey"/>
-        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScImplicitConversionsKey"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScPackageObjectIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortNamePackageObjectIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex"/>

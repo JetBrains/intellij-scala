@@ -27,6 +27,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     dataStream.writeBoolean(stub.isCallByNameParameter)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeOptionName(stub.deprecatedName)
+    dataStream.writeOptionName(stub.implicitType)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
@@ -40,15 +41,17 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       isVar = dataStream.readBoolean,
       isCallByNameParameter = dataStream.readBoolean,
       bodyText = dataStream.readOptionName,
-      deprecatedName = dataStream.readOptionName)
+      deprecatedName = dataStream.readOptionName,
+      implicitType = dataStream.readOptionName)
 
   override def createStubImpl(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
     val typeText = parameter.typeElement.map {
       _.getText
     }
-    val (isVal, isVar) = parameter match {
-      case parameter: ScClassParameter => (parameter.isVal, parameter.isVar)
-      case _ => (false, false)
+    val (isVal, isVar, implicitType) = parameter match {
+      case parameter: ScClassParameter =>
+        (parameter.isVal, parameter.isVar, ScImplicitInstanceStub.implicitType(parameter, parameter.typeElement))
+      case _ => (false, false, None)
     }
     val defaultExprText = parameter.getActualDefaultExpression.map {
       _.getText
@@ -64,6 +67,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       isVar = isVar,
       isCallByNameParameter = parameter.isCallByNameParameter,
       bodyText = defaultExprText,
-      deprecatedName = parameter.deprecatedName)
+      deprecatedName = parameter.deprecatedName,
+      implicitType = implicitType)
   }
 }

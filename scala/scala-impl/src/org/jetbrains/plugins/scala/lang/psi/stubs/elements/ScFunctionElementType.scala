@@ -7,9 +7,11 @@ package elements
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitInstanceIndex}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -28,6 +30,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeBoolean(stub.isImplicitConversion)
     dataStream.writeBoolean(stub.isLocal)
+    dataStream.writeOptionName(stub.implicitType)
   }
 
   override def deserialize(dataStream: StubInputStream,
@@ -41,21 +44,18 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     bodyText = dataStream.readOptionName,
     hasAssign = dataStream.readBoolean,
     isImplicitConversion = dataStream.readBoolean,
-    isLocal = dataStream.readBoolean
+    isLocal = dataStream.readBoolean,
+    implicitType = dataStream.readOptionName
   )
 
   override def createStubImpl(function: Fun,
                               parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
-    val maybeFunction = Option(function)
-    val returnTypeText = maybeFunction.flatMap {
-      _.returnTypeElement
-    }.map {
-      _.getText
-    }
 
-    val maybeDefinition = maybeFunction.collect {
-      case definition: ScFunctionDefinition => definition
-    }
+    val returnTypeElement = function.returnTypeElement
+
+    val returnTypeText = returnTypeElement.map(_.getText)
+
+    val maybeDefinition = function.asOptionOf[ScFunctionDefinition]
 
     val bodyText = returnTypeText match {
       case Some(_) => None
@@ -78,7 +78,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       bodyText = bodyText,
       hasAssign = maybeDefinition.exists(_.hasAssign),
       isImplicitConversion = function.isImplicitConversion,
-      isLocal = function.containingClass == null)
+      isLocal = function.containingClass == null,
+      implicitType = ScImplicitInstanceStub.implicitType(function, function.returnTypeElement))
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
@@ -86,7 +87,9 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     sink.occurrences(METHOD_NAME_KEY, stub.getName)
 
     if (stub.isImplicitConversion)
-      ImplicitConversionKey.occurence(sink)
+      ImplicitConversionIndex.occurrence(sink)
+    else
+      ImplicitInstanceIndex.occurrence(sink, stub.implicitType)
   }
 }
 

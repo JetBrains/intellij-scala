@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
 trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScMemberOrLocal
   with ScTypeElementOwnerStub[F]
-  with ScExpressionOwnerStub[F] {
+  with ScExpressionOwnerStub[F]
+  with ScImplicitInstanceStub {
 
   def isImplicitConversion: Boolean
 

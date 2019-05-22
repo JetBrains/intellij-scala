@@ -13,7 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
   */
 trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
   with ScTypeElementOwnerStub[P]
-  with ScExpressionOwnerStub[P] with ScMemberOrLocal {
+  with ScExpressionOwnerStub[P]
+  with ScMemberOrLocal
+  with ScImplicitInstanceStub {
 
   def isDeclaration: Boolean
 

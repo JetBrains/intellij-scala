@@ -21,5 +21,6 @@ final class ScFunctionStubImpl[F <: ScFunction](parent: StubElement[_ <: PsiElem
                                                 val bodyText: Option[String],
                                                 val hasAssign: Boolean,
                                                 val isImplicitConversion: Boolean,
-                                                val isLocal: Boolean)
+                                                val isLocal: Boolean,
+                                                val implicitType: Option[String])
   extends ScNamedStubBase[F](parent, elementType, name) with ScFunctionStub[F]

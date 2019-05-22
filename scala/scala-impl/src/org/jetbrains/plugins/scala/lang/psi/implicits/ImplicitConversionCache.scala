@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.inheritorOrThisObjects
 
 import scala.collection.mutable
@@ -66,9 +66,7 @@ object ImplicitConversionCache {
     else 100
 
   private[this] def allImplicitConversions(elementScope: ElementScope)(): Iterable[ScMember] = {
-    import ScalaIndexKeys._
-
-    ImplicitConversionKey.allElements(elementScope.scope)(elementScope.projectContext)
+    ImplicitConversionIndex.allElements(elementScope.scope)(elementScope.projectContext)
   }
 
   private def registerCleanups(): Unit = {
