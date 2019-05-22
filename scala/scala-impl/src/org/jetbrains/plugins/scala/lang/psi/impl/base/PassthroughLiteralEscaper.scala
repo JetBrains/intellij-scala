@@ -5,9 +5,6 @@ import java.lang
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.LiteralTextEscaper
 
-/**
- * Pavel Fatin
- */
 class PassthroughLiteralEscaper(val literal: ScLiteralImpl) extends LiteralTextEscaper[ScLiteralImpl](literal) {
   override def decode(rangeInsideHost: TextRange, outChars: lang.StringBuilder): Boolean = {
     TextRange.assertProperRange(rangeInsideHost)
