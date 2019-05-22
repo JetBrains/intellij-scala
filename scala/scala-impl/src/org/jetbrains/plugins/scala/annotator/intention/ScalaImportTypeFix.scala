@@ -71,7 +71,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     CommandProcessor.getInstance().runUndoTransparentAction(() => {
       if (ref.isValid) {
-        classes = ScalaImportTypeFix.getTypesToImport(ref, project)
+        classes = ScalaImportTypeFix.getTypesToImport(ref)
         new ScalaAddImportAction(editor, classes, ref).execute()
       }
     })
@@ -85,7 +85,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
       case pref: ScPrefixExpr if pref.operation == ref => false
       case inf: ScInfixExpr if inf.operation == ref => false
       case _ =>
-        classes = ScalaImportTypeFix.getTypesToImport(ref, project)
+        classes = ScalaImportTypeFix.getTypesToImport(ref)
         classes.length match {
           case 0 => false
           case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
@@ -322,13 +322,18 @@ object ScalaImportTypeFix {
     }
   }
 
-  type Sorter = (Seq[TypeToImport], ScReference, Project) => Array[TypeToImport]
+  type Sorter = (Seq[TypeToImport], ScReference) => Array[TypeToImport]
 
-  def getTypesToImport(ref: ScReference, myProject: Project, sorter: Sorter = sortImportsByPackageDistance): Array[TypeToImport] = {
-    if (!ref.isValid) return Array.empty
-    if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
+  private val sorter: Sorter = sortImportsByPackageDistance
+
+  def getTypesToImport(ref: ScReference): Array[TypeToImport] = {
+    if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
+      return Array.empty
+
+    val project = ref.getProject
+
     val kinds = ref.getKinds(incomplete = false)
-    val cache = ScalaPsiManager.instance(myProject)
+    val cache = ScalaPsiManager.instance(project)
     val classes = cache.getClassesByName(ref.refName, ref.resolveScope)
 
     def shouldAddClass(clazz: PsiClass) = {
@@ -358,7 +363,7 @@ object ScalaImportTypeFix {
       }
     }
 
-    val packagesList = ScalaCodeStyleSettings.getInstance(myProject).getImportsWithPrefix.filter {
+    val packagesList = ScalaCodeStyleSettings.getInstance(project).getImportsWithPrefix.filter {
       case exclude if exclude.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) => false
       case include =>
         val parts = include.split('.')
@@ -367,9 +372,9 @@ object ScalaImportTypeFix {
     }.map(s => s.reverse.dropWhile(_ != '.').tail.reverse)
 
     for (packageQualifier <- packagesList) {
-      val pack = ScPackageImpl.findPackage(myProject, packageQualifier)
+      val pack = ScPackageImpl.findPackage(project, packageQualifier)
       if (pack != null && pack.getQualifiedName.indexOf('.') != -1 && ResolveUtils.kindMatches(pack, kinds) &&
-        !JavaProjectCodeInsightSettings.getSettings(myProject).isExcluded(pack.getQualifiedName)) {
+        !JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)) {
         buffer += PrefixPackageToImport(pack)
       }
     }
@@ -383,10 +388,10 @@ object ScalaImportTypeFix {
       }
     } else buffer
 
-    sorter(finalImports, ref, myProject)
+    sorter(finalImports, ref)
   }
 
-  def sortImportsByName(imports: Seq[TypeToImport], originalRef: ScReference, project: Project): Array[TypeToImport] = {
+  def sortImportsByName(imports: Seq[TypeToImport], originalRef: ScReference): Array[TypeToImport] = {
     import OrderingUtil.implicits.PackageNameOrdering
     imports.toArray.sortBy(_.qualifiedName)
   }
@@ -412,12 +417,14 @@ object ScalaImportTypeFix {
    *
    * @param importCandidates the possible imports
    * @param originalRef the reference for which the import should be added
-   * @param project the current project
    * @return the sorted list of possible imports
    */
   def sortImportsByPackageDistance(importCandidates: Seq[TypeToImport],
-                                   originalRef: ScReference,
-                                   project: Project): Array[TypeToImport] = {
+                                   originalRef: ScReference): Array[TypeToImport] = {
+
+    if (importCandidates.size <= 1)
+      return importCandidates.toArray
+
     val packaging = originalRef.containingScalaFile.flatMap(_.firstPackaging)
     val packageQualifier = packaging.map(_.fullPackageName)
     val ctxImports = getRelevantImports(originalRef)

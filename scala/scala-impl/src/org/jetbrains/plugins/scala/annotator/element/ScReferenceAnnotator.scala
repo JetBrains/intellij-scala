@@ -186,7 +186,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
 
     def getFixes: Seq[IntentionAction] = {
-      val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
+      val classes = ScalaImportTypeFix.getTypesToImport(refElement)
       if (classes.length == 0) return Seq.empty
       Seq(new ScalaImportTypeFix(classes, refElement))
     }

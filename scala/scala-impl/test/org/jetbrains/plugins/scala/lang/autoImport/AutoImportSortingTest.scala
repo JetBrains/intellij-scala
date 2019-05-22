@@ -29,7 +29,7 @@ class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with
     val imports = possibilities.reverse.map(new ClassTypeToImportMock(_))
 
     val result =
-      sorter(imports, ref, ref.getProject)
+      sorter(imports, ref)
         .map(_.qualifiedName)
 
     assertEquals(possibilities.mkString("\n"), result.mkString("\n"))

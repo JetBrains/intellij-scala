@@ -55,7 +55,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     implicit val project: Project = getProjectAdapter
     val refPointer = SmartPointerManager.getInstance(project).createSmartPsiElementPointer(ref)
 
-    val classes = getTypesToImport(ref, project)
+    val classes = getTypesToImport(ref)
     assert(classes.length > 0, "Haven't classes to import")
 
     var res: String = null
