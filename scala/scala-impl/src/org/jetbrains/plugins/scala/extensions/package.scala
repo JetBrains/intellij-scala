@@ -650,6 +650,18 @@ package object extensions {
         case _                               => Seq.empty
       }
     }
+
+    def qualifiedNameOpt: Option[String] = member match {
+      case c: PsiClass => c.qualifiedName.toOption
+      case _ =>
+        for {
+          cClass      <- containingClass.toOption
+          classQName  <- cClass.qualifiedName.toOption
+          name        <- names.headOption
+        } yield {
+          s"$classQName.$name"
+        }
+    }
   }
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
