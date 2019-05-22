@@ -23,14 +23,14 @@
         Adds support for the Scala language. The following features are available for free with IntelliJ IDEA Community Edition:
         <br>
         <ul>
-          <li>Coding assistance (highlighting, completion, formatting, refactorings etc).</li>
-          <li>Navigation, search, information about types and implicits.</li>
-          <li>Integration with sbt and other build tools.</li>
-          <li>Testing frameworks support (ScalaTest, Specs2, uTest).</li>
-          <li>Scala debugger, worksheets and Ammonite scripts.</li>
+          <li>Coding assistance (highlighting, completion, formatting, refactorings, etc.)</li>
+          <li>Navigation, search, information about types and implicits</li>
+          <li>Integration with sbt and other build tools</li>
+          <li>Testing frameworks support (ScalaTest, Specs2, uTest)</li>
+          <li>Scala debugger, worksheets and Ammonite scripts</li>
         </ul>
         <br>
-        Support for Play Framework, Akka and Scala.js is enabled only with IntelliJ IDEA Ultimate.
+        Support for Play Framework, Akka and Scala.js is enabled in IntelliJ IDEA Ultimate.
       ]]>
     </description>
     <version>VERSION</version>
