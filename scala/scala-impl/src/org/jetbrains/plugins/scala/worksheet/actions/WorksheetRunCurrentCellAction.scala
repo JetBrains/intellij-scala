@@ -16,15 +16,15 @@ class WorksheetRunCurrentCellAction extends AnAction with WorksheetAction {
   setInjectedContext(false)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    Option(PlatformDataKeys.FILE_EDITOR.getData(e.getDataContext)).flatMap {
+    Option(PlatformDataKeys.FILE_EDITOR.getData(e.getDataContext)).foreach {
       fileEditor => 
-        WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(e.getProject), fileEditor.getFile)
-    }.foreach {
-      editor => 
-        val offset = editor.getCaretModel.getCurrentCaret.getSelectionStart
-        Option(PsiDocumentManager.getInstance(e.getProject).getCachedPsiFile(editor.getDocument)).foreach {
-          file =>
-            CellManager.getInstance(e.getProject).getCell(file, offset).flatMap(_.createRunAction).foreach(_.actionPerformed(e))
+        WorksheetFileHook.handleEditor(FileEditorManager.getInstance(e.getProject), fileEditor.getFile) {
+          editor =>
+            val offset = editor.getCaretModel.getCurrentCaret.getSelectionStart
+            Option(PsiDocumentManager.getInstance(e.getProject).getCachedPsiFile(editor.getDocument)).foreach {
+              file =>
+                CellManager.getInstance(e.getProject).getCell(file, offset).flatMap(_.createRunAction).foreach(_.actionPerformed(e))
+            }
         }
     }
   }

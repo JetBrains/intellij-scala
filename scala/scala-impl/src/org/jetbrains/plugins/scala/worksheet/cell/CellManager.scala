@@ -96,8 +96,8 @@ object CellManager {
     val project = file.getProject
     val vFile = file.getVirtualFile
     
-    WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(project), vFile).foreach {
-      editor => 
+    WorksheetFileHook.handleEditor(FileEditorManager.getInstance(project), vFile){
+      editor =>
         WorksheetCache.getInstance(project).setLastProcessedIncremental(editor, None)
         CleanWorksheetAction.cleanAll(editor, vFile, project)
     }
@@ -125,7 +125,7 @@ object CellManager {
   
   private def rerunMarkerPass(file: PsiFile) {
     val project = file.getProject
-    WorksheetFileHook.getDocumentFrom(FileEditorManager.getInstance(project), file.getVirtualFile).foreach {
+    WorksheetFileHook.getDocumentFrom(project, file.getVirtualFile).foreach {
       document =>
         DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
         val fileStatusMap = DaemonCodeAnalyzerEx.getInstanceEx(project).getFileStatusMap

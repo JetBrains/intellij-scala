@@ -73,10 +73,10 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       val offset = e.getOffset
       val isRepl = WorksheetFileSettings.getRunType(psiFile).isReplRunType
 
-      if (isRepl) {
-        if (offset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
-          ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
-      }
+      if (isRepl && offset < lastProcessedOffset) 
+        WorksheetFileHook.handleEditor(FileEditorManager getInstance project, psiFile.getVirtualFile) {
+          ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None)
+        }
 
       if (!WorksheetCommonSettings(psiFile).isInteractive) return
 

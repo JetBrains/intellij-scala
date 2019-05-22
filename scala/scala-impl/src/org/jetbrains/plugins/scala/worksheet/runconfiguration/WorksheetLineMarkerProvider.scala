@@ -5,14 +5,13 @@ import java.util
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import com.intellij.util.NullableFunction
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 /**
@@ -25,17 +24,26 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
       case empty: PsiElement if empty.getTextRange.isEmpty => null
       case _: PsiWhiteSpace | _: PsiComment => null
       case _ =>
-        def marker(scalaFile: ScalaFile, checkParent: Boolean = false) = WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(scalaFile.getProject), scalaFile.getVirtualFile).flatMap {
-          editor =>
-            @inline def getLineStartOffset(el: PsiElement) = 
-              editor.getDocument.getLineNumber(el.getTextRange.getStartOffset)
-            
-            if (checkParent && (getLineStartOffset(psiElement) == getLineStartOffset(psiElement.getParent))) None
-            else WorksheetCache.getInstance(scalaFile.getProject).getLastProcessedIncremental(editor).filter(
-              _ == getLineStartOffset(psiElement)).map(
-              _ => createArrowMarker(psiElement)
-            )
-        }.orNull
+        val project = psiElement.getProject
+        
+        Option(PsiDocumentManager.getInstance(project).getCachedDocument(psiElement.getContainingFile)).flatMap {
+          document => EditorFactory.getInstance().getEditors(document, project).headOption
+        }
+        
+        def marker(scalaFile: ScalaFile, checkParent: Boolean = false) = {
+          Option(PsiDocumentManager.getInstance(project).getCachedDocument(psiElement.getContainingFile)).flatMap {
+            document => EditorFactory.getInstance().getEditors(document, project).headOption.map(e => (e, document))
+          }.flatMap {
+            case (editor, document) =>
+              @inline def getLineStartOffset(el: PsiElement) = document.getLineNumber(el.getTextRange.getStartOffset)
+
+              if (checkParent && (getLineStartOffset(psiElement) == getLineStartOffset(psiElement.getParent))) None
+              else WorksheetCache.getInstance(scalaFile.getProject).getLastProcessedIncremental(editor).filter(
+                _ == getLineStartOffset(psiElement)).map(
+                _ => createArrowMarker(psiElement)
+              )
+          }.orNull
+        }
         
         def testElement(el: PsiElement): Boolean = el.getParent.isInstanceOf[ScalaFile]
 

@@ -7,7 +7,6 @@ import java.util
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Document, Editor}
@@ -35,29 +34,29 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, WorksheetEditorListener)
     project.getMessageBus.connect(project).subscribe(DumbService.DUMB_MODE,
       new DumbModeListener {
-      override def enteredDumbMode() {}
-
-      override def exitDumbMode()  {
-        val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-        if (editor == null) return
-
-        val file = PsiDocumentManager.getInstance(project) getPsiFile editor.getDocument
-        if (file == null) return
-
-        val vFile = file.getVirtualFile
-        if (vFile == null) return
-
-        WorksheetFileHook getPanel vFile foreach {
-          ref =>
-            val panel = ref.get()
-            if (panel != null) {
-              panel.getComponents.foreach {
-                case ab: ActionButton => ab.addNotify()
-                case _ =>
+        override def enteredDumbMode() {}
+  
+        override def exitDumbMode()  {
+          val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+          if (editor == null) return
+  
+          val file = PsiDocumentManager.getInstance(project) getPsiFile editor.getDocument
+          if (file == null) return
+  
+          val vFile = file.getVirtualFile
+          if (vFile == null) return
+  
+          WorksheetFileHook getPanel vFile foreach {
+            ref =>
+              val panel = ref.get()
+              if (panel != null) {
+                panel.getComponents.foreach {
+                  case ab: ActionButton => ab.addNotify()
+                  case _ =>
+                }
               }
-            }
+          }
         }
-      }
     })
   }
 
@@ -74,11 +73,9 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         ref =>
           val p = ref.get()
 
-          ApplicationManager.getApplication.invokeLater(new Runnable {
-            override def run() {
-              if (p != null) myFileEditorManager.removeTopComponent(editor, p)
-            }
-          })
+          extensions.invokeLater {
+            if (p != null) myFileEditorManager.removeTopComponent(editor, p)
+          }
       }
       
       val panel  = new WorksheetFileHook.MyPanel(file)
@@ -129,7 +126,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     override def fileClosed(source: FileEditorManager, file: VirtualFile) {
       if (!isPluggable(file)) return
       
-      WorksheetFileHook.getDocumentFrom(source, file) foreach (
+      WorksheetFileHook.getDocumentFrom(source.getProject, file) foreach (
         d => WorksheetAutoRunner.getInstance(source.getProject) removeListener d
       )
     }
@@ -139,7 +136,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
       WorksheetFileHook.this.initWorksheetComponents(file, run = true)
       loadEvaluationResult(source, file)
-      WorksheetFileHook.getDocumentFrom(source, file) foreach (WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
+      WorksheetFileHook.getDocumentFrom(source.getProject, file) foreach (WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
     }
     
     private def loadEvaluationResult(source: FileEditorManager, file: VirtualFile) {
@@ -244,10 +241,18 @@ object WorksheetFileHook {
 
   def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])
   
-  def getEditorFrom(source: FileEditorManager, file: VirtualFile): Option[Editor] = source getSelectedEditor file match {
-    case txtEditor: TextEditor if txtEditor.getEditor != null => Option(txtEditor.getEditor)
-    case _ => None
+  def handleEditor(source: FileEditorManager, file: VirtualFile)(callback: Editor => Unit): Unit = {
+    extensions.invokeLater {
+      source getSelectedEditor file match {
+        case txtEditor: TextEditor if txtEditor.getEditor != null => callback(txtEditor.getEditor)
+        case _ =>
+      }
+    }
   }
   
-  def getDocumentFrom(source: FileEditorManager, file: VirtualFile): Option[Document] = getEditorFrom(source, file).map(_.getDocument)
+  def getDocumentFrom(project: Project,  file: VirtualFile): Option[Document] = {
+    Option(PsiManager.getInstance(project).findFile(file)).map {
+      file => PsiDocumentManager.getInstance(project).getCachedDocument(file)
+    }
+  }
 }
