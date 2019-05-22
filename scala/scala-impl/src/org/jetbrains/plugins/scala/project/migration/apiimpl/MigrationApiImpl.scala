@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala.project.migration.apiimpl
 
 import java.awt.{Component, Dimension}
-import javax.swing._
 
 import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory, MessageView}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
+import javax.swing._
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
 import org.jetbrains.plugins.scala.util.NotificationUtil
 
@@ -24,7 +23,7 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 class MigrationApiImpl(val project: Project) extends ProjectComponent with MigrationApiService {
   override def getComponentName: String = "ScalaLibraryMigrationApi"
 
-  override def showPopup(txt: String, title: String, handler: (String) => Unit): Unit = {
+  override def showPopup(txt: String, title: String, handler: String => Unit): Unit = {
     NotificationUtil.showMessage(
       project = project,
       message = txt,
@@ -36,7 +35,7 @@ class MigrationApiImpl(val project: Project) extends ProjectComponent with Migra
 
   override def showDialog(title: String, text: String, 
                           settingsDescriptor: SettingsDescriptor, 
-                          onOk: (SettingsDescriptor) => Unit, onCancel: => Unit): Unit = {
+                          onOk: SettingsDescriptor => Unit, onCancel: => Unit): Unit = {
     val elementsCount = 1 + settingsDescriptor.checkBoxes.size + settingsDescriptor.comboBoxes.size + settingsDescriptor.textFields.size
     val labelBase = new JPanel(new GridLayoutManager(2, 1))
     val base = new JPanel(new GridLayoutManager(elementsCount + 1, 2))
@@ -88,32 +87,28 @@ class MigrationApiImpl(val project: Project) extends ProjectComponent with Migra
     builder setCenterPanel myCenterPanel
     builder setTitle title
     
-    builder.setOkOperation(new Runnable {
-      override def run(): Unit = {
-        val result = SettingsDescriptor(
-          checkBoxes.map {
-            b => (b.getName, b.isSelected)
-          },
-          comboBoxes.map{ //will make it multiple choice later
-            b => (b.getName, Seq(b.getSelectedItem.toString))
-          },
-          textFields.map {
-            f => (f.getName, f.getText)
-          }
-        )
-        
-        onOk(result)
-        
-        builder.getDialogWrapper.close(0, true)
-      }
+    builder.setOkOperation(() => {
+      val result = SettingsDescriptor(
+        checkBoxes.map {
+          b => (b.getName, b.isSelected)
+        },
+        comboBoxes.map { //will make it multiple choice later
+          b => (b.getName, Seq(b.getSelectedItem.toString))
+        },
+        textFields.map {
+          f => (f.getName, f.getText)
+        }
+      )
+
+      onOk(result)
+
+      builder.getDialogWrapper.close(0, true)
     })
     
-    builder.setCancelOperation(new Runnable {
-      override def run(): Unit = {
-        onCancel
+    builder.setCancelOperation(() => {
+      onCancel
 
-        builder.getDialogWrapper.close(0, false)
-      }
+      builder.getDialogWrapper.close(0, false)
     })
     
     builder.show()
@@ -140,17 +135,15 @@ class MigrationApiImpl(val project: Project) extends ProjectComponent with Migra
         }
     }
 
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      override def run(): Unit = {
-        val messagesContent = ContentFactory.SERVICE.getInstance.createContent(messagesTree.getComponent, MigrationApiImpl.MY_MESSAGE_CONTENT_NAME, true)
-        val contentManager = MessageView.SERVICE.getInstance(myProject).getContentManager
+    extensions.invokeLater {
+      val messagesContent = ContentFactory.SERVICE.getInstance.createContent(messagesTree.getComponent, MigrationApiImpl.MY_MESSAGE_CONTENT_NAME, true)
+      val contentManager = MessageView.SERVICE.getInstance(myProject).getContentManager
 
-        contentManager addContent messagesContent
-        contentManager setSelectedContent messagesContent
+      contentManager addContent messagesContent
+      contentManager setSelectedContent messagesContent
 
-        MigrationApiImpl.openMessageView(myProject, messagesContent, messagesTree)  
-      }
-    })
+      MigrationApiImpl.openMessageView(myProject, messagesContent, messagesTree)
+    }
   }
 }
 
@@ -161,15 +154,12 @@ object MigrationApiImpl {
 
   def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
     val commandProcessor = CommandProcessor.getInstance()
-    commandProcessor.executeCommand(project, new Runnable {
-      override def run() {
-        Disposer.register(content, treeView, null)
-        val messageView = ServiceManager.getService(project, classOf[MessageView])
-        messageView.getContentManager setSelectedContent content
+    commandProcessor.executeCommand(project, () => {
+      val messageView = ServiceManager.getService(project, classOf[MessageView])
+      messageView.getContentManager setSelectedContent content
 
-        val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
-        if (toolWindow != null) toolWindow.show(null)
-      }
+      val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
+      if (toolWindow != null) toolWindow.show(null)
     }, null, null)
   }
 }
