@@ -16,7 +16,7 @@ class ATypeMismatchHintsPassFactory(project: Project, registrar: TextEditorHighl
 
   override def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
     case file: ScalaFile if !ImplicitHints.isUpToDate(editor, file) =>
-      new TextEditorHighlightingPass(editor.getProject, editor.getDocument) {
+      new TextEditorHighlightingPass(editor.getProject, editor.getDocument, /*runIntentionPassAfter*/ false) {
         override def doCollectInformation(progress: ProgressIndicator): Unit = {}
 
         override def doApplyInformationToEditor(): Unit = file.elements.foreach { element =>
