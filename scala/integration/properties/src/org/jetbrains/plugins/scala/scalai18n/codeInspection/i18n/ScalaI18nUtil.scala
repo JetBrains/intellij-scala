@@ -17,10 +17,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
+
 import scala.collection.mutable
 
 /**
@@ -57,13 +58,12 @@ object ScalaI18nUtil {
     mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
   }
 
-  def mayBePropertyKey(literal: ScLiteral): Boolean = {
-    def isForbiddenInKey(c: Char) = c == '=' || c == ':' || Character.isWhitespace(c)
-
-    literal match {
-      case ScStringLiteral(value) => !value.exists(isForbiddenInKey)
-      case _ => false
+  private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
+    case ScLiteral(ScLiteral.StringValue(value)) => !value.exists {
+      case '=' | ':' => true
+      case character => Character.isWhitespace(character)
     }
+    case _ => false
   }
 
   def isPassedToAnnotatedParam(@NotNull literal: ScLiteral, annFqn: String,

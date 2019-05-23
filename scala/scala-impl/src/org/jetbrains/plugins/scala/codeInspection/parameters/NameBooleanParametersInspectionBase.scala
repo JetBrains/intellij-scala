@@ -7,8 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBooleanLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
@@ -32,7 +32,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         val argList = mc.args
         for (expr <- argList.exprs) {
           expr match {
-            case literal@ScBooleanLiteral(_) if isArgForBooleanParam(expr, argList) &&
+            case literal@ScLiteral(ScLiteral.BooleanValue(_)) if isArgForBooleanParam(expr, argList) &&
               addNameToArgumentsFix(literal).isDefined =>
               val message = InspectionBundle.message("name.boolean.params")
               val quickFix = new NameBooleanParametersQuickFix(message, literal)

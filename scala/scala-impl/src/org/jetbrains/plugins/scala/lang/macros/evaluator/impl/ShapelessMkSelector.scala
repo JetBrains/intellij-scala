@@ -42,8 +42,9 @@ object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     if (context.expectedType.isEmpty) return None
+
     val name = context.place match {
-      case ScMethodCall(_, Seq(ScLiteral(value: Symbol))) => Some(value.name)
+      case ScMethodCall(_, Seq(ScLiteral(ScLiteral.SymbolValue(value)))) => Some(value.name)
       case _ => None
     }
     if (name.isEmpty) return None

@@ -98,21 +98,11 @@ object MultilineStringUtil {
     }
   }
 
-  def getMarginChar(element: PsiElement): Char = {
-    val calls = findAllMethodCallsOnMLString(element, "stripMargin")
-    val defaultMargin: Char =
-      CodeStyle.getSettings(element.getProject)
-        .getCustomSettings(classOf[ScalaCodeStyleSettings])
-        .getMarginChar
-
-    if (calls.isEmpty) {
-      defaultMargin
-    } else {
-      calls.apply(0).headOption match {
-        case Some(ScLiteral(c: Character)) => c
-        case _ => defaultMargin
-      }
-    }
+  def getMarginChar(element: PsiElement): Char = findAllMethodCallsOnMLString(element, "stripMargin") match {
+    case Array(Array(ScLiteral(ScLiteral.CharacterValue(value)), _*), _*) => value
+    case _ => CodeStyle.getSettings(element.getProject)
+      .getCustomSettings(classOf[ScalaCodeStyleSettings])
+      .getMarginChar
   }
 
   def findAllMethodCallsOnMLString(stringElement: PsiElement, methodName: String): Array[Array[ScExpression]] = {

@@ -1,12 +1,13 @@
-package org.jetbrains.plugins.scala.codeInspection.booleans
+package org.jetbrains.plugins.scala
+package codeInspection
+package booleans
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScBooleanLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -138,7 +139,7 @@ object SimpleBooleanMatchUtil {
 
   private def booleanConst(expr: ScPattern): Option[Boolean] = expr match {
     case pattern: ScLiteralPattern => pattern.getLiteral match {
-      case ScBooleanLiteral(value) => Some(value)
+      case ScLiteral(ScLiteral.BooleanValue(value)) => Some(value)
       case _ => None
     }
     case _ => None

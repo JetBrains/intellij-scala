@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScBooleanLiteral, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
@@ -63,17 +63,19 @@ object SimulacrumInjector {
     */
   private[this] def opsMethodName(sourceMethod: ScFunction): Seq[String] = {
     def extractNamesFromAnnArgs(args: Option[ScArgumentExprList]): Seq[String] = {
+      import ScLiteral._
+
       val exprs = args.toSeq.flatMap(_.exprs)
 
       val alias = exprs.exists {
-        case ScBooleanLiteral(isAlias)                        => isAlias
-        case ScAssignment(_, Some(ScBooleanLiteral(isAlias))) => isAlias
+        case ScLiteral(BooleanValue(isAlias)) => isAlias
+        case ScAssignment(_, Some(ScLiteral(BooleanValue(isAlias)))) => isAlias
         case _                                                => false
       }
 
       val name = exprs.collectFirst {
-        case ScStringLiteral(opName)                        => opName
-        case ScAssignment(_, Some(ScStringLiteral(opName))) => opName
+        case ScLiteral(StringValue(opName)) => opName
+        case ScAssignment(_, Some(ScLiteral(StringValue(opName)))) => opName
       }
 
       if (alias) Seq(sourceMethod.name) ++ name

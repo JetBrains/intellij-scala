@@ -75,7 +75,7 @@ class SbtDependencyAnnotator extends Annotator {
     }
 
     for {
-      literal@ScLiteral(_) <- Option(element)
+      literal <- if (element.isInstanceOf[ScLiteral]) Some(element) else None
       parentExpr@ScInfixExpr(leftPart, operation, _) <- Option(literal.getParent)
       if isOneOrTwoPercents(operation)
     } yield {

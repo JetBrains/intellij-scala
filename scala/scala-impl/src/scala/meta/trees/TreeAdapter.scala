@@ -462,25 +462,24 @@ trait TreeAdapter {
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.importedNames.head))))
   }
 
-  def literal(l: ScLiteral): m.Lit = {
-    import p.base.ScLiteral
+  def literal(literal: ScLiteral): m.Lit = {
+    import m.Lit._
 
-    import m.Lit
-    val res = l match {
-      case ScLiteral(i: Integer)              => Lit.Int(i)
-      case ScLiteral(l: java.lang.Long)       => Lit.Long(l)
-      case ScLiteral(f: java.lang.Float)      => Lit.Float(f)
-      case ScLiteral(d: java.lang.Double)     => Lit.Double(d)
-      case ScLiteral(b: java.lang.Boolean)    => Lit.Boolean(b)
-      case ScLiteral(c: java.lang.Character)  => Lit.Char(c)
-      case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
-      case ScLiteral(s: String)               => Lit.String(s)
-      case ScLiteral(null)                    => Lit.Null(())
-      case _ if l.isSymbol && paradiseCompatibilityHacks => Lit.String(l.getValue.toString) // apparently, Lit.Symbol is no more in paradise
-      case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol]) // symbol literals in meta contain a string as their value
-      case other => other ?!
+    literal.getValue match {
+      case value: Integer => Int(value)
+      case value: java.lang.Long => Long(value)
+      case value: java.lang.Float => Float(value)
+      case value: java.lang.Double => Double(value)
+      case value: java.lang.Boolean => Boolean(value)
+      case value: Character => Char(value)
+      case value: java.lang.Byte => Byte(value)
+      case value: java.lang.String => String(value)
+      case value: scala.Symbol if literal.isSymbol =>
+        if (paradiseCompatibilityHacks) String(value.toString) // apparently, Lit.Symbol is no more in paradise
+        else Symbol(value) // symbol literals in meta contain a string as their value
+      case null => Null(())
+      case _ => literal ?!
     }
-    res
   }
 
   def toPatternDefinition(t: ScPatternDefinition): m.Tree = {

@@ -1,18 +1,20 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScIntLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
   * @author t-kameyama
   */
-class ComparingLengthInspection extends OperationOnCollectionInspection{
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingLength)
+final class ComparingLengthInspection extends OperationOnCollectionInspection {
+
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingLengthInspection.ComparingLength)
 }
 
 object ComparingLengthInspection {
+
   val hint: String = InspectionBundle.message("replace.with.lengthCompare")
 
   private val ComparingLength: SimplificationType = new SimplificationType() {
@@ -32,8 +34,8 @@ object ComparingLengthInspection {
     }
   }
 
-  private def isZero(e: ScExpression): Boolean = e match {
-    case ScIntLiteral(0) => true
+  private def isZero(expression: ScExpression): Boolean = expression match {
+    case ScLiteral(ScLiteral.IntegerValue(0)) => true
     case _ => false
   }
 }

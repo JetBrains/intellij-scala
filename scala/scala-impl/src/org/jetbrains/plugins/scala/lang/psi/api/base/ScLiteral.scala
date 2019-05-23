@@ -5,9 +5,7 @@ package api
 package base
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, PsiLiteral}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -40,45 +38,33 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
 }
 
 object ScLiteral {
-  def unapply(literal: ScLiteral) = Some(literal.getValue)
-}
 
-sealed abstract class ScLiteralValueExtractor[T](literalTypes: IElementType*) {
+  import lang.lexer.{ScalaTokenTypes => T}
 
-  private val types = literalTypes.toSet
-
-  protected def cast(value: AnyRef): T
-
-  def unapply(literal: ScLiteral): Option[T] = {
-    val elementType = literal.getFirstChild.getNode.getElementType
-    val value = if (isAvailableFor(literal) && types(elementType)) Option(literal.getValue)
-    else None
-    value.map(cast)
+  def unapply(literal: ScLiteral): Option[Value[_]] = Option {
+    (literal.getValue, literal.getFirstChild.getNode.getElementType) match {
+      case (integer: Integer, T.tINTEGER) if literal.getText.last.isDigit => IntegerValue(integer.intValue)
+      case (boolean: java.lang.Boolean, T.kTRUE |
+                                        T.kFALSE) => BooleanValue(boolean.booleanValue)
+      case (character: Character, T.tCHAR) => CharacterValue(character.charValue)
+      case (string: String, T.tSTRING |
+                            T.tWRONG_STRING |
+                            T.tMULTILINE_STRING) => StringValue(string)
+      case (symbol: Symbol, T.tSYMBOL) => SymbolValue(symbol)
+      case _ => null
+    }
   }
 
-  protected def isAvailableFor(literal: ScLiteral): Boolean = true
-}
 
-object ScIntLiteral extends ScLiteralValueExtractor[Int](tINTEGER) {
+  sealed abstract class Value[V <: Any](val value: V)
 
-  override protected def cast(value: AnyRef): Int = value match {
-    case integer: java.lang.Integer => integer.intValue()
-  }
+  final case class IntegerValue(override val value: Int) extends Value(value)
 
-  override protected def isAvailableFor(literal: ScLiteral): Boolean =
-    literal.getText.last.isDigit
-}
+  final case class BooleanValue(override val value: Boolean) extends Value(value)
 
-object ScBooleanLiteral extends ScLiteralValueExtractor[Boolean](kTRUE, kFALSE) {
+  final case class CharacterValue(override val value: Char) extends Value(value)
 
-  override protected def cast(value: AnyRef): Boolean = value match {
-    case boolean: java.lang.Boolean => boolean.booleanValue()
-  }
-}
+  final case class StringValue(override val value: String) extends Value(value)
 
-object ScStringLiteral extends ScLiteralValueExtractor[String](tSTRING, tWRONG_STRING, tMULTILINE_STRING) {
-
-  override protected def cast(value: AnyRef): String = value match {
-    case string: String => string
-  }
+  final case class SymbolValue(override val value: Symbol) extends Value(value)
 }
