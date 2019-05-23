@@ -366,8 +366,11 @@ object InferUtil {
                     result = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
                   case _ =>
                 }
+
                 val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
-                dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.result))
+                  .asInstanceOf[ScLiteral]
+                dummyExpr.typeForNullWithoutImplicits = Some(mt.result)
+
                 val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
                 expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))

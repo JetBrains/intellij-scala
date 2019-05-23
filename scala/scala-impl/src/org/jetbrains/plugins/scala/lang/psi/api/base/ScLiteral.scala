@@ -18,14 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
   */
 
 trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
-  /**
-    * This method works only for null literal (to avoid possibly dangerous usage)
-    *
-    * @param tp type, which should be returned by method getTypeWithouImplicits
-    */
-  def setTypeForNullWithoutImplicits(tp: Option[ScType])
 
-  def getTypeForNullWithoutImplicits: Option[ScType]
+  // This method works only for null literal (to avoid possibly dangerous usage)
+  def typeForNullWithoutImplicits_=(`type`: Option[ScType])
+
+  def typeForNullWithoutImplicits: Option[ScType]
 
   def isString: Boolean
 

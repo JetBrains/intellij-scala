@@ -285,7 +285,7 @@ object ScExpression {
     def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult = {
       ProgressManager.checkCanceled()
 
-      val fromNullLiteral = expr.asOptionOf[ScLiteral].flatMap(_.getTypeForNullWithoutImplicits)
+      val fromNullLiteral = expr.asOptionOf[ScLiteral].flatMap(_.typeForNullWithoutImplicits)
 
       if (fromNullLiteral.nonEmpty) Right(fromNullLiteral.get)
       else {

@@ -364,7 +364,8 @@ object ScalaRefactoringUtil {
       case intrp: ScInterpolatedStringLiteral =>
         val prefix = intrp.reference.fold("")(_.refName)
         val fileText = intrp.getContainingFile.charSequence
-        val text = fileText.substring(intrp.contentRange.getStartOffset, intrp.contentRange.getEndOffset)
+        val contentRange = intrp.contentRange
+        val text = fileText.substring(contentRange.getStartOffset, contentRange.getEndOffset)
         val refNameToResolved = mutable.HashMap[String, PsiElement]()
         intrp.depthFirst().foreach {
           case ref: ScReferenceExpression => refNameToResolved += ((ref.refName, ref.resolve()))
@@ -988,8 +989,9 @@ object ScalaRefactoringUtil {
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
         } else {
           val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
-          val isStart = newRange.getStartOffset == lit.contentRange.getStartOffset
-          val isEnd = newRange.getEndOffset == lit.contentRange.getEndOffset
+          val contentRange = lit.contentRange
+          val isStart = newRange.getStartOffset == contentRange.getStartOffset
+          val isEnd = newRange.getEndOffset == contentRange.getEndOffset
           val firstPart = if (!isStart) s"$quote + " else ""
           val lastPart = if (!isEnd) s" + $prefix$quote" else ""
           val text = s"$firstPart$newString$lastPart"

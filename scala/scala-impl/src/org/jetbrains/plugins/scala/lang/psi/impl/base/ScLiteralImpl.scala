@@ -4,34 +4,56 @@ package psi
 package impl
 package base
 
-import java.lang.StringBuilder
-import java.util
-import java.util.Random
+import java.{lang => jl, util => ju}
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.injection.InjectedLanguageManager
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.LeafElement
-import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
-import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.impl.source.tree.{LeafElement, java}
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScExpressionImplBase
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-import scala.StringContext.InvalidEscapeException
-
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
-class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node)
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.02.2008
+  */
+class ScLiteralImpl(node: ASTNode) extends expr.ScExpressionImplBase(node)
   with ScLiteral with ContributedReferenceHost {
+
+  import ScLiteralImpl._
+  import lang.lexer.{ScalaTokenTypes => T}
+
+  /*
+ * This part caches literal related annotation owners
+ * todo: think about extracting this feature to a trait
+ *
+ * trait AnnotationBasedInjectionHost {
+ *   private[this] var myAnnotationOwner: Option[PsiAnnotationOwner] = None
+ *   ...
+ *   private val expTimeLengthGenerator = if (needCaching()) new Random(System.currentTimeMillis()) else null
+ *   ...
+ *   ...
+ *   def needCaching(): Boolean
+ * }
+ */
+
+  private[this] var myAnnotationOwner = Option.empty[PsiAnnotationOwner with PsiElement]
+  private[this] var expirationTime = 0L
+
+  @volatile
+  private[this] var typeForNullWithoutImplicits_ = Option.empty[ScType]
+
+  override def typeForNullWithoutImplicits_=(`type`: Option[ScType]): Unit = {
+    if (firstElementType != T.kNULL)
+      throw new jl.AssertionError(s"Only null literals accepted, type: $firstElementType")
+    typeForNullWithoutImplicits_ = `type`
+  }
+
+  override def typeForNullWithoutImplicits: Option[ScType] = typeForNullWithoutImplicits_
 
   def isValidHost: Boolean = getValue.isInstanceOf[String]
 
@@ -40,54 +62,61 @@ class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node)
   protected override def innerType: result.TypeResult =
     ScLiteralType.inferType(this)
 
-  @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInUserData(this, util.PsiModificationTracker.MODIFICATION_COUNT)
   def getValue: AnyRef = {
-    val child = getFirstChild.getNode
+
     var text = getText
     val textLength = getTextLength
+
     def getValueOfNode(e: ASTNode, isNegative: Boolean = false): AnyRef = {
       e.getElementType match {
-        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING if !isNegative =>
+        case T.tSTRING | T.tWRONG_STRING if !isNegative =>
           if (!text.startsWith("\"")) return null
           text = text.substring(1)
           if (text.endsWith("\"")) {
             text = text.substring(0, text.length - 1)
           }
-          try StringContext.treatEscapes(text) //for octal escape sequences
-          catch {
-            case _: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
+          try {
+            StringContext.treatEscapes(text) // for octal escape sequences
+          } catch {
+            case _: StringContext.InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
           }
-        case ScalaTokenTypes.tMULTILINE_STRING if !isNegative =>
+        case T.tMULTILINE_STRING if !isNegative =>
           if (!text.startsWith("\"\"\"")) return null
           text = text.substring(3)
           if (text.endsWith("\"\"\"")) {
             text = text.substring(0, text.length - 3)
           }
           text
-        case ScalaTokenTypes.kTRUE if !isNegative => java.lang.Boolean.TRUE
-        case ScalaTokenTypes.kFALSE if !isNegative => java.lang.Boolean.FALSE
-        case ScalaTokenTypes.tCHAR if ! isNegative =>
-          if (StringUtil.endsWithChar(getText, '\'')) {
+        case T.kTRUE if !isNegative => jl.Boolean.TRUE
+        case T.kFALSE if !isNegative => jl.Boolean.FALSE
+        case T.tCHAR if !isNegative =>
+          val diff = if (StringUtil.endsWithChar(getText, '\'')) {
             if (textLength == 1) return null
-            text = text.substring(1, textLength - 1)
-          }
-          else {
-            text = text.substring(1, textLength)
-          }
-          val chars: StringBuilder = new StringBuilder
-          val success: Boolean = PsiLiteralExpressionImpl.parseStringCharacters(text, chars, null)
-          if (!success) return null
-          if (chars.length != 1) return null
-          Character.valueOf(chars.charAt(0))
-        case ScalaTokenTypes.tINTEGER =>
-          val endsWithL = e.getText.endsWith("l") || e.getText.endsWith("L")
-          text = if (endsWithL) text.substring(0, text.length - 1) else text
+            1
+          } else 0
+
+          text = text.substring(1, textLength - diff)
+          val chars = new jl.StringBuilder
+          val success = java.PsiLiteralExpressionImpl.parseStringCharacters(
+            text,
+            chars,
+            null
+          )
+
+          if (success && chars.length == 1) Character.valueOf(chars.charAt(0))
+          else null
+        case T.tINTEGER =>
+          val isLong = e.getText.matches(".*[lL]$")
+          text = if (isLong) text.substring(0, text.length - 1) else text
+
           val (number, base) = text match {
             case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
             case t if t.startsWith("0") && t.length >= 2 => (t.substring(0), 8)
             case t => (t, 10)
           }
-          val limit = if (endsWithL) java.lang.Long.MAX_VALUE else java.lang.Integer.MAX_VALUE
+
+          val limit = if (isLong) jl.Long.MAX_VALUE else jl.Integer.MAX_VALUE
           val divider = if (base == 10) 1 else 2
           var value = 0l
           for (d <- number.map(_.asDigit)) {
@@ -99,142 +128,112 @@ class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node)
             }
             value = value * base + d
           }
+
           if (isNegative) value = -value
-          if (endsWithL) java.lang.Long.valueOf(value) else Integer.valueOf(value.toInt)
-        case ScalaTokenTypes.tFLOAT =>
-          if (e.getText.endsWith("f") || e.getText.endsWith("F"))
-            try {
-              java.lang.Float.valueOf((if (isNegative) "-" else "") +text.substring(0, text.length - 1))
-            } catch {
-              case _: Exception => null
-            }
-          else
-            try {
-              java.lang.Double.valueOf((if (isNegative) "-" else "") + text)
-            } catch {
-              case _: Exception => null
-            }
-        case ScalaTokenTypes.tSYMBOL if !isNegative =>
-          if (!text.startsWith("\'")) return null
-          Symbol(text.substring(1))
-        case ScalaTokenTypes.tIDENTIFIER if e.getText == "-" && !isNegative =>
+
+          if (isLong) jl.Long.valueOf(value)
+          else Integer.valueOf(value.toInt)
+        case T.tFLOAT =>
+          val isFloat = e.getText.matches(".*[fF]$")
+          val number = if (isFloat) text.substring(0, text.length - 1) else text
+
+          try {
+            val text = (if (isNegative) "-" else "") + number
+            if (isFloat) jl.Float.valueOf(text)
+            else jl.Double.valueOf(text)
+          } catch {
+            case _: NumberFormatException => null
+          }
+        case T.tSYMBOL if !isNegative =>
+          if (text.startsWith("\'")) Symbol(text.substring(1))
+          else null
+        case T.tIDENTIFIER if e.getText == "-" && !isNegative =>
           text = text.substring(1)
           getValueOfNode(e.getTreeNext, isNegative = true)
         case _ => null
       }
     }
-    getValueOfNode(child)
-  }
 
-  def getInjectedPsi: util.List[Pair[PsiElement, TextRange]] = if (getValue.isInstanceOf[String]) InjectedLanguageManager.getInstance(getProject).getInjectedPsiFiles(this) else null
-
-  def processInjectedPsi(visitor: PsiLanguageInjectionHost.InjectedPsiVisitor) {
-    InjectedLanguageManager.getInstance(getProject).enumerate(this, visitor)
+    getValueOfNode(getFirstChild.getNode)
   }
 
   def updateText(text: String): ScLiteralImpl = {
-    val valueNode = getNode.getFirstChildNode
-    assert(valueNode.isInstanceOf[LeafElement])
-    valueNode.asInstanceOf[LeafElement].replaceWithText(text)
+    getNode.getFirstChildNode match {
+      case leaf: LeafElement => leaf.replaceWithText(text)
+    }
     this
   }
 
-  def createLiteralTextEscaper: LiteralTextEscaper[ScLiteralImpl] = if (isMultiLineString) new PassthroughLiteralEscaper(this) else new ScLiteralEscaper(this)
+  def createLiteralTextEscaper: LiteralTextEscaper[ScLiteralImpl] =
+    if (isMultiLineString) new PassthroughLiteralEscaper(this)
+    else new ScLiteralEscaper(this)
 
-  def isString: Boolean = getFirstChild.getNode.getElementType match {
-    case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tSTRING => true
+  private def firstElementType: IElementType = getFirstChild.getNode.getElementType
+
+  override def isString: Boolean = firstElementType match {
+    case T.tMULTILINE_STRING | T.tSTRING => true
     case _ => false
   }
 
-  def isMultiLineString: Boolean = getFirstChild.getNode.getElementType match {
-    case ScalaTokenTypes.tMULTILINE_STRING => true
-    case _ => false
-  }
+  override def isMultiLineString: Boolean = firstElementType == T.tMULTILINE_STRING
 
-  override def isSymbol: Boolean = getFirstChild.getNode.getElementType == ScalaTokenTypes.tSYMBOL
+  override def isSymbol: Boolean = firstElementType == T.tSYMBOL
 
-  override def isChar: Boolean = getFirstChild.getNode.getElementType == ScalaTokenTypes.tCHAR
+  override def isChar: Boolean = firstElementType == T.tCHAR
 
-  override def getReferences: Array[PsiReference] = {
-    PsiReferenceService.getService.getContributedReferences(this)
-  }
+  override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)
 
-  def contentRange: TextRange = {
+  override def contentRange: TextRange = {
+    val maybeShifts = firstElementType match {
+      case T.tSTRING => stringShifts(SingleLineQuote)
+      case T.tMULTILINE_STRING => stringShifts(MultiLineQuote)
+      case T.tCHAR => Some(1, 1)
+      case T.tSYMBOL => Some(1, 0)
+      case _ => None
+    }
+
     val range = getTextRange
-    if (isString) {
-      val quote = if (isMultiLineString) "\"\"\"" else "\""
-      val prefix = this match {
-        case intrp: ScInterpolatedStringLiteral => intrp.reference.fold("")(_.refName)
-        case _ => ""
-      }
-      new TextRange(range.getStartOffset + prefix.length + quote.length, range.getEndOffset - quote.length)
+    maybeShifts.fold(range) {
+      case (shiftStart, shiftEnd) => new TextRange(
+        range.getStartOffset + shiftStart,
+        range.getEndOffset - shiftEnd
+      )
     }
-    else if (isChar) {
-      new TextRange(range.getStartOffset + 1, range.getEndOffset - 1)
-    }
-    else if (isSymbol) {
-      new TextRange(range.getStartOffset + 1, range.getEndOffset)
-    }
-    else range
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitLiteral(this)
   }
 
-  @volatile
-  private var typeWithoutImplicits: Option[ScType] = None
-
-  /**
-   * This method works only for null literal (to avoid possibly dangerous usage)
-    *
-    * @param tp type, which should be returned by method getTypeWithouImplicits
-   */
-  def setTypeForNullWithoutImplicits(tp: Option[ScType]) {
-    if (getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL) assert(assertion = false,
-      message = "Only null literals accepted, type: " + getFirstChild.getNode.getElementType)
-    typeWithoutImplicits = tp
-  }
-
-  def getTypeForNullWithoutImplicits: Option[ScType] = {
-    typeWithoutImplicits
-  }
-  
-  /*
-   * This part caches literal related annotation owners
-   * todo: think about extracting this feature to a trait  
-   * 
-   * trait AnnotationBasedInjectionHost {
-   *   private[this] var myAnnotationOwner: Option[PsiAnnotationOwner] = None
-   *   ...
-   *   private val expTimeLengthGenerator = if (needCaching()) new Random(System.currentTimeMillis()) else null
-   *   ...
-   *   ...
-   *   def needCaching(): Boolean
-   * }
-   */
-  
-  private[this] var myAnnotationOwner: Option[PsiAnnotationOwner with PsiElement] = None
-  private[this] var expirationTime = 0L
-  
-  private val expTimeLengthGenerator: Random = new Random(System.currentTimeMillis()) 
-  
-  
   def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = {
     if (!isString) return None
-    
-    if (System.currentTimeMillis() > expirationTime || myAnnotationOwner.exists(!_.isValid)) {
+
+    if (System.currentTimeMillis > expirationTime || myAnnotationOwner.exists(!_.isValid)) {
       myAnnotationOwner = annotationOwnerLookUp(this)
-      expirationTime = System.currentTimeMillis() + (2 + expTimeLengthGenerator.nextInt(8))*1000
+      expirationTime = System.currentTimeMillis + (2 + ExpTimeLengthGenerator.nextInt(8)) * 1000
     }
-    
+
     myAnnotationOwner
   }
 }
 
 object ScLiteralImpl {
+
+  private val ExpTimeLengthGenerator = new ju.Random(System.currentTimeMillis)
+
+  private[base] val CharQuote = "\'"
+  private[base] val SingleLineQuote = "\""
+  private[base] val MultiLineQuote = "\"\"\""
+
   object string {
+
+    @deprecated("use `ScLiteral.StringValue` instead")
     def unapply(lit: ScLiteralImpl): Option[String] =
       if (lit.isString) Some(lit.getValue.asInstanceOf[String]) else None
+  }
+
+  private[base] def stringShifts(quote: String): Some[(Int, Int)] = {
+    val quoteLength = quote.length
+    Some(quoteLength, quoteLength)
   }
 }
