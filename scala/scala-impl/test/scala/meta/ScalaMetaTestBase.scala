@@ -1,8 +1,9 @@
 package scala.meta
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
 import scala.meta.intellij.MetaExpansionsManager.META_MINOR_VERSION
 

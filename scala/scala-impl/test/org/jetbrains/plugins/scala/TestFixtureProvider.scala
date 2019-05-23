@@ -10,5 +10,5 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 trait TestFixtureProvider {
   def getFixture: CodeInsightTestFixture
 
-  implicit final def module: Module = getFixture.getModule
+//  implicit final def module: Module = getFixture.getModule
 }

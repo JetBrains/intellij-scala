@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import java.io.File
 
+import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.ScalacTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, ScalaSDKLoader}
@@ -36,10 +37,11 @@ abstract class ScalacTestdataHighlightingTestBase
 
   override def getProject = super.getProject
 
+  override def getModule: Module = super.getModule
+
   override implicit val version: ScalaVersion = Scala_2_12
 
   override def librariesLoaders = Seq(
-    ScalaSDKLoader(includeScalaReflect = true),
-    HeavyJDKLoader()
+    ScalaSDKLoader(includeScalaReflect = true)
   )
 }

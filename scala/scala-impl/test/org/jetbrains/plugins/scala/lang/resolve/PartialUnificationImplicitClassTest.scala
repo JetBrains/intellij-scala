@@ -8,7 +8,7 @@ class PartialUnificationImplicitClassTest extends ScalaLightCodeInsightFixtureTe
 
   override def setUp(): Unit = {
     super.setUp()
-    module.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
   }
 
   def testSCL14548(): Unit = doResolveTest(

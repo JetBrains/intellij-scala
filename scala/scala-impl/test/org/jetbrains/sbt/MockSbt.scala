@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.project.Version

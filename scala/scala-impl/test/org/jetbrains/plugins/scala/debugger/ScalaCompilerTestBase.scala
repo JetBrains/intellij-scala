@@ -16,6 +16,7 @@ import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, Vfs
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import javax.swing.SwingUtilities
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions._
@@ -48,7 +49,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     compilerVmOptions.foreach(setCompilerVmOptions)
     DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
-    setUpLibraries(module)
+    setUpLibraries(myModule)
   }
 
   protected def compilerVmOptions: Option[String] = None
@@ -77,8 +78,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
       CompilerConfiguration.getInstance(getProject).setBuildProcessVMOptions(options)
   }
 
-  override implicit protected def module: Module = getModule
-
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaReflect = true),
     HeavyJDKLoader(),
@@ -95,7 +94,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
       try {
         CompilerTestUtil.disableExternalCompiler(myProject)
         ScalaCompilerTestBase.stopAndWait()
-        disposeLibraries()
+        disposeLibraries(myModule)
 
       } finally {
         ScalaCompilerTestBase.super.tearDown()

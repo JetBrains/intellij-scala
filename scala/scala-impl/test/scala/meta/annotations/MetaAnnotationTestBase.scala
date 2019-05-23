@@ -6,7 +6,6 @@ import java.io.File
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -28,20 +27,19 @@ import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_V
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
 
-  override implicit protected def module: Module = getModule
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
   protected var compiler: CompilerTester = _
 
 
   override def setUp(): Unit = {
     super.setUp()
-    setUpLibraries(module)
-    PsiTestUtil.addSourceRoot(module, myFixture.getTempDirFixture.findOrCreateDir("test"), true)
-    compiler = new CompilerTester(module)
+    setUpLibraries(getModule)
+    PsiTestUtil.addSourceRoot(getModule, myFixture.getTempDirFixture.findOrCreateDir("test"), true)
+    compiler = new CompilerTester(getModule)
   }
 
   override def tearDown(): Unit = try {
-    disposeLibraries()
+    disposeLibraries(getModule)
     compiler.tearDown()
     ScalaCompilerTestBase.stopAndWait()
   } finally {
@@ -70,7 +68,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   protected def enableParadisePlugin(): Unit = {
     val pluginArtifact = DependencyManager.resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
-    val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
+    val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val settings = profile.getSettings
     assertTrue("Paradise plugin not found, aborting compilation", pluginArtifact.nonEmpty)
     settings.plugins :+= pluginArtifact.head.file.getCanonicalPath

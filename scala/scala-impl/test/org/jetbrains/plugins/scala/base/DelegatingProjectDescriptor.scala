@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala
+package org.jetbrains.plugins.scala.base
 
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType}

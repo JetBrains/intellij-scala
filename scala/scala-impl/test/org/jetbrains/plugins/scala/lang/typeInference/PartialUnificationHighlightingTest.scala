@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
 class PartialUnificationHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override def setUp(): Unit = {
     super.setUp()
-    module.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
   }
 
   def testSCL11306(): Unit = {

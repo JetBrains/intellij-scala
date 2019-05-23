@@ -76,7 +76,7 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
     myFixture.addFileToProject("A/Foo.scala", "trait Foo")
     buildProject()
     assertTrue(dirtyScopes.isEmpty)
-    myFixture.renameElement(PsiManager.getInstance(project).findDirectory(myFixture.findFileInTempDir("A")), "XXX")
+    myFixture.renameElement(PsiManager.getInstance(getProject).findDirectory(myFixture.findFileInTempDir("A")), "XXX")
     assertEquals(moduleScopes(moduleA), dirtyScopes)
   }
 }

@@ -20,6 +20,7 @@ import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHand
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Disposer, Key, Ref}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -186,6 +187,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def setupLibraryBreakpoint(classQName: String, methodName: String, relativeLineNumber: Int = 1) {
     invokeAndWaitInTransaction(getProject) {
+      implicit val project: Project = getProject
       val psiClass = ScalaPsiManager.instance.getCachedClass(GlobalSearchScope.allScope(getProject), classQName)
       val method = psiClass.map(_.getNavigationElement.asInstanceOf[ScTypeDefinition]).flatMap(_.functions.find(_.name == methodName))
 

@@ -24,6 +24,7 @@ import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager

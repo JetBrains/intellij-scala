@@ -25,9 +25,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with TypeInferenceDoTest {
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
-
-  implicit protected def moduleContext: Module = module()
-
+  
   implicit def scalaVersion: ScalaVersion = version()
 
   protected def doInjectorTest(injector: SyntheticMembersInjector): Unit = {

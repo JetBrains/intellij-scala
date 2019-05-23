@@ -9,8 +9,9 @@ import com.intellij.psi.PsiClass
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaSdkOwner, ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.project._
 import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category
@@ -23,7 +24,6 @@ import scala.util.control.NonFatal
 @Category(Array(classOf[SlowTests]))
 abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtureTestCase with ScalaSdkOwner {
   override implicit val version: ScalaVersion                 = Scala_2_12
-  override implicit protected def module: Module              = getModule
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader(includeScalaReflect = true))
 
   private[this] val compilerIndexLock: Lock                = new ReentrantLock()
@@ -48,7 +48,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
 
   override def tearDown(): Unit =
     try {
-      disposeLibraries()
+      disposeLibraries(getModule)
       compiler.tearDown()
       ScalaCompilerTestBase.stopAndWait()
     } finally {
@@ -65,9 +65,9 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       myLoaders += loader
     }
 
-  override protected def disposeLibraries(): Unit = {
+  override protected def disposeLibraries(implicit module: Module): Unit = {
     for {
-      module <- project.modules
+      module <- getProject.modules
       loader <- myLoaders
     } loader.clean(module)
 

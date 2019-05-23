@@ -32,7 +32,7 @@ import scala.collection.JavaConverters._
 
 abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
 
-  override implicit protected lazy val module: Module = inWriteAction {
+  implicit protected lazy val module: Module = inWriteAction {
     val moduleName = getModule.getName + Sbt.BuildModuleSuffix + ".iml"
     val module = ModuleManager.getInstance(getProject).newModule(moduleName, SbtModuleType.instance.getId)
     ModuleRootModificationUtil.setModuleSdk(module, getTestProjectJdk)
@@ -52,7 +52,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
   }
 
   override def tearDown(): Unit = {
-    disposeLibraries()
+    disposeLibraries(module)
     super.tearDown()
   }
 

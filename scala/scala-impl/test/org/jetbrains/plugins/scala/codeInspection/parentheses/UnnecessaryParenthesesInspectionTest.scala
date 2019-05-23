@@ -31,9 +31,9 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   private def withSettings(settings: UnnecessaryParenthesesSettings)(body: => Unit): Unit = {
 
-    val tool = InspectionProfileManager.getInstance(project)
+    val tool = InspectionProfileManager.getInstance(getProject)
       .getCurrentProfile
-      .getInspectionTool("ScalaUnnecessaryParentheses", project)
+      .getInspectionTool("ScalaUnnecessaryParentheses", getProject)
       .getTool
 
     tool match {

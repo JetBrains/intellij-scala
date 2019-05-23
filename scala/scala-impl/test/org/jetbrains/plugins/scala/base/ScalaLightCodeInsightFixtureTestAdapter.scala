@@ -4,10 +4,12 @@ package base
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, fixtures}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -16,10 +18,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
  * Date: 3/5/12
  */
 
-abstract class ScalaLightCodeInsightFixtureTestAdapter
-  extends fixtures.LightCodeInsightFixtureTestCase
-    with debugger.DefaultScalaSdkOwner
-    with FailableTest {
+abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner with FailableTest {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._
@@ -31,25 +30,24 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   protected def loadScalaLibrary: Boolean = true
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaSDKLoader(),
-    HeavyJDKLoader()
+    ScalaSDKLoader()
   )
 
-  override protected def getProjectDescriptor =
-    DelegatingProjectDescriptor.withAfterSetupProject(super.getProjectDescriptor) { module =>
-      afterSetUpProject(module)
-    }
+  override protected def getProjectDescriptor = new ScalaLightProjectDescriptor() {
+    override def tuneModule(module: Module): Unit = setUpLibraries(module)
+    override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+  }
 
-  protected def afterSetUpProject(module: Module): Unit = {
+  override def setUpLibraries(implicit module: Module): Unit = {
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
-      setUpLibraries(module)
+      super.setUpLibraries(module)
     }
   }
 
   override def tearDown(): Unit = {
-    disposeLibraries()
+    disposeLibraries(getModule)
     super.tearDown()
   }
 

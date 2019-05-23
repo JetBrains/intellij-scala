@@ -15,7 +15,7 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTest
     configureFromFileTextAdapter("dummy.scala", text)
     val mock = new AnnotatorHolderMock(getFileAdapter)
 
-    ScalaAnnotator.forProject(project()).annotate(getFileAdapter.asInstanceOf[ScalaFile].getLastChild, mock)
+    ScalaAnnotator.forProject(getProjectAdapter).annotate(getFileAdapter.asInstanceOf[ScalaFile].getLastChild, mock)
     mock.annotations
   }
   

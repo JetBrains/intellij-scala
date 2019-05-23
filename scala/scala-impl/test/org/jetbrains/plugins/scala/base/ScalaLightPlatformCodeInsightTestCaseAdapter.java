@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkVersion;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.util.text.StringUtil;
@@ -15,9 +17,10 @@ import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import com.intellij.testFramework.LightProjectDescriptor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.DelegatingProjectDescriptor;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.base.DelegatingProjectDescriptor;
 import org.jetbrains.plugins.scala.base.libraryLoaders.*;
-import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner;
 import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -30,7 +33,9 @@ import java.util.ArrayList;
 
 /**
  * @author Alexander Podkhalyuzin
+ * @deprecated use {@link org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter} instead
  */
+@Deprecated
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase implements ScalaSdkOwner {
 
     private static final ThirdPartyLibraryLoader[] EMPTY_LOADERS_ARRAY = new ThirdPartyLibraryLoader[0];
@@ -58,16 +63,6 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     }
 
     @Override
-    public Project project() {
-        return getProject();
-    }
-
-    @Override
-    public Module module() {
-        return getModule();
-    }
-
-    @Override
     public Seq<LibraryLoader> librariesLoaders() {
         ArrayList<LibraryLoader> back = new ArrayList<>();
 
@@ -90,7 +85,18 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     @NotNull
     @Override
     protected LightProjectDescriptor getProjectDescriptor() {
-        return DelegatingProjectDescriptor.withAfterSetupProjectJava(super.getProjectDescriptor(), this::afterSetUpProject);
+        return new ScalaLightProjectDescriptor(){
+            @Override
+            public void tuneModule(Module module) {
+                afterSetUpProject(module);
+            }
+
+            @Nullable
+            @Override
+            public Sdk getSdk() {
+                return SmartJDKLoader$.MODULE$.getOrCreateJDK(JavaSdkVersion.JDK_1_8);
+            }
+        };
     }
 
     protected void afterSetUpProject(Module module) {
@@ -154,7 +160,13 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     @Override
     protected void tearDown() throws Exception {
         try {
-            disposeLibraries();
+            disposeLibraries(getModule());
+            Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+            WriteAction.run(() -> {
+                for (Sdk jdk : allJdks) {
+                    ProjectJdkTable.getInstance().removeJdk(jdk);
+                }
+            });
         } finally {
             super.tearDown();
         }

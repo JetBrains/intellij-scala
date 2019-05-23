@@ -29,7 +29,7 @@ abstract class SbtCompletionTestBase extends completion.CompletionTestBase {
   override def setUp() {
     super.setUp()
     inWriteAction {
-      StartupManager.getInstance(project) match {
+      StartupManager.getInstance(getProjectAdapter) match {
         case manager: StartupManagerImpl => manager.startCacheUpdate()
       }
     }

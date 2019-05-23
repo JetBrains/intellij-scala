@@ -24,7 +24,7 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
     if (myPopup == null) {
-      myPopup = ChooseByNamePopup.createPopup(project, model, /*context*/ null: PsiElement, "")
+      myPopup = ChooseByNamePopup.createPopup(getProject, model, /*context*/ null: PsiElement, "")
     }
     myPopup
   }

@@ -186,7 +186,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
 
     val editor = getEditorAdapter
     val targets = GotoDeclarationAction.findAllTargetElements(
-      project(),
+      getProjectAdapter,
       editor,
       editor.getCaretModel.getOffset
     ).map(_.toString).toSet

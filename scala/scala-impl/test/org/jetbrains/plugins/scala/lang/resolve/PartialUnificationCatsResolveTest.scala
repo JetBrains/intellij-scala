@@ -16,7 +16,7 @@ class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTest
 
   override def setUp(): Unit = {
     super.setUp()
-    module.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+     getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
   }
 
   def testFunctionMap(): Unit = doResolveTest(

@@ -14,7 +14,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
-    val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings
     newSettings.plugins = newSettings.plugins :+ "kind-projector"
     defaultProfile.setSettings(newSettings)

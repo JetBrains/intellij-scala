@@ -27,18 +27,16 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
 
   protected lazy val testJarPath = s"/addFoo_${version.major}_$PARADISE_VERSION.jar"
 
-  override implicit protected def module: Module = getModule
-
   override def setUp(): Unit = {
     super.setUp()
-    setUpLibraries(module)
+    setUpLibraries(getModule)
     val testJar = new File(getTestDataPath + testJarPath)
     assertTrue(s"Test jar not found at $testJar", testJar.exists())
     PsiTestUtil.addLibrary(getModule, testJar.getAbsolutePath)
   }
 
   override def tearDown(): Unit = try {
-    disposeLibraries()
+    disposeLibraries(getModule)
   } finally {
     inWriteAction {
       val projectJdkTable = ProjectJdkTable.getInstance()

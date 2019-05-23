@@ -17,7 +17,6 @@ import org.junit.Assert._
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_12
-  implicit def mainModule: Module = module()
 
   protected val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.5.0")
 

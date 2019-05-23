@@ -17,7 +17,7 @@ class PartialUnificationCatsHighlightingTest extends ScalaLightCodeInsightFixtur
 
   override def setUp(): Unit = {
     super.setUp()
-    module.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
   }
 
   def testEitherSequence(): Unit = checkTextHasNoErrors(

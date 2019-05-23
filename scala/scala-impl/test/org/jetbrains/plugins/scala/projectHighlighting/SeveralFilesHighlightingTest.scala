@@ -24,7 +24,7 @@ trait SeveralFilesHighlightingTest {
 
   def getProject: Project
 
-  def module: Module
+  def getModule: Module
 
   def filesToHighlight: Array[File]
 
@@ -78,12 +78,12 @@ trait SeveralFilesHighlightingTest {
     val addedFiles = sourceFiles.map(addFileToProject(_, relativeTo = root))
 
     try {
-      module.scalaCompilerSettings.additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
+      getModule.scalaCompilerSettings.additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
       ScalaCompilerConfiguration.incModificationCount()
       addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter))
     } finally {
       addedFiles.foreach(removeFile)
-      module.scalaCompilerSettings.additionalCompilerOptions = Seq.empty
+      getModule.scalaCompilerSettings.additionalCompilerOptions = Seq.empty
     }
   }
 
