@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScExpressionImplBase
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.StringContext.InvalidEscapeException
@@ -38,16 +37,8 @@ class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node)
 
   override def toString: String = "Literal"
 
-  protected override def innerType: TypeResult = {
-    val node = getFirstChild.getNode
-    if (node.getElementType == ScalaTokenTypes.kNULL) Right(api.Null)
-    else {
-      ScLiteralType.kind(getFirstChild.getNode, this) match {
-        case None => Failure(ScalaBundle.message("wrong.psi.for.literal.type", getText))
-        case Some(kind) => Right(ScLiteralType(getValue, kind))
-      }
-    }
-  }
+  protected override def innerType: result.TypeResult =
+    ScLiteralType.inferType(this)
 
   @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
   def getValue: AnyRef = {

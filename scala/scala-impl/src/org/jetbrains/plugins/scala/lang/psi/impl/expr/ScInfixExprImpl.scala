@@ -6,18 +6,20 @@ package expr
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
 class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScInfixExpr {
+
+  import resolve.ScalaResolveResult
+  import result._
 
   override def argumentExpressions: Seq[ScExpression] = argsElement match {
     case right if right == left => Seq(right)
@@ -38,14 +40,18 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
           getContext, this).`type`()
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
         def foldConstTypes(left: Option[ScType], right: Option[ScType]): TypeResult = (left, right) match {
-          case (Some(l: ScLiteralType), Some(r: ScLiteralType)) =>
-            ScLiteralType.foldBinOpTypes(l, r, synth).map(Right(_)).getOrElse(super.innerType)
+          case (Some(ScLiteralType(valueLeft, _)), Some(ScLiteralType(valueRight, _))) =>
+            util.LiteralEvaluationUtil.evaluateConstInfix(valueLeft.value, valueRight.value, synth.name) match {
+              case ScLiteral.Value(value) => Right(ScLiteralType(value)(synth.getProject))
+              case _ => super.innerType
+            }
           case (Some(ScProjectionType(_, element: Typeable)), _) =>
             foldConstTypes(element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]), right)
           case (_, Some(ScProjectionType(_, element: Typeable))) =>
             foldConstTypes(left, element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
           case _ => super.innerType
         }
+
         foldConstTypes(left.getNonValueType().toOption, right.getNonValueType().toOption)
     }.getOrElse(super.innerType)
   }

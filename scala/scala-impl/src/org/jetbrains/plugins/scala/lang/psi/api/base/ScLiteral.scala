@@ -4,10 +4,13 @@ package psi
 package api
 package base
 
+import com.intellij.lang.ASTNode
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, PsiLiteral}
+import org.apache.commons.lang.StringEscapeUtils.escapeJava
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -39,32 +42,123 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
 
 object ScLiteral {
 
-  import lang.lexer.{ScalaTokenTypes => T}
+  def unapply(literal: ScLiteral) = Option(Value(literal))
 
-  def unapply(literal: ScLiteral): Option[Value[_]] = Option {
-    (literal.getValue, literal.getFirstChild.getNode.getElementType) match {
-      case (integer: Integer, T.tINTEGER) if literal.getText.last.isDigit => IntegerValue(integer.intValue)
-      case (boolean: java.lang.Boolean, T.kTRUE |
-                                        T.kFALSE) => BooleanValue(boolean.booleanValue)
-      case (character: Character, T.tCHAR) => CharacterValue(character.charValue)
-      case (string: String, T.tSTRING |
-                            T.tWRONG_STRING |
-                            T.tMULTILINE_STRING) => StringValue(string)
-      case (symbol: Symbol, T.tSYMBOL) => SymbolValue(symbol)
-      case _ => null
-    }
+  sealed abstract class Value[V <: Any](val value: V) {
+
+    def presentation: String = String.valueOf(value)
+
+    def wideType(implicit project: Project): ScType
   }
 
+  sealed trait NumericValue {
 
-  sealed abstract class Value[V <: Any](val value: V)
+    def negate: Value[_] with NumericValue
+  }
 
-  final case class IntegerValue(override val value: Int) extends Value(value)
+  object Value {
 
-  final case class BooleanValue(override val value: Boolean) extends Value(value)
+    def apply(literal: ScLiteral): Value[_] =
+      applyImpl(literal.getFirstChild.getNode)(literal)
 
-  final case class CharacterValue(override val value: Char) extends Value(value)
+    def unapply(obj: Any): Option[Value[_]] = Option {
+      obj match {
+        case integer: Int => IntegerValue(integer)
+        case long: Long => LongValue(long)
+        case float: Float => FloatValue(float)
+        case double: Double => DoubleValue(double)
+        case boolean: Boolean => BooleanValue(boolean)
+        case character: Char => CharacterValue(character)
+        case string: String => StringValue(string)
+        case symbol: Symbol => SymbolValue(symbol)
+        case _ => null
+      }
+    }
 
-  final case class StringValue(override val value: String) extends Value(value)
+    import lang.lexer.{ScalaTokenTypes => T}
 
-  final case class SymbolValue(override val value: Symbol) extends Value(value)
+    @annotation.tailrec
+    private def applyImpl(node: ASTNode)
+                         (implicit literal: ScLiteral): Value[_] = (node.getElementType, node.getText) match {
+      case (T.tIDENTIFIER, "-") => applyImpl(node.getTreeNext)
+      case (T.tINTEGER, text) =>
+        if (text.matches(".*[lL]$")) LongValue(value[Long])
+        else IntegerValue(value[Int]) // but a conversion exists to narrower types in case range fits
+      case (T.tFLOAT, text) =>
+        if (text.matches(".*[fF]$")) FloatValue(value[Float])
+        else DoubleValue(value[Double])
+      case (T.kTRUE |
+            T.kFALSE, _) => BooleanValue(value[Boolean])
+      case (T.tCHAR, _) => CharacterValue(value[Char])
+      case (T.tSTRING |
+            T.tWRONG_STRING |
+            T.tMULTILINE_STRING, _) => StringValue(value[String])
+      case (T.tSYMBOL, _) => SymbolValue(value[Symbol])
+      case (T.kNULL, _) => NullValue
+      case _ => null
+    }
+
+    private def value[T: reflect.ClassTag](implicit literal: ScLiteral) =
+      literal.getValue.asInstanceOf[T]
+  }
+
+  final case class IntegerValue(override val value: Int) extends Value(value) with NumericValue {
+
+    override def negate = IntegerValue(-value)
+
+    override def wideType(implicit project: Project): ScType = api.Int
+  }
+
+  final case class LongValue(override val value: Long) extends Value(value) {
+
+    override def presentation: String = super.presentation + 'L'
+
+    override def wideType(implicit project: Project): ScType = api.Long
+  }
+
+  final case class FloatValue(override val value: Float) extends Value(value) {
+
+    override def presentation: String = super.presentation + 'f'
+
+    override def wideType(implicit project: Project): ScType = api.Float
+  }
+
+  final case class DoubleValue(override val value: Double) extends Value(value) {
+
+    override def wideType(implicit project: Project): ScType = api.Double
+  }
+
+  final case class BooleanValue(override val value: Boolean) extends Value(value) {
+
+    override def wideType(implicit project: Project): ScType = api.Boolean
+  }
+
+  final case class CharacterValue(override val value: Char) extends Value(value) {
+
+    override def presentation: String = '\'' + super.presentation + '\''
+
+    override def wideType(implicit project: Project): ScType = api.Char
+  }
+
+  final case class StringValue(override val value: String) extends Value(value) {
+
+    override def presentation: String = "\"" + escapeJava(super.presentation) + "\""
+
+    override def wideType(implicit project: Project): ScType = cachedClass("java.lang.String")
+  }
+
+  final case class SymbolValue(override val value: Symbol) extends Value(value) {
+
+    override def wideType(implicit project: Project): ScType = cachedClass("scala.Symbol")
+  }
+
+  final case object NullValue extends Value(null) {
+
+    override def wideType(implicit project: Project): ScType = api.Null
+  }
+
+  private[this] def cachedClass(fqn: String)
+                               (implicit project: Project) =
+    ElementScope(project).getCachedClass(fqn)
+      .fold(api.Nothing: ScType)(ScalaType.designator)
 }

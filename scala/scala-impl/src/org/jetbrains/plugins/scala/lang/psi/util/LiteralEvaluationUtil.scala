@@ -135,38 +135,69 @@ object LiteralEvaluationUtil {
     }
   }
 
-  def evaluateConstInfix[T](left: Any, right: Any, allowToStringConversion: Boolean, name: String, processValue: Any => Option[T]): Option[T] = {
+  def evaluateConstInfix(left: Any, right: Any,
+                         name: String,
+                         allowToStringConversion: Boolean = false): Any = {
     import SyntheticClasses._
     val isNumericComp = numeric_comp_ops.contains(name)
     val isArithOp = numeric_arith_ops.contains(name)
     val isBitwiseOp = bitwise_bin_ops.contains(name)
     val isBitwiseShiftOp = bitwise_shift_ops.contains(name)
+
     try {
       (left, right) match {
-        case (l: String, r: String) if name == "+" => processValue(l + r)
-        case (l: String, _) if allowToStringConversion && name == "+" => processValue(l + right.toString)
-        case (_, r: String) if allowToStringConversion && name == "+" => processValue(left.toString + r)
-        case (_, _) if name == "==" => processValue(left == right)
-        case (_, _) if name == "!=" => processValue(left != right)
-        case (l: Boolean, r: Boolean) if bool_bin_ops.contains(name) => processValue(boolBoolOp(l, r, name))
-        case (_: Symbol, _) | (_, _: Symbol) | (_: Boolean, _) | (_, _: Boolean) | (_: String, _) | (_, _: String) => None
-        case (_: Double, _) | (_, _: Double) if isNumericComp => processValue(numericComp(promoteToDouble(left), promoteToDouble(right), name))
-        case (_: Double, _) | (_, _: Double) if isArithOp => processValue(fracOp(promoteToDouble(left), promoteToDouble(right), name))
-        case (_: Float, _) | (_, _: Float) if isNumericComp => processValue(numericComp(promoteToFloat(left), promoteToFloat(right), name))
-        case (_: Float, _) | (_, _: Float) if isArithOp => processValue(fracOp(promoteToFloat(left), promoteToFloat(right), name))
-        case (_: Long, _) | (_, _: Long) if isArithOp || isBitwiseOp => processValue(intOp(left.asInstanceOf[Long], right.asInstanceOf[Long], name))
-        case (_, r: Long) if isArithOp || isBitwiseOp => processValue(intOp(left.asInstanceOf[Long], r, name))
-        case (l: Long, _) if isBitwiseShiftOp => processValue(shiftOp(l, right.asInstanceOf[Int], name))
-        case (_, r: Long) if isBitwiseShiftOp => processValue(shiftOp(left.asInstanceOf[Int], r.toInt, name))
-        case (_: Long, _) | (_, _: Long) if isNumericComp => processValue(numericComp(left.asInstanceOf[Long], right.asInstanceOf[Long], name))
-        case _ if isArithOp || isBitwiseOp => processValue(intOp(left.asInstanceOf[Int], right.asInstanceOf[Int], name))
-        case _ if isBitwiseShiftOp => processValue(shiftOp(left.asInstanceOf[Int], right.asInstanceOf[Int], name))
-        case _ if isNumericComp => processValue(numericComp(left.asInstanceOf[Int], right.asInstanceOf[Int], name))
-        case _ => None
+        case (l: String, r: String) if name == "+" =>
+          l + r
+        case (l: String, _) if allowToStringConversion && name == "+" =>
+          l + right.toString
+        case (_, r: String) if allowToStringConversion && name == "+" =>
+          left.toString + r
+        case (_, _) if name == "==" =>
+          left == right
+        case (_, _) if name == "!=" =>
+          left != right
+        case (l: Boolean, r: Boolean) if bool_bin_ops.contains(name) =>
+          boolBoolOp(l, r, name)
+        case (_: Symbol, _) |
+             (_, _: Symbol) |
+             (_: Boolean, _) |
+             (_, _: Boolean) |
+             (_: String, _) |
+             (_, _: String) => null
+        case (_: Double, _) |
+             (_, _: Double) if isNumericComp =>
+          numericComp(promoteToDouble(left), promoteToDouble(right), name)
+        case (_: Double, _) |
+             (_, _: Double) if isArithOp =>
+          fracOp(promoteToDouble(left), promoteToDouble(right), name)
+        case (_: Float, _) |
+             (_, _: Float) if isNumericComp =>
+          numericComp(promoteToFloat(left), promoteToFloat(right), name)
+        case (_: Float, _) |
+             (_, _: Float) if isArithOp =>
+          fracOp(promoteToFloat(left), promoteToFloat(right), name)
+        case (_: Long, _) |
+             (_, _: Long) if isArithOp || isBitwiseOp =>
+          intOp(left.asInstanceOf[Long], right.asInstanceOf[Long], name)
+        case (_, r: Long) if isArithOp || isBitwiseOp =>
+          intOp(left.asInstanceOf[Long], r, name)
+        case (l: Long, _) if isBitwiseShiftOp =>
+          shiftOp(l, right.asInstanceOf[Int], name)
+        case (_, r: Long) if isBitwiseShiftOp =>
+          shiftOp(left.asInstanceOf[Int], r.toInt, name)
+        case (_: Long, _) |
+             (_, _: Long) if isNumericComp =>
+          numericComp(left.asInstanceOf[Long], right.asInstanceOf[Long], name)
+        case _ if isArithOp || isBitwiseOp =>
+          intOp(left.asInstanceOf[Int], right.asInstanceOf[Int], name)
+        case _ if isBitwiseShiftOp =>
+          shiftOp(left.asInstanceOf[Int], right.asInstanceOf[Int], name)
+        case _ if isNumericComp =>
+          numericComp(left.asInstanceOf[Int], right.asInstanceOf[Int], name)
+        case _ => null
       }
     } catch {
-      case _: Exception =>
-        None
+      case _: Exception => null
     }
   }
 
