@@ -136,9 +136,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     new ScalaMemberInplaceRenamer(variable, getSubstituted, editor, initialName, oldName)
 
   override def performInplaceRename(): Boolean = {
-    val names = new util.LinkedHashSet[String]()
-    names.add(initialName)
-    try performInplaceRefactoring(names)
+    try performInplaceRefactoring(null)
     catch {
       case t: Throwable =>
         val element = getVariable
