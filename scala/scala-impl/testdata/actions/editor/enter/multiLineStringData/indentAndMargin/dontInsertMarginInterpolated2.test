@@ -3,4 +3,4 @@ val a = s"""blah blah blah${1}<caret>""".replace(" ", "").replace("b", "p").stri
 val a =
   s"""blah blah blah${1}
       |<caret>
-   """.replace(" ", "").replace("b", "p").stripMargin.length
+      |""".replace(" ", "").replace("b", "p").stripMargin.length

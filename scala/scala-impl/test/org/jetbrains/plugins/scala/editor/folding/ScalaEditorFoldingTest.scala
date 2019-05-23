@@ -230,12 +230,12 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val text =
       s"""
          | val tratata =
-         |   $ST${MultilineStringUtil.multilineQuotes}
+         |   $ST${MultilineStringUtil.MultilineQuotes}
          |     aaaaaa
          |     aaaaaa
          |     aaaaaa
          |     aaaaaa
-         |   ${MultilineStringUtil.multilineQuotes}$END
+         |   ${MultilineStringUtil.MultilineQuotes}$END
        """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)

@@ -24,7 +24,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object MultilineStringUtil {
-  val multilineQuotes = "\"\"\""
+  val MultilineQuotes = "\"\"\""
 
   private val escaper = Pattern.compile("([^a-zA-z0-9])")
 
@@ -90,8 +90,9 @@ object MultilineStringUtil {
 
   def insertStripMargin(document: Document, literal: ScLiteral, marginChar: Char) {
     if (needAddStripMargin(literal, "" + marginChar)) {
-      document.insertString(literal.getTextRange.getEndOffset,
-        if (marginChar == '|') ".stripMargin" else ".stripMargin(\'" + marginChar + "\')")
+      val stripText = if (marginChar == '|') ".stripMargin"
+      else s".stripMargin('$marginChar')"
+      document.insertString(literal.getTextRange.getEndOffset, stripText)
     }
   }
 
@@ -176,13 +177,13 @@ object MultilineStringUtil {
    */
   def addMarginsAndFormatMLString(element: PsiElement, document: Document, caretOffset: Int = 0): Int = {
     val settings = new MultilineStringSettings(element.getProject)
-    if (settings.supportLevel != ScalaCodeStyleSettings.MULTILINE_STRING_ALL) return 0
+    if (settings.supportLevel != ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR) return 0
 
     PsiDocumentManager.getInstance(element.getProject).doPostponedOperationsAndUnblockDocument(document)
 
     element match {
       case literal: ScLiteral if literal.isMultiLineString =>
-        val firstMLQuote = interpolatorPrefix(literal) + multilineQuotes
+        val firstMLQuote = interpolatorPrefix(literal) + MultilineQuotes
 
         val (literalStart, literalEnd) = (literal.getTextRange.getStartOffset, literal.getTextRange.getEndOffset)
         val (startLineNumber, endLineNumber) = (document.getLineNumber(literalStart), document.getLineNumber(literalEnd))
@@ -196,7 +197,7 @@ object MultilineStringUtil {
         val marginChar = getMarginChar(literal)
 
         val quotesIndent = if (needNewLineBefore) {
-          val oldIndent = settings.prefixLength(text.subSequence(startLineOffset, literalStart))
+          val oldIndent = settings.calcIndentSize(text.subSequence(startLineOffset, literalStart))
           oldIndent + settings.regularIndent
         } else {
           settings.getSmartLength(text.subSequence(startLineOffset, literalStart))
@@ -242,20 +243,15 @@ class MultilineStringSettings(project: Project) {
   private val settings = CodeStyle.getSettings(project)
   private val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
 
-  val defaultMarginChar = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).getMarginChar
-  val useTabs = settings.useTabCharacter(ScalaFileType.INSTANCE)
-  val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
-  val regularIndent = settings.getIndentOptions(ScalaFileType.INSTANCE).INDENT_SIZE
-  val marginIndent = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
-  val supportLevel = scalaSettings.MULTILINE_STRING_SUPORT
-  val quotesOnNewLine = scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE
+  val defaultMarginChar: Char = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).getMarginChar
+  val useTabs: Boolean = settings.useTabCharacter(ScalaFileType.INSTANCE)
+  val tabSize: Int = settings.getTabSize(ScalaFileType.INSTANCE)
+  val regularIndent: Int = settings.getIndentOptions(ScalaFileType.INSTANCE).INDENT_SIZE
+  val marginIndent: Int = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
+  val supportLevel: Int = scalaSettings.MULTILINE_STRING_SUPPORT
+  val quotesOnNewLine: Boolean = scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE
 
-  def selectBySettings[T](ifIndent: => T)(ifAll: => T): T = {
-    scalaSettings.MULTILINE_STRING_SUPORT match {
-      case ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT => ifIndent
-      case ScalaCodeStyleSettings.MULTILINE_STRING_ALL => ifAll
-    }
-  }
+  def getSpaces(count: Int): String = StringUtil.repeat(" ", count)
 
   def getSmartSpaces(count: Int): String = if (useTabs) {
     StringUtil.repeat("\t", count / tabSize) + StringUtil.repeat(" ", count % tabSize)
@@ -268,15 +264,15 @@ class MultilineStringSettings(project: Project) {
     line.length + tabsLength
   }
 
-  def prefixLength(line: CharSequence): Int = {
+  def calcIndentSize(line: CharSequence): Int = {
     // TODO: reuse IndentUtil.calcIndent
     if (useTabs) {
       val tabsCount = line.prefixLength(_ == '\t')
-      tabsCount * tabSize + line.subSequence(tabsCount, line.length() - 1).prefixLength(_ == ' ')
+      tabsCount * tabSize + line.subSequence(tabsCount, line.length).prefixLength(_ == ' ')
     } else {
       line.prefixLength(_ == ' ')
     }
   }
 
-  def getPrefix(line: String): String = getSmartSpaces(prefixLength(line))
+  def getPrefix(line: String): String = getSmartSpaces(calcIndentSize(line))
 }

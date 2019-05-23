@@ -1,0 +1,6 @@
+val a = ("""blah blah""" + """blah blah blah<caret>""").length
+-----
+val a = ("""blah blah""" +
+  """blah blah blah
+     <caret>
+  """).length

@@ -367,6 +367,13 @@ package object extensions {
   }
 
   implicit class StringExt(val string: String) extends AnyVal {
+    def startsWith(ch: Char): Boolean = {
+      !string.isEmpty && string.charAt(0) == ch
+    }
+
+    def endsWith(ch: Char): Boolean = {
+      !string.isEmpty && string.charAt(string.length - 1) == ch
+    }
 
     def parenthesize(needParenthesis: Boolean = true): String =
       if (needParenthesis) s"($string)" else string

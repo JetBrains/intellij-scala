@@ -2,13 +2,12 @@ val a =
   ("""
       |  blah blah
       |  blah blah
-   """ + """<caret>""").stripMargin
+   """ + s"""<caret>""").stripMargin
 -----
 val a =
   ("""
       |  blah blah
       |  blah blah
    """ +
-   """
-      |<caret>
-   """).stripMargin
+    s"""
+        |<caret>""").stripMargin
