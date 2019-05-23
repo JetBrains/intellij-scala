@@ -49,7 +49,7 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends LeafSub
   private def updatedTypeParameter(tpt: TypeParameterType): ScType = {
     tvMap.getOrElse(tpt.typeParamId, null) match {
       case null => tpt
-      case v: ScLiteralType => v.blockWiden()
+      case v: ScLiteralType => v.blockWiden
       case v => extractDesignator(tpt.typeParameter, v)
     }
   }

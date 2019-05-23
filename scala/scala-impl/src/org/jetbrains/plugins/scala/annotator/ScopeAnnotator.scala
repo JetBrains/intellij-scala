@@ -171,7 +171,10 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     t.updateRecursively {
       //during erasure literal types collapse into widened types
       case lit: ScLiteralType => lit.wideType
-      case ScProjectionType(_, element: Typeable) => element.`type`().map(_.widen).getOrAny
+      case ScProjectionType(_, element: Typeable) => element.`type`().map {
+        case literalType: ScLiteralType => literalType.widen
+        case other => other
+      }.getOrAny
 
       case arrayType(inner) => JavaArrayType(erased(inner)) //array types are not erased
       case p: ParameterizedType => p.designator

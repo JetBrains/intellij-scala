@@ -21,7 +21,9 @@ final class ScLiteralType private(val value: ScLiteral.Value[_],
 
   def wideType: ScType = value.wideType
 
-  def blockWiden(): ScLiteralType = new ScLiteralType(value, allowWiden = false)
+  def widen: ScType = if (allowWiden) wideType else this
+
+  def blockWiden: ScLiteralType = if (allowWiden) ScLiteralType(value, allowWiden = false) else this
 
   override def equals(obj: Any): Boolean = obj match {
     case other: ScLiteralType => value == other.value
@@ -53,35 +55,32 @@ object ScLiteralType {
     }
   }
 
-  def widenRecursive(aType: ScType): ScType = {
+  def widenRecursive(`type`: ScType): ScType = {
+    import api._
     import recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
     def isSingleton(param: ScTypeParam) = param.upperBound.exists {
-      _.conforms(api.Singleton(param.projectContext))
+      _.conforms(Singleton(param.projectContext))
     }
 
-    def widenRecursiveInner(aType: ScType, visited: Set[ScParameterizedType]): ScType = aType.recursiveUpdate {
-      case lit: ScLiteralType => ReplaceWith(lit.widen)
-      case p: ScParameterizedType if visited(p) => Stop
-      case p: ScParameterizedType =>
-        p.designator match {
-          case api.designator.ScDesignatorType(des) => des match {
-            case typeDef: ScTypeDefinition =>
-              val newDesignator = widenRecursiveInner(p.designator, visited + p)
-              val newArgs = (typeDef.typeParameters zip p.typeArguments).map {
-                case (param, arg) if isSingleton(param) => arg
-                case (_, arg) => widenRecursiveInner(arg, visited + p)
-              }
-              val newDes = ScParameterizedType(newDesignator, newArgs)
-              ReplaceWith(newDes)
-            case _ => Stop
+    def widenRecursiveInner(`type`: ScType, visited: Set[ParameterizedType]): ScType = `type`.recursiveUpdate {
+      case literalType: ScLiteralType => ReplaceWith(literalType.widen)
+      case parameterizedType@ParameterizedType(oldDesignator@designator.ScDesignatorType(definition: ScTypeDefinition), typeArguments) if !visited(parameterizedType) =>
+        val newDesignator = widenRecursiveInner(oldDesignator, visited + parameterizedType)
+
+        val newArgs = definition.typeParameters
+          .zip(typeArguments)
+          .map {
+            case (param, arg) if isSingleton(param) => arg
+            case (_, arg) => widenRecursiveInner(arg, visited + parameterizedType)
           }
-          case _ => Stop
-        }
-      case _: ScCompoundType => Stop
+
+        ReplaceWith(ScParameterizedType(newDesignator, newArgs))
+      case _: ParameterizedType |
+           _: ScCompoundType => Stop
       case _ => ProcessSubtypes
     }
 
-    widenRecursiveInner(aType, Set.empty)
+    widenRecursiveInner(`type`, Set.empty)
   }
 }
