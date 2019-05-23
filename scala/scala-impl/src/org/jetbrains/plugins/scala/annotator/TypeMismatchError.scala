@@ -21,12 +21,14 @@ object TypeMismatchError {
   def apply(element: PsiElement): Option[TypeMismatchError] = Option(element.getUserData(TypeMismatchErrorKey))
 
   def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0)(formatMessage: (String, String) => String): Annotation = {
-    val (message, tooltip) = {
-      val (actualTypeText, expectedTypeText) = ScTypePresentation.different(actualType, expectedType)
+    val (actualTypeText, expectedTypeText) = ScTypePresentation.different(actualType, expectedType)
 
-      // TODO unify message
-      (formatMessage(expectedTypeText, actualTypeText), ScalaBundle.message("incompatible.types.html.tooltip", red(expectedTypeText), "", red(actualTypeText), "", ""))
-    }
+    // TODO update the test data, SCL-15483
+    val message =
+      if (ApplicationManager.getApplication.isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
+      else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)
+
+    val tooltip = ScalaBundle.message("type.mismatch.tooltip", red(expectedTypeText), "", red(actualTypeText), "", "")
 
     val annotatedElement = elementAt(element, blockLevel)
 
