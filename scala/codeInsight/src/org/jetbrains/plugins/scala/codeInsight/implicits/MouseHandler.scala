@@ -13,7 +13,7 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.{Key, SystemInfo}
 import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
 import com.intellij.util.ui.{JBUI, UIUtil}
-import javax.swing.SwingUtilities
+import javax.swing.{JLabel, SwingUtilities}
 import javax.swing.event.AncestorEvent
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -219,7 +219,8 @@ class MouseHandler(project: Project,
 
   private def showTooltip(editor: Editor, e: MouseEvent, text: String): LightweightHint = {
     val hint = {
-      val label = HintUtil.createInformationLabel(text)
+      // TODO Why HTML is rewritten by com.intellij.ide.IdeTooltipManager.initPane(com.intellij.util.ui.Html, com.intellij.ui.HintHint, javax.swing.JLayeredPane) ?
+      val label = if (text.contains("Type mismatch.")) new JLabel(text) else HintUtil.createInformationLabel(text)
       label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
       new LightweightHint(label)
     }
