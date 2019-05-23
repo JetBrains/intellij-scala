@@ -1,38 +1,84 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.quickfix.{AddLToLongLiteralFix, ConvertOctalToHexFix}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.MultilineStringUtil
-
-import scala.collection.Seq
 
 object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
-  override def annotate(element: ScLiteral, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    element match {
-      case _ if element.getFirstChild.getNode.getElementType == ScalaTokenTypes.tINTEGER => // the literal is a tINTEGER
-        checkIntegerLiteral(element, holder)
-      case _ =>
-    }
 
-    if (MultilineStringUtil.isTooLongStringLiteral(element)) {
-      holder.createErrorAnnotation(element, ScalaBundle.message("too.long.string.literal"))
+  import lang.lexer.{ScalaTokenTypes => T}
+
+  private val StringLiteralSizeLimit = 65536
+  private val StringCharactersCountLimit = StringLiteralSizeLimit / 4
+
+  override def annotate(literal: ScLiteral,
+                        holder: AnnotationHolder,
+                        typeAware: Boolean): Unit = {
+    implicit val implicitHolder: AnnotationHolder = holder
+    implicit val containingFile: PsiFile = literal.getContainingFile
+
+    val node = literal.getFirstChild.getNode
+    (literal, node.getElementType) match {
+      case (_, T.tINTEGER) =>
+        checkIntegerLiteral(node, literal)
+      case (_, T.tSTRING |
+               T.tWRONG_STRING |
+               T.tMULTILINE_STRING) =>
+        createStringIsTooLongAnnotation(literal) { literal =>
+          Option(literal.getValue.asInstanceOf[String])
+        }
+      case (interpolatedStringLiteral: ScInterpolatedStringLiteral, _) =>
+        createStringIsTooLongAnnotation(interpolatedStringLiteral)(_.getStringParts)
+      case _ =>
     }
   }
 
-  private def checkIntegerLiteral(element: ScLiteral, holder: AnnotationHolder) {
-    val child = element.getFirstChild.getNode
-    val text = element.getText
-    val endsWithL = child.getText.endsWith("l") || child.getText.endsWith("L")
+  private def createStringIsTooLongAnnotation[L <: ScLiteral](literal: L)
+                                                             (strings: L => Traversable[String])
+                                                             (implicit holder: AnnotationHolder,
+                                                              containingFile: PsiFile) =
+    if (strings(literal).exists(stringIsTooLong)) {
+      holder.createErrorAnnotation(literal, ScalaBundle.message("string.literal.is.too.long"))
+    }
+
+  private def stringIsTooLong(string: String)
+                             (implicit containingFile: PsiFile): Boolean = string.length match {
+    case length if length >= StringLiteralSizeLimit => true
+    case length if length >= StringCharactersCountLimit => utf8Size(string) >= StringLiteralSizeLimit
+    case _ => false
+  }
+
+  private def utf8Size(string: String)
+                      (implicit containingFile: PsiFile): Int = {
+    val lineSeparator = Option(containingFile)
+      .flatMap(file => Option(file.getVirtualFile))
+      .flatMap(virtualFile => Option(virtualFile.getDetectedLineSeparator))
+      .getOrElse(Option(System.lineSeparator).getOrElse("\n"))
+
+    string.map {
+      case '\n' => lineSeparator.length
+      case '\r' => 0
+      case character if character >= 0 && character <= '\u007F' => 1
+      case character if character >= '\u0080' && character <= '\u07FF' => 2
+      case character if character >= '\u0800' && character <= '\uFFFF' => 3
+      case _ => 4
+    }.sum
+  }
+
+  private def checkIntegerLiteral(node: ASTNode, literal: ScLiteral)
+                                 (implicit holder: AnnotationHolder) {
+    val text = literal.getText
+    val endsWithL = node.getText.endsWith("l") || node.getText.endsWith("L")
     val textWithoutL = if (endsWithL) text.substring(0, text.length - 1) else text
-    val parent = element.getParent
-    val scalaVersion = element.scalaLanguageLevel
+    val parent = literal.getParent
+    val scalaVersion = literal.scalaLanguageLevel
     val isNegative = parent match {
       // only "-1234" is negative, "- 1234" should be considered as positive 1234
       case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.length == 2 && prefixExpr.getFirstChild.getText == "-" => true
@@ -81,16 +127,16 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     }
 
     if (base == 8) {
-      val convertFix = new ConvertOctalToHexFix(element)
+      val convertFix = new quickfix.ConvertOctalToHexFix(literal)
       scalaVersion match {
         case Some(ScalaLanguageLevel.Scala_2_10) =>
           val deprecatedMeaasge = "Octal number is deprecated in Scala-2.10 and will be removed in Scala-2.11"
-          val annotation = holder.createWarningAnnotation(element, deprecatedMeaasge)
+          val annotation = holder.createWarningAnnotation(literal, deprecatedMeaasge)
           annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
           annotation.registerFix(convertFix)
         case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
           val error = "Octal number is removed in Scala-2.11 and after"
-          val annotation = holder.createErrorAnnotation(element, error)
+          val annotation = holder.createErrorAnnotation(literal, error)
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           annotation.registerFix(convertFix)
           return
@@ -100,21 +146,20 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     val (_, status) = parseIntegerNumber(number, isNegative)
     if (status == 2) { // the Integer number is out of range even for Long
       val error = "Integer number is out of range even for type Long"
-      holder.createErrorAnnotation(element, error)
+      holder.createErrorAnnotation(literal, error)
     } else {
       if (status == 1 && !endsWithL) {
         val error = "Integer number is out of range for type Int"
-        val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(element, error)
+        val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
 
-        val Long = element.projectContext.stdTypes.Long
-        val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", element.getContext, element)
-        val shouldRegisterFix = (if (isNegative) parent.asInstanceOf[ScPrefixExpr] else element).expectedType().forall { x =>
+        val Long = literal.projectContext.stdTypes.Long
+        val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
+        val shouldRegisterFix = (if (isNegative) parent.asInstanceOf[ScPrefixExpr] else literal).expectedType().forall { x =>
           conformsToTypeList.exists(_.weakConforms(x))
         }
 
         if (shouldRegisterFix) {
-          val addLtoLongFix: AddLToLongLiteralFix = new AddLToLongLiteralFix(element)
-          annotation.registerFix(addLtoLongFix)
+          annotation.registerFix(new quickfix.AddLToLongLiteralFix(literal))
         }
       }
     }

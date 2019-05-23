@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -249,52 +249,6 @@ object MultilineStringUtil {
         throw new IllegalStateException(s"Need multiline string literal, but get: ${something.getText}")
     }
   }
-
-  private def utf8Size(s: String, lineSeparator: String): Int = {
-    val lineSeparatorSize = lineSeparator.length
-
-    def utf8CharSize(c: Char) = {
-      if (c == '\n') lineSeparatorSize
-      else if (c == '\r') 0
-      else if (c >= 0 && c <= '\u007F') 1
-      else if (c >= '\u0080' && c <= '\u07FF') 2
-      else if (c >= '\u0800' && c <= '\uFFFF') 3
-      else 4
-    }
-
-    var total = 0
-    for (i <- 0 until s.length) {
-      total += utf8CharSize(s.charAt(i))
-    }
-    total
-  }
-
-  private val stringLiteralSizeLimit = 64 * 1024
-
-  private def isTooLong(s: String, lineSeparator: String): Boolean = {
-    if (s == null || lineSeparator == null) return false
-
-    val safeSizeInChars = stringLiteralSizeLimit / 4
-
-    s.length >= stringLiteralSizeLimit ||
-      s.length >= safeSizeInChars && utf8Size(s, lineSeparator) >= stringLiteralSizeLimit
-  }
-
-  def isTooLongStringLiteral(l: ScLiteral): Boolean = {
-    val lineSeparator: String =
-      Option(l.getContainingFile)
-        .flatMap(f => Option(f.getVirtualFile))
-        .flatMap(vf => Option(vf.getDetectedLineSeparator))
-        .orElse(Option(System.getProperty("line.separator")))
-        .getOrElse("\n")
-
-    l match {
-      case interpolated: ScInterpolatedStringLiteral => interpolated.getStringParts.exists(isTooLong(_, lineSeparator))
-      case ScStringLiteral(value) => isTooLong(value, lineSeparator)
-      case _ => false
-    }
-  }
-
 }
 
 class MultilineStringSettings(project: Project) {
