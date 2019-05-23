@@ -1,0 +1,8 @@
+val a =
+  """""".stripMargin + """<caret>""".stripMargin
+-----
+val a =
+  """""".stripMargin +
+    """
+       |<caret>
+       |""".stripMargin

@@ -4,4 +4,4 @@ val a =
 val a =
 	s"""
 		 |<caret>
-	 """.stripMargin
+		 |""".stripMargin

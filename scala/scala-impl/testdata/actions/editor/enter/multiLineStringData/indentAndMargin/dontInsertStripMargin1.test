@@ -3,4 +3,4 @@ val a = """blah blah<caret>""".stripMargin
 val a =
   """blah blah
      |<caret>
-  """.stripMargin
+     |""".stripMargin

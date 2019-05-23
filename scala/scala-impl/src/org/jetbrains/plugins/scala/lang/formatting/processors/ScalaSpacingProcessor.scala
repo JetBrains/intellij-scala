@@ -329,7 +329,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //multiline strings
-    if (scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE && isMultiLineStringCase(rightPsi)) {
+    if (scalaSettings.supportMultilineString && isMultiLineStringCase(rightPsi)) {
       (scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE, scalaSettings.KEEP_MULTI_LINE_QUOTES) match {
         case (false, true) =>
           val prevIsNewLine = rightPsi.getPrevSibling != null && getText(rightPsi.getPrevSibling.getNode, fileText).contains("\n")

@@ -131,7 +131,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean KEEP_XML_FORMATTING = false;
 
   //multiline strings support
-  public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL;
+  public int MULTILINE_STRING_SUPPORT = MULTILINE_STRING_ALL;
   public String MARGIN_CHAR = "|";
   public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
   public boolean KEEP_MULTI_LINE_QUOTES = true;
@@ -140,7 +140,12 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public static final int MULTILINE_STRING_NONE = 0;
   public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
-  public static final int MULTILINE_STRING_ALL = 2;
+  public static final int MULTILINE_STRING_INSERT_MARGIN_CHAR = 2;
+  public static final int MULTILINE_STRING_ALL = 3;
+
+  public boolean supportMultilineString() {
+    return MULTILINE_STRING_SUPPORT != MULTILINE_STRING_NONE;
+  }
 
   //type annotations
   public boolean TYPE_ANNOTATION_PUBLIC_MEMBER = true;

@@ -149,8 +149,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
         return subBlocks
       case _: ScLiteral if node.getFirstChildNode != null &&
-        node.getFirstChildNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING &&
-        ss.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
+        node.getFirstChildNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING && ss.supportMultilineString =>
         subBlocks.addAll(getMultilineStringBlocks(node))
         return subBlocks
       case pack: ScPackaging if pack.isExplicit =>
@@ -313,7 +312,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
       val needFlattenInterpolatedStrings = child.getFirstChildNode == null &&
         child.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
-        ss.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE
+        ss.supportMultilineString
       if (needFlattenInterpolatedStrings) {
         subBlocks.addAll(getMultilineStringBlocks(child))
       } else {

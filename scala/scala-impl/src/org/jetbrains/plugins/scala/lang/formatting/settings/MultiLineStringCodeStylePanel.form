@@ -27,6 +27,7 @@
             <item value="None"/>
             <item value="Closing quotes on new line"/>
             <item value="Insert margin char"/>
+            <item value="All"/>
           </model>
         </properties>
       </component>

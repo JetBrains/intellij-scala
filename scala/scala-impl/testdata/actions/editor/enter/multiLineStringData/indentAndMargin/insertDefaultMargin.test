@@ -8,5 +8,5 @@ class A {
   val a =
     """blah blah
        |<caret>
-    """.stripMargin(m)
+       |""".stripMargin(m)
 }

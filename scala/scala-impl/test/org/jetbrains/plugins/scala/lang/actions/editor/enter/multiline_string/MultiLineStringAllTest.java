@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.enter;
+package org.jetbrains.plugins.scala.lang.actions.editor.enter.multiline_string;
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -11,10 +12,10 @@ import org.junit.runners.AllTests;
  * Date: 4/16/12
  */
 @RunWith(AllTests.class)
-public class MultiLineStringMarginTest extends AbstractEnterActionTestBase {
+public class MultiLineStringAllTest extends AbstractEnterActionTestBase {
   public static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/indentAndMargin";
 
-  public MultiLineStringMarginTest() {
+  public MultiLineStringAllTest() {
     super(DATA_PATH);
   }
 
@@ -24,12 +25,11 @@ public class MultiLineStringMarginTest extends AbstractEnterActionTestBase {
     final CommonCodeStyleSettings settings = getCommonSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-    scalaSettings.MULTILINE_STRING_SUPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;
+    scalaSettings.MULTILINE_STRING_SUPPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;
     scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = 3;
-    settings.ALIGN_MULTILINE_BINARY_OPERATION = true;
   }
 
   public static Test suite() {
-    return new MultiLineStringMarginTest();
+    return new MultiLineStringAllTest();
   }
 }

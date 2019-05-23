@@ -3,4 +3,4 @@ val a = s"""blah blah<caret>"""
 val a =
   s"""blah blah
       |<caret>
-   """.stripMargin
+      |""".stripMargin

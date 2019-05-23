@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.enter;
+package org.jetbrains.plugins.scala.lang.actions.editor.enter.multiline_string;
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -11,10 +12,10 @@ import org.junit.runners.AllTests;
  * Date: 10/1/12
  */
 @RunWith(AllTests.class)
-public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBase {
+public class MultiLineStringWithTabsAllTest extends AbstractEnterActionTestBase {
   private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/withTabs/indentAndMargin/2tabs";
   
-  public MultiLineStringMarginWithTabsTest() {
+  public MultiLineStringWithTabsAllTest() {
       super(DATA_PATH);
   }
 
@@ -24,7 +25,7 @@ public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBa
     final CommonCodeStyleSettings settings = getCommonSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-    scalaSettings.MULTILINE_STRING_SUPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;
+    scalaSettings.MULTILINE_STRING_SUPPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;
     scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = 2;
     settings.ALIGN_MULTILINE_BINARY_OPERATION = true;
     settings.getIndentOptions().USE_TAB_CHARACTER = true;
@@ -34,6 +35,6 @@ public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBa
   }
   
   public static Test suite() {
-    return new MultiLineStringMarginWithTabsTest();
+    return new MultiLineStringWithTabsAllTest();
   }
 }

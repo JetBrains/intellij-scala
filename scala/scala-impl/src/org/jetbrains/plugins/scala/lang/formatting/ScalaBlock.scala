@@ -86,7 +86,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(indent, null)
       case _: ScCaseClauses =>
         new ChildAttributes(Indent.getNormalIndent, null)
-      case l: ScLiteral if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
+      case l: ScLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
       case b: ScBlockExpr if b.resultExpression.exists(_.isInstanceOf[ScFunctionExpr]) =>
         val indent = {

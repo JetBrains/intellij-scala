@@ -6,5 +6,5 @@ class A {
 	val a =
 		id"""
 			|<caret>
-		  """.stripMargin
+			|""".stripMargin
 }

@@ -1,0 +1,12 @@
+val someOtherCode = 42
+
+"""<caret>
+   |
+""".stripMargin
+-----
+val someOtherCode = 42
+
+"""
+   |<caret>
+   |
+""".stripMargin

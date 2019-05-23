@@ -7,6 +7,6 @@ val a =
   """blah blah
      blah blah blah
   """ +
-  """blah blah
-     <caret>
-  """
+    """blah blah
+       <caret>
+    """
