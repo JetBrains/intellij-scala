@@ -1,0 +1,30 @@
+<html>
+<body>
+Warns about unbalanced wiki syntax headers and ignored text after such headers in ScalaDocs.
+
+<p>
+In the following example, <code>====</code> is marked:
+<pre>
+/**
+ * == I'm a wiki style header ====
+ */
+def test(i: Int): Unit = {
+
+}
+</pre>
+</p>
+<br />
+<p>
+In the following example, <code>Ignored text</code> is marked:
+<pre>
+/**
+ * == I'm a wiki style header == Ignored text
+ */
+def test(i: Int): Unit = {
+
+}
+</pre>
+</p>
+
+</body>
+</html>
