@@ -1,0 +1,42 @@
+<html>
+<body>
+Inspections to offer builtin matchers in specs2.
+
+<p>
+    Before:
+<pre>
+class TestSpec extends Specification { def is = s2"""
+  This is a spec
+  opt
+    should contain 1                                  $e1
+                                                      """
+  def e1 = {
+
+    val opt = Some(1)
+
+    opt must equalTo (Some(1))
+  }
+}
+</pre>
+
+<br>
+After:
+<pre>
+
+class TestSpec extends Specification { def is = s2"""
+  This is a spec
+  opt
+    should contain 1                                  $e1
+                                                      """
+  def e1 = {
+
+    val opt = Some(1)
+
+    opt must beSome(1)
+  }
+}
+</pre>
+</p>
+
+</body>
+</html>
