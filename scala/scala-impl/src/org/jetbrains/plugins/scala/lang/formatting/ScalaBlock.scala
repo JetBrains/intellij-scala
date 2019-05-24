@@ -293,7 +293,9 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   private def debugText: String = {
     import extensions._
-    node.getPsi.getContainingFile.getText.substring(getTextRange)
+    val text = node.getPsi.getContainingFile.getText.substring(getTextRange)
+    if (text.trim.length != text.length) s"`$text`"
+    else text
   }
 }
 

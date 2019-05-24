@@ -573,7 +573,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       .flatMap(cachedAlignment)
       .getOrElse(Alignment.createAlignment(true))
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
-    val marginChar = "" + MultilineStringUtil.getMarginChar(node.getPsi)
+    val marginChar = MultilineStringUtil.getMarginChar(node.getPsi)
     val marginIndent = ss.MULTI_LINE_STRING_MARGIN_INDENT
 
     val indent = Indent.getNoneIndent
@@ -581,30 +581,25 @@ class getDummyBlocks(private val block: ScalaBlock) {
     val prefixIndent = Indent.getSpaceIndent(marginIndent + interpolatedRefLength(node), true)
 
     def relativeRange(start: Int, end: Int, shift: Int = 0): TextRange =
-      new TextRange(node.getStartOffset + start + shift, node.getStartOffset + end + shift)
+      TextRange.from(node.getStartOffset + shift + start, end - start)
 
     val lines = node.getText.split("\n")
     var acc = 0
-    lines foreach { line =>
+    lines.foreach { line =>
       val trimmedLine = line.trim()
       val lineLength = line.length
       val linePrefixLength = if (settings.useTabCharacter(ScalaFileType.INSTANCE)) {
         val tabsCount = line.prefixLength(_ == '\t')
-        tabsCount /* *settings.getTabSize(ScalaFileType.INSTANCE)*/ + line.substring(tabsCount).prefixLength(_ == ' ')
+        tabsCount + line.substring(tabsCount).prefixLength(_ == ' ')
       } else {
         line.prefixLength(_ == ' ')
       }
 
       if (trimmedLine.startsWith(marginChar)) {
-        val range = relativeRange(linePrefixLength, linePrefixLength + 1, acc)
-        subBlocks.add(new StringLineScalaBlock(range, node, block, validAlignment, prefixIndent, null, settings))
-
-        if (lineLength > linePrefixLength + 2 && line.charAt(linePrefixLength + 1) == ' ' ||
-          lineLength > linePrefixLength + 1 && line.charAt(linePrefixLength + 1) != ' ') {
-          val suffixOffset = if (line.charAt(linePrefixLength + 1) == ' ') 2 else 1
-          val range = relativeRange(linePrefixLength + suffixOffset, lineLength, acc)
-          subBlocks.add(new StringLineScalaBlock(range, node, block, null, indent, wrap, settings))
-        }
+        val marginRange = relativeRange(linePrefixLength, linePrefixLength + 1, acc)
+        subBlocks.add(new StringLineScalaBlock(marginRange, node, block, validAlignment, prefixIndent, null, settings))
+        val contentRange = relativeRange(linePrefixLength + 1, lineLength, acc)
+        subBlocks.add(new StringLineScalaBlock(contentRange, node, block, null, indent, wrap, settings))
       } else if (trimmedLine.length > 0) {
         val (range, myIndent, myAlignment) =
           if (trimmedLine.startsWith("\"\"\"")) {
