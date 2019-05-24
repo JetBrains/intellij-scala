@@ -20,6 +20,29 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
       .exists(lang => lang != "Scala" && lang.toLowerCase == "scala"))
   }
 
+  def test_all_inspections_have_descriptions(): Unit = {
+    val inspectionsWithoutProperDescription =
+      acquireAllScalaInspectionEPs().filter { inspectionEP =>
+        val inspectionWrapper = new LocalInspectionToolWrapper(inspectionEP)
+        val description = inspectionWrapper.loadDescription()
+        description == null ||
+          description.length <= 5
+      }.sortBy(_.shortName)
+        .map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
+
+    assert(inspectionsWithoutProperDescription.isEmpty,
+      s"The following inspection do not have a description file:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
+  }
+
+  def test_all_shortNames_are_unique(): Unit = {
+    val allShortNames = acquireAllInspectionEPs().map(_.shortName).groupBy(identity).mapValues(_.length)
+    val scalaShortNames = acquireAllScalaInspectionEPs().map(_.shortName)
+
+    scalaShortNames.foreach { scalaShortName =>
+      assert(allShortNames(scalaShortName) == 1, s"shortName $scalaShortName exists multiple times!")
+    }
+  }
+
   /*
   def test_inspection_list_is_correct(): Unit = {
     val inspectionEPs = acquireAllScalaInspectionEPs()
@@ -48,37 +71,12 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     assert(unregisteredInspections.isEmpty,
       s"Please add the following inspections to expectedInspections: ${unregisteredInspections.mkString(", ")}")
   }
-  */
-
-  def test_all_inspections_have_descriptions(): Unit = {
-    val inspectionsWithoutProperDescription =
-      acquireAllScalaInspectionEPs().filter { inspectionEP =>
-        val inspectionWrapper = new LocalInspectionToolWrapper(inspectionEP)
-        val description = inspectionWrapper.loadDescription()
-        description == null ||
-          description.length <= 5
-      }.sortBy(_.shortName)
-        .map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
-
-    assert(inspectionsWithoutProperDescription.isEmpty,
-      s"The following inspection do not have a description file:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
-  }
-
-  def test_all_shortNames_are_unique(): Unit = {
-    val allShortNames = acquireAllInspectionEPs().map(_.shortName).groupBy(identity).mapValues(_.length)
-    val scalaShortNames = acquireAllScalaInspectionEPs().map(_.shortName)
-
-    scalaShortNames.foreach { scalaShortName =>
-      assert(allShortNames(scalaShortName) == 1, s"shortName $scalaShortName exists multiple times!")
-    }
-  }
-
-  /*
+  
   val expectedInspections = Seq(
     "AbstractValueInTraitInspection",
     "AccessorLikeMethodInspection$EmptyParentheses",
     "AccessorLikeMethodInspection$UnitReturnType",
-    "AmmoniteUnresolvedLibraryInspection",
+    "AmmoniteUnresolvedLibrary",
     "AnnotatorBasedErrorInspection",
     "ApparentResultTypeRefinementInspection",
     "AppliedTypeLambdaCanBeSimplifiedInspection",

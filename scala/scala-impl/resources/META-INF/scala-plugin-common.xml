@@ -1301,7 +1301,7 @@
 
         <!-- Util ammonite inspection -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
-                        displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection"
+                        displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibrary"
                         level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
         <!---->
 
