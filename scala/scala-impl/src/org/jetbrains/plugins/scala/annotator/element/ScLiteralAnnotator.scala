@@ -6,6 +6,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
@@ -73,95 +74,124 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
   }
 
   private def checkIntegerLiteral(node: ASTNode, literal: ScLiteral)
-                                 (implicit holder: AnnotationHolder) {
+                                 (implicit holder: AnnotationHolder): Unit = {
     val text = literal.getText
     val endsWithL = node.getText.endsWith("l") || node.getText.endsWith("L")
-    val textWithoutL = if (endsWithL) text.substring(0, text.length - 1) else text
-    val parent = literal.getParent
-    val scalaVersion = literal.scalaLanguageLevel
-    val isNegative = parent match {
-      // only "-1234" is negative, "- 1234" should be considered as positive 1234
-      case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.length == 2 && prefixExpr.getFirstChild.getText == "-" => true
-      case _ => false
-    }
-    val (number, base) = textWithoutL match {
-      case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
-      case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
-      case t => (t, 10)
+
+    val numberText = text.substring(
+      0,
+      text.length - (if (endsWithL) 1 else 0)
+    )
+
+    val maybeParent = literal.getParent match {
+      case prefixExpr: ScPrefixExpr =>
+        // only "-1234" is negative, "- 1234" should be considered as positive 1234
+        prefixExpr.getChildren match {
+          case Array(ElementText("-"), _) => Some(prefixExpr)
+          case _ => None
+        }
+      case _ => None
     }
 
-    // parse integer literal. the return is (Option(value), statusCode)
-    // the Option(value) will be the real integer represented by the literal, if it cannot fit in Long, It's None
-    // there is 3 value for statusCode:
-    // 0 -> the literal can fit in Int
-    // 1 -> the literal can fit in Long
-    // 2 -> the literal cannot fit in Long
-    def parseIntegerNumber(text: String, isNegative: Boolean): (Option[Long], Byte) = {
-      var value = 0l
-      val divider = if (base == 10) 1 else 2
-      var statusCode: Byte = 0
-      val limit = java.lang.Long.MAX_VALUE
-      val intLimit = java.lang.Integer.MAX_VALUE
-      var i = 0
-      for (d <- number.map(_.asDigit)) {
-        if (value > intLimit ||
-          intLimit / (base / divider) < value ||
-          intLimit - (d / divider) < value * (base / divider) &&
-            // This checks for -2147483648, value is 214748364, base is 10, d is 8. This check returns false.
-            // base 8 and 16 won't have this check because the divider is 2        .
-            !(isNegative && intLimit == value * base - 1 + d)) {
-          statusCode = 1
-        }
-        if (value < 0 ||
-          limit / (base / divider) < value ||
-          limit - (d / divider) < value * (base / divider) &&
-            // This checks for Long.MinValue, same as the the previous Int.MinValue check.
-            !(isNegative && limit == value * base - 1 + d)) {
-          return (None, 2)
-        }
-        value = value * base + d
-        i += 1
-      }
-      value = if (isNegative) -value else value
-      if (statusCode == 0) (Some(value.toInt), 0) else (Some(value), statusCode)
+    val (beginIndex, base, divider) = numberText match {
+      case t if t.startsWith("0x") || t.startsWith("0X") => (2, 16, 2)
+      case t if t.startsWith("0") && t.length >= 2 => (1, 8, 2)
+      case _ => (0, 10, 1)
     }
 
     if (base == 8) {
-      val convertFix = new quickfix.ConvertOctalToHexFix(literal)
-      scalaVersion match {
-        case Some(ScalaLanguageLevel.Scala_2_10) =>
-          val deprecatedMeaasge = "Octal number is deprecated in Scala-2.10 and will be removed in Scala-2.11"
-          val annotation = holder.createWarningAnnotation(literal, deprecatedMeaasge)
-          annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
-          annotation.registerFix(convertFix)
+      literal.scalaLanguageLevel match {
         case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
-          val error = "Octal number is removed in Scala-2.11 and after"
-          val annotation = holder.createErrorAnnotation(literal, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          annotation.registerFix(convertFix)
+          createAnnotation(
+            literal,
+            "Octal number is removed in Scala-2.11 and after"
+          )
           return
+        case Some(ScalaLanguageLevel.Scala_2_10) =>
+          createAnnotation(
+            literal,
+            "Octal number is deprecated in Scala-2.10 and will be removed in Scala-2.11",
+            ProblemHighlightType.LIKE_DEPRECATED
+          )
         case _ =>
       }
     }
-    val (_, status) = parseIntegerNumber(number, isNegative)
-    if (status == 2) { // the Integer number is out of range even for Long
-      val error = "Integer number is out of range even for type Long"
-      holder.createErrorAnnotation(literal, error)
-    } else {
-      if (status == 1 && !endsWithL) {
-        val error = "Integer number is out of range for type Int"
-        val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
+
+    parseIntegerNumber(
+      numberText.substring(beginIndex),
+      base,
+      divider,
+      maybeParent.isDefined
+    ) match {
+      case None =>
+        holder.createErrorAnnotation(
+          literal,
+          "Integer number is out of range even for type Long"
+        )
+      case Some(Right(_)) if !endsWithL =>
+        val expression = maybeParent.getOrElse(literal)
+        val annotation = holder.createErrorAnnotation(
+          expression,
+          "Integer number is out of range for type Int"
+        )
 
         val Long = literal.projectContext.stdTypes.Long
         val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
-        val shouldRegisterFix = (if (isNegative) parent.asInstanceOf[ScPrefixExpr] else literal).expectedType().forall { x =>
+        val shouldRegisterFix = expression.expectedType().forall { x =>
           conformsToTypeList.exists(_.weakConforms(x))
         }
 
         if (shouldRegisterFix) {
           annotation.registerFix(new quickfix.AddLToLongLiteralFix(literal))
         }
-      }
+      case _ =>
     }
   }
+
+  private def createAnnotation(literal: ScLiteral, message: String,
+                               highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR)
+                              (implicit holder: AnnotationHolder): Unit = {
+    val annotation = highlightType match {
+      case ProblemHighlightType.GENERIC_ERROR => holder.createErrorAnnotation(literal, message)
+      case _ => holder.createWarningAnnotation(literal, message)
+    }
+    annotation.setHighlightType(highlightType)
+    annotation.registerFix(new quickfix.ConvertOctalToHexFix(literal))
+  }
+
+  private[this] def parseIntegerNumber(number: String,
+                                       base: Int, divider: Int,
+                                       isNegative: Boolean) =
+    stringToNumber(number, base, divider, isNegative)().map {
+      case (value, false) => Left(value.toInt)
+      case (value, _) => Right(value)
+    }
+
+  @annotation.tailrec
+  private[this] def stringToNumber(number: String,
+                                   base: Int,
+                                   divider: Int,
+                                   isNegative: Boolean)
+                                  (index: Int = 0,
+                                   value: Long = 0L,
+                                   exceedsIntLimit: Boolean = false): Option[(Long, Boolean)] =
+    if (index == number.length) {
+      val newValue = if (isNegative) -value else value
+      Some(newValue, exceedsIntLimit)
+    } else {
+      val digit = number(index).asDigit
+      val newValue = value * base + digit
+
+      def exceedsLimit(limit: Long) =
+          limit / (base / divider) < value ||
+          limit - (digit / divider) < value * (base / divider) &&
+            !(isNegative && limit == newValue - 1)
+
+      if (value < 0 || exceedsLimit(java.lang.Long.MAX_VALUE)) None
+      else stringToNumber(number, base, divider, isNegative)(
+        index + 1,
+        newValue,
+        value > Integer.MAX_VALUE || exceedsLimit(Integer.MAX_VALUE)
+      )
+    }
 }
