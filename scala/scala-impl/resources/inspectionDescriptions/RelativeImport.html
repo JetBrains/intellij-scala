@@ -1,0 +1,23 @@
+<html>
+<body>
+Reports import statements that do not use fully qualified reference.
+
+<p>
+    Before:
+<pre>
+package org.something
+
+import someInnerPackage
+</pre>
+
+<br>
+After:
+<pre>
+package org.something
+
+import org.something.someInnerPackage
+</pre>
+</p>
+
+</body>
+</html>
