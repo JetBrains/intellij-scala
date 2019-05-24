@@ -1,0 +1,27 @@
+<html>
+<body>
+Reports and fixes imported names that shadow common scala classes like <code>List</code>.
+<p>
+    Before:
+<pre>
+import java.util.List
+
+object AAA {
+  val list: List[Int] = null
+}
+</pre>
+
+<br>
+After:
+<pre>
+import java.util
+import java.util.List
+
+object AAA {
+  val list: util.List[Int] = null
+}
+</pre>
+</p>
+
+</body>
+</html>

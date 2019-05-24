@@ -15,7 +15,9 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     acquireAllInspectionEPs().filter(_.language == "Scala")
 
   def test_no_lowercase_language_used(): Unit = {
-    assert(!acquireAllInspectionEPs().exists(_.language == "scala"))
+    assert(!acquireAllInspectionEPs()
+      .flatMap(insp => Option(insp.language))
+      .exists(lang => lang != "Scala" && lang.toLowerCase == "scala"))
   }
 
   /*
