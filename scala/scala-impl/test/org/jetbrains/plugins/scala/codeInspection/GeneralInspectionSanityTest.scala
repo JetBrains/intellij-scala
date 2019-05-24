@@ -18,6 +18,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     assert(!acquireAllInspectionEPs().exists(_.language == "scala"))
   }
 
+  /*
   def test_inspection_list_is_correct(): Unit = {
     val inspectionEPs = acquireAllScalaInspectionEPs()
 
@@ -45,6 +46,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     assert(unregisteredInspections.isEmpty,
       s"Please add the following inspections to expectedInspections: ${unregisteredInspections.mkString(", ")}")
   }
+  */
 
   def test_all_inspections_have_descriptions(): Unit = {
     val inspectionsWithoutProperDescription =
@@ -53,7 +55,8 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
         val description = inspectionWrapper.loadDescription()
         description == null ||
           description.length <= 5
-      }. map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
+      }.sortBy(_.shortName)
+        .map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
 
     assert(inspectionsWithoutProperDescription.isEmpty,
       s"The following inspection do not have a description file:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
@@ -68,6 +71,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     }
   }
 
+  /*
   val expectedInspections = Seq(
     "AbstractValueInTraitInspection",
     "AccessorLikeMethodInspection$EmptyParentheses",
@@ -213,4 +217,6 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     "ZeroIndexToHeadInspection",
     "ZipWithIndexInspection",
   )
+
+   */
 }
