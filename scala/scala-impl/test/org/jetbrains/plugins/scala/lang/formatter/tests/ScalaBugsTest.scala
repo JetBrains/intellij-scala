@@ -3591,4 +3591,53 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   def testCreateWorksheetFileAndFormat(): Unit = {
     doTextTest("val    x=2+2", "val x = 2 + 2", "worksheet.sc")
   }
+
+  def testIndentMultilineMarginCharAfterEmptyLine_SCL15436_1(): Unit = {
+    import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
+    val before =
+      s"""val x =
+         |  $Quotes
+         ||
+         |  |
+         |    |
+         |      |
+         |    |
+         |  |$Quotes.stripMargin
+         |""".stripMargin
+    val after =
+      s"""val x =
+         |  $Quotes
+         |    |
+         |    |
+         |    |
+         |    |
+         |    |
+         |    |$Quotes.stripMargin
+         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testIndentMultilineMarginCharAfterEmptyLine_SCL15436_2(): Unit = {
+    import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
+    val before =
+      s"""class A {
+         |val x =
+         |s$Quotes one
+         ||
+         || two
+         ||
+         ||$Quotes.stripMargin
+         |}
+    """.stripMargin
+    val after =
+      s"""class A {
+         |  val x =
+         |    s$Quotes one
+         |       |
+         |       | two
+         |       |
+         |       |$Quotes.stripMargin
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
 }
