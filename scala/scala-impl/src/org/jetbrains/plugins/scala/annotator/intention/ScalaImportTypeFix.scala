@@ -3,26 +3,21 @@ package org.jetbrains.plugins.scala.annotator.intention
 
 import java.awt.Point
 
+import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
-import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
+import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl}
 import com.intellij.codeInsight.intention.HighPriorityAction
-import com.intellij.codeInsight.{FileModificationService, JavaProjectCodeInsightSettings}
 import com.intellij.codeInspection.HintAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ObjectUtils
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
@@ -30,11 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.OrderingUtil
 
@@ -68,7 +60,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
     CommandProcessor.getInstance().runUndoTransparentAction(() => {
       if (ref.isValid) {
         classes = ScalaImportTypeFix.getTypesToImport(ref)
-        new ScalaAddImportAction(editor, classes, ref).execute()
+        ScalaAddImportAction(editor, classes, ref).execute()
       }
     })
   }
@@ -87,7 +79,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
           case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
             !caretNear(editor) =>
             CommandProcessor.getInstance().runUndoTransparentAction(() => {
-              new ScalaAddImportAction(editor, classes, ref).execute()
+              ScalaAddImportAction(editor, classes, ref).execute()
             })
             false
           case _ =>
@@ -115,7 +107,7 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
   private def fixesAction(editor: Editor) {
     ApplicationManager.getApplication.invokeLater(() => {
       if (ref.isValid && ref.resolve() == null && !HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint(true)) {
-        val action = new ScalaAddImportAction(editor, classes, ref)
+        val action = ScalaAddImportAction(editor, classes, ref)
 
         val refStart = ref.getTextRange.getStartOffset
         val refEnd = ref.getTextRange.getEndOffset
@@ -136,111 +128,12 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
   }
 
   override def startInWriteAction(): Boolean = true
-
-  class ScalaAddImportAction(editor: Editor, classes: Array[ElementToImport], ref: ScReference) extends QuestionAction {
-    def addImportOrReference(clazz: ElementToImport) {
-      ApplicationManager.getApplication.invokeLater(() =>
-        if (ref.isValid && FileModificationService.getInstance.prepareFileForWrite(ref.getContainingFile))
-          executeWriteActionCommand("Add import action") {
-            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-            if (ref.isValid)
-              ref match {
-                case _: ScDocResolvableCodeReference => ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
-                case _ =>
-                  clazz match {
-                    case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
-                    case _ => ref.bindToElement(clazz.element)
-                  }
-              }
-          }(clazz.element.getProject)
-      )
-    }
-
-    def chooseClass() {
-      val title = ElementToImport.messageByType(classes)(
-        ScalaBundle.message("import.class.chooser.title"),
-        ScalaBundle.message("import.package.chooser.title"),
-        ScalaBundle.message("import.something.chooser.title")
-      )
-      val popup: BaseListPopupStep[ElementToImport] = new BaseListPopupStep[ElementToImport](title, classes: _*) {
-        override def getIconFor(aValue: ElementToImport): Icon =
-          aValue.element.getIcon(0)
-
-        override def getTextFor(value: ElementToImport): String = {
-          ObjectUtils.assertNotNull(value.qualifiedName)
-        }
-
-        override def isAutoSelectionEnabled: Boolean = false
-
-        import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
-
-        override def onChosen(selectedValue: ElementToImport, finalChoice: Boolean): PopupStep[_] = {
-          if (selectedValue == null) {
-            return FINAL_CHOICE
-          }
-          if (finalChoice) {
-            PsiDocumentManager.getInstance(project).commitAllDocuments()
-            addImportOrReference(selectedValue)
-            return FINAL_CHOICE
-          }
-          val qname: String = selectedValue.qualifiedName
-          if (qname == null) return FINAL_CHOICE
-          val toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
-          new BaseListPopupStep[String](null, toExclude) {
-            override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
-              if (finalChoice) {
-                AddImportAction.excludeFromImport(project, selectedValue)
-              }
-              super.onChosen(selectedValue, finalChoice)
-            }
-
-            override def getTextFor(value: String): String = {
-              "Exclude '" + value + "' from auto-import"
-            }
-          }
-        }
-
-        override def hasSubstep(selectedValue: ElementToImport): Boolean = {
-          true
-        }
-      }
-      JBPopupFactory.getInstance.createListPopup(popup).showInBestPositionFor(editor)
-    }
-
-    def execute: Boolean = {
-      for (clazz <- classes if !clazz.isValid) return false
-
-      PsiDocumentManager.getInstance(project).commitAllDocuments()
-      if (classes.length == 1) {
-        addImportOrReference(classes(0))
-      }
-      else chooseClass()
-
-      true
-    }
-  }
-
 }
 
 object ScalaImportTypeFix {
 
-  def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
-    if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
-      PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
-    else {
-      PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
-        case null => ref.getContainingFile match {
-          case holder: ScImportsHolder => holder
-          case file =>
-            throw new AssertionError(s"Holder is wrong, file text: ${file.getText}")
-        }
-        case packaging: ScPackaging => packaging
-      }
-    }
-  }
-
   @tailrec
-  def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
+  private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
     clazz match {
       case o: ScObject if o.isSyntheticObject =>
         ScalaPsiUtil.getCompanionModule(o) match {

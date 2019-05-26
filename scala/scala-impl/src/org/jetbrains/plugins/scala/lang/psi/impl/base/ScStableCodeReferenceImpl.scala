@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, ScalaImportTypeFix, TypeAliasToImport}
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, ScalaAddImportAction, TypeAliasToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -176,10 +176,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               }) {
                 c match {
                   case ClassToImport(clazz) =>
-                    ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
+                    ScalaAddImportAction.getImportHolder(ref = this, project = getProject).
                       addImportForClass(clazz, ref = this)
                   case ta =>
-                    ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
+                    ScalaAddImportAction.getImportHolder(ref = this, project = getProject).
                       addImportForPath(ta.qualifiedName, ref = this)
                 }
                 if (qualifier.isDefined) {

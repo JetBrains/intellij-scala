@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction.getImportHolder
 import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ScalaImportTypeFix}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand

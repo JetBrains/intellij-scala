@@ -7,7 +7,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -333,7 +333,7 @@ object TypeAdjuster extends ApplicationAdapter {
         val infoToHolders = for {
           info <- infos
           place = info.place
-        } yield info -> ScalaImportTypeFix.getImportHolder(place, place.getProject)
+        } yield info -> ScalaAddImportAction.getImportHolder(place, place.getProject)
 
         val holders = infoToHolders.map(_._2)
         val maxHolders = holders.filterNot { holder =>

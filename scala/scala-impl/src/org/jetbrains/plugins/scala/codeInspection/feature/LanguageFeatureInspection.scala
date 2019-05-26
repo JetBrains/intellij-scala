@@ -5,7 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -96,7 +96,7 @@ private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
-    val importsHolder = ScalaImportTypeFix.getImportHolder(elem, elem.getProject)
+    val importsHolder = ScalaAddImportAction.getImportHolder(elem, elem.getProject)
     importsHolder.addImportForPath(flag, elem)
   }
 }

@@ -7,7 +7,7 @@ package base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.{ElementToImport, ScalaImportTypeFix}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -256,7 +256,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             else {
               val result = resolve(0)
               def smartCheck: Boolean = {
-                val holder = ScalaImportTypeFix.getImportHolder(this, getProject)
+                val holder = ScalaAddImportAction.getImportHolder(this, getProject)
                 var res = true
                 holder.accept(new ScalaRecursiveElementVisitor {
                   //Override also visitReferenceExpression! and visitTypeProjection!
@@ -286,7 +286,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             }
           }
           if (isOk) {
-            ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
+            ScalaAddImportAction.getImportHolder(this, getProject).addImportForPath(packagePart, this)
             val ref = referenceCreator(toReplace, false)
             return this.replace(ref)
           }
@@ -303,7 +303,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     extensions.inWriteAction {
       val refText =
         if (addImport) {
-          val importHolder = ScalaImportTypeFix.getImportHolder(ref = this, project = getProject)
+          val importHolder = ScalaAddImportAction.getImportHolder(ref = this, project = getProject)
           val imported = importHolder.getAllImportUsed.exists {
             case ImportExprUsed(expr) => expr.reference.exists { ref =>
               ref.multiResolveScala(false).exists(rr => rr.getElement match {

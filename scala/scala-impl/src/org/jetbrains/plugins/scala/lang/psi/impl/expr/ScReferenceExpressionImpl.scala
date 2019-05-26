@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
@@ -103,7 +103,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val qualName = c.qualifiedName
         if (qualName != null) {
           return tail(qualName) {
-            ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
+            ScalaAddImportAction.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
             //need to use unqualified reference with new import
             if (!this.isQualified) this
             else this.replace(createExpressionFromText(this.refName).asInstanceOf[ScReferenceExpression])
@@ -118,7 +118,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case pack: ScPackage =>
         val qualName = pack.getQualifiedName
         tail(qualName) {
-          ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPath(qualName, this)
+          ScalaAddImportAction.getImportHolder(this, getProject).addImportForPath(qualName, this)
           this
         }
       case elem: PsiNamedElement =>
@@ -130,7 +130,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             if (cClass != null && cClass.qualifiedName != null) {
               val qualName: String = cClass.qualifiedName + "." + elem.name
               return tail(qualName) {
-                ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPsiNamedElement(elem, this, Some(cClass))
+                ScalaAddImportAction.getImportHolder(this, getProject).addImportForPsiNamedElement(elem, this, Some(cClass))
                 this
               }
             }

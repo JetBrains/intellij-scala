@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, Segment, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -42,7 +42,7 @@ final class Associations private(override val associations: Array[Association])
 
           import JavaConverters._
           val commonParent = PsiTreeUtil.findCommonParent(elements.asJava)
-          val importsHolder = ScalaImportTypeFix.getImportHolder(commonParent, project)
+          val importsHolder = ScalaAddImportAction.getImportHolder(commonParent, project)
 
           inWriteAction {
             importsHolder.addImportsForPaths(paths, commonParent)

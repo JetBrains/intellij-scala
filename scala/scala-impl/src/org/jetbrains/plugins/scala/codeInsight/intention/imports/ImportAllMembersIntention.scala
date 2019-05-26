@@ -8,7 +8,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
 import org.jetbrains.plugins.scala.extensions.PsiReferenceEx.resolve
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -37,7 +37,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
     if (qualAtCaret == null || !checkQualifier(qualAtCaret)) return
     qualAtCaret.resolve() match {
       case named: PsiNamedElement =>
-        val importHolder = ScalaImportTypeFix.getImportHolder(element, project)
+        val importHolder = ScalaAddImportAction.getImportHolder(element, project)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
         val pathWithWildcard = ScalaNamesUtil.qualifiedName(named).getOrElse(return) + "._"
 

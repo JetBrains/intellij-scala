@@ -7,7 +7,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, L
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IconUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
+import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction.getImportHolder
 import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, PrefixPackageToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
