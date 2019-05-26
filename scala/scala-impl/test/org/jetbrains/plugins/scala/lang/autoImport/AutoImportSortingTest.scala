@@ -1,42 +1,30 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
+import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.Sorter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.util.PsiSelectionUtil
+import org.jetbrains.plugins.scala.util.{OrderingUtil, PsiSelectionUtil}
 
 class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with PsiSelectionUtil {
   import org.junit.Assert._
 
-  class ClassTypeToImportMock(override val qualifiedName: String) extends ScalaImportTypeFix.ClassTypeToImport(null) {
-    override def name: String = qualifiedName.substring(qualifiedName.lastIndexOf('.') + 1)
-
-    override def isAnnotationType: Boolean = ???
-
-    override def isValid: Boolean = ???
-
-    override def toString: String = s"Mock[$qualifiedName]"
-  }
-
-  def check(@Language("Scala") code: String, refPath: NamedElementPath, sorter: Sorter, possibilities: Seq[String]): Unit = {
+  def check(@Language("Scala") code: String, refPath: NamedElementPath, localOrdering: PsiElement => Ordering[String], possibilities: Seq[String]): Unit = {
     val file = myFixture.configureByText(ScalaFileType.INSTANCE, code)
 
     val ref = selectElement[ScReference](file, refPath)
     // reverse them to make the input different from the result
-    val imports = possibilities.reverse.map(new ClassTypeToImportMock(_))
+    val imports = possibilities.reverse
 
-    val result =
-      sorter(imports, ref)
-        .map(_.qualifiedName)
+    val ordering = localOrdering(ref)
+    val result = imports.sorted(ordering)
 
     assertEquals(possibilities.mkString("\n"), result.mkString("\n"))
   }
 
-  val alphabeticalSort: Sorter = ScalaImportTypeFix.sortImportsByName
-  val packageDistSort: Sorter = ScalaImportTypeFix.sortImportsByPackageDistance
+  val alphabeticalSort: PsiElement => Ordering[String] = _ => OrderingUtil.orderingByPackageName
+  val packageDistSort: PsiElement => Ordering[String] = OrderingUtil.orderingByRelevantImports
 
   def test_alphabetical_sorting(): Unit = check(
     """
