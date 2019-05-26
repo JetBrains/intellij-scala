@@ -10,8 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, ScalaImportTypeFix, TypeAliasToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -110,7 +109,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       ScStableCodeReferenceImpl.this.replace(ref)
 
     //this method may remove unnecessary imports
-    def bindImportReference(c: ScalaImportTypeFix.TypeToImport): Boolean = {
+    def bindImportReference(c: ElementToImport): Boolean = {
       val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
       val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
 
@@ -125,7 +124,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
           importExpr.deleteExpr()
           c match {
-            case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
+            case ClassToImport(clazz) => holder.addImportForClass(clazz)
             case ta => holder.addImportForPath(ta.qualifiedName)
           }
         } else {
@@ -146,7 +145,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         this.replace(aliasedRef.get)
       }
       else {
-        def bindToType(c: ScalaImportTypeFix.TypeToImport): PsiElement = {
+        def bindToType(c: ElementToImport): PsiElement = {
           val suitableKinds = getKinds(incomplete = false)
           if (!ResolveUtils.kindMatches(c.element, suitableKinds)) {
             reportWrongKind(c, suitableKinds)
@@ -176,7 +175,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                 case (qual, false) => createReferenceFromText(qual)
               }) {
                 c match {
-                  case ClassTypeToImport(clazz) =>
+                  case ClassToImport(clazz) =>
                     ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
                       addImportForClass(clazz, ref = this)
                   case ta =>
@@ -199,11 +198,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             val suitableKinds = getKinds(incomplete = false)
             if (!ResolveUtils.kindMatches(element, suitableKinds)) {
               ScalaPsiUtil.getCompanionModule(c) match {
-                case Some(companion) => bindToType(ClassTypeToImport(companion))
-                case None => bindToType(ClassTypeToImport(c))
+                case Some(companion) => bindToType(ClassToImport(companion))
+                case None => bindToType(ClassToImport(c))
               }
             }
-            else bindToType(ClassTypeToImport(c))
+            else bindToType(ClassToImport(c))
           case ta: ScTypeAlias =>
             if (ta.containingClass != null && ScalaPsiUtil.hasStablePath(ta)) {
               bindToType(TypeAliasToImport(ta))
@@ -240,7 +239,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }.mkString("\n")
   }
 
-  private def reportWrongKind(c: TypeToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
+  private def reportWrongKind(c: ElementToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
     val contextText = contextsElementKinds
     throw new IncorrectOperationException(
       s"""${c.element} does not match expected kind,

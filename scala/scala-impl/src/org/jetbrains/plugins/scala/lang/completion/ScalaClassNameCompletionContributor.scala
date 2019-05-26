@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, PrefixPackageToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
@@ -100,10 +100,10 @@ object ScalaClassNameCompletionContributor {
 
     implicit val project: Project = position.getProject
 
-    def addTypeForCompletion(typeToImport: TypeToImport): Unit = {
-      if (inReadAction(isExcluded(typeToImport))) return
+    def addTypeForCompletion(toImport: ElementToImport): Unit = {
+      if (inReadAction(isExcluded(toImport))) return
 
-      val TypeToImport(element, name) = typeToImport
+      val ElementToImport(element, name) = toImport
 
       val isAccessible = invocationCount >= 2 || (element match {
         case member: PsiMember => ResolveUtils.isAccessible(member, position, forCompletion = true)
@@ -111,15 +111,15 @@ object ScalaClassNameCompletionContributor {
       })
       if (!isAccessible) return
 
-      if (lookingForAnnotations && !typeToImport.isAnnotationType) return
+      if (lookingForAnnotations && !toImport.isAnnotationType) return
       element match {
         case _: ScClass | _: ScTrait | _: ScTypeAlias if !isInImport && !onlyClasses => return
         case _: ScObject if !isInImport && onlyClasses => return
         case _ =>
       }
 
-      val lookups = (typeToImport, maybeExpectedTypes) match {
-        case (ClassTypeToImport(clazz), Some(createLookups)) =>
+      val lookups = (toImport, maybeExpectedTypes) match {
+        case (ClassToImport(clazz), Some(createLookups)) =>
           Seq(createLookups(clazz, renamesMap))
         case _ =>
           val renamed = renamesMap.get(name).collect {
@@ -142,7 +142,7 @@ object ScalaClassNameCompletionContributor {
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
       if !QualNameToType.contains(clazz.qualifiedName)
-    } addTypeForCompletion(ClassTypeToImport(clazz))
+    } addTypeForCompletion(ClassToImport(clazz))
 
     val prefixMatcher = result.getPrefixMatcher
     AllClassesGetter.processJavaClasses(if (lookingForAnnotations) parameters.withInvocationCount(2) else parameters,
@@ -150,8 +150,8 @@ object ScalaClassNameCompletionContributor {
         def consume(psiClass: PsiClass) {
           //todo: filter according to position
           if (psiClass.isInstanceOf[PsiClassWrapper]) return
-          ScalaPsiUtil.getCompanionModule(psiClass).foreach(clazz => addTypeForCompletion(ClassTypeToImport(clazz)))
-          addTypeForCompletion(ClassTypeToImport(psiClass))
+          ScalaPsiUtil.getCompanionModule(psiClass).foreach(clazz => addTypeForCompletion(ClassToImport(clazz)))
+          addTypeForCompletion(ClassToImport(psiClass))
         }
       })
 
@@ -170,7 +170,7 @@ object ScalaClassNameCompletionContributor {
       if !prefixMatcher.prefixMatches(elem.name)
     } {
       elem match {
-        case clazz: PsiClass => addTypeForCompletion(ClassTypeToImport(clazz))
+        case clazz: PsiClass => addTypeForCompletion(ClassToImport(clazz))
         case ta: ScTypeAlias => addTypeForCompletion(TypeAliasToImport(ta))
         case _ =>
       }
@@ -180,9 +180,9 @@ object ScalaClassNameCompletionContributor {
     false
   }
 
-  private[this] def isExcluded(`type`: TypeToImport)
+  private[this] def isExcluded(`type`: ElementToImport)
                               (implicit project: Project): Boolean = `type` match {
-    case ClassTypeToImport(classToImport) =>
+    case ClassToImport(classToImport) =>
       JavaCompletionUtil.isInExcludedPackage(classToImport, false)
     case TypeAliasToImport(alias) =>
       alias.containingClass match {

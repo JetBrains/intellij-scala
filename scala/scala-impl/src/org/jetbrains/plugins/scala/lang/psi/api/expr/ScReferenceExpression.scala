@@ -5,9 +5,7 @@ package api
 package expr
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -63,11 +61,6 @@ trait ScReferenceExpression extends ScExpression
   def shapeResolve: Array[ScalaResolveResult]
 
   def shapeType: TypeResult
-
-  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReference = {
-    if (useFullQualifiedName) super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
-    else createExpressionFromText(clazz.name)(clazz.element.getManager).asInstanceOf[ScReferenceExpression]
-  }
 
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
 

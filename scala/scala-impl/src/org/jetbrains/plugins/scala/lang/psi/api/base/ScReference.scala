@@ -7,8 +7,7 @@ package base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.annotator.intention.{ElementToImport, ScalaImportTypeFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -98,9 +97,6 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     }
     false
   }
-
-  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReference =
-    createReferenceFromText(if (useFullQualifiedName) clazz.qualifiedName else clazz.name)(clazz.element.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement, rr: Option[ScalaResolveResult]): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true

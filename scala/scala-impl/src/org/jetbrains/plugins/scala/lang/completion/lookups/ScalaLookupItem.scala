@@ -8,10 +8,12 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, PrefixPackageToImport, TypeAliasToImport}
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem.createReferenceToReplace
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -28,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
@@ -219,7 +222,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
       context.commitDocument()
 
       val maybeTypeToImport = element match {
-        case clazz: PsiClass => Some(ClassTypeToImport(clazz))
+        case clazz: PsiClass => Some(ClassToImport(clazz))
         case ta: ScTypeAlias => Some(TypeAliasToImport(ta))
         case pack: ScPackage => Some(PrefixPackageToImport(pack))
         case _ => None
@@ -268,7 +271,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                 val newRefText = parts.takeRight(2).mkString(".")
                 createExpressionFromText(newRefText).asInstanceOf[ScReferenceExpression]
               } else {
-                ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+                createReferenceToReplace(ref, cl, useFullyQualifiedName)
               }
             case ref: ScStableCodeReference if prefixCompletion =>
               val parts = cl.qualifiedName.split('.')
@@ -276,10 +279,10 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                 val newRefText = parts.takeRight(2).mkString(".")
                 createReferenceFromText(newRefText)
               } else {
-                ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+                createReferenceToReplace(ref, cl, useFullyQualifiedName)
               }
             case _ =>
-              ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+              createReferenceToReplace(ref, cl, useFullyQualifiedName)
           }
           ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
           newRef.bindToElement(element)
@@ -361,4 +364,18 @@ object ScalaLookupItem {
       case item: ScalaLookupItem => Some(item, item.element)
       case _ => None
     }
+
+  def createReferenceToReplace(ref: ScReference, toImport: ElementToImport, useFQN: Boolean): ScReference = {
+    val refText =
+      if (ref.isInstanceOf[ScDocResolvableCodeReference] || useFQN) toImport.qualifiedName
+      else toImport.name
+
+    import ref.projectContext
+
+    ref match {
+      case expr: ScReferenceExpression => createExpressionFromText(refText).asInstanceOf[ScReferenceExpression]
+      case _ => createReferenceFromText(refText)
+    }
+
+  }
 }

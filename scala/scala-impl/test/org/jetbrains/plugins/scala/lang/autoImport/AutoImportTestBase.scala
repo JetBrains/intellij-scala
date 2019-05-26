@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ScalaImportTypeFix}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -64,7 +64,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       executeWriteActionCommand("Test") {
         val holder = getImportHolder(ref, project)
         classes(0) match {
-          case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
+          case ClassToImport(clazz) => holder.addImportForClass(clazz)
           case ta => holder.addImportForPath(ta.qualifiedName, ref)
         }
         UsefulTestCase.doPostponedFormatting(project)

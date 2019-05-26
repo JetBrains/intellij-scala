@@ -21,17 +21,15 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ObjectUtils
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
@@ -48,14 +46,14 @@ import scala.collection.mutable.ArrayBuffer
   * Date: 15.07.2009
   */
 
-class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReference)
+class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScReference)
   extends HintAction with HighPriorityAction {
 
   private val project = ref.getProject
 
   def getText: String = {
     if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
-    else byType(classes)(
+    else ElementToImport.messageByType(classes)(
       ScalaBundle.message("import.class"),
       ScalaBundle.message("import.package"),
       ScalaBundle.message("import.something")
@@ -137,17 +135,10 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     })
   }
 
-  private def byType(toImport: Array[TypeToImport])(classes: String, packages: String, mixed: String) = {
-    val toImportSeq = toImport.toSeq
-    if (toImportSeq.forall(_.element.isInstanceOf[PsiClass])) classes
-    else if (toImportSeq.forall(_.element.isInstanceOf[PsiPackage])) packages
-    else mixed
-  }
-
   override def startInWriteAction(): Boolean = true
 
-  class ScalaAddImportAction(editor: Editor, classes: Array[TypeToImport], ref: ScReference) extends QuestionAction {
-    def addImportOrReference(clazz: TypeToImport) {
+  class ScalaAddImportAction(editor: Editor, classes: Array[ElementToImport], ref: ScReference) extends QuestionAction {
+    def addImportOrReference(clazz: ElementToImport) {
       ApplicationManager.getApplication.invokeLater(() =>
         if (ref.isValid && FileModificationService.getInstance.prepareFileForWrite(ref.getContainingFile))
           executeWriteActionCommand("Add import action") {
@@ -157,7 +148,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
                 case _: ScDocResolvableCodeReference => ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
                 case _ =>
                   clazz match {
-                    case ScalaImportTypeFix.PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
+                    case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
                     case _ => ref.bindToElement(clazz.element)
                   }
               }
@@ -166,16 +157,16 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val title = byType(classes)(
+      val title = ElementToImport.messageByType(classes)(
         ScalaBundle.message("import.class.chooser.title"),
         ScalaBundle.message("import.package.chooser.title"),
         ScalaBundle.message("import.something.chooser.title")
       )
-      val popup: BaseListPopupStep[TypeToImport] = new BaseListPopupStep[TypeToImport](title, classes: _*) {
-        override def getIconFor(aValue: TypeToImport): Icon =
+      val popup: BaseListPopupStep[ElementToImport] = new BaseListPopupStep[ElementToImport](title, classes: _*) {
+        override def getIconFor(aValue: ElementToImport): Icon =
           aValue.element.getIcon(0)
 
-        override def getTextFor(value: TypeToImport): String = {
+        override def getTextFor(value: ElementToImport): String = {
           ObjectUtils.assertNotNull(value.qualifiedName)
         }
 
@@ -183,7 +174,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
 
         import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
 
-        override def onChosen(selectedValue: TypeToImport, finalChoice: Boolean): PopupStep[_] = {
+        override def onChosen(selectedValue: ElementToImport, finalChoice: Boolean): PopupStep[_] = {
           if (selectedValue == null) {
             return FINAL_CHOICE
           }
@@ -209,7 +200,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           }
         }
 
-        override def hasSubstep(selectedValue: TypeToImport): Boolean = {
+        override def hasSubstep(selectedValue: ElementToImport): Boolean = {
           true
         }
       }
@@ -232,55 +223,6 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
 }
 
 object ScalaImportTypeFix {
-
-  sealed trait TypeToImport {
-    protected type E <: PsiNamedElement
-
-    def element: E
-
-    def name: String = element.name
-
-    def qualifiedName: String
-
-    def isAnnotationType: Boolean = false
-
-    def isValid: Boolean = element.isValid
-  }
-
-  object TypeToImport {
-
-    def unapply(`type`: TypeToImport): Some[(PsiNamedElement, String)] =
-      Some(`type`.element, `type`.name)
-  }
-
-  case class ClassTypeToImport(element: PsiClass) extends TypeToImport {
-
-    override protected type E = PsiClass
-
-    def qualifiedName: String = element.qualifiedName
-
-    override def isAnnotationType: Boolean = element.isAnnotationType
-  }
-
-  case class TypeAliasToImport(element: ScTypeAlias) extends TypeToImport {
-
-    override protected type E = ScTypeAlias
-
-    def qualifiedName: String = {
-      val name = element.name
-
-      val clazz = element.containingClass
-      if (clazz == null || clazz.qualifiedName == "") name
-      else clazz.qualifiedName + "." + name
-    }
-  }
-
-  case class PrefixPackageToImport(element: ScPackage) extends TypeToImport {
-
-    override protected type E = ScPackage
-
-    def qualifiedName: String = element.getQualifiedName
-  }
 
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
     if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
@@ -320,7 +262,7 @@ object ScalaImportTypeFix {
     }
   }
 
-  def getTypesToImport(ref: ScReference): Array[TypeToImport] = {
+  def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
     if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
       return Array.empty
 
@@ -340,12 +282,12 @@ object ScalaImportTypeFix {
         !JavaCompletionUtil.isInExcludedPackage(clazz, false)
     }
 
-    val buffer = new ArrayBuffer[TypeToImport]
+    val buffer = new ArrayBuffer[ElementToImport]
 
     classes.flatMap {
       case df: ScTypeDefinition => df.fakeCompanionModule ++: Seq(df)
       case c => Seq(c)
-    }.filter(shouldAddClass).foreach(buffer += ClassTypeToImport(_))
+    }.filter(shouldAddClass).foreach(buffer += ClassToImport(_))
 
     val typeAliases = cache.getStableAliasesByName(ref.refName, ref.resolveScope)
     for (alias <- typeAliases) {
@@ -375,7 +317,7 @@ object ScalaImportTypeFix {
 
     val finalImports = if (ref.getParent.isInstanceOf[ScMethodCall]) {
       buffer.filter {
-        case ClassTypeToImport(clazz) =>
+        case ClassToImport(clazz) =>
           clazz.isInstanceOf[ScObject] &&
             clazz.asInstanceOf[ScObject].allFunctionsByName("apply").nonEmpty
         case _ => false
