@@ -4,13 +4,12 @@ package psi
 package api
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiClassOwnerEx
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
-import com.intellij.psi.{PsiClassOwnerEx, PsiImportHolder}
 import com.intellij.testFramework.LightVirtualFile
 
 trait ScFile extends PsiFileWithStubSupport
-  with PsiClassOwnerEx
-  with PsiImportHolder {
+  with PsiClassOwnerEx {
 
   def isCompiled: Boolean
 }

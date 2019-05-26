@@ -4,7 +4,6 @@ package psi
 package api
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiClass
 
 /**
  * @author ilyas
@@ -12,12 +11,6 @@ import com.intellij.psi.PsiClass
 trait ScalaFile extends ScalaPsiElement
   with ScFile
   with ScImportsHolder {
-
-  @Deprecated
-  def importClass(aClass: PsiClass): Boolean = {
-    addImportForClass(aClass)
-    true
-  }
 
   def firstPackaging: Option[toplevel.ScPackaging]
 

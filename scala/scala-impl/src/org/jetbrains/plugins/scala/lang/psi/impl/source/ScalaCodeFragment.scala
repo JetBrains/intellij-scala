@@ -118,6 +118,12 @@ final class ScalaCodeFragment(private var viewProvider: SingleRootFileViewProvid
     paths.foreach(addImportForPath(_, refsContainer))
   }
 
+  @Deprecated
+  override def importClass(aClass: PsiClass): Boolean = {
+    addImportForClass(aClass)
+    true
+  }
+
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     for (qName <- imports) {
