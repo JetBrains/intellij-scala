@@ -935,21 +935,19 @@ object ScalaPsiElementFactory {
 
   def createDocCommentFromText(text: String)
                               (implicit ctx: ProjectContext): ScDocComment =
-    createDocComment(
-      s"""/**
-         |$text
-         |*/""".stripMargin)
+    createDocComment(s"/**\n$text\n*/")
 
   def createMonospaceSyntaxFromText(text: String)
                                    (implicit ctx: ProjectContext): ScDocSyntaxElement =
     createDocCommentFromText(s"`$text`").getChildren()(2).asInstanceOf[ScDocSyntaxElement]
 
   def createDocHeaderElement(length: Int)
-                            (implicit ctx: ProjectContext): PsiElement =
-    createClassWithBody(
-      s"""/**=header${StringUtils.repeat("=", length)}*/
-          |""".stripMargin).docComment.orNull
-      .getNode.getChildren(null)(1).getLastChildNode.getPsi
+                            (implicit ctx: ProjectContext): PsiElement = {
+    val text = s"/**=header${StringUtils.repeat("=", length)}*/"
+    val comment = createDocComment(text)
+    val children = comment.getNode.getChildren(null)
+    children(1).getLastChildNode.getPsi
+  }
 
   def createDocWhiteSpace(implicit ctx: ProjectContext): PsiElement =
     createDocCommentFromText(" *").getNode.getChildren(null)(1).getPsi
