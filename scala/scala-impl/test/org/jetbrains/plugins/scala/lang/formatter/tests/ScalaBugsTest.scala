@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
+  import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
+
   def testSCL2424() {
     val before =
       """
@@ -3593,7 +3595,6 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   }
 
   def testIndentMultilineMarginCharAfterEmptyLine_SCL15436_1(): Unit = {
-    import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
     val before =
       s"""val x =
          |  $Quotes
@@ -3618,7 +3619,6 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   }
 
   def testIndentMultilineMarginCharAfterEmptyLine_SCL15436_2(): Unit = {
-    import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
     val before =
       s"""class A {
          |val x =
@@ -3638,6 +3638,34 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
          |       |
          |       |$Quotes.stripMargin
          |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  """||Name (String) | Level (Integer) |
+     ||Squirtle      | 1               |
+     ||Balbasaur     | 1               |
+     ||Charmander    | 2               |
+  """.stripMargin
+
+  def testAlignWithMarginCharOnFirstLine_SCL9365(): Unit = {
+    val before =
+      s"""class A {
+         |val x =
+         |$Quotes||Name (String) | Level (Integer) |
+         |||Squirtle      | 1               |
+         |||Balbasaur     | 1               |
+         |||Charmander    | 2               |$Quotes.stripMargin
+         |}
+    """.stripMargin
+    val after =
+      s"""class A {
+         |  val x =
+         |    $Quotes||Name (String) | Level (Integer) |
+         |       ||Squirtle      | 1               |
+         |       ||Balbasaur     | 1               |
+         |       ||Charmander    | 2               |$Quotes.stripMargin
+         |}
+    """.stripMargin
     doTextTest(before, after)
   }
 }
