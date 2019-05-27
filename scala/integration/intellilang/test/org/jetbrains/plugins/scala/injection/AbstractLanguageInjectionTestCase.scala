@@ -41,6 +41,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
   }
 
   protected def assertInjected(injectedFileText: String, injectedLangId: String): Unit = {
+    assertInjectedLangAtCaret(injectedLangId)
     val expected = ExpectedInjection(
       injectedFileText.withNormalizedSeparator,
       injectedLangId
@@ -111,16 +112,12 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
 
   protected def doTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
     myFixture.configureByText("A.scala", text)
-
-    // TODO: refactor assertions to usage of single method?
-    assertInjectedLangAtCaret(languageId)
     assertInjected(injectedFileExpectedText, languageId)
   }
 }
 
 object AbstractLanguageInjectionTestCase {
-  // todo: move to some kotlin conversions
-  implicit def pairToTuple[A, B](pair: kotlin.Pair[A, B]): (A, B) = (pair.getFirst, pair.getSecond)
+  private def pairToTuple[A, B](pair: kotlin.Pair[A, B]): (A, B) = (pair.getFirst, pair.getSecond)
 
   case class ExpectedInjection(injectedFileText: String, injectedLangId: String)
 }

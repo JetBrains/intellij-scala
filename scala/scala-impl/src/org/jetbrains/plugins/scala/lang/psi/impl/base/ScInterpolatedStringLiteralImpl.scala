@@ -8,17 +8,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.meta.intellij.QuasiquoteInferUtil
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/17/12
- */
-class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
+final class ScInterpolatedStringLiteralImpl(node: ASTNode)
+  extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
 
-  def getType: InterpolatedStringType.StringType = getNode.getFirstChildNode.getText match {
-    case "s" => InterpolatedStringType.STANDART
-    case "f" => InterpolatedStringType.FORMAT
-    case "id" => InterpolatedStringType.PATTERN
-    case "raw" => InterpolatedStringType.RAW
+  import InterpolatedStringType._
+  import ScLiteralImpl._
+
+  override def getType: StringType = getNode.getFirstChildNode.getText match {
+    case "s" => STANDART
+    case "f" => FORMAT
+    case "id" => PATTERN
+    case "raw" => RAW
     case _ => null
   }
 
@@ -46,12 +46,13 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     }
   }
 
-  override def isMultiLineString: Boolean = getText.endsWith("\"\"\"")
+  override def isMultiLineString: Boolean = getText.endsWith(MultiLineQuote)
 
   override def isString: Boolean = true
 
   override def getValue: AnyRef = findChildByClassScala(classOf[ScLiteralImpl]) match {
+    // FIXME: it is actually always "" because child with type ScLiteralImpl can't be found...
     case literal: ScLiteralImpl => literal.getValue
-    case _ => "" 
+    case _ => ""
   }
 }

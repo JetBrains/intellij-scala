@@ -139,7 +139,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     val injection = support.findCommentInjection(host, null)
     if (injection == null) return false
     val langId: String = injection.getInjectedLanguageId
-    if (langId == null) return false
+    if (StringUtils.isBlank(langId)) return false
     val language = Language.findLanguageByID(langId)
     if (language == null) return false
 
@@ -361,7 +361,7 @@ object ScalaLanguageInjector {
       count += lineLength + 1
     }
 
-    if (extractedText.last == '\n') {
+    if (extractedText.endsWith('\n')) {
       // last empty line is not treat as a line by WrappedString,
       // but we need to add an empty range in order to be able to edit this line in `Edit code fragment` panel
       val end = count + 1 + rangeStartOffset
