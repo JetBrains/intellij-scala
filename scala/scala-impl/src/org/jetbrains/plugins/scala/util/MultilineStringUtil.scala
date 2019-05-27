@@ -190,7 +190,7 @@ object MultilineStringUtil {
    */
   def addMarginsAndFormatMLString(element: PsiElement, document: Document, caretOffset: Int = 0): Int = {
     val settings = new MultilineStringSettings(element.getProject)
-    if (settings.supportLevel != ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR) return 0
+    if (settings.supportLevel < ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR) return 0
 
     PsiDocumentManager.getInstance(element.getProject).doPostponedOperationsAndUnblockDocument(document)
 
