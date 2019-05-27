@@ -21,7 +21,7 @@ class StubIndexTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private def intKey(s: String): Integer = Integer.valueOf(s.hashCode)
 
-  private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(module)
+  private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
 
   private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] = {
     val classOfPsi = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
@@ -211,7 +211,7 @@ class StubIndexTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   def testImplicitConversion(): Unit = {
-    val all = ImplicitConversionIndex.allElements(moduleWithLibraries).flatMap(_.qualifiedNameOpt).toSet
+    val all = ImplicitConversionIndex.allElements(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
     Assert.assertEquals(286, all.size)
     assertContains(all, "scala.math.Ordering.mkOrderingOps")
     assertContains(all, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")
@@ -221,7 +221,7 @@ class StubIndexTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testImplicitInstance(): Unit = {
     def forClassFqn(fqn: String): Set[String] =
-      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries, project).flatMap(_.qualifiedNameOpt).toSet
+      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries, getProject).flatMap(_.qualifiedNameOpt).toSet
 
     val orderings = forClassFqn("scala.math.Ordering")
     Assert.assertEquals(13, orderings.size)

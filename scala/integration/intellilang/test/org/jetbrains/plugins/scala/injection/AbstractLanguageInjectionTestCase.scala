@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.injection
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.InjectionTestFixture
 import org.intellij.plugins.intelliLang
@@ -30,9 +31,9 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
     injectionTestFixture = new InjectionTestFixture(myFixture)
   }
 
-  override protected def afterSetUpProject(): Unit = {
-    super.afterSetUpProject()
-    intelliLangConfig = intelliLang.Configuration.getProjectInstance(getProject)
+  override def setUpLibraries(implicit module: Module): Unit = {
+    super.setUpLibraries
+    intelliLangConfig = intelliLang.Configuration.getProjectInstance(module.getProject)
     intelliLangConfig.getAdvancedConfiguration.setLanguageAnnotation(LanguageAnnotationName)
   }
 

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.injection
 
+import com.intellij.openapi.module.Module
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import com.intellij.testFramework.EditorTestUtil
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
@@ -15,10 +16,10 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   private val Quotes = "\"\"\""
   private val JsonLangId = "JSON"
 
-  override def afterSetUpProject(): Unit = {
-    super.afterSetUpProject()
+  override def setUpLibraries(implicit module: Module): Unit = {
+    super.setUpLibraries
 
-    val settings = ScalaProjectSettings.getInstance(getProject)
+    val settings = ScalaProjectSettings.getInstance(module.getProject)
     val interpToLangId = Map("json" -> JsonLangId).asJava
     settings.setIntInjectionMapping(interpToLangId)
     settings.setDisableLangInjection(false)
