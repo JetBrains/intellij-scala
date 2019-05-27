@@ -31,6 +31,8 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     profile.getSettings
   }
 
+  def allCompilerPlugins: Seq[String] = (defaultProfile +: customProfiles).map(_.getSettings).flatMap(_.plugins)
+
   //currently we cannot rely on compiler options for shared source modules
   def hasSettingForHighlighting(module: Module, hasSetting: ScalaCompilerSettings => Boolean): Boolean = {
     def isSharedSources(module: Module) = module.getModuleTypeName == "SHARED_SOURCES_MODULE"
