@@ -82,7 +82,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         }
 
         import JavaConverters._
-        completionResultSet.addAllElements(lookupElements.toSeq.asJava)
+        completionResultSet.addAllElements(lookupElements.asJava)
       }
     })
 
@@ -167,7 +167,7 @@ object ScalaOverrideContributor {
   import PsiTreeUtil.{getContextOfType, getParentOfType}
 
   private def membersOf(element: PsiElement) = getParentOfType(element, classOf[ScTemplateDefinition]) match {
-    case null => (null, Iterator.empty)
+    case null => (null, Seq.empty)
     case clazz =>
       import ScalaOIUtil._
       (clazz, getMembersToOverride(clazz) ++ getMembersToImplement(clazz, withSelfType = true))

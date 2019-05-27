@@ -117,20 +117,20 @@ object ScalaOIUtil {
       inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterator[ClassMember] =
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))
 
-  def getAllMembersToOverride(clazz: ScTemplateDefinition): Iterator[ClassMember] =
+  def getAllMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)()
 
-  def getMembersToOverride(clazz: ScTemplateDefinition): Iterator[ClassMember] =
+  def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
 
   private[this] def classMembersWithFilter(clazz: ScTemplateDefinition,
                                            withSelfType: Boolean,
                                            isOverride: Boolean = true)
                                           (f1: PhysicalMethodSignature => Boolean = const(true),
-                                           f2: PsiNamedElement => Boolean = const(true)): Iterator[ClassMember] = {
+                                           f2: PsiNamedElement => Boolean = const(true)): Seq[ClassMember] = {
     val methods =
       (if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods)
         .filter(s => s.namedElement.isValid && f1(s))
@@ -140,8 +140,8 @@ object ScalaOIUtil {
       case Signature(named, _) => named.isValid && f2(named)
     }
 
-    methods.map(toClassMember(_, isOverride)) ++
-      aliasesAndValues.flatMap(toClassMember(_, isOverride))
+    (methods.map(toClassMember(_, isOverride)) ++ aliasesAndValues.flatMap(toClassMember(_, isOverride)))
+      .toBuffer
   }
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
