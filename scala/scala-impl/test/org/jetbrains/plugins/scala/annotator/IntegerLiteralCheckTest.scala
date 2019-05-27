@@ -1,93 +1,149 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-
-import scala.util.Random
-
+import org.jetbrains.plugins.scala.lang.psi.api._
 
 /**
- * @author Ye Xianjin
- * @since  11/27/14
- */
+  * @author Ye Xianjin
+  * @since 11/27/14
+  */
 class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
-  final val Header = ""
 
-  def randomIntValues(num: Int): List[Int] = {
-    List.fill(num)(Random.nextInt)
-  }
-
-  def randomLongValues(num: Int): List[Long] = {
-    Stream.continually(Random.nextLong).filter(_.toHexString.length > 8).take(num).toList
-  }
-
-  // how should I bound T to Int and Long only?
-  def expandIntegerLiteral[T](x: T): List[String] = {
-    val (octalString, hexString) = x match {
-      case t: Int => (java.lang.Integer.toOctalString(t), java.lang.Integer.toHexString(t))
-      case t: Long => (java.lang.Long.toOctalString(t), java.lang.Long.toHexString(t))
-    }
-    List(x.toString, "0" + octalString, "0x" + hexString, "0X" + hexString)
-  }
-
-  def prependSign(s: String): List[String] = if (s.startsWith("-")) List(s) else List(s, "-" + s)
-
-  def appendL(s: String): List[String] = List(s + "l", s + "L")
-
-  val intValues = List(0, -0, 1, -1, 1234, -1234, Int.MinValue, Int.MaxValue)
-  val longValues = List(1l + Int.MaxValue, 12345l + Int.MaxValue, -1l +  Int.MinValue, -1234l + Int.MinValue, Long.MinValue, Long.MaxValue)
-  val numOfGenInteger = 10
-
-  def testFine() {
-    val intStrings = (intValues ++ randomIntValues(numOfGenInteger)).flatMap(expandIntegerLiteral).flatMap(prependSign).distinct
-    for (s <- intStrings) {
-      assertNothing(messages(s"val a = $s"))
-    }
-    val longStrings = (intStrings flatMap appendL) ++
-                      (longValues ++ randomLongValues(numOfGenInteger)).flatMap(expandIntegerLiteral).flatMap(prependSign).flatMap(appendL).distinct
-    for (s <- longStrings) {
-      assertNothing(messages(s"val a = $s"))
-    }
-  }
-
-  def testLiteralOverflowInt() {
-    val longStrings = longValues.map(_.toString) ++ randomLongValues(numOfGenInteger).flatMap(expandIntegerLiteral).distinct
-    for (s <- longStrings ++ Seq("2147483648", "-2147483649")) {
-      assertMatches(messages(s"val a = $s")) {
-        case Error(s, OverflowIntPattern()) :: Nil =>
-      }
-    }
-  }
-
-  def testLiteralOverflowLong() {
-    val overflowLongStrings = (longValues ++ randomLongValues(numOfGenInteger)).
-                              flatMap(x => List(x.toString.padTo(21, '1'), "0x" + x.toHexString.padTo(17, '1'), "0" + x.toOctalString.padTo(23, '1')))
-    val overflowLongStringsWithL = overflowLongStrings.flatMap(appendL)
-    for (s <- overflowLongStrings ++ overflowLongStringsWithL ++ Seq("9223372036854775808l", "-9223372036854775809l")) {
-      assertMatches(messages(s"val a = $s")) {
-        case Error(s, OverflowLongPattern()) :: Nil =>
-      }
-    }
-  }
-
-  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-      val annotator = ScalaAnnotator.forProject
-      val parse: ScalaFile = (Header + code).parse
-
-    val mock = new AnnotatorHolderMock(parse)
-
-    parse.depthFirst().foreach {
-        case literal: ScLiteral => annotator.annotate(literal, mock)
-        case _ =>
-      }
-
-      mock.annotations.filter((p: Message) => !p.isInstanceOf[Info])
-  }
+  import IntegerLiteralCheckTest._
 
   val OverflowIntPattern = ContainsPattern("out of range for type Int")
   val OverflowLongPattern = ContainsPattern("out of range even for type Long")
+
+  def testFine(): Unit = {
+    val intStrings = (PredefinedInts ++ randomInts)
+      .flatMap(integerRepresentations)
+      .flatMap(prependSign)
+
+    for {
+      literalText <- intStrings
+      actual = messages(literalText)
+    } assertNothing(actual)
+
+    val longStrings = intStrings ++
+      (PredefinedLongs ++ randomLongs)
+        .flatMap(longRepresentations)
+        .flatMap(prependSign)
+    for {
+      literalText <- longStrings
+      longLiteralText <- appendL(literalText)
+      actual = messages(longLiteralText)
+    } assertNothing(actual)
+  }
+
+  def testLiteralOverflowInt(): Unit = {
+    val longStrings = PredefinedLongs.map(_.toString) ++
+      randomLongs.flatMap(longRepresentations)
+
+    for {
+      literalText <- longStrings
+      actual = messages(literalText)
+    } assertMatches(actual) {
+      case Error(`literalText`, OverflowIntPattern()) :: Nil =>
+    }
+  }
+
+  def testLiteralOverflowLong(): Unit = {
+    val overflowLongStrings = (PredefinedLongs ++ randomLongs)
+      .flatMap { long =>
+        longRepresentations(long)
+          .zip {
+            21 :: 24 :: 19 :: Nil
+          }.map {
+          case (string, length) => string.padTo(length, '1')
+        }
+      }
+    val overflowLongStringsWithL = overflowLongStrings
+      .flatMap(appendL)
+
+    for {
+      literalText <- overflowLongStrings ++ overflowLongStringsWithL ++ Seq("9223372036854775808l", "-9223372036854775809l")
+      actual = messages(literalText)
+    } assertMatches(actual) {
+      case Error(_, OverflowLongPattern()) :: Nil =>
+    }
+  }
+
+  private def messages(literalText: String): List[Message] = {
+    val annotator = ScalaAnnotator.forProject
+    val file: ScalaFile = ("val x = " + literalText).parse
+
+    val mock = new AnnotatorHolderMock(file)
+
+    file.depthFirst()
+      .filter(_.isInstanceOf[base.ScLiteral])
+      .foreach(annotator.annotate(_, mock))
+
+    mock.annotations
+      .filterNot(_.isInstanceOf[Info])
+  }
+}
+
+//noinspection TypeAnnotation
+private object IntegerLiteralCheckTest {
+
+  import java.lang.Integer.{MAX_VALUE => IntMaxValue, MIN_VALUE => IntMinValue}
+  import java.lang.Long.{MAX_VALUE => LongMaxValue, MIN_VALUE => LongMinValue}
+
+  import scala.util.Random._
+
+  val PredefinedInts = Set(
+    0,
+    -0,
+    1,
+    -1,
+    1234,
+    -1234,
+    IntMinValue,
+    IntMaxValue
+  )
+
+  val PredefinedLongs = Set(
+    1l + IntMaxValue,
+    12345l + IntMaxValue,
+    -1l + IntMinValue,
+    -1234l + IntMinValue,
+    LongMinValue,
+    LongMaxValue
+  )
+
+  def randomInts: Stream[Int] = randomValues(nextInt)()
+
+  def randomLongs: Stream[Long] = randomValues(nextLong) {
+    _.toHexString.length > 8
+  }
+
+  def integerRepresentations(int: Int): List[String] =
+    representations(int.toString, int.toOctalString, int.toHexString)
+
+  def longRepresentations(long: Long): List[String] =
+    representations(long.toString, long.toOctalString, long.toHexString)
+
+  def prependSign(s: String): List[String] = s ::
+    (if (s.startsWith("-")) Nil else "-" + s :: Nil)
+
+  def appendL(s: String): List[String] = s + "l" ::
+    s + "L" ::
+    Nil
+
+  private[this] def randomValues[T](generator: => T)
+                                   (predicate: T => Boolean = Function.const(true)(_: T)) =
+    Stream
+      .continually(generator)
+      .filter(predicate)
+      .take(10)
+
+  private[this] def representations(decimalString: String,
+                                    octalString: String,
+                                    hexString: String) =
+    decimalString ::
+      "0" + octalString ::
+      "0x" + hexString ::
+      "0X" + hexString ::
+      Nil
 }
