@@ -17,9 +17,9 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
   def docComment: Option[ScDocComment] = getFirstChild.asOptionOf[ScDocComment]
 
   @Nullable
-  def getDocComment: PsiDocComment = docComment.orNull
+  override def getDocComment: PsiDocComment = docComment.orNull
 
-  def isDeprecated = this match {
+  override def isDeprecated: Boolean = this match {
     case holder: ScAnnotationsHolder =>
       holder.hasAnnotation("scala.deprecated") || holder.hasAnnotation("java.lang.Deprecated")
     case _ => false
