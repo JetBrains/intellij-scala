@@ -10,17 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 3/17/12
-  */
 final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
 
   import InterpolatedStringType._
   import ScLiteralImpl._
 
-  import meta.intellij.QuasiquoteInferUtil._
+  import scala.meta.intellij.QuasiquoteInferUtil._
 
   override def getType: StringType = literalNode.getText match {
     case "s" => STANDART
@@ -30,7 +26,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
     case _ => null
   }
 
-  protected override def innerType: TypeResult = getStringContextExpression match {
+  protected override def innerType: TypeResult = {getStringContextExpression match {
     case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
       case expr: ScReferenceExpression if isMetaQQ(expr) =>
         getMetaQQExprType(this)
@@ -56,6 +52,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   override def isString: Boolean = true
 
   override def getValue: AnyRef = findChildByClassScala(classOf[ScLiteralImpl]) match {
+    // FIXME: it is actually always "" because child with type ScLiteralImpl can't be found...
     case literal: ScLiteralImpl => literal.getValue
     case _ => ""
   }
