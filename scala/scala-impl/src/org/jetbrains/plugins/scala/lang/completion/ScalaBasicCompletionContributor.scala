@@ -93,12 +93,16 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
         position.getContext match {
           case ref: ScReference =>
+
             object ValidItem {
 
               private val isInTypeElement = PsiTreeUtil.getContextOfType(position, classOf[ScTypeElement]) != null
               private val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
 
               def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
+                if (isInaccessible(item))
+                  return None
+
                 if (inString) item.isInSimpleString = true
                 if (inInterpolatedString) item.isInInterpolatedString = true
 
@@ -112,7 +116,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                       _.apply(clazz, createRenamePair(item).toMap)
                     }.orElse(Some(item))
                   case _ if lookingForAnnotations => None
-                  case f: FakePsiMethod if isInaccessible(f) => None //don't show _= methods for vars in basic completion
                   case _: ScFun | _: ScClassParameter => Some(item)
                   case _: ScParameter if !item.isNamedParameter =>
                     item.isLocalVariable = true
@@ -125,10 +128,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                       case _: ScCaseClause | _: ScForBinding | _: ScGenerator =>
                         item.isLocalVariable = true
                         Some(item)
-                      case member: PsiMember if isInaccessible(member) => None
                       case _ => Some(item)
                     }
-                  case member: PsiMember if isInaccessible(member) => None
                   case _ => Some(item)
                 }
               } else None
@@ -140,11 +141,20 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     case _ => isInImport
                   })
 
-              private def isInaccessible(member: PsiMember) = parameters.getInvocationCount < 2 &&
-                (member match {
-                  case method: FakePsiMethod => method.name.endsWith("_=")
-                  case _ => !ResolveUtils.isAccessible(member, position, forCompletion = true)
-                })
+              private def isInaccessible(item: ScalaLookupItem) = {
+                val checkAccessibility = parameters.getInvocationCount < 2
+                def isAccessible(m: PsiMember) =
+                  ResolveUtils.isAccessible(m, position, forCompletion = true)
+
+                if (checkAccessibility)
+                  item.element match {
+                    case method: FakePsiMethod => method.name.endsWith("_=") //don't show _= methods for vars in basic completion
+                    case cp: ScClassParameter  => !isAccessible(cp) && !item.isNamedParameter
+                    case member: PsiMember     => !isAccessible(member)
+                    case _ => false
+                  }
+                else false
+              }
             }
 
             val defaultLookupElements = (ref match {

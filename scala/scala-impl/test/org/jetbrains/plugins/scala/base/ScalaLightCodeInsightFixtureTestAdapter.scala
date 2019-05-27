@@ -23,6 +23,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._
 
+  val CARET = EditorTestUtil.CARET_TAG
+
   override final def getFixture: fixtures.JavaCodeInsightTestFixture = myFixture
 
   override def getTestDataPath: String = util.TestUtils.getTestDataPath + "/"

@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.Assert._
 
 abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
-  protected val CARET: String = EditorTestUtil.CARET_TAG
 
   protected def templateName: String
 
