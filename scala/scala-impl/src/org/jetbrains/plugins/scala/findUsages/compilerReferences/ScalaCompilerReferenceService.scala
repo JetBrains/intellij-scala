@@ -12,7 +12,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Disposer, ModificationTracker}
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
@@ -261,11 +261,6 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   def invalidateIndex(): Unit                    = onIndexCorruption()
   def getDirtyScopeHolder: ScalaDirtyScopeHolder = dirtyScopeHolder
-
-  def scopeWithoutReferences(target: PsiElement): GlobalSearchScope = {
-    //FIXME
-    GlobalSearchScope.EMPTY_SCOPE
-  }
 }
 
 object ScalaCompilerReferenceService {
@@ -277,4 +272,11 @@ object ScalaCompilerReferenceService {
 
   def apply(project: Project): ScalaCompilerReferenceService =
     project.getComponent(classOf[ScalaCompilerReferenceService])
+}
+
+class ScalaCompilerReferenceScopeOptimizer extends ScopeOptimizer {
+  override def getRestrictedUseScope(element: PsiElement): SearchScope = {
+    //FIXME
+    null
+  }
 }
