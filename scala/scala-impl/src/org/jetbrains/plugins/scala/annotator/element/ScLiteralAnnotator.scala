@@ -9,7 +9,8 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.project._
 
 object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
@@ -73,15 +74,60 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     }.sum
   }
 
+  private sealed abstract class IntegerKind(val radix: Int,
+                                            protected val beginIndex: Int,
+                                            val divider: Int = 2) {
+
+    final def apply(text: String,
+                    isLong: Boolean): String = text.substring(
+      beginIndex,
+      text.length - (if (isLong) 1 else 0)
+    )
+
+    final def get: this.type = this
+
+    final def isEmpty: Boolean = false
+
+    final def _1: Int = radix
+
+    final def _2: Int = divider
+  }
+
+  private object IntegerKind {
+
+    def apply(text: String): IntegerKind = text.head match {
+      case '0' if text.length > 1 =>
+        text(1) match {
+          case 'x' | 'X' => Hex
+          case IsLongMarker() => Dec
+          case _ => Oct
+        }
+      case _ => Dec
+    }
+
+    def unapply(kind: IntegerKind): IntegerKind = kind
+
+    object IsLongMarker {
+
+      def unapply(char: Char): Boolean = char match {
+        case 'l' | 'L' => true
+        case _ => false
+      }
+    }
+  }
+
+  private case object Dec extends IntegerKind(10, 0, 1)
+
+  private case object Hex extends IntegerKind(16, 2)
+
+  private case object Oct extends IntegerKind(8, 1)
+
   private def checkIntegerLiteral(node: ASTNode, literal: ScLiteral)
                                  (implicit holder: AnnotationHolder): Unit = {
-    val text = literal.getText
-    val endsWithL = node.getText.endsWith("l") || node.getText.endsWith("L")
+    val text = node.getText
+    val isLong = IntegerKind.IsLongMarker.unapply(text.last)
 
-    val numberText = text.substring(
-      0,
-      text.length - (if (endsWithL) 1 else 0)
-    )
+    val kind = IntegerKind(text)
 
     val maybeParent = literal.getParent match {
       case prefixExpr: ScPrefixExpr =>
@@ -93,13 +139,7 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       case _ => None
     }
 
-    val (beginIndex, base, divider) = numberText match {
-      case t if t.startsWith("0x") || t.startsWith("0X") => (2, 16, 2)
-      case t if t.startsWith("0") && t.length >= 2 => (1, 8, 2)
-      case _ => (0, 10, 1)
-    }
-
-    if (base == 8) {
+    if (kind == Oct) {
       literal.scalaLanguageLevel match {
         case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
           createAnnotation(
@@ -117,28 +157,29 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       }
     }
 
-    parseIntegerNumber(
-      numberText.substring(beginIndex),
-      base,
-      divider,
-      maybeParent.isDefined
-    ) match {
+    parseIntegerNumber(kind(text, isLong), kind, maybeParent.isDefined) match {
       case None =>
         holder.createErrorAnnotation(
           literal,
           "Integer number is out of range even for type Long"
         )
-      case Some(Right(_)) if !endsWithL =>
+      case Some(Right(_)) if !isLong =>
         val expression = maybeParent.getOrElse(literal)
         val annotation = holder.createErrorAnnotation(
           expression,
           "Integer number is out of range for type Int"
         )
 
-        val Long = literal.projectContext.stdTypes.Long
-        val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
-        val shouldRegisterFix = expression.expectedType().forall { x =>
-          conformsToTypeList.exists(_.weakConforms(x))
+        val shouldRegisterFix = expression.expectedType().forall { `type` =>
+          val longAndBigInt = api.Long(literal.getProject) :: ScalaPsiElementFactory.createTypeFromText(
+            "_root_.scala.math.BigInt",
+            literal.getContext,
+            literal
+          ).toList
+
+          longAndBigInt.exists {
+            _.weakConforms(`type`)
+          }
         }
 
         if (shouldRegisterFix) {
@@ -160,17 +201,16 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
   }
 
   private[this] def parseIntegerNumber(number: String,
-                                       base: Int, divider: Int,
+                                       kind: IntegerKind,
                                        isNegative: Boolean) =
-    stringToNumber(number, base, divider, isNegative)().map {
+    stringToNumber(number, kind, isNegative)().map {
       case (value, false) => Left(value.toInt)
       case (value, _) => Right(value)
     }
 
   @annotation.tailrec
   private[this] def stringToNumber(number: String,
-                                   base: Int,
-                                   divider: Int,
+                                   kind: IntegerKind,
                                    isNegative: Boolean)
                                   (index: Int = 0,
                                    value: Long = 0L,
@@ -180,15 +220,16 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       Some(newValue, exceedsIntLimit)
     } else {
       val digit = number(index).asDigit
-      val newValue = value * base + digit
+      val IntegerKind(radix, divider) = kind
+      val newValue = value * radix + digit
 
       def exceedsLimit(limit: Long) =
-          limit / (base / divider) < value ||
-          limit - (digit / divider) < value * (base / divider) &&
+        limit / (radix / divider) < value ||
+          limit - (digit / divider) < value * (radix / divider) &&
             !(isNegative && limit == newValue - 1)
 
       if (value < 0 || exceedsLimit(java.lang.Long.MAX_VALUE)) None
-      else stringToNumber(number, base, divider, isNegative)(
+      else stringToNumber(number, kind, isNegative)(
         index + 1,
         newValue,
         value > Integer.MAX_VALUE || exceedsLimit(Integer.MAX_VALUE)
