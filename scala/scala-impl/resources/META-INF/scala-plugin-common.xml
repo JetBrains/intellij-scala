@@ -938,8 +938,8 @@
                 key="method.signature.override.abstract.member"
                 groupPath="Scala" groupName="Method signature"
                 shortName="OverrideAbstractMember"
-                language="Scala" level="WARNING"
-                enabledByDefault="true"/>
+                language="Scala" level="WEAK WARNING"
+                enabledByDefault="false"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenOverrideInspection$JavaAccessorMethodOverriddenAsEmptyParenInspection"
                 bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
