@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil
 class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
   def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
     val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-    if (!file.isInstanceOf[ScalaFile] || !settings.PROCESS_MARGIN_ON_COPY_PASTE || startOffsets.length != 1 || endOffsets.length != 1) return null
+    if (!file.isInstanceOf[ScalaFile] || !settings.MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE || startOffsets.length != 1 || endOffsets.length != 1) return null
     findOuterString(file.findElementAt(startOffsets(0))) match {
       case Some(element) if element.getTextRange.getStartOffset <= startOffsets(0) &&
           element.getTextRange.getEndOffset >= endOffsets(0) => text stripMargin getMarginChar(element)
@@ -30,7 +30,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
 
   def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
     val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-    if (!file.isInstanceOf[ScalaFile] || !settings.PROCESS_MARGIN_ON_COPY_PASTE) return text
+    if (!file.isInstanceOf[ScalaFile] || !settings.MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE) return text
 
     val offset = editor.getCaretModel.getOffset
     val document = editor.getDocument

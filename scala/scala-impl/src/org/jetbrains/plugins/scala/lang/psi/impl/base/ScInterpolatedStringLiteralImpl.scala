@@ -9,6 +9,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
 final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
@@ -47,7 +48,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
 
   override def referenceName: String = reference.fold("")(_.refName)
 
-  override def isMultiLineString: Boolean = getText.endsWith(MultiLineQuote)
+  override def isMultiLineString: Boolean = getText.endsWith(MultilineQuotes)
 
   override def isString: Boolean = true
 

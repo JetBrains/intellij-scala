@@ -177,7 +177,7 @@ object MultilineStringUtil {
    */
   def addMarginsAndFormatMLString(element: PsiElement, document: Document, caretOffset: Int = 0): Int = {
     val settings = new MultilineStringSettings(element.getProject)
-    if (settings.supportLevel < ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR) return 0
+    if (!settings.insertMargin) return 0
 
     PsiDocumentManager.getInstance(element.getProject).doPostponedOperationsAndUnblockDocument(document)
 
@@ -247,9 +247,11 @@ class MultilineStringSettings(project: Project) {
   val useTabs: Boolean = settings.useTabCharacter(ScalaFileType.INSTANCE)
   val tabSize: Int = settings.getTabSize(ScalaFileType.INSTANCE)
   val regularIndent: Int = settings.getIndentOptions(ScalaFileType.INSTANCE).INDENT_SIZE
-  val marginIndent: Int = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
-  val supportLevel: Int = scalaSettings.MULTILINE_STRING_SUPPORT
-  val quotesOnNewLine: Boolean = scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE
+  val closingQuotesOnNewLine: Boolean = scalaSettings.MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE
+  val insertMargin: Boolean = scalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER
+  val supportMultilineString: Boolean = scalaSettings.supportMultilineString()
+  val marginIndent: Int = scalaSettings.MULTILINE_STRING_MARGIN_INDENT
+  val quotesOnNewLine: Boolean = scalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE
 
   def getSpaces(count: Int): String = StringUtil.repeat(" ", count)
 

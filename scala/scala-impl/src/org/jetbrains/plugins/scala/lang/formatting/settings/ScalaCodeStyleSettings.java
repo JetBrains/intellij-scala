@@ -42,10 +42,16 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int ON_FIRST_TOKEN = 1;
   public static final int ON_FIRST_ANCESTOR = 2;
   public static final int ALIGN_TO_EXTENDS = 3;
-  public static final int[] EXTENDS_ALIGN_VALUES =
-          new int[]{DO_NOT_ALIGN, ON_FIRST_TOKEN, ALIGN_TO_EXTENDS};
-  public static final String[] EXTENDS_ALIGN_STRING =
-          new String[]{"Do not align", "On first token", "Align to 'extends'"};
+  public static final int[] EXTENDS_ALIGN_VALUES = new int[]{
+          DO_NOT_ALIGN,
+          ON_FIRST_TOKEN,
+          ALIGN_TO_EXTENDS
+  };
+  public static final String[] EXTENDS_ALIGN_STRING = new String[]{
+          "Do not align",
+          "On first token",
+          "Align to 'extends'"
+  };
   public int ALIGN_EXTENDS_WITH = DO_NOT_ALIGN;
 
   //indents
@@ -107,7 +113,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   /**
    * NOTE! This setting is inferred:
-   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlignStyle()}
+   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferComponent#inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
    */
   public boolean USE_SCALADOC2_FORMATTING = false;
 
@@ -131,20 +137,59 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean KEEP_XML_FORMATTING = false;
 
   //multiline strings support
-  public int MULTILINE_STRING_SUPPORT = MULTILINE_STRING_ALL;
-  public String MARGIN_CHAR = "|";
-  public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
-  public boolean KEEP_MULTI_LINE_QUOTES = true;
-  public int MULTI_LINE_STRING_MARGIN_INDENT = 2;
-  public boolean PROCESS_MARGIN_ON_COPY_PASTE = true;
-
-  public static final int MULTILINE_STRING_NONE = 0;
-  public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
-  public static final int MULTILINE_STRING_INSERT_MARGIN_CHAR = 2;
-  public static final int MULTILINE_STRING_ALL = 3;
+  public boolean MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = true;
+  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
+  public boolean MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
+  public boolean MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = true;
+  public String MULTILINE_STRING_MARGIN_CHAR = "|";
+  public int MULTILINE_STRING_MARGIN_INDENT = 2;
 
   public boolean supportMultilineString() {
-    return MULTILINE_STRING_SUPPORT != MULTILINE_STRING_NONE;
+    return MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE | MULTILINE_STRING_INSERT_MARGIN_ON_ENTER;
+  }
+
+  /** @deprecated Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER} */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public int MULTILINE_STRING_SUPPORT = MULTILINE_STRING_ALL;
+  /** @deprecated Use Use {@link #MULTILINE_STRING_MARGIN_CHAR} */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public String MARGIN_CHAR = "|";
+  /** @deprecated Use Use {@link #MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE} */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
+  /** @deprecated Use Use {@link #MULTILINE_STRING_MARGIN_INDENT} */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public int MULTI_LINE_STRING_MARGIN_INDENT = 2;
+  /** @deprecated Use Use {@link #MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE} */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public boolean PROCESS_MARGIN_ON_COPY_PASTE = true;
+
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  private static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  private static final int MULTILINE_STRING_INSERT_MARGIN_CHAR = 2;
+  @Deprecated
+  private static final int MULTILINE_STRING_ALL = 2;
+
+  @Override
+  protected void afterLoaded() {
+    if (MULTILINE_STRING_SUPPORT != -1) {
+      MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = MULTILINE_STRING_SUPPORT >= MULTILINE_STRING_QUOTES_AND_INDENT;
+      MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = MULTILINE_STRING_SUPPORT >= MULTILINE_STRING_INSERT_MARGIN_CHAR;
+      MULTILINE_STRING_MARGIN_CHAR = MARGIN_CHAR;
+      MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = MULTI_LINE_QUOTES_ON_NEW_LINE;
+      MULTILINE_STRING_MARGIN_INDENT = MULTI_LINE_STRING_MARGIN_INDENT;
+      MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = PROCESS_MARGIN_ON_COPY_PASTE;
+
+      MULTILINE_STRING_SUPPORT = -1;
+    }
   }
 
   //type annotations
@@ -228,7 +273,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   @NotNull
   private static HashSet<String> asSet(String... strings) {
-    return new HashSet<String>(Arrays.asList(strings));
+    return new HashSet<>(Arrays.asList(strings));
   }
 
   //import
@@ -415,7 +460,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
    * "exclude:scala.Option"                             scala.Option excluded
    * "exclude:scala.collection.immutable._"             all classes from package scala.collection.immutable excluded
    **/
-  public static boolean nameFitToPatterns(String qualName, String[] patterns) {
+  private static boolean nameFitToPatterns(String qualName, String[] patterns) {
     return ScalaNamesUtil.nameFitToPatterns(qualName, patterns, true);
   }
 
@@ -428,6 +473,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   }
 
   public char getMarginChar() {
-    return MARGIN_CHAR.charAt(0);
+    return MULTILINE_STRING_MARGIN_CHAR.charAt(0);
   }
 }

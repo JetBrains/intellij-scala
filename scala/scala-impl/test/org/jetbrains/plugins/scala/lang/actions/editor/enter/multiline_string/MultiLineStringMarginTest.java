@@ -25,8 +25,9 @@ public class MultiLineStringMarginTest extends AbstractEnterActionTestBase {
     final CommonCodeStyleSettings settings = getCommonSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-    scalaSettings.MULTILINE_STRING_SUPPORT = ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR;
-    scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = 3;
+    scalaSettings.MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = false;
+    scalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
+    scalaSettings.MULTILINE_STRING_MARGIN_INDENT = 3;
   }
 
   public static Test suite() {

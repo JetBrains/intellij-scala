@@ -574,7 +574,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       .getOrElse(Alignment.createAlignment(true))
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val marginChar = MultilineStringUtil.getMarginChar(node.getPsi)
-    val marginIndent = ss.MULTI_LINE_STRING_MARGIN_INDENT
+    val marginIndent = ss.MULTILINE_STRING_MARGIN_INDENT
 
     val indent = Indent.getNoneIndent
     val simpleIndent = Indent.getAbsoluteNoneIndent

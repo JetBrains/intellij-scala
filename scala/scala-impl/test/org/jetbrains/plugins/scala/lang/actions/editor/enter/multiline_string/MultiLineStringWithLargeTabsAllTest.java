@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  * User: Dmitry Naydanov
  * Date: 10/1/12
@@ -25,13 +27,17 @@ public class MultiLineStringWithLargeTabsAllTest extends AbstractEnterActionTest
     final CommonCodeStyleSettings settings = getCommonSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-    scalaSettings.MULTILINE_STRING_SUPPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;
-    scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = 2;
+    scalaSettings.MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
+    scalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
+    scalaSettings.MULTILINE_STRING_MARGIN_INDENT = 2;
     settings.ALIGN_MULTILINE_BINARY_OPERATION = true;
-    settings.getIndentOptions().USE_TAB_CHARACTER = true;
-    settings.getIndentOptions().TAB_SIZE = 4;
-    settings.getIndentOptions().INDENT_SIZE = 4;
-    settings.getIndentOptions().CONTINUATION_INDENT_SIZE = 4;
+
+    CommonCodeStyleSettings.IndentOptions indentOptions = settings.getIndentOptions();
+    assertNotNull(indentOptions);
+    indentOptions.USE_TAB_CHARACTER = true;
+    indentOptions.TAB_SIZE = 4;
+    indentOptions.INDENT_SIZE = 4;
+    indentOptions.CONTINUATION_INDENT_SIZE = 4;
   }
   
   public static Test suite() {
