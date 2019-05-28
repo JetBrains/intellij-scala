@@ -1100,6 +1100,29 @@ object ScalaPsiUtil {
     }
   }
 
+  def isConcreteElement(element: PsiElement): Boolean = {
+    element match {
+      case _: ScFunctionDefinition => true
+      case f: ScFunctionDeclaration if f.isNative => true
+      case _: ScFunctionDeclaration => false
+      case _: ScFun => true
+      case Constructor.ofClass(c) if c.isInterface => false
+      case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
+      case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true
+      case _: ScPatternDefinition => true
+      case _: ScVariableDefinition => true
+      case _: ScClassParameter => true
+      case _: ScTypeDefinition => true
+      case _: ScTypeAliasDefinition => true
+      case _ => false
+    }
+  }
+
+  def isConcreteTermSignature(signature: TermSignature): Boolean = {
+    val element = nameContext(signature.namedElement)
+    isConcreteElement(element)
+  }
+
   @annotation.tailrec
   private def simpleBoundName(bound: ScTypeElement): String = bound match {
     case ScSimpleTypeElement(Some(ref))     => NameTransformer.encode(ref.refName)
