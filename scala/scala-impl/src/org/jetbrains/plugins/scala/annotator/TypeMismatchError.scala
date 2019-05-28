@@ -38,11 +38,11 @@ object TypeMismatchError {
       holder.createErrorAnnotation(annotatedElement, message)
     } else {
       val annotation = holder.createErrorAnnotation(lastLineRangeOf(annotatedElement), message)
-      annotation.setTooltip(tooltip)
       adjustTextAttributesOf(annotation)
       annotation
     }
 
+    annotation.setTooltip(tooltip)
     annotation.registerFix(ReportHighlightingErrorQuickFix)
 
     annotatedElement.putUserData(TypeMismatchErrorKey, TypeMismatchError(Some(expectedType), Some(actualType), tooltip, element.getManager.getModificationTracker.getModificationCount))
