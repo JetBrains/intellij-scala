@@ -13,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.{LeafElement, java}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiLiteralUtil
+import com.intellij.util.text.LiteralFormatUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -173,7 +174,8 @@ class ScLiteralImpl(node: ASTNode) extends expr.ScExpressionImplBase(node)
   private def nodeNumberValue(elementType: IElementType): Number = {
     def parseNumber(suffix: Char)
                    (function1: String => Number)
-                   (function2: String => Number) = getText match {
+                   (function2: String => Number) =
+      LiteralFormatUtil.removeUnderscores(getText) match {
       case text if endsWithIgnoreCase(text, suffix) => function1(text)
       case text => function2(text)
     }

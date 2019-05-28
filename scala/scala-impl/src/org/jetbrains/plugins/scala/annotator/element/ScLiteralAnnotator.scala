@@ -127,7 +127,10 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
 
   private def checkIntegerLiteral(node: ASTNode, literal: ScLiteral)
                                  (implicit holder: AnnotationHolder): Unit = {
+    import ScalaLanguageLevel._
+    val languageLevel = literal.scalaLanguageLevel
     val text = node.getText
+
     val isLong = IntegerKind.IsLongMarker.unapply(text.last)
 
     val kind = IntegerKind(text)
@@ -142,25 +145,31 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       case _ => None
     }
 
-    if (kind == Oct) {
-      literal.scalaLanguageLevel match {
-        case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
-          createAnnotation(
-            literal,
-            ScalaBundle.message("octal.literal.removed")
-          )
-          return
-        case Some(ScalaLanguageLevel.Scala_2_10) =>
-          createAnnotation(
-            literal,
-            ScalaBundle.message("octal.literals.deprecated"),
-            ProblemHighlightType.LIKE_DEPRECATED
-          )
-        case _ =>
-      }
+    kind match {
+      case Oct if languageLevel.exists(_ >= Scala_2_11) =>
+        createAnnotation(
+          literal,
+          ScalaBundle.message("octal.literal.removed")
+        )
+        return
+      case Oct if languageLevel.contains(Scala_2_10) =>
+        createAnnotation(
+          literal,
+          ScalaBundle.message("octal.literals.deprecated"),
+          ProblemHighlightType.LIKE_DEPRECATED
+        )
+      case _ =>
     }
 
-    parseIntegerNumber(kind(text, isLong), kind, maybeParent.isDefined) match {
+    val number = kind(text, isLong)
+    (number.lastIndexOf('_'), number.length) match {
+      case (index, length) if index == length - 1 =>
+        createAnnotation(literal, ScalaBundle.message("trailing.underscore.separator"))
+      case (-1, _) =>
+      case _ => createAnnotation(literal, ScalaBundle.message("illegal.underscore.separator"))
+    }
+
+    parseIntegerNumber(number, kind, maybeParent.isDefined) match {
       case None =>
         holder.createErrorAnnotation(
           literal,
@@ -222,20 +231,24 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       val newValue = if (isNegative) -value else value
       Some(newValue, exceedsIntLimit)
     } else {
-      val digit = number(index).asDigit
-      val IntegerKind(radix, divider) = kind
-      val newValue = value * radix + digit
+      number(index) match {
+        case '_' => stringToNumber(number, kind, isNegative)(index + 1, value, exceedsIntLimit)
+        case char =>
+          val digit = char.asDigit
+          val IntegerKind(radix, divider) = kind
+          val newValue = value * radix + digit
 
-      def exceedsLimit(limit: Long) =
-        limit / (radix / divider) < value ||
-          limit - (digit / divider) < value * (radix / divider) &&
-            !(isNegative && limit == newValue - 1)
+          def exceedsLimit(limit: Long) =
+            limit / (radix / divider) < value ||
+              limit - (digit / divider) < value * (radix / divider) &&
+                !(isNegative && limit == newValue - 1)
 
-      if (value < 0 || exceedsLimit(java.lang.Long.MAX_VALUE)) None
-      else stringToNumber(number, kind, isNegative)(
-        index + 1,
-        newValue,
-        value > Integer.MAX_VALUE || exceedsLimit(Integer.MAX_VALUE)
-      )
+          if (value < 0 || exceedsLimit(java.lang.Long.MAX_VALUE)) None
+          else stringToNumber(number, kind, isNegative)(
+            index + 1,
+            newValue,
+            value > Integer.MAX_VALUE || exceedsLimit(Integer.MAX_VALUE)
+          )
+      }
     }
 }
