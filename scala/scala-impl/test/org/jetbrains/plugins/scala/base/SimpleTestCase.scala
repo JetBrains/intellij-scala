@@ -17,7 +17,8 @@ import scala.reflect.ClassTag
  */
 
 abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
-  var fixture: CodeInsightTestFixture = null
+
+  var fixture: CodeInsightTestFixture = _
 
   implicit def ctx: ProjectContext = fixture.getProject
 
@@ -84,6 +85,13 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
   }
 
   case class ContainsPattern(fragment: String) {
-    def unapply(s: String) = s.contains(fragment)
+    def unapply(s: String): Boolean = s.contains(fragment)
+  }
+
+  case class BundleMessagePattern(key: String, params: Any*) {
+
+    private val message = ScalaBundle.message(key, params)
+
+    def unapply(text: String): Boolean = text == message
   }
 }

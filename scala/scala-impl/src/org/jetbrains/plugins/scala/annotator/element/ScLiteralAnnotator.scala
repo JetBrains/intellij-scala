@@ -47,7 +47,10 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
                                                              (implicit holder: AnnotationHolder,
                                                               containingFile: PsiFile) =
     if (strings(literal).exists(stringIsTooLong)) {
-      holder.createErrorAnnotation(literal, ScalaBundle.message("string.literal.is.too.long"))
+      holder.createErrorAnnotation(
+        literal,
+        ScalaBundle.message("string.literal.is.too.long")
+      )
     }
 
   private def stringIsTooLong(string: String)
@@ -144,13 +147,13 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
         case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
           createAnnotation(
             literal,
-            "Octal number is removed in Scala-2.11 and after"
+            ScalaBundle.message("octal.literal.removed")
           )
           return
         case Some(ScalaLanguageLevel.Scala_2_10) =>
           createAnnotation(
             literal,
-            "Octal number is deprecated in Scala-2.10 and will be removed in Scala-2.11",
+            ScalaBundle.message("octal.literals.deprecated"),
             ProblemHighlightType.LIKE_DEPRECATED
           )
         case _ =>
@@ -161,13 +164,13 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       case None =>
         holder.createErrorAnnotation(
           literal,
-          "Integer number is out of range even for type Long"
+          ScalaBundle.message("long.literal.is.out.of.range")
         )
       case Some(Right(_)) if !isLong =>
         val expression = maybeParent.getOrElse(literal)
         val annotation = holder.createErrorAnnotation(
           expression,
-          "Integer number is out of range for type Int"
+          ScalaBundle.message("integer.literal.is.out.of.range")
         )
 
         val shouldRegisterFix = expression.expectedType().forall { `type` =>

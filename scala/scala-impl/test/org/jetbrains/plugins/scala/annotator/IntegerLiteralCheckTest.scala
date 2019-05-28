@@ -12,8 +12,8 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
 
   import IntegerLiteralCheckTest._
 
-  val OverflowIntPattern = ContainsPattern("out of range for type Int")
-  val OverflowLongPattern = ContainsPattern("out of range even for type Long")
+  private val OverflowIntPattern = BundleMessagePattern("integer.literal.is.out.of.range")
+  private val OverflowLongPattern = BundleMessagePattern("long.literal.is.out.of.range")
 
   def testFine(): Unit = {
     val intStrings = (PredefinedInts ++ randomInts)
