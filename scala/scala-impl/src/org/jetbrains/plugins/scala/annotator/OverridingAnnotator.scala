@@ -5,13 +5,12 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -28,29 +27,6 @@ trait OverridingAnnotator {
 
   import lang.psi.ScalaPsiUtil._
 
-  private def isConcreteElement(element: PsiElement): Boolean = {
-    element match {
-      case _: ScFunctionDefinition => true
-      case f: ScFunctionDeclaration if f.isNative => true
-      case _: ScFunctionDeclaration => false
-      case _: ScFun => true
-      case Constructor.ofClass(c) if c.isInterface => false
-      case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
-      case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true
-      case _: ScPatternDefinition => true
-      case _: ScVariableDefinition => true
-      case _: ScClassParameter => true
-      case _: ScTypeDefinition => true
-      case _: ScTypeAliasDefinition => true
-      case _ => false
-    }
-  }
-
-  private def isConcrete(signature: TermSignature): Boolean = {
-    val element = nameContext(signature.namedElement)
-    isConcreteElement(element)
-  }
-
   def checkStructural(element: PsiElement, supers: Seq[Any], isInSources: Boolean): Unit = {
     if (!isInSources) return
     element.getParent match {
@@ -66,7 +42,7 @@ trait OverridingAnnotator {
       val signaturesWithSelfType = function.superSignaturesIncludingSelfType
       val signatures = function.superSignatures
       checkStructural(function, signatures, isInSources)
-      checkOverrideMembers(function, function, signaturesWithSelfType, function.superSignatures, isConcrete, "Method")
+      checkOverrideMembers(function, function, signaturesWithSelfType, function.superSignatures, isConcreteTermSignature, "Method")
     case _ =>
   }
 
@@ -78,7 +54,7 @@ trait OverridingAnnotator {
         val valsSignaturesWithSelfType = superValsSignatures(td, withSelfType = true)
         val valsSignatures = superValsSignatures(td)
         checkStructural(value, valsSignatures, isInSources)
-        checkOverrideMembers(td, value, valsSignaturesWithSelfType, valsSignatures, isConcrete, "Value")
+        checkOverrideMembers(td, value, valsSignaturesWithSelfType, valsSignatures, isConcreteTermSignature, "Value")
       }
     case _ =>
   }
@@ -91,7 +67,7 @@ trait OverridingAnnotator {
         val valsSignaturesWithSelfType = superValsSignatures(td, withSelfType = true)
         val valsSignatures = superValsSignatures(td)
         checkStructural(variable, valsSignatures, isInSources)
-        checkOverrideMembers(td, variable, valsSignaturesWithSelfType, valsSignatures, isConcrete, "Variable")
+        checkOverrideMembers(td, variable, valsSignaturesWithSelfType, valsSignatures, isConcreteTermSignature, "Variable")
       }
     case _ =>
   }
@@ -100,7 +76,7 @@ trait OverridingAnnotator {
                                   (implicit holder: AnnotationHolder): Unit = {
     val supersWithSelfType = superValsSignatures(parameter, withSelfType = true)
     val supers = superValsSignatures(parameter)
-    checkOverrideMembers(parameter, parameter, supersWithSelfType, supers, isConcrete, "Parameter")
+    checkOverrideMembers(parameter, parameter, supersWithSelfType, supers, isConcreteTermSignature, "Parameter")
   }
 
   def checkOverrideTypeAliases(alias: ScTypeAlias)
