@@ -3641,12 +3641,6 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  """||Name (String) | Level (Integer) |
-     ||Squirtle      | 1               |
-     ||Balbasaur     | 1               |
-     ||Charmander    | 2               |
-  """.stripMargin
-
   def testAlignWithMarginCharOnFirstLine_SCL9365(): Unit = {
     val before =
       s"""class A {
@@ -3667,5 +3661,40 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
          |}
     """.stripMargin
     doTextTest(before, after)
+  }
+
+  def testSCL6795_1(): Unit = {
+    val sameLine =
+      s"""val myRegex = new Regex($Quotes first line of regex
+         |                          |foo (.*)
+         |                          |  br (.*)
+         |                          |  bz ( .*)
+         |                          |$Quotes.stripMargin)
+         |""".stripMargin
+    val sameLineIndented =
+      s"""val myRegex = new Regex(   $Quotes first line of regex
+         |                             |foo (.*)
+         |                             |  br (.*)
+         |                             |  bz ( .*)
+         |                             |$Quotes.stripMargin)
+         |""".stripMargin
+    val nextLine =
+      s"""val myRegex = new Regex(
+         |  $Quotes first line of regex
+         |    |foo (.*)
+         |    |  br (.*)
+         |    |  bz ( .*)
+         |    |$Quotes.stripMargin)
+         |""".stripMargin
+
+    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = false
+    doTextTest(nextLine, nextLine)
+    doTextTest(sameLine, sameLine)
+    doTextTest(sameLineIndented, sameLine)
+
+    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = true
+    doTextTest(nextLine, nextLine)
+    doTextTest(sameLine, nextLine)
+    doTextTest(sameLineIndented, nextLine)
   }
 }

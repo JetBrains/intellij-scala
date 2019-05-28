@@ -21,8 +21,9 @@ public class MultiLineStringAlignInfixAllTest extends AbstractEnterActionTestBas
     final CommonCodeStyleSettings settings = getCommonSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-    scalaSettings.MULTILINE_STRING_SUPPORT = ScalaCodeStyleSettings.MULTILINE_STRING_ALL;
-    scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = 3;
+    scalaSettings.MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
+    scalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
+    scalaSettings.MULTILINE_STRING_MARGIN_INDENT = 3;
     settings.ALIGN_MULTILINE_BINARY_OPERATION = true;
   }
 

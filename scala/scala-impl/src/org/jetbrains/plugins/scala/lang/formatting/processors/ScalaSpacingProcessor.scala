@@ -329,18 +329,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //multiline strings
-    if (scalaSettings.supportMultilineString && isMultiLineStringCase(rightPsi)) {
-      (scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE, scalaSettings.KEEP_MULTI_LINE_QUOTES) match {
-        case (false, true) =>
-          val prevIsNewLine = rightPsi.getPrevSibling != null && getText(rightPsi.getPrevSibling.getNode, fileText).contains("\n")
-          return if (prevIsNewLine) ON_NEW_LINE
-          else WITH_SPACING
-        case (true, false) => return ON_NEW_LINE
-        case (false, false) => return WITH_SPACING_NO_KEEP
-        case (true, true) =>
-          //TODO the '0' in arguments is a temporary fix for SCL-8683: will not remove redundant space, but does not place new space either
-          return Spacing.createDependentLFSpacing(0, 1, rightPsiParent.getTextRange, true, 1)
-      }
+    if(scalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE && isMultiLineStringCase(rightPsi)) {
+      return ON_NEW_LINE
     }
 
     def allLinesHaveMargin(literalText: String) = literalText.split("\n").map(_.trim).

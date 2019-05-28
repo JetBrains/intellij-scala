@@ -5,6 +5,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
 import scala.meta.intellij.QuasiquoteInferUtil
 
@@ -12,7 +13,6 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
 
   import InterpolatedStringType._
-  import ScLiteralImpl._
 
   override def getType: StringType = getNode.getFirstChildNode.getText match {
     case "s" => STANDART
@@ -46,7 +46,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
     }
   }
 
-  override def isMultiLineString: Boolean = getText.endsWith(MultiLineQuote)
+  override def isMultiLineString: Boolean = getText.endsWith(MultilineQuotes)
 
   override def isString: Boolean = true
 

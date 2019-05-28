@@ -10,91 +10,76 @@
       <size top="10" left="10" bottom="10" right="10"/>
     </border>
     <children>
-      <component id="d2acf" class="javax.swing.JLabel" binding="supportLevelLabel">
+      <component id="37dfc" class="javax.swing.JCheckBox" binding="openingQuotesOnNewCheckBox" default-binding="true">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.support.option"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.opening.quotes.on.new.line"/>
         </properties>
       </component>
-      <component id="3f3d8" class="javax.swing.JComboBox" binding="supportLevelChooser">
+      <component id="a4cd0" class="javax.swing.JCheckBox" binding="closingQuotesOnNewLine">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <model>
-            <item value="None"/>
-            <item value="Closing quotes on new line"/>
-            <item value="Insert margin char"/>
-            <item value="All"/>
-          </model>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.on.enter.place.closing.quotes.on.new.line"/>
         </properties>
       </component>
-      <hspacer id="d1bbc">
+      <component id="5de9a" class="javax.swing.JCheckBox" binding="insertMarginChar">
         <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-      </hspacer>
-      <component id="19a4e" class="javax.swing.JLabel" binding="marginCharLabel">
+        <properties>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.on.enter.insert.margin.char"/>
+        </properties>
+      </component>
+      <component id="19a4e" class="javax.swing.JLabel">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.support.margin.char.label"/>
         </properties>
       </component>
-      <component id="fb21a" class="javax.swing.JTextField" binding="marginCharTextField">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <text value="|"/>
-        </properties>
-      </component>
       <component id="4fa32" class="javax.swing.JLabel">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.margin.char.indent"/>
         </properties>
       </component>
-      <component id="b4c9b" class="javax.swing.JCheckBox" binding="keepOpeningQuotesCheckBox" default-binding="true">
+      <component id="a55cc" class="javax.swing.JCheckBox" binding="processMarginCheckBox">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.keep.opening.quotes"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.process.margin.on.copy.paste"/>
         </properties>
+      </component>
+      <component id="1df32" class="javax.swing.JSpinner" binding="marginIndentSpinner">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
       </component>
       <vspacer id="64381">
         <constraints>
           <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <component id="1df32" class="javax.swing.JSpinner" binding="marginIndentSpinner">
+      <hspacer id="63d0d">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
-      </component>
-      <component id="37dfc" class="javax.swing.JCheckBox" binding="openingQuotesOnNewCheckBox" default-binding="true">
+      </hspacer>
+      <component id="fb21a" class="javax.swing.JTextField" binding="marginCharTextField">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.opening.quotes.on.new.line"/>
-        </properties>
-      </component>
-      <component id="a55cc" class="javax.swing.JCheckBox" binding="processMarginCheckBox">
-        <constraints>
-          <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="multi.line.string.process.margin.on.copy.paste"/>
+          <text value="|"/>
         </properties>
       </component>
     </children>

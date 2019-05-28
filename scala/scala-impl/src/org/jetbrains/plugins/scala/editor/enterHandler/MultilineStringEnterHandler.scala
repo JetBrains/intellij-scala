@@ -13,11 +13,9 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{BooleanExt, CharSeqExt, PsiElementExt, StringExt}
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
-import ScalaCodeStyleSettings.{MULTILINE_STRING_ALL, MULTILINE_STRING_INSERT_MARGIN_CHAR, MULTILINE_STRING_QUOTES_AND_INDENT}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 import org.jetbrains.plugins.scala.util.{MultilineStringSettings, MultilineStringUtil}
 
 // TODO: add Scala prefix for all handlers for easy debug
@@ -91,7 +89,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     val settings = new MultilineStringSettings(project)
     import settings._
 
-    if (supportLevel == ScalaCodeStyleSettings.MULTILINE_STRING_NONE || offset - literalOffset < firstMLQuoteLength)
+    if (!settings.supportMultilineString || offset - literalOffset < firstMLQuoteLength)
       return Result.Continue
 
     def getLineByNumber(number: Int): String = {
@@ -143,16 +141,13 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       val marginChar: Char = MultilineStringUtil.getMarginChar(element)
 
       val marginCharOpt: Option[Char] = {
-        val marginCharFromSettings = supportLevel match {
-          case MULTILINE_STRING_INSERT_MARGIN_CHAR | MULTILINE_STRING_ALL => Some(marginChar)
-          case _ => None
-        }
-        marginCharFromSettings match {
-          case Some(mChar) if MultilineStringUtil.hasMarginChars(element, mChar.toString) ||
-            (!MultilineStringUtil.hasMarginChars(element, mChar.toString) && lines.length > 3) ||
-            MultilineStringUtil.needAddByType(literal) =>
-            marginCharFromSettings
-          case _ => None
+        if (settings.insertMargin && (
+          lines.length > 3 ||
+            MultilineStringUtil.hasMarginChars(element, marginChar.toString) ||
+            MultilineStringUtil.needAddByType(literal))) {
+          Some(marginChar)
+        } else {
+          None
         }
       }
 
@@ -164,7 +159,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       }
 
       def handleEnterInsideMultilineExpanded(): Unit = {
-        if (supportLevel >= ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR && MultilineStringUtil.needAddByType(literal)) {
+        if (settings.insertMargin && MultilineStringUtil.needAddByType(literal)) {
           MultilineStringUtil.insertStripMargin(document, literal, marginChar)
         }
 
@@ -193,19 +188,15 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
         document.commit(project)
 
-        if (supportLevel != MULTILINE_STRING_QUOTES_AND_INDENT) {
+        if (settings.insertMargin) {
           for {
             lineIdx <- nextLineNumber to currentLineNumber + newLinesAdded
             if lineIdx < document.getLineCount
           } manager.adjustLineIndent(document, document.getLineStartOffset(lineIdx))
         }
 
-        val closingQuotesOnNewLine = supportLevel match {
-          case MULTILINE_STRING_QUOTES_AND_INDENT | MULTILINE_STRING_ALL =>
-            val quotesAfterCaret = literalText.substring(offset - literalOffset) == MultilineQuotes
-            quotesAfterCaret
-          case _ => false
-        }
+        val closingQuotesOnNewLine =
+          settings.closingQuotesOnNewLine && literalText.substring(offset - literalOffset) == MultilineQuotes
 
         if (closingQuotesOnNewLine) {
           caretMarker.setGreedyToRight(false)
@@ -302,7 +293,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           def otherLinesHaveMargin = lines.exists(_.trim.startsWith(marginChar))
           prevLineHasMargin || otherLinesHaveMargin
         }
-        if (literalAlreadyHasLineMargin && supportLevel >= ScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_CHAR) {
+        if (literalAlreadyHasLineMargin && settings.insertMargin) {
           handleEnterWithMargin()
         } else {
           handleEnterWithoutMargin()

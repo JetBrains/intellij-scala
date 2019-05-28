@@ -39,5 +39,5 @@ final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAct
   override def getText: String = "Add 'stripMargin'"
 
   private def getMarginChar(project: Project): String =
-    CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR
+    CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).MULTILINE_STRING_MARGIN_CHAR
 }
