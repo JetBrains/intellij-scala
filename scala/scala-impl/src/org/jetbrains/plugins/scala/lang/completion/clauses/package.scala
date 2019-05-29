@@ -61,7 +61,7 @@ package object clauses {
 
   private[clauses] object Extractor {
 
-    def unapply(`object`: ScObject): Option[ScFunctionDefinition] = `object`.members.collectFirst {
+    def unapply(`object`: ScObject): Option[ScFunctionDefinition] = `object`.membersWithSynthetic.collectFirst {
       case function: ScFunctionDefinition if function.isUnapplyMethod => function
     }
   }

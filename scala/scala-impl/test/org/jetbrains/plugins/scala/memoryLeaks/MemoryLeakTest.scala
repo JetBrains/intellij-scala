@@ -143,7 +143,7 @@ object MemoryLeakTest {
 
   private def createRunConfiguration(file: ScalaFile): RunnerAndConfigurationSettings = {
     val clazz = file.typeDefinitions.head
-    val mainMethod = clazz.members.collectFirst {
+    val mainMethod = clazz.membersWithSynthetic.collectFirst {
       case function: ScFunctionDefinition if function.name == "main" => function
     }.get
 

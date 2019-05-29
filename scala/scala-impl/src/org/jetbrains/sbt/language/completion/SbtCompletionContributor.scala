@@ -100,7 +100,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
             lookup.addLookupStrings(obj.name + "." + element.name)
             applyVariant(lookup)
           }
-          obj.members.foreach {
+          obj.membersWithSynthetic.foreach {
             case v: ScValue    => v.declaredElements foreach fetchAndApply
             case v: ScVariable => v.declaredElements foreach fetchAndApply
             case obj: ScObject => fetchAndApply(obj)

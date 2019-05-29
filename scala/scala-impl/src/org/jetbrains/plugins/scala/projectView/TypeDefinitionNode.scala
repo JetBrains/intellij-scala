@@ -33,7 +33,7 @@ private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project:
     if (getSettings.isShowMembers) value.map(childrenOf).getOrElse(Seq.empty).asJava
     else super.getChildrenImpl
 
-  private def childrenOf(parent: ScTypeDefinition): Seq[Node] = parent.members.flatMap {
+  private def childrenOf(parent: ScTypeDefinition): Seq[Node] = parent.membersWithSynthetic.flatMap {
     case definition: ScTypeDefinition =>
       Seq(new TypeDefinitionNode(definition))
 
