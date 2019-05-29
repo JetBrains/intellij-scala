@@ -48,17 +48,11 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     if (mode != TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION) {
       rootElement.elements.foreach { e =>
         TypeMismatchError(e).foreach { case TypeMismatchError(expectedType, actualType, message, _) =>
-          val (shownType, attributeKey) = mode match {
-            case TypeMismatchHighlightingMode.UNDERLINE_ACTUAL_TYPE_HINT => (actualType, CodeInsightColors.ERRORS_ATTRIBUTES)
-            case TypeMismatchHighlightingMode.STRIKETHROUGH_ACTUAL_TYPE_HINT => (actualType, CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)
-            case TypeMismatchHighlightingMode.UNDERLINE_EXPECTED_TYPE_HINT => (expectedType, CodeInsightColors.ERRORS_ATTRIBUTES)
-            case TypeMismatchHighlightingMode.STRIKETHROUGH_EXPECTED_TYPE_HINT => (expectedType, CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)
-          }
           val needsParentheses = e.isInstanceOf[ScInfixExpr] || e.isInstanceOf[ScPostfixExpr]
           if (needsParentheses) {
             hints +:= Hint(Seq(Text("(")), e, suffix = false)
           }
-          val parts = Seq(Text(": "), Text(shownType.map(_.presentableText).mkString, attributes = Some(editor.getColorsScheme.getAttributes(attributeKey)), errorTooltip = Some(message))) |> { parts =>
+          val parts = Seq(Text(": "), Text(actualType.map(_.presentableText).mkString, attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)), errorTooltip = Some(message))) |> { parts =>
             if (needsParentheses) Text(")") +: parts else parts
           }
           val spaceWidth = editor.getComponent.getFontMetrics(editor.getColorsScheme.getFont(EditorFontType.PLAIN)).charWidth(' ')
