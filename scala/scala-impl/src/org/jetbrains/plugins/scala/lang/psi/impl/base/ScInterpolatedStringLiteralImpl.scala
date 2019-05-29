@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.meta.intellij.QuasiquoteInferUtil
-
 /**
   * User: Dmitry Naydanov
   * Date: 3/17/12
@@ -22,7 +20,9 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   import InterpolatedStringType._
   import ScLiteralImpl._
 
-  override def getType: StringType = getNode.getFirstChildNode.getText match {
+  import meta.intellij.QuasiquoteInferUtil._
+
+  override def getType: StringType = literalNode.getText match {
     case "s" => STANDART
     case "f" => FORMAT
     case "id" => PATTERN
@@ -32,12 +32,11 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
 
   protected override def innerType: TypeResult = getStringContextExpression match {
     case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
-      case expr: ScReferenceExpression if QuasiquoteInferUtil.isMetaQQ(expr) =>
-        QuasiquoteInferUtil.getMetaQQExprType(this)
+      case expr: ScReferenceExpression if isMetaQQ(expr) =>
+        getMetaQQExprType(this)
       case expr: ScReferenceExpression =>
-        InterpolatedStringMacroTypeProvider.getTypeProvider(expr) match {
-          case Some(typeProvider) => typeProvider.inferExpressionType(this)
-          case None => mc.getNonValueType()
+        InterpolatedStringMacroTypeProvider.getTypeProvider(expr).fold(mc.getNonValueType()) {
+          _.inferExpressionType(this)
         }
       case _ => mc.getNonValueType()
     }

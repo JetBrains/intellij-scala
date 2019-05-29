@@ -118,7 +118,7 @@ class ScLiteralImpl(node: ASTNode) extends expr.ScExpressionImplBase(node)
     if (isMultiLineString) new PassthroughLiteralEscaper(this)
     else new ScLiteralEscaper(this)
 
-  private def literalNode = getNode.getFirstChildNode
+  protected final def literalNode: ASTNode = getNode.getFirstChildNode
 
   private def literalElementType = literalNode.getElementType
 
