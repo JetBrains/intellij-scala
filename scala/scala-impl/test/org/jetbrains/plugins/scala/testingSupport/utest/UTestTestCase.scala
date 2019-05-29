@@ -12,4 +12,7 @@ abstract class UTestTestCase extends ScalaTestingTestCase {
     TestConfigurationUtil.uTestConfigurationProducer
 
   protected val testSuiteSecondPrefix = "import utest.framework.TestSuite"
+
+  // TestRunnerUtil.unescapeTestNam is not used in UTestRunner
+  override protected def unescapeTestName(str: String): String = str
 }

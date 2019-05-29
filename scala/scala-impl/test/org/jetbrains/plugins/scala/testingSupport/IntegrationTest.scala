@@ -13,15 +13,15 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AllInPackageTestData, ClassTestData, SingleTestData}
 import org.junit.Assert
-import org.junit.Assert.assertEquals
+import org.junit.Assert._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 /**
-  * @author Roman.Shein
-  * @since 20.01.2015.
-  */
+ * @author Roman.Shein
+ * @since 20.01.2015.
+ */
 trait IntegrationTest {
 
   protected def runTestFromConfig(
@@ -68,9 +68,15 @@ trait IntegrationTest {
 
   protected def addFileToProject(fileName: String, fileText: String)
 
+  @deprecated("use assertConfigAndSettings") // TODO
   protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Boolean = {
     val config = configAndSettings.getConfiguration
     checkConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
+  }
+
+  protected def assertConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Unit = {
+    val config = configAndSettings.getConfiguration
+    assertConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
   }
 
   protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Boolean = {
@@ -82,13 +88,26 @@ trait IntegrationTest {
     }
   }
 
-  protected def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
+  @deprecated("use assertConfig") // TODO
+  private def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
     config.getTestClassPath == testClass && (config.testConfigurationData match {
       case testData: SingleTestData =>
         val configTests = parseTestName(testData.testName)
         configTests.size == testNames.size && ((configTests zip testNames) forall { case (actual, required) => actual == required })
-      case _: ClassTestData => testNames.isEmpty
+      case _: ClassTestData =>
+        testNames.isEmpty
     })
+  }
+
+  private def assertConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Unit = {
+    assertEquals(testClass, config.getTestClassPath)
+    config.testConfigurationData match {
+      case testData: SingleTestData =>
+        val configTests = parseTestName(testData.testName)
+        assertArrayEquals("test names should be the same as expected", testNames, configTests)
+      case _: ClassTestData =>
+        assertTrue("test names should be empty", testNames.isEmpty)
+    }
   }
 
   protected def checkResultTreeHasExactNamedPath(root: AbstractTestProxy, names: String*): Boolean =
@@ -112,6 +131,7 @@ trait IntegrationTest {
       case _ => buildConditions(names.tail,
         ((node: AbstractTestProxy) => node.getName == names.head && !node.isLeaf) :: acc)
     }
+
     getPathFromResultTree(root, buildConditions(names).reverse, allowTail)
   }
 
@@ -208,8 +228,19 @@ trait IntegrationTest {
     assertEquals(startLineNumber, sourceLine)
   }
 
-  private def parseTestName(testName: String): Seq[String] = {
-    testName.split("\n").map(TestRunnerUtil.unescapeTestName)
+  protected def parseTestName(testName: String): Seq[String] = {
+    testName.split("\n").map(unescapeTestName)
   }
 
+  protected def unescapeTestName(str: String): String = {
+    TestRunnerUtil.unescapeTestName(str)
+  }
+
+  def assertArrayEquals(message: String, expecteds: Seq[String], actuals: Seq[String]): Unit = {
+    Assert.assertArrayEquals(
+      message,
+      expecteds.toArray.asInstanceOf[Array[Object]],
+      actuals.toArray.asInstanceOf[Array[Object]]
+    )
+  }
 }

@@ -53,8 +53,12 @@ class UTestRunConfiguration(project: Project,
 
   override protected def sbtTestNameKey = ""
 
-  override protected def escapeTestName(test: String): String = test.stripPrefix("tests").replace("\\", ".")
+  override protected def escapeTestName(test: String): String = {
+    test.stripPrefix("tests").replace("\\", ".")
+  }
 
-  override protected def escapeClassAndTest(input: String): String =
-    if (input.contains(" ")) "\"" + input + "\"" else input
+  override protected def escapeClassAndTest(input: String): String = {
+    if (input.contains(" ")) s""""$input""""
+    else input
+  }
 }

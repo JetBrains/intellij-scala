@@ -153,7 +153,8 @@ public class ScalaTestRunner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testNames.add(TestRunnerUtil.unescapeTestName(newArgs[i]));
+        String testNamesUnescaped = TestRunnerUtil.unescapeTestName(newArgs[i]);
+        testNames.add(testNamesUnescaped);
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;

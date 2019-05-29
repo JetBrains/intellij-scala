@@ -30,10 +30,11 @@ class PassthroughLiteralEscaper(val literal: ScLiteralImpl) extends LiteralTextE
    * @see [[com.intellij.codeInsight.editorActions.EnterHandler#isEnabledForCaret]]
    */
   override def isOneLine: Boolean = {
-//    myHost.getValue match {
-//      case str: String => str.indexOf('\n') < 0
-//      case _ => false
-//     }
+    // TODO: fix platform in order to do enter handling for host file more directly
+    //myHost.getValue match {
+    //  case str: String => str.indexOf('\n') < 0
+    //  case _ => false
+    // }
     true
   }
 }

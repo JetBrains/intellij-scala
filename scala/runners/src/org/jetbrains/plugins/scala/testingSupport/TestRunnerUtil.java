@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
+import org.jetbrains.annotations.NotNull;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("WeakerAccess")
 public class TestRunnerUtil {
   public static final PatternWithIndices SPECS_COMPARISON_PATTERN =
     new PatternWithIndices(Pattern.compile("'(.+)' is not equal to '(.*)'", Pattern.MULTILINE | Pattern.DOTALL),
@@ -41,8 +43,14 @@ public class TestRunnerUtil {
   private static final String FORMAT_WITHOUT_TZ = "yyyy-MM-dd'T'HH:mm:ss.SSS";
   private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(FORMAT_WITHOUT_TZ);
 
-  public static String escapeString(String s) {
-    return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]").replaceAll("\\[","|[");
+  public static String escapeString(String str) {
+    return str
+        .replaceAll("[|]", "||")
+        .replaceAll("[']", "|'")
+        .replaceAll("[\n]", "|n")
+        .replaceAll("[\r]", "|r")
+        .replaceAll("]","|]")
+        .replaceAll("\\[","|[");
   }
 
   public static String formatCurrentTimestamp() {
@@ -65,7 +73,7 @@ public class TestRunnerUtil {
 
   public static String actualExpectedAttrsSpecs2(String message, Details details) {
     String actualExpectedAttrs;
-    if (details != null && details instanceof FailureDetails) {
+    if (details instanceof FailureDetails) {
       FailureDetails failureDetails = (FailureDetails) details;
       String actual = failureDetails.actual();
       String expected = failureDetails.expected();
@@ -77,8 +85,9 @@ public class TestRunnerUtil {
     return actualExpectedAttrs;
   }
 
-  // hack until Specs passes a meaningful throwble.
+  // hack until Specs passes a meaningful throwable.
   // https://github.com/etorreborre/specs2/issues/9
+  // TODO: ^^^ it is already closed, handle it
   public static String actualExpectedAttrsFromRegex(String message, PatternWithIndices... comparisonPattern) {
     if (message == null) {
       return "";
@@ -126,42 +135,53 @@ public class TestRunnerUtil {
       Class<?> aClass = Class.forName(reporterQualName);
       Field field = aClass.getField("myShowProgressMessages");
       field.set(null, showProgressMessages);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
-    } catch (ClassNotFoundException e) {
+    } catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e) {
       throw new RuntimeException(e);
     }
   }
 
+  /**
+   * @return
+   * 1. new arguments read from file with name `args[0]` if it starts with `@` char <br>
+   * 2. original arguments otherwise
+   */
   public static String[] getNewArgs(String[] args) throws IOException {
     String[] newArgs;
-    if (args.length == 1 && args[0].startsWith("@")) {
+    boolean readArgsFromfile = args.length == 1 && args[0].startsWith("@");
+    if (readArgsFromfile) {
       String arg = args[0];
       File file = new File(arg.substring(1));
       if (!file.exists())
         throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
-      FileReader fileReader = new FileReader(file);
-      StringBuilder buffer = new StringBuilder();
-      while (true) {
-        int ind = fileReader.read();
-        if (ind == -1) break;
-        char c = (char) ind;
-        if (c == '\r') continue;
-        buffer.append(c);
-      }
-      newArgs = buffer.toString().split("[\n]");
+      newArgs = readLines(file);
     } else {
       newArgs = args;
     }
     return newArgs;
   }
 
+  @NotNull
+  private static String[] readLines(File file) throws IOException {
+    String[] newArgs;
+    FileReader fileReader = new FileReader(file);
+    StringBuilder buffer = new StringBuilder();
+    while (true) {
+      int ind = fileReader.read();
+      if (ind == -1) break;
+      char c = (char) ind;
+      if (c != '\r') {
+        buffer.append(c);
+      }
+    }
+    newArgs = buffer.toString().split("[\n]");
+    return newArgs;
+  }
+
   public static String unescapeTestName(String testName) {
-    Pattern pattern = Pattern.compile("([^\\\\])\\\\n");
-    Matcher matcher = pattern.matcher(testName);
-    return matcher.replaceAll("$1\n").replace("\\\\", "\\");
+    return testName
+        .replaceAll("([^\\\\])\\\\r", "$1\r")
+        .replaceAll("([^\\\\])\\\\n", "$1\n")
+        .replace("\\\\", "\\");
   }
 
   private static class PatternWithIndices {

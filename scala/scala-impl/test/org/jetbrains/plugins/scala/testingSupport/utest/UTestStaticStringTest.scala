@@ -5,17 +5,15 @@ package org.jetbrains.plugins.scala.testingSupport.utest
   * @since 04.09.2015.
   */
 trait UTestStaticStringTest extends UTestTestCase {
+  private val StaticStringTestName = "UTestStaticStringTest"
+  private val StaticStringTestFileName = s"$StaticStringTestName.scala"
 
-  protected val staticStringTestName = "UTestStaticStringTest"
-
-  protected val staticStringTestFileName = staticStringTestName + ".scala"
-
-  addSourceFile(staticStringTestFileName,
+  addSourceFile(StaticStringTestFileName,
     s"""
        |import utest._
        |$testSuiteSecondPrefix
        |
-       |object $staticStringTestName extends TestSuite {
+       |object $StaticStringTestName extends TestSuite {
        |  val tests = TestSuite {
        |    val valName = "valName"
        |
@@ -43,10 +41,14 @@ trait UTestStaticStringTest extends UTestTestCase {
       """.stripMargin)
 
   protected def checkTest(lineNumber: Int, position: Int, expectedName: String): Unit = {
-    assert(checkConfigAndSettings(createTestFromLocation(lineNumber, position, staticStringTestFileName),
-        staticStringTestName, "tests" + (if (expectedName.isEmpty) "" else "\\" + expectedName)))
+    val testName = "tests" + (if (expectedName.isEmpty) "" else "\\" + expectedName)
+    checkTest(lineNumber, position, Seq(testName))
   }
 
+  protected def checkTest(lineNumber: Int, position: Int, expectedNames: Seq[String] = Nil): Unit = {
+    val configuration = createTestFromLocation(lineNumber, position, StaticStringTestFileName)
+    assertConfigAndSettings(configuration, StaticStringTestName, expectedNames: _*)
+  }
 
   def testSum(): Unit = {
     checkTest(9, 7, "sumName")
@@ -57,8 +59,7 @@ trait UTestStaticStringTest extends UTestTestCase {
   }
 
   def testNonConst(): Unit = {
-    assert(checkConfigAndSettings(createTestFromLocation(11, 10, staticStringTestFileName),
-      staticStringTestName))
+    checkTest(11, 10)
   }
 
   def testTrim(): Unit = {

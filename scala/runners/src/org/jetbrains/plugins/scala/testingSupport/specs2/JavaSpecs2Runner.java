@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.testingSupport.specs2;
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.ClassRunner$;
 import org.specs2.runner.NotifierRunner;
-import org.jetbrains.plugins.scala.testingSupport.specs2.MyNotifierRunner;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -51,7 +50,9 @@ public class JavaSpecs2Runner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        classesToTests.get(currentClass).add(TestRunnerUtil.unescapeTestName(newArgs[i]));
+        String testNames = newArgs[i];
+        String testNamesUnescaped = TestRunnerUtil.unescapeTestName(testNames);
+        classesToTests.get(currentClass).add(testNamesUnescaped);
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;

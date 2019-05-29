@@ -6,7 +6,7 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -23,8 +23,10 @@ class Specs2ConfigurationProducer extends {
   val confFactory = confType.confFactory
 } with TestConfigurationProducer(confType) {
 
-  override def suitePaths = List("org.specs2.specification.SpecificationStructure",
-    "org.specs2.specification.core.SpecificationStructure")
+  override def suitePaths = List(
+    "org.specs2.specification.SpecificationStructure",
+    "org.specs2.specification.core.SpecificationStructure"
+  )
 
   override def findExistingByElement(location: Location[_ <: PsiElement],
                                      existingConfigurations: Array[RunnerAndConfigurationSettings],
@@ -112,8 +114,9 @@ class Specs2ConfigurationProducer extends {
   }
 
   private def extractStaticTestName(testDefExpr: ScInfixExpr): Option[String] = {
-    testDefExpr.getChildren.filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression]).headOption.
-      flatMap(TestConfigurationUtil.getStaticTestName(_))
+    testDefExpr.getChildren.toSeq
+      .filterBy[ScExpression].headOption
+      .flatMap(TestConfigurationUtil.getStaticTestName(_))
   }
 
   def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {

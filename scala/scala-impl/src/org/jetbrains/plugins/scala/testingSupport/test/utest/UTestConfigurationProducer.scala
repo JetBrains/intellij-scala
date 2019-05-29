@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
@@ -126,9 +126,13 @@ class UTestConfigurationProducer extends {
     }
   }
 
-  private def buildPathFromTestExpr(expr: ScExpression): Option[String] =
-    expr.firstChild.flatMap(TestConfigurationUtil.getStaticTestName(_, allowSymbolLiterals = true)).
-      flatMap(buildTestPath(expr, _))
+  private def buildPathFromTestExpr(expr: ScExpression): Option[String] = {
+    for {
+      child <- expr.firstChild
+      testName <- TestConfigurationUtil.getStaticTestName(child, allowSymbolLiterals = true)
+      testPath <- buildTestPath(expr, testName)
+    } yield testPath
+  }
 
   override def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement

@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import scala.collection.Seq;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -53,13 +52,10 @@ public class UTestRunner {
     return null;
   }
 
-  public static void main(String[] args) throws IOException,
-    NoSuchFieldException,
-    InvocationTargetException,
-    IllegalAccessException {
+  public static void main(String[] args) throws IOException {
     String[] newArgs = TestRunnerUtil.getNewArgs(args);
-    Map<String, Set<UTestPath>> classesToTests = new HashMap<String, Set<UTestPath>>();
-    HashMap<String, Set<UTestPath>> failedTestMap = new HashMap<String, Set<UTestPath>>();
+    Map<String, Set<UTestPath>> classesToTests = new HashMap<>();
+    HashMap<String, Set<UTestPath>> failedTestMap = new HashMap<>();
     int i = 0;
     String currentClass = null;
     boolean failedUsed = false;
@@ -67,7 +63,7 @@ public class UTestRunner {
       if (newArgs[i].equals("-s")) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classesToTests.put(newArgs[i], new HashSet<UTestPath>());
+          classesToTests.put(newArgs[i], new HashSet<>());
           currentClass = newArgs[i];
           ++i;
         }
@@ -75,7 +71,8 @@ public class UTestRunner {
         ++i;
         if (currentClass == null) throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
         while (!newArgs[i].startsWith("-")) {
-          UTestPath aTest = parseTestPath(currentClass, newArgs[i]);
+          String testName = newArgs[i];
+          UTestPath aTest = parseTestPath(currentClass, testName);
           if (aTest != null) {
             classesToTests.get(currentClass).add(aTest);
           }
@@ -89,7 +86,7 @@ public class UTestRunner {
           UTestPath testPath = parseTestPath(failedClassName, newArgs[i + 1]);
           Set<UTestPath> testSet = failedTestMap.get(failedClassName);
           if (testSet == null)
-            testSet = new HashSet<UTestPath>();
+            testSet = new HashSet<>();
           if (testPath != null) {
             testSet.add(testPath);
           }
@@ -106,7 +103,7 @@ public class UTestRunner {
     try {
       treeSeqClass = Class.forName("utest.framework.TestTreeSeq");
       runAsyncMethod = getRunAsynchMethod(treeSeqClass);
-    } catch (ClassNotFoundException e) { }
+    } catch (ClassNotFoundException ignored) { }
     Map<String, Set<UTestPath>> suitesAndTests = failedUsed ? failedTestMap : classesToTests;
     UTestReporter reporter = new UTestReporter(suitesAndTests.size());
     UTestSuiteRunner runner = runAsyncMethod != null ? new UTestSuiteReflectionRunner(runAsyncMethod, treeSeqClass) : new UTestSuite540Runner();
