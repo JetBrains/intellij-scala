@@ -78,16 +78,13 @@ object MultilineStringUtil {
   }
 
   def needAddByType(literal: ScLiteral): Boolean = literal match {
-    case interpolated: ScInterpolatedStringLiteral => interpolated.reference match {
-      case Some(ref: ScReferenceExpression) =>
-        ref.resolve() match {
-          case funDef: ScFunction =>
-            val tpe = funDef.returnType
-            tpe.exists(scType => scType.canonicalText.endsWith("java.lang.String") || scType.canonicalText.endsWith("scala.Predef.String"))
-          case _ => true
+    case ScInterpolatedStringLiteral(ResolvesTo(funDef: ScFunction)) =>
+      funDef.returnType
+        .map(_.canonicalText)
+        .exists { cannonicalText =>
+          cannonicalText.endsWith("java.lang.String") ||
+            cannonicalText.endsWith("scala.Predef.String")
         }
-      case _ => true
-    }
     case _ => true
   }
 
@@ -155,7 +152,7 @@ object MultilineStringUtil {
   def interpolatorPrefixLength(literal: ScLiteral): Int = interpolatorPrefix(literal).length
 
   def interpolatorPrefix(literal: ScLiteral): String = literal match {
-    case isl: ScInterpolatedStringLiteral if isl.reference.isDefined => isl.reference.get.refName
+    case stringLiteral: ScInterpolatedStringLiteral => stringLiteral.referenceName
     case _ => ""
   }
 

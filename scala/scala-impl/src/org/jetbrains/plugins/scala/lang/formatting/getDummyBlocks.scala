@@ -561,7 +561,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     def interpolatedRefLength(node: ASTNode): Int = {
       if (node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING) {
         node.getPsi.getParent match {
-          case str: ScInterpolatedStringLiteral => str.reference.map(_.refName.length).getOrElse(0)
+          case str: ScInterpolatedStringLiteral => str.referenceName.length
           case _ => 0
         }
       } else 0

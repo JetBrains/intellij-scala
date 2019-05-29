@@ -266,7 +266,7 @@ object ScalaRefactoringUtil {
       if (lit == null || !lit.isString || lit != endLit) return None
 
       val prefix = lit match {
-        case intrp: ScInterpolatedStringLiteral if rangeText.contains('$') => intrp.reference.fold("")(_.refName)
+        case intrp: ScInterpolatedStringLiteral if rangeText.contains('$') => intrp.referenceName
         case _ => ""
       }
       val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
@@ -362,7 +362,7 @@ object ScalaRefactoringUtil {
     }
     element match {
       case intrp: ScInterpolatedStringLiteral =>
-        val prefix = intrp.reference.fold("")(_.refName)
+        val prefix = intrp.referenceName
         val fileText = intrp.getContainingFile.charSequence
         val contentRange = intrp.contentRange
         val text = fileText.substring(contentRange.getStartOffset, contentRange.getEndOffset)
@@ -373,7 +373,7 @@ object ScalaRefactoringUtil {
         }
         val filter: ScLiteral => Boolean = {
           case toCheck: ScInterpolatedStringLiteral =>
-            toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst().forall {
+            toCheck.referenceName == prefix && toCheck.depthFirst().forall {
               case ref: ScReferenceExpression => refNameToResolved.get(ref.refName).contains(ref.resolve())
               case _ => true
             }
@@ -976,7 +976,7 @@ object ScalaRefactoringUtil {
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
       case lit: ScLiteral =>
         val prefix = lit match {
-          case intrp: ScInterpolatedStringLiteral => intrp.reference.fold("")(_.refName)
+          case intrp: ScInterpolatedStringLiteral => intrp.referenceName
           case _ => ""
         }
         val replaceAsInjection = Seq("s", "raw").contains(prefix)

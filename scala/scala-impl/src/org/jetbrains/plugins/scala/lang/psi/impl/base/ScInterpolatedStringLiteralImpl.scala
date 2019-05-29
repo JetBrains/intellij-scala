@@ -45,9 +45,11 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   }
 
   override def reference: Option[ScReferenceExpression] = getFirstChild match {
-    case ref: ScReferenceExpression => Some(ref)
+    case reference: ScReferenceExpression => Some(reference)
     case _ => None
   }
+
+  override def referenceName: String = reference.fold("")(_.refName)
 
   override def isMultiLineString: Boolean = getText.endsWith(MultiLineQuote)
 
@@ -59,16 +61,13 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   }
 
   override def contentRange: TextRange = {
-    val prefixLength = reference.map(_.refName)
-      .fold(0)(_.length)
-
     val Some((startShift, endShift)) = stringShifts(
       if (isMultiLineString) MultiLineQuote else SingleLineQuote
     )
 
     val range = getTextRange
     new TextRange(
-      range.getStartOffset + prefixLength + startShift,
+      range.getStartOffset + referenceName.length + startShift,
       range.getEndOffset - endShift
     )
   }

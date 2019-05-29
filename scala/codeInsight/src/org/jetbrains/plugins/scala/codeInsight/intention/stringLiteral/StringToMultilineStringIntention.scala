@@ -94,7 +94,7 @@ object StringToMultilineStringIntention {
     val Quotes = "\"\"\""
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
-        val prefix = interpolated.reference.map(_.getText).getOrElse("")
+        val prefix = interpolated.referenceName
         val parts = InterpolatedStringParser.parse(interpolated).getOrElse(Nil)
         val content = InterpolatedStringFormatter.formatContent(parts, toMultiline = true)
         val newLiteralText = s"$prefix$Quotes$content$Quotes"
@@ -151,7 +151,7 @@ object StringToMultilineStringIntention {
     val Quote = "\""
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
-        val prefix = interpolated.reference.map(_.getText).getOrElse("")
+        val prefix = interpolated.referenceName
         val (toReplace, parts) = literal match {
           case WithStrippedMargin(expr, _) =>
             (expr, StripMarginParser.parse(literal).getOrElse(Nil))

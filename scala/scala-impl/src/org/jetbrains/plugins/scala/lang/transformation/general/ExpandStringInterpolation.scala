@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   */
 class ExpandStringInterpolation extends AbstractTransformer {
   protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
-    case e: ScInterpolatedStringLiteral if e.reference.isDefined =>
+    case e@ScInterpolatedStringLiteral(reference) =>
       InterpolatedStringParser.parse(e).foreach { parts: Seq[StringPart] =>
         // TODO it's probably simpler to parse the string directly, the format parser is for a different use case
         val normalizedParts = addInitialTextDelimiter(addTextDelimiters(extractSpecifiersIn(parts)))
@@ -25,7 +25,7 @@ class ExpandStringInterpolation extends AbstractTransformer {
           case Injection(expr, _) => expr
         }
 
-        e.replace(code"StringContext(${strings.map(quote).mkString(", ")}).${e.reference.get.getText}(${@@(arguments)})")
+        e.replace(code"StringContext(${strings.map(quote).mkString(", ")}).${reference.refName}(${@@(arguments)})")
       }
   }
 
