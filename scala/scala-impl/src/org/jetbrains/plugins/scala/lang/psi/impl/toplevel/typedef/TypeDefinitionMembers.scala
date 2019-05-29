@@ -65,10 +65,17 @@ object TypeDefinitionMembers {
     }
   }
 
-  object SignatureNodes extends SignatureNodes
+  object SignatureNodes extends SignatureNodes {
+    def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = td.membersWithSynthetic
+  }
 
   //we need to have separate map for stable elements to avoid recursion processing declarations from imports
   object StableNodes extends SignatureNodes {
+
+    def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
+      (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
+        .filter(mayContainStable)
+    }
 
     override def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
 
@@ -77,9 +84,17 @@ object TypeDefinitionMembers {
       case t: ScTypedDefinition => t.isStable
       case _ => false
     }
+
+    private def mayContainStable(m: ScMember): Boolean = m match {
+      case _: ScTypeDefinition | _: ScValue | _: ScPrimaryConstructor => true
+      case _ => false
+    }
   }
 
   abstract class SignatureNodes extends MixinNodes[TermSignature] {
+
+    protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember]
+
     def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
       case f: ScFunction => f.isConstructor
       case m: PsiMethod  => m.isConstructor || isStaticJava(m)
@@ -110,7 +125,7 @@ object TypeDefinitionMembers {
         addAnyValObjectMethods(template, addSignature)
       }
 
-      for (member <- template.membersWithSynthetic) {
+      for (member <- relevantMembers(template)) {
         member match {
           case v: ScValueOrVariable =>
             v.declaredElements
