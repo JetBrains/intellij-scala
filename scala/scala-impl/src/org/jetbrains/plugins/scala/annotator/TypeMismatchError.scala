@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ui.UIUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -49,8 +50,15 @@ object TypeMismatchError {
   }
 
   private def typeMismatchTooltipFor(expectedType: ScType, actualType: ScType): String = {
-    def format(diff: TypeDiff, f: String => String) =
-      diff.format((s, matches) => "<td style=\"text-align:center\">" + (if (matches) s else f(s)) + "</td>")
+    def format(diff: TypeDiff, f: String => String) = {
+      val parts = diff.flatten.map {
+        case Match(text) => text
+        case Mismatch(text) => f(text)
+      } map {
+        "<td style=\"text-align:center\">" + _ + "</td>"
+      }
+      parts.mkString
+    }
 
     // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
     def red(text: String) = {
