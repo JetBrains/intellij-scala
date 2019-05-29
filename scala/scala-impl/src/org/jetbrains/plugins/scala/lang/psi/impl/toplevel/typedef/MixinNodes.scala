@@ -8,6 +8,7 @@ package impl
 package toplevel
 package typedef
 
+import java.util
 import java.util.{List => JList}
 
 import com.intellij.openapi.progress.ProgressManager
@@ -21,13 +22,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.dealias
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.SuperTypesData
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -61,17 +62,7 @@ abstract class MixinNodes[T <: Signature] {
         addAllFrom(clazz, ScSubstitutor.empty, map)
         map.thisFinished()
 
-        val superTypes = clazz match {
-          case syn: ScSyntheticClass          => syn.getSuperTypes.map(_.toScType()(syn)).toSeq
-          case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)
-          case _                              => MixinNodes.linearization(clazz).drop(1)
-        }
-        val thisTypeSubst = clazz match {
-          case td: ScTemplateDefinition => ScSubstitutor(ScThisType(td))
-          case _                        => ScSubstitutor.empty
-        }
-
-        addSuperSignatures(superTypes, thisTypeSubst, map)
+        addSuperSignatures(SuperTypesData(clazz), map)
         map
       }
     }
@@ -83,42 +74,19 @@ abstract class MixinNodes[T <: Signature] {
     processRefinement(cp, map)
     map.thisFinished()
 
-    val superTypes = MixinNodes.linearization(cp)
-    val thisTypeSubst = ScSubstitutor(compoundThisType.getOrElse(cp))
-
-    addSuperSignatures(superTypes, thisTypeSubst, map)
+    addSuperSignatures(SuperTypesData(cp, compoundThisType), map)
     map
   }
 
-  private def addSuperSignatures(superTypes: Seq[ScType],
-                                 thisTypeSubst: ScSubstitutor,
-                                 map: Map): Unit = {
+  private def addSuperSignatures(superTypesData: SuperTypesData, map: Map): Unit = {
 
-    for (superType <- superTypes) {
-      superType.extractClassType match {
-        case Some((superClass, s)) =>
-          val dependentSubst = superType match {
-            case p@ScProjectionType(proj, _) => ScSubstitutor(proj).followed(p.actualSubst)
-            case ParameterizedType(p@ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
-            case _ => ScSubstitutor.empty
-          }
-          val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
-
-          addAllFrom(superClass, newSubst, map)
-        case _ =>
-          dealias(superType) match {
-            case cp: ScCompoundType =>
-              processRefinement(cp, map)
-            case _ =>
-          }
-      }
+    for ((superClass, subst) <- superTypesData.substitutors) {
+      addAllFrom(superClass, subst, map)
     }
-  }
 
-  private def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
-    val typeParameters = superClass.getTypeParameters
-    val substedTpts = typeParameters.map(tp => superSubst(TypeParameterType(tp)))
-    ScSubstitutor.bind(typeParameters, substedTpts)
+    for (compoundType <- superTypesData.refinements) {
+      processRefinement(compoundType, map)
+    }
   }
 
   @tailrec
@@ -138,6 +106,67 @@ abstract class MixinNodes[T <: Signature] {
 }
 
 object MixinNodes {
+
+  private case class SuperTypesData(substitutors: collection.Map[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
+
+  private object SuperTypesData {
+
+    @CachedInUserData(thisClass, CachesUtil.libraryAwareModTracker(thisClass))
+    def apply(thisClass: PsiClass): SuperTypesData = {
+      val superTypes = thisClass match {
+        case syn: ScSyntheticClass          => syn.getSuperTypes.map(_.toScType()(syn)).toSeq
+        case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)
+        case _                              => MixinNodes.linearization(thisClass).drop(1)
+      }
+      val thisTypeSubst = thisClass match {
+        case td: ScTemplateDefinition => ScSubstitutor(ScThisType(td))
+        case _                        => ScSubstitutor.empty
+      }
+      SuperTypesData(superTypes, thisTypeSubst)
+    }
+
+    def apply(cp: ScCompoundType, compoundThisType: Option[ScType]): SuperTypesData = {
+      val superTypes = MixinNodes.linearization(cp)
+      val thisTypeSubst = ScSubstitutor(compoundThisType.getOrElse(cp))
+      SuperTypesData(superTypes, thisTypeSubst)
+    }
+
+    private def apply(superTypes: Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
+      val substitutors = new util.LinkedHashMap[PsiClass, ScSubstitutor]
+      val refinements = new SmartList[ScCompoundType]
+
+      for (superType <- superTypes) {
+        superType.extractClassType match {
+          case Some((superClass, s)) =>
+            val dependentSubst = superType match {
+              case p@ScProjectionType(proj, _) => ScSubstitutor(proj).followed(p.actualSubst)
+              case ParameterizedType(p@ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
+              case _ => ScSubstitutor.empty
+            }
+            val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
+            substitutors.put(superClass, newSubst)
+          case _ =>
+            dealias(superType) match {
+              case cp: ScCompoundType =>
+                refinements.add(cp)
+              case _ =>
+            }
+        }
+      }
+      SuperTypesData(substitutors.asScala, refinements.asScala)
+    }
+
+    private def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
+      val typeParameters = superClass.getTypeParameters
+      val substedTpts = typeParameters.map(tp => superSubst(TypeParameterType(tp)))
+      ScSubstitutor.bind(typeParameters, substedTpts)
+    }
+
+  }
+
+  def asSeenFromSubstitutor(superClass: PsiClass, thisClass: PsiClass): ScSubstitutor =
+    SuperTypesData(thisClass).substitutors.getOrElse(superClass, ScSubstitutor.empty)
+
   class Node[T](val info: T, val fromSuper: Boolean) {
     private[this] var _concreteSuper: Node[T] = _
     private[this] val _supers: SmartList[Node[T]] = new SmartList()
