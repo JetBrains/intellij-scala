@@ -40,8 +40,12 @@ object TypeDiff {
   private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): Seq[TypeDiff] = {
     (tpe1, tpe2) match {
       case (t1: ScParameterizedType, t2: ScParameterizedType) =>
-        diff(t1.designator, t2.designator) :+
-          Match("[") :+ Group((t1.typeArguments, t2.typeArguments).zipped.map(diff).intersperse(Seq(Match(", "))).flatten) :+ Match("]")
+        val inner = if (t1.typeArguments.length == t2.typeArguments.length)
+          (t1.typeArguments, t2.typeArguments).zipped.map(diff).intersperse(Seq(Match(", "))).flatten
+        else
+          Seq(Mismatch(t2.typeArguments.map(_.presentableText).mkString(", ")))
+
+        diff(t1.designator, t2.designator) :+ Match("[") :+ Group(inner) :+ Match("]")
 
       case (t1, t2) =>
         Seq(if (conforms(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2)))
