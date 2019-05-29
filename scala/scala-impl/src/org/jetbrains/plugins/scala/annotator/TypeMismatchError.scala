@@ -28,8 +28,6 @@ object TypeMismatchError {
       if (ApplicationManager.getApplication.isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
       else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)
 
-    val tooltip = ScalaBundle.message("type.mismatch.tooltip", red(expectedTypeText), "", red(actualTypeText), "", "")
-
     val annotatedElement = elementAt(element, blockLevel)
 
     // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
@@ -42,18 +40,27 @@ object TypeMismatchError {
       annotation
     }
 
-    annotation.setTooltip(tooltip)
+    annotation.setTooltip(typeMismatchTooltipFor(expectedType, actualType))
     annotation.registerFix(ReportHighlightingErrorQuickFix)
 
-    annotatedElement.putUserData(TypeMismatchErrorKey, TypeMismatchError(Some(expectedType), Some(actualType), tooltip, element.getManager.getModificationTracker.getModificationCount))
+    annotatedElement.putUserData(TypeMismatchErrorKey, TypeMismatchError(Some(expectedType), Some(actualType), typeMismatchTooltipFor(expectedType, actualType), element.getManager.getModificationTracker.getModificationCount))
 
     annotation
   }
 
-  // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
-  private def red(text: String) = {
-    val color = if (UIUtil.isUnderDarcula) "FF6B68" else "red"
-    "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
+  private def typeMismatchTooltipFor(expectedType: ScType, actualType: ScType): String = {
+    def format(diff: TypeDiff, f: String => String) =
+      diff.format((s, matches) => "<td style=\"text-align:center\">" + (if (matches) s else f(s)) + "</td>")
+
+    // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
+    def red(text: String) = {
+      val color = if (UIUtil.isUnderDarcula) "FF6B68" else "red"
+      "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
+    }
+
+    val (diff1, diff2) = TypeDiff.forBoth(expectedType, actualType)
+
+    ScalaBundle.message("type.mismatch.tooltip", format(diff1, s => s"<b>$s</b>"), format(diff2, red))
   }
 
   def clear(element: PsiElement): Unit = {
