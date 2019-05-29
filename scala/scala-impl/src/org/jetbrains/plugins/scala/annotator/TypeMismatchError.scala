@@ -52,8 +52,8 @@ object TypeMismatchError {
   private def typeMismatchTooltipFor(expectedType: ScType, actualType: ScType): String = {
     def format(diff: TypeDiff, f: String => String) = {
       val parts = diff.flatten.map {
-        case Match(text) => text
-        case Mismatch(text) => f(text)
+        case Match(text, _) => text
+        case Mismatch(text, _) => f(text)
       } map {
         "<td style=\"text-align:center\">" + _ + "</td>"
       }

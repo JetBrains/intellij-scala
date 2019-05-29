@@ -15,11 +15,11 @@ object TypeDiff {
     override def flatten: Seq[TypeDiff] = elements.flatMap(_.flatten)
   }
 
-  final case class Match(text: String) extends TypeDiff {
+  final case class Match(text: String, tpe: Option[ScType] = None) extends TypeDiff {
     override def flatten: Seq[TypeDiff] = Seq(this)
   }
 
-  final case class Mismatch(text: String) extends TypeDiff {
+  final case class Mismatch(text: String, tpe: Option[ScType] = None) extends TypeDiff {
     override def flatten: Seq[TypeDiff] = Seq(this)
   }
 
@@ -44,7 +44,7 @@ object TypeDiff {
           Match("[") :+ Group((t1.typeArguments, t2.typeArguments).zipped.map(diff).intersperse(Seq(Match(", "))).flatten) :+ Match("]")
 
       case (t1, t2) =>
-        Seq(if (conforms(t1, t2)) Match(tpe2.presentableText) else Mismatch(tpe2.presentableText))
+        Seq(if (conforms(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2)))
     }
   }
 }
