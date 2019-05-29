@@ -1,36 +1,25 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.annotator.TypeDiff.Show
 import org.jetbrains.plugins.scala.extensions.SeqExt
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 // Can be used to:
 // 1) Find differences between two types.
-// 2) Find nested regions in type.
+// 2) Find nested regions in a type.
 sealed trait TypeDiff {
-  def format(f: Show): String
-
   def flatten: Seq[TypeDiff]
 }
 
 object TypeDiff {
-  type Show = (String, Boolean) => String
-
   final case class Group(elements: Seq[TypeDiff]) extends TypeDiff {
-    override def format(f: Show): String = elements.map(_.format(f)).mkString
-
     override def flatten: Seq[TypeDiff] = elements.flatMap(_.flatten)
   }
 
-  final case class Match(s: String) extends TypeDiff {
-    override def format(f: Show): String = f(s, true)
-
+  final case class Match(text: String) extends TypeDiff {
     override def flatten: Seq[TypeDiff] = Seq(this)
   }
 
-  final case class Mismatch(s: String) extends TypeDiff {
-    override def format(f: Show): String = f(s, false)
-
+  final case class Mismatch(text: String) extends TypeDiff {
     override def flatten: Seq[TypeDiff] = Seq(this)
   }
 

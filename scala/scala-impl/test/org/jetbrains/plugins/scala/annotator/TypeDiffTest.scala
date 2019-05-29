@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
@@ -90,7 +91,13 @@ class TypeDiffTest extends SimpleTestCase {
 
   private def clean(diff: String) = diff.replaceAll("~", "")
 
-  private def asString(diff: TypeDiff) = diff.format((s, matches) => if (matches) s else s"~$s~")
+  private def asString(diff: TypeDiff) = {
+    val parts = diff.flatten.map {
+      case Match(text) => text
+      case Mismatch(text) => s"~$text~"
+    }
+    parts.mkString
+  }
 
   private def typesIn(context: String, type1: String, type2: String): (ScType, ScType) = {
     val Seq(tpe1, tpe2) = s"$context; null: $type1; null: $type2".parse.children.instancesOf[ScTypedExpression].toSeq.map(typeOf)
