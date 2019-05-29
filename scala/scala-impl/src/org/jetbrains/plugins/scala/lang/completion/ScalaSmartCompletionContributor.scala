@@ -455,7 +455,7 @@ object ScalaSmartCompletionContributor {
           val tp = iterator.next()
 
           def checkObject(o: ScObject): Unit = if (isAccessible(o) && ScalaPsiUtil.hasStablePath(o)) {
-            o.members.flatMap {
+            o.membersWithSynthetic.flatMap {
               case function: ScFunction => Seq(function)
               case v: ScValueOrVariable => v.declaredElements
               case obj: ScObject => Seq(obj)

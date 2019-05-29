@@ -49,7 +49,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
               _.syntheticMethods
             }
             val inFakeCompanion = clazz.fakeCompanionModule.toSeq.flatMap { obj =>
-              obj.members
+              obj.membersWithSynthetic
             }
             inExistingClasses ++ inFakeCompanion
           case _ => Seq.empty

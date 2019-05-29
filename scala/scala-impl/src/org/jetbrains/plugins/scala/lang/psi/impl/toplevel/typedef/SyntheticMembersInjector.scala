@@ -202,7 +202,7 @@ object SyntheticMembersInjector {
   private def updateSynthetic(element: ScMember, context: PsiElement): Unit = element match {
     case td: ScTypeDefinition =>
       td.syntheticNavigationElement = context
-      td.members.foreach(updateSynthetic(_, context))
+      td.membersWithSynthetic.foreach(updateSynthetic(_, context))
     case fun: ScFunction => fun.syntheticNavigationElement = context
     case _ => //todo: ?
   }

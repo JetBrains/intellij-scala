@@ -47,7 +47,7 @@ class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean
     if (cl != null) {
       cl match {
         case x: ScTypeDefinition =>
-          for (member <- x.members) {
+          for (member <- x.membersWithSynthetic) {
             member match {
               case x: ScVariable => for (el <- x.declaredElements if el.name == name)
                 buf += ((el, messageForMember(el.name)))

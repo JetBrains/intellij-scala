@@ -139,7 +139,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         myPair.first match {
           case ScFunctionWrapper(_: ScFunctionDeclaration) => 1
           case wrapper@ScFunctionWrapper(delegate: ScFunctionDefinition) => wrapper.containingClass match {
-            case myClass: ScTemplateDefinition if myClass.members.contains(delegate) => 0
+            case myClass: ScTemplateDefinition if myClass.membersWithSynthetic.contains(delegate) => 0
             case _ => 1
           }
           case _ => 1
@@ -158,11 +158,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def getTypeWithProjections(thisProjections: Boolean = false): TypeResult
 
-  def members: Seq[ScMember] = extendsBlock.members ++ syntheticMembers ++ syntheticMethods ++ syntheticTypeDefinitions
-
   def functions: Seq[ScFunction] = extendsBlock.functions
 
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
+
+  def members: Seq[ScMember] = extendsBlock.members
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def syntheticMethods: Seq[ScFunction] = syntheticMethodsImpl
@@ -537,5 +537,12 @@ object ScTemplateDefinition {
   }
 
   private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
+
+  implicit class SyntheticMembersExt(val td: ScTemplateDefinition) extends AnyVal {
+    //this method is not in the ScTemplateDefinition trait to avoid binary incompatible change
+    def membersWithSynthetic: Seq[ScMember] =
+      td.members ++ td.syntheticMembers ++ td.syntheticMethods ++ td.syntheticTypeDefinitions
+
+  }
 
 }

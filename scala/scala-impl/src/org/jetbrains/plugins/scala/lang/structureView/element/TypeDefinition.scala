@@ -39,7 +39,7 @@ object TypeDefinition {
        .flatMap(_.getChildren)
        .filterBy[ScBlockExpr]
 
-     val members = definition.members.flatMap {
+     val members = definition.membersWithSynthetic.flatMap {
        case constructor: ScPrimaryConstructor => definition match {
          case c: ScClass if c.isCase => constructor.effectiveFirstParameterSection
          case _ => constructor.valueParameters

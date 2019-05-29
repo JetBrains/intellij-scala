@@ -27,7 +27,7 @@ abstract class BaseScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTest
     Assert.assertTrue(s"file $fromObject not found", source != null)
     Assert.assertTrue(s"file $target not found", target != null)
 
-    val member = source.members.find(_.names.contains(memberName)).get
+    val member = source.membersWithSynthetic.find(_.names.contains(memberName)).get
 
     val processor = ScalaMoveMembersDialog.createProcessor(target, member)
     ScalaFileImpl.performMoveRefactoring(processor.run())

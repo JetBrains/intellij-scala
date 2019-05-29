@@ -777,7 +777,7 @@ package object extensions {
     def namedElements: Seq[PsiNamedElement] = {
       clazz match {
         case td: ScTemplateDefinition =>
-          td.members.flatMap {
+          td.membersWithSynthetic.flatMap {
             case holder: ScDeclaredElementsHolder => holder.declaredElements
             case named: ScNamedElement => Seq(named)
             case _ => Seq.empty
