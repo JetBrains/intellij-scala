@@ -8,10 +8,6 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
   import EditorTestUtil.{CARET_TAG => Caret}
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 
-  override def afterSetUpProject(): Unit = {
-    super.afterSetUpProject()
-  }
-
   def testInsertMarginCharOnEnterInsideInjectedFileInMultilineString(): Unit = {
     val before =
       s"""val x =
