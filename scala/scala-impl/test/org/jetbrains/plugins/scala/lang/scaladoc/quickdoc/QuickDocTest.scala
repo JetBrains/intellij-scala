@@ -34,7 +34,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val td = getFileAdapter.asInstanceOf[ScalaFile].getClasses collectFirst {
       case a: ScTemplateDefinition if a.name == className => a
     }
-    val member = td flatMap (c => c.members.find(_.getName == elementName))
+    val member = td flatMap (c => c.membersWithSynthetic.find(_.getName == elementName))
     if (member.isEmpty) Assert.fail()
     else member foreach {
       case m: ScFunctionWrapper => generateByElement(m.delegate, assumedTest)

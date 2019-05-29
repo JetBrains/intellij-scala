@@ -53,7 +53,7 @@ object TypeDefinitionMembers {
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: TypeNodes.Map): Unit = {
-      for (member <- template.members.filterBy[ScNamedElement]) {
+      for (member <- template.membersWithSynthetic.filterBy[ScNamedElement]) {
         addToMap(member, subst, map)
       }
     }
@@ -110,7 +110,7 @@ object TypeDefinitionMembers {
         addAnyValObjectMethods(template, addSignature)
       }
 
-      for (member <- template.members) {
+      for (member <- template.membersWithSynthetic) {
         member match {
           case v: ScValueOrVariable =>
             v.declaredElements

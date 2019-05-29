@@ -58,7 +58,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
 
       genericObject <- ScalaPsiUtil.getCompanionModule(genericClass).filterByType[ScObject]
 
-      auxAlias <- genericObject.members.findFirstBy[ScTypeAlias](_.name == "Aux")
+      auxAlias <- genericObject.membersWithSynthetic.findFirstBy[ScTypeAlias](_.name == "Aux")
 
       productLikeType <- productLikeType(genericClass, expectedType)
 

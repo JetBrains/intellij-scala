@@ -137,7 +137,7 @@ object ExtractSuperUtil {
   }
 
   def possibleMembersToExtract(clazz: ScTemplateDefinition): util.List[ScalaExtractMemberInfo] = {
-    clazz.members.filter {
+    clazz.membersWithSynthetic.filter {
       case m if m.isPrivate => false
       case ScalaConstructor(_) => false
       case _: ScTypeDefinition => false

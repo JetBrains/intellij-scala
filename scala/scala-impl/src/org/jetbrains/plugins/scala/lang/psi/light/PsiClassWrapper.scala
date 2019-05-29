@@ -108,7 +108,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
             }
           }
         }
-        val members = t.members
+        val members = t.membersWithSynthetic
         members foreach {
           case fun: ScFunctionDefinition => res += fun.getStaticTraitFunctionWrapper(this)
           case definition: ScPatternDefinition => //only getters and setters should be added
@@ -131,7 +131,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   override def psiInnerClasses: Array[PsiClass] = {
     definition match {
       case o: ScObject =>
-        o.members.flatMap {
+        o.membersWithSynthetic.flatMap {
           case o: ScObject => o.fakeCompanionClass match {
             case Some(clazz) => Seq(o, clazz)
             case None => Seq(o)

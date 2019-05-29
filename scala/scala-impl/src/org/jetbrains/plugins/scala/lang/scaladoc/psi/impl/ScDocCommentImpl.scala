@@ -43,7 +43,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
                                    place: PsiElement): Boolean = {
     super.processDeclarations(processor, state, lastParent, place) && !Option(getOwner).exists {
       case owner: ScClass =>
-        owner.members.exists {
+        owner.membersWithSynthetic.exists {
           case named: PsiNamedElement => !processor.execute(named, state)
           case _ => false
         }

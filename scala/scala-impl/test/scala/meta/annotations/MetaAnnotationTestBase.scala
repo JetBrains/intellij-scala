@@ -115,7 +115,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case _ =>
     }
 
-  protected def checkHasMember(name: String): Unit = Assert.assertTrue(s"Member $name not found", testClass.members.exists(_.getName == name))
+  protected def checkHasMember(name: String): Unit = Assert.assertTrue(s"Member $name not found", testClass.membersWithSynthetic.exists(_.getName == name))
 
   protected def getGutter: GutterIconRenderer = {
     val gutters = myFixture.findAllGutters()
