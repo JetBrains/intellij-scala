@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 
 class TypeDiffTest extends SimpleTestCase {
   // TODO test region nesting (for code folding)
@@ -23,11 +23,11 @@ class TypeDiffTest extends SimpleTestCase {
     */
 
   def testSingular(): Unit = {
-    assert(
+    assertDiffsAre(
       "class Foo",
       "Foo", "Foo"
     )
-    assert(
+    assertDiffsAre(
       "class Foo; class Bar",
       "~Foo~", "~Bar~"
     )
@@ -35,58 +35,58 @@ class TypeDiffTest extends SimpleTestCase {
 
   def testParameterized(): Unit = {
     // Base
-    assert(
+    assertDiffsAre(
       "class A; class Foo[T]; class Bar[T]",
       "Foo[A]", "Foo[A]"
     )
-    assert(
+    assertDiffsAre(
       "class A; class Foo[T]; class Bar[T] extends Foo[T]",
       "Foo[A]", "Bar[A]"
     )
-    assert(
+    assertDiffsAre(
       "class A; class Foo[T]; class Bar[T]",
       "~Foo~[A]", "~Bar~[A]"
     )
 
     // Arguments
-    assert(
+    assertDiffsAre(
       "class A; class B extends A; class Foo[T]",
       "Foo[A]", "Foo[B]"
     )
-    assert(
+    assertDiffsAre(
       "class A; class B; class Foo[T]",
       "Foo[~A~]", "Foo[~B~]"
     )
-    assert(
+    assertDiffsAre(
       "class A; class B; class Foo[T1, T2]",
       "Foo[A, ~A~]", "Foo[A, ~B~]"
     )
 
     // Type and arguments
-    assert(
+    assertDiffsAre(
       "class A; class Foo[T]; class Bar[T]",
       "~Foo~[A]", "~Bar~[A]"
     )
-    assert(
+    assertDiffsAre(
       "class A; class B; class Foo[T]; class Bar[T]",
       "~Foo~[~A~]", "~Bar~[~B~]"
     )
 
     // Nesting
-    assert(
+    assertDiffsAre(
       "class A; class B; class Foo[T]",
       "Foo[Foo[~A~]]", "Foo[Foo[~B~]]"
     )
   }
 
-  private def assert(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
+  private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
     val (tpe1, tpe2) = typesIn(context, clean(expectedDiff1), clean(expectedDiff2))
     val (actualDiff1, actualDiff2) = TypeDiff.forBoth(tpe1, tpe2)
-    Assert.assertEquals("Incorrect diff (1)", expectedDiff1, asString(actualDiff1))
-    Assert.assertEquals("Incorrect diff (2)", expectedDiff2, asString(actualDiff2))
+    assertEquals("Incorrect diff (1)", expectedDiff1, asString(actualDiff1))
+    assertEquals("Incorrect diff (2)", expectedDiff2, asString(actualDiff2))
     // Also make sure that the diff matches the standard presentation
-    Assert.assertEquals("Incorrect presentation (1)", tpe1.presentableText, clean(asString(actualDiff1)))
-    Assert.assertEquals("Incorrect presentation (2)", tpe2.presentableText, clean(asString(actualDiff2)))
+    assertEquals("Incorrect presentation (1)", tpe1.presentableText, clean(asString(actualDiff1)))
+    assertEquals("Incorrect presentation (2)", tpe2.presentableText, clean(asString(actualDiff2)))
   }
 
   private def clean(diff: String) = diff.replaceAll("~", "")
