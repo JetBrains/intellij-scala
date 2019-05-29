@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, fixtures}
+import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor, fixtures}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
@@ -35,7 +35,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     ScalaSDKLoader()
   )
 
-  override protected def getProjectDescriptor = new ScalaLightProjectDescriptor() {
+  override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {
     override def tuneModule(module: Module): Unit = setUpLibraries(module)
     override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
   }
