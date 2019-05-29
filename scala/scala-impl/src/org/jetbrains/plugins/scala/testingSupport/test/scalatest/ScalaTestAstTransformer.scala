@@ -22,12 +22,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.itWordFqns
 import org.scalatest.finders.{MethodInvocation => _, _}
 
+import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 object ScalaTestAstTransformer {
-
-  val LOG: Logger = Logger.getInstance("org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer")
+  private val LOG: Logger = Logger.getInstance(ScalaTestAstTransformer.getClass)
 
   def testSelection(location: Location[_ <: PsiElement]): Selection = {
     val element = location.getPsiElement
@@ -43,10 +43,9 @@ object ScalaTestAstTransformer {
         finder.find(selected)
       }
       found.orNull
-    }
-    catch {
+    } catch {
       case e: Exception =>
-        LOG.debug("Failed to load scalatest-finders API class for test sute " + clazz.qualifiedName + ": " + e.getMessage)
+        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${clazz.qualifiedName}: ${e.getMessage}")
         null
     }
   }
@@ -62,7 +61,7 @@ object ScalaTestAstTransformer {
             val finderClass: Class[_] = Class.forName(finderFqn)
             return finderClass.newInstance.asInstanceOf[Finder]
           } catch {
-            case e: ClassNotFoundException =>
+            case _: ClassNotFoundException =>
               LOG.debug("Failed to load finders API class " + finderFqn)
           }
         case _ =>
@@ -71,11 +70,12 @@ object ScalaTestAstTransformer {
     null
   }
 
+  @tailrec
   private def getSelectedAstNode(className: String, element: PsiElement): Option[AstNode] = {
-    transformNode(className, element)
-      .orElse {
-        getSelectedAstNode(className, element.getParent)
-      }
+    transformNode(className, element) match {
+      case None => getSelectedAstNode(className, element.getParent)
+      case some => some
+    }
   }
 
   private def getNameFromAnnotLiteral(expr: ScExpression): String = expr match {
@@ -119,9 +119,11 @@ object ScalaTestAstTransformer {
         rawUrl <- entry.getFiles(OrderRootType.CLASSES).map(_.getPresentableUrl)
       } yield {
         val cpFile = new File(rawUrl)
-        if (cpFile.exists && cpFile.isDirectory && !rawUrl.endsWith(File.separator))
-          new URL("file:/" + rawUrl + "/")
-        else new URL("file:/" + rawUrl)
+        if (cpFile.exists && cpFile.isDirectory && !rawUrl.endsWith(File.separator)) {
+          new URL(s"file:/$rawUrl/")
+        } else {
+          new URL(s"file:/$rawUrl")
+        }
       }
 
     val loader = new URLClassLoader(loaderUrls.toArray, getClass.getClassLoader)
@@ -162,7 +164,7 @@ object ScalaTestAstTransformer {
           val suiteClass = loadClass(suiteTypeDef.qualifiedName, module)
           annotations = suiteClass.getAnnotations
         } catch {
-          case e: Exception =>
+          case _: Exception =>
             LOG.debug("Failed to load suite class " + suiteTypeDef.qualifiedName)
         }
         if (annotations != null) for (a <- annotations) {
@@ -180,7 +182,7 @@ object ScalaTestAstTransformer {
     null
   }
 
-  def getTarget(className: String, element: PsiElement, selected: MethodInvocation): AstNode = {
+  private def getTarget(className: String, element: PsiElement, selected: MethodInvocation): AstNode = {
     val firstChild = element.getFirstChild
     firstChild match {
       case literal: ScLiteral if literal.isString =>
@@ -195,11 +197,11 @@ object ScalaTestAstTransformer {
     }
   }
 
-  @scala.annotation.tailrec
+  @tailrec
   private def getScalaTestMethodInvocation(selected: MethodInvocation,
-                                   current: MethodInvocation,
-                                   previousArgs: Seq[ScExpression],
-                                   className: String): Option[StMethodInvocation] = {
+                                           current: MethodInvocation,
+                                           previousArgs: Seq[ScExpression],
+                                           className: String): Option[StMethodInvocation] = {
     val arguments = current.argumentExpressions ++ previousArgs
 
     current.getInvokedExpr match {
@@ -221,7 +223,8 @@ object ScalaTestAstTransformer {
         val argsAst = arguments.map {
           case literal: ScLiteral if literal.isString =>
             new StStringLiteral(literal, containingClassName, literal.getValue.toString)
-          case expr => new StToStringTarget(expr, containingClassName, expr.getText)
+          case expr =>
+            new StToStringTarget(expr, containingClassName, expr.getText)
         }
 
         val pName: String =
@@ -239,7 +242,7 @@ object ScalaTestAstTransformer {
     }
   }
 
-  @scala.annotation.tailrec
+  @tailrec
   private def getParentNode(className: String, element: PsiElement): AstNode = {
     element.getParent match {
       case parent: PsiElement =>
@@ -248,9 +251,7 @@ object ScalaTestAstTransformer {
           case None => getParentNode(className, parent)
         }
       case _ => null
-
     }
-
   }
 
   private def getElementNestedBlockChildren(element: PsiElement): Seq[PsiElement] = {
@@ -273,7 +274,7 @@ object ScalaTestAstTransformer {
     }
   }
 
-  @scala.annotation.tailrec
+  @tailrec
   private def getTopInvocation(element: MethodInvocation): MethodInvocation = {
     val invocationParent = element.getParent
     invocationParent match {
@@ -303,8 +304,9 @@ object ScalaTestAstTransformer {
       val className = containingClass.qualifiedName
       val paramTypes = methodDef.parameters.map(_.getTypeElement.getText).toArray
       Some(new StMethodDefinition(methodDef, className, paramTypes))
+    } else {
+      None // May be to build the nested AST nodes too
     }
-    else None // May be to build the nested AST nodes too.
   }
 
   private class StConstructorBlock(val element: PsiElement, pClassName: String)
@@ -321,13 +323,13 @@ object ScalaTestAstTransformer {
   }
 
   private class StMethodDefinition(val element: PsiElement, pClassName: String, pParamTypes: Seq[String])
-    extends MethodDefinition(pClassName, null, new Array[AstNode](0), getStaticTestNameOrDefault(element, "", false), pParamTypes: _*) {
+    extends MethodDefinition(pClassName, null, new Array[AstNode](0), getStaticTestName(element).getOrElse(""), pParamTypes: _*) {
 
     override def parent: AstNode = getParentNode(className, element)
 
     override def children: Array[AstNode] = getChildren(pClassName, element)
 
-    override def canBePartOfTestName: Boolean = getStaticTestName(element, false).isDefined
+    override def canBePartOfTestName: Boolean = getStaticTestName(element).isDefined
 
     override def equals(other: Any): Boolean = other match {
       case o: StMethodDefinition => o.element == element
@@ -352,8 +354,7 @@ object ScalaTestAstTransformer {
     private def closestInvocationElement = PsiTreeUtil.getParentOfType(nameSource, classOf[MethodInvocation])
 
     override def canBePartOfTestName: Boolean =
-      super.canBePartOfTestName &&
-        getStaticTestName(closestInvocationElement, false).isDefined
+      super.canBePartOfTestName && getStaticTestName(closestInvocationElement).isDefined
 
     override def equals(other: Any): Boolean = other match {
       case o: StMethodInvocation => invocation == o.invocation
@@ -362,11 +363,12 @@ object ScalaTestAstTransformer {
 
     override def hashCode: Int = invocation.hashCode
 
-    override def toString: String = getStaticTestNameOrDefault(closestInvocationElement, name, false)
+    override def toString: String = getStaticTestName(closestInvocationElement).getOrElse(name)
   }
 
   private class StStringLiteral(val element: PsiElement,
-                                pClassName: String, pValue: String)
+                                pClassName: String,
+                                pValue: String)
     extends StringLiteral(pClassName, null, pValue) {
 
     override def parent: AstNode = getParentNode(pClassName, element)
@@ -377,6 +379,10 @@ object ScalaTestAstTransformer {
     }
 
     override def hashCode: Int = element.hashCode
+
+    override def canBePartOfTestName: Boolean = getStaticTestName(element).isDefined
+
+    override def toString: String = getStaticTestName(element).getOrElse(super.toString)
   }
 
   private class StToStringTarget(val element: PsiElement, pClassName: String, target: Any)
@@ -389,17 +395,16 @@ object ScalaTestAstTransformer {
 
     override def children: Array[AstNode] = getChildren(pClassName, element)
 
-    override def canBePartOfTestName: Boolean = isIt || getStaticTestName(element, false).isDefined
+    override def canBePartOfTestName: Boolean = isIt || getStaticTestName(element).isDefined
 
     override def toString: String =
       if (isIt) ""
-      else getStaticTestNameOrDefault(element, name, false)
+      else getStaticTestName(element).getOrElse(name)
 
     override def equals(other: Any): Boolean = other match {
       case o: StToStringTarget => o.element == element
       case _ => false
     }
-
 
     override def hashCode: Int = element.hashCode
   }

@@ -19,10 +19,13 @@ trait AbstractTestConfigurationProducer {
   def createConfigurationByElement(location: Location[_ <: PsiElement],
                                    context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     if (context.getModule == null) return null
-    val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
-    if (suitePaths.forall(
-      suitePath => ScalaPsiManager.instance(context.getProject).getCachedClass(scope, suitePath).orNull == null)) return null
-    createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
+    val allClassesAreNull = {
+      val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
+      val manager = ScalaPsiManager.instance(context.getProject)
+      suitePaths.forall(path => manager.getCachedClass(scope, path).orNull == null)
+    }
+    if (allClassesAreNull) null
+    else createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
   }
 
   def findExistingByElement(location: Location[_ <: PsiElement],
@@ -34,9 +37,4 @@ trait AbstractTestConfigurationProducer {
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)]
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
-
-  protected def escapeAndConcatTestNames(testNames: List[String]): String = {
-    val res = testNames.map(TestConfigurationUtil.escapeTestName)
-    if (res.nonEmpty) res.tail.fold(res.head)(_+"\n"+_) else ""
-  }
 }

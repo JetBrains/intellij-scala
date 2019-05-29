@@ -9,7 +9,6 @@ import scala.Some$;
 import scala.collection.immutable.Map;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -22,15 +21,15 @@ import java.util.jar.JarFile;
 public class ScalaTestRunner {
   private static final String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
 
-  public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+  public static void main(String[] args) {
     try {
-      if (isScalaTest2())
+      if (isScalaTest2()) {
         runScalaTest2(args);
-      else
+      } else {
         runScalaTest1(args);
-
-    } catch (Throwable ignore) {
-      ignore.printStackTrace();
+      }
+    } catch (Throwable e) {
+      e.printStackTrace();
     }
 
     System.exit(0);
@@ -47,28 +46,31 @@ public class ScalaTestRunner {
   }
 
   private static void runScalaTest2(String[] args) throws IOException {
-    ArrayList<String> argsArray = new ArrayList<String>();
-    HashMap<String, Set<String>> failedTestMap = new HashMap<String, Set<String>>();
-    boolean failedUsed = false;
+    ArrayList<String> argsArray = new ArrayList<>();
     HashMap<String, Set<String>> classesToTests = new HashMap<>();
+    HashMap<String, Set<String>> failedTestMap = new HashMap<>();
+    boolean failedUsed = false;
     String currentClass = null;
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
-    int i = 0;
+
     String[] newArgs  = TestRunnerUtil.getNewArgs(args);
+    int i = 0;
     while (i < newArgs.length) {
       if (newArgs[i].equals("-s")) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classesToTests.put(newArgs[i], new HashSet<String>());
+          classesToTests.put(newArgs[i], new HashSet<>());
           currentClass = newArgs[i];
           ++i;
         }
       } else if (newArgs[i].equals("-testName")) {
         if (currentClass == null) throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
         ++i;
-        classesToTests.get(currentClass).add(TestRunnerUtil.unescapeTestName(newArgs[i]));
+        String testNames = newArgs[i];
+        String testNamesUnescaped = TestRunnerUtil.unescapeTestName(testNames);
+        classesToTests.get(currentClass).add(testNamesUnescaped);
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -82,7 +84,7 @@ public class ScalaTestRunner {
           String failedTestName = newArgs[i + 1];
           Set<String> testSet = failedTestMap.get(failedClassName);
           if (testSet == null)
-            testSet = new HashSet<String>();
+            testSet = new HashSet<>();
           testSet.add(failedTestName);
           failedTestMap.put(failedClassName, testSet);
           i += 2;
@@ -131,12 +133,12 @@ public class ScalaTestRunner {
     Runner.run(argsArray.toArray(new String[argsArray.size()]));
   }
 
-  private static void runScalaTest1(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
-    ArrayList<String> argsArray = new ArrayList<String>();
-    ArrayList<String> classes = new ArrayList<String>();
-    ArrayList<String> failedTests = new ArrayList<String>();
+  private static void runScalaTest1(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, IOException {
+    ArrayList<String> argsArray = new ArrayList<>();
+    ArrayList<String> classes = new ArrayList<>();
+    ArrayList<String> failedTests = new ArrayList<>();
     boolean failedUsed = false;
-    List<String> testNames = new LinkedList<String>();
+    List<String> testNames = new LinkedList<>();
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
@@ -181,8 +183,7 @@ public class ScalaTestRunner {
         ++i;
       }
     }
-    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
-        loadClass(reporterQualName);
+    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().loadClass(reporterQualName);
     Reporter reporter = (Reporter) reporterClass.newInstance();
     if (failedUsed) {
       i = 0;
@@ -212,14 +213,15 @@ public class ScalaTestRunner {
   }
 
 
-  private static void runSingleTest(String testName, String clazz, Reporter reporter) throws IllegalAccessException,
-      InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+  private static void runSingleTest(String testName, String clazz, Reporter reporter) {
     try {
     Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
     Suite suite = (Suite) aClass.newInstance();
     Class<?> suiteClass = Class.forName("org.scalatest.Suite");
-    Method method = suiteClass.getMethod("run", Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class,
-        Map.class, Option.class, Tracker.class);
+    Method method = suiteClass.getMethod(
+        "run",
+        Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class, Map.class, Option.class, Tracker.class
+    );
     // This stopper could be used to request stop to runner
     Stopper stopper = new Stopper() {
       private volatile boolean stopRequested = false;
@@ -252,9 +254,7 @@ public class ScalaTestRunner {
       String version = jar.getManifest().getMainAttributes().getValue("Bundle-Version");
       jar.close();
       return parseVersion(version);
-    } catch (IOException e) {
-      return true;
-    } catch (ClassNotFoundException e) {
+    } catch (IOException | ClassNotFoundException e) {
       return true;
     }
   }
