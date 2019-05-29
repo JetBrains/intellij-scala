@@ -93,8 +93,8 @@ class TypeDiffTest extends SimpleTestCase {
 
   private def asString(diff: TypeDiff) = {
     val parts = diff.flatten.map {
-      case Match(text) => text
-      case Mismatch(text) => s"~$text~"
+      case Match(text, _) => text
+      case Mismatch(text, _) => s"~$text~"
     }
     parts.mkString
   }

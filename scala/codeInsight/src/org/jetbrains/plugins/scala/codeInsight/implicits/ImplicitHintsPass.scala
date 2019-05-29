@@ -67,8 +67,16 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
   private def partsOf(expected: ScType, actual: ScType, message: String): Seq[Text] = {
     TypeDiff.forSecond(expected, actual).flatten.map {
-      case Match(s) => Text(s)
-      case Mismatch(s) => Text(s, attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)), errorTooltip = Some(message))
+      case Match(text, tpe) =>
+        Text(text,
+          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          navigatable = tpe.flatMap(_.extractClass))
+      case Mismatch(text, tpe) =>
+        Text(text,
+          attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)),
+          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          navigatable = tpe.flatMap(_.extractClass),
+          errorTooltip = Some(message))
     }
   }
 
