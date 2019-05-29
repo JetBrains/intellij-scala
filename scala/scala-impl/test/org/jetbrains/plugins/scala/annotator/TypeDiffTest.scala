@@ -16,10 +16,12 @@ class TypeDiffTest extends SimpleTestCase {
     parameterized types
       function types
       infix types
+    tuple types
     compound types
     structural types
     literal types
     existential types
+    java array types
     */
 
   def testSingular(): Unit = {
@@ -60,6 +62,16 @@ class TypeDiffTest extends SimpleTestCase {
     assertDiffsAre(
       "class A; class B; class Foo[T1, T2]",
       "Foo[A, ~A~]", "Foo[A, ~B~]"
+    )
+
+    // Argument count
+    assertDiffsAre(
+      "class A; class B; class Foo[T]",
+      "Foo[~A~]", "Foo[~A, B~]"
+    )
+    assertDiffsAre(
+      "class A; class B; class Foo[T]",
+      "Foo[~A, B~]", "Foo[~A~]"
     )
 
     // Type and arguments
