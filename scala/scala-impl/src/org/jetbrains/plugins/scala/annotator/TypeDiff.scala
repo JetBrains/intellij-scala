@@ -9,22 +9,29 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 // 2) Find nested regions in type.
 sealed trait TypeDiff {
   def format(f: Show): String
+
+  def flatten: Seq[TypeDiff]
 }
 
 object TypeDiff {
   type Show = (String, Boolean) => String
 
   final case class Group(elements: Seq[TypeDiff]) extends TypeDiff {
-    override def format(f: Show): String =
-      elements.map(_.format(f)).mkString
+    override def format(f: Show): String = elements.map(_.format(f)).mkString
+
+    override def flatten: Seq[TypeDiff] = elements.flatMap(_.flatten)
   }
 
   final case class Match(s: String) extends TypeDiff {
     override def format(f: Show): String = f(s, true)
+
+    override def flatten: Seq[TypeDiff] = Seq(this)
   }
 
   final case class Mismatch(s: String) extends TypeDiff {
     override def format(f: Show): String = f(s, false)
+
+    override def flatten: Seq[TypeDiff] = Seq(this)
   }
 
   // To display folding (type hint)
