@@ -14,7 +14,8 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, TypeMismatchError, TypeMismatchHighlightingMode}
+import org.jetbrains.plugins.scala.annotator.TypeDiff._
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, TypeDiff, TypeMismatchError, TypeMismatchHighlightingMode}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -24,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -52,13 +54,21 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
           if (needsParentheses) {
             hints +:= Hint(Seq(Text("(")), e, suffix = false)
           }
-          val parts = Seq(Text(": "), Text(actualType.map(_.presentableText).mkString, attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)), errorTooltip = Some(message))) |> { parts =>
+          val typeParts = (expectedType, actualType).zipped.map(partsOf(_, _, message)).headOption.getOrElse(Seq(Text("")))
+          val parts = Text(": ") +: typeParts |> { parts =>
             if (needsParentheses) Text(")") +: parts else parts
           }
           val spaceWidth = editor.getComponent.getFontMetrics(editor.getColorsScheme.getFont(EditorFontType.PLAIN)).charWidth(' ')
           hints +:= Hint(parts, e, margin = if (needsParentheses) None else Some(new Insets(0, spaceWidth, 0, 0)), suffix = true, relatesToPrecedingElement = true)
         }
       }
+    }
+  }
+
+  private def partsOf(expected: ScType, actual: ScType, message: String): Seq[Text] = {
+    TypeDiff.forSecond(expected, actual).flatten.map {
+      case Match(s) => Text(s)
+      case Mismatch(s) => Text(s, attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)), errorTooltip = Some(message))
     }
   }
 
