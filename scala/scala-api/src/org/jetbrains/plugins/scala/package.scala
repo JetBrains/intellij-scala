@@ -7,7 +7,7 @@ import com.intellij.util.SystemProperties
 
 package object scala {
 
-  def isInternal: Boolean = ApplicationManager.getApplication match {
+  def applicationInternalModeEnabled: Boolean = ApplicationManager.getApplication match {
     case null => SystemProperties.is(IdeaApplication.IDEA_IS_INTERNAL_PROPERTY)
     case application => application.isInternal
   }

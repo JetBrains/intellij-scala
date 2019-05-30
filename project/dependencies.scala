@@ -28,7 +28,8 @@ object Versions {
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
     val latest_2_12 = "2.12.8"
-    val latest_2_13 = "2.13.0-M5"
+    val latest_2_13 = "2.13.0-M4"
+    val latest_3_0 = "0.15.0-RC1"
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
     val project = "2.12.7"

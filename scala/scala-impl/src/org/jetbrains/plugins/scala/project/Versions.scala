@@ -5,10 +5,11 @@ import com.intellij.util.net.HttpConfigurable
 
 import scala.io.Source
 import scala.util.Try
+import scala.util.matching.Regex
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 case class Versions(defaultVersion: String,
                     versions: Array[String])
 
@@ -16,9 +17,7 @@ object Versions {
 
   import Entity._
 
-  sealed abstract class Kind {
-
-    private[Versions] val entities: Seq[Entity]
+  sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
     final def apply(): Versions = {
       val versions = extensions
@@ -26,11 +25,10 @@ object Versions {
         .sorted
         .reverse
         .map(_.presentation)
+        .toArray
 
-      Versions(
-        entities.last.hardcodedVersions.last,
-        versions.toArray
-      )
+      val Entity(_, _, defaultVersion :: _, _) :: _ = entities
+      Versions(defaultVersion, versions)
     }
 
     private[this] def loadVersions(): Seq[Version] = entities.flatMap {
@@ -48,24 +46,23 @@ object Versions {
         }
     }
 
-    private[this] def extractVersions(strings: Seq[String], pattern: String) = {
-      val regex = pattern.r
+    private[this] def extractVersions(strings: Seq[String],
+                                      pattern: Regex) =
       strings.collect {
-        case regex(number) => number
+        case pattern(number) => number
       }
-    }
   }
 
-  case object ScalaKind extends Kind {
-    override private[Versions] val entities: Seq[Entity] =
-      if (isInternal) Seq(DottyEntity, ScalaEntity)
-      else Seq(ScalaEntity)
-  }
+  case object ScalaKind extends Kind(
+    if (applicationInternalModeEnabled)
+      ScalaCandidatesEntity :: DottyEntity :: Nil
+    else
+      ScalaEntity :: Nil
+  )
 
-  case object SbtKind extends Kind {
-    override private[Versions] val entities: Seq[Entity] =
-      Seq(Sbt013Entity, Sbt1Entity)
-  }
+  case object SbtKind extends Kind(
+    Sbt1Entity :: Sbt013Entity :: Nil
+  )
 
   def loadLinesFrom(location: String): Try[Seq[String]] =
     Try(HttpConfigurable.getInstance().openHttpConnection(location)).map { connection =>
@@ -80,37 +77,42 @@ object Versions {
 
   private[this] case class Entity(url: String,
                                   minVersion: String,
-                                  hardcodedVersions: Seq[String],
-                                  versionPattern: String = ".+>(\\d+\\.\\d+\\.\\d+)/<.*")
+                                  hardcodedVersions: List[String],
+                                  versionPattern: Regex = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r)
 
   private[this] object Entity {
 
     import buildinfo.BuildInfo._
-    import debugger.{Scala_2_10, Scala_2_11, Scala_3_0}
+    import debugger._
 
     val ScalaEntity = Entity(
       "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       Scala_2_10.major + ".0",
-      Seq(Scala_2_10.minor, Scala_2_11.minor, scalaVersion)
+      scalaVersion :: Scala_2_11.minor :: Scala_2_10.minor :: Nil
     )
 
     val Sbt013Entity = Entity(
       "https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       "0.13.5",
-      Seq(sbtLatest_0_13)
+      sbtLatest_0_13 :: Nil
     )
 
     val Sbt1Entity = Entity(
       "https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
       "1.0.0",
-      Seq(sbtLatest_1_0, sbtLatestVersion).distinct
+      (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
     )
 
     val DottyEntity = Entity(
       s"https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_${Scala_3_0.major}/",
       Scala_3_0.major + ".0",
-      Seq(Scala_3_0.minor),
-      """.+>(\d+.\d+.+)/<.*"""
+      Scala_3_0.minor :: Nil,
+      ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
+    )
+
+    val ScalaCandidatesEntity: Entity = ScalaEntity.copy(
+      hardcodedVersions = Scala_2_13.minor :: ScalaEntity.hardcodedVersions,
+      versionPattern = DottyEntity.versionPattern
     )
   }
 

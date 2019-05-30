@@ -129,7 +129,7 @@ package object template {
   }
 
   private[this] def launcherOptions(path: String) =
-    jarWith.getParentFile.getParentFile / "launcher" / "sbt-launch.jar" match {
+    jarWith.getParentFile / "launcher" / "sbt-launch.jar" match {
       case launcher if launcher.exists => Seq("-jar", launcher.getAbsolutePath, "< " + path)
       case launcher => throw new FileNotFoundException(launcher.getPath)
     }

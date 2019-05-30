@@ -6,39 +6,45 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 /**
  * @author Nikolay.Tropin
  */
-sealed abstract class ScalaVersion(val languageLevel: ScalaLanguageLevel,
-                                   val minor: String) {
-  def major: String = languageLevel.getVersion
+sealed abstract class ScalaVersion(languageLevel: ScalaLanguageLevel,
+                                   minorSuffix: String) {
+  def major: String = languageVersion
+
+  def minor: String = s"$languageVersion.$minorSuffix"
+
+  private def languageVersion = languageLevel.getVersion
 }
 
 case object Scala_2_9 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_9,
-  "2.9.3"
+  "3"
 )
 
 case object Scala_2_10 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_10,
-  "2.10.7"
+  "7"
 )
 
 case object Scala_2_11 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_11,
-  "2.11.12"
+  "12"
 )
 
 case object Scala_2_12 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_12,
-  "2.12.3"
+  "3"
 )
 
 case object Scala_2_13 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_13,
-  "2.13.0-M4"
+  "0-M4"
 ) {
-  override val major: String = minor
+  override def major: String = minor
 }
 
 case object Scala_3_0 extends ScalaVersion(
   ScalaLanguageLevel.Scala_3_0,
-  "0.13.0-RC1"
-)
+  "0-RC1"
+) {
+  override def major: String = minor
+}
