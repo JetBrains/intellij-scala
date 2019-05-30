@@ -128,6 +128,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean KEEP_COMMENTS_ON_SAME_LINE = true;
   public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
 
+  public boolean INDENT_TYPE_ARGUMENTS = true;
+  public boolean INDENT_TYPE_PARAMETERS = true;
+
   public static final int NO_NEW_LINE = 0;
   public static final int NEW_LINE_ALWAYS = 1;
   public static final int NEW_LINE_FOR_MULTIPLE_ARGUMENTS = 2;

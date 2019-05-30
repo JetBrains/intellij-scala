@@ -21,6 +21,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   private val CLASS_DEFINITION = "Class definition"
   private val XML_FORMATTING = "Xml formatting"
   private val TUPLES_WRAP = "Tuple"
+  private val TYPE_ARGUMENTS = "Type Arguments"
+  private val TYPE_PARAMETERS = "Type Parameters"
 
   override def createConfigurable(baseSettings: CodeStyleSettings, modelSettings: CodeStyleSettings): CodeStyleConfigurable =
     new ScalaCodeStyleAbstractConfigurable(baseSettings, modelSettings)
@@ -268,6 +270,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       )
       opt("DO_NOT_INDENT_TUPLES_CLOSE_BRACE", "Do not indent tuples closing parenthesis", TUPLES_WRAP)
       opt("ALIGN_TUPLE_ELEMENTS", "Align tuple elements", TUPLES_WRAP)
+
+      opt("INDENT_TYPE_ARGUMENTS", "Indent", TYPE_ARGUMENTS)
+      opt("INDENT_TYPE_PARAMETERS", "Indent", TYPE_PARAMETERS)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -588,6 +593,14 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    1, 2,
       |    3, 4
       |  )
+      |
+      |  def foo[
+      |    A, B,
+      |    C <: T[
+      |      D, E,
+      |      F
+      |    ]
+      |  ]: Unit = ???
       |}
       |
       |class C1 extends B with T1 with T2 {

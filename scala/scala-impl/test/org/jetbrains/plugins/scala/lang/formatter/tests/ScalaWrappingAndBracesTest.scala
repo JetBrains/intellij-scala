@@ -1146,4 +1146,81 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  def testIndentTypeParametersAndArguments(): Unit = {
+    getScalaSettings.INDENT_TYPE_PARAMETERS = true
+    getScalaSettings.INDENT_TYPE_ARGUMENTS = true
+    getIndentOptions.CONTINUATION_INDENT_SIZE = 3
+
+    val before =
+      """def foo[
+        |A, B,
+        |C <: T[
+        |D, E,
+        |F
+        |]
+        |]: Unit
+      """.stripMargin
+    val after =
+      """def foo[
+        |   A, B,
+        |   C <: T[
+        |      D, E,
+        |      F
+        |   ]
+        |]: Unit
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testIndentTypeParametersWithoutArguments(): Unit = {
+    getScalaSettings.INDENT_TYPE_PARAMETERS = true
+    getScalaSettings.INDENT_TYPE_ARGUMENTS = false
+    getIndentOptions.CONTINUATION_INDENT_SIZE = 3
+
+    val before =
+      """def foo[
+        |A, B,
+        |C <: T[
+        |D, E,
+        |F
+        |]
+        |]: Unit
+      """.stripMargin
+    val after =
+      """def foo[
+        |   A, B,
+        |   C <: T[
+        |   D, E,
+        |   F
+        |   ]
+        |]: Unit
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testIndentTypeArgumentsWithoutParameters(): Unit = {
+    getScalaSettings.INDENT_TYPE_PARAMETERS = false
+    getScalaSettings.INDENT_TYPE_ARGUMENTS = true
+    getIndentOptions.CONTINUATION_INDENT_SIZE = 3
+
+    val before =
+      """def foo[
+        |A, B,
+        |C <: T[
+        |D, E,
+        |F
+        |]
+        |]: Unit
+      """.stripMargin
+    val after =
+      """def foo[
+        |A, B,
+        |C <: T[
+        |   D, E,
+        |   F
+        |]
+        |]: Unit
+      """.stripMargin
+    doTextTest(before, after)
+  }
 }

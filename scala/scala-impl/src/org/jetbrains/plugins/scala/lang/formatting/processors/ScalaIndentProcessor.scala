@@ -258,8 +258,20 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         } else {
           Indent.getContinuationWithoutFirstIndent(scalaSettings.ALIGN_TUPLE_ELEMENTS)
         }
+      case _: ScTypeParamClause  if scalaSettings.INDENT_TYPE_PARAMETERS =>
+        if (childElementType == ScalaTokenTypes.tRSQBRACKET) {
+          Indent.getNoneIndent
+        } else {
+          Indent.getContinuationWithoutFirstIndent
+        }
+      case  _: ScTypeArgs  if scalaSettings.INDENT_TYPE_ARGUMENTS =>
+        if (childElementType == ScalaTokenTypes.tRSQBRACKET) {
+          Indent.getNoneIndent
+        } else {
+          Indent.getContinuationWithoutFirstIndent
+        }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs | _:  ScGenerator =>
+              _: ScExpression | _: ScTypeElement | _: ScTypes |  _:  ScGenerator =>
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
         if (ScalaTokenTypes.PARENTHESIS_TOKEN_SET.contains(childElementType)) Indent.getNoneIndent
@@ -280,5 +292,4 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getNoneIndent
     }
   }
-
 }
