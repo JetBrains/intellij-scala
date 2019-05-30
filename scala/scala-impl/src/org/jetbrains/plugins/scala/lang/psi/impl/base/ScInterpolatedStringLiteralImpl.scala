@@ -27,7 +27,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
     case _ => null
   }
 
-  protected override def innerType: TypeResult = {getStringContextExpression match {
+  protected override def innerType: TypeResult = getStringContextExpression match {
     case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
       case expr: ScReferenceExpression if isMetaQQ(expr) =>
         getMetaQQExprType(this)
