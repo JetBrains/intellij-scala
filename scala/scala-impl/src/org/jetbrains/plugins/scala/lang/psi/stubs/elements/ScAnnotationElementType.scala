@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
 
@@ -19,13 +18,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
 final class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   override def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.annotationText)
+    dataStream.writeOptionName(stub.name)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
-    new ScAnnotationStubImpl(parentStub, this, annotationText = dataStream.readNameString)
+    new ScAnnotationStubImpl(parentStub, this, annotationText = dataStream.readNameString, name = dataStream.readOptionName)
 
   override def createStubImpl(annotation: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
-    new ScAnnotationStubImpl(parentStub, this, annotationText = annotation.getText.stripPrefix("@"))
+    new ScAnnotationStubImpl(parentStub, this,
+      annotationText = annotation.getText.stripPrefix("@"),
+      name = annotation.constructorInvocation.reference.map(_.refName)
+    )
   }
 
   override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
