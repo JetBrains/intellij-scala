@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfigura
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
+import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
@@ -65,8 +66,10 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
     for (test <- tests) {
-      assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status),
-        s"test node for test '$test' was not in file structure for root '$structureViewRoot'")
+      assertTrue(
+        s"test node for test '$test' was not in file structure for root '$structureViewRoot'",
+        checkTestNodeInFileStructure(structureViewRoot, test, None, status)
+      )
     }
   }
 
@@ -75,8 +78,10 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
                                                   testStatus: Int = Test.NormalStatusId): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
-    assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus),
-      s"test node for test '$testName' with parent '$parentTestName' was not in file structure for root '$structureViewRoot'")
+    assertTrue(
+      s"test node for test '$testName' with parent '$parentTestName' was not in file structure for root '$structureViewRoot'",
+      checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus),
+    )
   }
 
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
@@ -162,8 +167,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
                                            duration: Int = 3000,
                                            debug: Boolean = false
                                           ): (String, Option[AbstractTestProxy]) = {
-    assert(configurationCheck(runConfig), s"config check failed for ${runConfig.getName}")
-    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration], "runConfig not instance of AbstractRunConfiguration")
+    assertTrue(s"config check failed for ${runConfig.getName}", configurationCheck(runConfig))
+    assertTrue("runConfig not instance of AbstractRunConfiguration", runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
@@ -209,7 +214,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     runner.execute(executionEnvironmentBuilder.build, (descriptor: RunContentDescriptor) => {
       System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
       val handler: ProcessHandler = descriptor.getProcessHandler
-      assert(handler != null)
+      assertNotNull(handler)
       disposeOnTearDown(new Disposable {
         def dispose() {
           if (!handler.isProcessTerminated) {

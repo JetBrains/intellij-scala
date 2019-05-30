@@ -44,23 +44,23 @@ trait FreeSpecStaticStringTest extends ScalaTestTestCase {
   )
 
   def testFreeSpecSum() = {
-    assert(checkConfigAndSettings(createTestFromLocation(8, 7, freeSpecFileName), freeSpecClassName,
-      "A FreeSpecTest should work with sum"))
+    assertConfigAndSettings(createTestFromLocation(8, 7, freeSpecFileName), freeSpecClassName,
+      "A FreeSpecTest should work with sum")
   }
 
   def testFreeSpecVal() = {
-    assert(checkConfigAndSettings(createTestFromLocation(16, 7, freeSpecFileName), freeSpecClassName,
-      "Const name innerNonConst"))
-    assert(checkConfigAndSettings(createTestFromLocation(19, 7, freeSpecFileName), freeSpecClassName,
-      "Const name InnerConst"))
+    assertConfigAndSettings(createTestFromLocation(16, 7, freeSpecFileName), freeSpecClassName,
+      "Const name innerNonConst")
+    assertConfigAndSettings(createTestFromLocation(19, 7, freeSpecFileName), freeSpecClassName,
+      "Const name InnerConst")
   }
 
   def testFreeSpecValSum() = {
-    assert(checkConfigAndSettings(createTestFromLocation(11, 7, freeSpecFileName), freeSpecClassName,
-      "A FreeSpecTest should work with sum of consts"))
+    assertConfigAndSettings(createTestFromLocation(11, 7, freeSpecFileName), freeSpecClassName,
+      "A FreeSpecTest should work with sum of consts")
   }
 
   def testFreeSpecNonConst() = {
-    assert(checkConfigAndSettings(createTestFromLocation(24, 7, freeSpecFileName), freeSpecClassName))
+    assertConfigAndSettings(createTestFromLocation(24, 7, freeSpecFileName), freeSpecClassName)
   }
 }

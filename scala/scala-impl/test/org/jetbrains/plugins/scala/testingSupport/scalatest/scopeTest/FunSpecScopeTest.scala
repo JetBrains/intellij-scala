@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FunSpecGe
  */
 trait FunSpecScopeTest extends FunSpecGenerator {
   def testFunSpecEmptyScope() {
-    assert(checkConfigAndSettings(createTestFromLocation(17, 15, funSpecFileName), funSpecClassName))
+    assertConfigAndSettings(createTestFromLocation(17, 15, funSpecFileName), funSpecClassName)
   }
 
   def testFunSpecScope() {

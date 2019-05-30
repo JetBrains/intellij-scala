@@ -39,19 +39,19 @@ trait WordSpecStaticStringTest extends ScalaTestTestCase {
     """.stripMargin.trim())
 
   def testWordSpecSum() = {
-    assert(checkConfigAndSettings(createTestFromLocation(17, 10, wordSpecFileName), wordSpecClassName, "sum name should test"))
+    assertConfigAndSettings(createTestFromLocation(17, 10, wordSpecFileName), wordSpecClassName, "sum name should test")
   }
 
   def testWordSpecVal() = {
-    assert(checkConfigAndSettings(createTestFromLocation(6, 10, wordSpecFileName), wordSpecClassName, "const should const"))
+    assertConfigAndSettings(createTestFromLocation(6, 10, wordSpecFileName), wordSpecClassName, "const should const")
   }
 
   def testWordSpecValSum() = {
-    assert(checkConfigAndSettings(createTestFromLocation(14, 10, wordSpecFileName), wordSpecClassName, "sum name should constconst"))
-    assert(checkConfigAndSettings(createTestFromLocation(9, 10, wordSpecFileName), wordSpecClassName, "const should const sum"))
+    assertConfigAndSettings(createTestFromLocation(14, 10, wordSpecFileName), wordSpecClassName, "sum name should constconst")
+    assertConfigAndSettings(createTestFromLocation(9, 10, wordSpecFileName), wordSpecClassName, "const should const sum")
   }
 
   def testWordSpecNonConst() = {
-    assert(checkConfigAndSettings(createTestFromLocation(19, 10, wordSpecFileName), wordSpecClassName))
+    assertConfigAndSettings(createTestFromLocation(19, 10, wordSpecFileName), wordSpecClassName)
   }
 }

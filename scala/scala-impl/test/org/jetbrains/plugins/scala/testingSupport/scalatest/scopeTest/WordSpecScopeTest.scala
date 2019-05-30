@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.WordSpecG
  */
 trait WordSpecScopeTest extends WordSpecGenerator {
   def testWordSpecEmptyScope() = {
-    assert(checkConfigAndSettings(createTestFromLocation(13, 10, wordSpecFileName), wordSpecClassName))
+    assertConfigAndSettings(createTestFromLocation(13, 10, wordSpecFileName), wordSpecClassName)
   }
 
   def testWordSpecScope() {

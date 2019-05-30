@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_10.scalatest
 import com.intellij.execution.filters.Filter
 import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.EdtTestUtil
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilter
-import org.junit.experimental.categories.Category
+import org.junit.Assert._
 
 /**
  * @author Roman.Shein
@@ -34,7 +33,7 @@ class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
     EdtTestUtil.runInEdtAndWait(() =>
       filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
     )
-    assert(filterRes != null)
-    assert(filterRes.getFirstHyperlinkInfo != null)
+    assertNotNull(filterRes)
+    assertNotNull(filterRes.getFirstHyperlinkInfo)
   }
 }

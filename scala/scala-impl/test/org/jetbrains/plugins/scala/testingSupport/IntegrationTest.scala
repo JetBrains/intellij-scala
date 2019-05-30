@@ -68,7 +68,6 @@ trait IntegrationTest {
 
   protected def addFileToProject(fileName: String, fileText: String)
 
-  @deprecated("use assertConfigAndSettings") // TODO
   protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Boolean = {
     val config = configAndSettings.getConfiguration
     checkConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
@@ -88,7 +87,6 @@ trait IntegrationTest {
     }
   }
 
-  @deprecated("use assertConfig") // TODO
   private def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
     config.getTestClassPath == testClass && (config.testConfigurationData match {
       case testData: SingleTestData =>
@@ -169,7 +167,8 @@ trait IntegrationTest {
     runTestByConfig(runConfig, configurationCheck, testTreeCheck, expectedText, debug, duration, checkOutputs)
   }
 
-  def runTestByConfig(runConfig: RunnerAndConfigurationSettings, configurationCheck: RunnerAndConfigurationSettings => Boolean,
+  def runTestByConfig(runConfig: RunnerAndConfigurationSettings,
+                      configurationCheck: RunnerAndConfigurationSettings => Boolean,
                       testTreeCheck: AbstractTestProxy => Boolean,
                       expectedText: String = "OK", debug: Boolean = false, duration: Int = 10000,
                       checkOutputs: Boolean = false): Unit = {
@@ -182,11 +181,11 @@ trait IntegrationTest {
 
     semaphore.waitFor()
 
-    assert(testTreeRoot.isDefined, s"testTreeRoot not defined")
-    assert(testTreeCheck(testTreeRoot.get), s"testTreeCheck failed for root ${testTreeRoot.get}")
+    assertTrue(s"testTreeRoot not defined", testTreeRoot.isDefined)
+    assertTrue(s"testTreeCheck failed for root ${testTreeRoot.get}", testTreeCheck(testTreeRoot.get))
 
     if (checkOutputs) {
-      assert(res.contains(expectedText), s"output was '$res' expected to contain '$expectedText'")
+      assertTrue(s"output was '$res' expected to contain '$expectedText'", res.contains(expectedText))
     }
   }
 
@@ -209,13 +208,13 @@ trait IntegrationTest {
 
     val (_, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig)
 
-    assert(testTreeRoot.isDefined)
+    assertTrue("testTreeRoot not defined", testTreeRoot.isDefined)
     EdtTestUtil.runInEdtAndWait(() => checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine))
   }
 
   private def checkGoToSourceTest(testRoot: AbstractTestProxy, testNames: Iterable[String], sourceFile: String, sourceLine: Int) {
     val testPathOpt = getExactNamePathFromResultTree(testRoot, testNames, allowTail = true)
-    assert(testPathOpt.isDefined, s"no test path found under ${testRoot.getName} for test names ${testNames.mkString(", ")}")
+    assertTrue(s"no test path found under ${testRoot.getName} for test names ${testNames.mkString(", ")}", testPathOpt.isDefined)
     val test = testPathOpt.get.last
     val project = getProject
     val location = test.getLocation(project, GlobalSearchScope.projectScope(project))

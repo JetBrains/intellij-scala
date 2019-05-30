@@ -36,13 +36,13 @@ trait FunSpecStaticStringTest extends ScalaTestTestCase {
     """.stripMargin.trim())
 
   def testFunSpecSum() = {
-    assert(checkConfigAndSettings(createTestFromLocation(8, 10, funSpecFileName), funSpecClassName,
-      "FunSpecTest works with sums"))
+    assertConfigAndSettings(createTestFromLocation(8, 10, funSpecFileName), funSpecClassName,
+      "FunSpecTest works with sums")
   }
 
   def testFunSpecVal() = {
-    assert(checkConfigAndSettings(createTestFromLocation(5, 10, funSpecFileName), funSpecClassName,
-      "FunSpecTest consts"))
+    assertConfigAndSettings(createTestFromLocation(5, 10, funSpecFileName), funSpecClassName,
+      "FunSpecTest consts")
   }
 
   def testFunSpecValSum() = {

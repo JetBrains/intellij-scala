@@ -34,7 +34,7 @@ abstract class Specs2WholeSuiteTest extends Specs2TestCase {
   )
 
   def testParamConstructor(): Unit = {
-    assert(checkConfigAndSettings(createTestFromLocation(2, 10, "paramConstructorTest.scala"), "paramConstructorTest"))
+    assertConfigAndSettings(createTestFromLocation(2, 10, "paramConstructorTest.scala"), "paramConstructorTest")
   }
 
   def testSpecification(): Unit = {

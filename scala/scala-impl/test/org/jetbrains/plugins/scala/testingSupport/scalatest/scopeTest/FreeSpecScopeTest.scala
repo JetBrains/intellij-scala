@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecG
  */
 trait FreeSpecScopeTest extends FreeSpecGenerator {
   def testFreeSpecEmptyScope() {
-    assert(checkConfigAndSettings(createTestFromLocation(31, 7, complexFreeSpecFileName), complexFreeSpecClassName))
+    assertConfigAndSettings(createTestFromLocation(31, 7, complexFreeSpecFileName), complexFreeSpecClassName)
   }
 
   def testFreeSpecScope() {

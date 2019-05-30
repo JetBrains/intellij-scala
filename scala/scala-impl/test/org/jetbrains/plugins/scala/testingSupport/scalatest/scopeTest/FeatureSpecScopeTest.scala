@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FeatureSp
  */
 trait FeatureSpecScopeTest extends FeatureSpecGenerator {
   def testFeatureSpecEmptyScope() {
-    assert(checkConfigAndSettings(createTestFromLocation(21, 7, featureSpecFileName), featureSpecClassName))
+    assertConfigAndSettings(createTestFromLocation(21, 7, featureSpecFileName), featureSpecClassName)
   }
 
   def testFeatureSpecScope() {
