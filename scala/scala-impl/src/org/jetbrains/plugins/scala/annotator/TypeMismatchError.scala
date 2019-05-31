@@ -31,9 +31,10 @@ object TypeMismatchError {
 
     val annotatedElement = elementAt(element, blockLevel)
 
+    val highlightExpression = TypeMismatchHighlightingMode.in(element.getProject) == TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION
+
     // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
-    val annotation: Annotation = if (ApplicationManager.getApplication.isUnitTestMode ||
-      TypeMismatchHighlightingMode.in(element.getProject) == TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION) {
+    val annotation = if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {
       holder.createErrorAnnotation(annotatedElement, message)
     } else {
       val annotation = holder.createErrorAnnotation(lastLineRangeOf(annotatedElement), message)
@@ -41,7 +42,7 @@ object TypeMismatchError {
       annotation
     }
 
-    annotation.setTooltip(typeMismatchTooltipFor(expectedType, actualType))
+    annotation.setTooltip(if (highlightExpression) typeMismatchTooltipFor(expectedType, actualType) else null)
     annotation.registerFix(ReportHighlightingErrorQuickFix)
 
     annotatedElement.putUserData(TypeMismatchErrorKey, TypeMismatchError(Some(expectedType), Some(actualType), typeMismatchTooltipFor(expectedType, actualType), element.getManager.getModificationTracker.getModificationCount))
