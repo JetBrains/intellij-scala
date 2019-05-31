@@ -52,8 +52,10 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
 object ScalaDocUnbalancedHeaderInspection {
   def isApplicable(openTag: PsiElement, closeTag: PsiElement): Boolean = {
     import ScalaDocTokenType._
-    openTag.getNode.getElementType == VALID_DOC_HEADER &&
-      (closeTag.getNode.getElementType == VALID_DOC_HEADER || closeTag.getNode.getElementType == DOC_HEADER)
+    (openTag.getNode.getElementType, closeTag.getNode.getElementType) match {
+      case (VALID_DOC_HEADER, VALID_DOC_HEADER | DOC_HEADER) => true
+      case _ => false
+    }
   }
 }
 
