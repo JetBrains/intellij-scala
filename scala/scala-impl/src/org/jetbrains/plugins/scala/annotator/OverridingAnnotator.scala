@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -89,37 +90,37 @@ trait OverridingAnnotator {
     case _ =>
   }
 
-  private def checkOverrideMembers[T <: ScNamedElement, Res](member: T,
-                                                             owner: ScModifierListOwner,
-                                                             superSignaturesWithSelfType: Seq[Res],
-                                                             superSignatures: Seq[Res],
-                                                             isConcrete: Res => Boolean,
-                                                             memberType: String)
-                                                            (implicit holder: AnnotationHolder): Unit = {
+  private def checkOverrideMembers[Res](namedElement: ScNamedElement,
+                                        member: ScMember,
+                                        superSignaturesWithSelfType: Seq[Res],
+                                        superSignatures: Seq[Res],
+                                        isConcrete: Res => Boolean,
+                                        memberType: String)
+                                       (implicit holder: AnnotationHolder): Unit = {
     import lang.lexer.{ScalaModifier, ScalaTokenTypes}
     import ScalaModifier.{OVERRIDE, Override}
     import quickfix.ModifierQuickFix._
 
-    val memberNameId = member.nameId
+    val memberNameId = namedElement.nameId
     if (superSignaturesWithSelfType.isEmpty) {
-      if (owner.hasModifierProperty(OVERRIDE)) {
+      if (member.hasModifierProperty(OVERRIDE)) {
         val annotation = holder.createErrorAnnotation(
           memberNameId,
-          ScalaBundle.message("member.overrides.nothing", memberType, member.name)
+          ScalaBundle.message("member.overrides.nothing", memberType, namedElement.name)
         )
-        annotation.registerFix(new Remove(owner, memberNameId, Override))
-        annotation.registerFix(new PullUpQuickFix(owner, memberNameId))
+        annotation.registerFix(new Remove(member, memberNameId, Override))
+        annotation.registerFix(new PullUpQuickFix(member, namedElement.name))
       }
-    } else if (isConcreteElement(nameContext(member))) {
+    } else if (isConcreteElement(nameContext(namedElement))) {
       var isConcretes = false
       for (signature <- superSignatures if !isConcretes && isConcrete(signature)) isConcretes = true
-      if (isConcretes && !owner.hasModifierProperty(OVERRIDE)) {
+      if (isConcretes && !member.hasModifierProperty(OVERRIDE)) {
         val annotation = holder.createErrorAnnotation(
           memberNameId,
-          ScalaBundle.message("member.needs.override.modifier", memberType, member.name)
+          ScalaBundle.message("member.needs.override.modifier", memberType, namedElement.name)
         )
 
-        val maybeQuickFix: Option[Add] = member match {
+        val maybeQuickFix: Option[Add] = namedElement match {
           case param: ScClassParameter if param.isCaseClassVal && !(param.isVal || param.isVar) =>
             superSignaturesWithSelfType.headOption.collect {
               case signature: TermSignature => signature.namedElement
@@ -136,9 +137,9 @@ trait OverridingAnnotator {
                 case _ => None
               }
             }.map {
-              new AddWithKeyword(owner, memberNameId, _)
+              new AddWithKeyword(member, memberNameId, _)
             }
-          case _ => Some(new Add(owner, memberNameId, Override))
+          case _ => Some(new Add(member, memberNameId, Override))
         }
         maybeQuickFix.foreach(annotation.registerFix)
       }
@@ -158,13 +159,13 @@ trait OverridingAnnotator {
       }
       if (overridesFinal) {
         holder.createErrorAnnotation(memberNameId,
-          ScalaBundle.message("can.not.override.final", memberType, member.name))
+          ScalaBundle.message("can.not.override.final", memberType, namedElement.name))
       }
 
       def annotateVarFromVal(): Unit = {
         def addAnnotation(): Unit = {
           holder.createErrorAnnotation(memberNameId,
-            ScalaBundle.message("var.cannot.override.val", member.name))
+            ScalaBundle.message("var.cannot.override.val", namedElement.name))
         }
 
         for (signature <- superSignatures) {
@@ -184,12 +185,12 @@ trait OverridingAnnotator {
       def annotateFunFromValOrVar(): Unit = {
         def annotVal() = {
           holder.createErrorAnnotation(memberNameId,
-            ScalaBundle.message("member.cannot.override.val", member.name))
+            ScalaBundle.message("member.cannot.override.val", namedElement.name))
         }
 
         def annotVar() = {
           holder.createErrorAnnotation(memberNameId,
-            ScalaBundle.message("member.cannot.override.var", member.name))
+            ScalaBundle.message("member.cannot.override.var", namedElement.name))
         }
 
         for (signature <- superSignatures) {
@@ -208,7 +209,7 @@ trait OverridingAnnotator {
         }
       }
 
-      member match {
+      namedElement match {
         case _: ScFunctionDefinition =>
           annotateFunFromValOrVar()
         case inNameContext(_: ScVariable) =>
@@ -228,7 +229,7 @@ trait OverridingAnnotator {
           case _ => return true
         }
       } else overType
-      val actualBase = (s.namedElement, member) match {
+      val actualBase = (s.namedElement, namedElement) match {
         case (sFun: ScFunction, mFun: ScFunction) if effectiveParams(sFun).length == effectiveParams(mFun).length &&
           s.typeParamsLength == mFun.typeParameters.length =>
           val sParams = effectiveParams(sFun)
@@ -253,7 +254,7 @@ trait OverridingAnnotator {
         case _ => false
       }
 
-      actualType.conforms(actualBase) || ((actualBase, actualType, member) match {
+      actualType.conforms(actualBase) || ((actualBase, actualType, namedElement) match {
         case (ParameterizedType(des, args), _, pat: ScBindingPattern) if des.canonicalText == "_root_.scala.Function0" &&
           allowEmptyParens(pat) => actualType.conforms(args.head)
         case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
@@ -272,7 +273,7 @@ trait OverridingAnnotator {
     }
 
     for {
-      overridingType <- comparableType(member)
+      overridingType <- comparableType(namedElement)
       superSig <- superSignatures.filterBy[TermSignature]
       baseType <- comparableType(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
