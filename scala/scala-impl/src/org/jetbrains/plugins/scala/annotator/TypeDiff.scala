@@ -7,20 +7,34 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 // 1) Find differences between two types.
 // 2) Find nested regions in a type.
 sealed trait TypeDiff {
-  def flatten: Seq[TypeDiff]
+  def flatten: Seq[TypeDiff] = flattenTo(maxChars = Int.MaxValue, groupLength = 0)
+
+  def flattenTo(maxChars: Int, groupLength: Int): Seq[TypeDiff] = flattenTo0(maxChars, groupLength)._1
+
+  protected def flattenTo0(maxChars: Int, groupLength: Int) = (Seq(this), length(groupLength))
+
+  protected def length(groupLength: Int): Int
 }
 
 object TypeDiff {
-  final case class Group(elements: Seq[TypeDiff]) extends TypeDiff {
-    override def flatten: Seq[TypeDiff] = elements.flatMap(_.flatten)
+  final case class Group(diffs: Seq[TypeDiff]) extends TypeDiff {
+    override def flattenTo0(maxChars: Int, groupLength: Int): (Seq[TypeDiff], Int) = {
+      val (xs, length) = diffs.reverse.foldlr(0, (Seq.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
+        val (xs, length) = x.flattenTo0(maxChars - l - r, groupLength)
+        (acc ++ xs, length + r)
+      }
+      if (length <= maxChars.max(groupLength)) (xs, length) else (Seq(Group(xs)), groupLength)
+    }
+
+    override protected def length(groupLength: Int): Int = groupLength
   }
 
   final case class Match(text: String, tpe: Option[ScType] = None) extends TypeDiff {
-    override def flatten: Seq[TypeDiff] = Seq(this)
+    override protected def length(groupLength: Int): Int = text.length
   }
 
   final case class Mismatch(text: String, tpe: Option[ScType] = None) extends TypeDiff {
-    override def flatten: Seq[TypeDiff] = Seq(this)
+    override protected def length(groupLength: Int): Int = text.length
   }
 
   // To display folding (type hint)

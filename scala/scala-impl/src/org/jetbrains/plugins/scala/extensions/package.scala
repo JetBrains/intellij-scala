@@ -247,6 +247,11 @@ package object extensions {
     }
 
     def intersperse[B >: A](sep: B): Seq[B] = value.iterator.intersperse(sep).toSeq
+
+    // https://pavelfatin.com/twitter-puddles-and-foldlr
+    def foldlr[L, R](l: L, r: R)(f1: (L, A) => L)(f2: (L, A, R) => R): R =
+      if (value.isEmpty) r
+      else f2(l, value.head, value.tail.foldlr(f1(l, value.head), r)(f1)(f2))
   }
 
   implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
