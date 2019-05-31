@@ -6,6 +6,7 @@ import com.intellij.lexer.{HtmlHighlightingLexer, LayeredLexer, Lexer, StringLit
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.{FileTypeManager, SyntaxHighlighterBase}
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
@@ -363,7 +364,12 @@ object ScalaSyntaxHighlighter {
       htmlTokenType match {
         case ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF =>
           ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT
-        case ScalaXmlTokenTypes.XML_DATA_CHARACTERS | ScalaXmlTokenTypes.XML_BAD_CHARACTER =>
+        case ScalaXmlTokenTypes.XML_DATA_CHARACTERS |
+             ScalaXmlTokenTypes.XML_BAD_CHARACTER |
+             ScalaXmlTokenTypes.XML_WHITE_SPACE |
+             XmlTokenType.XML_REAL_WHITE_SPACE =>
+          // TODO: for some reason XmlTokenType.XML_REAL_WHITE_SPACE "leaks" here,
+          //  should it should be ScalaXmlTokenTypes.XML_WHITE_SPACE
           ScalaDocTokenType.DOC_COMMENT_DATA
         case _ if ScalaXmlTokenTypes.XML_COMMENTS.contains(htmlTokenType) =>
           ScalaDocTokenType.DOC_COMMENT_DATA
