@@ -54,7 +54,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
           if (needsParentheses) {
             hints +:= Hint(Seq(Text("(")), e, suffix = false)
           }
-          val typeParts = (expectedType, actualType).zipped.map(partsOf(_, _, message)).headOption.getOrElse(Seq(Text("")))
+          val typeParts =
+            if (mode == TypeMismatchHighlightingMode.SHOW_TYPE_MISMATCH_HINT) typeMismatchHintWith(message)
+            else (expectedType, actualType).zipped.map(partsOf(_, _, message)).headOption.getOrElse(Seq(Text("")))
           val parts = Text(": ") +: typeParts |> { parts =>
             if (needsParentheses) Text(")") +: parts else parts
           }
@@ -87,6 +89,11 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       .map(toText)
       .map(_.copy(errorTooltip = Some(message)))
   }
+
+  private def typeMismatchHintWith(message: String): Seq[Text] =
+    Seq(Text("<:",
+      attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)),
+      errorTooltip = Some(message)))
 
   private def collectConversionsAndArguments(): Unit = {
     val settings = ScalaProjectSettings.getInstance(rootElement.getProject)
