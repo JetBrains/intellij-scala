@@ -40,13 +40,6 @@ object IndentUtil {
     }
   }
 
-  def calcIndent(node: ASTNode, tabSize: Int): Int = {
-    node.getTreePrev match {
-      case Whitespace(ws) => calcLastLineIndent(ws, tabSize)
-      case _ => 0
-    }
-  }
-
   @inline
   def compare(first: PsiElement, second: PsiElement, tabSize: Int): Int = {
     calcIndent(first, tabSize) - calcIndent(second, tabSize)
