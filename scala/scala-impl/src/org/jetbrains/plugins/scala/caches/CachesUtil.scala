@@ -8,21 +8,16 @@ import java.util.concurrent.atomic.AtomicReference
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
@@ -94,7 +89,7 @@ object CachesUtil {
       return ModificationTracker.NEVER_CHANGED
     }
 
-    val topLevel = ScalaPsiManager.instance(element.getProject).TopLevelModificationTracker
+    val topLevel = scalaTopLevelModTracker(element.getProject)
 
     @tailrec
     def findTracker(element: PsiElement): ModificationTracker = element match {
@@ -166,13 +161,11 @@ object CachesUtil {
   //Tuple2 class doesn't have half-specialized variants, so (T, Long) almost always have boxed long inside
   case class Timestamped[@specialized(Boolean, Int, AnyRef) T](data: T, modCount: Long)
 
-  def fileModCount(@Nullable vFile: VirtualFile, project: Project): Long =  {
-    val topLevel = ScalaPsiManager.instance(project).TopLevelModificationTracker.getModificationCount
-    vFile match {
-      case null => topLevel
-      case vFile => topLevel + vFile.getModificationStamp
-    }
+  def fileModCount(file: PsiFile): Long =  {
+    val topLevel = scalaTopLevelModTracker(file.getProject).getModificationCount
+    topLevel + file.getModificationStamp
   }
 
-  def fileModCount(file: PsiFile): Long = fileModCount(file.getVirtualFile, file.getProject)
+  def scalaTopLevelModTracker(project: Project): ModificationTracker =
+    ScalaPsiManager.instance(project).TopLevelModificationTracker
 }

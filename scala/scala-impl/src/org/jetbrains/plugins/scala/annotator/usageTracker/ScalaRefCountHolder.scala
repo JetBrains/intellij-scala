@@ -13,7 +13,6 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.util.containers.{ContainerUtil, hash}
 import org.jetbrains.plugins.scala.caches.CachesUtil
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
-final class ScalaRefCountHolder private (vFile: VirtualFile, project: Project) {
+final class ScalaRefCountHolder private (file: PsiFile) {
 
   import ScalaRefCountHolder._
 
@@ -37,7 +36,7 @@ final class ScalaRefCountHolder private (vFile: VirtualFile, project: Project) {
     Log.assertTrue(isReady)
   }
 
-  private def currentModCount: Long = CachesUtil.fileModCount(vFile, project)
+  private def currentModCount: Long = CachesUtil.fileModCount(file)
 
   private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]
   private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]
@@ -125,7 +124,7 @@ object ScalaRefCountHolder {
       .getComponent(classOf[ScalaRefCountHolderComponent])
       .getOrCreate(
         file.getName + file.hashCode,
-        new ScalaRefCountHolder(file.getVirtualFile, file.getProject)
+        new ScalaRefCountHolder(file)
       )
   }
 
