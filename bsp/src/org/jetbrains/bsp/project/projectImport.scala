@@ -12,7 +12,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.util.NotNullFactory
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.projectImport.ProjectOpenProcessorBase
+import com.intellij.projectImport.{ProjectImportBuilder, ProjectOpenProcessorBase}
 import javax.swing.Icon
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
@@ -52,6 +52,9 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
     super.canImport(fileOrDirectory, project)
 }
 
-class BspProjectOpenProcessor(builder: BspProjectImportBuilder) extends ProjectOpenProcessorBase[BspProjectImportBuilder](builder) {
+class BspProjectOpenProcessor extends ProjectOpenProcessorBase[BspProjectImportBuilder]{
   override def getSupportedExtensions: Array[String] = Array()
+
+  override def doGetBuilder(): BspProjectImportBuilder =
+    ProjectImportBuilder.EXTENSIONS_POINT_NAME.findExtensionOrFail(classOf[BspProjectImportBuilder])
 }

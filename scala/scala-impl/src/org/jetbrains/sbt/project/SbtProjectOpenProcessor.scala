@@ -8,17 +8,20 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternalProjectStep
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.projectImport.ProjectOpenProcessorBase
+import com.intellij.projectImport.{ProjectImportBuilder, ProjectOpenProcessorBase}
 import javax.swing.Icon
 
 /**
  * @author Pavel Fatin
  */
-class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectOpenProcessorBase[SbtProjectImportBuilder](builder) {
+class SbtProjectOpenProcessor extends ProjectOpenProcessorBase[SbtProjectImportBuilder] {
   // Actual detection is done via the canOpenProject method (to "open" projects without build.sbt file).
   // However, these "extensions" are used inside ProjectOpenProcessorBase.doOpenProject to determine a project root directory.
   // TODO Don't depend on file extensions in ProjectOpenProcessorBase.doOpenProject to discover a project root (IDEA)
-  def getSupportedExtensions = Array(Sbt.BuildFile, Sbt.ProjectDirectory)
+  override def getSupportedExtensions = Array(Sbt.BuildFile, Sbt.ProjectDirectory)
+
+  override def doGetBuilder(): SbtProjectImportBuilder =
+    ProjectImportBuilder.EXTENSIONS_POINT_NAME.findExtensionOrFail(classOf[SbtProjectImportBuilder])
 
   override def canOpenProject(file: VirtualFile): Boolean = SbtProjectImportProvider.canImport(file)
 
