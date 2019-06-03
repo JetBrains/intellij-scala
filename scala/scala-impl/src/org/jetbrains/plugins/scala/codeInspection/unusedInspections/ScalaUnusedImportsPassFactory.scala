@@ -28,7 +28,6 @@ final class ScalaUnusedImportsPassFactory(project: Project,
 
   override def createHighlightingPass(file: PsiFile,
                                       editor: Editor): ScalaUnusedImportPass = {
-    implicit val project: Project = file.getProject
     annotator.usageTracker.ScalaRefCountHolder.findDirtyScope(file) match {
       case Some(None) if ScalaUnusedImportPass.isUpToDate(file) || !ProblemHighlightFilter.shouldHighlightFile(file) => null
       case _ => new ScalaUnusedImportPass(file, editor, editor.getDocument, new DefaultHighlightInfoProcessor)

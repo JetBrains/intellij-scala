@@ -6,6 +6,7 @@ import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, Highl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 /**
@@ -79,10 +80,10 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
 
   // TODO experimental feature (SCL-15250)
   private def clearTypeMismatchErrorsIn(file: PsiFile): Unit = {
-    val dirtyScope = ScalaRefCountHolder.findDirtyScope(file)(file.getProject).flatten
+    val dirtyScope = ScalaRefCountHolder.findDirtyScope(file).flatten
 
     file.elements.foreach { element =>
-      if (TypeMismatchError(element).exists(_.modificationCount < element.getManager.getModificationTracker.getModificationCount) &&
+      if (TypeMismatchError(element).exists(_.modificationCount < fileModCount(file)) &&
         dirtyScope.forall(_.contains(element.getTextRange))) {
 
         TypeMismatchError.clear(element)

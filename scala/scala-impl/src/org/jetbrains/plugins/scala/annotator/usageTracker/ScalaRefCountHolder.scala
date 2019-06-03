@@ -3,6 +3,7 @@ package annotator
 package usageTracker
 
 import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.atomic.AtomicLong
 import java.{util => ju}
 
 import com.intellij.codeHighlighting.Pass
@@ -12,24 +13,31 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.util.containers.{ContainerUtil, hash}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
-
-/**
- * See com.intellij.codeInsight.daemon.impl.RefCountHolder
- */
-final class ScalaRefCountHolder private() {
+final class ScalaRefCountHolder private (vFile: VirtualFile, project: Project) {
 
   import ScalaRefCountHolder._
-  import State._
 
-  private val myState = new ju.concurrent.atomic.AtomicReference(VIRGIN)
+  private val lastReadyModCount = new AtomicLong(-1)
+
+  private def isReady: Boolean = {
+    lastReadyModCount.get() == currentModCount
+  }
+
+  private def assertReady(): Unit = {
+    Log.assertTrue(isReady)
+  }
+
+  private def currentModCount: Long = CachesUtil.fileModCount(vFile, project)
 
   private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]
   private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]
@@ -43,7 +51,7 @@ final class ScalaRefCountHolder private() {
   }
 
   def usageFound(used: ImportUsed): Boolean = {
-    assertState()
+    assertReady()
     myImportUsed.contains(used)
   }
 
@@ -56,75 +64,54 @@ final class ScalaRefCountHolder private() {
   }
 
   private def isValueUsed(used: ValueUsed): Boolean = {
-    assertState()
+    assertReady()
     myValueUsed.contains(used)
   }
 
   def analyze(analyze: Runnable, file: PsiFile): Boolean = {
-    val dirtyScope = findDirtyScope(file)(file.getProject)
-    myState.compareAndSet(READY, VIRGIN)
 
-    if (myState.compareAndSet(VIRGIN, WRITE)) {
-      try {
-        assertState(WRITE)
+    val currentCount = currentModCount
+    val lastCount = lastReadyModCount.get()
 
-        val defaultRange = Some(file.getTextRange)
-        dirtyScope.getOrElse(defaultRange) match {
-          case `defaultRange` =>
-            myImportUsed.clear()
-            myValueUsed.clear()
-          case Some(_) =>
-            clear(myImportUsed)(_.element.isValid)
-            clear(myValueUsed)(_.isValid)
-          case _ =>
-        }
-
-        analyze.run()
-      } finally {
-        setReady(WRITE)
-      }
-
-      true
-    } else {
-      false
+    if (!isReady) {
+      cleanIfDirty(file)
     }
+
+    analyze.run()
+
+    //don't cancel next passes if holder was updated concurrently
+    lastReadyModCount.compareAndSet(lastCount, currentCount)
+
+    isReady
   }
 
 
-  def retrieveUnusedReferencesInfo(analyze: () => Unit): Boolean =
-    if (myState.compareAndSet(READY, READ)) {
-      try {
-        analyze()
-      } finally {
-        setReady(READ)
-      }
-
+  def retrieveUnusedReferencesInfo(analyze: () => Unit): Boolean = {
+    if (isReady) {
+      analyze()
       true
-    } else {
-      false
     }
-
-  private def setReady(expect: Int): Unit = {
-    val value = myState.compareAndSet(expect, READY)
-    Log.assertTrue(value, myState.get)
+    else false
   }
 
-  private def assertState(expected: Int = READ): Unit = {
-    val actual = myState.get
-    Log.assertTrue(actual == expected, actual)
+  private def cleanIfDirty(file: PsiFile): Unit = {
+    val dirtyScope = findDirtyScope(file)
+    val defaultRange = Some(file.getTextRange)
+    dirtyScope.getOrElse(defaultRange) match {
+      case `defaultRange` =>
+        myImportUsed.clear()
+        myValueUsed.clear()
+      case Some(_) =>
+        clear(myImportUsed)(_.element.isValid)
+        clear(myValueUsed)(_.isValid)
+      case _ =>
+    }
   }
 }
 
 object ScalaRefCountHolder {
 
   private val Log = Logger.getInstance(getClass)
-
-  private object State {
-    val VIRGIN = 0
-    val WRITE = 1
-    val READY = 2
-    val READ = 3
-  }
 
   def apply(element: PsiNamedElement): ScalaRefCountHolder =
     getInstance(element.getContainingFile)
@@ -138,12 +125,12 @@ object ScalaRefCountHolder {
       .getComponent(classOf[ScalaRefCountHolderComponent])
       .getOrCreate(
         file.getName + file.hashCode,
-        new ScalaRefCountHolder
+        new ScalaRefCountHolder(file.getVirtualFile, file.getProject)
       )
   }
 
-  def findDirtyScope(file: PsiFile)
-                    (implicit project: Project): Option[Option[TextRange]] =
+  def findDirtyScope(file: PsiFile): Option[Option[TextRange]] = {
+    val project = file.getProject
     PsiDocumentManager.getInstance(project).getDocument(file) match {
       case null => None
       case document =>
@@ -153,6 +140,7 @@ object ScalaRefCountHolder {
           case _ => None
         }
     }
+  }
 
   private def clear[T](used: ju.Set[T])
                       (isValid: T => Boolean): Unit = used.synchronized {
