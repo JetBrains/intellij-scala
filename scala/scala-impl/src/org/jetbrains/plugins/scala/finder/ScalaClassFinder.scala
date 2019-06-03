@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import scala.collection.JavaConverters._
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
-  private lazy val psiManager  : ScalaPsiManager             = ScalaPsiManager.instance(project)
-  private lazy val cacheManager: ScalaShortNamesCacheManager = ScalaShortNamesCacheManager.getInstance(project)
+  private def psiManager  : ScalaPsiManager             = ScalaPsiManager.instance(project)
+  private def cacheManager: ScalaShortNamesCacheManager = ScalaShortNamesCacheManager.getInstance(project)
 
   override def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
     if (psiManager.isInJavaPsiFacade) {

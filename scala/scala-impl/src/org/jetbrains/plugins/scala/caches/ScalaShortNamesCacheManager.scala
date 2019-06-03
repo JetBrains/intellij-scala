@@ -160,9 +160,9 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
     }
 
   // Don't use val, there is a loop
-  private lazy val psiManager = ScalaPsiManager.instance(project)
+  private def psiManager = ScalaPsiManager.instance(project)
 
-  private lazy val psiNamesCache = PsiShortNamesCache.getInstance(project)
+  private def psiNamesCache = PsiShortNamesCache.getInstance(project)
 
   override val getComponentName: String = "ScalaShortNamesCacheManager"
 
