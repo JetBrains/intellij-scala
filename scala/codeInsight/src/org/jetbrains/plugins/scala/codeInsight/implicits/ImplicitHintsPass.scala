@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.{Color, Insets}
+import java.awt.Color
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme, EditorFontType}
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
@@ -14,8 +14,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.annotator.TypeDiff._
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, TypeDiff, TypeMismatchError, TypeMismatchHighlightingMode}
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -25,14 +24,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
-  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false) {
+private class ImplicitHintsPass(protected val editor: Editor, protected val rootElement: ScalaPsiElement)
+  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false) with TypeMismatchHints {
 
-  private var hints: Seq[Hint] = Seq.empty
+  protected var hints: Seq[Hint] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
     hints = Seq.empty
@@ -42,58 +40,6 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       collectConversionsAndArguments()
     }
   }
-
-  // TODO experimental feature (SCL-15250)
-  private def collectTypeMismatches() {
-    val mode = TypeMismatchHighlightingMode.in(editor.getProject)
-
-    if (mode != TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION) {
-      rootElement.elements.foreach { e =>
-        TypeMismatchError(e).foreach { case TypeMismatchError(expectedType, actualType, message, _) =>
-          val needsParentheses = e.isInstanceOf[ScInfixExpr] || e.isInstanceOf[ScPostfixExpr]
-          if (needsParentheses) {
-            hints +:= Hint(Seq(Text("(")), e, suffix = false)
-          }
-          val typeParts =
-            if (mode == TypeMismatchHighlightingMode.SHOW_TYPE_MISMATCH_HINT) typeMismatchHintWith(message)
-            else (expectedType, actualType).zipped.map(partsOf(_, _, message)).headOption.getOrElse(Seq(Text("")))
-          val parts = Text(": ") +: typeParts |> { parts =>
-            if (needsParentheses) Text(")") +: parts else parts
-          }
-          val spaceWidth = editor.getComponent.getFontMetrics(editor.getColorsScheme.getFont(EditorFontType.PLAIN)).charWidth(' ')
-          hints +:= Hint(parts, e, margin = if (needsParentheses) None else Some(new Insets(0, spaceWidth, 0, 0)), suffix = true, relatesToPrecedingElement = true)
-        }
-      }
-    }
-  }
-
-  private def partsOf(expected: ScType, actual: ScType, message: String): Seq[Text] = {
-    def toText(diff: TypeDiff): Text = diff match {
-      case Group(diffs) =>
-        Text(foldedString,
-          foldedAttributes(diff.flatten.exists(_.is[Mismatch]))(editor.getColorsScheme),
-          expansion = Some(() => diffs.map(toText)))
-      case Match(text, tpe) =>
-        Text(text,
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
-          navigatable = tpe.flatMap(_.extractClass))
-      case Mismatch(text, tpe) =>
-        Text(text,
-          attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)),
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
-          navigatable = tpe.flatMap(_.extractClass))
-    }
-    // TODO user-configurable maxChars
-    TypeDiff.forSecond(expected, actual)
-      .flattenTo(maxChars = 25, groupLength = foldedString.length)
-      .map(toText)
-      .map(_.copy(errorTooltip = Some(message)))
-  }
-
-  private def typeMismatchHintWith(message: String): Seq[Text] =
-    Seq(Text("<:",
-      attributes = Some(editor.getColorsScheme.getAttributes(CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)),
-      errorTooltip = Some(message)))
 
   private def collectConversionsAndArguments(): Unit = {
     val settings = ScalaProjectSettings.getInstance(rootElement.getProject)
@@ -371,7 +317,7 @@ private object ImplicitHintsPass {
   private def ambiguousTooltip(parameter: ScalaResolveResult): String =
     "Ambiguous implicits for parameter " + paramWithType(parameter)
 
-  private val foldedString: String = "..."
+  private[implicits] val foldedString: String = "..."
 
   // Add custom colors for folding inside inlay hints (SCL-13996)?
   private def adjusted(attributes: TextAttributes): TextAttributes = {
@@ -392,8 +338,8 @@ private object ImplicitHintsPass {
     result
   }
 
-  private def foldedAttributes(error: Boolean)
-                              (implicit scheme: EditorColorsScheme): Option[TextAttributes] = {
+  private[implicits] def foldedAttributes(error: Boolean)
+                                (implicit scheme: EditorColorsScheme): Option[TextAttributes] = {
     val plainFolded =
       scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES)
         .toOption
