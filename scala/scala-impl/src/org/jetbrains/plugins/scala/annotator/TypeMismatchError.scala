@@ -9,6 +9,7 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
+import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
@@ -47,7 +48,17 @@ object TypeMismatchError {
     annotation.setTooltip(if (highlightExpression) typeMismatchTooltipFor(expectedType, actualType) else null)
     annotation.registerFix(ReportHighlightingErrorQuickFix)
 
-    annotatedElement.putUserData(TypeMismatchErrorKey, TypeMismatchError(Some(expectedType), Some(actualType), typeMismatchTooltipFor(expectedType, actualType), fileModCount(element.getContainingFile)))
+    val error = TypeMismatchError(
+      Some(expectedType), Some(actualType),
+      typeMismatchTooltipFor(expectedType, actualType),
+      fileModCount(element.getContainingFile))
+
+    val dataHolder = holder match {
+      case DelegateAnnotationHolder(e) => e
+      case _ => annotatedElement
+    }
+
+    dataHolder.putUserData(TypeMismatchErrorKey, error)
 
     annotation
   }
