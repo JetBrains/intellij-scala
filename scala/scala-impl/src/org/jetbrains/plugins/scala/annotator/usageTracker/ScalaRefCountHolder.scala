@@ -102,7 +102,7 @@ final class ScalaRefCountHolder private (vFile: VirtualFile, project: Project) {
         myImportUsed.clear()
         myValueUsed.clear()
       case Some(_) =>
-        clear(myImportUsed)(_.element.isValid)
+        clear(myImportUsed)(_.isValid)
         clear(myValueUsed)(_.isValid)
       case _ =>
     }

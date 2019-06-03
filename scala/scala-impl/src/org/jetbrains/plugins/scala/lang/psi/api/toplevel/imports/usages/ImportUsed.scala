@@ -23,6 +23,8 @@ abstract sealed class ImportUsed(_e: PsiElement) {
 
   def element: PsiElement = pointer.getElement
 
+  def isValid: Boolean = element.toOption.exists(_.isValid)
+
   def importExpr: Option[ScImportExpr]
 
   override def toString: String = ifReadAllowed(element.getText)("")
