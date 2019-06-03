@@ -420,7 +420,14 @@ class ScalaPsiManager(implicit val project: Project) {
 
     override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
 
-    override def childReplaced(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getNewChild)
+    override def childReplaced(event: PsiTreeChangeEvent): Unit = {
+      val changedElement =
+        if (event.getNewChild.getClass == event.getOldChild.getClass)
+          event.getNewChild
+        else event.getParent
+
+      onPsiChange(event, changedElement)
+    }
 
     override def childAdded(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getChild)
 
