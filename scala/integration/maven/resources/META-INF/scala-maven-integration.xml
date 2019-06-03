@@ -15,7 +15,7 @@
   -->
 
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "https://plugins.jetbrains.com/plugin.dtd">
-<idea-plugin version="2">
+<idea-plugin>
   <extensions defaultExtensionNs="org.jetbrains.idea.maven">
     <importer implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
   </extensions>
