@@ -23,7 +23,7 @@ class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
     s"""
        |object Lazy {
        |  def main(args: Array[String]) {
-       |    val lst = Stream.from(42)
+       |    val stream = Stream.from(42)
        |    val a = 1$bp
        |  }
        |}
@@ -31,7 +31,7 @@ class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
   )
 
   def testLazy() {
-    testLazyCollectionRendering("lst", "scala.collection.immutable.Stream$Cons", "Stream(42, ?)")
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(42, ?)")
   }
 }
 @Category(Array(classOf[DebuggerTests]))
@@ -42,17 +42,19 @@ class ScalaCollectionRendererTest_213 extends ScalaCollectionRendererTestBase {
     s"""
        |object Lazy {
        |  def main(args: Array[String]) {
-       |    val lst = LazyList.from(1)
+       |    val list = LazyList.from(1)
+       |    val stream = Stream.from(1)
        |    val a = 1$bp
+       |    val b = 2$bp
        |  }
        |}
       """.replace("\r", "").stripMargin.trim
   )
   def testLazy() {
-    testLazyCollectionRendering("lst", "scala.collection.immutable.LazyList$Cons", "LazyList(_, ?)")
+    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList(<not computed>)")
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(1, <not computed>)")
   }
 }
-
 
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   private val UNIQUE_ID = "uniqueID"

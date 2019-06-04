@@ -50,7 +50,7 @@ object SideEffectsUtil {
     expr match {
       case lit: ScInterpolatedStringLiteral =>
         import org.jetbrains.plugins.scala.lang.psi.api.base.InterpolatedStringType._
-        Seq(STANDART, FORMAT, RAW).contains(lit.getType)
+        Seq(STANDARD, FORMAT, RAW).contains(lit.getType)
       case _: ScLiteral => true
       case _: ScThisReference => true
       case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
