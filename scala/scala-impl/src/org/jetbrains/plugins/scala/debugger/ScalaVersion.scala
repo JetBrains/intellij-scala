@@ -37,7 +37,7 @@ case object Scala_2_12 extends ScalaVersion(
 
 case object Scala_2_13 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_13,
-  "0-M4"
+  "0-RC3"
 ) {
   override def major: String = minor
 }

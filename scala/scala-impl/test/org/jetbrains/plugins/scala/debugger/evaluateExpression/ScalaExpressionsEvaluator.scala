@@ -226,8 +226,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   def testLiteral() {
     runDebugger() {
       waitForBreakpoint()
-      evalEquals("\"x\".length", "1")
-      evalEquals("s\"n = $n\"", "n = 1")
+      evalEquals(""""x".length""", "1")
+      evalEquals("""s"n = $n"""", "n = 1")
       evalEquals("1L", "1")
       evalEquals("'c'", "c")
       evalEquals("true", "true")
@@ -236,7 +236,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("1F", "1.0")
       evalEquals("Array(1F, 2.0F)", "[1.0,2.0]")
       evalEquals("123.charAt(3)", "1")
-      evalEquals("\"a\".concat(123)", "a123123")
+      evalEquals(""""a".concat(123)""", "a123123")
       evalEquals("'aaa", "'aaa")
       evalEquals("'aaa.name", "aaa")
       evalEquals("intToString(123)", "123123")

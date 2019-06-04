@@ -20,7 +20,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode)
   import scala.meta.intellij.QuasiquoteInferUtil._
 
   override def getType: StringType = literalNode.getText match {
-    case "s" => STANDART
+    case "s" => STANDARD
     case "f" => FORMAT
     case "id" => PATTERN
     case "raw" => RAW

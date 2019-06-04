@@ -49,7 +49,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
-    def buildSimpleEvaluator = {
+    def buildSimpleEvaluator: Evaluator = {
       cached.getOrElse {
         val newEvaluator = new ScalaEvaluatorBuilder(scalaFragment, position).getEvaluator
         cache.add(position, scalaFragment, newEvaluator)
@@ -62,13 +62,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     try {
-      new ExpressionEvaluatorImpl(buildSimpleEvaluator)
-    }
-    catch {
+      val ev = buildSimpleEvaluator
+      new ExpressionEvaluatorImpl(ev)
+    } catch {
       case _: NeedCompilationException =>
         Stats.trigger(FeatureKey.debuggerCompilingEvaluator)
         new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
-      case e: EvaluateException => throw e
+      case e: EvaluateException =>
+        throw e
     }
   }
 }
@@ -176,7 +177,7 @@ private object needsCompilation {
         }
       case _: ScTypeAlias => message("type alias")
       case _: ScFunction => message("function definition")
-      case (_: ScVariableDeclaration | _: ScValueDeclaration) => message("variable declaration")
+      case _: ScVariableDeclaration | _: ScValueDeclaration => message("variable declaration")
       case LazyVal(_) => message("lazy val definition")
       case _ => None
     }
@@ -187,8 +188,7 @@ private object needsCompilation {
     case _: ScMatch => message("match statement")
     case _: ScThrow => message("throw statement")
     case _: ScXmlExpr => message("xml expression")
-    case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>
-      message("interpolated string")
+    case _: ScInterpolatedStringLiteral => message("interpolated string")
     case _ => None
   }
 }

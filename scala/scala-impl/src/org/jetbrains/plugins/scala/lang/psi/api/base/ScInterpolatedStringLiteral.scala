@@ -23,5 +23,5 @@ object ScInterpolatedStringLiteral {
 
 object InterpolatedStringType extends Enumeration {
   type StringType = Value
-  val STANDART, FORMAT, PATTERN, RAW = Value
+  val STANDARD, FORMAT, PATTERN, RAW = Value
 }

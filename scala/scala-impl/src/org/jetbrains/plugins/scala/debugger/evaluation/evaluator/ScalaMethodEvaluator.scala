@@ -20,9 +20,13 @@ import scala.util.{Success, Try}
  * User: Alefas
  * Date: 12.10.11
  */
-case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String, signature: JVMName,
-                           argumentEvaluators: Seq[Evaluator], traitImplementation: Option[JVMName] = None,
-                           methodPosition: Set[SourcePosition] = Set.empty, localMethodIndex: Int = -1) extends Evaluator {
+case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
+                                _methodName: String,
+                                signature: JVMName,
+                                argumentEvaluators: Seq[Evaluator],
+                                traitImplementation: Option[JVMName] = None,
+                                methodPosition: Set[SourcePosition] = Set.empty,
+                                localMethodIndex: Int = -1) extends Evaluator {
 
   val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
@@ -47,8 +51,9 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
         objectEvaluator.asInstanceOf[DisableGC].getDelegate.isInstanceOf[ScSuperEvaluator])
-    val evaluated = DebuggerUtil.unwrapScalaRuntimeRef {
-      objectEvaluator.evaluate(context)
+    val evaluated: AnyRef = {
+      val res = objectEvaluator.evaluate(context)
+      DebuggerUtil.unwrapScalaRuntimeRef(res)
     }
     val obj = evaluated match {
       case p: PrimitiveValue => ScalaBoxingEvaluator.box(p, context)

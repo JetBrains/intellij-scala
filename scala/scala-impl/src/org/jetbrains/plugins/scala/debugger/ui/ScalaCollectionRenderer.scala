@@ -74,7 +74,7 @@ object ScalaCollectionRenderer {
   private[debugger] val iteratorClassName = "scala.collection.Iterator"
 
   private[debugger] val viewClassName_2_13 = "scala.collection.View"
-  private[debugger] val lazyList_2_13 = "scala.collection.immutable.LazyListOps"
+  private[debugger] val lazyList_2_13 = "scala.collection.immutable.LazyList"
 
   private[debugger] val sizeLabelRenderer = createSizeLabelRenderer()
 

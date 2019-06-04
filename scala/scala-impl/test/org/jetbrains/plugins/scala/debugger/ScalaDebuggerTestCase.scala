@@ -86,6 +86,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     try {
       callback
     } finally {
+      // TODO: rethink: ALL exceptions throughn from callback are overriten by exceptions from Assert.assertTrue
       Assert.assertTrue("Stop at breakpoint expected", breakpointTracker.wasAtBreakpoint || !shouldStopAtBreakpoint)
 
       EdtTestUtil.runInEdtAndWait(() => {
@@ -255,10 +256,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected def currentSuspendContext() = {
-    Option(getDebugProcess)
-      .map(_.getSuspendManager)
-      .flatMap(_.getPausedContext.toOption)
-      .orNull
+    val manager = Option(getDebugProcess).map(_.getSuspendManager)
+    val context = manager.flatMap(_.getPausedContext.toOption)
+    context.orNull
   }
 
   protected def currentLocation() = managed {
@@ -304,7 +304,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         evaluator.evaluate(ctx)
       }
       value match {
-        case Success(v: VoidValue) => "undefined"
+        case Success(_: VoidValue) => "undefined"
         case Success(v) =>
           DebuggerUtils.getValueAsString(ctx, v)
         case Failure(e: EvaluateException) => e.getMessage
@@ -431,7 +431,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     }
 
-    def waitBreakpoint(msTimeout: Long) = breakpointSemaphore.waitFor(msTimeout)
+    def waitBreakpoint(msTimeout: Long): Boolean = breakpointSemaphore.waitFor(msTimeout)
 
     def wasAtBreakpoint: Boolean = _wasAtBreakpoint
 
