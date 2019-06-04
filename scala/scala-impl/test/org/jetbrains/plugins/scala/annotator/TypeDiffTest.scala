@@ -1,28 +1,34 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.psi.PsiFileFactory
+import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.junit.Assert._
 
 // TODO Work in progress
-class TypeDiffTest extends SimpleTestCase {
+class TypeDiffTest extends ScalaFixtureTestCase {
+  // TODO test parsing of groups
   // TODO test region nesting (for code folding)
   // TODO test separation of matched elements, such as [ or ]
 
+  override implicit val version: ScalaVersion = Scala_2_12
+
   /* TODO:
-    parameterized types
-      function types
+      literal types
       infix types
-    tuple types
-    compound types
-    structural types
-    literal types
-    existential types
-    java array types
+      tuple types
+      compound types
+      structural types
+      existential types
+      java array types
     */
 
   def testSingular(): Unit = {
@@ -130,15 +136,113 @@ class TypeDiffTest extends SimpleTestCase {
     )
   }
 
-  private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
-    val (tpe1, tpe2) = typesIn(context, clean(expectedDiff1), clean(expectedDiff2))
-    val (actualDiff1, actualDiff2) = TypeDiff.forBoth(tpe1, tpe2)
-    val actualDiffString1 = asString(actualDiff1)
-    val actualDiffString2 = asString(actualDiff2)
-    assertEquals("Incorrect diff (1)", expectedDiff1, actualDiffString1)
-    assertEquals("Incorrect diff (2)", expectedDiff2, actualDiffString2)
+  def testFunction(): Unit = {
+    assertDiffsAre(
+      "class P; class R",
+      "P => R", "P => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class R",
+      "(P1, P2) => R", "(P1, P2) => R"
+    )
 
-    // Also make sure that the fesult matches the standard conformance
+    // Parameter type conformance
+    assertDiffsAre(
+      "class P1; class P2 extends P1; class R",
+      "P2 => R", "P1 => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class R",
+      "~P1~ => R", "~P2~ => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2 extends P1; class R",
+      "~P1~ => R", "~P2~ => R"
+    )
+
+    // Multiple parameter types
+    assertDiffsAre(
+      "class P1; class P2; class P3 extends P1; class R",
+      "(~P2~, P3) => R", "(~P1~, P1) => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class P3 extends P1; class R",
+      "(P3, ~P2~) => R", "(P1, ~P1~) => R"
+    )
+
+    // Result type conformance
+    assertDiffsAre(
+      "class P; class R1; class R2 extends R1",
+      "P => R1", "P => R2"
+    )
+    assertDiffsAre(
+      "class P; class R1; class R2",
+      "P => ~R1~", "P => ~R2~"
+    )
+    assertDiffsAre(
+      "class P; class R1; class R2 extends R1",
+      "P => ~R2~", "P => ~R1~"
+    )
+
+    // Parameter type and result type
+    assertDiffsAre(
+      "class P1; class P2; class R1; class R2",
+      "~P1~ => ~R1~", "~P2~ => ~R2~"
+    )
+
+    // Different parameter count // TODO parse nested types? (create matching placeholders?)
+    assertDiffsAre(
+      "class P1; class P2; class R",
+      "~P1~ => R", "~(P1, P2)~ => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class R",
+      "~(P1, P2)~ => R", "~P1~ => R"
+    )
+
+    // Nesting
+    assertDiffsAre(
+      "class P1; class P2; class P3; class R",
+      "P1 => ~P2~ => R", "P1 => ~P3~ => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class R1; class R2",
+      "P1 => P2 => ~R1~", "P1 => P2 => ~R2~"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class P3; class R",
+      "(P1 => ~P2~) => R", "(P1 => ~P3~) => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class R1; class R2",
+      "(P1 => P2) => ~R1~", "(P1 => P2) => ~R2~"
+    )
+
+    // Non-function type
+    assertDiffsAre(
+      "class P; class R; class A",
+      "~P => R~", "~A~"
+    )
+    assertDiffsAre(
+      "class P; class R; class A",
+      "~A~", "~P => R~"
+    )
+  }
+
+  private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
+    // Make sure that the expected diffs are coherent
+    assertEquals(expectedDiff1.contains("~"), expectedDiff2.contains("~"))
+
+    val (tpe1, tpe2) = typesIn(context, clean(expectedDiff1), clean(expectedDiff2))
+    val (actualDiffData1, actualDiffData2) = TypeDiff.forBoth(tpe1, tpe2)
+
+    // Make sure that the actual diffs match the expected diffs
+    val actualDiff1 = asString(actualDiffData1)
+    val actualDiff2 = asString(actualDiffData2)
+    assertEquals("Incorrect diff (1)", expectedDiff1, actualDiff1)
+    assertEquals("Incorrect diff (2)", expectedDiff2, actualDiff2)
+
+    // Also make sure that the result reflects the standard conformance
     if (!expectedDiff1.contains("~") && !expectedDiff2.contains("~")) {
       assertTrue(s"Must conform: ${tpe1.presentableText}, ${tpe2.presentableText}", tpe2.conforms(tpe1))
     } else {
@@ -146,12 +250,12 @@ class TypeDiffTest extends SimpleTestCase {
     }
 
     // Also make sure that the diff matches the standard presentation
-    assertEquals("Incorrect presentation (1)", tpe1.presentableText, clean(actualDiffString1))
-    assertEquals("Incorrect presentation (2)", tpe2.presentableText, clean(actualDiffString2))
+    assertEquals("Incorrect presentation (1)", tpe1.presentableText, clean(actualDiff1))
+    assertEquals("Incorrect presentation (2)", tpe2.presentableText, clean(actualDiff2))
 
-    // Also make sure that the number of diff elements match
-    val flattenDiff1 = actualDiff1.flatten
-    val flattenDiff2 = actualDiff2.flatten
+    // Also make sure that the number of diff elements match (needed to keep alignment in a table)
+    val flattenDiff1 = actualDiffData1.flatten
+    val flattenDiff2 = actualDiffData2.flatten
     assertEquals(flattenDiff1.mkString("|") + "\n" + flattenDiff1.mkString("|"), flattenDiff1.length, flattenDiff2.length)
   }
 
@@ -166,7 +270,7 @@ class TypeDiffTest extends SimpleTestCase {
   }
 
   private def typesIn(context: String, type1: String, type2: String): (ScType, ScType) = {
-    val Seq(tpe1, tpe2) = s"$context; null: $type1; null: $type2".parse.children.instancesOf[ScTypedExpression].toSeq.map(typeOf)
+    val Seq(tpe1, tpe2) = parseText(s"$context; null: $type1; null: $type2").children.instancesOf[ScTypedExpression].toSeq.map(typeOf)
     (tpe1, tpe2)
   }
 
@@ -177,4 +281,7 @@ class TypeDiffTest extends SimpleTestCase {
       case Right(tpe) => tpe
     }
   }
+
+  private def parseText(@Language("Scala") s: String): ScalaFile =
+    PsiFileFactory.getInstance(project).createFileFromText("foo.scala", ScalaFileType.INSTANCE, s).asInstanceOf[ScalaFile]
 }
