@@ -9,13 +9,13 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.{ClassTestData, SingleTestData, TestConfigurationProducer, TestConfigurationUtil}
@@ -91,14 +91,29 @@ class ScalaTestConfigurationProducer extends {
 
   override def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
-    var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+
+    def matchesSomeTestSuite(typ: ScTemplateDefinition): Boolean = suitePaths.exists(isInheritor(typ, _))
+
+    var clazz: ScTypeDefinition = element match {
+      case file: ScalaFile =>
+        file.typeDefinitions.filter(matchesSomeTestSuite) match {
+          case Seq(testClass) => testClass // run multiple test classes in a file is not supported yet, see SCL-15567
+          case _ => null
+        }
+      case _ =>
+        PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+    }
+
     if (clazz == null) return (null, null)
     val templateBody: ScTemplateBody = clazz.extendsBlock.templateBody.orNull
     while (PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true) != null) {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
-    if (!clazz.isInstanceOf[ScClass] && !clazz.isInstanceOf[ScTrait]) return (null, null)
-    if (!suitePaths.exists(suitePath => isInheritor(clazz, suitePath))) return (null, null)
+
+    clazz match {
+      case _: ScClass | _: ScTrait if matchesSomeTestSuite(clazz) =>
+      case _ => return (null, null)
+    }
 
     sealed trait ReturnResult
     case class SuccessResult(invocation: MethodInvocation, testName: String, middleName: String) extends ReturnResult
