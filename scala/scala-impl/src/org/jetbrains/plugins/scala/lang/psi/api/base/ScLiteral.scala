@@ -56,7 +56,7 @@ object ScLiteral {
   object Value {
 
     def apply(literal: ScLiteral): Value[_] =
-      applyImpl(literal.getFirstChild.getNode)(literal)
+      applyImpl(literal, literal.getFirstChild.getNode)
 
     def unapply(obj: Any): Option[Value[_]] = Option {
       obj match {
@@ -75,28 +75,29 @@ object ScLiteral {
     import lang.lexer.{ScalaTokenTypes => T}
 
     @annotation.tailrec
-    private def applyImpl(node: ASTNode)
-                         (implicit literal: ScLiteral): Value[_] = (node.getElementType, node.getText) match {
-      case (T.tIDENTIFIER, "-") => applyImpl(node.getTreeNext)
-      case (T.tINTEGER, text) =>
-        if (text.matches(".*[lL]$")) LongValue(value[Long])
-        else IntegerValue(value[Int]) // but a conversion exists to narrower types in case range fits
-      case (T.tFLOAT, text) =>
-        if (text.matches(".*[fF]$")) FloatValue(value[Float])
-        else DoubleValue(value[Double])
-      case (T.kTRUE |
-            T.kFALSE, _) => BooleanValue(value[Boolean])
-      case (T.tCHAR, _) => CharacterValue(value[Char])
-      case (T.tSTRING |
-            T.tMULTILINE_STRING, _) => StringValue(value[String])
-      case (T.tWRONG_STRING, _) => Option(value[String]).map(StringValue).orNull
-      case (T.tSYMBOL, _) => SymbolValue(value[Symbol])
-      case (T.kNULL, _) => NullValue
-      case _ => null
-    }
+    private def applyImpl(literal: ScLiteral, node: ASTNode): Value[_] = {
 
-    private def value[T: reflect.ClassTag](implicit literal: ScLiteral) =
-      literal.getValue.asInstanceOf[T]
+      def value[T: reflect.ClassTag] = literal.getValue.asInstanceOf[T]
+
+      (node.getElementType, node.getText) match {
+        case (T.tIDENTIFIER, "-") => applyImpl(literal, node.getTreeNext)
+        case (T.tINTEGER, text) =>
+          if (text.matches(".*[lL]$")) LongValue(value[Long])
+          else IntegerValue(value[Int]) // but a conversion exists to narrower types in case range fits
+        case (T.tFLOAT, text) =>
+          if (text.matches(".*[fF]$")) FloatValue(value[Float])
+          else DoubleValue(value[Double])
+        case (T.kTRUE |
+              T.kFALSE, _) => BooleanValue(value[Boolean])
+        case (T.tCHAR, _) => CharacterValue(value[Char])
+        case (T.tSTRING |
+              T.tMULTILINE_STRING, _) => StringValue(value[String])
+        case (T.tWRONG_STRING, _) => Option(value[String]).map(StringValue).orNull
+        case (T.tSYMBOL, _) => SymbolValue(value[Symbol])
+        case (T.kNULL, _) => NullValue
+        case _ => null
+      }
+    }
   }
 
   final case class IntegerValue(override val value: Int) extends Value(value) with NumericValue {
