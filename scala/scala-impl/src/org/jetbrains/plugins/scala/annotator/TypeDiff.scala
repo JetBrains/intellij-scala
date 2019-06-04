@@ -5,9 +5,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
-// Can be used to:
-// 1) Find differences between two types.
-// 2) Find nested regions in a type.
+/**
+ * Can be used to:
+ * 1) Parse subtypes (for tooltips, navigation)
+ * 2) Parse subgroups (for folding)
+ * 3) Detect non-matching elements (for error highlighting)
+ * 4) Match elements pairwise (for table-based tooltip)
+ * */
 // TODO Work in progress (it's not yet clear what's the best way to implement this functionality)
 // TODO Separate Tree implementation from Match / Mismatch?
 // TODO First parse the trees and then compare them? (but how to balance placeholders?)
@@ -24,7 +28,7 @@ sealed trait TypeDiff {
 object TypeDiff {
   final case class Group(diffs: Seq[TypeDiff]) extends TypeDiff {
     override def flattenTo0(maxChars: Int, groupLength: Int): (Seq[TypeDiff], Int) = {
-      val (xs, length) = diffs.reverse.foldlr(0, (Seq.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
+      val (xs, length) = diffs.reverse.foldlr(0, (Vector.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
         val (xs, length) = x.flattenTo0(maxChars - l - r, groupLength)
         (acc ++ xs, length + r)
       }
@@ -42,15 +46,15 @@ object TypeDiff {
     override protected def length(groupLength: Int): Int = text.length
   }
 
-  // To display folding (type hint)
+  // To display a type hint
   def parse(tpe: ScType): TypeDiff =
     group(tpe, tpe)((_, _) => true)
 
-  // To display a single type (type mismatch hint)
+  // To display a type mismatch hint
   def forSecond(tpe1: ScType, tpe2: ScType): TypeDiff =
     group(tpe1, tpe2)((t1, t2) => t2.conforms(t1))
 
-  // To display the both types (tooltip)
+  // To display a type mismatch tooltip
   def forBoth(tpe1: ScType, tpe2: ScType): (TypeDiff, TypeDiff) =
     (group(tpe2, tpe1)((t1, t2) => t1.conforms(t2)), group(tpe1, tpe2)((t1, t2) => t2.conforms(t1)))
 
@@ -58,6 +62,18 @@ object TypeDiff {
 
   private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): Seq[TypeDiff] = {
     (tpe1, tpe2) match {
+      case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
+        val left = {
+          if (p1.length == p2.length) {
+            val parameters = (p1, p2).zipped.map((t1, t2) => diff(t1, t2)(reversed)).intersperse(Seq(Match(", "))).flatten
+            if (parameters.length == 1) parameters else Seq(Match("("), Group(parameters), Match(")"))
+          } else {
+            Seq(Mismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
+          }
+        }
+        val right = diff(r1, r2)
+        left ++ Seq(Match(" => "), Group(right))
+
       case (t1: ScParameterizedType, t2: ScParameterizedType) =>
         val fs: Seq[(ScType, ScType) => Boolean] = t1.designator.extractClass match {
           case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map {
