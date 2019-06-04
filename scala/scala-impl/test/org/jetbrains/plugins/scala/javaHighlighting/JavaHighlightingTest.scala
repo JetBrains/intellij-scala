@@ -1351,5 +1351,22 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
+  def testRecursiveRawType(): Unit = {
+    val java =
+      """
+        |public class Bar<T extends Bar> {
+        |    public static Bar bar() {
+        |        return null;
+        |    }
+        |}""".stripMargin
 
+    val scala =
+      """
+        |object Test {
+        |  val b: Bar[_ <: Bar[_ <: AnyRef]] = Bar.bar
+        |}
+        |""".stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }

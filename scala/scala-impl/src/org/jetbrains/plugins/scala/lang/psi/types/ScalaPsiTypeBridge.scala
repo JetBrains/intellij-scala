@@ -70,18 +70,20 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     try {
       val clazz = rawClassResult.getElement
 
-      val map = rawExistentialArgs.getOrElse {
-        new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
-      }
+      val quantified = rawExistentialArgs match {
+        case None =>
+          val map = new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
+          val quantified = constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
+            map.getOrElse(tp, TypeParameterType(tp))
+          }
+          map.values.foreach(_.initialize())
+          quantified
+        case Some(map) =>
+          constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
+            ScExistentialArgument(tp.name, Seq.empty, Nothing, AnyRef)
+          }
 
-      val quantified = constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
-        map.getOrElse(tp, TypeParameterType(tp))
       }
-
-      if (rawExistentialArgs.isEmpty) { //it is a first invocation for this raw type
-        map.values.foreach(_.initialize())
-      }
-
       quantified.unpackedType
 
     } catch {
