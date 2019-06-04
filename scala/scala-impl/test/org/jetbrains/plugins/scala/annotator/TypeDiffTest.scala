@@ -283,5 +283,5 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   }
 
   private def parseText(@Language("Scala") s: String): ScalaFile =
-    PsiFileFactory.getInstance(project).createFileFromText("foo.scala", ScalaFileType.INSTANCE, s).asInstanceOf[ScalaFile]
+    PsiFileFactory.getInstance(getProject).createFileFromText("foo.scala", ScalaFileType.INSTANCE, s).asInstanceOf[ScalaFile]
 }
