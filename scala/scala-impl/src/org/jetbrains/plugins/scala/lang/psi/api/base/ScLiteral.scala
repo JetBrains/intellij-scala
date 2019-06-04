@@ -88,8 +88,8 @@ object ScLiteral {
             T.kFALSE, _) => BooleanValue(value[Boolean])
       case (T.tCHAR, _) => CharacterValue(value[Char])
       case (T.tSTRING |
-            T.tWRONG_STRING |
             T.tMULTILINE_STRING, _) => StringValue(value[String])
+      case (T.tWRONG_STRING, _) => Option(value[String]).map(StringValue).orNull
       case (T.tSYMBOL, _) => SymbolValue(value[Symbol])
       case (T.kNULL, _) => NullValue
       case _ => null
