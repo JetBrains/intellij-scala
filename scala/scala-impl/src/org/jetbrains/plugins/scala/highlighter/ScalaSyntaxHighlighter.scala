@@ -8,33 +8,26 @@ import com.intellij.openapi.fileTypes.{FileTypeManager, SyntaxHighlighterBase}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
+import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-class ScalaSyntaxHighlighter private[highlighter](val treatDocCommentAsBlockComment: Boolean) extends SyntaxHighlighterBase {
+class ScalaSyntaxHighlighter private[highlighter](treatDocCommentAsBlockComment: Boolean) extends SyntaxHighlighterBase {
+  // default constructor is needed by PicoContainer
   def this() = this(false)
 
   override def getHighlightingLexer: Lexer = {
-    new ScalaSyntaxHighlighter.CompoundLexer(treatDocCommentAsBlockComment)
+    new CompoundLexer(treatDocCommentAsBlockComment)
   }
 
   override def getTokenHighlights(iElementType: IElementType): Array[TextAttributesKey] = {
     SyntaxHighlighterBase.pack(
-      ScalaSyntaxHighlighter.ATTRIBUTES0.get(iElementType),
-      ScalaSyntaxHighlighter.ATTRIBUTES.get(iElementType)
+      Attributes0.get(iElementType).orNull,
+      Attributes.get(iElementType).orNull
     )
   }
-
-  /**
-   * This is workaround method to access protected static method of base class in companion object
-   *
-   * @see [[https://github.com/scala/bug/issues/1806]]
-   * @see [[https://www.scala-lang.org/old/faq/4.html#4n1381]]
-   */
-  private def fillMap(map: ju.Map[IElementType, TextAttributesKey], keys: TokenSet, value: TextAttributesKey): Unit =
-    SyntaxHighlighterBase.fillMap(map, keys, value)
 }
 
 object ScalaSyntaxHighlighter {
@@ -237,11 +230,66 @@ object ScalaSyntaxHighlighter {
     ScalaDocTokenType.DOC_TAG_NAME
   )
 
-  private val ATTRIBUTES0: ju.Map[IElementType, TextAttributesKey] = new ju.HashMap
-  private val ATTRIBUTES: ju.Map[IElementType, TextAttributesKey] = new ju.HashMap
+  private val Attributes0: Map[IElementType, TextAttributesKey] = {
+    import DefaultHighlighter._
+    attributesMap(
+      tXML_TAG -> XML_TAG,
+      tXML_TAG_NAME -> XML_TAG,
+      tXML_ATTRIBUTE_NAME -> XML_TAG,
+      tXML_ATTRIBUTE_VALUE -> XML_TAG
+    )
+  }
+
+  private val Attributes: Map[IElementType, TextAttributesKey] = {
+    import DefaultHighlighter._
+    attributesMap(
+      tLINE_COMMENTS -> LINE_COMMENT,
+      tBLOCK_COMMENTS -> BLOCK_COMMENT,
+      tDOC_COMMENTS -> DOC_COMMENT,
+      kRESERVED_WORDS -> KEYWORD,
+      tNUMBERS -> NUMBER,
+      tVALID_STRING_ESCAPE -> VALID_STRING_ESCAPE,
+      tINVALID_CHARACTER_ESCAPE -> INVALID_STRING_ESCAPE,
+      tINVALID_UNICODE_ESCAPE -> INVALID_STRING_ESCAPE,
+      tSTRINGS -> STRING,
+      tBRACES -> BRACES,
+      tBRACKETS -> BRACKETS,
+      tPARENTHESES -> PARENTHESES,
+      tSEMICOLON -> SEMICOLON,
+      tDOT -> DOT,
+      tCOMMA -> COMMA,
+
+      tOPS -> ASSIGN,
+      tARROW -> ARROW,
+      tCOMMENT_TAGS -> SCALA_DOC_TAG,
+      TokenSet.orSet(
+        TokenSet.andNot(ScalaDocTokenType.ALL_SCALADOC_TOKENS, tCOMMENT_TAGS),
+        TokenSet.create(ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER, ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)
+      ) -> DOC_COMMENT,
+      tSCALADOC_HTML_TAGS -> SCALA_DOC_HTML_TAG,
+      tSCALADOC_WIKI_SYNTAX -> SCALA_DOC_WIKI_SYNTAX,
+      tSCALADOC_HTML_ESCAPE -> SCALA_DOC_HTML_ESCAPE,
+
+      tXML_TAG_NAME -> XML_TAG_NAME,
+      tXML_TAG_DATA -> XML_TAG_DATA,
+      tXML_ATTRIBUTE_NAME -> XML_ATTRIBUTE_NAME,
+      tXML_ATTRIBUTE_VALUE -> XML_ATTRIBUTE_VALUE,
+      tXML_COMMENT -> XML_COMMENT,
+
+      tDOC_TAG_PARAM -> SCALA_DOC_TAG_PARAM_VALUE,
+      tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION
+    )
+  }
+
+  private def attributesMap(attributes: (TokenSet, TextAttributesKey)*): Map[IElementType, TextAttributesKey] = {
+    for {
+      (tokenSet, key) <- Map(attributes: _*)
+      typ <- tokenSet.getTypes
+    } yield typ -> key
+  }
 
   private class CompoundLexer private[highlighter](val treatDocCommentAsBlockComment: Boolean)
-    extends LayeredLexer(new ScalaSyntaxHighlighter.CustomScalaLexer(treatDocCommentAsBlockComment)) {
+    extends LayeredLexer(new CustomScalaLexer(treatDocCommentAsBlockComment)) {
 
     registerSelfStoppingLayer(
       new StringLiteralLexer('\"', ScalaTokenTypes.tSTRING),
@@ -262,9 +310,9 @@ object ScalaSyntaxHighlighter {
     )
 
     //scaladoc highlighting
-    val scalaDocLexer = new LayeredLexer(new ScalaSyntaxHighlighter.ScalaDocLexerHighlightingWrapper)
+    val scalaDocLexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper)
     scalaDocLexer.registerLayer(
-      new ScalaSyntaxHighlighter.ScalaHtmlHighlightingLexerWrapper,
+      new ScalaHtmlHighlightingLexerWrapper,
       ScalaDocTokenType.DOC_COMMENT_DATA
     )
     registerSelfStoppingLayer(
@@ -274,7 +322,9 @@ object ScalaSyntaxHighlighter {
     )
   }
 
-  private class CustomScalaLexer private[highlighter](val treatDocCommentAsBlockComment: Boolean) extends ScalaLexer(treatDocCommentAsBlockComment) {
+  private class CustomScalaLexer private[highlighter](val treatDocCommentAsBlockComment: Boolean)
+    extends ScalaLexer(treatDocCommentAsBlockComment) {
+
     private var openingTags: ju.Stack[String] = new ju.Stack
     private var tagMatch: Boolean = false
     private var isInClosingTag: Boolean = false
@@ -429,60 +479,6 @@ object ScalaSyntaxHighlighter {
         ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG
       )
     )
-  }
-
-  initAttributes()
-
-  private def initAttributes(): Unit = {
-    val helper = new ScalaSyntaxHighlighter()
-    import helper.fillMap
-
-    fillMap(ATTRIBUTES, tLINE_COMMENTS, DefaultHighlighter.LINE_COMMENT)
-    fillMap(ATTRIBUTES, tBLOCK_COMMENTS, DefaultHighlighter.BLOCK_COMMENT)
-    fillMap(ATTRIBUTES, tDOC_COMMENTS, DefaultHighlighter.DOC_COMMENT)
-    fillMap(ATTRIBUTES, kRESERVED_WORDS, DefaultHighlighter.KEYWORD)
-    fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER)
-    fillMap(ATTRIBUTES, tVALID_STRING_ESCAPE, DefaultHighlighter.VALID_STRING_ESCAPE)
-    fillMap(ATTRIBUTES, tINVALID_CHARACTER_ESCAPE, DefaultHighlighter.INVALID_STRING_ESCAPE)
-    fillMap(ATTRIBUTES, tINVALID_UNICODE_ESCAPE, DefaultHighlighter.INVALID_STRING_ESCAPE)
-    fillMap(ATTRIBUTES, tSTRINGS, DefaultHighlighter.STRING)
-    fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACES)
-    fillMap(ATTRIBUTES, tBRACKETS, DefaultHighlighter.BRACKETS)
-    fillMap(ATTRIBUTES, tPARENTHESES, DefaultHighlighter.PARENTHESES)
-    fillMap(ATTRIBUTES, tSEMICOLON, DefaultHighlighter.SEMICOLON)
-    fillMap(ATTRIBUTES, tDOT, DefaultHighlighter.DOT)
-    fillMap(ATTRIBUTES, tCOMMA, DefaultHighlighter.COMMA)
-
-    fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.ASSIGN)
-    fillMap(ATTRIBUTES, tARROW, DefaultHighlighter.ARROW)
-    fillMap(ATTRIBUTES, tCOMMENT_TAGS, DefaultHighlighter.SCALA_DOC_TAG)
-    fillMap(ATTRIBUTES, TokenSet.orSet(
-      TokenSet.andNot(
-        ScalaDocTokenType.ALL_SCALADOC_TOKENS,
-        tCOMMENT_TAGS
-      ),
-      TokenSet.create(
-        ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER,
-        ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT
-      )
-    ), DefaultHighlighter.DOC_COMMENT)
-    fillMap(ATTRIBUTES, tSCALADOC_HTML_TAGS, DefaultHighlighter.SCALA_DOC_HTML_TAG)
-    fillMap(ATTRIBUTES, tSCALADOC_WIKI_SYNTAX, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX)
-    fillMap(ATTRIBUTES, tSCALADOC_HTML_ESCAPE, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE)
-
-    fillMap(ATTRIBUTES0, tXML_TAG, DefaultHighlighter.XML_TAG)
-    fillMap(ATTRIBUTES0, tXML_TAG_NAME, DefaultHighlighter.XML_TAG)
-    fillMap(ATTRIBUTES0, tXML_ATTRIBUTE_NAME, DefaultHighlighter.XML_TAG)
-    fillMap(ATTRIBUTES0, tXML_ATTRIBUTE_VALUE, DefaultHighlighter.XML_TAG)
-
-    fillMap(ATTRIBUTES, tXML_TAG_NAME, DefaultHighlighter.XML_TAG_NAME)
-    fillMap(ATTRIBUTES, tXML_TAG_DATA, DefaultHighlighter.XML_TAG_DATA)
-    fillMap(ATTRIBUTES, tXML_ATTRIBUTE_NAME, DefaultHighlighter.XML_ATTRIBUTE_NAME)
-    fillMap(ATTRIBUTES, tXML_ATTRIBUTE_VALUE, DefaultHighlighter.XML_ATTRIBUTE_VALUE)
-    fillMap(ATTRIBUTES, tXML_COMMENT, DefaultHighlighter.XML_COMMENT)
-
-    fillMap(ATTRIBUTES, tDOC_TAG_PARAM, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE)
-    fillMap(ATTRIBUTES, tINTERPOLATED_STRINGS, DefaultHighlighter.INTERPOLATED_STRING_INJECTION)
   }
 
 }
