@@ -48,10 +48,14 @@ object ScLiteralType {
   def inferType[E <: ScalaPsiElement](literal: ScLiteral,
                                       allowWiden: Boolean = true): result.TypeResult = {
     implicit val project: Project = literal.getProject
-    Value(literal) match {
-      case null => result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", literal.getText))
-      case value@NullValue => Right(value.wideType)
-      case value => Right(ScLiteralType(value, allowWiden))
+    literal match {
+      case ScLiteral(value) => Right {
+        value match {
+          case NullValue => value.wideType
+          case _ => ScLiteralType(value, allowWiden)
+        }
+      }
+      case _ => result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", literal.getText))
     }
   }
 

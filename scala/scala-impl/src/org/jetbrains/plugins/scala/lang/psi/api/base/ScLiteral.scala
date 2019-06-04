@@ -39,7 +39,8 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
 
 object ScLiteral {
 
-  def unapply(literal: ScLiteral) = Option(Value(literal))
+  def unapply(literal: ScLiteral): Option[Value[_]] =
+    unapplyImpl(literal, literal.getFirstChild.getNode)
 
   sealed abstract class Value[V <: Any](val value: V) {
 
@@ -55,9 +56,6 @@ object ScLiteral {
 
   object Value {
 
-    def apply(literal: ScLiteral): Value[_] =
-      applyImpl(literal, literal.getFirstChild.getNode)
-
     def unapply(obj: Any): Option[Value[_]] = Option {
       obj match {
         case integer: Int => IntegerValue(integer)
@@ -68,33 +66,6 @@ object ScLiteral {
         case character: Char => CharacterValue(character)
         case string: String => StringValue(string)
         case symbol: Symbol => SymbolValue(symbol)
-        case _ => null
-      }
-    }
-
-    import lang.lexer.{ScalaTokenTypes => T}
-
-    @annotation.tailrec
-    private def applyImpl(literal: ScLiteral, node: ASTNode): Value[_] = {
-
-      def value[T: reflect.ClassTag] = literal.getValue.asInstanceOf[T]
-
-      (node.getElementType, node.getText) match {
-        case (T.tIDENTIFIER, "-") => applyImpl(literal, node.getTreeNext)
-        case (T.tINTEGER, text) =>
-          if (text.matches(".*[lL]$")) LongValue(value[Long])
-          else IntegerValue(value[Int]) // but a conversion exists to narrower types in case range fits
-        case (T.tFLOAT, text) =>
-          if (text.matches(".*[fF]$")) FloatValue(value[Float])
-          else DoubleValue(value[Double])
-        case (T.kTRUE |
-              T.kFALSE, _) => BooleanValue(value[Boolean])
-        case (T.tCHAR, _) => CharacterValue(value[Char])
-        case (T.tSTRING |
-              T.tMULTILINE_STRING, _) => StringValue(value[String])
-        case (T.tWRONG_STRING, _) => Option(value[String]).map(StringValue).orNull
-        case (T.tSYMBOL, _) => SymbolValue(value[Symbol])
-        case (T.kNULL, _) => NullValue
         case _ => null
       }
     }
@@ -159,4 +130,33 @@ object ScLiteral {
                                (implicit project: Project) =
     ElementScope(project).getCachedClass(fqn)
       .fold(api.Nothing: ScType)(ScalaType.designator)
+
+  @annotation.tailrec
+  private[this] def unapplyImpl(literal: ScLiteral, node: ASTNode): Option[Value[_]] = {
+    import lang.lexer.{ScalaTokenTypes => T}
+
+    def as[T: reflect.ClassTag](function: T => Value[T]) = literal.getValue match {
+      case value: T => Some(function(value))
+      case _ => None
+    }
+
+    (node.getElementType, node.getText) match {
+      case (T.tIDENTIFIER, "-") => unapplyImpl(literal, node.getTreeNext)
+      case (T.tINTEGER, text) =>
+        if (text.matches(".*[lL]$")) as(LongValue)
+        else as(IntegerValue) // but a conversion exists to narrower types in case range fits
+      case (T.tFLOAT, text) =>
+        if (text.matches(".*[fF]$")) as(FloatValue)
+        else as(DoubleValue)
+      case (T.kTRUE |
+            T.kFALSE, _) => as(BooleanValue)
+      case (T.tCHAR, _) => as(CharacterValue)
+      case (T.tSTRING |
+            T.tWRONG_STRING |
+            T.tMULTILINE_STRING, _) => as(StringValue)
+      case (T.tSYMBOL, _) => as(SymbolValue)
+      case (T.kNULL, _) => Some(NullValue)
+      case _ => None
+    }
+  }
 }
