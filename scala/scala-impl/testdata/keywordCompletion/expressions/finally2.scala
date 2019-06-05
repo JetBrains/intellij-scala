@@ -2,7 +2,7 @@ class a{
   try {
 
   }
-  finally /*caret*/
+  finally <caret>
 }
 /*
 false

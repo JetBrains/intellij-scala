@@ -3,7 +3,7 @@ class a{
 
   }
   finally {
-    /*caret*/
+    <caret>
   }
 }
 /*
