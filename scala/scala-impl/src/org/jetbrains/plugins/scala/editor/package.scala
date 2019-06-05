@@ -31,7 +31,7 @@ package object editor {
     def inScalaString(offset: Int): Boolean = {
       val afterInterpolatedInjection =
         isTokenType(offset - 1, t => t == tRBRACE || t == tIDENTIFIER) &&
-          isTokenType(offset, t => t == tINTERPOLATED_STRING || t == tINTERPOLATED_STRING_END)
+          isTokenType(offset, t => t == tINTERPOLATED_STRING || t == tINTERPOLATED_MULTILINE_STRING || t == tINTERPOLATED_STRING_END)
 
       val previousIsStringToken =
         isTokenType(offset - 1, t => STRING_LITERAL_TOKEN_SET.contains(t) || t == tINTERPOLATED_STRING_ESCAPE)
@@ -42,11 +42,13 @@ package object editor {
     def inDocComment(offset: Int): Boolean = isTokenType(offset - 1, _.isInstanceOf[ScalaDocElementType])
 
     private def isTokenType(offset: Int, predicate: IElementType => Boolean): Boolean = {
-      if (offset < 0 || offset >= editor.getDocument.getTextLength) return false
-
-      val highlighter = editor.asInstanceOf[EditorEx].getHighlighter
-      val iterator = highlighter.createIterator(offset)
-      predicate(iterator.getTokenType)
+      if (0 <= offset && offset < editor.getDocument.getTextLength) {
+        val highlighter = editor.asInstanceOf[EditorEx].getHighlighter
+        val iterator = highlighter.createIterator(offset)
+        predicate(iterator.getTokenType)
+      } else {
+        false
+      }
     }
   }
 }

@@ -1,0 +1,14 @@
+val x = 42
+  val y =
+    s"""one
+       |$x<caret>
+       |two
+       |""".stripMargin
+-----
+val x = 42
+  val y =
+    s"""one
+       |$x
+       |<caret>
+       |two
+       |""".stripMargin
