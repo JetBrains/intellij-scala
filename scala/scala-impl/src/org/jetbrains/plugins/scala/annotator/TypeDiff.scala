@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.extensions.SeqExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
@@ -62,6 +62,10 @@ object TypeDiff {
 
   private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): Seq[TypeDiff] = {
     (tpe1, tpe2) match {
+      case (TupleType(ts1), TupleType(ts2)) =>
+        if (ts1.length == ts2.length) Match("(") +: (ts1, ts2).zipped.map(diff).intersperse(Seq(Match(", "))).flatten :+ Match(")")
+        else Seq(Mismatch(tpe2.presentableText))
+
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val left = {
           if (p1.length == p2.length) {
