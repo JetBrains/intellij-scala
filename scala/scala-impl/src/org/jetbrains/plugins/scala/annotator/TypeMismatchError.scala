@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 case class TypeMismatchError(expectedType: Option[ScType], actualType: Option[ScType], tooltip: String, modificationCount: Long)
 
@@ -23,6 +23,16 @@ object TypeMismatchError {
   def apply(element: PsiElement): Option[TypeMismatchError] = Option(element.getUserData(TypeMismatchErrorKey))
 
   def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0)(formatMessage: (String, String) => String): Annotation = {
+    // When expected type is not literal type, widen actual literal type (as it looks more sane)
+    val wideActualType = (expectedType, actualType) match {
+      case (_: ScLiteralType, t2: ScLiteralType) => t2
+      case (_, t2: ScLiteralType) => t2.wideType
+      case (_, t2) => t2
+    }
+    register0(holder, element, expectedType, wideActualType, blockLevel)(formatMessage)
+  }
+
+  private def register0(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int)(formatMessage: (String, String) => String): Annotation = {
     val (actualTypeText, expectedTypeText) = ScTypePresentation.different(actualType, expectedType)
 
     // TODO update the test data, SCL-15483
