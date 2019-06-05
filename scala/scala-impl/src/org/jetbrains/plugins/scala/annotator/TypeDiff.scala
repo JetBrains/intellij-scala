@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, SeqExt}
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Can be used to:
@@ -60,8 +62,25 @@ object TypeDiff {
 
   private def group(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean) = Group(diff(tpe1, tpe2))
 
+  // TODO refactor (decompose, unify, etc.)
   private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): Seq[TypeDiff] = {
+    def conformanceFor(variance: Variance) = variance match {
+      case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
+      case Variance.Covariant => conforms
+      case Variance.Contravariant => reversed(conforms)
+    }
+
     (tpe1, tpe2) match {
+      case (ParameterizedType(d1, Seq(l1, r1)), ParameterizedType(d2, Seq(l2, r2))) if isInfix(d1) && isInfix(d2) =>
+        val (v1, v2) = d1.extractDesignated(expandAliases = false) match {
+          case Some(aClass: ScClass) => aClass.typeParameters match {
+            case Seq(p1, p2) => (p1.variance, p2.variance)
+            case _ => (Variance.Invariant, Variance.Invariant)
+          }
+          case _ => (Variance.Invariant, Variance.Invariant)
+        }
+        diff(l1, l2)(conformanceFor(v1)) ++ (Match(" ") +: diff(d1, d2) :+ Match(" ")) ++ diff(r1, r2)(conformanceFor(v2))
+
       case (TupleType(ts1), TupleType(ts2)) =>
         if (ts1.length == ts2.length) Match("(") +: (ts1, ts2).zipped.map(diff).intersperse(Seq(Match(", "))).flatten :+ Match(")")
         else Seq(Mismatch(tpe2.presentableText))
@@ -80,11 +99,7 @@ object TypeDiff {
 
       case (t1: ScParameterizedType, t2: ScParameterizedType) =>
         val fs: Seq[(ScType, ScType) => Boolean] = t1.designator.extractClass match {
-          case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map {
-            case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
-            case Variance.Covariant => conforms
-            case Variance.Contravariant => reversed(conforms)
-          }
+          case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map(conformanceFor)
           case _ => Seq.fill(t2.typeArguments.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
         val inner = if (t1.typeArguments.length == t2.typeArguments.length)
@@ -103,4 +118,12 @@ object TypeDiff {
   }
 
   private def reversed(implicit conforms: (ScType, ScType) => Boolean) = (t1: ScType, t2: ScType) => conforms(t2, t1)
+
+  private def isInfix(designatorType: ScType) = {
+    val designator = designatorType.extractDesignated(expandAliases = false)
+    designator.exists(it => ScalaNamesUtil.isOperatorName(it.name)) || designator.exists {
+      case aClass: PsiClass => aClass.getAnnotations.map(_.getQualifiedName).contains("scala.annotation.showAsInfix")
+      case _ => false
+    }
+  }
 }

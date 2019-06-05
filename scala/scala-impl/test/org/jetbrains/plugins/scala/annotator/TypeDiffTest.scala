@@ -22,7 +22,6 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   override implicit val version: ScalaVersion = Scala_2_13
 
   /* TODO:
-      infix types
       compound types
       structural types
       existential types
@@ -93,6 +92,13 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "~\"foo\"~", "~\"bar\"~"
     )
 
+    // Widening
+//    assertDiffsAre(
+//      "",
+//      "Int", "1",
+//      "Int", "Int"
+//    )
+
     // Type differs
     assertDiffsAre(
       "",
@@ -101,21 +107,29 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   }
 
   def testParameterized(): Unit = {
-    // Base type
     assertDiffsAre(
       "class A; class Foo[T]",
       "Foo[A]", "Foo[A]"
     )
     assertDiffsAre(
+      "class A; class B; class Foo[T1, T2]",
+      "Foo[A, B]", "Foo[A, B]"
+    )
+
+    // Base type
+    assertDiffsAre(
       "class A; class Foo[T]; class Bar[T]",
       "~Foo~[A]", "~Bar~[A]"
     )
-
-    // Base type conformance
     assertDiffsAre(
       "class A; class Foo[T]; class Bar[T] extends Foo[T]",
       "Foo[A]", "Bar[A]"
     )
+    assertDiffsAre(
+      "class A; class Foo[T]; class Bar[T] extends Foo[T]",
+      "~Bar~[A]", "~Foo~[A]"
+    )
+    // TODO argument / parameter correspondence, additional parameters
 
     // Arguments
     assertDiffsAre(
@@ -208,10 +222,14 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "(A, ~B~)", "(A, ~C~)"
     )
 
-    // Conformance
+    // Covariance
     assertDiffsAre(
       "class A; class B; class C extends A",
       "(A, B)", "(C, B)"
+    )
+    assertDiffsAre(
+      "class A; class B; class C extends A",
+      "(~C~, B)", "(~A~, B)"
     )
 
     // Argument count
@@ -241,6 +259,71 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     )
   }
 
+  def testInfix(): Unit = {
+    assertDiffsAre(
+      "class A; class B; class &[T1, T2]",
+      "A & B", "A & B"
+    )
+
+    // Base
+    assertDiffsAre(
+      "class A; class B; class &[T1, T2]; class &&[T1, T2] extends &[T1, T2]",
+      "A & B", "A && B"
+    )
+    assertDiffsAre(
+      "class A; class B; class &[T1, T2]; class &&[T1, T2] extends &[T1, T2]",
+      "A ~&&~ B", "A ~&~ B"
+    )
+    // TODO argument / parameter correspondence
+    // TODO infix vs parameterized
+
+    // Equivalence
+    assertDiffsAre(
+      "class A; class B; class C; class &[T1, T2]",
+      "~A~ & B", "~C~ & B"
+    )
+    assertDiffsAre(
+      "class A; class B; class C; class &[T1, T2]",
+      "A & ~B~", "A & ~C~"
+    )
+
+    // Invariance
+    assertDiffsAre(
+      "class A; class B; class C extends A; class &[T1, T2]",
+      "~A~ & B", "~C~ & B"
+    )
+    assertDiffsAre(
+      "class A; class B; class C extends A; class &[T1, T2]",
+      "~C~ & B", "~A~ & B"
+    )
+
+    // Covariance
+    assertDiffsAre(
+      "class A; class B; class C extends A; class &[+T1, T2]",
+      "A & B", "C & B"
+    )
+    assertDiffsAre(
+      "class A; class B; class C extends A; class &[+T1, T2]",
+      "~C~ & B", "~A~ & B"
+    )
+
+    // Contravariance
+    assertDiffsAre(
+      "class A; class B; class C extends A; class &[-T1, T2]",
+      "~A~ & B", "~C~ & B"
+    )
+    assertDiffsAre(
+      "class A; class B; class C extends A; class &[-T1, T2]",
+      "C & B", "A & B"
+    )
+
+    // Nesting
+    assertDiffsAre(
+      "class A; class B; class C; class &[T1, T2]; class &&[T1, T2]",
+      "A & B && C", "A & B && C"
+    )
+  }
+
   def testFunction(): Unit = {
     assertDiffsAre(
       "class P; class R",
@@ -250,6 +333,13 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "class P1; class P2; class R",
       "(P1, P2) => R", "(P1, P2) => R"
     )
+
+    // Base type
+//    assertDiffsAre(
+//      "class P; class R; class F[A, B] extends Function1[A, B]",
+//      "P => R", "F[P, R]",
+//      "Function1[P, R", "F[P, R]"
+//    )
 
     // Parameter type conformance
     assertDiffsAre(
