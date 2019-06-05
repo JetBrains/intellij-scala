@@ -19,9 +19,6 @@ class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScF
   override def pattern: ScPattern = findChildByClass(classOf[ScPattern])
   override def expr: Option[ScExpression] = Option(findChildByClass(classOf[ScExpression]))
 
-  override def valKeyword: Option[PsiElement] =
-    Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
-
   override def enumeratorToken: Option[PsiElement] =
     Option(findFirstChildByType(ScalaTokenTypes.tASSIGN))
 
