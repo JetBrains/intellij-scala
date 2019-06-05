@@ -5,7 +5,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
@@ -19,7 +19,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   // TODO test region nesting (for code folding)
   // TODO test separation of matched elements, such as [ or ]
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override implicit val version: ScalaVersion = Scala_2_13
 
   /* TODO:
       literal types
@@ -39,6 +39,66 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     assertDiffsAre(
       "class Foo; class Bar",
       "~Foo~", "~Bar~"
+    )
+  }
+
+  def testLiteral(): Unit = {
+    // Equal
+    assertDiffsAre(
+      "",
+      "1", "1"
+    )
+    assertDiffsAre(
+      "",
+      "true", "true"
+    )
+    assertDiffsAre(
+      "",
+      "1.0f", "1.0f"
+    )
+    assertDiffsAre(
+      "",
+      "1.0", "1.0"
+    )
+    assertDiffsAre(
+      "",
+      "'a'", "'a'"
+    )
+    assertDiffsAre(
+      "",
+      "\"foo\"", "\"foo\""
+    )
+
+    // Not equal
+    assertDiffsAre(
+      "",
+      "~1~", "~2~"
+    )
+    assertDiffsAre(
+      "",
+      "~true~", "~false~"
+    )
+    assertDiffsAre(
+      "",
+      "~1.0f~", "~2.0f~"
+    )
+    assertDiffsAre(
+      "",
+      "~1.0~", "~2.0~"
+    )
+    assertDiffsAre(
+      "",
+      "~'a'~", "~'b'~"
+    )
+    assertDiffsAre(
+      "",
+      "~\"foo\"~", "~\"bar\"~"
+    )
+
+    // Type differs
+    assertDiffsAre(
+      "",
+      "~true~", "~1~"
     )
   }
 
