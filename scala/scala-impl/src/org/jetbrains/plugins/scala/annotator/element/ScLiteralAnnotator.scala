@@ -162,11 +162,15 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     }
 
     val number = kind(text, isLong)
-    (number.lastIndexOf('_'), number.length) match {
-      case (index, length) if index == length - 1 =>
-        createAnnotation(literal, ScalaBundle.message("trailing.underscore.separator"))
-      case (-1, _) =>
-      case _ => createAnnotation(literal, ScalaBundle.message("illegal.underscore.separator"))
+    number.lastIndexOf('_') match {
+      case -1 =>
+      case index =>
+        if (languageLevel.exists(_ < Scala_2_13)) {
+          holder.createErrorAnnotation(literal, ScalaBundle.message("illegal.underscore.separator"))
+        }
+        if (index == number.length - 1) {
+          holder.createErrorAnnotation(literal, ScalaBundle.message("trailing.underscore.separator"))
+        }
     }
 
     parseIntegerNumber(number, kind, maybeParent.isDefined) match {
