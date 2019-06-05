@@ -22,9 +22,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   override implicit val version: ScalaVersion = Scala_2_13
 
   /* TODO:
-      literal types
       infix types
-      tuple types
       compound types
       structural types
       existential types
@@ -193,6 +191,53 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     assertDiffsAre(
       "class A; class B; class Foo[T]",
       "~A~", "~Foo[B]~"
+    )
+  }
+
+  def testTuple(): Unit = {
+    assertDiffsAre(
+      "class A; class B",
+      "(A, B)", "(A, B)"
+    )
+    assertDiffsAre(
+      "class A; class B; class C",
+      "(~A~, B)", "(~C~, B)"
+    )
+    assertDiffsAre(
+      "class A; class B; class C",
+      "(A, ~B~)", "(A, ~C~)"
+    )
+
+    // Conformance
+    assertDiffsAre(
+      "class A; class B; class C extends A",
+      "(A, B)", "(C, B)"
+    )
+
+    // Argument count
+    assertDiffsAre(
+      "class A; class B; class C",
+      "~(A, B)~", "~(A, B, C)~" // TODO parse nested types? (create matching placeholders?)
+    )
+    assertDiffsAre(
+      "class A; class B; class C",
+      "~(A, B, C)~", "~(A, B)~"
+    )
+
+    // Nesting
+    assertDiffsAre(
+      "class A; class B; class C",
+      "((A, ~B~), A)", "((A, ~C~), A)"
+    )
+    assertDiffsAre(
+      "class A; class B; class C",
+      "(A, (A, ~B~))", "(A, (A, ~C~))"
+    )
+
+    // Not tuple
+    assertDiffsAre(
+      "class A; class B; class C",
+      "~A~", "~(A, A)~"
     )
   }
 

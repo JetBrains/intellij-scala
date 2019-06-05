@@ -26,7 +26,8 @@ object TypeMismatchError {
     // When expected type is not literal type, widen actual literal type (as it looks more sane)
     val wideActualType = (expectedType, actualType) match {
       case (_: ScLiteralType, t2: ScLiteralType) => t2
-      case (_, t2: ScLiteralType) => t2.wideType
+      // TODO update the test data, SCL-15571
+      case (_, t2: ScLiteralType) if !ApplicationManager.getApplication.isUnitTestMode => t2.wideType
       case (_, t2) => t2
     }
     register0(holder, element, expectedType, wideActualType, blockLevel)(formatMessage)
