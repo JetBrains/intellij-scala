@@ -117,8 +117,6 @@ class ScLiteralImpl(node: ASTNode,
 
   override def isMultiLineString: Boolean = literalElementType == T.tMULTILINE_STRING
 
-  override def isSymbol: Boolean = literalElementType == T.tSYMBOL
-
   override def isChar: Boolean = literalElementType == T.tCHAR
 
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)

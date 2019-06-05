@@ -184,7 +184,7 @@ trait TreeAdapter {
       case t: ScNamingPattern     =>  Bind(Var.Term(toTermName(t)), arg(t.named))
       case t@ ScTypedPattern(_: types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), Type.Wildcard())
       case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(te).patTpe)
-      case t: ScLiteralPattern    =>  literal(t.getLiteral)
+      case ScLiteralPattern(scLiteral)    =>  literal(scLiteral)
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
@@ -273,10 +273,20 @@ trait TreeAdapter {
     import p.expr._
     import p.expr.xml._
     e match {
-      case t: ScLiteral if t.isSymbol && paradiseCompatibilityHacks =>
-        m.Term.Apply(m.Term.Select(m.Term.Name("scala"), m.Term.Name("Symbol")), Seq(literal(t)))
       case t: ScLiteral =>
-        literal(t)
+        import m.Lit
+
+        literal(t) match {
+          case value: Lit.Symbol if paradiseCompatibilityHacks => // apparently, Lit.Symbol is no more in paradise
+            m.Term.Apply(
+              m.Term.Select(
+                m.Term.Name("scala"),
+                m.Term.Name("Symbol")
+              ),
+              Seq(Lit.String(value.toString)) // symbol literals in meta contain a string as their value
+            )
+          case value => value
+        }
       case _: ScUnitExpr =>
         m.Lit.Unit(())
       case t: ScReturn =>
@@ -474,9 +484,7 @@ trait TreeAdapter {
       case value: Character => Char(value)
       case value: java.lang.Byte => Byte(value)
       case value: java.lang.String => String(value)
-      case value: scala.Symbol if literal.isSymbol =>
-        if (paradiseCompatibilityHacks) String(value.toString) // apparently, Lit.Symbol is no more in paradise
-        else Symbol(value) // symbol literals in meta contain a string as their value
+      case value: scala.Symbol => Symbol(value)
       case null => Null(())
       case _ => literal ?!
     }

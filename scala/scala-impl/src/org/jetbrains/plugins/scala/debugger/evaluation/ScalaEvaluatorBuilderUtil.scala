@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package debugger.evaluation
+package debugger
+package evaluation
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.CodeFragmentFactoryContextWrapper
@@ -397,7 +398,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     maybeClazzJVMName match {
       case Some(clazzName) => new ClassObjectEvaluator(new TypeEvaluator(clazzName))
-      case _ => new ScalaLiteralEvaluator(null, Null)
+      case _ => ScalaLiteralEvaluator.empty
     }
   }
 
@@ -1077,17 +1078,23 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     new ScalaIfEvaluator(condEvaluator, ifBranch, elseBranch)
   }
 
-  def literalEvaluator(l: ScLiteral): Evaluator = {
-    l match {
-      case interpolated: ScInterpolatedStringLiteral =>
-        val evaluatorOpt = interpolated.getStringContextExpression.map(evaluatorFor(_))
-        evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
-      case _ if l.isSymbol =>
-        val value = l.getValue.asInstanceOf[Symbol].name
-        val expr = createExpressionFromText( s"""Symbol("$value")""", l.getContext)
-        evaluatorFor(expr)
-      case _ => ScalaLiteralEvaluator(l)
-    }
+  def literalEvaluator(literal: ScLiteral): Evaluator = literal match {
+    case interpolated: ScInterpolatedStringLiteral =>
+      interpolated.getStringContextExpression
+          .fold(ScalaLiteralEvaluator(literal, literal.getValue): Evaluator) {
+            evaluatorFor(_)
+          }
+    case _ =>
+      literal.getValue match {
+        case symbol: Symbol =>
+          val expr = createExpressionFromText(
+            s"""Symbol("${symbol.name}")""",
+            literal.getContext
+          )
+          evaluatorFor(expr)
+        case value =>
+          ScalaLiteralEvaluator(literal, value)
+      }
   }
 
   def whileStmtEvaluator(ws: ScWhile): Evaluator = {

@@ -45,8 +45,6 @@ final class ScBooleanLiteralImpl(node: ASTNode,
 
   override def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = None
 
-  override def isSymbol: Boolean = false
-
   override def isChar: Boolean = false
 
   override def isValidHost: Boolean = false

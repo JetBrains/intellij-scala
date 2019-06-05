@@ -82,7 +82,8 @@ object TestConfigurationUtil {
     val TwoArgMethods = Seq(Replace, Substring)
   }
 
-  private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean, lineSeparator: Option[String]): Option[Any] = {
+  private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean)
+                                      (implicit newSeparator: String): Option[Any] = {
     import StringMethodNames._
 
     def processNoArgMethod(refExpr: ScReferenceExpression): Option[String] = {
@@ -90,7 +91,7 @@ object TestConfigurationUtil {
       if (methodName == ToString) {
         //special handling for now, since only toString is allowed on integers
         refExpr.smartQualifier
-          .map(getStaticTestNameElement(_, allowSymbolLiterals, lineSeparator))
+          .map(getStaticTestNameElement(_, allowSymbolLiterals))
           .flatMap {
             case Some(string: String) => Some(string)
             case Some(number: Number) => Some(number.toString)
@@ -98,7 +99,7 @@ object TestConfigurationUtil {
           }
       } else {
         refExpr.smartQualifier
-          .flatMap(getStaticTestNameRaw(_, allowSymbolLiterals, lineSeparator))
+          .flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
           .flatMap { name: String =>
             methodName match {
               case ToLowerCase => Some(name.toLowerCase)
@@ -125,9 +126,9 @@ object TestConfigurationUtil {
       }
 
       for {
-        arg <- getStaticTestNameElement(methodCall.argumentExpressions.head, allowSymbolLiterals, lineSeparator)
+        arg <- getStaticTestNameElement(methodCall.argumentExpressions.head, allowSymbolLiterals)
         qualifier <- refExpr.smartQualifier
-        name <- getStaticTestNameElement(qualifier, allowSymbolLiterals, lineSeparator)
+        name <- getStaticTestNameElement(qualifier, allowSymbolLiterals)
         result <- helper(name, arg)
       } yield result
     }
@@ -140,37 +141,37 @@ object TestConfigurationUtil {
       }
 
       for {
-        arg1 <- getStaticTestNameElement(methodCall.argumentExpressions.head, allowSymbolLiterals, lineSeparator)
-        arg2 <- getStaticTestNameElement(methodCall.argumentExpressions(1), allowSymbolLiterals, lineSeparator)
+        arg1 <- getStaticTestNameElement(methodCall.argumentExpressions.head, allowSymbolLiterals)
+        arg2 <- getStaticTestNameElement(methodCall.argumentExpressions(1), allowSymbolLiterals)
         qualifier <- refExpr.smartQualifier
-        name <- getStaticTestNameElement(qualifier, allowSymbolLiterals, lineSeparator)
+        name <- getStaticTestNameElement(qualifier, allowSymbolLiterals)
         result <- helper(name, arg1, arg2)
       } yield result
     }
 
     element match {
-      case literal: ScLiteral if literal.isString && literal.getValue.isInstanceOf[String] =>
-        val value = literal.getValue.asInstanceOf[String]
-        lineSeparator match {
-          case Some(sep) if literal.isMultiLineString =>
-            Some(StringUtil.convertLineSeparators(value, sep))
-          case _ =>
-            Some(value)
+      case literal: ScLiteral =>
+        literal.getValue match {
+          case string: String =>
+            Some {
+              if (newSeparator != null && literal.isMultiLineString)
+                StringUtil.convertLineSeparators(string, newSeparator)
+              else
+                string
+            }
+          case symbol: Symbol if allowSymbolLiterals => Some(symbol.name)
+          case number: Number => Some(number)
+          case character: Character => Some(character)
+          case _ => None
         }
-      case literal: ScLiteral if allowSymbolLiterals && literal.isSymbol && literal.getValue.isInstanceOf[Symbol] =>
-        Some(literal.getValue.asInstanceOf[Symbol].name)
-      case literal: ScLiteral if literal.getValue.isInstanceOf[Number] =>
-        Some(literal.getValue)
-      case literal: ScLiteral if literal.isChar =>
-        Some(literal.getValue)
       case p: ScParenthesisedExpr =>
-        p.innerElement.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals, lineSeparator))
+        p.innerElement.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
       case infixExpr: ScInfixExpr =>
         infixExpr.getInvokedExpr match {
           case refExpr: ScReferenceExpression if refExpr.refName == "+" =>
             for {
-              left <- getStaticTestNameElement(infixExpr.left, allowSymbolLiterals, lineSeparator)
-              right <- getStaticTestNameElement(infixExpr.right, allowSymbolLiterals, lineSeparator)
+              left <- getStaticTestNameElement(infixExpr.left, allowSymbolLiterals)
+              right <- getStaticTestNameElement(infixExpr.right, allowSymbolLiterals)
             } yield left + right.toString
           case _ => None
         }
@@ -191,7 +192,7 @@ object TestConfigurationUtil {
           case _ => None
         }
       case refExpr: ScReferenceExpression if refExpr.getText == "+" =>
-        getStaticTestNameRaw(refExpr.getParent, allowSymbolLiterals, lineSeparator)
+        getStaticTestNameRaw(refExpr.getParent, allowSymbolLiterals)
       case refExpr: ScReferenceExpression if NoArgMethods.contains(refExpr.refName) =>
         processNoArgMethod(refExpr)
       case refExpr: ScReferenceExpression =>
@@ -199,7 +200,7 @@ object TestConfigurationUtil {
           case Some(refPattern: ScReferencePattern) =>
             ScalaPsiUtil.nameContext(refPattern) match {
               case patternDef: ScPatternDefinition =>
-                patternDef.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals, lineSeparator))
+                patternDef.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
               case _ => None
             }
           case _ => None
@@ -208,16 +209,14 @@ object TestConfigurationUtil {
     }
   }
 
-  def getStaticTestName(element: PsiElement, allowSymbolLiterals: Boolean = false): Option[String] = {
-    val lineSeparator = Option(element.getContainingFile.getVirtualFile.getDetectedLineSeparator)
-    val result = getStaticTestNameRaw(element, allowSymbolLiterals, lineSeparator)
-    result.map(escapeTestName(_).trim)
-  }
+  def getStaticTestName(element: PsiElement, allowSymbolLiterals: Boolean = false): Option[String] =
+    getStaticTestNameRaw(element, allowSymbolLiterals)(element.getContainingFile.getVirtualFile.getDetectedLineSeparator)
+      .map(escapeTestName(_).trim)
 
   private def getStaticTestNameRaw(element: PsiElement,
-                                   allowSymbolLiterals: Boolean,
-                                   lineSeparator: Option[String]): Option[String] =
-    getStaticTestNameElement(element, allowSymbolLiterals, lineSeparator).filterByType[String]
+                                   allowSymbolLiterals: Boolean)
+                                  (implicit newSeparator: String): Option[String] =
+    getStaticTestNameElement(element, allowSymbolLiterals).filterByType[String]
 
   private def escapeTestName(testName: String): String = {
     testName
