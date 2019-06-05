@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.extensions.SeqExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScParameterizedType, ScType}
 
 /**
  * Can be used to:
@@ -93,6 +93,9 @@ object TypeDiff {
           Seq(Mismatch(t2.typeArguments.map(_.presentableText).mkString(", ")))
 
         diff(t1.designator, t2.designator) :+ Match("[") :+ Group(inner) :+ Match("]")
+
+      // On-demand widening of literal types (SCL-15481)
+      case (t1, t2: ScLiteralType) if !t1.is[ScLiteralType] => diff(t1, t2.wideType)
 
       case (t1, t2) =>
         Seq(if (conforms(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2))) // TODO wrap each type in a Group?
