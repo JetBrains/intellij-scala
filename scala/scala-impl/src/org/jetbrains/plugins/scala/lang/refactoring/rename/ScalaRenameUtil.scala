@@ -5,6 +5,7 @@ import java.util
 
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
@@ -40,17 +41,6 @@ object ScalaRenameUtil {
         case None => false
       }
     case _ => false
-  }
-
-  def isIndirectReference(ref: PsiReference, element: PsiElement): Boolean = ref match {
-    case scRef: ScReference => scRef.isIndirectReferenceTo(ref.resolve(), element)
-    case _ => false
-  }
-
-  def findReferences(element: PsiElement): util.ArrayList[PsiReference] = {
-    val allRefs = ReferencesSearch.search(element, element.getUseScope).findAll()
-    val filtered = allRefs.asScala.filterNot(isAliased).filterNot(isIndirectReference(_, element))
-    new util.ArrayList[PsiReference](filtered.asJavaCollection)
   }
 
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {

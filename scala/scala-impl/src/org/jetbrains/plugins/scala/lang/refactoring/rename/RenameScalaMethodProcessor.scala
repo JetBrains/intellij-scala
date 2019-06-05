@@ -14,7 +14,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Pass
-import com.intellij.psi.search.PsiElementProcessor
+import com.intellij.psi.search.{PsiElementProcessor, SearchScope}
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameJavaMethodProcessor, RenamePsiElementProcessor}
@@ -36,8 +36,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
-
-  override def findReferences(element: PsiElement): util.ArrayList[PsiReference] = ScalaRenameUtil.findReferences(element)
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = { val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != element) guess else RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])

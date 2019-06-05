@@ -3,6 +3,7 @@ package lang.refactoring.rename
 
 import java.util
 
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -24,6 +25,4 @@ class RenameScalaBindingPatternProcessor extends RenamePsiElementProcessor with 
       }
     case _ => false
   }
-
-  override def findReferences(element: PsiElement): util.Collection[PsiReference] = ScalaRenameUtil.findReferences(element)
 }

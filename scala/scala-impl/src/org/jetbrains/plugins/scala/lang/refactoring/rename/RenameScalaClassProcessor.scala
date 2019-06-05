@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import java.awt.BorderLayout
 import java.util
-import javax.swing.{JCheckBox, JComponent, JPanel}
 
+import javax.swing.{JCheckBox, JComponent, JPanel}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameDialog, RenameJavaClassProcessor}
@@ -37,7 +38,10 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     case _ => element
   }
 
-  override def findReferences(element: PsiElement): util.Collection[PsiReference] = ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.findReferences(element))
+  override def findReferences(element: PsiElement,
+                              searchScope: SearchScope,
+                              searchInCommentsAndStrings: Boolean): util.Collection[PsiReference] =
+    ScalaRenameUtil.replaceImportClassReferences(super.findReferences(element, searchScope, searchInCommentsAndStrings))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {

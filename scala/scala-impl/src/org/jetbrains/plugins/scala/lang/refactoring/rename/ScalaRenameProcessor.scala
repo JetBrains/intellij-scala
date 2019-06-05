@@ -1,15 +1,32 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import com.intellij.psi.PsiElement
+import java.util
+
+import com.intellij.psi.search.SearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil.isAliased
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
 
 /**
  * Nikolay.Tropin
  * 2014-03-27
  */
 trait ScalaRenameProcessor { this: RenamePsiElementProcessor =>
+
+  override def findReferences(element: PsiElement,
+                              searchScope: SearchScope,
+                              searchInCommentsAndStrings: Boolean): util.Collection[PsiReference] = {
+
+    val allRefs = ReferencesSearch.search(element, searchScope.intersectWith(element.getUseScope)).findAll()
+    val filtered = allRefs.asScala.filterNot(isAliased).filterNot(ScalaRenameProcessor.isIndirectReference(_, element))
+    new util.ArrayList[PsiReference](filtered.asJavaCollection)
+  }
 
   override def setToSearchForTextOccurrences(element: PsiElement, enabled: Boolean): Unit = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_NON_CODE_FILES = enabled
@@ -25,5 +42,12 @@ trait ScalaRenameProcessor { this: RenamePsiElementProcessor =>
 
   override def isToSearchInComments(element: PsiElement): Boolean = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
+}
+
+object ScalaRenameProcessor {
+  private def isIndirectReference(ref: PsiReference, element: PsiElement): Boolean = ref match {
+    case scRef: ScReference => scRef.isIndirectReferenceTo(ref.resolve(), element)
+    case _ => false
   }
 }

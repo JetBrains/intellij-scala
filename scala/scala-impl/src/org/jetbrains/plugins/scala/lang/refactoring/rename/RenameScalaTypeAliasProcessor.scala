@@ -8,7 +8,7 @@ import java.util
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
-import com.intellij.psi.search.PsiElementProcessor
+import com.intellij.psi.search.{PsiElementProcessor, SearchScope}
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSea
 
 class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeAlias]
-
-  override def findReferences(element: PsiElement): util.ArrayList[PsiReference] = ScalaRenameUtil.findReferences(element)
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])

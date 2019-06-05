@@ -3,7 +3,8 @@ package lang.refactoring.rename
 
 import java.{util => ju}
 
-import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.psi.search.SearchScope
+import com.intellij.psi.{PsiElement, PsiPackage, PsiReference}
 import com.intellij.refactoring.rename.RenamePsiPackageProcessor
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -13,6 +14,11 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
  * @since 06.11.12
  */
 class RenameScalaPackageProcessor extends RenamePsiPackageProcessor with ScalaRenameProcessor {
+
+  override def findReferences(element: PsiElement,
+                              searchScope: SearchScope,
+                              searchInCommentsAndStrings: Boolean): ju.Collection[PsiReference] =
+    super[RenamePsiPackageProcessor].findReferences(element, searchScope, searchInCommentsAndStrings)
 
   override def prepareRenaming(element: PsiElement,
                                newName: String,

@@ -9,7 +9,7 @@ import java.util
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.search.PsiElementProcessor
+import com.intellij.psi.search.{PsiElementProcessor, SearchScope}
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
@@ -40,8 +40,6 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     }
     case _ => false
   }
-
-  override def findReferences(element: PsiElement): util.ArrayList[PsiReference] = ScalaRenameUtil.findReferences(element)
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}

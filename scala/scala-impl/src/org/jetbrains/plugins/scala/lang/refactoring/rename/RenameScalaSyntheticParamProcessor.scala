@@ -3,14 +3,22 @@ package lang
 package refactoring
 package rename
 
+import java.util
+
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.search.SearchScope
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 class RenameScalaSyntheticParamProcessor extends RenamePsiElementProcessor with ScalaRenameProcessor {
   def canProcessElement(element: PsiElement): Boolean = realParamForSyntheticParam(element).isDefined
+
+  override def findReferences(element: PsiElement,
+                              searchScope: SearchScope,
+                              searchInCommentsAndStrings: Boolean): util.Collection[PsiReference] =
+    super[RenamePsiElementProcessor].findReferences(element, searchScope, searchInCommentsAndStrings)
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = realParamForSyntheticParam(element).orNull
 
