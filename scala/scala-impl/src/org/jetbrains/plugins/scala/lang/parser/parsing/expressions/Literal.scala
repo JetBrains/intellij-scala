@@ -4,76 +4,74 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import com.intellij.lang.PsiBuilder.Marker
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 15.02.2008
-*/
-
-/*
-Literal ::= ['-']integerLiteral
-            | ['-']floatingPointLiteral
-            | booleanLiteral
-            | characterLiteral
-            | stringLiteral
-            | symbolLiteral
-            | true
-            | false
-            | null
-            | javaId"StringLiteral" 
-*/
+ * Literal ::= ['-']integerLiteral
+ * | ['-']floatingPointLiteral
+ * | booleanLiteral
+ * | characterLiteral
+ * | stringLiteral
+ * | symbolLiteral
+ * | true
+ * | false
+ * | null
+ * | javaId"StringLiteral"
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 15.02.2008
+ */
 object Literal {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  import ScalaElementType._
+  import builder.ScalaPsiBuilder
+  import lang.lexer.ScalaTokenTypes._
+
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
+
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER =>
-        if (builder.getTokenText == "-") {
-          builder.advanceLexer() //Ate -
-          builder.getTokenType match {
-            case ScalaTokenTypes.tINTEGER |
-                 ScalaTokenTypes.tFLOAT => {
-              builder.advanceLexer() //Ate literal
-              marker.done(ScalaElementType.LITERAL)
-              true
-            }
-            case _ => {
-              marker.rollbackTo()
-              false
-            }
-          }
+      case `tIDENTIFIER` if builder.getTokenText == "-" =>
+        builder.advanceLexer() //Ate -
+        builder.getTokenType match {
+          case `tINTEGER` |
+               `tFLOAT` =>
+            advanceAndMarkDone(marker)(LITERAL)
+          case _ =>
+            marker.rollbackTo()
+            false
         }
-        else {
-          marker.rollbackTo()
-          false
-        }
-      case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
+      case `tINTERPOLATED_STRING_ID` =>
         CommonUtils.parseInterpolatedString(builder, isPattern = false)
-        marker.done(ScalaElementType.INTERPOLATED_STRING_LITERAL)
+        marker.done(INTERPOLATED_STRING_LITERAL)
         true
-      case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>
-        builder.advanceLexer()
-        marker.done(ScalaElementType.INTERPOLATED_STRING_LITERAL)
-        true
-      case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT |
-           ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
-           ScalaTokenTypes.tCHAR | ScalaTokenTypes.tSYMBOL |
-           ScalaTokenTypes.kNULL | ScalaTokenTypes.tSTRING |
-           ScalaTokenTypes.tMULTILINE_STRING =>
-        builder.advanceLexer() //Ate literal
-        marker.done(ScalaElementType.LITERAL)
-        true
-      case ScalaTokenTypes.tWRONG_STRING =>
-        //wrong string literal
-        builder.advanceLexer() //Ate wrong string
-        builder.error("Wrong string literal")
-        marker.done(ScalaElementType.LITERAL)
-        true
+      case `tINTERPOLATED_MULTILINE_STRING` |
+           `tINTERPOLATED_STRING` =>
+        advanceAndMarkDone(marker)(INTERPOLATED_STRING_LITERAL)
+      case `tINTEGER` |
+           `tFLOAT` |
+           `kTRUE` |
+           `kFALSE` |
+           `tCHAR` |
+           `tSYMBOL` |
+           `kNULL` |
+           `tSTRING` |
+           `tMULTILINE_STRING` =>
+        advanceAndMarkDone(marker)(LITERAL)
+      case `tWRONG_STRING` =>
+        advanceAndMarkDone(marker, "Wrong string literal")(LITERAL)
       case _ =>
         marker.rollbackTo()
         false
     }
+  }
+
+  private def advanceAndMarkDone(marker: Marker, errorMessage: String = null)
+                                (elementType: ScExpressionElementType)
+                                (implicit builder: ScalaPsiBuilder) = {
+    builder.advanceLexer()
+    if (errorMessage != null) builder.error(errorMessage)
+    marker.done(elementType)
+    true
   }
 }
