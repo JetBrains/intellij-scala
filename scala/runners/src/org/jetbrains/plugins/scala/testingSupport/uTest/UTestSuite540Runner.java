@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.uTest;
 
-import scala.collection.JavaConverters;
+import org.jetbrains.plugins.scala.testingSupport.MyJavaConverters;
 import scala.collection.Seq;
 import scala.runtime.BoxedUnit;
 import utest.TestRunner;
@@ -106,8 +106,13 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
       if (subtree != null) {
         treeList.add(subtree);
       }
-        TestRunner.runAsync(resolveResult, reportFunction, JavaConverters.asScalaBufferConverter(treeList).asScala(),
-                (Executor) testObject, ExecutionContext.RunNow$.MODULE$);
+        TestRunner.runAsync(
+            resolveResult,
+            reportFunction,
+            MyJavaConverters.asScala(treeList),
+            (Executor) testObject,
+            ExecutionContext.RunNow$.MODULE$
+        );
     }
   }
 
@@ -135,7 +140,7 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
     for (String walkup : walkupNodes) {
       List<Tree<String>> dummyList = new LinkedList<Tree<String>>();
       dummyList.add(current);
-      current = new Tree<String>(walkup, JavaConverters.asScalaBufferConverter(dummyList).asScala());
+      current = new Tree<>(walkup, MyJavaConverters.asScala(dummyList));
     }
     return current;
   }
