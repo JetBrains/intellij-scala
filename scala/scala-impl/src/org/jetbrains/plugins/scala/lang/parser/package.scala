@@ -50,7 +50,7 @@ package object parser {
       repr.getCurrentOffset match {
         case offset if steps < offset =>
           repr.rawLookup(-steps) match {
-            case whiteSpace if TokenSets.WHITESPACE_OR_COMMENT_SET.contains(whiteSpace) => skipWhiteSpacesAndComments(steps + 1, whiteSpace)
+            case whiteSpace if lexer.ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(whiteSpace) => skipWhiteSpacesAndComments(steps + 1, whiteSpace)
             case result => (steps, result)
           }
         case _ => (steps, accumulator)

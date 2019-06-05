@@ -104,30 +104,6 @@ object ScalaSyntaxHighlighter {
     ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
   )
 
-  // Numbers
-  private val tNUMBERS = TokenSet.create(
-    ScalaTokenTypes.tINTEGER,
-    ScalaTokenTypes.tFLOAT
-  )
-
-  // Braces
-  private val tBRACES = TokenSet.create(
-    ScalaTokenTypes.tLBRACE,
-    ScalaTokenTypes.tRBRACE
-  )
-
-  // Brackets
-  private val tBRACKETS = TokenSet.create(
-    ScalaTokenTypes.tLSQBRACKET,
-    ScalaTokenTypes.tRSQBRACKET
-  )
-
-  // Parentheses
-  private val tPARENTHESES = TokenSet.create(
-    ScalaTokenTypes.tLPARENTHESIS,
-    ScalaTokenTypes.tRPARENTHESIS
-  )
-
   // Strings
   private val tSTRINGS = TokenSet.create(
     ScalaTokenTypes.tSTRING,
@@ -159,50 +135,6 @@ object ScalaSyntaxHighlighter {
   // Invalid unicode escape in string
   private val tINVALID_UNICODE_ESCAPE = TokenSet.create(
     StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN
-  )
-
-  // Keywords
-  private val kRESERVED_WORDS = TokenSet.create(
-    ScalaTokenTypes.kABSTRACT,
-    ScalaTokenTypes.kCASE,
-    ScalaTokenTypes.kCATCH,
-    ScalaTokenTypes.kCLASS,
-    ScalaTokenTypes.kDEF,
-    ScalaTokenTypes.kDO,
-    ScalaTokenTypes.kELSE,
-    ScalaTokenTypes.kEXTENDS,
-    ScalaTokenTypes.kFALSE,
-    ScalaTokenTypes.kFINAL,
-    ScalaTokenTypes.kFINALLY,
-    ScalaTokenTypes.kFOR,
-    ScalaTokenTypes.kFOR_SOME,
-    ScalaTokenTypes.kIF,
-    ScalaTokenTypes.kIMPLICIT,
-    ScalaTokenTypes.kIMPORT,
-    ScalaTokenTypes.kLAZY,
-    ScalaTokenTypes.kMATCH,
-    ScalaTokenTypes.kNEW,
-    ScalaTokenTypes.kNULL,
-    ScalaTokenTypes.kOBJECT,
-    ScalaTokenTypes.kOVERRIDE,
-    ScalaTokenTypes.kPACKAGE,
-    ScalaTokenTypes.kPRIVATE,
-    ScalaTokenTypes.kPROTECTED,
-    ScalaTokenTypes.kRETURN,
-    ScalaTokenTypes.kSEALED,
-    ScalaTokenTypes.kSUPER,
-    ScalaTokenTypes.kTHIS,
-    ScalaTokenTypes.kTHROW,
-    ScalaTokenTypes.kTRAIT,
-    ScalaTokenTypes.kTRY,
-    ScalaTokenTypes.kTRUE,
-    ScalaTokenTypes.kTYPE,
-    ScalaTokenTypes.kVAL,
-    ScalaTokenTypes.kVAR,
-    ScalaTokenTypes.kWHILE,
-    ScalaTokenTypes.kWITH,
-    ScalaTokenTypes.kYIELD,
-    ScalaTokenTypes.kMACRO
   )
 
   private val tOPS = TokenSet.create(
@@ -246,15 +178,15 @@ object ScalaSyntaxHighlighter {
       tLINE_COMMENTS -> LINE_COMMENT,
       tBLOCK_COMMENTS -> BLOCK_COMMENT,
       tDOC_COMMENTS -> DOC_COMMENT,
-      kRESERVED_WORDS -> KEYWORD,
-      tNUMBERS -> NUMBER,
+      KEYWORDS -> KEYWORD,
+      NUMBER_TOKEN_SET -> NUMBER,
       tVALID_STRING_ESCAPE -> VALID_STRING_ESCAPE,
       tINVALID_CHARACTER_ESCAPE -> INVALID_STRING_ESCAPE,
       tINVALID_UNICODE_ESCAPE -> INVALID_STRING_ESCAPE,
       tSTRINGS -> STRING,
-      tBRACES -> BRACES,
-      tBRACKETS -> BRACKETS,
-      tPARENTHESES -> PARENTHESES,
+      BRACES_TOKEN_SET -> BRACES,
+      BRACKETS_TOKEN_SET -> BRACKETS,
+      PARENTHESIS_TOKEN_SET -> PARENTHESES,
       tSEMICOLON -> SEMICOLON,
       tDOT -> DOT,
       tCOMMA -> COMMA,

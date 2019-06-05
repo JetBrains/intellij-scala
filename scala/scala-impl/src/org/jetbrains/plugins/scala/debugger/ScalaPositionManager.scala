@@ -720,7 +720,7 @@ object ScalaPositionManager {
             case ChildOf(_: ScUnitExpr) | ChildOf(ScBlock()) =>
               result += elem
             case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) ||
-              ScalaTokenTypes.BRACKETS_TOKEN_SET.contains(t) =>
+              ScalaTokenTypes.ANY_BRACKETS_TOKEN_SET.contains(t) =>
             case _ =>
               result += elem
           }

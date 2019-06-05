@@ -8,7 +8,6 @@ package lang
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
 object TokenSets {
@@ -25,8 +24,6 @@ object TokenSets {
     TYPED_PATTERN
   )
 
-  val WHITESPACE_OR_COMMENT_SET: TokenSet = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT, SCALA_DOC_COMMENT)
-
   val ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, tUNDER)
 
   val SELF_TYPE_ID: TokenSet = TokenSet.create(kTHIS, tIDENTIFIER, tUNDER)
@@ -41,8 +38,6 @@ object TokenSets {
     VARIABLE_DECLARATION,
     VARIABLE_DEFINITION
   )
-
-  val LITERALS: TokenSet = STRING_LITERAL_TOKEN_SET + tFLOAT + tINTEGER + kTRUE + kFALSE
 
   val MEMBERS: TokenSet =
     FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++

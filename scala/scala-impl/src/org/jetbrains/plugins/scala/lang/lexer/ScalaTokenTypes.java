@@ -24,7 +24,7 @@ import static com.intellij.psi.xml.XmlTokenType.*;
 
 /**
  * @author ilyas
- *         Date: 24.09.2006
+ * Date: 24.09.2006
  */
 public interface ScalaTokenTypes {
 
@@ -32,230 +32,255 @@ public interface ScalaTokenTypes {
 ///////////////////////// White spaces in line /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tWHITE_SPACE_IN_LINE = new ScalaTokenType("white space in line");
+    IElementType tWHITE_SPACE_IN_LINE = new ScalaTokenType("white space in line");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Stub /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tSTUB = new ScalaTokenType("stub");
+    IElementType tSTUB = new ScalaTokenType("stub");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Comments /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tDOC_COMMENT = new ScalaTokenType("DocComment");
-  IElementType tLINE_COMMENT = new ScalaTokenType("comment");
-  IElementType tBLOCK_COMMENT = new ScalaTokenType("BlockComment");
-  IElementType tSH_COMMENT = new ScalaTokenType("ShellComment");
+    IElementType tDOC_COMMENT = new ScalaTokenType("DocComment");
+    IElementType tLINE_COMMENT = new ScalaTokenType("comment");
+    IElementType tBLOCK_COMMENT = new ScalaTokenType("BlockComment");
+    IElementType tSH_COMMENT = new ScalaTokenType("ShellComment");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Strings & chars //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tSTRING = new ScalaTokenType("string content");
-  IElementType tMULTILINE_STRING = new ScalaTokenType("multiline string");
-  IElementType tINTERPOLATED_STRING = new ScalaTokenType("interpolated string");
-  IElementType tINTERPOLATED_MULTILINE_STRING = new ScalaTokenType("interpolatedmultiline string");
-  IElementType tINTERPOLATED_STRING_ID = new ScalaTokenType("interpolated string id");
-  IElementType tINTERPOLATED_STRING_INJECTION = new ScalaTokenType("interpolated string injection");
-  IElementType tINTERPOLATED_STRING_END = new ScalaTokenType("interpolated string end");
-  IElementType tINTERPOLATED_STRING_ESCAPE = new ScalaTokenType("interpolated string escape");
-  IElementType tWRONG_STRING = new ScalaTokenType("wrong string content");
+    IElementType tSTRING = new ScalaTokenType("string content");
+    IElementType tMULTILINE_STRING = new ScalaTokenType("multiline string");
+    IElementType tINTERPOLATED_STRING = new ScalaTokenType("interpolated string");
+    IElementType tINTERPOLATED_MULTILINE_STRING = new ScalaTokenType("interpolatedmultiline string");
+    IElementType tINTERPOLATED_STRING_ID = new ScalaTokenType("interpolated string id");
+    IElementType tINTERPOLATED_STRING_INJECTION = new ScalaTokenType("interpolated string injection");
+    IElementType tINTERPOLATED_STRING_END = new ScalaTokenType("interpolated string end");
+    IElementType tINTERPOLATED_STRING_ESCAPE = new ScalaTokenType("interpolated string escape");
+    IElementType tWRONG_STRING = new ScalaTokenType("wrong string content");
 
-  IElementType tCHAR = new ScalaTokenType("Character");
-  IElementType tSYMBOL = new ScalaTokenType("Symbol");
+    IElementType tCHAR = new ScalaTokenType("Character");
+    IElementType tSYMBOL = new ScalaTokenType("Symbol");
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////// integer and float literals ///////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  IElementType tINTEGER = new ScalaTokenType("integer");
-  IElementType tFLOAT = new ScalaTokenType("float");
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////// integer and float literals ///////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    IElementType tINTEGER = new ScalaTokenType("integer");
+    IElementType tFLOAT = new ScalaTokenType("float");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Operators ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tEQUAL = new ScalaTokenType("==");
-  IElementType tNOTEQUAL = new ScalaTokenType("!=");
-  IElementType tLESS = new ScalaTokenType("<");
-  IElementType tLESSOREQUAL = new ScalaTokenType("<=");
-  IElementType tGREATER = new ScalaTokenType(">");
-  IElementType tGREATEROREQUAL = new ScalaTokenType(">=");
+    IElementType tEQUAL = new ScalaTokenType("==");
+    IElementType tNOTEQUAL = new ScalaTokenType("!=");
+    IElementType tLESS = new ScalaTokenType("<");
+    IElementType tLESSOREQUAL = new ScalaTokenType("<=");
+    IElementType tGREATER = new ScalaTokenType(">");
+    IElementType tGREATEROREQUAL = new ScalaTokenType(">=");
 
-  IElementType tTILDA = new ScalaTokenType("~");
-  IElementType tNOT = new ScalaTokenType("!");
-  IElementType tSTAR = new ScalaTokenType("*");
-  IElementType tDIV = new ScalaTokenType("/");
+    IElementType tTILDA = new ScalaTokenType("~");
+    IElementType tNOT = new ScalaTokenType("!");
+    IElementType tSTAR = new ScalaTokenType("*");
+    IElementType tDIV = new ScalaTokenType("/");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tLSQBRACKET = new ScalaTokenType("[");
-  IElementType tRSQBRACKET = new ScalaTokenType("]");
-  IElementType tLBRACE = new ScalaTokenType("{");
-  IElementType tRBRACE = new ScalaTokenType("}");
-  IElementType tLPARENTHESIS = new ScalaTokenType("(");
-  IElementType tRPARENTHESIS = new ScalaTokenType(")");
+    IElementType tLSQBRACKET = new ScalaTokenType("[");
+    IElementType tRSQBRACKET = new ScalaTokenType("]");
+    IElementType tLBRACE = new ScalaTokenType("{");
+    IElementType tRBRACE = new ScalaTokenType("}");
+    IElementType tLPARENTHESIS = new ScalaTokenType("(");
+    IElementType tRPARENTHESIS = new ScalaTokenType(")");
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ScalaModifierTokenType kABSTRACT = ScalaModifierTokenType.of(ScalaModifier.Abstract);
-  ScalaModifierTokenType kCASE = ScalaModifierTokenType.of(ScalaModifier.Case);
-  ScalaModifierTokenType kIMPLICIT = ScalaModifierTokenType.of(ScalaModifier.Implicit);
-  ScalaModifierTokenType kFINAL = ScalaModifierTokenType.of(ScalaModifier.Final);
-  ScalaModifierTokenType kLAZY = ScalaModifierTokenType.of(ScalaModifier.Lazy);
-  ScalaModifierTokenType kOVERRIDE = ScalaModifierTokenType.of(ScalaModifier.Override);
-  ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.of(ScalaModifier.Private);
-  ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
-  ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
-  ScalaModifierTokenType kINLINE = ScalaModifierTokenType.of(ScalaModifier.Inline);
-
-
-  IElementType kCATCH = new ScalaTokenType("catch");
-  IElementType kCLASS = new ScalaTokenType("class");
-  IElementType kDEF = new ScalaTokenType("def");
-  IElementType kDO = new ScalaTokenType("do");
-  IElementType kELSE = new ScalaTokenType("else");
-  IElementType kEXTENDS = new ScalaTokenType("extends");
-  IElementType kFALSE = new ScalaTokenType("false");
-  IElementType kFINALLY = new ScalaTokenType("finally");
-  IElementType kFOR = new ScalaTokenType("for");
-  IElementType kFOR_SOME = new ScalaTokenType("forSome");
-  IElementType kIF = new ScalaTokenType("if");
-  IElementType kIMPORT = new ScalaTokenType("import");
-  IElementType kMATCH = new ScalaTokenType("match");
-  IElementType kNEW = new ScalaTokenType("new");
-  IElementType kNULL = new ScalaTokenType("null");
-  IElementType kOBJECT = new ScalaTokenType("object");
-  IElementType kPACKAGE = new ScalaTokenType("package");
-
-  IElementType kRETURN = new ScalaTokenType("return");
-  IElementType kSUPER = new ScalaTokenType("super");
-  IElementType kTHIS = new ScalaTokenType("this");
-  IElementType kTHROW = new ScalaTokenType("throw");
-  IElementType kTRAIT = new ScalaTokenType("trait");
-  IElementType kTRY = new ScalaTokenType("try");
-  IElementType kTRUE = new ScalaTokenType("true");
-  IElementType kTYPE = new ScalaTokenType("type");
-  IElementType kVAL = new ScalaTokenType("val");
-  IElementType kVAR = new ScalaTokenType("var");
-  IElementType kWHILE = new ScalaTokenType("while");
-  IElementType kWITH = new ScalaTokenType("with");
-  IElementType kYIELD = new ScalaTokenType("yield");
-  IElementType kMACRO = new ScalaTokenType("macro");
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////// variables and constants //////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  IElementType tIDENTIFIER = new ScalaTokenType("identifier");
-
-  ////////////////////////// xml tag /////////////////////////////////////////////////////////////////////////////////////
-  IElementType tOPENXMLTAG = new ScalaTokenType("opened xml tag");
-  IElementType tCLOSEXMLTAG = new ScalaTokenType("closed xml tag");
-  IElementType tBADCLOSEXMLTAG = new ScalaTokenType("closing tag without opening");
-  IElementType tXMLTAGPART = new ScalaTokenType("tag part");
-  IElementType tBEGINSCALAEXPR = new ScalaTokenType("begin of scala expression");
-  IElementType tENDSCALAEXPR = new ScalaTokenType("end of scala expression");
-  IElementType tXML_COMMENT_START = new ScalaTokenType("Xml Comment Start");
-  IElementType tXML_COMMENT_END = new ScalaTokenType("Xml Comment End");
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ScalaModifierTokenType kABSTRACT = ScalaModifierTokenType.of(ScalaModifier.Abstract);
+    ScalaModifierTokenType kCASE = ScalaModifierTokenType.of(ScalaModifier.Case);
+    ScalaModifierTokenType kIMPLICIT = ScalaModifierTokenType.of(ScalaModifier.Implicit);
+    ScalaModifierTokenType kFINAL = ScalaModifierTokenType.of(ScalaModifier.Final);
+    ScalaModifierTokenType kLAZY = ScalaModifierTokenType.of(ScalaModifier.Lazy);
+    ScalaModifierTokenType kOVERRIDE = ScalaModifierTokenType.of(ScalaModifier.Override);
+    ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.of(ScalaModifier.Private);
+    ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
+    ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
+    ScalaModifierTokenType kINLINE = ScalaModifierTokenType.of(ScalaModifier.Inline);
 
 
-  IElementType tDOT = new ScalaTokenType(".");
-  IElementType tCOMMA = new ScalaTokenType(",");
-  IElementType tSEMICOLON = new ScalaTokenType(";");
+    IElementType kCATCH = new ScalaTokenType("catch");
+    IElementType kCLASS = new ScalaTokenType("class");
+    IElementType kDEF = new ScalaTokenType("def");
+    IElementType kDO = new ScalaTokenType("do");
+    IElementType kELSE = new ScalaTokenType("else");
+    IElementType kEXTENDS = new ScalaTokenType("extends");
+    IElementType kFALSE = new ScalaTokenType("false");
+    IElementType kFINALLY = new ScalaTokenType("finally");
+    IElementType kFOR = new ScalaTokenType("for");
+    IElementType kFOR_SOME = new ScalaTokenType("forSome");
+    IElementType kIF = new ScalaTokenType("if");
+    IElementType kIMPORT = new ScalaTokenType("import");
+    IElementType kMATCH = new ScalaTokenType("match");
+    IElementType kNEW = new ScalaTokenType("new");
+    IElementType kNULL = new ScalaTokenType("null");
+    IElementType kOBJECT = new ScalaTokenType("object");
+    IElementType kPACKAGE = new ScalaTokenType("package");
+
+    IElementType kRETURN = new ScalaTokenType("return");
+    IElementType kSUPER = new ScalaTokenType("super");
+    IElementType kTHIS = new ScalaTokenType("this");
+    IElementType kTHROW = new ScalaTokenType("throw");
+    IElementType kTRAIT = new ScalaTokenType("trait");
+    IElementType kTRY = new ScalaTokenType("try");
+    IElementType kTRUE = new ScalaTokenType("true");
+    IElementType kTYPE = new ScalaTokenType("type");
+    IElementType kVAL = new ScalaTokenType("val");
+    IElementType kVAR = new ScalaTokenType("var");
+    IElementType kWHILE = new ScalaTokenType("while");
+    IElementType kWITH = new ScalaTokenType("with");
+    IElementType kYIELD = new ScalaTokenType("yield");
+    IElementType kMACRO = new ScalaTokenType("macro");
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////// variables and constants //////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    IElementType tIDENTIFIER = new ScalaTokenType("identifier");
+
+    ////////////////////////// xml tag /////////////////////////////////////////////////////////////////////////////////////
+    IElementType tOPENXMLTAG = new ScalaTokenType("opened xml tag");
+    IElementType tCLOSEXMLTAG = new ScalaTokenType("closed xml tag");
+    IElementType tBADCLOSEXMLTAG = new ScalaTokenType("closing tag without opening");
+    IElementType tXMLTAGPART = new ScalaTokenType("tag part");
+    IElementType tBEGINSCALAEXPR = new ScalaTokenType("begin of scala expression");
+    IElementType tENDSCALAEXPR = new ScalaTokenType("end of scala expression");
+    IElementType tXML_COMMENT_START = new ScalaTokenType("Xml Comment Start");
+    IElementType tXML_COMMENT_END = new ScalaTokenType("Xml Comment End");
 
 
-  IElementType tUNDER = new ScalaTokenType("_");
-  IElementType tCOLON = new ScalaTokenType(":");
-  IElementType tASSIGN = new ScalaTokenType("=");
-  IElementType tAND = new ScalaTokenType("&");
-  IElementType tOR = new ScalaTokenType("|");
-  IElementType tFUNTYPE = new ScalaTokenType("=>");
-  IElementType tFUNTYPE_ASCII = new ScalaTokenType(Character.toString('\u21D2'));
-  IElementType tCHOOSE = new ScalaTokenType("<-");
-  IElementType tLOWER_BOUND = new ScalaTokenType(">:");
-  IElementType tUPPER_BOUND = new ScalaTokenType("<:");
-  IElementType tVIEW = new ScalaTokenType("<%");
-  IElementType tINNER_CLASS = new ScalaTokenType("#");
-  IElementType tAT = new ScalaTokenType("@");
-  IElementType tQUESTION = new ScalaTokenType("?");
+    IElementType tDOT = new ScalaTokenType(".");
+    IElementType tCOMMA = new ScalaTokenType(",");
+    IElementType tSEMICOLON = new ScalaTokenType(";");
 
-  TokenSet WHITES_SPACES_FOR_FORMATTER_TOKEN_SET = TokenSet.create(
-      tWHITE_SPACE_IN_LINE,
-      ScalaDocTokenType.DOC_WHITESPACE,
-      XML_REAL_WHITE_SPACE,
-      XML_WHITE_SPACE,
-      TAG_WHITE_SPACE
-  );
 
-  TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
-          tWHITE_SPACE_IN_LINE,
-          XML_REAL_WHITE_SPACE,
-          XML_WHITE_SPACE,
-          TAG_WHITE_SPACE
-  );
+    IElementType tUNDER = new ScalaTokenType("_");
+    IElementType tCOLON = new ScalaTokenType(":");
+    IElementType tASSIGN = new ScalaTokenType("=");
+    IElementType tAND = new ScalaTokenType("&");
+    IElementType tOR = new ScalaTokenType("|");
+    IElementType tFUNTYPE = new ScalaTokenType("=>");
+    IElementType tFUNTYPE_ASCII = new ScalaTokenType(Character.toString('\u21D2'));
+    IElementType tCHOOSE = new ScalaTokenType("<-");
+    IElementType tLOWER_BOUND = new ScalaTokenType(">:");
+    IElementType tUPPER_BOUND = new ScalaTokenType("<:");
+    IElementType tVIEW = new ScalaTokenType("<%");
+    IElementType tINNER_CLASS = new ScalaTokenType("#");
+    IElementType tAT = new ScalaTokenType("@");
+    IElementType tQUESTION = new ScalaTokenType("?");
 
-  TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
-          tLINE_COMMENT,
-          tBLOCK_COMMENT,
-          tSH_COMMENT,
-          ScalaDocElementTypes.SCALA_DOC_COMMENT
-  );
+    TokenSet WHITES_SPACES_FOR_FORMATTER_TOKEN_SET = TokenSet.create(
+            tWHITE_SPACE_IN_LINE,
+            ScalaDocTokenType.DOC_WHITESPACE,
+            XML_REAL_WHITE_SPACE,
+            XML_WHITE_SPACE,
+            TAG_WHITE_SPACE
+    );
 
-  TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.orSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
+    TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
+            tWHITE_SPACE_IN_LINE,
+            XML_REAL_WHITE_SPACE,
+            XML_WHITE_SPACE,
+            TAG_WHITE_SPACE
+    );
 
-  TokenSet KEYWORDS = TokenSet.create(
-          kABSTRACT,
-          kCASE,
-          kCATCH,
-          kCLASS,
-          kDEF,
-          kDO,
-          kELSE,
-          kEXTENDS,
-          kFALSE,
-          kFINAL,
-          kFINALLY,
-          kFOR,
-          kFOR_SOME,
-          kIF,
-          kIMPLICIT,
-          kIMPORT,
-          kLAZY,
-          kMATCH,
-          kNEW,
-          kNULL,
-          kOBJECT,
-          kOVERRIDE,
-          kPACKAGE,
-          kPRIVATE,
-          kPROTECTED,
-          kRETURN,
-          kSEALED,
-          kSUPER,
-          kTHIS,
-          kTHROW,
-          kTRAIT,
-          kTRY,
-          kTRUE,
-          kTYPE,
-          kVAL,
-          kVAR,
-          kWHILE,
-          kWITH,
-          kYIELD,
-          kMACRO
-  );
+    TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
+            tLINE_COMMENT,
+            tBLOCK_COMMENT,
+            tSH_COMMENT,
+            tDOC_COMMENT,
+            ScalaDocElementTypes.SCALA_DOC_COMMENT
+    );
 
-  TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
-  TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING, tMULTILINE_STRING, tINTERPOLATED_MULTILINE_STRING, tINTERPOLATED_STRING);
-  TokenSet VAL_VAR_TOKEN_SET = TokenSet.create(ScalaTokenTypes.kVAL, ScalaTokenTypes.kVAR);
-  TokenSet FUNTYPE_ANY_TOKEN_SET = TokenSet.create(ScalaTokenTypes.tFUNTYPE, ScalaTokenTypes.tFUNTYPE_ASCII);
+    TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.orSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
 
-  TokenSet BRACKETS_TOKEN_SET = TokenSet.create(tLSQBRACKET, tRSQBRACKET, tLBRACE, tRBRACE, tLPARENTHESIS, tRPARENTHESIS);
-  TokenSet BRACES_TOKEN_SET = TokenSet.create(tLBRACE, tRBRACE);
-  TokenSet PARENTHESIS_TOKEN_SET = TokenSet.create(tLPARENTHESIS, tRPARENTHESIS);
-  TokenSet LBRACE_LPARENT_TOKEN_SET = TokenSet.create(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tLPARENTHESIS);
+    TokenSet KEYWORDS = TokenSet.create(
+            kABSTRACT,
+            kCASE,
+            kCATCH,
+            kCLASS,
+            kDEF,
+            kDO,
+            kELSE,
+            kEXTENDS,
+            kFALSE,
+            kFINAL,
+            kFINALLY,
+            kFOR,
+            kFOR_SOME,
+            kIF,
+            kIMPLICIT,
+            kIMPORT,
+            kLAZY,
+            kMATCH,
+            kNEW,
+            kNULL,
+            kOBJECT,
+            kOVERRIDE,
+            kPACKAGE,
+            kPRIVATE,
+            kPROTECTED,
+            kRETURN,
+            kSEALED,
+            kSUPER,
+            kTHIS,
+            kTHROW,
+            kTRAIT,
+            kTRY,
+            kTRUE,
+            kTYPE,
+            kVAL,
+            kVAR,
+            kWHILE,
+            kWITH,
+            kYIELD,
+            kMACRO
+    );
+
+    TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
+
+    TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(
+            tSTRING,
+            tWRONG_STRING,
+            tMULTILINE_STRING,
+            tINTERPOLATED_STRING,
+            tINTERPOLATED_MULTILINE_STRING
+    );
+
+    TokenSet VAL_VAR_TOKEN_SET = TokenSet.create(kVAL, kVAR);
+
+    TokenSet NUMBER_TOKEN_SET = TokenSet.create(tINTEGER, tFLOAT);
+
+    TokenSet BOOLEAN_TOKEN_SET = TokenSet.create(kTRUE, kFALSE);
+
+    TokenSet LITERALS = TokenSet.orSet(
+            STRING_LITERAL_TOKEN_SET,
+            NUMBER_TOKEN_SET,
+            BOOLEAN_TOKEN_SET
+    );
+
+    TokenSet BRACES_TOKEN_SET = TokenSet.create(tLBRACE, tRBRACE);
+    TokenSet PARENTHESIS_TOKEN_SET = TokenSet.create(tLPARENTHESIS, tRPARENTHESIS);
+    TokenSet BRACKETS_TOKEN_SET = TokenSet.create(tLSQBRACKET, tRSQBRACKET);
+
+    TokenSet ANY_BRACKETS_TOKEN_SET = TokenSet.orSet(
+            BRACES_TOKEN_SET,
+            PARENTHESIS_TOKEN_SET,
+            BRACKETS_TOKEN_SET
+    );
+
+    TokenSet LBRACE_LPARENT_TOKEN_SET = TokenSet.create(tLBRACE, tLPARENTHESIS);
 }
