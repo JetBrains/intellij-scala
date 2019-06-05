@@ -16,13 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-
 trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
-
-  // This method works only for null literal (to avoid possibly dangerous usage)
-  def typeForNullWithoutImplicits_=(`type`: Option[ScType])
-
-  def typeForNullWithoutImplicits: Option[ScType]
 
   def isString: Boolean
 
@@ -121,11 +115,6 @@ object ScLiteral {
     override def wideType(implicit project: Project): ScType = cachedClass("scala.Symbol")
   }
 
-  final case object NullValue extends Value(null) {
-
-    override def wideType(implicit project: Project): ScType = api.Null
-  }
-
   private[this] def cachedClass(fqn: String)
                                (implicit project: Project) =
     ElementScope(project).getCachedClass(fqn)
@@ -155,7 +144,6 @@ object ScLiteral {
             T.tWRONG_STRING |
             T.tMULTILINE_STRING, _) => as(StringValue)
       case (T.tSYMBOL, _) => as(SymbolValue)
-      case (T.kNULL, _) => Some(NullValue)
       case _ => None
     }
   }

@@ -23,7 +23,8 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-class ScLiteralImpl(node: ASTNode) extends expr.ScExpressionImplBase(node)
+class ScLiteralImpl(node: ASTNode,
+                    override val toString: String) extends expr.ScExpressionImplBase(node)
   with ScLiteral with ContributedReferenceHost {
 
   import ScLiteralImpl._
@@ -46,19 +47,7 @@ class ScLiteralImpl(node: ASTNode) extends expr.ScExpressionImplBase(node)
   private[this] var myAnnotationOwner = Option.empty[PsiAnnotationOwner with PsiElement]
   private[this] var expirationTime = 0L
 
-  @volatile
-  private[this] var typeForNullWithoutImplicits_ = Option.empty[ScType]
-
-  override def typeForNullWithoutImplicits_=(`type`: Option[ScType]): Unit = literalElementType match {
-    case T.kNULL => typeForNullWithoutImplicits_ = `type`
-    case elementType => throw new AssertionError(s"Only null literals accepted, type: $elementType")
-  }
-
-  override def typeForNullWithoutImplicits: Option[ScType] = typeForNullWithoutImplicits_
-
   def isValidHost: Boolean = getValue.isInstanceOf[String]
-
-  override def toString: String = "Literal"
 
   protected override def innerType: result.TypeResult =
     ScLiteralType.inferType(this)

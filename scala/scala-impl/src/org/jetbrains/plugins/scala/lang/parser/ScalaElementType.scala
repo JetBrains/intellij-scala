@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplat
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.base._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
@@ -219,12 +220,19 @@ object ScalaElementType {
   val SELF_INVOCATION: ScExpressionElementType = new ScExpressionElementType("self invocation") {
     override def createElement(node: ASTNode) = new ScSelfInvocationImpl(node)
   }
-  val LITERAL: ScExpressionElementType = new ScExpressionElementType("Literal") {
-    override def createElement(node: ASTNode) = new ScLiteralImpl(node)
+
+  object LiteralElementType extends ScExpressionElementType("Literal") {
+    override def createElement(node: ASTNode) = new ScLiteralImpl(node, toString)
   }
-  val INTERPOLATED_STRING_LITERAL: ScExpressionElementType = new ScExpressionElementType("Interpolated String Literal") {
-    override def createElement(node: ASTNode) = new ScInterpolatedStringLiteralImpl(node)
+
+  object NullLiteralElementType extends ScExpressionElementType("NullLiteral") {
+    override def createElement(node: ASTNode): ScExpression = new ScNullLiteralImpl(node, toString)
   }
+
+  object InterpolatedStringLiteralElementType extends ScExpressionElementType("InterpolatedStringLiteral") {
+    override def createElement(node: ASTNode) = new ScInterpolatedStringLiteralImpl(node, toString)
+  }
+
   val INTERPOLATED_PREFIX_LITERAL_REFERENCE: ScExpressionElementType = new ScExpressionElementType("Interpolated Prefix Literal Reference") {
     override def createElement(node: ASTNode) = new ScInterpolatedStringPartReference(node)
   }

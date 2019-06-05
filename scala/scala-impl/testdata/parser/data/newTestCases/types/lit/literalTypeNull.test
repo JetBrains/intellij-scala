@@ -36,12 +36,12 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           LiteralType: null
-            Literal
+            NullLiteral
               PsiElement(null)('null')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          NullLiteral
             PsiElement(null)('null')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

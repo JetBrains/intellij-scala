@@ -36,30 +36,31 @@ object Literal {
         builder.getTokenType match {
           case `tINTEGER` |
                `tFLOAT` =>
-            advanceAndMarkDone(marker)(LITERAL)
+            advanceAndMarkDone(marker)(LiteralElementType)
           case _ =>
             marker.rollbackTo()
             false
         }
       case `tINTERPOLATED_STRING_ID` =>
         CommonUtils.parseInterpolatedString(builder, isPattern = false)
-        marker.done(INTERPOLATED_STRING_LITERAL)
+        marker.done(InterpolatedStringLiteralElementType)
         true
       case `tINTERPOLATED_MULTILINE_STRING` |
            `tINTERPOLATED_STRING` =>
-        advanceAndMarkDone(marker)(INTERPOLATED_STRING_LITERAL)
+        advanceAndMarkDone(marker)(InterpolatedStringLiteralElementType)
+      case `kNULL` =>
+        advanceAndMarkDone(marker)(NullLiteralElementType)
       case `tINTEGER` |
            `tFLOAT` |
            `kTRUE` |
            `kFALSE` |
            `tCHAR` |
            `tSYMBOL` |
-           `kNULL` |
            `tSTRING` |
            `tMULTILINE_STRING` =>
-        advanceAndMarkDone(marker)(LITERAL)
+        advanceAndMarkDone(marker)(LiteralElementType)
       case `tWRONG_STRING` =>
-        advanceAndMarkDone(marker, "Wrong string literal")(LITERAL)
+        advanceAndMarkDone(marker, "Wrong string literal")(LiteralElementType)
       case _ =>
         marker.rollbackTo()
         false

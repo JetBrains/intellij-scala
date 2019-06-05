@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala
-package lang.psi.api
+package lang
+package psi
+package api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -203,8 +202,9 @@ object InferUtil {
               else AmbiguousImplicitParameters(results)
 
             val psiParam = param.paramInCode.getOrElse {
-              val text = param.name + " : Int"
-              createParameterFromText(text)(place.getManager)
+              impl.ScalaPsiElementFactory.createParameterFromText {
+                param.name + " : Int"
+              }(place.getManager)
             }
 
             new ScalaResolveResult(psiParam, problems = Seq(problem), implicitSearchState = Some(implicitState))
@@ -346,9 +346,11 @@ object InferUtil {
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
                                   fromMethodInvocation: Boolean = false): ScMethodType = {
       implicit val elementScope: ElementScope = mt.elementScope
+      val ScMethodType(result, params, _) = mt
+
       expr match {
         case _: MethodInvocation if !fromMethodInvocation =>
-          mt.result match {
+          result match {
             case methodType: ScMethodType => mt.copy(
               result = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
             )
@@ -356,29 +358,33 @@ object InferUtil {
           }
         case _ =>
           expectedType match {
-            case Some(expected) if mt.result.conforms(expected) => mt
-            case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
+            case Some(expected) if result.conforms(expected) => mt
+            case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
-                ScMethodType(Unit, mt.params, mt.isImplicit)
+                mt.copy(result = Unit)
               } else {
-                mt.result match {
+                result match {
                   case methodType: ScMethodType => return mt.copy(
                     result = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
                   case _ =>
                 }
 
-                val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
-                  .asInstanceOf[ScLiteral]
-                dummyExpr.typeForNullWithoutImplicits = Some(mt.result)
+                import literals.ScNullLiteral
+                val nullLiteral = impl.ScalaPsiElementFactory.createExpressionWithContextFromText(
+                  "null",
+                  expr.getContext,
+                  expr
+                ).asInstanceOf[ScNullLiteral]
+                ScNullLiteral(nullLiteral) = result
 
-                val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
+                val updatedResultType = nullLiteral.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
-                expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
+                expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(nullLiteral, expectedRet))
 
-                ScMethodType(updatedResultType.tr.getOrElse(mt.result), mt.params, mt.isImplicit)
+                mt.copy(result = updatedResultType.tr.getOrElse(result))
               }
             case Some(tp) if !fromSAM && expr.isSAMEnabled &&
-              (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
+              (params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
               //we do this to update additional expression, so that implicits work correctly
               //@see SingleAbstractMethodTest.testEtaExpansionImplicit
               val requiredSAMType = SAMUtil.toSAMType(tp, expr)
@@ -442,7 +448,7 @@ object InferUtil {
       val maybeType = element match {
         case _: ScObject |
              _: ScParameter |
-             _: ScBindingPattern |
+             _: patterns.ScBindingPattern |
              _: ScFieldId => element.asInstanceOf[Typeable].`type`().toOption
         case function: ScFunction => functionTypeNoImplicits(function)
       }

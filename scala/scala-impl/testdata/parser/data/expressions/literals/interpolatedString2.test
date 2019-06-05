@@ -36,7 +36,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          InterpolatedStringLiteral
             InterpolatedStringPartReference: f
               PsiElement(interpolated string id)('f')
             PsiElement(interpolated string)('"')

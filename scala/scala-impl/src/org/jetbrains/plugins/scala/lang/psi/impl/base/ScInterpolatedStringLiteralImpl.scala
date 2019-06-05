@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
-final class ScInterpolatedStringLiteralImpl(node: ASTNode)
-  extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
+final class ScInterpolatedStringLiteralImpl(node: ASTNode,
+                                            override val toString: String)
+  extends ScLiteralImpl(node, toString) with ScInterpolatedStringLiteral {
 
   import InterpolatedStringType._
   import ScLiteralImpl._

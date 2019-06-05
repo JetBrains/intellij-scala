@@ -60,7 +60,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           TypedStatement
-            Literal
+            NullLiteral
               PsiElement(null)('null')
             PsiElement(:)(':')
             PsiWhiteSpace(' ')

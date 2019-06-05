@@ -35,7 +35,7 @@ final class ScLiteralType private(val value: ScLiteral.Value[_],
 
 object ScLiteralType {
 
-  import ScLiteral.{NullValue, Value}
+  import ScLiteral.Value
 
   def apply(value: Value[_],
             allowWiden: Boolean = true)
@@ -49,12 +49,7 @@ object ScLiteralType {
                                       allowWiden: Boolean = true): result.TypeResult = {
     implicit val project: Project = literal.getProject
     literal match {
-      case ScLiteral(value) => Right {
-        value match {
-          case NullValue => value.wideType
-          case _ => ScLiteralType(value, allowWiden)
-        }
-      }
+      case ScLiteral(value) => Right(ScLiteralType(value, allowWiden))
       case _ => result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", literal.getText))
     }
   }

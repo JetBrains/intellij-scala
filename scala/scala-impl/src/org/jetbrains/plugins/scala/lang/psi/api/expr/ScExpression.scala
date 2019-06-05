@@ -11,7 +11,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -282,36 +282,32 @@ object ScExpression {
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits"),
       ModCount.getBlockModificationCount)
-    def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult = {
+    def getTypeWithoutImplicits(ignoreBaseType: Boolean = false,
+                                fromUnderscore: Boolean = false): TypeResult = {
       ProgressManager.checkCanceled()
 
-      val fromNullLiteral = expr.asOptionOf[ScLiteral].flatMap(_.typeForNullWithoutImplicits)
+      expr match {
+        case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
+        case _ =>
+          expr.getNonValueType(ignoreBaseType, fromUnderscore).flatMap { nonValueType =>
+            val expectedType = this.expectedType(fromUnderscore)
 
-      if (fromNullLiteral.nonEmpty) Right(fromNullLiteral.get)
-      else {
-        expr.getNonValueType(ignoreBaseTypes, fromUnderscore) match {
-          case Right(nonValueType) =>
+            val valueType = nonValueType
+              .widenLiteralType(expr, expectedType)
+              .updateWithExpected(expr, expectedType, fromUnderscore)
+              .dropMethodTypeEmptyParams(expr, expectedType)
+              .inferValueType
+              .unpackedType
 
-            val expected = expectedType(fromUnderscore)
-
-            val valueType =
-              nonValueType
-                .widenLiteralType(expr, expected)
-                .updateWithExpected(expr, expected, fromUnderscore)
-                .dropMethodTypeEmptyParams(expr, expected)
-                .inferValueType
-                .unpackedType
-
-            if (ignoreBaseTypes) Right(valueType)
+            if (ignoreBaseType) Right(valueType)
             else {
-              expected match {
-                case None                                         => Right(valueType)
-                case Some(exp) if exp.removeAbstracts.equiv(Unit) => Right(Unit) //value discarding
-                case Some(exp)                                    => numericWideningOrNarrowing(valueType, exp)
+              expectedType match {
+                case None => Right(valueType)
+                case Some(expected) if expected.removeAbstracts.equiv(Unit) => Right(Unit) //value discarding
+                case Some(expected) => numericWideningOrNarrowing(valueType, expected)
               }
             }
-          case fail => fail
-        }
+          }
       }
     }
 

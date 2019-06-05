@@ -83,7 +83,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
       case _ => expr
     }
     ScalaPsiUtil.adjustTypes(toReturn, addImports = false)
-    (CodeStyleManager.getInstance(project).reformat(toReturn).asInstanceOf[ScExpression], expr.getTypeWithoutImplicits(ignoreBaseTypes = true).getOrAny)
+    (CodeStyleManager.getInstance(project).reformat(toReturn).asInstanceOf[ScExpression], expr.getTypeWithoutImplicits(ignoreBaseType = true).getOrAny)
   }
 
   private def invoke(file: ScalaFile)
