@@ -58,7 +58,7 @@ ScalaFile
                         PsiElement(identifier)('S')
                 PsiElement())(')')
             PsiElement(=>)('=>')
-            Literal
+            BooleanLiteral
               PsiElement(true)('true')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

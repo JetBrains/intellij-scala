@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -84,7 +84,7 @@ object SimpleBooleanMatchUtil {
   private def getPartitionedClauses(stmt: ScMatch): Option[(ScCaseClause, ScCaseClause)] = {
     if (isSimpleClauses(stmt)) {
       val parts = stmt.clauses.partition {
-        case ScCaseClause((Some(p: ScPattern), _, _)) => booleanConst(p).get
+        case BooleanClause(value) => value
       }
       parts match {
         case (Seq(trueClause), Seq(falseClause)) => Some(trueClause, falseClause)
@@ -101,7 +101,7 @@ object SimpleBooleanMatchUtil {
   }
 
   private def getFirstBooleanClauseAndValue(stmt: ScMatch): Option[(ScCaseClause, Boolean)] = stmt.clauses.collectFirst {
-    case clause@ScCaseClause(Some(p: ScPattern), _, _) if booleanConst(p).isDefined => (clause, booleanConst(p).get)
+    case clause@BooleanClause(value) => (clause, value)
   }
 
   private def getFirstWildcardClause(stmt: ScMatch): Option[ScCaseClause] = stmt.clauses.collectFirst {
@@ -109,7 +109,7 @@ object SimpleBooleanMatchUtil {
   }
 
   private def isSimpleClauses(stmt: ScMatch): Boolean = stmt.clauses.forall {
-    case ScCaseClause(Some(p: ScPattern), None, _) => booleanConst(p).isDefined
+    case clause@BooleanClause(_) => clause.guard.isEmpty
     case _ => false
   }
 
@@ -137,11 +137,11 @@ object SimpleBooleanMatchUtil {
 
   private def isValidClauses(stmt: ScMatch): Boolean = getPartitionedClauses(stmt).nonEmpty
 
-  private def booleanConst(expr: ScPattern): Option[Boolean] = expr match {
-    case pattern: ScLiteralPattern => pattern.getLiteral match {
-      case ScLiteral(ScLiteral.BooleanValue(value)) => Some(value)
+  private object BooleanClause {
+
+    def unapply(clause: ScCaseClause): Option[Boolean] = clause.pattern match {
+      case Some(ScLiteralPattern(ScBooleanLiteral(value))) => Some(value)
       case _ => None
     }
-    case _ => None
   }
 }

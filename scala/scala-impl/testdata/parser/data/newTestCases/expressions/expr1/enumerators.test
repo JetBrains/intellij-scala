@@ -61,13 +61,13 @@ ScalaFile
             Guard
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              Literal
+              BooleanLiteral
                 PsiElement(true)('true')
           PsiElement(})('}')
           PsiWhiteSpace('\n   ')
           PsiElement(yield)('yield')
           PsiWhiteSpace(' ')
-          Literal
+          BooleanLiteral
             PsiElement(true)('true')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -5,22 +5,31 @@ package impl
 package base
 package literals
 
+import java.lang.{Boolean => JBoolean}
+
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{LiteralTextEscaper, PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, result}
 
-final class ScNullLiteralImpl(node: ASTNode,
-                              override val toString: String)
+final class ScBooleanLiteralImpl(node: ASTNode,
+                                 override val toString: String)
   extends expr.ScExpressionImplBase(node)
-    with literals.ScNullLiteral {
+    with ScBooleanLiteral {
 
   override protected def innerType: result.TypeResult =
     ScLiteralType.inferType(this)
 
-  override def getValue: Null = null
+  override def getValue: JBoolean = {
+    import lang.lexer.ScalaTokenTypes._
+    getNode.getFirstChildNode.getElementType match {
+      case `kTRUE` => JBoolean.TRUE
+      case `kFALSE` => JBoolean.FALSE
+    }
+  }
 
   override def contentRange: TextRange = getTextRange
 

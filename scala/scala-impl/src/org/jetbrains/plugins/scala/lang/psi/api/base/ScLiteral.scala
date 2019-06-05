@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, PsiLiteral}
 import org.apache.commons.lang.StringEscapeUtils.escapeJava
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
 
@@ -36,7 +37,7 @@ object ScLiteral {
   def unapply(literal: ScLiteral): Option[Value[_]] =
     unapplyImpl(literal, literal.getFirstChild.getNode)
 
-  sealed abstract class Value[V <: Any](val value: V) {
+  abstract class Value[V <: Any](val value: V) {
 
     def presentation: String = String.valueOf(value)
 
@@ -56,7 +57,7 @@ object ScLiteral {
         case long: Long => LongValue(long)
         case float: Float => FloatValue(float)
         case double: Double => DoubleValue(double)
-        case boolean: Boolean => BooleanValue(boolean)
+        case boolean: Boolean => ScBooleanLiteral.Value(boolean)
         case character: Char => CharacterValue(character)
         case string: String => StringValue(string)
         case symbol: Symbol => SymbolValue(symbol)
@@ -89,11 +90,6 @@ object ScLiteral {
   final case class DoubleValue(override val value: Double) extends Value(value) {
 
     override def wideType(implicit project: Project): ScType = api.Double
-  }
-
-  final case class BooleanValue(override val value: Boolean) extends Value(value) {
-
-    override def wideType(implicit project: Project): ScType = api.Boolean
   }
 
   final case class CharacterValue(override val value: Char) extends Value(value) {
@@ -137,8 +133,6 @@ object ScLiteral {
       case (T.tFLOAT, text) =>
         if (text.matches(".*[fF]$")) as(FloatValue)
         else as(DoubleValue)
-      case (T.kTRUE |
-            T.kFALSE, _) => as(BooleanValue)
       case (T.tCHAR, _) => as(CharacterValue)
       case (T.tSTRING |
             T.tWRONG_STRING |

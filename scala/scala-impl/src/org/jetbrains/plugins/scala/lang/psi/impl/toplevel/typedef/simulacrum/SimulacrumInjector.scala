@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -68,8 +69,8 @@ object SimulacrumInjector {
       val exprs = args.toSeq.flatMap(_.exprs)
 
       val alias = exprs.exists {
-        case ScLiteral(BooleanValue(isAlias)) => isAlias
-        case ScAssignment(_, Some(ScLiteral(BooleanValue(isAlias)))) => isAlias
+        case ScBooleanLiteral(isAlias) => isAlias
+        case ScAssignment(_, Some(ScBooleanLiteral(isAlias))) => isAlias
         case _                                                => false
       }
 

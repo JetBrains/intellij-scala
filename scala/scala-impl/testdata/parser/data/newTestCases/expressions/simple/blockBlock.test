@@ -90,7 +90,7 @@ ScalaFile
             PsiElement(if)('if')
             PsiWhiteSpace(' ')
             PsiElement(()('(')
-            Literal
+            BooleanLiteral
               PsiElement(true)('true')
             PsiElement())(')')
             PsiWhiteSpace(' ')

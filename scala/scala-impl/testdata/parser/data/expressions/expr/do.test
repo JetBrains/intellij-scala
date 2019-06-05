@@ -32,7 +32,7 @@ ScalaFile
           PsiElement(while)('while')
           PsiWhiteSpace(' ')
           PsiElement(()('(')
-          Literal
+          BooleanLiteral
             PsiElement(true)('true')
           PsiElement())(')')
         PsiWhiteSpace('\n')

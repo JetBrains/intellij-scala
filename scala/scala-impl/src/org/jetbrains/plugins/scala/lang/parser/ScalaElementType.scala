@@ -226,7 +226,11 @@ object ScalaElementType {
   }
 
   object NullLiteralElementType extends ScExpressionElementType("NullLiteral") {
-    override def createElement(node: ASTNode): ScExpression = new ScNullLiteralImpl(node, toString)
+    override def createElement(node: ASTNode) = new ScNullLiteralImpl(node, toString)
+  }
+
+  object BooleanLiteralElementType extends ScExpressionElementType("BooleanLiteral") {
+    override def createElement(node: ASTNode) = new ScBooleanLiteralImpl(node, toString)
   }
 
   object InterpolatedStringLiteralElementType extends ScExpressionElementType("InterpolatedStringLiteral") {

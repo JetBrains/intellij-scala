@@ -50,10 +50,11 @@ object Literal {
         advanceAndMarkDone(marker)(InterpolatedStringLiteralElementType)
       case `kNULL` =>
         advanceAndMarkDone(marker)(NullLiteralElementType)
+      case `kTRUE` |
+           `kFALSE` =>
+        advanceAndMarkDone(marker)(BooleanLiteralElementType)
       case `tINTEGER` |
            `tFLOAT` |
-           `kTRUE` |
-           `kFALSE` |
            `tCHAR` |
            `tSYMBOL` |
            `tSTRING` |

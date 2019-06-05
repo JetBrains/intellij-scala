@@ -28,11 +28,11 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(()('(')
           InfixExpression
-            Literal
+            BooleanLiteral
               PsiElement(true)('true')
             ReferenceExpression: ==
               PsiElement(identifier)('==')
-            Literal
+            BooleanLiteral
               PsiElement(false)('false')
           PsiElement())(')')
           PsiWhiteSpace('\n    ')

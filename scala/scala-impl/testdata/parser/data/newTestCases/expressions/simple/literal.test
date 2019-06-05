@@ -35,7 +35,7 @@ ScalaFile
         NullLiteral
           PsiElement(null)('null')
         PsiWhiteSpace('\n  ')
-        Literal
+        BooleanLiteral
           PsiElement(true)('true')
         PsiWhiteSpace('\n  ')
         Literal

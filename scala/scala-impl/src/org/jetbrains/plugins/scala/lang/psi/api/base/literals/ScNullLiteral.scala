@@ -5,10 +5,14 @@ package api
 package base
 package literals
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
-trait ScNullLiteral extends ScLiteral
+trait ScNullLiteral extends ScLiteral {
+
+  override def getValue: Null
+}
 
 object ScNullLiteral {
 
@@ -20,5 +24,10 @@ object ScNullLiteral {
   def update(literal: ScNullLiteral,
              `type`: ScType): Unit = {
     literal.putCopyableUserData(TypeKey, `type`)
+  }
+
+  final case object Value extends ScLiteral.Value(null) {
+
+    override def wideType(implicit project: Project): ScType = api.Null
   }
 }

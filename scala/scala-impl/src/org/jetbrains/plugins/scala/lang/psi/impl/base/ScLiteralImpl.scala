@@ -57,8 +57,6 @@ class ScLiteralImpl(node: ASTNode,
     val node = literalNode
 
     node.getElementType match {
-      case T.kTRUE => jl.Boolean.TRUE
-      case T.kFALSE => jl.Boolean.FALSE
       case T.tSTRING |
            T.tWRONG_STRING =>
         trimQuotes(SingleLineQuote)() match {
