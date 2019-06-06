@@ -54,6 +54,7 @@ class ScLiteralImpl(node: ASTNode,
 
   @CachedInUserData(this, util.PsiModificationTracker.MODIFICATION_COUNT)
   def getValue: AnyRef = {
+    import literals.QuotedLiteralImplBase._
     val node = literalNode
 
     node.getElementType match {
@@ -172,7 +173,6 @@ object ScLiteralImpl {
 
   private val ExpTimeLengthGenerator = new ju.Random(System.currentTimeMillis)
 
-  private[base] val CharQuote = "\'"
   private[base] val SingleLineQuote = "\""
   private[base] val MultiLineQuote = "\"\"\""
 
@@ -187,18 +187,6 @@ object ScLiteralImpl {
     val quoteLength = quote.length
     Some(quoteLength, quoteLength)
   }
-
-  private[base] def trimQuotes(text: String, startQuote: String)
-                              (endQuote: String = startQuote) =
-    if (text.startsWith(startQuote)) {
-      val beginIndex = startQuote.length
-      text.length - (if (text.endsWith(endQuote)) endQuote.length else 0) match {
-        case endIndex if endIndex < beginIndex => null
-        case endIndex => text.substring(beginIndex, endIndex)
-      }
-    } else {
-      null
-    }
 
   private def endsWithIgnoreCase(text: String,
                                  suffix: Char) =
