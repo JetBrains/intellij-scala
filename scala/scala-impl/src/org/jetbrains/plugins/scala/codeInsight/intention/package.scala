@@ -6,8 +6,8 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -92,27 +92,27 @@ package object intention {
     range.getStartOffset <= offset && offset <= range.getEndOffset
   }
 
-  def negate(expression: ScExpression): String = {
-    expression match {
-      case e: ScPrefixExpr =>
-        if (e.operation.getText == "!") {
-          val exprWithoutParentheses =
-            if (e.getBaseExpr.isInstanceOf[ScParenthesisedExpr]) e.getBaseExpr.getText.drop(1).dropRight(1)
-            else e.getBaseExpr.getText
-          inWriteAction {
-            e.replaceExpression(createExpressionFromText(exprWithoutParentheses)(expression.getManager), removeParenthesis = true).getText
-          }
-        }
-        else "!(" + e.getText + ")"
-      case e: ScLiteral =>
-        if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE) "false"
-        else if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) "true"
-        else "!" + e.getText
-      case _ =>
-        val exprText = expression.getText
-        if (ScalaNamesUtil.isOpCharacter(exprText(0)) || expression.isInstanceOf[ScInfixExpr]) "!(" + exprText + ")"
-        else "!" + expression.getText
-    }
+  def negate(expression: ScExpression): String = expression match {
+    case ScPrefixExpr(operation, operand) if operation.getText == "!" =>
+      val target = operand match {
+        case ScParenthesisedExpr(scExpression) => scExpression
+        case _ => operand
+      }
+      inWriteAction {
+        expression.replaceExpression(
+          createExpressionFromText(target.getText)(expression),
+          removeParenthesis = true
+        ).getText
+      }
+    case ScBooleanLiteral(value) => (!value).toString
+    case _ =>
+      val text = expression.getText
+      val needParenthesis = expression match {
+        case _: ScInfixExpr |
+             _: ScPrefixExpr => true
+        case _ => ScalaNamesUtil.isOpCharacter(text(0))
+      }
+      "!" + text.parenthesize(needParenthesis)
   }
 
 }
