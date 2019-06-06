@@ -5,7 +5,7 @@ import java.{util => ju}
 
 import com.intellij.lang.Language
 import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
-import com.intellij.openapi.util.{TextRange, Trinity}
+import com.intellij.openapi.util.{Key, TextRange, Trinity}
 import com.intellij.psi._
 import org.apache.commons.lang3.StringUtils
 import org.intellij.plugins.intelliLang.Configuration
@@ -196,7 +196,9 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
                                    (implicit support: ScalaLanguageInjectionSupport,
                                     registrar: MultiHostRegistrar): Boolean = {
     val maybeAnnotationOwner = host match {
-      case literal: ScLiteral => literal.getAnnotationOwner(annotationOwnerFor)
+      case literal: ScLiteral =>
+        if (literal.isString) literalAnnotationOwner(literal)(System.currentTimeMillis)
+        else None
       case _ => annotationOwnerFor(host) //.orElse(implicitAnnotationOwnerFor(host)) // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
     }
 
@@ -244,6 +246,27 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 object ScalaLanguageInjector {
 
   private type AnnotationOwner = PsiAnnotationOwner with PsiElement
+  private type MaybeAnnotationOwner = Option[AnnotationOwner]
+
+  private[this] object ExpirableAnnotationOwner {
+
+    private[this] val OwnerKey = Key.create[(MaybeAnnotationOwner, Long)]("scala.annotation.owner")
+    private[this] val ExpirationTimeGenerator = new ju.Random(System.currentTimeMillis)
+
+    def unapply(literal: ScLiteral)
+               (implicit timestamp: Long): Option[MaybeAnnotationOwner] = literal.getCopyableUserData(OwnerKey) match {
+      case null => None
+      case (result, expirationTime) if timestamp <= expirationTime && result.forall(_.isValid) => Some(result)
+      case _ => None
+    }
+
+    def update(literal: ScLiteral, maybeOwner: MaybeAnnotationOwner)
+              (implicit timestamp: Long): Unit =
+      literal.putCopyableUserData(
+        OwnerKey,
+        (maybeOwner, timestamp + (2 + ExpirationTimeGenerator.nextInt(8)) * 1000)
+      )
+  }
 
   @tailrec
   private def injectUsingPatterns(host: PsiElement, literals: Seq[ScLiteral],
@@ -272,8 +295,17 @@ object ScalaLanguageInjector {
       false
     }
 
+  private def literalAnnotationOwner(stringLiteral: ScLiteral)
+                                    (implicit timestamp: Long): MaybeAnnotationOwner = stringLiteral match {
+    case ExpirableAnnotationOwner(result) => result
+    case _ =>
+      val result = annotationOwnerFor(stringLiteral)
+      ExpirableAnnotationOwner(stringLiteral) = result
+      result
+  }
+
   @tailrec
-  private def annotationOwnerFor(expression: ScExpression): Option[AnnotationOwner] = expression.getParent match {
+  private def annotationOwnerFor(expression: ScExpression): MaybeAnnotationOwner = expression.getParent match {
     case pattern: ScPatternDefinition => Some(pattern)
     case variable: ScVariableDefinition => Some(variable)
     case _: ScArgumentExprList => parameterOf(expression)
@@ -367,7 +399,7 @@ object ScalaLanguageInjector {
     }
   }
 
-  private[this] def parameterOf(argument: ScExpression): Option[AnnotationOwner] = {
+  private[this] def parameterOf(argument: ScExpression): MaybeAnnotationOwner = {
     def getParameter(methodInv: MethodInvocation, index: Int) = {
       if (index == -1) None
       else methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression] flatMap {
@@ -414,4 +446,5 @@ object ScalaLanguageInjector {
       }
     case _ => None
   }
+
 }

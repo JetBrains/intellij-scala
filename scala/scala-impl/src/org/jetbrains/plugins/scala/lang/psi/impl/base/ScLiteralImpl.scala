@@ -4,8 +4,6 @@ package psi
 package impl
 package base
 
-import java.{util => ju}
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
@@ -29,23 +27,6 @@ class ScLiteralImpl(node: ASTNode,
 
   import ScLiteralImpl._
   import lang.lexer.{ScalaTokenTypes => T}
-
-  /*
- * This part caches literal related annotation owners
- * todo: think about extracting this feature to a trait
- *
- * trait AnnotationBasedInjectionHost {
- *   private[this] var myAnnotationOwner: Option[PsiAnnotationOwner] = None
- *   ...
- *   private val expTimeLengthGenerator = if (needCaching()) new Random(System.currentTimeMillis()) else null
- *   ...
- *   ...
- *   def needCaching(): Boolean
- * }
- */
-
-  private[this] var myAnnotationOwner = Option.empty[PsiAnnotationOwner with PsiElement]
-  private[this] var expirationTime = 0L
 
   def isValidHost: Boolean = getValue.isInstanceOf[String]
 
@@ -121,19 +102,6 @@ class ScLiteralImpl(node: ASTNode,
     visitor.visitLiteral(this)
   }
 
-  def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = {
-    if (!isString) return None
-
-    System.currentTimeMillis match {
-      case currentTimeMillis if currentTimeMillis <= expirationTime && myAnnotationOwner.forall(_.isValid) =>
-      case currentTimeMillis =>
-        myAnnotationOwner = annotationOwnerLookUp(this)
-        expirationTime = currentTimeMillis + (2 + ExpTimeLengthGenerator.nextInt(8)) * 1000
-    }
-
-    myAnnotationOwner
-  }
-
   private def nodeNumberValue(elementType: IElementType): Number = {
     def parseNumber(suffix: Char)
                    (function1: String => Number)
@@ -153,8 +121,6 @@ class ScLiteralImpl(node: ASTNode,
 }
 
 object ScLiteralImpl {
-
-  private val ExpTimeLengthGenerator = new ju.Random(System.currentTimeMillis)
 
   private[base] val SingleLineQuote = "\""
   private[base] val MultiLineQuote = "\"\"\""

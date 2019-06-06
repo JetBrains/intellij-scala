@@ -7,7 +7,7 @@ package literals
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{LiteralTextEscaper, PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost}
+import com.intellij.psi.{LiteralTextEscaper, PsiLanguageInjectionHost}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, result}
@@ -31,8 +31,6 @@ abstract class ScLiteralImplBase(node: ASTNode,
   override final def isString: Boolean = false
 
   override final def isMultiLineString: Boolean = false
-
-  override final def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = None
 
   override final def isValidHost: Boolean = false
 
