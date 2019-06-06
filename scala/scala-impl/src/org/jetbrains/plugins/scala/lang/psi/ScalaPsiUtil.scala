@@ -448,7 +448,7 @@ object ScalaPsiUtil {
   def getStubOrPsiSibling(element: PsiElement, next: Boolean = false): PsiElement = {
     val container = for {
       stub <- stub(element)
-      parent = stub.getParentStub
+      parent <- stub.getParentStub.nullSafe
 
       childrenStubs = parent.getChildrenStubs
       maybeElement = childrenStubs.indexOf(stub) match {
