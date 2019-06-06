@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
+ * @author Alexander Podkhalyuzin
+ *         Date: 22.02.2008
+ */
 class ScLiteralImpl(node: ASTNode,
                     override val toString: String) extends expr.ScExpressionImplBase(node)
   with ScLiteral with ContributedReferenceHost {
@@ -59,7 +59,7 @@ class ScLiteralImpl(node: ASTNode,
     node.getElementType match {
       case T.tSTRING |
            T.tWRONG_STRING =>
-        trimQuotes(SingleLineQuote)() match {
+        trimQuotes(getText, SingleLineQuote)() match {
           case null => null
           case stringText =>
             try {
@@ -69,9 +69,9 @@ class ScLiteralImpl(node: ASTNode,
             }
         }
       case T.tMULTILINE_STRING =>
-        trimQuotes(MultiLineQuote)()
+        trimQuotes(getText, MultiLineQuote)()
       case T.tCHAR =>
-        trimQuotes(CharQuote)() match {
+        trimQuotes(getText, CharQuote)() match {
           case null => null
           case chars =>
             val outChars = new jl.StringBuilder
@@ -83,11 +83,6 @@ class ScLiteralImpl(node: ASTNode,
 
             if (success && outChars.length == 1) Character.valueOf(outChars.charAt(0))
             else null
-        }
-      case T.tSYMBOL =>
-        trimQuotes(CharQuote)("") match {
-          case null => null
-          case symbolText => Symbol(symbolText)
         }
       case T.tIDENTIFIER if node.getText == "-" =>
         nodeNumberValue(node.getTreeNext.getElementType)
@@ -126,7 +121,6 @@ class ScLiteralImpl(node: ASTNode,
       case T.tSTRING => stringShifts(SingleLineQuote)
       case T.tMULTILINE_STRING => stringShifts(MultiLineQuote)
       case T.tCHAR => Some(1, 1)
-      case T.tSYMBOL => Some(1, 0)
       case _ => None
     }
 
@@ -161,9 +155,9 @@ class ScLiteralImpl(node: ASTNode,
                    (function1: String => Number)
                    (function2: String => Number) =
       LiteralFormatUtil.removeUnderscores(getText) match {
-      case text if endsWithIgnoreCase(text, suffix) => function1(text)
-      case text => function2(text)
-    }
+        case text if endsWithIgnoreCase(text, suffix) => function1(text)
+        case text => function2(text)
+      }
 
     import PsiLiteralUtil._
     elementType match {
@@ -171,17 +165,6 @@ class ScLiteralImpl(node: ASTNode,
       case T.tINTEGER => parseNumber('l')(parseLong)(parseInteger)
       case _ => null
     }
-  }
-
-  private def trimQuotes(startQuote: String)
-                        (endQuote: String = startQuote) = getText match {
-    case text if text.startsWith(startQuote) =>
-      val beginIndex = startQuote.length
-      text.length - (if (text.endsWith(endQuote)) endQuote.length else 0) match {
-        case endIndex if endIndex < beginIndex => null
-        case endIndex => text.substring(beginIndex, endIndex)
-      }
-    case _ => null
   }
 }
 
@@ -204,6 +187,18 @@ object ScLiteralImpl {
     val quoteLength = quote.length
     Some(quoteLength, quoteLength)
   }
+
+  private[base] def trimQuotes(text: String, startQuote: String)
+                              (endQuote: String = startQuote) =
+    if (text.startsWith(startQuote)) {
+      val beginIndex = startQuote.length
+      text.length - (if (text.endsWith(endQuote)) endQuote.length else 0) match {
+        case endIndex if endIndex < beginIndex => null
+        case endIndex => text.substring(beginIndex, endIndex)
+      }
+    } else {
+      null
+    }
 
   private def endsWithIgnoreCase(text: String,
                                  suffix: Char) =

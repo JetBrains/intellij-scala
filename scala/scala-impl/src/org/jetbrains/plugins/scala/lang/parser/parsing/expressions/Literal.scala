@@ -53,10 +53,11 @@ object Literal {
       case `kTRUE` |
            `kFALSE` =>
         advanceAndMarkDone(marker)(BooleanLiteralElementType)
+      case `tSYMBOL` =>
+        advanceAndMarkDone(marker)(SymbolLiteralElementType)
       case `tINTEGER` |
            `tFLOAT` |
            `tCHAR` |
-           `tSYMBOL` |
            `tSTRING` |
            `tMULTILINE_STRING` =>
         advanceAndMarkDone(marker)(LiteralElementType)

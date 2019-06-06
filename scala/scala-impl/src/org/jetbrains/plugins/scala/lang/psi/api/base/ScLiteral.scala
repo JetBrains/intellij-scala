@@ -7,9 +7,9 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, PsiLiteral}
+import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeJava
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
 
@@ -58,7 +58,7 @@ object ScLiteral {
         case boolean: Boolean => ScBooleanLiteral.Value(boolean)
         case character: Char => CharacterValue(character)
         case string: String => StringValue(string)
-        case symbol: Symbol => SymbolValue(symbol)
+        case symbol: Symbol => ScSymbolLiteral.Value(symbol)
         case _ => null
       }
     }
@@ -101,15 +101,10 @@ object ScLiteral {
 
     override def presentation: String = "\"" + escapeJava(super.presentation) + "\""
 
-    override def wideType(implicit project: Project): ScType = cachedClass("java.lang.String")
+    override def wideType(implicit project: Project): ScType = cachedClass(CommonClassNames.JAVA_LANG_STRING)
   }
 
-  final case class SymbolValue(override val value: Symbol) extends Value(value) {
-
-    override def wideType(implicit project: Project): ScType = cachedClass("scala.Symbol")
-  }
-
-  private[this] def cachedClass(fqn: String)
+  private[base] def cachedClass(fqn: String)
                                (implicit project: Project) =
     ElementScope(project).getCachedClass(fqn)
       .fold(api.Nothing: ScType)(ScalaType.designator)
@@ -135,7 +130,6 @@ object ScLiteral {
       case (T.tSTRING |
             T.tWRONG_STRING |
             T.tMULTILINE_STRING, _) => as(StringValue)
-      case (T.tSYMBOL, _) => as(SymbolValue)
       case _ => None
     }
   }

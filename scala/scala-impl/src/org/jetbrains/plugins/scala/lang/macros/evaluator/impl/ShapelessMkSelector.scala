@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
+package org.jetbrains.plugins.scala.lang
+package macros
+package evaluator
+package impl
 
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -44,7 +46,7 @@ object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
     if (context.expectedType.isEmpty) return None
 
     val name = context.place match {
-      case ScMethodCall(_, Seq(ScLiteral(ScLiteral.SymbolValue(value)))) => Some(value.name)
+      case ScMethodCall(_, Seq(ScSymbolLiteral(value))) => Some(value.name)
       case _ => None
     }
     if (name.isEmpty) return None

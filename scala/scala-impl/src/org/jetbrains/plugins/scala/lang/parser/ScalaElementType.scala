@@ -233,6 +233,10 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScBooleanLiteralImpl(node, toString)
   }
 
+  object SymbolLiteralElementType extends ScExpressionElementType("SymbolLiteral") {
+    override def createElement(node: ASTNode) = new ScSymbolLiteralImpl(node, toString)
+  }
+
   object InterpolatedStringLiteralElementType extends ScExpressionElementType("InterpolatedStringLiteral") {
     override def createElement(node: ASTNode) = new ScInterpolatedStringLiteralImpl(node, toString)
   }
