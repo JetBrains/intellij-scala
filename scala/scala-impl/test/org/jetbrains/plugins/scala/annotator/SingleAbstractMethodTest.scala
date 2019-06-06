@@ -45,7 +45,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |val y: Runnable = z()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("z()", typeMismatch()) :: Error("z()", doesNotConform()) :: Nil =>
+      case Error("z()", doesNotConform()) :: Nil =>
     }
   }
 
@@ -56,7 +56,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |val y: Runnable = z
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("z", typeMismatch()) :: Error("z", doesNotConform()) :: Nil =>
+      case Error("z", doesNotConform()) :: Nil =>
     }
   }
 
@@ -68,7 +68,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |val y: Runnable = x
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("x", typeMismatch()) :: Error("x", doesNotConform()) :: Nil =>
+      case Error("x", doesNotConform()) :: Nil =>
     }
   }
 
@@ -120,8 +120,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((j: Int) => j)", typeMismatch()) :: Error("((j: Int) => j)", doesNotConform()) ::
-        Error("j", doesNotConform()) :: Nil =>
+      case Error("Blergh", cannotUpcast()) :: Error("j", doesNotConform()) :: Nil => // TODO don't show type mismatch when expected type is due to type ascription
     }
   }
 
@@ -134,7 +133,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((i: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int) => \"aaa\")", doesNotConform()) :: Nil =>
+      case Error("Blargle", cannotUpcast()) :: Nil =>
     }
   }
 
@@ -147,7 +146,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((i: Int, j: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int, j: Int) => \"aaa\")", doesNotConform()) :: Nil =>
+      case Error("Blargle", cannotUpcast()) :: Nil =>
     }
   }
 
@@ -160,7 +159,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(j => j)", typeMismatch()) :: Error("(j => j)", doesNotConform()) :: Error("j", doesNotConform()) :: Nil =>
+      case Error("Blergh", cannotUpcast()) :: Error("j", doesNotConform()) :: Nil => // TODO don't show type mismatch when expected type is due to type ascription
     }
   }
 
@@ -171,7 +170,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |val f: Foo = () => ""
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("() => \"\"", typeMismatch()) :: Nil =>
+      case Error("() => \"\"", doesNotConform()) :: Nil =>
     }
   }
 
@@ -230,7 +229,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |val s: SAAM = (i: String) => i
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(i: String) => i", typeMismatch()) :: Nil =>
+      case Error("(i: String) => i", doesNotConform()) :: Nil =>
     }
   }
 
@@ -401,17 +400,17 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |val h2: Runnable = h()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("a", typeMismatch()) :: Error("a", doesNotConform()) ::
-        Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) ::
-        Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) ::
-        Error("c", typeMismatch()) :: Error("c", doesNotConform()) ::
-        Error("()", doesNotTakeParameters()) ::
-        Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) ::
-        Error("e", typeMismatch()) :: Error("e", doesNotConform()) ::
-        Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) ::
-        Error("f()", typeMismatch()) :: Error("f()", doesNotConform()) ::
-        Error("g()", typeMismatch()) :: Error("g()", doesNotConform()) ::
-        Error("h()", typeMismatch()) :: Error("h()", doesNotConform()) :: Nil =>
+      case Error("a", "Expression of type () => Unit doesn't conform to expected type Runnable") ::
+        Error("a()", "Expression of type Unit doesn't conform to expected type Runnable") ::
+        Error("b()", "Expression of type () => Unit doesn't conform to expected type Runnable") ::
+        Error("c", "Expression of type Unit doesn't conform to expected type Runnable") ::
+        Error("()", "c does not take parameters") ::
+        Error("d()", "Expression of type Unit doesn't conform to expected type Runnable") ::
+        Error("e", "Expression of type () => Unit doesn't conform to expected type Runnable") ::
+        Error("e()", "Expression of type Unit doesn't conform to expected type Runnable") ::
+        Error("f()", "Expression of type () => Unit doesn't conform to expected type Runnable") ::
+        Error("g()", "Expression of type Unit doesn't conform to expected type Runnable") ::
+        Error("h()", "Expression of type Unit doesn't conform to expected type Runnable") :: Nil =>
     }
   }
 
@@ -494,7 +493,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |((x: Int) => x.toString()): TwoConstrucorParamLists
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((x: Int) => x.toString())", typeMismatch()) :: Error("((x: Int) => x.toString())", doesNotConform()) :: Nil =>
+      case Error("TwoConstrucorParamLists", cannotUpcast()) :: Nil =>
     }
   }
 
@@ -533,7 +532,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(s: String) => ???", typeMismatch()) :: Nil =>
+      case Error("(s: String) => ???", doesNotConform()) :: Nil =>
     }
   }
 
@@ -588,6 +587,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
   val cannotResolveSymbol = ContainsPattern("Cannot resolve symbol")
   val doesNotConform = ContainsPattern("doesn't conform to expected type")
   val typeMismatch = ContainsPattern("Type mismatch")
+  val cannotUpcast = ContainsPattern("Cannot upcast")
   val doesNotTakeParameters = ContainsPattern("does not take parameters")
   val missingParameterType = ContainsPattern("Missing parameter type")
 
@@ -608,7 +608,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |val y: Runnable = z
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("z", typeMismatch()) :: Error("z", doesNotConform()) :: Nil =>
+      case Error("z", doesNotConform()) :: Nil =>
     }
   }
 
@@ -622,11 +622,11 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |val h1: Runnable = h
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("b", typeMismatch()) :: Error("b", doesNotConform()) ::
-        Error("d", typeMismatch()) :: Error("d", doesNotConform()) ::
-        Error("f", typeMismatch()) :: Error("f", doesNotConform()) ::
-        Error("g", typeMismatch()) :: Error("g", doesNotConform()) ::
-        Error("h", typeMismatch()) :: Error("h", doesNotConform()) :: Nil =>
+      case Error("b", doesNotConform()) ::
+        Error("d", doesNotConform()) ::
+        Error("f", doesNotConform()) ::
+        Error("g", doesNotConform()) ::
+        Error("h", doesNotConform()) :: Nil =>
     }
   }
 
@@ -646,7 +646,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |val u: C = foo
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("foo", typeMismatch()) :: Error("foo", doesNotConform()) :: Nil =>
+      case Error("foo", doesNotConform()) :: Nil =>
     }
   }
 
@@ -681,7 +681,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |  val a: A = foo
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("foo", typeMismatch()) :: Error("foo", doesNotConform()) :: Nil =>
+      case Error("foo", doesNotConform()) :: Nil =>
     }
   }
 
@@ -712,7 +712,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |((x: Int) => x): SelfTp
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((x: Int) => x)", typeMismatch()) :: Error("((x: Int) => x)", doesNotConform()) :: Nil =>
+      case Error("SelfTp", cannotUpcast()) :: Nil =>
     }
   }
 
