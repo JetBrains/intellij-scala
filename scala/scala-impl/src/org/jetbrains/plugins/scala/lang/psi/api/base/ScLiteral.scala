@@ -71,21 +71,27 @@ object ScLiteral {
     override def wideType(implicit project: Project): ScType = api.Int
   }
 
-  final case class LongValue(override val value: Long) extends Value(value) {
+  final case class LongValue(override val value: Long) extends Value(value) with NumericValue {
+
+    override def negate = LongValue(-value)
 
     override def presentation: String = super.presentation + 'L'
 
     override def wideType(implicit project: Project): ScType = api.Long
   }
 
-  final case class FloatValue(override val value: Float) extends Value(value) {
+  final case class FloatValue(override val value: Float) extends Value(value) with NumericValue {
+
+    override def negate = FloatValue(-value)
 
     override def presentation: String = super.presentation + 'f'
 
     override def wideType(implicit project: Project): ScType = api.Float
   }
 
-  final case class DoubleValue(override val value: Double) extends Value(value) {
+  final case class DoubleValue(override val value: Double) extends Value(value) with NumericValue {
+
+    override def negate = DoubleValue(-value)
 
     override def wideType(implicit project: Project): ScType = api.Double
   }
