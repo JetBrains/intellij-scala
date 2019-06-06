@@ -28,7 +28,7 @@ object Literal {
   import lang.lexer.ScalaTokenTypes._
 
   def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    val marker = builder.mark()
+    implicit val marker: Marker = builder.mark()
 
     builder.getTokenType match {
       case `tIDENTIFIER` if builder.getTokenText == "-" =>
@@ -36,7 +36,7 @@ object Literal {
         builder.getTokenType match {
           case `tINTEGER` |
                `tFLOAT` =>
-            advanceAndMarkDone(marker)(LiteralElementType)
+            advanceAndMarkDone(LiteralElementType)
           case _ =>
             marker.rollbackTo()
             false
@@ -47,31 +47,33 @@ object Literal {
         true
       case `tINTERPOLATED_MULTILINE_STRING` |
            `tINTERPOLATED_STRING` =>
-        advanceAndMarkDone(marker)(InterpolatedStringLiteralElementType)
+        advanceAndMarkDone(InterpolatedStringLiteralElementType)
       case `kNULL` =>
-        advanceAndMarkDone(marker)(NullLiteralElementType)
+        advanceAndMarkDone(NullLiteralElementType)
       case `kTRUE` |
            `kFALSE` =>
-        advanceAndMarkDone(marker)(BooleanLiteralElementType)
+        advanceAndMarkDone(BooleanLiteralElementType)
       case `tSYMBOL` =>
-        advanceAndMarkDone(marker)(SymbolLiteralElementType)
+        advanceAndMarkDone(SymbolLiteralElementType)
+      case `tCHAR` =>
+        advanceAndMarkDone(CharLiteralElementType)
       case `tINTEGER` |
            `tFLOAT` |
-           `tCHAR` |
            `tSTRING` |
            `tMULTILINE_STRING` =>
-        advanceAndMarkDone(marker)(LiteralElementType)
+        advanceAndMarkDone(LiteralElementType)
       case `tWRONG_STRING` =>
-        advanceAndMarkDone(marker, "Wrong string literal")(LiteralElementType)
+        advanceAndMarkDone(LiteralElementType, "Wrong string literal")
       case _ =>
         marker.rollbackTo()
         false
     }
   }
 
-  private def advanceAndMarkDone(marker: Marker, errorMessage: String = null)
-                                (elementType: ScExpressionElementType)
-                                (implicit builder: ScalaPsiBuilder) = {
+  private def advanceAndMarkDone(elementType: ScExpressionElementType,
+                                 errorMessage: String = null)
+                                (implicit marker: Marker,
+                                 builder: ScalaPsiBuilder) = {
     builder.advanceLexer()
     if (errorMessage != null) builder.error(errorMessage)
     marker.done(elementType)

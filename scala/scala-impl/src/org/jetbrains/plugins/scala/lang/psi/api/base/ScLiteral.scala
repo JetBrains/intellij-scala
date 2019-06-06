@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
 
 /**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
+ * @author Alexander Podkhalyuzin
+ *         Date: 22.02.2008
+ */
 trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
 
   def isString: Boolean
@@ -25,12 +25,12 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
 
   def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner]
 
-  def isChar: Boolean
-
   def contentRange: TextRange
 }
 
 object ScLiteral {
+
+  val CharQuote = "\'"
 
   def unapply(literal: ScLiteral): Option[Value[_]] =
     unapplyImpl(literal, literal.getFirstChild.getNode)
@@ -40,6 +40,11 @@ object ScLiteral {
     def presentation: String = String.valueOf(value)
 
     def wideType(implicit project: Project): ScType
+
+    protected final def cachedClass(fqn: String)
+                                   (implicit project: Project): ScType =
+      ElementScope(project).getCachedClass(fqn)
+        .fold(api.Nothing: ScType)(ScalaType.designator)
   }
 
   sealed trait NumericValue {
@@ -56,7 +61,7 @@ object ScLiteral {
         case float: Float => FloatValue(float)
         case double: Double => DoubleValue(double)
         case boolean: Boolean => ScBooleanLiteral.Value(boolean)
-        case character: Char => CharacterValue(character)
+        case character: Char => ScCharLiteral.Value(character)
         case string: String => StringValue(string)
         case symbol: Symbol => ScSymbolLiteral.Value(symbol)
         case _ => null
@@ -96,24 +101,12 @@ object ScLiteral {
     override def wideType(implicit project: Project): ScType = api.Double
   }
 
-  final case class CharacterValue(override val value: Char) extends Value(value) {
-
-    override def presentation: String = '\'' + super.presentation + '\''
-
-    override def wideType(implicit project: Project): ScType = api.Char
-  }
-
   final case class StringValue(override val value: String) extends Value(value) {
 
     override def presentation: String = "\"" + escapeJava(super.presentation) + "\""
 
     override def wideType(implicit project: Project): ScType = cachedClass(CommonClassNames.JAVA_LANG_STRING)
   }
-
-  private[base] def cachedClass(fqn: String)
-                               (implicit project: Project) =
-    ElementScope(project).getCachedClass(fqn)
-      .fold(api.Nothing: ScType)(ScalaType.designator)
 
   @annotation.tailrec
   private[this] def unapplyImpl(literal: ScLiteral, node: ASTNode): Option[Value[_]] = {
@@ -132,7 +125,6 @@ object ScLiteral {
       case (T.tFLOAT, text) =>
         if (text.matches(".*[fF]$")) as(FloatValue)
         else as(DoubleValue)
-      case (T.tCHAR, _) => as(CharacterValue)
       case (T.tSTRING |
             T.tWRONG_STRING |
             T.tMULTILINE_STRING, _) => as(StringValue)

@@ -6,7 +6,7 @@ package types
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScNullLiteral, ScSymbolLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScCharLiteral, ScNullLiteral, ScSymbolLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -54,6 +54,7 @@ object ScLiteralType {
       case _: ScNullLiteral => ScNullLiteral.Value
       case ScBooleanLiteral(value) => ScBooleanLiteral.Value(value)
       case ScSymbolLiteral(value) => ScSymbolLiteral.Value(value)
+      case ScCharLiteral(value) => ScCharLiteral.Value(value)
       case ScLiteral(value) => value
       case _ => null
     }

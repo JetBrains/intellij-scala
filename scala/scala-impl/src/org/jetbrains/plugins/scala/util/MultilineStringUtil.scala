@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference, literals}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -97,7 +97,7 @@ object MultilineStringUtil {
   }
 
   def getMarginChar(element: PsiElement): Char = findAllMethodCallsOnMLString(element, "stripMargin") match {
-    case Array(Array(ScLiteral(ScLiteral.CharacterValue(value)), _*), _*) => value
+    case Array(Array(literals.ScCharLiteral(value), _*), _*) => value
     case _ => CodeStyle.getSettings(element.getProject)
       .getCustomSettings(classOf[ScalaCodeStyleSettings])
       .getMarginChar

@@ -848,7 +848,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case ScalaElementType.LiteralElementType |
              ScalaElementType.NullLiteralElementType |
              ScalaElementType.BooleanLiteralElementType |
-             ScalaElementType.SymbolLiteralElementType => WITH_SPACING
+             ScalaElementType.SymbolLiteralElementType |
+             ScalaElementType.CharLiteralElementType => WITH_SPACING
         case _ => WITHOUT_SPACING
       }
     }
@@ -1121,6 +1122,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       ScalaElementType.NullLiteralElementType |
       ScalaElementType.BooleanLiteralElementType |
       ScalaElementType.SymbolLiteralElementType |
+      ScalaElementType.CharLiteralElementType |
       ScalaElementType.PREFIX_EXPR, _) => NO_SPACING
       //Braces
       case (ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, _, _) => NO_SPACING

@@ -3,6 +3,7 @@ package format
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScCharLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 
@@ -38,7 +39,7 @@ object WithStrippedMargin {
     case StripMarginCall(reference: ScReferenceExpression, _, Nil) => Some(reference, '|')
     case parent =>
       parent match {
-        case StripMarginCall(mc: ScMethodCall, _, (literal: ScLiteral) :: Nil) if literal.isChar => Some(mc, literal.getValue.asInstanceOf[Char])
+        case StripMarginCall(mc: ScMethodCall, _, ScCharLiteral(value) :: Nil) => Some(mc, value)
         case _ => None
       }
   }

@@ -20,6 +20,6 @@ object ScSymbolLiteral {
 
   final case class Value(override val value: Symbol) extends ScLiteral.Value(value) {
 
-    override def wideType(implicit project: Project): ScType = ScLiteral.cachedClass("scala.Symbol")
+    override def wideType(implicit project: Project): ScType = cachedClass("scala.Symbol")
   }
 }

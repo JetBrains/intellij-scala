@@ -4,13 +4,13 @@ package psi
 package impl
 package base
 
-import java.{lang => jl, util => ju}
+import java.{util => ju}
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.{LeafElement, java}
+import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiLiteralUtil
 import com.intellij.util.text.LiteralFormatUtil
@@ -71,20 +71,6 @@ class ScLiteralImpl(node: ASTNode,
         }
       case T.tMULTILINE_STRING =>
         trimQuotes(getText, MultiLineQuote)()
-      case T.tCHAR =>
-        trimQuotes(getText, CharQuote)() match {
-          case null => null
-          case chars =>
-            val outChars = new jl.StringBuilder
-            val success = java.PsiLiteralExpressionImpl.parseStringCharacters(
-              chars,
-              outChars,
-              null
-            )
-
-            if (success && outChars.length == 1) Character.valueOf(outChars.charAt(0))
-            else null
-        }
       case T.tIDENTIFIER if node.getText == "-" =>
         nodeNumberValue(node.getTreeNext.getElementType)
       case elementType => nodeNumberValue(elementType)
@@ -113,15 +99,12 @@ class ScLiteralImpl(node: ASTNode,
 
   override def isMultiLineString: Boolean = literalElementType == T.tMULTILINE_STRING
 
-  override def isChar: Boolean = literalElementType == T.tCHAR
-
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)
 
   override def contentRange: TextRange = {
     val maybeShifts = literalElementType match {
       case T.tSTRING => stringShifts(SingleLineQuote)
       case T.tMULTILINE_STRING => stringShifts(MultiLineQuote)
-      case T.tCHAR => Some(1, 1)
       case _ => None
     }
 

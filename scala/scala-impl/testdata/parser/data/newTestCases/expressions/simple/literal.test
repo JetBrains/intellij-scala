@@ -53,7 +53,7 @@ ScalaFile
           Literal
             PsiElement(float)('1.0')
         PsiWhiteSpace('\n  ')
-        Literal
+        CharLiteral
           PsiElement(Character)(''a'')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

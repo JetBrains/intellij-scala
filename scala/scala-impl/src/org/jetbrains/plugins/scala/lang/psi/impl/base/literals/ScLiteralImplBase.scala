@@ -34,8 +34,6 @@ abstract class ScLiteralImplBase(node: ASTNode,
 
   override final def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = None
 
-  override final def isChar: Boolean = false
-
   override final def isValidHost: Boolean = false
 
   override final def updateText(s: String): PsiLanguageInjectionHost = null

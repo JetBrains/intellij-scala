@@ -30,9 +30,6 @@ abstract class QuotedLiteralImplBase(node: ASTNode,
 
 object QuotedLiteralImplBase {
 
-  // TODO private[literals]
-  private[base] val CharQuote = "\'"
-
   // TODO supposed to be getValue implementation
   private[base] def trimQuotes(text: String, startQuote: String)
                               (endQuote: String = startQuote) =
