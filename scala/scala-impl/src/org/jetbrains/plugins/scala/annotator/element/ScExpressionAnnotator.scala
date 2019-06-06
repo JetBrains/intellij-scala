@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.extensions.&&
 
 import scala.annotation.tailrec
 
@@ -28,7 +29,12 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     val compiled = element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)
 
     if (!compiled) {
-      checkExpressionType(element, holder, typeAware)
+      // Highlight type ascription differently from type mismatch (handled in ScTypedExpressionAnnotator), SCL-15544
+      element match {
+        case Parent(_: ScTypedExpression) =>
+        case Parent((_: ScParenthesisedExpr) && Parent(_: ScTypedExpression)) =>
+        case _ => checkExpressionType(element, holder, typeAware)
+      }
     }
   }
 
@@ -52,7 +58,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       case _: ScMatch                            => true
       case bl: ScBlock if bl.lastStatement.isDefined => true
       case i: ScIf if i.elseExpression.isDefined     => true
-      case _: ScFunctionExpr                         => true
+      case _: ScFunctionExpr                         => expr.getTextRange.getLength > 20 || expr.textContains('\n')
       case _: ScTry                              => true
       case _                                         => false
     }
@@ -100,8 +106,23 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                 case assign: ScAssignment if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
                 case _ =>
               }
-              val annotation = TypeMismatchError.register(holder, element, tp, exprType.getOrNothing, blockLevel = 2) { (expected, actual) =>
-                ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
+              val annotation = {
+                val target = element match {
+                  // TODO fine-grained ranges
+                  // TODO fine-grained tooltip
+                  // When present, highlight type ascription, not expression, SCL-15544
+                  case typedExpression: ScTypedExpression =>
+                    (typedExpression.typeElement, typedExpression.expr.getTypeAfterImplicitConversion().tr) match {
+                      // Don't show additional type mismatch when there's an error in type ascription (handled in ScTypedExpressionAnnotator), SCL-15544
+                      case (Some(typeElement), Right(actualType)) if !actualType.conforms(typeElement.calcType) => return
+                      case _ =>
+                    }
+                    typedExpression.typeElement.getOrElse(element)
+                  case _ => element
+                }
+                TypeMismatchError.register(holder, target, tp, exprType.getOrNothing, blockLevel = 2, canBeHint = !element.is[ScTypedExpression]) { (expected, actual) =>
+                  ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
+                }
               }
               if (WrapInOptionQuickFix.isAvailable(element, expectedType, exprType)) {
                 val wrapInOptionFix = new WrapInOptionQuickFix(element, expectedType, exprType)

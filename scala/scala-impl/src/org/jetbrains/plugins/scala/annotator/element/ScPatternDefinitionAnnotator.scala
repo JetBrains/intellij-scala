@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+// TODO remove the class?
 object ScPatternDefinitionAnnotator extends ElementAnnotator[ScPatternDefinition] {
   override def annotate(element: ScPatternDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     implicit val ctx: ProjectContext = element
@@ -16,8 +17,9 @@ object ScPatternDefinitionAnnotator extends ElementAnnotator[ScPatternDefinition
       val compiled = element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)
 
       if (!compiled) {
-        for (expr <- element.expr; element <- element.children.instanceOf[ScSimpleTypeElement])
-          checkConformance(expr, element, holder)
+        // Handled by ScExpressionAnnotator, don't add multiple errors
+//        for (expr <- element.expr; element <- element.children.instanceOf[ScSimpleTypeElement])
+//          checkConformance(expr, element, holder)
       }
     }
   }
