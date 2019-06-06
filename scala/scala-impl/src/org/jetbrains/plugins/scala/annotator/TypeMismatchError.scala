@@ -22,7 +22,7 @@ object TypeMismatchError {
 
   def apply(element: PsiElement): Option[TypeMismatchError] = Option(element.getUserData(TypeMismatchErrorKey))
 
-  def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0)(formatMessage: (String, String) => String): Annotation = {
+  def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)(formatMessage: (String, String) => String): Annotation = {
     val (actualTypeText, expectedTypeText) = ScTypePresentation.different(actualType, expectedType)
 
     // TODO update the test data, SCL-15483
@@ -32,7 +32,7 @@ object TypeMismatchError {
 
     val annotatedElement = elementAt(element, blockLevel)
 
-    val highlightExpression = TypeMismatchHighlightingMode.in(element.getProject) == TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION
+    val highlightExpression = TypeMismatchHighlightingMode.in(element.getProject) == TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION || !canBeHint
 
     // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
     val annotation = if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {
@@ -56,7 +56,9 @@ object TypeMismatchError {
       case _ => annotatedElement
     }
 
-    dataHolder.putUserData(TypeMismatchErrorKey, error)
+    if (canBeHint) {
+      dataHolder.putUserData(TypeMismatchErrorKey, error)
+    }
 
     annotation
   }
