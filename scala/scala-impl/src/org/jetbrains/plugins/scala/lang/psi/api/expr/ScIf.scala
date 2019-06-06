@@ -15,6 +15,8 @@ trait ScIf extends ScExpression {
 
   def thenExpression: Option[ScExpression]
 
+  def elseKeyword: Option[PsiElement]
+
   def elseExpression: Option[ScExpression]
 
   def leftParen: Option[PsiElement]

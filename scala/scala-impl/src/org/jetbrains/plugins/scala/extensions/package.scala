@@ -444,6 +444,10 @@ package object extensions {
   }
 
   implicit class PsiElementExt[E <: PsiElement](val element: E) extends AnyVal {
+    @inline def startOffset: Int = element.getTextRange.getStartOffset
+
+    @inline def endOffset: Int = element.getTextRange.getEndOffset
+
     def startOffsetInParent: Int =
       element match {
         case s: ScalaPsiElement => s.startOffsetInParent
@@ -547,7 +551,7 @@ package object extensions {
 
     def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
 
-    def elementType: IElementType = element.getNode.getElementType
+    @inline def elementType: IElementType = element.getNode.getElementType
 
     def startsFromNewLine(ignoreComments: Boolean = true): Boolean = {
       @tailrec

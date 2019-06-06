@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.editor.typedHandler
 
+import java.{util => ju}
+
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
@@ -29,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -36,8 +39,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
-import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
+import scala.annotation.tailrec
 
 
 /**
@@ -186,7 +188,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       }
       Result.CONTINUE
     } else if (c == '{' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
-      handleLeftBrace(offset, element, project, file, editor, settings)
+      handleLeftBrace(offset, element)(project, file, editor, settings)
     } else {
       Result.CONTINUE
     }
@@ -413,7 +415,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
     @inline def replaceElement(replaceWith: String) {
-      document.replaceString(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset, replaceWith)
+      document.replaceString(element.startOffset, element.endOffset, replaceWith)
       document.commit(project)
     }
 
@@ -481,7 +483,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
                 if (chars.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
                   document.insertString(offset, "}")
                 }
-                document.insertString(l.getTextRange.getStartOffset, "s")
+                document.insertString(l.startOffset, "s")
                 document.commit(project)
               }
             case _ =>
@@ -512,69 +514,112 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  private def handleLeftBrace(offset: Int, element: PsiElement, project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
-    val assignElement: PsiElement = {
-      PsiTreeUtil.prevLeaf(element) match {
-        case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
-        case prev => prev
-      }
+  private def handleLeftBrace(caretOffset: Int, element: PsiElement)
+                             (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
+    findElementToWrap(element) match {
+      case Some((_: ScBlockExpr, _, _)) =>
+        Result.CONTINUE
+      case Some((element, prevElement, supportsEgyptBraceStyle)) =>
+        wrapWithBraces(caretOffset, element.getParent, prevElement, element, supportsEgyptBraceStyle)
+      case _ =>
+        Result.CONTINUE
     }
+  }
 
-    if (assignElement != null && assignElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
-      val definition = assignElement.getParent
-      val bodyOpt: Option[ScExpression] = definition match {
+  private def findElementToWrap(element: PsiElement): Option[(PsiElement, PsiElement, Boolean)] = {
+    val prevElement: PsiElement = PsiTreeUtil.prevLeaf(element) match {
+      case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
+      case prev => prev
+    }
+    if (prevElement == null) return None
+
+    var supportsEgypt = false
+
+    val parent: PsiElement = prevElement.getParent
+    val res = if (prevElement.elementType == ScalaTokenTypes.tASSIGN) {
+      parent match {
         case patDef: ScPatternDefinition if patDef.bindings.size == 1 => patDef.expr
         case varDef: ScVariableDefinition => varDef.expr
         case funDef: ScFunctionDefinition => funDef.body
         case _ => None
       }
-
-      bodyOpt match {
-        case Some(_: ScBlockExpr) =>
-          Result.CONTINUE
-        case Some(body) =>
-          wrapDefinitionWithBraces(offset, definition, assignElement, body, project, file, editor, settings)
-        case _ =>
-          Result.CONTINUE
-      }
     } else {
-      Result.CONTINUE
+      parent match {
+        case ifExpr: ScIf =>
+          if (ifExpr.rightParen.contains(prevElement)) {
+            supportsEgypt = ifExpr.elseKeyword.isDefined
+            ifExpr.thenExpression
+          } else if (ifExpr.elseKeyword.contains(prevElement)) {
+            ifExpr.elseExpression
+          } else {
+            None
+          }
+        case tri: ScTry if prevElement == tri.getFirstChild =>
+          supportsEgypt = true
+          tri.expression
+        case fin: ScFinallyBlock if fin.getFirstChild == prevElement =>
+          fin.getFirstChild.getNextSiblingNotWhitespace.toOption
+        case d: ScDo if d.getFirstChild == prevElement =>
+          supportsEgypt = true
+          d.body
+        case w: ScWhile if w.rightParen.contains(prevElement) =>
+          w.expression
+        case f: ScFor if f.getRightParenthesis.contains(prevElement) =>
+          f.body
+        case _ => None
+      }
     }
+    res.map((_, prevElement, supportsEgypt))
   }
 
-  private def wrapDefinitionWithBraces(offset: Int, definition: PsiElement, assignElement: PsiElement, body: PsiElement,
-                                       project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
+  /**
+   * @param supportsEgyptBraceStyle whether closing brace can be on the same line with next element
+   */
+  private def wrapWithBraces(caretOffset: Int,
+                             parent: PsiElement,
+                             prevElement: PsiElement,
+                             element: PsiElement,
+                             supportsEgyptBraceStyle: Boolean)
+                            (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     val document = editor.getDocument
 
-    val caretLine = document.getLineNumber(offset)
-    val assignLine = document.getLineNumber(assignElement.getTextRange.getStartOffset)
-    val bodyStartLine = document.getLineNumber(body.getTextRange.getStartOffset)
+    val elementStartOffset = element.startOffset
+    val elementLine = document.getLineNumber(elementStartOffset)
+    val prevElementLine = document.getLineNumber(prevElement.startOffset)
+    val caretLine = document.getLineNumber(caretOffset)
 
-    val caretIsBeforeBody = offset <= body.getTextRange.getStartOffset
-    val caretAndAssignOnSameLine = caretLine == assignLine
-    val singleLineDefinition = assignLine == bodyStartLine
+    val caretIsBeforeElement = caretOffset <= elementStartOffset
+    val caretAndPrevElementOnSameLine = caretLine == prevElementLine
+    val singleLineDefinition = prevElementLine == elementLine
 
-    if (caretIsBeforeBody && caretAndAssignOnSameLine && (singleLineDefinition || isElementIndented(definition, body, settings))) {
-      document.insertString(offset, "{")
+    val needToHandle = caretIsBeforeElement && caretAndPrevElementOnSameLine && isElementIndented(parent, element)
+    if (needToHandle) {
+      document.insertString(caretOffset, "{")
 
-      // if left brace is inserted on the same line with body we expect the user to press Enter after that
-      // in this case we rely that EnterAfterUnmatchedBraceHandler will insert missing closing brace
-      val caretAndBodyOnSameLine = caretLine == bodyStartLine
-      if (caretAndBodyOnSameLine) {
-        editor.getCaretModel.moveToOffset(offset + 1)
+      if (singleLineDefinition) {
+        // if left brace is inserted on the same line with body we expect the user to press Enter after that
+        // in this case we rely that EnterAfterUnmatchedBraceHandler will insert missing closing brace
+        editor.getCaretModel.moveToOffset(caretOffset + 1)
       } else {
-        val bodyEndLine = document.getLineNumber(body.getTextRange.getEndOffset)
-        val bodyTextRange = new TextRange(body.getTextRange.getStartOffset + 1, document.getLineEndOffset(bodyEndLine))
-        editor.getCaretModel.moveToOffset(bodyTextRange.getStartOffset)
+        val endElement = advanceElementToLineComment(element)
+        val elementActualStartOffset = elementStartOffset + 1
+        val elementActualEndOffset = endElement.endOffset + 1
+        editor.getCaretModel.moveToOffset(elementActualStartOffset)
 
-        val closingBraceOffset = bodyTextRange.getEndOffset
-        document.insertString(closingBraceOffset, "\n}")
+        if (supportsEgyptBraceStyle) {
+          endElement.getNextSibling match {
+            case ws: PsiWhiteSpace =>
+              document.deleteString(ws.startOffset + 1, ws.endOffset + 1)
+            case _ =>
+          }
+        }
+        document.insertString(elementActualEndOffset, "\n}")
         document.commit(project)
 
-        CodeStyleManager.getInstance(project).reformatTextWithContext(file, Seq(
-          new TextRange(offset, offset + 1),
-          new TextRange(closingBraceOffset, closingBraceOffset + 1)
-        ).asJava)
+        CodeStyleManager.getInstance(project).reformatTextWithContext(file, ju.Arrays.asList(
+          TextRange.from(caretOffset, 1),
+          TextRange.from(elementActualEndOffset, 3)
+        ))
       }
 
       Result.STOP
@@ -583,7 +628,21 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  private def isElementIndented(parent: PsiElement, child: PsiElement, settings: CodeStyleSettings): Boolean = {
+  /** @return line comment following the element if exists or original element */
+  private def advanceElementToLineComment(element: PsiElement): PsiElement = {
+    @tailrec
+    def inner(el: PsiElement): PsiElement = {
+      PsiTreeUtil.nextLeaf(el) match {
+        case comment: PsiComment if comment.elementType == ScalaTokenTypes.tLINE_COMMENT => comment
+        case ws@Whitespace(text) if !text.contains("\n") => inner(ws)
+        case _ => element
+      }
+    }
+
+    inner(element)
+  }
+
+  private def isElementIndented(parent: PsiElement, child: PsiElement)(implicit settings: CodeStyleSettings): Boolean = {
     val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
     IndentUtil.compare(child, parent, tabSize) > 0
   }

@@ -19,14 +19,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   */
 class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
 
-  def condition: Option[ScExpression] = {
+  override def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
     Option(c)
   }
 
-  def thenExpression: Option[ScExpression] = {
-    val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
+  override def thenExpression: Option[ScExpression] = {
+    val kElse = findKElse
     val t =
       if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression])
       else getLastChild match {
@@ -40,23 +40,29 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
     }
   }
 
-  def elseExpression: Option[ScExpression] = {
-    val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
+  override def elseExpression: Option[ScExpression] = {
+    val kElse = findKElse
     val e = if (kElse != null) PsiTreeUtil.getNextSiblingOfType(kElse, classOf[ScExpression]) else null
     Option(e)
   }
 
-  def leftParen: Option[PsiElement] = {
+  @inline
+  override def elseKeyword: Option[PsiElement] = Option(findKElse)
+
+  @inline
+  private def findKElse: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
+
+  override def leftParen: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     Option(leftParenthesis)
   }
 
-  def rightParen: Option[PsiElement] = {
+  override def rightParen: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     Option(rightParenthesis)
   }
 
-  protected override def innerType: TypeResult = {
+  override protected def innerType: TypeResult = {
     (thenExpression, elseExpression) match {
       case (Some(t), Some(e)) => for (tt <- t.`type`();
                                       et <- e.`type`()) yield {
