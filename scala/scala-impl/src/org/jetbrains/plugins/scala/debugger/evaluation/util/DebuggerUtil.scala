@@ -198,15 +198,15 @@ object DebuggerUtil {
 
   def constructorSignature(named: PsiNamedElement): JVMName = {
     named match {
-      case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+      case fun: ScFunction => getFunctionJVMSignature(fun)
       case constr: ScPrimaryConstructor =>
         constr.containingClass match {
-          case td: ScTypeDefinition if td.isTopLevel => DebuggerUtil.getFunctionJVMSignature(constr)
+          case td: ScTypeDefinition if td.isTopLevel => getFunctionJVMSignature(constr)
           case clazz => new JVMConstructorSignature(clazz)
         }
       case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
       case clazz: ScClass if clazz.isTopLevel => clazz.constructor match {
-        case Some(cnstr) => DebuggerUtil.getFunctionJVMSignature(cnstr)
+        case Some(cnstr) => getFunctionJVMSignature(cnstr)
         case _ => JVMNameUtil.getJVMRawText("()V")
       }
       case clazz: ScClass => new JVMConstructorSignature(clazz)
@@ -236,82 +236,6 @@ object DebuggerUtil {
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
       case _ => getJVMStringForType(subst(param.`type`().getOrAny))
     }
-  
-  def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {
-    tp match {
-      case _ if tp.isBoolean => vm.mirrorOf(b)
-      case _ if tp.isUnit => vm.mirrorOfVoid()
-      case _ => null
-    }
-  }
-
-  def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Long): Value = {
-    val stdTypes = tp.projectContext.stdTypes
-    import stdTypes._
-
-    tp match {
-      case Long => vm.mirrorOf(b)
-      case Int => vm.mirrorOf(b.toInt)
-      case Byte => vm.mirrorOf(b.toByte)
-      case Short => vm.mirrorOf(b.toShort)
-      case Char => vm.mirrorOf(b.toChar)
-      case Float => vm.mirrorOf(b.toFloat)
-      case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOfVoid()
-      case _ => null
-    }
-  }
-
-  def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Char): Value = {
-    val stdTypes = tp.projectContext.stdTypes
-    import stdTypes._
-
-    tp match {
-      case Long => vm.mirrorOf(b)
-      case Int => vm.mirrorOf(b.toInt)
-      case Byte => vm.mirrorOf(b.toByte)
-      case Short => vm.mirrorOf(b.toShort)
-      case Char => vm.mirrorOf(b.toChar)
-      case Float => vm.mirrorOf(b.toFloat)
-      case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOfVoid()
-      case _ => null
-    }
-  }
-
-  def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Double): Value = {
-    val stdTypes = tp.projectContext.stdTypes
-    import stdTypes._
-
-    tp match {
-      case Long => vm.mirrorOf(b)
-      case Int => vm.mirrorOf(b.toInt)
-      case Byte => vm.mirrorOf(b.toByte)
-      case Short => vm.mirrorOf(b.toShort)
-      case Char => vm.mirrorOf(b.toChar)
-      case Float => vm.mirrorOf(b.toFloat)
-      case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOfVoid()
-      case _ => null
-    }
-  }
-
-  def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Float): Value = {
-    val stdTypes = tp.projectContext.stdTypes
-    import stdTypes._
-
-    tp match {
-      case Long => vm.mirrorOf(b)
-      case Int => vm.mirrorOf(b.toInt)
-      case Byte => vm.mirrorOf(b.toByte)
-      case Short => vm.mirrorOf(b.toShort)
-      case Char => vm.mirrorOf(b.toChar)
-      case Float => vm.mirrorOf(b.toFloat)
-      case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOfVoid()
-      case _ => null
-    }
-  }
 
   class JVMClassAt(sourcePosition: SourcePosition) extends JVMName {
     def getName(process: DebugProcessImpl): String = {

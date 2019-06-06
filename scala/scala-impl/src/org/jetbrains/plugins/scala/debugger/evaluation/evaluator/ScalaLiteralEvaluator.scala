@@ -17,19 +17,75 @@ final class ScalaLiteralEvaluator private(value: AnyRef,
                                           `type`: ScType)
   extends expression.Evaluator {
 
-  import util.DebuggerUtil._
-
   override def evaluate(context: EvaluationContextImpl): AnyRef = value match {
     case null => null
     case _ =>
       val vm = context.getDebugProcess.getVirtualMachineProxy
+      val types = `type`.projectContext.stdTypes
+      import types._
+
+
       value match {
         case s: String => vm.mirrorOf(s)
-        case b: jl.Boolean => createValue(vm, `type`, b.booleanValue())
-        case c: jl.Character => createValue(vm, `type`, c.charValue())
-        case f: jl.Float => createValue(vm, `type`, f.floatValue())
-        case d: jl.Double => createValue(vm, `type`, d.doubleValue())
-        case n: jl.Number => createValue(vm, `type`, n.longValue())
+        case b: jl.Boolean =>
+          `type` match {
+            case Boolean => vm.mirrorOf(b.booleanValue())
+            case Unit => vm.mirrorOfVoid()
+            case _ => null
+          }
+        case c: jl.Character =>
+          val char = c.charValue()
+          `type` match {
+            case Long => vm.mirrorOf(char)
+            case Int => vm.mirrorOf(char.toInt)
+            case Byte => vm.mirrorOf(char.toByte)
+            case Short => vm.mirrorOf(char.toShort)
+            case Char => vm.mirrorOf(char.toChar)
+            case Float => vm.mirrorOf(char.toFloat)
+            case Double => vm.mirrorOf(char.toDouble)
+            case Unit => vm.mirrorOfVoid()
+            case _ => null
+          }
+        case f: jl.Float =>
+          val float = f.floatValue()
+          `type` match {
+            case Long => vm.mirrorOf(float)
+            case Int => vm.mirrorOf(float.toInt)
+            case Byte => vm.mirrorOf(float.toByte)
+            case Short => vm.mirrorOf(float.toShort)
+            case Char => vm.mirrorOf(float.toChar)
+            case Float => vm.mirrorOf(float.toFloat)
+            case Double => vm.mirrorOf(float.toDouble)
+            case Unit => vm.mirrorOfVoid()
+            case _ => null
+          }
+        case d: jl.Double =>
+          val double = d.doubleValue()
+          `type` match {
+            case Long => vm.mirrorOf(double)
+            case Int => vm.mirrorOf(double.toInt)
+            case Byte => vm.mirrorOf(double.toByte)
+            case Short => vm.mirrorOf(double.toShort)
+            case Char => vm.mirrorOf(double.toChar)
+            case Float => vm.mirrorOf(double.toFloat)
+            case Double => vm.mirrorOf(double.toDouble)
+            case Unit => vm.mirrorOfVoid()
+            case _ => null
+          }
+
+        case n: jl.Number =>
+          val long = n.longValue()
+          `type` match {
+            case Long => vm.mirrorOf(long)
+            case Int => vm.mirrorOf(long.toInt)
+            case Byte => vm.mirrorOf(long.toByte)
+            case Short => vm.mirrorOf(long.toShort)
+            case Char => vm.mirrorOf(long.toChar)
+            case Float => vm.mirrorOf(long.toFloat)
+            case Double => vm.mirrorOf(long.toDouble)
+            case Unit => vm.mirrorOfVoid()
+            case _ => null
+          }
         case _ => throw EvaluationException("unknown type of literal")
       }
   }
