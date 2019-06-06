@@ -120,7 +120,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                     typedExpression.typeElement.getOrElse(element)
                   case _ => element
                 }
-                TypeMismatchError.register(holder, target, tp, exprType.getOrNothing, blockLevel = 2) { (expected, actual) =>
+                TypeMismatchError.register(holder, target, tp, exprType.getOrNothing, blockLevel = 2, canBeHint = !element.is[ScTypedExpression]) { (expected, actual) =>
                   ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
                 }
               }
