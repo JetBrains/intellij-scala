@@ -27,7 +27,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
     val compiled = element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)
 
-    if (!compiled) {
+    if (!compiled && !element.getParent.is[ScTypedExpression]) { // SCL-15544
       checkExpressionType(element, holder, typeAware)
     }
   }
