@@ -30,23 +30,24 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testTypeMismatch() {
-    assertMatches(messages("val v: A = B")) {
-      case Error("B", TypeMismatch()) :: Nil =>
-    }
-  }
-
-  def testTypeMismatchMessage() {
-    assertMatches(messages("val v: A = B")) {
-      case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
-    }
-  }
-
-  def testTypeMismatchWithMultiplePatterns() {
-    assertMatches(messages("val foo, bar: A = B")) {
-      case Error("B", TypeMismatch()) :: Nil =>
-    }
-  }
+  // Handled by ScExpressionAnnotator, don't add multiple errors
+//  def testTypeMismatch() {
+//    assertMatches(messages("val v: A = B")) {
+//      case Error("B", TypeMismatch()) :: Nil =>
+//    }
+//  }
+//
+//  def testTypeMismatchMessage() {
+//    assertMatches(messages("val v: A = B")) {
+//      case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
+//    }
+//  }
+//
+//  def testTypeMismatchWithMultiplePatterns() {
+//    assertMatches(messages("val foo, bar: A = B")) {
+//      case Error("B", TypeMismatch()) :: Nil =>
+//    }
+//  }
 
   //todo: requires Function1 trait in scope
   /*def testImplicitConversion {

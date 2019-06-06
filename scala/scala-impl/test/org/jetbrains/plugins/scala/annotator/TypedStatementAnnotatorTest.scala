@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScTypedExpressionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 
 class TypedStatementAnnotatorTest extends SimpleTestCase {
-  final val Header = "class A; class B; object A extends A; object B extends B\n"
+  private final val Header = "class A; class B; object A extends A; object B extends B\n"
 
   def testFine() {
     assertMatches(messages("A: A")) {
@@ -18,13 +18,13 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
 
   def testTypeMismatch() {
     assertMatches(messages("B: A")) {
-      case Error("B", TypeMismatch()) :: Nil =>
+      case Error("A", UpcastingError()) :: Nil =>
     }
   }
 
   def testTypeMismatchMessage() {
     assertMatches(messages("B: A")) {
-      case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
+      case Error(_, "Cannot upcast B.type to A") :: Nil =>
     }
   }
 
@@ -44,6 +44,6 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
     ScTypedExpressionAnnotator.annotate(expression, mock, typeAware = true)
     mock.annotations
   }
-  
-  val TypeMismatch = ContainsPattern("Type mismatch")
+
+  private val UpcastingError = ContainsPattern("Cannot upcast")
 }
