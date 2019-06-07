@@ -145,25 +145,15 @@ object ScalaClassNameCompletionContributor {
     } addTypeForCompletion(ClassToImport(clazz))
 
     val prefixMatcher = result.getPrefixMatcher
-
-    val originalPosition = Option(parameters.getOriginalPosition).getOrElse(parameters.getPosition)
-    val newInvocationCount = if (lookingForAnnotations) 2 else parameters.getInvocationCount
-
-    val completionParameters =
-      parameters
-        .withInvocationCount(newInvocationCount)
-        .withPosition(originalPosition, originalPosition.getTextRange.getEndOffset)
-
-    AllClassesGetter.processJavaClasses(completionParameters, prefixMatcher, /*filterByScope*/true, new Consumer[PsiClass] {
-      def consume(psiClass: PsiClass) {
-        if (!psiClass.isInstanceOf[PsiClassWrapper]) {
-          val withCompanion = psiClass :: ScalaPsiUtil.getCompanionModule(psiClass).toList
-          withCompanion.foreach { c =>
-            addTypeForCompletion(ClassToImport(c))
-          }
+    AllClassesGetter.processJavaClasses(if (lookingForAnnotations) parameters.withInvocationCount(2) else parameters,
+      prefixMatcher, parameters.getInvocationCount <= 1, new Consumer[PsiClass] {
+        def consume(psiClass: PsiClass) {
+          //todo: filter according to position
+          if (psiClass.isInstanceOf[PsiClassWrapper]) return
+          ScalaPsiUtil.getCompanionModule(psiClass).foreach(clazz => addTypeForCompletion(ClassToImport(clazz)))
+          addTypeForCompletion(ClassToImport(psiClass))
         }
-      }
-    })
+      })
 
     val manager = ScalaPsiManager.instance
     for {

@@ -259,7 +259,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   def packagingRanges: Seq[TextRange] =
     this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
-  def getFileResolveScope: GlobalSearchScope = getVirtualFile match {
+  def getFileResolveScope: GlobalSearchScope = getOriginalFile.getVirtualFile match {
     case file if file != null && file.isValid => defaultFileResolveScope(file)
     case _ => GlobalSearchScope.allScope(getProject)
   }
