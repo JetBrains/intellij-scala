@@ -23,7 +23,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
       val expected = typeElement.calcType
 
       if (!actual.conforms(expected)) {
-        val ranges = mismatchRangesIn(typeElement, expected, actual)
+        val ranges = mismatchRangesIn(typeElement, actual)
         // TODO add messange to the whole element, but higlight separate parts?
         // TODO fine-grained tooltip
         val message = s"Cannot upcast ${actual.presentableText} to ${expected.presentableText}"
@@ -36,17 +36,17 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   }
 
   // SCL-15481
-  def mismatchRangesIn(typeAscription: ScTypeElement, expected: ScType, actual: ScType): Seq[TextRange] = {
-    val diff = TypeDiff.forExpected(expected, actual)
+  def mismatchRangesIn(expected: ScTypeElement, actual: ScType): Seq[TextRange] = {
+    val diff = TypeDiff.forExpected(expected.calcType, actual)
 
-    if (diff.text != typeAscription.getText) { // make sure that presentations match
-      val (ranges, _) =  diff.flatten.foldLeft((Vector.empty[TextRange], typeAscription.getTextOffset)) { case ((acc, offset), x) =>
+    if (diff.text == expected.getText) { // make sure that presentations match
+      val (ranges, _) =  diff.flatten.foldLeft((Seq.empty[TextRange], expected.getTextOffset)) { case ((acc, offset), x) =>
         val length = x.text.length
-        (if (x.is[Mismatch]) acc :+ TextRange.create(offset, offset + length) else acc, offset + length)
+        (if (x.is[Mismatch]) TextRange.create(offset, offset + length) +: acc else acc, offset + length)
       }
       ranges
     } else {
-      Seq(typeAscription.getTextRange)
+      Seq(expected.getTextRange)
     }
   }
 }
