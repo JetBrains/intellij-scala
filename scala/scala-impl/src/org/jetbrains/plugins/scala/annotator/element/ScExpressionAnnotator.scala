@@ -54,6 +54,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
         case _                                   => false
       }
 
+    // TODO rename (it's not about size, but about inner / outer expressions)
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
       case _: ScMatch                            => true
       case bl: ScBlock if bl.lastStatement.isDefined => true
@@ -109,7 +110,6 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               val annotation = {
                 val target = element match {
                   // TODO fine-grained ranges
-                  // TODO fine-grained tooltip
                   // When present, highlight type ascription, not expression, SCL-15544
                   case typedExpression: ScTypedExpression =>
                     (typedExpression.typeElement, typedExpression.expr.getTypeAfterImplicitConversion().tr) match {
