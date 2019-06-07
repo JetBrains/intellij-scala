@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
+/** @see [[org.jetbrains.plugins.scala.lang.actions.editor.backspace.ClosingBraceRemoveTest]] */
 class ClosingBraceInsertTest extends EditorActionTestBase {
 
   private def doTest(before: String, after: String): Unit = {
@@ -14,14 +15,61 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
-  def testWrapInsert_ForStatement(): Unit = {
+  def testWrapInsert_ForStatement_WithParen(): Unit = {
     val before =
       s"""for (_ <- Seq()) $CARET
          |  obj.method()
+         |     .method1()
          |""".stripMargin
     val after =
       s"""for (_ <- Seq()) {
          |  ${CARET}obj.method()
+         |     .method1()
+         |}
+         |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testWrapInsert_ForStatement_WithBraces(): Unit = {
+    val before =
+      s"""for { _ <- Seq() } $CARET
+         |  obj.method()
+         |     .method1()
+         |""".stripMargin
+    val after =
+      s"""for { _ <- Seq() } {
+         |  ${CARET}obj.method()
+         |     .method1()
+         |}
+         |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testWrapInsert_ForStatement_WithYield_WithParen(): Unit = {
+    val before =
+      s"""for (_ <- Seq()) yield $CARET
+         |  obj.method()
+         |     .method1()
+         |""".stripMargin
+    val after =
+      s"""for (_ <- Seq()) yield {
+         |  ${CARET}obj.method()
+         |     .method1()
+         |}
+         |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testWrapInsert_ForStatement_WithYield_WithBraces(): Unit = {
+    val before =
+      s"""for { _ <- Seq() } yield $CARET
+         |  obj.method()
+         |     .method1()
+         |""".stripMargin
+    val after =
+      s"""for { _ <- Seq() } yield {
+         |  ${CARET}obj.method()
+         |     .method1()
          |}
          |""".stripMargin
     doTest(before, after)
@@ -297,8 +345,9 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |someUnrelatedCode()
          |""".stripMargin
     val after =
-      s"""val (x, y) = {$CARET}
+      s"""val (x, y) = {
          |  (42, 23)
+         |}
          |
          |someUnrelatedCode()
          |""".stripMargin
@@ -417,6 +466,26 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
+  def testWrapInsert_IfElse_ThenBranch_1(): Unit = {
+    val before =
+      s"""if (true) $CARET
+         |  obj.method()
+         |
+         |else
+         |  obj.method2()
+         |someUnrelatedCode()
+         |""".stripMargin
+    val after =
+      s"""if (true) {
+         |  ${CARET}obj.method()
+         |}
+         |else
+         |  obj.method2()
+         |someUnrelatedCode()
+         |""".stripMargin
+    doTest(before, after)
+  }
+
   def testWrapInsert_IfElse_ThenBranch_ForceElseOnNewLine(): Unit = {
     getCommonSettings.ELSE_ON_NEW_LINE = true
     val before =
@@ -525,6 +594,26 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
+  def testWrapInsert_TryBlock_1(): Unit = {
+    val before =
+      s"""class A {
+         |  try $CARET
+         |    obj.method()
+         |  someUnrelatedCode()
+         |}
+         |""".stripMargin
+    val after =
+      s"""class A {
+         |  try {
+         |    ${CARET}obj.method()
+         |  }
+         |  someUnrelatedCode()
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
   def testWrapInsert_TryCatchBlock(): Unit = {
     val before =
       s"""try $CARET
@@ -538,6 +627,29 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
       s"""try {
          |  ${CARET}obj.method()
          |} catch {
+         |  case _ =>
+         |}
+         |someUnrelatedCode()
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testWrapInsert_TryCatchBlock_1(): Unit = {
+    val before =
+      s"""try $CARET
+         |  obj.method()
+         |
+         |catch {
+         |  case _ =>
+         |}
+         |someUnrelatedCode()
+         |""".stripMargin
+    val after =
+      s"""try {
+         |  ${CARET}obj.method()
+         |}
+         |catch {
          |  case _ =>
          |}
          |someUnrelatedCode()
@@ -586,6 +698,31 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |someUnrelatedCode()
          |""".stripMargin
 
+    doTest(before, after)
+  }
+
+  def test(): Unit = {
+    val before =
+      s"""class A {
+         |  try {
+         |    println(42)
+         |  } catch {
+         |    case _ =>
+         |  } finally $CARET
+         |  println(23)
+         |}
+         |""".stripMargin
+
+    val after =
+      s"""class A {
+         |  try {
+         |    println(42)
+         |  } catch {
+         |    case _ =>
+         |  } finally {$CARET}
+         |  println(23)
+         |}
+         |""".stripMargin
     doTest(before, after)
   }
 
@@ -648,6 +785,25 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
+  def testWrapInsert_DoWhile_1(): Unit = {
+    val before =
+      s"""do $CARET
+         |  42
+         |
+         |while (true)
+         |someUnrelatedCode()
+         |""".stripMargin
+    val after =
+      s"""do {
+         |  ${CARET}42
+         |}
+         |while (true)
+         |someUnrelatedCode()
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
   def testWrapInsert_DoWhile_WithOneLineCommentBeforeBody(): Unit = {
     val before =
       s"""do $CARET//comment
@@ -687,6 +843,26 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     val before =
       s"""do $CARET
          |  42
+         |while (true)
+         |someUnrelatedCode()
+         |""".stripMargin
+    val after =
+      s"""do {
+         |  ${CARET}42
+         |}
+         |while (true)
+         |someUnrelatedCode()
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testWrapInsert_DoWhile_ForceWhileOnNewLine_1(): Unit = {
+    getCommonSettings.WHILE_ON_NEW_LINE = true
+    val before =
+      s"""do $CARET
+         |  42
+         |
          |while (true)
          |someUnrelatedCode()
          |""".stripMargin

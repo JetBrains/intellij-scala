@@ -24,17 +24,19 @@ import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageL
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
-class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
-  def isYield: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kYIELD) != null
 
-  def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
+class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
+  override def isYield: Boolean = yieldKeyword != null
+
+  override def getYield: Option[PsiElement] = Option(yieldKeyword)
+
+  @inline
+  private def yieldKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kYIELD)
+
+  override def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
   // Binding patterns in reverse order
-  def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
+  override def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
 
   override def desugared(forDisplay: Boolean): Option[ScExpression] = {
     val result =
@@ -43,7 +45,6 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
     result map { case (expr, _, _) => expr }
   }
-
 
   def desugarPattern(pattern: ScPattern): Option[ScPattern] = {
     getDesugaredExprWithMappings flatMap {
@@ -70,9 +71,13 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     }
   }
 
-  def getLeftParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS))
+  override def getLeftParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS))
 
-  def getRightParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
+  override def getRightParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
+
+  override def getLeftBracket: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.LEFT_BRACE_OR_PAREN_TOKEN_SET))
+
+  override def getRightBracket: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.RIGHT_BRACE_OR_PAREN_TOKEN_SET))
 
   override def toString: String = "ForStatement"
 
@@ -133,6 +138,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     val `=>` = ScalaPsiUtil.functionArrow(getProject)
 
     val underscores = ScUnderScoreSectionUtil.underscores(this).zipWithIndex.toMap
+
     def underscoreName(i: Int): String = s"forAnonParam$$$i"
 
     def allUnderscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
@@ -187,9 +193,9 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     }
 
     def appendFunc[R](funcName: String, enum: Option[ScEnumerator], args: Seq[(Option[ScPattern], String)], forceCases: Boolean = false, forceBlock: Boolean = false)
-                  (appendBody: => R): R = {
+                     (appendBody: => R): R = {
       val argPatterns = args.flatMap(_._1)
-      val needsCase = !forDisplay || forceCases || args.size > 1  || argPatterns.exists(needsDeconstruction)
+      val needsCase = !forDisplay || forceCases || args.size > 1 || argPatterns.exists(needsDeconstruction)
       val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
 
       if (!forceSingleLine) {
@@ -356,7 +362,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         }
       }
 
-      val (forBindingsAndGuards, nextEnums) = restEnums span { !_.isInstanceOf[ScGenerator] }
+      val (forBindingsAndGuards, nextEnums) = restEnums.span(!_.isInstanceOf[ScGenerator])
 
       val (forBindingsInGenBody, generatorArgs) = {
         // accumulate all ForBindings for the next guard or
@@ -461,7 +467,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
   private def hasMethod(ty: ScType, methodName: String): Boolean = {
     var found = false
-    val processor: CompletionProcessor= new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
+    val processor: CompletionProcessor = new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
       override protected def execute(namedElement: PsiNamedElement)
                                     (implicit state: ResolveState): Boolean = {
         super.execute(namedElement)
@@ -510,6 +516,7 @@ object ScForImpl {
       case _ => true
     }
   }
+
   @tailrec
   private def findPatternElement(e: PsiElement, org: ScPattern): Option[ScPattern] = {
     e match {

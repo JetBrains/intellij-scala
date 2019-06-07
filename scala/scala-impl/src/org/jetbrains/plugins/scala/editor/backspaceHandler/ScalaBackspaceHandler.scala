@@ -5,28 +5,23 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor._
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.ElementToWrap
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.util.IndentUtil
-
-/**
- * User: Dmitry Naydanov
- * Date: 2/24/12
- */
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
@@ -71,28 +66,20 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       correctMultilineString(file, editor, element.getTextOffset + element.getTextLength - 3)
     } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER && element.getNextSibling != null &&
       element.getNextSibling.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
-        inWriteAction {
-          editor.getDocument.deleteString(element.getTextOffset + 1, element.getTextOffset + 2)
-          PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-        }
+      inWriteAction {
+        editor.getDocument.deleteString(element.getTextOffset + 1, element.getTextOffset + 2)
+        PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+      }
     } else if (offset - element.getTextOffset == 3 &&
-            element.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
-            element.getParent.getLastChild.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
-            element.getPrevSibling != null &&
-            isMultilineInterpolatedStringPrefix(element.getPrevSibling.getNode.getElementType)) {
+      element.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
+      element.getParent.getLastChild.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
+      element.getPrevSibling != null &&
+      TokenSets.INTERPOLATED_PREFIX_TOKEN_SET.contains(element.getPrevSibling.getNode.getElementType)) {
       correctMultilineString(file, editor, element.getParent.getLastChild.getTextOffset)
-    } else if(c == '{' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET){
+    } else if (c == '{' && CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET) {
       handleLeftBrace(offset, element, file, editor)
     }
   }
-
-  @inline
-  private def isMultilineInterpolatedStringPrefix(tpe: IElementType) =
-    Set(
-      ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
-      ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE,
-      ScalaTokenTypes.tINTERPOLATED_STRING_ID
-    ).contains(tpe)
 
   private def correctMultilineString(file: PsiFile, editor: Editor, closingQuotesOffset: Int): Unit = {
     inWriteAction {
@@ -110,43 +97,30 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   }
 
   private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
-    val assignElement: PsiElement = {
-      PsiTreeUtil.prevLeaf(element) match {
-        case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
-        case prev => prev
-      }
-    }
-
-    if (assignElement != null && assignElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
-      val definition = assignElement.getParent
-      val bodyOpt: Option[ScExpression] = definition match {
-        case patDef: ScPatternDefinition if patDef.bindings.size == 1 => patDef.expr
-        case varDef: ScVariableDefinition => varDef.expr
-        case funDef: ScFunctionDefinition => funDef.body
-        case _ => None
-      }
-
-      bodyOpt match {
-        case Some(block: ScBlockExpr) if block.statements.size == 1 =>
-          block.getRBrace match {
-            case Some(rBrace: ASTNode) =>
-              val project = file.getProject
-              val settings = CodeStyle.getSettings(project)
-              val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
-              if(IndentUtil.compare(rBrace.getPsi, definition, tabSize) >= 0) {
-                val start = rBrace.getTreePrev match {
-                  case ws if ws.getElementType == TokenType.WHITE_SPACE => ws.getStartOffset
-                  case _ => rBrace.getStartOffset
-                }
-                val end = rBrace.getStartOffset + 1
-                val document = editor.getDocument
-                document.deleteString(start, end)
-                document.commit(project)
-              }
-            case _ =>
-          }
+    for {
+      ElementToWrap(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
+      if element.isInstanceOf[ScBlockExpr]
+      block = element.asInstanceOf[ScBlockExpr]
+      if block.statements.size == 1
+      rBrace <- block.getRBrace.map(_.getPsi())
+      project = file.getProject
+      tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
+      if IndentUtil.compare(rBrace, parent, tabSize) >= 0
+    } {
+      val (start, end) = PsiTreeUtil.nextLeaf(rBrace) match {
+        case ws: PsiWhiteSpace if !ws.textContains('\n') =>
+          (rBrace.startOffset, ws.endOffset)
         case _ =>
+          val start = PsiTreeUtil.prevLeaf(rBrace) match {
+            case ws@Whitespace(wsText) => ws.startOffset + wsText.lastIndexOf('\n').max(0)
+            case _ => rBrace.startOffset
+          }
+          (start, rBrace.startOffset + 1)
       }
+
+      val document = editor.getDocument
+      document.deleteString(start, end)
+      document.commit(project)
     }
   }
 
@@ -178,7 +152,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       iterator.retreat()
       while (!iterator.atEnd() && iterator.getStart > 0 && iterator.getTokenType != null) {
         if (matcher.isRBraceToken(iterator, txt, fileType)) stack push iterator.getTokenType
-          else if (matcher.isLBraceToken(iterator, txt, fileType)) {
+        else if (matcher.isLBraceToken(iterator, txt, fileType)) {
           if (stack.isEmpty || !matcher.isPairBraces(iterator.getTokenType, stack.pop())) return Some(false)
         }
 
@@ -200,9 +174,9 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     (charRemoved, charNext) match {
       case ('{', '}') => fixBrace()
       case ('(', ')') => fixBrace()
-      case _ => 
+      case _ =>
     }
-    
+
     false
   }
 

@@ -5,7 +5,9 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -25,9 +27,9 @@ final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariabl
                                                   node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
 
-  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
-  override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
+  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   def bindings: Seq[ScBindingPattern] = pList match {
     case null => Seq.empty
@@ -44,4 +46,6 @@ final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariabl
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
   def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
+
+  override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 }

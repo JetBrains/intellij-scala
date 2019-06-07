@@ -4,6 +4,7 @@ package psi
 package api
 package statements
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -17,6 +18,8 @@ trait ScPatternDefinition extends ScValue {
   def pList: ScPatternList
 
   def bindings: Seq[ScBindingPattern]
+
+  def assignment: Option[PsiElement]
 
   def expr: Option[ScExpression]
 

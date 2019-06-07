@@ -276,6 +276,9 @@ public interface ScalaTokenTypes {
     TokenSet PARENTHESIS_TOKEN_SET = TokenSet.create(tLPARENTHESIS, tRPARENTHESIS);
     TokenSet BRACKETS_TOKEN_SET = TokenSet.create(tLSQBRACKET, tRSQBRACKET);
 
+    TokenSet LEFT_BRACE_OR_PAREN_TOKEN_SET = TokenSet.create(tLBRACE, tLPARENTHESIS);
+    TokenSet RIGHT_BRACE_OR_PAREN_TOKEN_SET = TokenSet.create(tRBRACE, tRPARENTHESIS);
+
     TokenSet ANY_BRACKETS_TOKEN_SET = TokenSet.orSet(
             BRACES_TOKEN_SET,
             PARENTHESIS_TOKEN_SET,

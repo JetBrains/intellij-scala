@@ -16,6 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
 import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
@@ -40,12 +41,8 @@ import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.annotation.tailrec
+import scala.language.implicitConversions
 
-
-/**
- * @author Alexander Podkhalyuzin
- * @author Dmitry Naydanov
- */
 class ScalaTypedHandler extends TypedHandlerDelegate {
 
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
@@ -310,7 +307,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def getScaladocTask(text: CharSequence, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
-    import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
     if (offset < 3 || text.length <= offset) return null
 
     text.charAt(offset) match {
@@ -517,75 +513,21 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   private def handleLeftBrace(caretOffset: Int, element: PsiElement)
                              (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     findElementToWrap(element) match {
-      case Some((_: ScBlockExpr, _, _)) =>
-        Result.CONTINUE
-      case Some((element, prevElement, supportsEgyptBraceStyle)) =>
-        wrapWithBraces(caretOffset, element.getParent, prevElement, element, supportsEgyptBraceStyle)
-      case _ =>
-        Result.CONTINUE
+      case Some(wrap) if !wrap.wrapElement.isInstanceOf[ScBlockExpr] =>
+        wrapWithBraces(caretOffset, wrap)
+      case _ => Result.CONTINUE
     }
   }
 
-  private def findElementToWrap(element: PsiElement): Option[(PsiElement, PsiElement, Boolean)] = {
-    val prevElement: PsiElement = PsiTreeUtil.prevLeaf(element) match {
-      case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
-      case prev => prev
-    }
-    if (prevElement == null) return None
-
-    var supportsEgypt = false
-
-    val parent: PsiElement = prevElement.getParent
-    val res = if (prevElement.elementType == ScalaTokenTypes.tASSIGN) {
-      parent match {
-        case patDef: ScPatternDefinition if patDef.bindings.size == 1 => patDef.expr
-        case varDef: ScVariableDefinition => varDef.expr
-        case funDef: ScFunctionDefinition => funDef.body
-        case _ => None
-      }
-    } else {
-      parent match {
-        case ifExpr: ScIf =>
-          if (ifExpr.rightParen.contains(prevElement)) {
-            supportsEgypt = ifExpr.elseKeyword.isDefined
-            ifExpr.thenExpression
-          } else if (ifExpr.elseKeyword.contains(prevElement)) {
-            ifExpr.elseExpression
-          } else {
-            None
-          }
-        case tri: ScTry if prevElement == tri.getFirstChild =>
-          supportsEgypt = true
-          tri.expression
-        case fin: ScFinallyBlock if fin.getFirstChild == prevElement =>
-          fin.getFirstChild.getNextSiblingNotWhitespace.toOption
-        case d: ScDo if d.getFirstChild == prevElement =>
-          supportsEgypt = true
-          d.body
-        case w: ScWhile if w.rightParen.contains(prevElement) =>
-          w.expression
-        case f: ScFor if f.getRightParenthesis.contains(prevElement) =>
-          f.body
-        case _ => None
-      }
-    }
-    res.map((_, prevElement, supportsEgypt))
-  }
-
-  /**
-   * @param supportsEgyptBraceStyle whether closing brace can be on the same line with next element
-   */
-  private def wrapWithBraces(caretOffset: Int,
-                             parent: PsiElement,
-                             prevElement: PsiElement,
-                             element: PsiElement,
-                             supportsEgyptBraceStyle: Boolean)
+  private def wrapWithBraces(caretOffset: Int, wrap: ElementToWrap)
                             (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     val document = editor.getDocument
 
+    val ElementToWrap(element, prev, parent, canShareLine) = wrap
+
     val elementStartOffset = element.startOffset
     val elementLine = document.getLineNumber(elementStartOffset)
-    val prevElementLine = document.getLineNumber(prevElement.startOffset)
+    val prevElementLine = document.getLineNumber(prev.startOffset)
     val caretLine = document.getLineNumber(caretOffset)
 
     val caretIsBeforeElement = caretOffset <= elementStartOffset
@@ -606,10 +548,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
         val elementActualEndOffset = endElement.endOffset + 1
         editor.getCaretModel.moveToOffset(elementActualStartOffset)
 
-        if (supportsEgyptBraceStyle) {
+        if (canShareLine) {
           endElement.getNextSibling match {
-            case ws: PsiWhiteSpace =>
-              document.deleteString(ws.startOffset + 1, ws.endOffset + 1)
+            case ws@Whitespace(wsText) =>
+              val lastNewLineIdx = wsText.lastIndexOf("\n").max(0)
+              document.deleteString(ws.startOffset + lastNewLineIdx + 1, ws.endOffset + 1)
             case _ =>
           }
         }
@@ -667,5 +610,58 @@ object ScalaTypedHandler {
       prev = prev.getPrevSibling
     }
     Option(prev)
+  }
+
+  /**
+   * @param wrapElement  element after  which closing brace should be inserted (or removed)
+   * @param prev         element prior to the caret position just after typing or removing brace
+   * @param parent       element against which we should check that `wrap` element is indented
+   * @param canShareLine whether closing brace can be inserted just before some other element with the same parent
+   * @see [[org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler.handleLeftBrace]]
+   */
+  case class ElementToWrap(wrapElement: PsiElement, prev: PsiElement, parent: PsiElement, canShareLine: Boolean = false)
+
+  def findElementToWrap(element: PsiElement): Option[ElementToWrap] = {
+    val prevElement: PsiElement = PsiTreeUtil.prevLeaf(element) match {
+      case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
+      case prev => prev
+    }
+    if (prevElement == null || prevElement.elementType == ScalaTokenTypes.tLBRACE)
+      return None
+
+    val parent: PsiElement = prevElement.getParent
+
+    @inline def wrap(el: PsiElement, share: Boolean = false) = ElementToWrap(el, prevElement, parent, share)
+
+    // to evaluate wrapElement lazily and not to write `() => obj.body` everywhere
+    @inline implicit def oToFo(el: Option[PsiElement]): () => Option[PsiElement] = () => el
+
+    //noinspection NameBooleanParameters
+    val tuple: (PsiElement => Boolean, () => Option[PsiElement], PsiElement => ElementToWrap) = parent match {
+      case funDef: ScFunctionDefinition => (funDef.assignment.contains, funDef.body, wrap(_))
+      case varDef: ScVariableDefinition => (varDef.assignment.contains, varDef.expr, wrap(_))
+      case patDef: ScPatternDefinition => (patDef.assignment.contains, patDef.expr, wrap(_))
+      case d: ScDo => (d.getFirstChild.eq, d.body, wrap(_, true))
+      case w: ScWhile => (w.rightParen.contains, w.expression, wrap(_))
+      case t: ScTry => (t.getFirstChild.eq, t.expression, wrap(_, true))
+      case ifExpr: ScIf if ifExpr.rightParen.contains(prevElement) =>
+        (_ => true, ifExpr.thenExpression, wrap(_, ifExpr.elseKeyword.isDefined))
+      case ifExpr: ScIf =>
+        (ifExpr.elseKeyword.contains, ifExpr.elseExpression, wrap(_))
+      case f: ScFinallyBlock => (
+        f.getFirstChild.eq,
+        f.getFirstChild.getNextSiblingNotWhitespace.toOption,
+        ElementToWrap(_, prevElement, f.getParent)
+      )
+      case f: ScFor => ((if (f.isYield) f.getYield else f.getRightBracket).contains, f.body, wrap(_))
+      case _ => (_ => false, None, _ => null)
+    }
+
+    val (isAllowedAfter, elementToWrap, wrapper) = tuple
+    if (isAllowedAfter(prevElement)) {
+      elementToWrap().map(wrapper)
+    } else {
+      None
+    }
   }
 }

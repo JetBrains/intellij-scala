@@ -20,15 +20,25 @@ trait ScFor extends ScExpression {
 
   def isYield: Boolean
 
+  def getYield: Option[PsiElement]
+
   def enumerators: Option[ScEnumerators]
 
   def patterns: Seq[ScPattern]
 
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
 
+  /** @return left parenthesis of enumerators  */
   def getLeftParenthesis: Option[PsiElement]
 
+  /** @return right parenthesis of enumerators  */
   def getRightParenthesis: Option[PsiElement]
+
+  /** @return left brace or parenthesis of enumerators  */
+  def getLeftBracket: Option[PsiElement]
+
+  /** @return right brace or parenthesis of enumerators */
+  def getRightBracket: Option[PsiElement]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFor(this)

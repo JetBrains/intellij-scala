@@ -11,7 +11,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{PsiElement, PsiFile, StringEscapesTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
@@ -48,9 +48,7 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       if (Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_ESCAPE, tINTERPOLATED_STRING_END,
         tINTERPOLATED_STRING_INJECTION).contains(a.getNode.getElementType)) {
         a.getParent.getFirstChild.getNode match {
-          case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID ||
-            b.getElementType == ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE ||
-            b.getElementType == ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE =>
+          case b: ASTNode if TokenSets.INTERPOLATED_PREFIX_TOKEN_SET.contains(b.getElementType) =>
             if (a.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE) {
               if (caretOffset.get - a.getTextOffset == 1) modifyOffset(1)
             } else {

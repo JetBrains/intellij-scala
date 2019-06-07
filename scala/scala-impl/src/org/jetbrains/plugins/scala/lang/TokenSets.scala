@@ -52,6 +52,12 @@ object TokenSets {
     EXISTENTIAL_TYPE, COMPOUND_TYPE, ANNOT_TYPE, WILDCARD_TYPE, TYPE_PROJECTION, TYPE_VARIABLE, LITERAL_TYPE
   )
 
+  val INTERPOLATED_PREFIX_TOKEN_SET: TokenSet = TokenSet.create(
+    INTERPOLATED_PREFIX_LITERAL_REFERENCE,
+    INTERPOLATED_PREFIX_PATTERN_REFERENCE,
+    tINTERPOLATED_STRING_ID
+  )
+
   implicit class TokenSetExt(val set: TokenSet) extends AnyVal {
     def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)
     def + (other: IElementType): TokenSet = TokenSet.orSet(set, TokenSet.create(other))
