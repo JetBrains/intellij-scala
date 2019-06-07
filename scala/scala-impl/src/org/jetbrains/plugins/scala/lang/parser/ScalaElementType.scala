@@ -221,27 +221,27 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScSelfInvocationImpl(node)
   }
 
-  object LiteralElementType extends ScExpressionElementType("Literal") {
+  object NumberOrStringLiteral extends ScExpressionElementType("Literal") {
     override def createElement(node: ASTNode) = new ScLiteralImpl(node, toString)
   }
 
-  object NullLiteralElementType extends ScExpressionElementType("NullLiteral") {
+  object NullLiteral extends ScExpressionElementType("NullLiteral") {
     override def createElement(node: ASTNode) = new ScNullLiteralImpl(node, toString)
   }
 
-  object BooleanLiteralElementType extends ScExpressionElementType("BooleanLiteral") {
+  object BooleanLiteral extends ScExpressionElementType("BooleanLiteral") {
     override def createElement(node: ASTNode) = new ScBooleanLiteralImpl(node, toString)
   }
 
-  object SymbolLiteralElementType extends ScExpressionElementType("SymbolLiteral") {
+  object SymbolLiteral extends ScExpressionElementType("SymbolLiteral") {
     override def createElement(node: ASTNode) = new ScSymbolLiteralImpl(node, toString)
   }
 
-  object CharLiteralElementType extends ScExpressionElementType("CharLiteral") {
+  object CharLiteral extends ScExpressionElementType("CharLiteral") {
     override def createElement(node: ASTNode) = new ScCharLiteralImpl(node, toString)
   }
 
-  object InterpolatedStringLiteralElementType extends ScExpressionElementType("InterpolatedStringLiteral") {
+  object InterpolatedString extends ScExpressionElementType("InterpolatedStringLiteral") {
     override def createElement(node: ASTNode) = new ScInterpolatedStringLiteralImpl(node, toString)
   }
 

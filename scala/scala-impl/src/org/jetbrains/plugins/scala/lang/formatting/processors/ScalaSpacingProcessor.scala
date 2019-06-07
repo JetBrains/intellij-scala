@@ -71,8 +71,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightNode = dfsChildren(right.getNode, _.getChildren(null).toList)
 
     (leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
-      case (ScalaElementType.InterpolatedStringLiteralElementType, _) => 0
-      case (_, ScalaElementType.InterpolatedStringLiteralElementType) => 0
+      case (ScalaElementType.InterpolatedString, _) => 0
+      case (_, ScalaElementType.InterpolatedString) => 0
       case _ if textRange.contains(rightNode.getTextRange) && textRange.contains(leftNode.getTextRange) =>
         val left = fileText.substring(leftNode.getTextRange)
         val right = fileText.substring(rightNode.getTextRange)
@@ -577,7 +577,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               case ScalaElementType.CASE_CLAUSES => block.getParent.is[ScArgumentExprList, ScInfixExpr]
               case _ =>
                 val insideInterpString = rightTreeParent.getTreeParent.nullSafe
-                  .exists(_.getElementType == ScalaElementType.InterpolatedStringLiteralElementType)
+                  .exists(_.getElementType == ScalaElementType.InterpolatedString)
                 scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
                   (leftPsi.is[ScFunctionExpr, ScCaseClauses] || block.isInstanceOf[ScBlockExpr] && !insideInterpString)
             })
@@ -845,11 +845,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftBlockString.endsWith(".")) {
       return leftElementType match {
-        case ScalaElementType.LiteralElementType |
-             ScalaElementType.NullLiteralElementType |
-             ScalaElementType.BooleanLiteralElementType |
-             ScalaElementType.SymbolLiteralElementType |
-             ScalaElementType.CharLiteralElementType => WITH_SPACING
+        case ScalaElementType.NumberOrStringLiteral |
+             ScalaElementType.NullLiteral |
+             ScalaElementType.BooleanLiteral |
+             ScalaElementType.SymbolLiteral |
+             ScalaElementType.CharLiteral => WITH_SPACING
         case _ => WITHOUT_SPACING
       }
     }
@@ -1118,11 +1118,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //Prefix Identifier
       case (ScalaElementType.REFERENCE_EXPRESSION |
             ScalaTokenTypes.tIDENTIFIER, _,
-      ScalaElementType.LiteralElementType |
-      ScalaElementType.NullLiteralElementType |
-      ScalaElementType.BooleanLiteralElementType |
-      ScalaElementType.SymbolLiteralElementType |
-      ScalaElementType.CharLiteralElementType |
+      ScalaElementType.NumberOrStringLiteral |
+      ScalaElementType.NullLiteral |
+      ScalaElementType.BooleanLiteral |
+      ScalaElementType.SymbolLiteral |
+      ScalaElementType.CharLiteral |
       ScalaElementType.PREFIX_EXPR, _) => NO_SPACING
       //Braces
       case (ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, _, _) => NO_SPACING

@@ -35,10 +35,10 @@ object QuotedLiteralImplBase {
                               (endQuote: String = startQuote) =
     if (text.startsWith(startQuote)) {
       val beginIndex = startQuote.length
-      text.length - (if (text.endsWith(endQuote)) endQuote.length else 0) match {
-        case endIndex if endIndex < beginIndex => null
-        case endIndex => text.substring(beginIndex, endIndex)
-      }
+      val endIndex = text.length - (if (text.endsWith(endQuote)) endQuote.length else 0)
+
+      if (endIndex < beginIndex) null
+      else text.substring(beginIndex, endIndex)
     } else {
       null
     }

@@ -331,29 +331,31 @@ class getDummyBlocks(private val block: ScalaBlock) {
     val children = node.getChildren(null).filter(isCorrectBlock)
     val subBlocks = new util.ArrayList[Block]
 
+    def getPrevGroupNode(nodePsi: PsiElement) = {
+      var prev = nodePsi.getPrevSibling
+      var breaks = 0
+
+      def isOk(psi: PsiElement): Boolean = psi match {
+        case _: ScCaseClause => true
+        case _: PsiComment => false
+        case _: PsiWhiteSpace =>
+          breaks += psi.getText.count(_ == '\n')
+          false
+        case _ =>
+          breaks += 2
+          false
+      }
+
+      while (prev != null && breaks <= 1 && !isOk(prev)) {
+        prev = prev.getPrevSibling
+      }
+      if (breaks == 1 && prev != null) prev.getNode
+      else null
+    }
+
     var prevChild: ASTNode = null
     for (child <- children) {
-      val childAlignment = getChildAlignment(node, child) { nodePsi =>
-        var prev = nodePsi.getPrevSibling
-        var breaks = 0
-
-        def isOk(psi: PsiElement): Boolean = psi match {
-          case _: ScCaseClause => true
-          case _: PsiComment => false
-          case _: PsiWhiteSpace =>
-            breaks += psi.getText.count(_ == '\n')
-            false
-          case _ =>
-            breaks += 2
-            false
-        }
-
-        while (prev != null && breaks <= 1 && !isOk(prev)) {
-          prev = prev.getPrevSibling
-        }
-        if (breaks == 1 && prev != null) prev.getNode
-        else null
-      }(FunctionTypeTokenSet)
+      val childAlignment = getChildAlignment(node, child)(getPrevGroupNode)(FunctionTypeTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
@@ -365,51 +367,52 @@ class getDummyBlocks(private val block: ScalaBlock) {
     val children = node.getChildren(null).filter(isCorrectBlock)
     val subBlocks = new util.ArrayList[Block]
 
+    def getPrevGroupNode(nodePsi: PsiElement) = {
+      var prev = nodePsi.getPrevSibling
+      var breaks = 0
+
+      def isOk(psi: PsiElement): Boolean = psi match {
+        case ElementType(t) if t == tSEMICOLON =>
+          false
+        case _: ScVariableDeclaration | _: ScValueDeclaration if nodePsi.is[ScPatternDefinition, ScVariableDefinition] =>
+          breaks += 2
+          false
+        case _: ScVariableDefinition | _: ScPatternDefinition if nodePsi.is[ScValueDeclaration, ScValueDeclaration] =>
+          breaks += 2
+          false
+        case _: ScVariable | _: ScValue =>
+          def hasEmptyModifierList(psi: PsiElement): Boolean = psi match {
+            case mod: ScModifierListOwner if mod.getModifierList.getTextLength == 0 => true
+            case _ => false
+          }
+
+          if (hasEmptyModifierList(psi) != hasEmptyModifierList(nodePsi)) {
+            breaks += 2
+            false
+          } else {
+            true
+          }
+        case _: PsiComment =>
+          false
+        case _: PsiWhiteSpace =>
+          breaks += psi.getText.count(_ == '\n')
+          false
+        case _ =>
+          breaks += 2
+          false
+      }
+
+      while (prev != null && breaks <= 1 && !isOk(prev)) {
+        prev = prev.getPrevSibling
+      }
+      if (breaks == 1 && prev != null) prev.getNode
+      else null
+    }
+
     var prevChild: ASTNode = null
     for (child <- children) {
       //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
-      val childAlignment = getChildAlignment(node, child) { nodePsi =>
-        var prev = nodePsi.getPrevSibling
-        var breaks = 0
-
-        def isOk(psi: PsiElement): Boolean = psi match {
-          case ElementType(t) if t == tSEMICOLON =>
-            false
-          case _: ScVariableDeclaration | _: ScValueDeclaration if nodePsi.is[ScPatternDefinition, ScVariableDefinition] =>
-            breaks += 2
-            false
-          case _: ScVariableDefinition | _: ScPatternDefinition if nodePsi.is[ScValueDeclaration, ScValueDeclaration] =>
-            breaks += 2
-            false
-          case _: ScVariable | _: ScValue =>
-            def hasEmptyModifierList(psi: PsiElement): Boolean = psi match {
-              case mod: ScModifierListOwner if mod.getModifierList.getTextLength == 0 => true
-              case _ => false
-            }
-
-            if (hasEmptyModifierList(psi) != hasEmptyModifierList(nodePsi)) {
-              breaks += 2
-              false
-            } else {
-              true
-            }
-          case _: PsiComment =>
-            false
-          case _: PsiWhiteSpace =>
-            breaks += psi.getText.count(_ == '\n')
-            false
-          case _ =>
-            breaks += 2
-            false
-        }
-
-        while (prev != null && breaks <= 1 && !isOk(prev)) {
-          prev = prev.getPrevSibling
-        }
-        if (breaks == 1 && prev != null) prev.getNode
-        else null
-      }(FieldGroupSubBlocksTokenSet)
-      
+      val childAlignment = getChildAlignment(node, child)(getPrevGroupNode)(FieldGroupSubBlocksTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }

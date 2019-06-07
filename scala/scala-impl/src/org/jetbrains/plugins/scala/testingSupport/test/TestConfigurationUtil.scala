@@ -82,8 +82,7 @@ object TestConfigurationUtil {
     val TwoArgMethods = Seq(Replace, Substring)
   }
 
-  private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean)
-                                      (implicit newSeparator: String): Option[Any] = {
+  private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean): Option[Any] = {
     import StringMethodNames._
 
     def processNoArgMethod(refExpr: ScReferenceExpression): Option[String] = {
@@ -152,13 +151,13 @@ object TestConfigurationUtil {
     element match {
       case literal: ScLiteral =>
         literal.getValue match {
-          case string: String =>
-            Some {
-              if (newSeparator != null && literal.isMultiLineString)
-                StringUtil.convertLineSeparators(string, newSeparator)
-              else
-                string
+          case text: String =>
+            val result = literal.getContainingFile.getVirtualFile.getDetectedLineSeparator match {
+              case newSeparator if newSeparator != null && literal.isMultiLineString =>
+                StringUtil.convertLineSeparators(text, newSeparator)
+              case _ => text
             }
+            Some(result)
           case symbol: Symbol if allowSymbolLiterals => Some(symbol.name)
           case number: Number => Some(number)
           case character: Character => Some(character)
@@ -210,12 +209,11 @@ object TestConfigurationUtil {
   }
 
   def getStaticTestName(element: PsiElement, allowSymbolLiterals: Boolean = false): Option[String] =
-    getStaticTestNameRaw(element, allowSymbolLiterals)(element.getContainingFile.getVirtualFile.getDetectedLineSeparator)
+    getStaticTestNameRaw(element, allowSymbolLiterals)
       .map(escapeTestName(_).trim)
 
   private def getStaticTestNameRaw(element: PsiElement,
-                                   allowSymbolLiterals: Boolean)
-                                  (implicit newSeparator: String): Option[String] =
+                                   allowSymbolLiterals: Boolean): Option[String] =
     getStaticTestNameElement(element, allowSymbolLiterals).filterByType[String]
 
   private def escapeTestName(testName: String): String = {

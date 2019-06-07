@@ -51,7 +51,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
 
   private def findOuterString(element: PsiElement): Option[PsiElement] =
     element match {
-      case interpLiteral if interpLiteral.getNode.getElementType == ScalaElementType.InterpolatedStringLiteralElementType =>
+      case interpLiteral if interpLiteral.getNode.getElementType == ScalaElementType.InterpolatedString =>
         Some(interpLiteral)
       case string if MultiLineStringCopyPasteProcessor.SAFE_ELEMENTS.contains(string.getNode.getElementType) =>
         Some(findOuterString(element.getParent).getOrElse(string))
