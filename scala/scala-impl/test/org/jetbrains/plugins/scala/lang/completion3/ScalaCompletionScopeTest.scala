@@ -26,6 +26,9 @@ class ScalaCompletionScopeTest extends ScalaCodeInsightTestBase {
 
     val place = activeLookup.map(_.getPsiElement).orNull
     val allLookups = lookups(isValid)
+
+    Assert.assertTrue(allLookups.nonEmpty)
+
     allLookups.foreach { lookup =>
       val psiElement = lookup.getPsiElement
       val vFile = psiElement.getContainingFile.getVirtualFile
@@ -53,6 +56,12 @@ class ScalaCompletionScopeTest extends ScalaCodeInsightTestBase {
   def testBasicCompletion0(): Unit = checkCompletionsAreInScopeAndAccessible("File", BASIC, 0)
   def testBasicCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("File", BASIC, 1)
   def testBasicCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("File", BASIC, 2)
+
+  def testTypeCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("null: ", BASIC, 1)
+  def testTypeCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("null: ", BASIC, 2)
+
+  def testAfterDotCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("\"\".", BASIC, 1)
+  def testAfterDotCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("\"\".", BASIC, 2)
 
   def testBasicCompletion1EmptyPrefix(): Unit = checkCompletionsAreInScopeAndAccessible("", BASIC, 1)
 }
