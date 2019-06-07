@@ -6,25 +6,24 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
+
+import scala.meta.intellij.QuasiquoteInferUtil._
 
 final class ScInterpolatedStringLiteralImpl(node: ASTNode,
                                             override val toString: String)
   extends ScLiteralImpl(node, toString) with ScInterpolatedStringLiteral {
 
-  import InterpolatedStringType._
+  import ScInterpolatedStringLiteral._
   import ScLiteralImpl._
 
-  import scala.meta.intellij.QuasiquoteInferUtil._
-
-  override def getType: StringType = literalNode.getText match {
-    case "s" => STANDARD
-    case "f" => FORMAT
-    case "id" => PATTERN
-    case "raw" => RAW
+  override def kind: Kind = literalNode.getText match {
+    case "s" => Standard
+    case "f" => Format
+    case "id" => Pattern
+    case "raw" => Raw
     case _ => null
   }
 
@@ -49,7 +48,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override def referenceName: String = reference.fold("")(_.refName)
 
-  override def isMultiLineString: Boolean = getText.endsWith(MultilineQuotes)
+  override def isMultiLineString: Boolean = getText.endsWith(MultiLineQuote)
 
   override def isString: Boolean = true
 

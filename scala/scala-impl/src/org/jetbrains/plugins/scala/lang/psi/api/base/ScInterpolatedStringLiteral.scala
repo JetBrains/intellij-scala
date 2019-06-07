@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala
-package lang.psi.api.base
+package lang
+package psi
+package api
+package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
@@ -8,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
   * Date: 3/17/12
   */
 trait ScInterpolatedStringLiteral extends ScLiteral with ScInterpolated {
-  def getType: InterpolatedStringType.StringType
+
+  def kind: base.ScInterpolatedStringLiteral.Kind
 
   def reference: Option[ScReferenceExpression]
 
@@ -19,9 +23,14 @@ object ScInterpolatedStringLiteral {
 
   def unapply(literal: ScInterpolatedStringLiteral): Option[ScReferenceExpression] =
     literal.reference
-}
 
-object InterpolatedStringType extends Enumeration {
-  type StringType = Value
-  val STANDARD, FORMAT, PATTERN, RAW = Value
+  sealed trait Kind
+
+  case object Standard extends Kind
+
+  case object Format extends Kind
+
+  case object Pattern extends Kind
+
+  case object Raw extends Kind
 }
