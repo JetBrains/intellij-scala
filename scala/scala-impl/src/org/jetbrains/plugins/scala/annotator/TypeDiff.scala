@@ -25,6 +25,8 @@ sealed trait TypeDiff {
   protected def flattenTo0(maxChars: Int, groupLength: Int) = (Seq(this), length(groupLength))
 
   protected def length(groupLength: Int): Int
+
+  def text: String
 }
 
 object TypeDiff {
@@ -38,27 +40,29 @@ object TypeDiff {
     }
 
     override protected def length(groupLength: Int): Int = groupLength
+
+    override def text: String = diffs.view.map(_.text).mkString
   }
 
-  final case class Match(text: String, tpe: Option[ScType] = None) extends TypeDiff {
+  final case class Match(override val text: String, tpe: Option[ScType] = None) extends TypeDiff {
     override protected def length(groupLength: Int): Int = text.length
   }
 
-  final case class Mismatch(text: String, tpe: Option[ScType] = None) extends TypeDiff {
+  final case class Mismatch(override val text: String, tpe: Option[ScType] = None) extends TypeDiff {
     override protected def length(groupLength: Int): Int = text.length
   }
 
   // To display a type hint
-  def parse(tpe: ScType): TypeDiff =
-    group(tpe, tpe)((_, _) => true)
+  def parse(tpe: ScType): TypeDiff = group(tpe, tpe)((_, _) => true)
+
+  // To highlight type ascription
+  def forFirst(tpe1: ScType, tpe2: ScType): TypeDiff = group(tpe2, tpe1)((t1, t2) => t1.conforms(t2))
 
   // To display a type mismatch hint
-  def forSecond(tpe1: ScType, tpe2: ScType): TypeDiff =
-    group(tpe1, tpe2)((t1, t2) => t2.conforms(t1))
+  def forSecond(tpe1: ScType, tpe2: ScType): TypeDiff = group(tpe1, tpe2)((t1, t2) => t2.conforms(t1))
 
   // To display a type mismatch tooltip
-  def forBoth(tpe1: ScType, tpe2: ScType): (TypeDiff, TypeDiff) =
-    (group(tpe2, tpe1)((t1, t2) => t1.conforms(t2)), group(tpe1, tpe2)((t1, t2) => t2.conforms(t1)))
+  def forBoth(tpe1: ScType, tpe2: ScType): (TypeDiff, TypeDiff) = (forFirst(tpe1, tpe2), forSecond(tpe1, tpe2))
 
   private def group(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean) = Group(diff(tpe1, tpe2))
 
