@@ -19,14 +19,14 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 
   // SCL-15544
   private def checkUpcasting(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
-    expression.getTypeAfterImplicitConversion().tr.foreach { expressionType =>
-      val ascribedType = typeElement.calcType
+    expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
+      val expected = typeElement.calcType
 
-      if (!expressionType.conforms(ascribedType)) {
-        val ranges = mismatchRangesIn(typeElement, ascribedType, expressionType)
+      if (!actual.conforms(expected)) {
+        val ranges = mismatchRangesIn(typeElement, expected, actual)
         // TODO add messange to the whole element, but higlight separate parts?
         // TODO fine-grained tooltip
-        val message = s"Cannot upcast ${expressionType.presentableText} to ${ascribedType.presentableText}"
+        val message = s"Cannot upcast ${actual.presentableText} to ${expected.presentableText}"
         ranges.foreach { range =>
           val annotation = holder.createErrorAnnotation(range, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)
@@ -36,8 +36,8 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   }
 
   // SCL-15481
-  def mismatchRangesIn(typeAscription: ScTypeElement, ascribedType: ScType, expressionType: ScType): Seq[TextRange] = {
-    val diff = TypeDiff.forFirst(ascribedType, expressionType)
+  def mismatchRangesIn(typeAscription: ScTypeElement, expected: ScType, actual: ScType): Seq[TextRange] = {
+    val diff = TypeDiff.forExpected(expected, actual)
 
     if (diff.text != typeAscription.getText) { // make sure that presentations match
       val (ranges, _) =  diff.flatten.foldLeft((Vector.empty[TextRange], typeAscription.getTextOffset)) { case ((acc, offset), x) =>

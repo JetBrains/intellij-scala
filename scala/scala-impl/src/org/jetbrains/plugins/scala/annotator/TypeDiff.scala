@@ -55,14 +55,14 @@ object TypeDiff {
   // To display a type hint
   def parse(tpe: ScType): TypeDiff = group(tpe, tpe)((_, _) => true)
 
-  // To highlight type ascription
-  def forFirst(tpe1: ScType, tpe2: ScType): TypeDiff = group(tpe2, tpe1)((t1, t2) => t1.conforms(t2))
+  // To highlight a type ascription
+  def forExpected(expected: ScType, actual: ScType): TypeDiff = group(actual, expected)((t1, t2) => t1.conforms(t2))
 
   // To display a type mismatch hint
-  def forSecond(tpe1: ScType, tpe2: ScType): TypeDiff = group(tpe1, tpe2)((t1, t2) => t2.conforms(t1))
+  def forActual(expected: ScType, actual: ScType): TypeDiff = group(expected, actual)((t1, t2) => t2.conforms(t1))
 
   // To display a type mismatch tooltip
-  def forBoth(tpe1: ScType, tpe2: ScType): (TypeDiff, TypeDiff) = (forFirst(tpe1, tpe2), forSecond(tpe1, tpe2))
+  def forBoth(expected: ScType, actual: ScType): (TypeDiff, TypeDiff) = (forExpected(expected, actual), forActual(expected, actual))
 
   private def group(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean) = Group(diff(tpe1, tpe2))
 

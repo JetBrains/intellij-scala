@@ -52,7 +52,7 @@ private trait TypeMismatchHints { self: ImplicitHintsPass =>
           navigatable = tpe.flatMap(_.extractClass))
     }
     // TODO user-configurable maxChars
-    TypeDiff.forSecond(expected, actual)
+    TypeDiff.forActual(expected, actual)
       .flattenTo(maxChars = 25, groupLength = foldedString.length)
       .map(toText)
       .map(_.copy(errorTooltip = Some(message)))
