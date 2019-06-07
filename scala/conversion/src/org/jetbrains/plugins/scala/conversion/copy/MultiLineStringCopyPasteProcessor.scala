@@ -1,68 +1,90 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala
+package conversion
+package copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Editor, RawText}
+import com.intellij.openapi.editor.{Document, Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.tree.TokenSet
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.MultilineStringUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 
 /**
  * User: Dmitry Naydanov
  * Date: 5/5/12
  */
+final class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
 
-class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
-  def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
-    val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-    if (!file.isInstanceOf[ScalaFile] || !settings.MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE || startOffsets.length != 1 || endOffsets.length != 1) return null
-    findOuterString(file.findElementAt(startOffsets(0))) match {
-      case Some(element) if element.getTextRange.getStartOffset <= startOffsets(0) &&
-          element.getTextRange.getEndOffset >= endOffsets(0) => text stripMargin getMarginChar(element)
-      case _ => null
-    }
+  import MultiLineStringCopyPasteProcessor._
+  import util.MultilineStringUtil.getMarginChar
+
+  override def preprocessOnCopy(file: PsiFile,
+                                startOffsets: Array[Int],
+                                endOffsets: Array[Int],
+                                text: String): String = (file, startOffsets, endOffsets) match {
+    case (requiresMarginProcess(), Array(startOffset), Array(endOffset)) =>
+      val maybeMarginChar = for {
+        element <- findStringParent(file.findElementAt(startOffset))
+
+        range = element.getTextRange
+        if range.getStartOffset <= startOffset
+        if range.getEndOffset >= endOffset
+      } yield getMarginChar(element)
+
+      maybeMarginChar.fold(null: String)(text.stripMargin)
+    case _ => null
   }
 
-  def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
-    val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-    if (!file.isInstanceOf[ScalaFile] || !settings.MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE) return text
+  override def preprocessOnPaste(project: Project,
+                                 file: PsiFile,
+                                 editor: Editor,
+                                 text: String,
+                                 rawText: RawText): String = file match {
+    case requiresMarginProcess() =>
+      val offset = editor.getCaretModel.getOffset
+      val element = file.findElementAt(offset)
 
-    val offset = editor.getCaretModel.getOffset
-    val document = editor.getDocument
-    val element = file.findElementAt(offset)
+      if (findStringParent(element).isEmpty ||
+        offset < element.getTextOffset + 3) return text
 
-    if (checkElement(element) ||
-      offset < element.getTextOffset + 3) return text
+      val marginChar = getMarginChar(element)
 
-    val marginChar = getMarginChar(element)
-    val textRange = new TextRange(document.getLineStartOffset(document.getLineNumber(offset)), offset)
-
-    (if (document.getText(textRange).trim.length == 0 && (text.trim().length ==0 || text.trim.charAt(0) != marginChar))
-      marginChar
-    else "") + text.replace("\n", "\n " + marginChar)
+      import StringUtil._
+      val newText = convertLineSeparators(text, "\n " + marginChar)
+      if (!startsWithChar(text.trim, marginChar) &&
+        isEmptyOrSpaces(lineAt(editor.getDocument, offset)))
+        marginChar + newText
+      else
+        newText
+    case _ => text
   }
-
-  private def getMarginChar(element: PsiElement): Char = MultilineStringUtil.getMarginChar(element)
-
-  private def findOuterString(element: PsiElement): Option[PsiElement] =
-    element match {
-      case interpLiteral if interpLiteral.getNode.getElementType == ScalaElementType.InterpolatedString =>
-        Some(interpLiteral)
-      case string if MultiLineStringCopyPasteProcessor.SAFE_ELEMENTS.contains(string.getNode.getElementType) =>
-        Some(findOuterString(element.getParent).getOrElse(string))
-      case _ => None
-    }
-
-  private def checkElement(element: PsiElement): Boolean =
-    element == null || !MultiLineStringCopyPasteProcessor.SAFE_ELEMENTS.contains(element.getNode.getElementType)
 }
 
 object MultiLineStringCopyPasteProcessor {
-  private val SAFE_ELEMENTS =
-    TokenSet.create(ScalaTokenTypes.tMULTILINE_STRING, ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING, ScalaTokenTypes.tINTERPOLATED_STRING_ID)
+
+  private object requiresMarginProcess {
+
+    def unapply(file: ScalaFile): Boolean =
+      ScalaCodeStyleSettings.getInstance(file.getProject)
+        .MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE
+  }
+
+  private def findStringParent(element: PsiElement): Option[ScLiteral] = element match {
+    case literal: ScInterpolatedStringLiteral => Some(literal)
+    case literal: ScLiteral if literal.isMultiLineString => Some(literal)
+    case _ childOf (literal: ScInterpolatedStringLiteral) => Some(literal)
+    case _ => None
+  }
+
+  private def lineAt(document: Document, offset: Int) = {
+    val range = new TextRange(
+      document.getLineStartOffset(document.getLineNumber(offset)),
+      offset
+    )
+    document.getText(range)
+  }
 }
