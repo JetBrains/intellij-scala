@@ -282,6 +282,8 @@ class MouseHandler(project: Project,
     }
 
     pairFor[(Inlay, Text)](element, elements, _._2.string == "(", _._2.string == ")")
+      .orElse(pairFor[(Inlay, Text)](element, elements, _._2.string == "[", _._2.string == "]"))
+      .orElse(pairFor[(Inlay, Text)](element, elements, _._2.string == "{", _._2.string == "}"))
   }
 
   private def clearHighlightedMatches(): Unit = {
