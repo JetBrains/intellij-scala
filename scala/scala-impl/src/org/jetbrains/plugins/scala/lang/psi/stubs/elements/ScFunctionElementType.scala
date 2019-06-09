@@ -30,7 +30,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeBoolean(stub.isImplicitConversion)
     dataStream.writeBoolean(stub.isLocal)
-    dataStream.writeOptionName(stub.implicitType)
+    dataStream.writeNames(stub.implicitClassNames)
   }
 
   override def deserialize(dataStream: StubInputStream,
@@ -45,7 +45,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     hasAssign = dataStream.readBoolean,
     isImplicitConversion = dataStream.readBoolean,
     isLocal = dataStream.readBoolean,
-    implicitType = dataStream.readOptionName
+    implicitClassNames = dataStream.readNames
   )
 
   override def createStubImpl(function: Fun,
@@ -79,7 +79,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       hasAssign = maybeDefinition.exists(_.hasAssign),
       isImplicitConversion = function.isImplicitConversion,
       isLocal = function.containingClass == null,
-      implicitType = ScImplicitInstanceStub.implicitType(function, function.returnTypeElement))
+      implicitClassNames = ScImplicitInstanceStub.implicitClassNames(function, function.returnTypeElement))
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
@@ -89,7 +89,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     if (stub.isImplicitConversion)
       ImplicitConversionIndex.occurrence(sink)
     else
-      ImplicitInstanceIndex.occurrence(sink, stub.implicitType)
+      ImplicitInstanceIndex.occurrences(sink, stub.implicitClassNames)
   }
 }
 

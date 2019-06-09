@@ -24,6 +24,6 @@ final class ScClassParameterElementType extends ScParamElementType[ScClassParame
 
   override def indexStub(stub: ScParameterStub, sink: IndexSink): Unit = {
     sink.occurrences(CLASS_PARAMETER_NAME_KEY, stub.getName)
-    ImplicitInstanceIndex.occurrence(sink, stub.implicitType)
+    ImplicitInstanceIndex.occurrences(sink, stub.implicitClassNames)
   }
 }

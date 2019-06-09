@@ -6,10 +6,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
-import com.intellij.util.SofterReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 /**
   * @author adkozlov
@@ -22,5 +19,5 @@ final class ScPropertyStubImpl[P <: ScValueOrVariable](parent: StubElement[_ <: 
                                                        val typeText: Option[String],
                                                        val bodyText: Option[String],
                                                        val isLocal: Boolean,
-                                                       val implicitType: Option[String])
+                                                       val implicitClassNames: Array[String])
   extends StubBase[P](parent, elementType) with ScPropertyStub[P]

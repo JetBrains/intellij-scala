@@ -27,7 +27,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.isLocal)
-    dataStream.writeOptionName(stub.implicitType)
+    dataStream.writeNames(stub.implicitClassNames)
   }
 
   override final def deserialize(dataStream: StubInputStream,
@@ -40,7 +40,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     typeText = dataStream.readOptionName,
     bodyText = dataStream.readOptionName,
     isLocal = dataStream.readBoolean,
-    implicitType = dataStream.readOptionName
+    implicitClassNames = dataStream.readNames
   )
 
   override protected final def createStubImpl(property: P,
@@ -54,13 +54,13 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
       typeText = property.typeElement.map(_.getText),
       bodyText = body(property).map(_.getText),
       isLocal = property.containingClass == null,
-      implicitType = ScImplicitInstanceStub.implicitType(property, property.typeElement)
+      implicitClassNames = ScImplicitInstanceStub.implicitClassNames(property, property.typeElement)
     )
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
     sink.occurrences(PROPERTY_NAME_KEY, stub.names: _*)
-    ImplicitInstanceIndex.occurrence(sink, stub.implicitType)
+    ImplicitInstanceIndex.occurrences(sink, stub.implicitClassNames)
   }
 
   protected def body(property: P): Option[ScExpression] = None

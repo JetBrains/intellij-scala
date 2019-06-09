@@ -9,6 +9,7 @@ import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -40,7 +41,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeOptionName(stub.additionalJavaName)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isVisibleInJava)
-    dataStream.writeOptionName(stub.implicitType)
+    dataStream.writeNames(stub.implicitClassNames)
   }
 
   override def deserialize(dataStream: StubInputStream,
@@ -60,7 +61,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     additionalJavaName = dataStream.readOptionName,
     isLocal = dataStream.readBoolean,
     isVisibleInJava = dataStream.readBoolean,
-    implicitType = dataStream.readOptionName
+    implicitClassNames = dataStream.readNames
   )
 
   override def createStubImpl(definition: TypeDef,
@@ -96,10 +97,10 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _ => true
     }
 
-    val implicitType = definition match {
+    val implicitClassNames = definition match {
       case obj: ScObject if obj.getModifierList.isImplicit =>
-        ScImplicitInstanceStub.mainSuperClassName(obj)
-      case _ => None
+        ScImplicitInstanceStub.superClassNames(obj)
+      case _ => EMPTY_STRING_ARRAY
     }
 
     new ScTemplateDefinitionStubImpl(
@@ -118,7 +119,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       additionalJavaName = maybeAdditionalJavaName,
       isLocal = isLocal,
       isVisibleInJava = isVisibleInJava,
-      implicitType = implicitType
+      implicitClassNames = implicitClassNames
     )
   }
 
@@ -159,7 +160,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence(CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) sink.occurrence(IMPLICIT_OBJECT_KEY, pack)
       if (stub.isImplicitClass) ImplicitConversionIndex.occurrence(sink)
-      ImplicitInstanceIndex.occurrence(sink, stub.implicitType)
+      ImplicitInstanceIndex.occurrences(sink, stub.implicitClassNames)
     }
     if (stub.isPackageObject) {
       val packageName = fqn.stripSuffix(".package")

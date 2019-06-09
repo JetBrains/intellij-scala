@@ -24,5 +24,5 @@ class ScParameterStubImpl(parent: StubElement[_ <: PsiElement],
                           val isCallByNameParameter: Boolean,
                           val bodyText: Option[String],
                           val deprecatedName: Option[String],
-                          val implicitType: Option[String])
+                          val implicitClassNames: Array[String])
   extends ScNamedStubBase[ScParameter](parent, elementType, name) with ScParameterStub

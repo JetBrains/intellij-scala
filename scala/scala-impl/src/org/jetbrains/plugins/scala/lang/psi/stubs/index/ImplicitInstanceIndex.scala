@@ -17,9 +17,8 @@ class ImplicitInstanceIndex extends ScStringStubIndexExtension[ScMember]  {
 object ImplicitInstanceIndex extends StubIndexExt[String, ScMember] {
   val indexKey: StubIndexKey[String, ScMember] = createIndexKey("sc.implicit.instance")
 
-
-  def occurrence(sink: IndexSink, optionalKey: Option[String]): Unit =
-    optionalKey.foreach(occurrence(sink, _))
+  def occurrences(sink: IndexSink, keys: Array[String]): Unit =
+    keys.foreach(occurrence(sink, _))
 
   def forClassFqn(qName: String, scope: GlobalSearchScope, project: Project): Seq[ScMember] = {
     val collectProcessor = new CollectProcessor

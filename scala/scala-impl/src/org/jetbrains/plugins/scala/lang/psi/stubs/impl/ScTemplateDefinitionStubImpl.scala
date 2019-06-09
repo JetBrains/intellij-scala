@@ -27,7 +27,7 @@ final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](parent
                                                                           val additionalJavaName: Option[String],
                                                                           val isLocal: Boolean,
                                                                           val isVisibleInJava: Boolean,
-                                                                          val implicitType: Option[String])
+                                                                          val implicitClassNames: Array[String])
   extends ScNamedStubBase[TypeDef](parent, elementType, nameRef)
     with ScTemplateDefinitionStub[TypeDef] {
 
