@@ -69,6 +69,19 @@ object ImplicitCollector {
     def presentableTypeText: String = tp.presentableText(place)
   }
 
+  def probableArgumentsFor(parameter: ScalaResolveResult): Seq[(ScalaResolveResult, FullInfoResult)] = {
+    parameter.implicitSearchState.map { state =>
+      val collector = new ImplicitCollector(state.copy(fullInfo = true))
+      collector.collect().flatMap { r =>
+        r.implicitReason match {
+          case reason: FullInfoResult => Seq((r, reason))
+          case _ => Seq.empty
+        }
+      }
+    } getOrElse {
+      Seq.empty
+    }
+  }
 }
 
 /**

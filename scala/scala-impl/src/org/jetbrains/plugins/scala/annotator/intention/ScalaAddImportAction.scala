@@ -28,6 +28,8 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
 
   protected def doAddImport(toImport: ElementToImport): Unit
 
+  protected def alwaysAsk: Boolean = false
+
   def execute: Boolean = {
     val validVariants = variants.filter(_.isValid)
 
@@ -35,7 +37,7 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
       return false
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
-    if (validVariants.length == 1) {
+    if (validVariants.length == 1 && !alwaysAsk) {
       addImport(validVariants(0))
     }
     else showChooser(validVariants)
@@ -43,12 +45,16 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
     true
   }
 
-  private def showChooser(validVariants: Array[ElementToImport]) {
-    val title = ElementToImport.messageByType(validVariants)(
+  protected def chooserTitle(variants: Array[ElementToImport]): String =
+    ElementToImport.messageByType(variants)(
       ScalaBundle.message("import.class.chooser.title"),
       ScalaBundle.message("import.package.chooser.title"),
       ScalaBundle.message("import.something.chooser.title")
     )
+
+
+  private def showChooser(validVariants: Array[ElementToImport]) {
+    val title = chooserTitle(validVariants)
     val popup: BaseListPopupStep[ElementToImport] = new BaseListPopupStep[ElementToImport](title, validVariants: _*) {
       override def getIconFor(aValue: ElementToImport): Icon =
         aValue.element.getIcon(0)
@@ -126,7 +132,6 @@ object ScalaAddImportAction {
         case _ => ref.bindToElement(toImport.element)
       }
     }
-
   }
 
   private class ForScalaDoc(editor: Editor, variants: Array[ElementToImport], ref: ScDocResolvableCodeReference)
@@ -138,6 +143,21 @@ object ScalaAddImportAction {
     }
   }
 
+  def importImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String): ScalaAddImportAction[PsiElement] =
+    new ImportImplicits(editor, variants, place, title)
+
+  private class ImportImplicits(editor: Editor, variants: Array[ElementToImport], place: PsiElement, title: String)
+    extends ScalaAddImportAction(editor, variants, place) {
+
+    override protected def chooserTitle(variants: Array[ElementToImport]): String = title
+
+    protected def doAddImport(toImport: ElementToImport): Unit = {
+      val holder = getImportHolder(place, place.getProject)
+      holder.addImportForPath(toImport.qualifiedName)
+    }
+
+    override protected def alwaysAsk: Boolean = true
+  }
 
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
     if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)

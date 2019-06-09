@@ -278,20 +278,6 @@ private object ImplicitHintsPass {
   private def isAmbiguous(parameter: ScalaResolveResult): Boolean =
     parameter.isImplicitParameterProblem && probableArgumentsFor(parameter).size > 1
 
-  private def probableArgumentsFor(parameter: ScalaResolveResult): Seq[(ScalaResolveResult, FullInfoResult)] = {
-    parameter.implicitSearchState.map { state =>
-      val collector = new ImplicitCollector(state.copy(fullInfo = true))
-      collector.collect().flatMap { r =>
-        r.implicitReason match {
-          case reason: FullInfoResult => Seq((r, reason))
-          case _ => Seq.empty
-        }
-      }
-    } getOrElse {
-      Seq.empty
-    }
-  }
-
   private def typeSuffix(parameter: ScalaResolveResult): String = {
     val paramType = parameter.implicitSearchState.map(_.presentableTypeText).getOrElse("NotInferred")
     s": $paramType"

@@ -4,6 +4,8 @@ import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalImplicitInstance
 
 sealed trait ElementToImport {
   protected type E <: PsiNamedElement
@@ -59,4 +61,12 @@ case class PrefixPackageToImport(element: ScPackage) extends ElementToImport {
   override protected type E = ScPackage
 
   def qualifiedName: String = element.getQualifiedName
+}
+
+case class ImplicitToImport(instance: GlobalImplicitInstance) extends ElementToImport {
+  protected type E = ScNamedElement
+
+  def element: ScNamedElement = instance.named
+
+  def qualifiedName: String = instance.qualifiedName
 }

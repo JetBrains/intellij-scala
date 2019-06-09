@@ -72,21 +72,12 @@ private class ImplicitParameterProblemNode(value: ScalaResolveResult)
   assert(value.isImplicitParameterProblem)
 
   override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
-    value.implicitSearchState match {
-      case Some(state) =>
-        val collector = new ImplicitCollector(state.copy(fullInfo = true))
-        val nodes: Seq[AbstractTreeNode[_]] = collector.collect().flatMap { r =>
-          r.implicitReason match {
-            case reason: FullInfoResult =>
-              Some(new ImplicitArgumentWithReason(r, reason))
-            case _ => None
-          }
-        }
-        if (nodes.nonEmpty) nodes.asJavaCollection
-        else errorLeafNode("No implicits applicable by type")
-      case _ =>
-        errorLeafNode("No information for no reason")
+    val arguments = ImplicitCollector.probableArgumentsFor(value)
+    val nodes: Seq[AbstractTreeNode[_]] = arguments.map {
+      case (resolveResult, fullInfo) => new ImplicitArgumentWithReason(resolveResult, fullInfo)
     }
+    if (nodes.nonEmpty) nodes.asJavaCollection
+    else errorLeafNode("No implicits applicable by type")
   }
 
   private def errorLeafNode(errorText: String): util.Collection[AbstractTreeNode[_]] = {
