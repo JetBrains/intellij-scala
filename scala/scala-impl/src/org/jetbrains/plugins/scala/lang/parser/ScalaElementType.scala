@@ -165,7 +165,7 @@ object ScalaElementType {
   /** ***********************************************************************************/
 
   sealed abstract class ScExpressionElementType(debugName: String) extends ScalaElementType(debugName) {
-    
+
     override def createElement(node: ASTNode): ScExpression
   }
 
@@ -221,12 +221,28 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScSelfInvocationImpl(node)
   }
 
-  object NumberOrStringLiteral extends ScExpressionElementType("Literal") {
-    override def createElement(node: ASTNode) = new ScLiteralImpl(node, toString)
-  }
-
   object NullLiteral extends ScExpressionElementType("NullLiteral") {
     override def createElement(node: ASTNode) = new ScNullLiteralImpl(node, toString)
+  }
+
+  object IntegerLiteral extends ScExpressionElementType("IntegerLiteral") {
+
+    // TODO to be fixed via lexer
+    override def createElement(node: ASTNode): NumberLiteralImplBase =
+      if (node.getText.matches(".*[lL]$"))
+        new ScLongLiteralImpl(node, toString)
+      else
+        new ScIntegerLiteralImpl(node, toString) // but a conversion exists to narrower types in case range fits
+  }
+
+  object FloatLiteral extends ScExpressionElementType("FloatLiteral") {
+
+    // TODO to be fixed via lexer
+    override def createElement(node: ASTNode): NumberLiteralImplBase =
+      if (node.getText.matches(".*[fF]$"))
+        new ScFloatLiteralImpl(node, toString)
+      else
+        new ScDoubleLiteralImpl(node, toString)
   }
 
   object BooleanLiteral extends ScExpressionElementType("BooleanLiteral") {
@@ -239,6 +255,10 @@ object ScalaElementType {
 
   object CharLiteral extends ScExpressionElementType("CharLiteral") {
     override def createElement(node: ASTNode) = new ScCharLiteralImpl(node, toString)
+  }
+
+  object StringLiteral extends ScExpressionElementType("StringLiteral") {
+    override def createElement(node: ASTNode) = new ScLiteralImpl(node, toString)
   }
 
   object InterpolatedString extends ScExpressionElementType("InterpolatedStringLiteral") {

@@ -4,8 +4,6 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder.Marker
-
 /**
  * Literal ::= ['-']integerLiteral
  * | ['-']floatingPointLiteral
@@ -28,15 +26,24 @@ object Literal {
   import lang.lexer.ScalaTokenTypes._
 
   def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    implicit val marker: Marker = builder.mark()
+    val marker = builder.mark()
+
+    def advanceAndMarkDone(elementType: ScExpressionElementType,
+                           errorMessage: String = null) = {
+      builder.advanceLexer()
+      if (errorMessage != null) builder.error(errorMessage)
+      marker.done(elementType)
+      true
+    }
 
     builder.getTokenType match {
       case `tIDENTIFIER` if builder.getTokenText == "-" =>
         builder.advanceLexer() //Ate -
         builder.getTokenType match {
-          case `tINTEGER` |
-               `tFLOAT` =>
-            advanceAndMarkDone(NumberOrStringLiteral)
+          case `tINTEGER` =>
+            advanceAndMarkDone(IntegerLiteral)
+          case `tFLOAT` =>
+            advanceAndMarkDone(FloatLiteral)
           case _ =>
             marker.rollbackTo()
             false
@@ -57,26 +64,18 @@ object Literal {
         advanceAndMarkDone(SymbolLiteral)
       case `tCHAR` =>
         advanceAndMarkDone(CharLiteral)
-      case `tINTEGER` |
-           `tFLOAT` |
-           `tSTRING` |
+      case `tINTEGER` =>
+        advanceAndMarkDone(IntegerLiteral)
+      case `tFLOAT` =>
+        advanceAndMarkDone(FloatLiteral)
+      case `tSTRING` |
            `tMULTILINE_STRING` =>
-        advanceAndMarkDone(NumberOrStringLiteral)
+        advanceAndMarkDone(StringLiteral)
       case `tWRONG_STRING` =>
-        advanceAndMarkDone(NumberOrStringLiteral, "Wrong string literal")
+        advanceAndMarkDone(StringLiteral, "Wrong string literal")
       case _ =>
         marker.rollbackTo()
         false
     }
-  }
-
-  private def advanceAndMarkDone(elementType: ScExpressionElementType,
-                                 errorMessage: String = null)
-                                (implicit marker: Marker,
-                                 builder: ScalaPsiBuilder) = {
-    builder.advanceLexer()
-    if (errorMessage != null) builder.error(errorMessage)
-    marker.done(elementType)
-    true
   }
 }

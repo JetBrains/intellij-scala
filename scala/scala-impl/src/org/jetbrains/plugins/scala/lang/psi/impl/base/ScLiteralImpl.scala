@@ -9,9 +9,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiLiteralUtil
-import com.intellij.util.text.LiteralFormatUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -26,7 +23,7 @@ class ScLiteralImpl(node: ASTNode,
   with ScLiteral with ContributedReferenceHost {
 
   import ScLiteralImpl._
-  import lang.lexer.{ScalaTokenTypes => T}
+  import lang.lexer.ScalaTokenTypes._
 
   def isValidHost: Boolean = getValue.isInstanceOf[String]
 
@@ -36,11 +33,8 @@ class ScLiteralImpl(node: ASTNode,
   @CachedInUserData(this, util.PsiModificationTracker.MODIFICATION_COUNT)
   def getValue: AnyRef = {
     import literals.QuotedLiteralImplBase._
-    val node = literalNode
-
-    node.getElementType match {
-      case T.tSTRING |
-           T.tWRONG_STRING =>
+    literalElementType match {
+      case `tSTRING` | `tWRONG_STRING` =>
         trimQuotes(getText, SingleLineQuote)() match {
           case null => null
           case stringText =>
@@ -50,11 +44,9 @@ class ScLiteralImpl(node: ASTNode,
               case _: StringContext.InvalidEscapeException => StringUtil.unescapeStringCharacters(getText)
             }
         }
-      case T.tMULTILINE_STRING =>
+      case `tMULTILINE_STRING` =>
         trimQuotes(getText, MultiLineQuote)()
-      case T.tIDENTIFIER if node.getText == "-" =>
-        nodeNumberValue(node.getTreeNext.getElementType)
-      case elementType => nodeNumberValue(elementType)
+      case _ => null
     }
   }
 
@@ -74,18 +66,18 @@ class ScLiteralImpl(node: ASTNode,
   private def literalElementType = literalNode.getElementType
 
   override def isString: Boolean = literalElementType match {
-    case T.tMULTILINE_STRING | T.tSTRING => true
+    case `tMULTILINE_STRING` | `tSTRING` => true
     case _ => false
   }
 
-  override def isMultiLineString: Boolean = literalElementType == T.tMULTILINE_STRING
+  override def isMultiLineString: Boolean = literalElementType == `tMULTILINE_STRING`
 
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)
 
   override def contentRange: TextRange = {
     val maybeShifts = literalElementType match {
-      case T.tSTRING => stringShifts(SingleLineQuote)
-      case T.tMULTILINE_STRING => stringShifts(MultiLineQuote)
+      case `tSTRING` => stringShifts(SingleLineQuote)
+      case `tMULTILINE_STRING` => stringShifts(MultiLineQuote)
       case _ => None
     }
 
@@ -100,23 +92,6 @@ class ScLiteralImpl(node: ASTNode,
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitLiteral(this)
-  }
-
-  private def nodeNumberValue(elementType: IElementType): Number = {
-    def parseNumber(suffix: Char)
-                   (function1: String => Number)
-                   (function2: String => Number) =
-      LiteralFormatUtil.removeUnderscores(getText) match {
-        case text if endsWithIgnoreCase(text, suffix) => function1(text)
-        case text => function2(text)
-      }
-
-    import PsiLiteralUtil._
-    elementType match {
-      case T.tFLOAT => parseNumber('f')(parseFloat)(parseDouble)
-      case T.tINTEGER => parseNumber('l')(parseLong)(parseInteger)
-      case _ => null
-    }
   }
 }
 
@@ -136,9 +111,4 @@ object ScLiteralImpl {
     val quoteLength = quote.length
     Some(quoteLength, quoteLength)
   }
-
-  private def endsWithIgnoreCase(text: String,
-                                 suffix: Char) =
-    StringUtil.endsWithChar(text, suffix) ||
-      StringUtil.endsWithChar(text, suffix.toUpper)
 }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -35,7 +35,7 @@ object ComparingLengthInspection {
   }
 
   private def isZero(expression: ScExpression): Boolean = expression match {
-    case ScLiteral(ScLiteral.IntegerValue(0)) => true
+    case ScIntegerLiteral(0) => true
     case _ => false
   }
 }

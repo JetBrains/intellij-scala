@@ -6,7 +6,7 @@ package types
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScCharLiteral, ScNullLiteral, ScSymbolLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -52,10 +52,14 @@ object ScLiteralType {
     implicit val project: Project = literal.getProject
     val literalValue = literal match {
       case _: ScNullLiteral => ScNullLiteral.Value
+      case ScIntegerLiteral(value) => ScIntegerLiteral.Value(value)
+      case ScLongLiteral(value) => ScLongLiteral.Value(value)
+      case ScFloatLiteral(value) => ScFloatLiteral.Value(value)
+      case ScDoubleLiteral(value) => ScDoubleLiteral.Value(value)
       case ScBooleanLiteral(value) => ScBooleanLiteral.Value(value)
       case ScSymbolLiteral(value) => ScSymbolLiteral.Value(value)
       case ScCharLiteral(value) => ScCharLiteral.Value(value)
-      case ScLiteral(value) => value
+      case ScLiteral(value) => ScLiteral.StringValue(value)
       case _ => null
     }
 

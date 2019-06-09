@@ -64,8 +64,6 @@ object SimulacrumInjector {
     */
   private[this] def opsMethodName(sourceMethod: ScFunction): Seq[String] = {
     def extractNamesFromAnnArgs(args: Option[ScArgumentExprList]): Seq[String] = {
-      import ScLiteral._
-
       val exprs = args.toSeq.flatMap(_.exprs)
 
       val alias = exprs.exists {
@@ -75,8 +73,8 @@ object SimulacrumInjector {
       }
 
       val name = exprs.collectFirst {
-        case ScLiteral(StringValue(opName)) => opName
-        case ScAssignment(_, Some(ScLiteral(StringValue(opName)))) => opName
+        case ScLiteral(opName) => opName
+        case ScAssignment(_, Some(ScLiteral(opName))) => opName
       }
 
       if (alias) Seq(sourceMethod.name) ++ name

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -342,10 +343,9 @@ object ScExpression {
 
       def success(t: ScType) = Some(Right(t))
 
-      import ScLiteral._
       val intLiteralValue: Int = expr match {
-        case ScLiteral(IntegerValue(value)) => value
-        case ScPrefixExpr(op, ScLiteral(IntegerValue(value))) if Set("+", "-").contains(op.refName) =>
+        case ScIntegerLiteral(value) => value
+        case ScPrefixExpr(op, ScIntegerLiteral(value)) if Set("+", "-").contains(op.refName) =>
           val mult = if (op.refName == "-") -1 else 1
           mult * value
         case _ => return None

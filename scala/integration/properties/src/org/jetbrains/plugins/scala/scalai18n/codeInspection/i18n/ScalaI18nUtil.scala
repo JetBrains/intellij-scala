@@ -59,7 +59,7 @@ object ScalaI18nUtil {
   }
 
   private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
-    case ScLiteral(ScLiteral.StringValue(value)) => !value.exists {
+    case ScLiteral(string) => !string.exists {
       case '=' | ':' => true
       case character => Character.isWhitespace(character)
     }

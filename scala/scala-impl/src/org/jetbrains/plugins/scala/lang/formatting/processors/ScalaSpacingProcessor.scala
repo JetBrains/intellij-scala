@@ -845,8 +845,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftBlockString.endsWith(".")) {
       return leftElementType match {
-        case ScalaElementType.NumberOrStringLiteral |
+        case ScalaElementType.StringLiteral |
              ScalaElementType.NullLiteral |
+             ScalaElementType.IntegerLiteral |
+             ScalaElementType.FloatLiteral |
              ScalaElementType.BooleanLiteral |
              ScalaElementType.SymbolLiteral |
              ScalaElementType.CharLiteral => WITH_SPACING
@@ -1118,8 +1120,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //Prefix Identifier
       case (ScalaElementType.REFERENCE_EXPRESSION |
             ScalaTokenTypes.tIDENTIFIER, _,
-      ScalaElementType.NumberOrStringLiteral |
+      ScalaElementType.StringLiteral |
       ScalaElementType.NullLiteral |
+      ScalaElementType.IntegerLiteral |
+      ScalaElementType.FloatLiteral |
       ScalaElementType.BooleanLiteral |
       ScalaElementType.SymbolLiteral |
       ScalaElementType.CharLiteral |
