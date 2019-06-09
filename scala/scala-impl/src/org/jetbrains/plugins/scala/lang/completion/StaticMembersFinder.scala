@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.StaticMembersFinder.classesToImportFor
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.classesToImportFor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 private final class StaticMembersFinder(place: ScReferenceExpression, matcher: PrefixMatcher, accessAll: Boolean)
@@ -76,4 +77,18 @@ private object StaticMembersFinder {
   def apply(place: ScReferenceExpression, prefixMatcher: PrefixMatcher, accessAll: Boolean): Option[StaticMembersFinder] =
     if (prefixMatcher.getPrefix.nonEmpty) Some(new StaticMembersFinder(place, prefixMatcher, accessAll))
     else None
+
+  private def classesToImportFor(m: PsiMember): Seq[PsiClass] = {
+    val cClass = m.containingClass
+    if (cClass == null)
+      return Seq.empty
+
+    if (isStatic(m)) Seq(cClass)
+    else {
+      val manager = ScalaPsiManager.instance(m.getProject)
+      cClass.asOptionOf[ScTemplateDefinition]
+        .map(manager.inheritorOrThisObjects).getOrElse(Seq.empty)
+    }
+  }
+
 }

@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
@@ -67,6 +68,9 @@ class ScalaPsiManager(implicit val project: Project) {
   val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
+
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnChange)
+  def inheritorOrThisObjects(td: ScTemplateDefinition): Seq[ScObject] = ScalaStubsUtil.inheritorOrThisObjects(td)
 
   def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (dontCacheCompound) StableNodes.build(tp, compoundTypeThisType)

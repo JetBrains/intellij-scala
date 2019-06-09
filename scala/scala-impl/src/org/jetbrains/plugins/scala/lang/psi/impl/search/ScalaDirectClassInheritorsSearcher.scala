@@ -71,7 +71,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
     val candidates: Seq[ScTemplateDefinition] = inReadAction {
       if (!clazz.isValid) return true
 
-      ScalaStubsUtil.getClassInheritors(clazz, scope)
+      ScalaStubsUtil.directInheritorCandidates(clazz, scope)
     }
 
     for (candidate <- candidates if inReadAction { candidate.showAsInheritor }) {

@@ -446,7 +446,7 @@ object ScalaRefactoringUtil {
                                  editor: Editor): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {
 
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(currentElement.getProject)
-    val inheritors = ScalaStubsUtil.getClassInheritors(currentElement, scope)
+    val inheritors = ScalaStubsUtil.directInheritorCandidates(currentElement, scope)
 
     def helper(classObject: ScTemplateDefinition,
                occurrencesRes: mutable.MutableList[Array[ScTypeElement]],
