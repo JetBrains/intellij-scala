@@ -100,13 +100,6 @@ object ScLiteralImpl {
   private[base] val SingleLineQuote = "\""
   private[base] val MultiLineQuote = "\"\"\""
 
-  object string {
-
-    @deprecated("use `ScLiteral.StringValue` instead")
-    def unapply(lit: ScLiteralImpl): Option[String] =
-      if (lit.isString) Some(lit.getValue.asInstanceOf[String]) else None
-  }
-
   private[base] def stringShifts(quote: String): Some[(Int, Int)] = {
     val quoteLength = quote.length
     Some(quoteLength, quoteLength)

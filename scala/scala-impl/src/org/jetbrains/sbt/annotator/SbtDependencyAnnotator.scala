@@ -7,7 +7,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -98,9 +97,9 @@ class SbtDependencyAnnotator extends Annotator {
     for {
       ScInfixExpr(leftPart, _, maybeVersion) <- Option(from)
       ScInfixExpr(maybeGroup, maybePercents, maybeArtifact) <- Option(leftPart)
-      ScLiteralImpl.string(version) <- Option(maybeVersion)
-      ScLiteralImpl.string(group) <- Option(maybeGroup)
-      ScLiteralImpl.string(artifact) <- Option(maybeArtifact)
+      ScLiteral(version) <- Option(maybeVersion)
+      ScLiteral(group) <- Option(maybeGroup)
+      ScLiteral(artifact) <- Option(maybeArtifact)
       shouldAppendScalaVersion = maybePercents.getText == "%%"
     } yield {
       if (shouldAppendScalaVersion && scalaVersion.isDefined)

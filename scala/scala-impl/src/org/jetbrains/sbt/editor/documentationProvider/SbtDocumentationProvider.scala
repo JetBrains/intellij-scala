@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 
 /**
@@ -71,7 +70,7 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
     }
 
   private def argToString(arg: ScExpression): Option[String] = arg match {
-    case ScLiteralImpl.string(str) =>
+    case ScLiteral(str) =>
       Some(str)
     case ScInfixExpr(lOp, _, rOp) =>
       val str = argToString(lOp).getOrElse("") ++

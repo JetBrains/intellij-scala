@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 
 /**
  * @author Nikolay Obedin
@@ -78,18 +77,18 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
       extractPathFromConcatenation(expr)
     case expr : ScReferenceExpression =>
       Option(expr.resolve()).flatMap(extractPathFromReference)
-    case ScMethodCall(expr, ScLiteralImpl.string(path) :: _) if expr.getText == "file" =>
+    case ScMethodCall(expr, ScLiteral(path) :: _) if expr.getText == "file" =>
       Option(path)
     case _ => None
   }
 
   private def extractPathFromFileCtor(constrInvocation: ScConstructorInvocation): Option[String] = {
     constrInvocation.args.map(_.exprs).flatMap {
-      case Seq(ScLiteralImpl.string(path)) =>
+      case Seq(ScLiteral(path)) =>
         Some(path)
-      case Seq(ScLiteralImpl.string(parent), ScLiteralImpl.string(child)) =>
+      case Seq(ScLiteral(parent), ScLiteral(child)) =>
         Some(parent + File.separator + child)
-      case Seq(parentElt, ScLiteralImpl.string(child)) =>
+      case Seq(parentElt, ScLiteral(child)) =>
         extractPathFromFileParam(parentElt).map(_ + File.separator + child)
       case _ => None
     }
@@ -97,7 +96,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   private def extractPathFromConcatenation(concatExpr: ScInfixExpr): Option[String] =
     concatExpr.right match {
-      case ScLiteralImpl.string(child) =>
+      case ScLiteral(child) =>
         extractPathFromFileParam(concatExpr.left).map(_ + File.separator + child)
       case partRef : ScReferenceExpression =>
         for {
