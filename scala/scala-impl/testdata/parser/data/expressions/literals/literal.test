@@ -33,7 +33,7 @@ ScalaFile
             ReferencePattern: x
               PsiElement(identifier)('x')
           PsiElement(=)('=')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('239')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

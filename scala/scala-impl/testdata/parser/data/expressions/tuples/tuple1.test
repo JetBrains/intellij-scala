@@ -42,7 +42,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           ExpressionInParenthesis
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -74,7 +74,7 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
             PsiElement())(')')
@@ -92,10 +92,10 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -112,10 +112,10 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             PsiElement(,)(',')
             PsiElement())(')')

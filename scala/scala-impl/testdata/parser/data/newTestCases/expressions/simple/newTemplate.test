@@ -55,7 +55,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
                 PsiWhiteSpace(' ')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('3')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

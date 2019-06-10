@@ -112,7 +112,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  Literal
+                  StringLiteral
                     PsiElement(string content)('"Byte"')
                 PsiWhiteSpace('\n    ')
                 ScFunctionDefinition: newArray
@@ -276,7 +276,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  Literal
+                  StringLiteral
                     PsiElement(string content)('"Short"')
                 PsiWhiteSpace('\n    ')
                 ScFunctionDefinition: newArray

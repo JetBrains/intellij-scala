@@ -36,7 +36,7 @@ ScalaFile
               PsiElement(false)('false')
           PsiElement())(')')
           PsiWhiteSpace('\n    ')
-          Literal
+          StringLiteral
             PsiElement(string content)('"Stay here"')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

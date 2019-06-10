@@ -30,7 +30,7 @@ ScalaFile
           PsiElement(()('(')
           BlockExpression
             PsiElement({)('{')
-            Literal
+            StringLiteral
               PsiElement(string content)('"hello"')
             PsiWhiteSpace('\n    ')
             BooleanLiteral

@@ -112,11 +112,11 @@ ScalaFile
                 ArgumentList
                   PsiElement(()('(')
                   PsiWhiteSpace('\n    ')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('23')
                   PsiElement(,)(',')
                   PsiWhiteSpace('\n    ')
-                  Literal
+                  StringLiteral
                     PsiElement(string content)('"bar"')
                   PsiElement(,)(',')
                   PsiWhiteSpace('\n  ')

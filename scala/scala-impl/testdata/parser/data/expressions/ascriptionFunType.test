@@ -121,7 +121,7 @@ ScalaFile
               PsiElement(identifier)('func')
             ArgumentList
               PsiElement(()('(')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -175,7 +175,7 @@ ScalaFile
               PsiElement(identifier)('func')
             ArgumentList
               PsiElement(()('(')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')

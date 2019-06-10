@@ -52,7 +52,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('42')
               PsiElement())(')')
         PsiWhiteSpace('\n')

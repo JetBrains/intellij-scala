@@ -70,12 +70,12 @@ ScalaFile
                   Pattern Argument List
                     PsiElement(()('(')
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('2')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
@@ -90,7 +90,7 @@ ScalaFile
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
                 BlockOfExpressions
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('0')
             PsiWhiteSpace('\n    ')
             PsiElement(})('}')

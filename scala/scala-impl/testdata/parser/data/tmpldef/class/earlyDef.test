@@ -52,7 +52,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           InfixExpression
-            Literal
+            StringLiteral
               PsiElement(string content)('"How are you, "')
             ReferenceExpression: +
               PsiElement(identifier)('+')
@@ -96,7 +96,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          StringLiteral
             PsiElement(string content)('"Bob"')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

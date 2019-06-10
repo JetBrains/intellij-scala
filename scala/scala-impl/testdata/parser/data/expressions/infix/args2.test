@@ -27,7 +27,7 @@ ScalaFile
           InfixExpression
             InfixExpression
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: add
@@ -35,10 +35,10 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 Tuple
                   PsiElement(()('(')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('1')
                   PsiElement(,)(',')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('2')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -47,17 +47,17 @@ ScalaFile
               PsiWhiteSpace(' ')
               Tuple
                 PsiElement(()('(')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('3')
                 PsiElement(,)(',')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('4')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
             ReferenceExpression: mul
               PsiElement(identifier)('mul')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('5')
           PsiWhiteSpace(' ')
           ReferenceExpression: div

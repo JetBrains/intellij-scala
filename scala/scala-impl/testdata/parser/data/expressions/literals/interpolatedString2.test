@@ -60,13 +60,13 @@ ScalaFile
                             PsiElement(<-)('<-')
                             PsiWhiteSpace(' ')
                             InfixExpression
-                              Literal
+                              IntegerLiteral
                                 PsiElement(integer)('1')
                               PsiWhiteSpace(' ')
                               ReferenceExpression: until
                                 PsiElement(identifier)('until')
                               PsiWhiteSpace(' ')
-                              Literal
+                              IntegerLiteral
                                 PsiElement(integer)('100')
                         PsiElement())(')')
                         PsiWhiteSpace(' ')
@@ -79,7 +79,7 @@ ScalaFile
                     PsiElement(identifier)('foldLeft')
                   ArgumentList
                     PsiElement(()('(')
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('0')
                     PsiElement())(')')
                 ArgumentList

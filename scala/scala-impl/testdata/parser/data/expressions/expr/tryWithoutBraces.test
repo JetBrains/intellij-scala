@@ -20,13 +20,13 @@ ScalaFile
           PsiElement(try)('try')
           PsiWhiteSpace(' ')
           InfixExpression
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             PsiWhiteSpace(' ')
             ReferenceExpression: +
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
           PsiWhiteSpace(' ')
           CatchBlock

@@ -37,12 +37,12 @@ ScalaFile
                 PsiElement(@)('@')
                 InfixPattern
                   LiteralPattern
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('2')
                   CodeReferenceElement: +
                     PsiElement(identifier)('+')
                   LiteralPattern
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('2')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

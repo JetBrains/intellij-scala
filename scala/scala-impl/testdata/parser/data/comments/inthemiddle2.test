@@ -4,7 +4,7 @@
 -----
 ScalaFile
   InfixExpression
-    Literal
+    IntegerLiteral
       PsiElement(integer)('1')
     PsiWhiteSpace(' ')
     ReferenceExpression: +
@@ -12,5 +12,5 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiComment(BlockComment)('/*\n*/')
     PsiWhiteSpace('\n')
-    Literal
+    IntegerLiteral
       PsiElement(integer)('2')

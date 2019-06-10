@@ -24,7 +24,7 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         BlockExpression
           PsiElement({)('{')
-          Literal
+          StringLiteral
             PsiElement(string content)('"this is a block"')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

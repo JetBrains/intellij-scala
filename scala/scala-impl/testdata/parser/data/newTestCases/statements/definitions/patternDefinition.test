@@ -61,19 +61,19 @@ ScalaFile
           Tuple
             PsiElement(()('(')
             InfixExpression
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('2')
               ReferenceExpression: +
                 PsiElement(identifier)('+')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 ReferenceExpression: *
                   PsiElement(identifier)('*')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('2')
             PsiElement(,)(',')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('3')
             PsiElement())(')')
         PsiWhiteSpace('\n')

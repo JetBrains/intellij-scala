@@ -35,7 +35,7 @@ ScalaFile
               PsiElement(<-)('<-')
               PsiWhiteSpace(' ')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: until
@@ -52,7 +52,7 @@ ScalaFile
                   PsiElement(identifier)('i')
                 ReferenceExpression: !=
                   PsiElement(identifier)('!=')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('5')
           PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -62,7 +62,7 @@ ScalaFile
             ReferenceExpression: +=
               PsiElement(identifier)('+=')
             InfixExpression
-              Literal
+              FloatLiteral
                 PsiElement(float)('1.0')
               ReferenceExpression: /
                 PsiElement(identifier)('/')
@@ -73,7 +73,7 @@ ScalaFile
                     PsiElement(identifier)('i')
                   ReferenceExpression: -
                     PsiElement(identifier)('-')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('5')
                 PsiElement())(')')
         PsiWhiteSpace('\n')

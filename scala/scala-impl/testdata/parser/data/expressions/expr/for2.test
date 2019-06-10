@@ -34,13 +34,13 @@ ScalaFile
               PsiElement(<-)('<-')
               PsiWhiteSpace(' ')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: until
                   PsiElement(identifier)('until')
                 PsiWhiteSpace(' ')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('2')
           PsiElement())(')')
           PsiWhiteSpace(' ')

@@ -9,11 +9,11 @@ ScalaFile
       PsiElement(identifier)('+=')
     PsiWhiteSpace(' ')
     InfixExpression
-      Literal
+      StringLiteral
         PsiElement(string content)('"c"')
       PsiWhiteSpace(' ')
       ReferenceExpression: ->
         PsiElement(identifier)('->')
       PsiWhiteSpace(' ')
-      Literal
+      IntegerLiteral
         PsiElement(integer)('3')

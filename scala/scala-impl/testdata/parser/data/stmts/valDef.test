@@ -86,7 +86,7 @@ ScalaFile
                       PsiElement(identifier)('Some')
                   ArgumentList
                     PsiElement(()('(')
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('2')
                     PsiElement())(')')
         PsiWhiteSpace('\n')

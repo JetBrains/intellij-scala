@@ -11,13 +11,13 @@ ScalaFile
           PsiElement(identifier)('List')
         ArgumentList
           PsiElement(()('(')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('1')
           PsiElement(,)(',')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('2')
           PsiElement(,)(',')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('3')
           PsiElement())(')')
       PsiElement(.)('.')
@@ -45,7 +45,7 @@ ScalaFile
         PsiElement(identifier)('println')
       ArgumentList
         PsiElement(()('(')
-        Literal
+        StringLiteral
           PsiElement(string content)('"done"')
         PsiElement())(')')
     PsiWhiteSpace(' ')

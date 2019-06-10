@@ -35,7 +35,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('3')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: x$u20A2
@@ -51,7 +51,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('4')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: y$ub
@@ -67,7 +67,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('5')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: y$u0A
@@ -83,7 +83,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('6')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: z$up
@@ -99,7 +99,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('2')
         PsiWhiteSpace('\n\n')
         PsiElement(})('}')

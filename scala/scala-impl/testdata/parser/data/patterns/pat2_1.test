@@ -30,7 +30,7 @@ ScalaFile
               Pattern Argument List
                 PsiElement(()('(')
                 LiteralPattern
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('1')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')

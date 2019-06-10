@@ -29,7 +29,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        Literal
+        IntegerLiteral
           PsiElement(integer)('1')
         PsiWhiteSpace('\n  ')
         NullLiteral
@@ -38,19 +38,19 @@ ScalaFile
         BooleanLiteral
           PsiElement(true)('true')
         PsiWhiteSpace('\n  ')
-        Literal
+        StringLiteral
           PsiElement(string content)('"one"')
         PsiWhiteSpace('\n  ')
         PrefixExpression
           ReferenceExpression: -
             PsiElement(identifier)('-')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('1')
         PsiWhiteSpace('\n  ')
         PrefixExpression
           ReferenceExpression: -
             PsiElement(identifier)('-')
-          Literal
+          FloatLiteral
             PsiElement(float)('1.0')
         PsiWhiteSpace('\n  ')
         CharLiteral

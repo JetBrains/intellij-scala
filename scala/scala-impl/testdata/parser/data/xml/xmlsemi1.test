@@ -38,7 +38,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(ScalaXmlInjectionStart)('{')
               BlockOfExpressions
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('42')
                 PsiElement(;)(';')
               PsiElement(ScalaXmlInjection End)('}')

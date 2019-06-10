@@ -50,19 +50,19 @@ ScalaFile
                   PsiElement(()('(')
                   ArgumentPatterns
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('1')
                     PsiElement(,)(',')
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('6')
                     PsiElement(,)(',')
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('7')
                     PsiElement(,)(',')
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('8')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -80,7 +80,7 @@ ScalaFile
                   PsiElement(()('(')
                   ArgumentPatterns
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('2')
                     PsiElement(,)(',')
                   PsiElement())(')')
@@ -102,7 +102,7 @@ ScalaFile
                       PsiElement(identifier)('x')
                     PsiElement(,)(',')
                     LiteralPattern
-                      Literal
+                      StringLiteral
                         PsiElement(string content)('"abc"')
                     PsiElement(,)(',')
                     WildcardPattern

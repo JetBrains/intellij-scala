@@ -51,11 +51,11 @@ ScalaFile
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('2')
                 ReferenceExpression: /
                   PsiElement(identifier)('/')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('0')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -71,13 +71,13 @@ ScalaFile
                   PsiElement(case)('case')
                   PsiWhiteSpace(' ')
                   LiteralPattern
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('1')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
                   BlockOfExpressions
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('2')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -91,7 +91,7 @@ ScalaFile
               ReturnStatement
                 PsiElement(return)('return')
                 PsiWhiteSpace(' ')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('0')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

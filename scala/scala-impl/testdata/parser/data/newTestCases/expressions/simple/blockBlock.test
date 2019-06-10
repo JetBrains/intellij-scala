@@ -61,7 +61,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('3')
           PsiWhiteSpace('\n    ')
           ScClass: b
@@ -97,13 +97,13 @@ ScalaFile
             ReturnStatement
               PsiElement(return)('return')
               PsiWhiteSpace(' ')
-              Literal
+              StringLiteral
                 PsiElement(string content)('"it must be true"')
           PsiWhiteSpace('\n    ')
           ReturnStatement
             PsiElement(return)('return')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('0')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')

@@ -36,7 +36,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           LiteralType: -42
-            Literal
+            IntegerLiteral
               PsiElement(identifier)('-')
               PsiElement(integer)('42')
         PsiWhiteSpace('\n')

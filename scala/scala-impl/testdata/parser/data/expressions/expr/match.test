@@ -43,7 +43,7 @@ ScalaFile
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                Literal
+                FloatLiteral
                   PsiElement(float)('2.71828')
             PsiWhiteSpace('\n    ')
             CaseClause
@@ -56,7 +56,7 @@ ScalaFile
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                Literal
+                FloatLiteral
                   PsiElement(float)('3.1415')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')

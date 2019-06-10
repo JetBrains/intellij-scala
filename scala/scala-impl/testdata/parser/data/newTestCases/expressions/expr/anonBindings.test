@@ -48,11 +48,11 @@ ScalaFile
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')
           InfixExpression
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             ReferenceExpression: +
               PsiElement(identifier)('+')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

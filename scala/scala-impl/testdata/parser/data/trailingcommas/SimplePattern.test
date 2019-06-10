@@ -76,7 +76,7 @@ ScalaFile
               PsiElement(identifier)('Some')
             ArgumentList
               PsiElement(()('(')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('1')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -99,7 +99,7 @@ ScalaFile
                     PsiElement(@)('@')
                     PsiWhiteSpace(' ')
                     LiteralPattern
-                      Literal
+                      IntegerLiteral
                         PsiElement(integer)('1')
                   PsiElement(,)(',')
                   PsiWhiteSpace('\n    ')
@@ -121,15 +121,15 @@ ScalaFile
               PsiElement(identifier)('List')
             ArgumentList
               PsiElement(()('(')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('2')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('3')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -147,12 +147,12 @@ ScalaFile
                 Pattern Argument List
                   PsiElement(()('(')
                   LiteralPattern
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('1')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   LiteralPattern
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('2')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -171,7 +171,7 @@ ScalaFile
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
@@ -209,14 +209,14 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           InfixExpression
-            Literal
+            IntegerLiteral
               PsiElement(integer)('42')
             PsiWhiteSpace(' ')
             ReferenceExpression: ::
               PsiElement(identifier)('::')
             PsiWhiteSpace(' ')
             InfixExpression
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('17')
               PsiWhiteSpace(' ')
               ReferenceExpression: ::

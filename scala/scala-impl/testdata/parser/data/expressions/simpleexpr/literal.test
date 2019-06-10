@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        Literal
+        IntegerLiteral
           PsiElement(integer)('23')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

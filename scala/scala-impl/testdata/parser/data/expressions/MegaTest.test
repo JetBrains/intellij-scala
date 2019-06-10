@@ -46,7 +46,7 @@ ScalaFile
     PsiElement(if)('if')
     PsiWhiteSpace(' ')
     PsiElement(()('(')
-    Literal
+    IntegerLiteral
       PsiElement(integer)('1')
     PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -71,7 +71,7 @@ ScalaFile
         PsiElement(if)('if')
         PsiWhiteSpace(' ')
         PsiElement(()('(')
-        Literal
+        IntegerLiteral
           PsiElement(integer)('1')
         PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -96,7 +96,7 @@ ScalaFile
             PsiElement(if)('if')
             PsiWhiteSpace(' ')
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -121,7 +121,7 @@ ScalaFile
                 PsiElement(if)('if')
                 PsiWhiteSpace(' ')
                 PsiElement(()('(')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -146,7 +146,7 @@ ScalaFile
                     PsiElement(if)('if')
                     PsiWhiteSpace(' ')
                     PsiElement(()('(')
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('1')
                     PsiElement())(')')
                     PsiWhiteSpace(' ')
@@ -171,7 +171,7 @@ ScalaFile
                         PsiElement(if)('if')
                         PsiWhiteSpace(' ')
                         PsiElement(()('(')
-                        Literal
+                        IntegerLiteral
                           PsiElement(integer)('1')
                         PsiElement())(')')
                         PsiWhiteSpace(' ')
@@ -196,7 +196,7 @@ ScalaFile
                             PsiElement(if)('if')
                             PsiWhiteSpace(' ')
                             PsiElement(()('(')
-                            Literal
+                            IntegerLiteral
                               PsiElement(integer)('1')
                             PsiElement())(')')
                             PsiWhiteSpace(' ')
@@ -221,7 +221,7 @@ ScalaFile
                                 PsiElement(if)('if')
                                 PsiWhiteSpace(' ')
                                 PsiElement(()('(')
-                                Literal
+                                IntegerLiteral
                                   PsiElement(integer)('1')
                                 PsiElement())(')')
                                 PsiWhiteSpace(' ')
@@ -246,7 +246,7 @@ ScalaFile
                                     PsiElement(if)('if')
                                     PsiWhiteSpace(' ')
                                     PsiElement(()('(')
-                                    Literal
+                                    IntegerLiteral
                                       PsiElement(integer)('1')
                                     PsiElement())(')')
                                     PsiWhiteSpace(' ')
@@ -271,7 +271,7 @@ ScalaFile
                                         PsiElement(if)('if')
                                         PsiWhiteSpace(' ')
                                         PsiElement(()('(')
-                                        Literal
+                                        IntegerLiteral
                                           PsiElement(integer)('1')
                                         PsiElement())(')')
                                         PsiWhiteSpace(' ')
@@ -296,7 +296,7 @@ ScalaFile
                                             PsiElement(if)('if')
                                             PsiWhiteSpace(' ')
                                             PsiElement(()('(')
-                                            Literal
+                                            IntegerLiteral
                                               PsiElement(integer)('1')
                                             PsiElement())(')')
                                             PsiWhiteSpace(' ')
@@ -321,7 +321,7 @@ ScalaFile
                                                 PsiElement(if)('if')
                                                 PsiWhiteSpace(' ')
                                                 PsiElement(()('(')
-                                                Literal
+                                                IntegerLiteral
                                                   PsiElement(integer)('1')
                                                 PsiElement())(')')
                                                 PsiWhiteSpace(' ')
@@ -346,7 +346,7 @@ ScalaFile
                                                     PsiElement(if)('if')
                                                     PsiWhiteSpace(' ')
                                                     PsiElement(()('(')
-                                                    Literal
+                                                    IntegerLiteral
                                                       PsiElement(integer)('1')
                                                     PsiElement())(')')
                                                     PsiWhiteSpace(' ')
@@ -371,7 +371,7 @@ ScalaFile
                                                         PsiElement(if)('if')
                                                         PsiWhiteSpace(' ')
                                                         PsiElement(()('(')
-                                                        Literal
+                                                        IntegerLiteral
                                                           PsiElement(integer)('1')
                                                         PsiElement())(')')
                                                         PsiWhiteSpace(' ')

@@ -36,10 +36,10 @@ ScalaFile
           PsiWhiteSpace(' ')
           Tuple
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -51,13 +51,13 @@ ScalaFile
             ReferenceExpression: add
               PsiElement(identifier)('add')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
           PsiWhiteSpace(' ')
           ReferenceExpression: add
             PsiElement(identifier)('add')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('2')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

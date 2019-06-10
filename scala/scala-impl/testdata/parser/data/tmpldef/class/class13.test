@@ -42,6 +42,6 @@ ScalaFile
               PsiElement(identifier)('Thread')
           ArgumentList
             PsiElement(()('(')
-            Literal
+            StringLiteral
               PsiElement(string content)('"ServerThread"')
             PsiElement())(')')

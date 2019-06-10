@@ -27,7 +27,7 @@ ScalaFile
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
             BlockOfExpressions
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('1')
               PsiWhiteSpace('\n ')
               FunctionExpression
@@ -39,7 +39,7 @@ ScalaFile
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
                 BlockOfExpressions
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('0')
           PsiElement(})('}')
         PsiWhiteSpace(' ')

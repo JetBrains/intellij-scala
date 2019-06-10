@@ -33,7 +33,7 @@ ScalaFile
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
             BlockOfExpressions
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('3')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

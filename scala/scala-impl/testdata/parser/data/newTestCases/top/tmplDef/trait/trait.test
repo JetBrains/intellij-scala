@@ -39,7 +39,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('2')
         PsiElement(})('}')
       PsiWhiteSpace(' ')

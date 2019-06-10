@@ -25,7 +25,7 @@ ScalaFile
         DoStatement
           PsiElement(do)('do')
           PsiWhiteSpace(' ')
-          Literal
+          StringLiteral
             PsiElement(string content)('"hard work"')
           PsiElement(;)(';')
           PsiWhiteSpace(' ')

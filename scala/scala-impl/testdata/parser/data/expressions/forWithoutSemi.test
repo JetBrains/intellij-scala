@@ -37,13 +37,13 @@ ScalaFile
               PsiElement(<-)('<-')
               PsiWhiteSpace(' ')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: to
                   PsiElement(identifier)('to')
                 PsiWhiteSpace(' ')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('5')
             PsiElement(;)(';')
             PsiWhiteSpace(' ')
@@ -53,7 +53,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('4')
             PsiWhiteSpace(' ')
             Guard

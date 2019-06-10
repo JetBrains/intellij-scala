@@ -24,28 +24,28 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         InfixExpression
-          Literal
+          IntegerLiteral
             PsiElement(integer)('2')
           ReferenceExpression: ::
             PsiElement(identifier)('::')
           InfixExpression
-            Literal
+            IntegerLiteral
               PsiElement(integer)('3')
             ReferenceExpression: +:
               PsiElement(identifier)('+:')
             InfixExpression
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('4')
               ReferenceExpression: -:
                 PsiElement(identifier)('-:')
               ExpressionInParenthesis
                 PsiElement(()('(')
                 InfixExpression
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('7')
                   ReferenceExpression: +
                     PsiElement(identifier)('+')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('5')
                 PsiElement())(')')
         PsiWhiteSpace('\n')

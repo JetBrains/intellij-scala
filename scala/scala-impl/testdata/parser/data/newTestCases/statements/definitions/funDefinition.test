@@ -64,19 +64,19 @@ ScalaFile
           PsiWhiteSpace(' ')
           InfixExpression
             InfixExpression
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('4')
               PsiWhiteSpace(' ')
               ReferenceExpression: ::
                 PsiElement(identifier)('::')
               PsiWhiteSpace(' ')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('3')
             PsiWhiteSpace(' ')
             ReferenceExpression: &:
               PsiElement(identifier)('&:')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('5')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

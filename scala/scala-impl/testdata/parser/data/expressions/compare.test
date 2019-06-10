@@ -25,13 +25,13 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         MethodCall
           ReferenceExpression: 41.compare
-            Literal
+            IntegerLiteral
               PsiElement(integer)('41')
             PsiElement(.)('.')
             PsiElement(identifier)('compare')
           ArgumentList
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('43')
             PsiElement())(')')
         PsiWhiteSpace('\n')

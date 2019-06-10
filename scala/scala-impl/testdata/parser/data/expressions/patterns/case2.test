@@ -44,7 +44,7 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 LiteralPattern
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('1')
                 PsiElement(=>)('=>')
                 BlockOfExpressions
@@ -54,7 +54,7 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 LiteralPattern
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('2')
                 PsiElement(=>)('=>')
                 BlockOfExpressions

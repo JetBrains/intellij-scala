@@ -27,15 +27,15 @@ ScalaFile
           PrefixExpression
             ReferenceExpression: +
               PsiElement(identifier)('+')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
           PsiElement(,)(',')
           InfixExpression
-            Literal
+            IntegerLiteral
               PsiElement(integer)('3')
             ReferenceExpression: +
               PsiElement(identifier)('+')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('9')
           PsiElement())(')')
         PsiWhiteSpace('\n')

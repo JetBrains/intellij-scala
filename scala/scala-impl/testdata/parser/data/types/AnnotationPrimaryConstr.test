@@ -70,7 +70,7 @@ ScalaFile
             ReferenceExpression: +
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

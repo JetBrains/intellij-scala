@@ -28,7 +28,7 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n\n  ')
         MatchStatement
-          Literal
+          IntegerLiteral
             PsiElement(integer)('42')
           PsiWhiteSpace(' ')
           PsiElement(match)('match')

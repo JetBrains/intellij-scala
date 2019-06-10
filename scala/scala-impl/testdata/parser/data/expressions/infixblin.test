@@ -39,7 +39,7 @@ ScalaFile
           PostfixExpression
             InfixExpression
               InfixExpression
-                Literal
+                StringLiteral
                   PsiElement(string content)('"Scala_String "')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: +
@@ -51,7 +51,7 @@ ScalaFile
               ReferenceExpression: +
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
-              Literal
+              StringLiteral
                 PsiElement(string content)('" "')
             PsiWhiteSpace(' ')
             ReferenceExpression: +

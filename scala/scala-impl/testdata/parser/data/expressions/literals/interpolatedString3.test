@@ -127,7 +127,7 @@ ScalaFile
                             PsiElement(identifier)('B')
                         ArgumentList
                           PsiElement(()('(')
-                          Literal
+                          IntegerLiteral
                             PsiElement(integer)('1')
                           PsiElement())(')')
                 PsiElement())(')')

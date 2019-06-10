@@ -38,7 +38,7 @@ ScalaFile
               PsiElement(<-)('<-')
               PsiWhiteSpace(' ')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: until
@@ -54,7 +54,7 @@ ScalaFile
               PsiElement(<-)('<-')
               PsiWhiteSpace(' ')
               InfixExpression
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: until

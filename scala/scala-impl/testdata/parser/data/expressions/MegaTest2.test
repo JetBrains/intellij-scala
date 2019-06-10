@@ -1256,7 +1256,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('0')
             PsiWhiteSpace('\n    ')
             AssignStatement
@@ -1298,7 +1298,7 @@ ScalaFile
                 ReferenceExpression: !=
                   PsiElement(identifier)('!=')
                 PsiWhiteSpace(' ')
-                Literal
+                IntegerLiteral
                   PsiElement(integer)('0')
               PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -1349,7 +1349,7 @@ ScalaFile
                     ReferenceExpression: !=
                       PsiElement(identifier)('!=')
                     PsiWhiteSpace(' ')
-                    Literal
+                    IntegerLiteral
                       PsiElement(integer)('0')
                   PsiElement())(')')
                   PsiWhiteSpace(' ')
@@ -1400,7 +1400,7 @@ ScalaFile
                         ReferenceExpression: !=
                           PsiElement(identifier)('!=')
                         PsiWhiteSpace(' ')
-                        Literal
+                        IntegerLiteral
                           PsiElement(integer)('0')
                       PsiElement())(')')
                       PsiWhiteSpace(' ')
@@ -1451,7 +1451,7 @@ ScalaFile
                             ReferenceExpression: !=
                               PsiElement(identifier)('!=')
                             PsiWhiteSpace(' ')
-                            Literal
+                            IntegerLiteral
                               PsiElement(integer)('0')
                           PsiElement())(')')
                           PsiWhiteSpace(' ')
@@ -1502,7 +1502,7 @@ ScalaFile
                                 ReferenceExpression: !=
                                   PsiElement(identifier)('!=')
                                 PsiWhiteSpace(' ')
-                                Literal
+                                IntegerLiteral
                                   PsiElement(integer)('0')
                               PsiElement())(')')
                               PsiWhiteSpace(' ')
@@ -1553,7 +1553,7 @@ ScalaFile
                                     ReferenceExpression: !=
                                       PsiElement(identifier)('!=')
                                     PsiWhiteSpace(' ')
-                                    Literal
+                                    IntegerLiteral
                                       PsiElement(integer)('0')
                                   PsiElement())(')')
                                   PsiWhiteSpace(' ')
@@ -1604,7 +1604,7 @@ ScalaFile
                                         ReferenceExpression: !=
                                           PsiElement(identifier)('!=')
                                         PsiWhiteSpace(' ')
-                                        Literal
+                                        IntegerLiteral
                                           PsiElement(integer)('0')
                                       PsiElement())(')')
                                       PsiWhiteSpace(' ')
@@ -1655,7 +1655,7 @@ ScalaFile
                                             ReferenceExpression: !=
                                               PsiElement(identifier)('!=')
                                             PsiWhiteSpace(' ')
-                                            Literal
+                                            IntegerLiteral
                                               PsiElement(integer)('0')
                                           PsiElement())(')')
                                           PsiWhiteSpace(' ')
@@ -1706,7 +1706,7 @@ ScalaFile
                                                 ReferenceExpression: !=
                                                   PsiElement(identifier)('!=')
                                                 PsiWhiteSpace(' ')
-                                                Literal
+                                                IntegerLiteral
                                                   PsiElement(integer)('0')
                                               PsiElement())(')')
                                               PsiWhiteSpace(' ')
@@ -1757,7 +1757,7 @@ ScalaFile
                                                     ReferenceExpression: !=
                                                       PsiElement(identifier)('!=')
                                                     PsiWhiteSpace(' ')
-                                                    Literal
+                                                    IntegerLiteral
                                                       PsiElement(integer)('0')
                                                   PsiElement())(')')
                                                   PsiWhiteSpace(' ')
@@ -1808,7 +1808,7 @@ ScalaFile
                                                         ReferenceExpression: !=
                                                           PsiElement(identifier)('!=')
                                                         PsiWhiteSpace(' ')
-                                                        Literal
+                                                        IntegerLiteral
                                                           PsiElement(integer)('0')
                                                       PsiElement())(')')
                                                       PsiWhiteSpace(' ')
@@ -1859,7 +1859,7 @@ ScalaFile
                                                             ReferenceExpression: !=
                                                               PsiElement(identifier)('!=')
                                                             PsiWhiteSpace(' ')
-                                                            Literal
+                                                            IntegerLiteral
                                                               PsiElement(integer)('0')
                                                           PsiElement())(')')
                                                           PsiWhiteSpace(' ')
@@ -1910,7 +1910,7 @@ ScalaFile
                                                                 ReferenceExpression: !=
                                                                   PsiElement(identifier)('!=')
                                                                 PsiWhiteSpace(' ')
-                                                                Literal
+                                                                IntegerLiteral
                                                                   PsiElement(integer)('0')
                                                               PsiElement())(')')
                                                               PsiWhiteSpace(' ')
@@ -1961,7 +1961,7 @@ ScalaFile
                                                                     ReferenceExpression: !=
                                                                       PsiElement(identifier)('!=')
                                                                     PsiWhiteSpace(' ')
-                                                                    Literal
+                                                                    IntegerLiteral
                                                                       PsiElement(integer)('0')
                                                                   PsiElement())(')')
                                                                   PsiWhiteSpace(' ')
@@ -2012,7 +2012,7 @@ ScalaFile
                                                                         ReferenceExpression: !=
                                                                           PsiElement(identifier)('!=')
                                                                         PsiWhiteSpace(' ')
-                                                                        Literal
+                                                                        IntegerLiteral
                                                                           PsiElement(integer)('0')
                                                                       PsiElement())(')')
                                                                       PsiWhiteSpace(' ')
@@ -2063,7 +2063,7 @@ ScalaFile
                                                                             ReferenceExpression: !=
                                                                               PsiElement(identifier)('!=')
                                                                             PsiWhiteSpace(' ')
-                                                                            Literal
+                                                                            IntegerLiteral
                                                                               PsiElement(integer)('0')
                                                                           PsiElement())(')')
                                                                           PsiWhiteSpace(' ')
@@ -2114,7 +2114,7 @@ ScalaFile
                                                                                 ReferenceExpression: !=
                                                                                   PsiElement(identifier)('!=')
                                                                                 PsiWhiteSpace(' ')
-                                                                                Literal
+                                                                                IntegerLiteral
                                                                                   PsiElement(integer)('0')
                                                                               PsiElement())(')')
                                                                               PsiWhiteSpace(' ')
@@ -2165,7 +2165,7 @@ ScalaFile
                                                                                     ReferenceExpression: !=
                                                                                       PsiElement(identifier)('!=')
                                                                                     PsiWhiteSpace(' ')
-                                                                                    Literal
+                                                                                    IntegerLiteral
                                                                                       PsiElement(integer)('0')
                                                                                   PsiElement())(')')
                                                                                   PsiWhiteSpace(' ')
@@ -2216,7 +2216,7 @@ ScalaFile
                                                                                         ReferenceExpression: !=
                                                                                           PsiElement(identifier)('!=')
                                                                                         PsiWhiteSpace(' ')
-                                                                                        Literal
+                                                                                        IntegerLiteral
                                                                                           PsiElement(integer)('0')
                                                                                       PsiElement())(')')
                                                                                       PsiWhiteSpace(' ')
@@ -2267,7 +2267,7 @@ ScalaFile
                                                                                             ReferenceExpression: !=
                                                                                               PsiElement(identifier)('!=')
                                                                                             PsiWhiteSpace(' ')
-                                                                                            Literal
+                                                                                            IntegerLiteral
                                                                                               PsiElement(integer)('0')
                                                                                           PsiElement())(')')
                                                                                           PsiWhiteSpace(' ')
@@ -2318,7 +2318,7 @@ ScalaFile
                                                                                                 ReferenceExpression: !=
                                                                                                   PsiElement(identifier)('!=')
                                                                                                 PsiWhiteSpace(' ')
-                                                                                                Literal
+                                                                                                IntegerLiteral
                                                                                                   PsiElement(integer)('0')
                                                                                               PsiElement())(')')
                                                                                               PsiWhiteSpace(' ')
@@ -2369,7 +2369,7 @@ ScalaFile
                                                                                                     ReferenceExpression: !=
                                                                                                       PsiElement(identifier)('!=')
                                                                                                     PsiWhiteSpace(' ')
-                                                                                                    Literal
+                                                                                                    IntegerLiteral
                                                                                                       PsiElement(integer)('0')
                                                                                                   PsiElement())(')')
                                                                                                   PsiWhiteSpace(' ')
@@ -2381,7 +2381,7 @@ ScalaFile
                                                                                                   BlockExpression
                                                                                                     PsiElement({)('{')
                                                                                                     PsiWhiteSpace('\n                                                ')
-                                                                                                    Literal
+                                                                                                    IntegerLiteral
                                                                                                       PsiElement(integer)('0')
                                                                                                     PsiWhiteSpace('\n                                              ')
                                                                                                     PsiElement(})('}')

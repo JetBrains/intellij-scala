@@ -57,13 +57,13 @@ ScalaFile
             PsiWhiteSpace('\n    ')
             PostfixExpression
               InfixExpression
-                Literal
+                StringLiteral
                   PsiElement(string content)('""')
                 PsiWhiteSpace(' ')
                 ReferenceExpression: contains
                   PsiElement(identifier)('contains')
                 PsiWhiteSpace(' ')
-                Literal
+                StringLiteral
                   PsiElement(string content)('""')
               PsiWhiteSpace('     ')
               ReferenceExpression: ASD

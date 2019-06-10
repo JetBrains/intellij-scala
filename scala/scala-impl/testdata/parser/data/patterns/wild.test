@@ -398,7 +398,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  Literal
+                  StringLiteral
                     PsiElement(string content)('"|"')
                 PsiWhiteSpace('\n    ')
                 PsiElement(})('}')

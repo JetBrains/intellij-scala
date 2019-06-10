@@ -13,12 +13,12 @@ ScalaFile
                 PsiElement(identifier)('annot')
             ArgumentList
               PsiElement(()('(')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('1')
               PsiElement())(')')
             ArgumentList
               PsiElement(()('(')
-              Literal
+              StringLiteral
                 PsiElement(string content)('""')
               PsiElement())(')')
     Modifiers

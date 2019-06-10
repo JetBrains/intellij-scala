@@ -38,7 +38,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           PostfixExpression
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             PsiWhiteSpace(' ')
             ReferenceExpression: ?
@@ -57,7 +57,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('3')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

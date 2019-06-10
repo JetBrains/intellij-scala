@@ -41,7 +41,7 @@ ScalaFile
         PsiElement(identifier)('Future')
       ArgumentList
         PsiElement(()('(')
-        Literal
+        IntegerLiteral
           PsiElement(integer)('1')
         PsiElement())(')')
   PsiWhiteSpace('\n')
@@ -63,7 +63,7 @@ ScalaFile
         PsiElement(identifier)('Future')
       ArgumentList
         PsiElement(()('(')
-        Literal
+        IntegerLiteral
           PsiElement(integer)('2')
         PsiElement())(')')
   PsiWhiteSpace('\n\n')

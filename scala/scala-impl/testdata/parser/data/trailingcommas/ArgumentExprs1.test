@@ -102,7 +102,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('1')
         PsiWhiteSpace('\n  ')
         MethodCall
@@ -112,11 +112,11 @@ ScalaFile
             ArgumentList
               PsiElement(()('(')
               PsiWhiteSpace('\n    ')
-              Literal
+              IntegerLiteral
                 PsiElement(integer)('23')
               PsiElement(,)(',')
               PsiWhiteSpace('\n    ')
-              Literal
+              StringLiteral
                 PsiElement(string content)('"bar"')
               PsiElement(,)(',')
               PsiWhiteSpace('\n  ')
@@ -178,7 +178,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Literal
+          IntegerLiteral
             PsiElement(integer)('1')
         PsiWhiteSpace('\n  ')
         MethodCall
@@ -186,10 +186,10 @@ ScalaFile
             PsiElement(identifier)('g')
           ArgumentList
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('2')
             PsiElement(,)(',')
             PsiWhiteSpace('\n  ')
@@ -200,7 +200,7 @@ ScalaFile
             PsiElement(identifier)('g')
           ArgumentList
             PsiElement(()('(')
-            Literal
+            IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
             TypedStatement
@@ -209,11 +209,11 @@ ScalaFile
                   PsiElement(identifier)('List')
                 ArgumentList
                   PsiElement(()('(')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('2')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('3')
                   PsiElement())(')')
               PsiElement(:)(':')

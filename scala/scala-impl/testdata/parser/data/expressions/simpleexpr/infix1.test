@@ -143,7 +143,7 @@ ScalaFile
                     PsiElement(identifier)('List')
                   ArgumentList
                     PsiElement(()('(')
-                    Literal
+                    StringLiteral
                       PsiElement(string content)('"-server"')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
@@ -204,7 +204,7 @@ ScalaFile
                           ReferenceExpression: +
                             PsiElement(identifier)('+')
                           PsiWhiteSpace(' ')
-                          Literal
+                          StringLiteral
                             PsiElement(string content)('":"')
                         PsiWhiteSpace(' ')
                         ReferenceExpression: +
@@ -302,7 +302,7 @@ ScalaFile
                             PsiWhiteSpace(' ')
                             PsiElement(else)('else')
                             PsiWhiteSpace(' ')
-                            Literal
+                            StringLiteral
                               PsiElement(string content)('""')
                         PsiElement())(')')
                     PsiElement())(')')
@@ -355,7 +355,7 @@ ScalaFile
                               PsiElement(identifier)('isEmpty')
                             PsiElement())(')')
                             PsiWhiteSpace(' ')
-                            Literal
+                            StringLiteral
                               PsiElement(string content)('""')
                             PsiWhiteSpace(' ')
                             PsiElement(else)('else')
@@ -371,7 +371,7 @@ ScalaFile
                                 ReferenceExpression: +
                                   PsiElement(identifier)('+')
                                 PsiWhiteSpace(' ')
-                                Literal
+                                StringLiteral
                                   PsiElement(string content)('":"')
                               PsiWhiteSpace(' ')
                               ReferenceExpression: +

@@ -34,7 +34,7 @@ ScalaFile
                     PsiElement(identifier)('z')
                 ArgumentList
                   PsiElement(()('(')
-                  Literal
+                  IntegerLiteral
                     PsiElement(integer)('1')
                   PsiElement())(')')
               PsiWhiteSpace(' ')

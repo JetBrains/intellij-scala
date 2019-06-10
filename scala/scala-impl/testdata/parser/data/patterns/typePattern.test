@@ -6,11 +6,11 @@ ScalaFile
   MatchStatement
     Tuple
       PsiElement(()('(')
-      Literal
+      IntegerLiteral
         PsiElement(integer)('1')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
-      Literal
+      IntegerLiteral
         PsiElement(integer)('2')
       PsiElement())(')')
     PsiWhiteSpace(' ')
