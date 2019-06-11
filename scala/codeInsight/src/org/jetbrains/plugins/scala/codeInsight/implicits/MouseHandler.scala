@@ -15,6 +15,7 @@ import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing.{JLabel, SwingUtilities}
 import javax.swing.event.AncestorEvent
+import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions.ObjectExt

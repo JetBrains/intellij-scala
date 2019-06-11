@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInsight.implicits
+package org.jetbrains.plugins.scala.annotator.hints
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
@@ -6,13 +6,13 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-private case class Text(string: String,
-                        attributes: Option[TextAttributes] = None,
-                        effectRange: Option[(Int, Int)]    = None,
-                        tooltip: Option[String]            = None,
-                        navigatable: Option[Navigatable]   = None,
-                        errorTooltip: Option[String]       = None,
-                        expansion: Option[() => Seq[Text]] = None) {
+case class Text(string: String,
+                attributes: Option[TextAttributes] = None,
+                effectRange: Option[(Int, Int)]    = None,
+                tooltip: Option[String]            = None,
+                navigatable: Option[Navigatable]   = None,
+                errorTooltip: Option[String]       = None,
+                expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
 

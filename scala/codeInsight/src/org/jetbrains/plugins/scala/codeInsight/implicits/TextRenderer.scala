@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.Key
 import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.GraphicsUtil
+import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextRenderer._
 
 private class TextRenderer(var parts: Seq[Text], menu: Option[String])
