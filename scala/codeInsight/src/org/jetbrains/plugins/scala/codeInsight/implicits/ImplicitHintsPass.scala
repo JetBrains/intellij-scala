@@ -15,6 +15,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -130,6 +131,8 @@ private class ImplicitHintsPass(protected val editor: Editor, protected val root
 }
 
 private object ImplicitHintsPass {
+  import org.jetbrains.plugins.scala.annotator.hints.Hint
+
   private final val BulkChangeThreshold = 1000
 
   private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)

@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight
 
 import com.intellij.openapi.actionSystem.{KeyboardShortcut, Shortcut}
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.{EditorCustomElementRenderer, InlayModel}
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.{Key, TextRange}
 import javax.swing.KeyStroke
+import org.jetbrains.plugins.scala.annotator.hints.Hint
 
 import scala.collection.JavaConverters._
 
@@ -21,7 +21,7 @@ package object implicits {
         .filter(ScalaImplicitHintKey.isIn)
 
     def add(hint: Hint): Unit = {
-      Option(hint.addTo(model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
+      Option(Hint.addTo(hint, model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
     }
   }
 
@@ -58,20 +58,5 @@ package object implicits {
     if (isOpening(element)) pairIn(elements)
     else if (isClosing(element)) pairIn(elements.reverse)
     else None
-  }
-
-  implicit class TextAttributesExt(val v: TextAttributes) extends AnyVal {
-    def + (attributes: TextAttributes): TextAttributes = {
-      val result = v.clone()
-      Option(attributes.getForegroundColor).foreach(result.setForegroundColor)
-      Option(attributes.getBackgroundColor).foreach(result.setBackgroundColor)
-      Option(attributes.getFontType).foreach(result.setFontType)
-      Option(attributes.getEffectType).foreach(result.setEffectType)
-      Option(attributes.getEffectColor).foreach(result.setEffectColor)
-      result
-    }
-
-    def ++ (attributes: Iterable[TextAttributes]): TextAttributes =
-      attributes.foldLeft(v)(_ + _)
   }
 }
