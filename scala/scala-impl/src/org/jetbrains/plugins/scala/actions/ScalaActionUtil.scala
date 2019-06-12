@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, Present
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
-import com.intellij.util.ui.UIUtil
+import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
@@ -45,7 +45,7 @@ object ScalaActionUtil {
   
   def showHint(editor: Editor, text: String) {
     val label = HintUtil.createInformationLabel(text)
-    label.setFont(UIUtil.getLabelFont)
+    label.setFont(StartupUiUtil.getLabelFont)
 
     val hint: LightweightHint = new LightweightHint(label)
 

@@ -204,14 +204,14 @@ lazy val devKitIntegration = newProject(
   "devKit",
   file("scala/integration/devKit")
 ).settings(
-  ideaInternalPlugins := Seq("devkit")
+  ideaInternalPlugins += "devkit"
 )
 
 lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      ideaInternalPlugins := Seq(
+      ideaInternalPlugins ++= Seq(
         "android",
         "smali", // required by Android
         "gradle", // required by Android
@@ -223,14 +223,14 @@ lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      ideaInternalPlugins := Seq("copyright")
+      ideaInternalPlugins ++= Seq("copyright")
     )
 
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      ideaInternalPlugins := Seq(
+      ideaInternalPlugins ++= Seq(
         "gradle",
         "groovy",     // required by Gradle
         "properties") // required by Gradle
@@ -242,28 +242,28 @@ lazy val intelliLangIntegration = newProject(
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
 ).settings(
-  ideaInternalPlugins := Seq("IntelliLang")
+  ideaInternalPlugins ++= Seq("IntelliLang")
 )
 
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      ideaInternalPlugins := Seq("maven")
+      ideaInternalPlugins ++= Seq("maven")
     )
 
 lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      ideaInternalPlugins := Seq("properties")
+      ideaInternalPlugins ++= Seq("properties")
     )
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
     .dependsOn(scalaApi % Compile)
     .settings(
-      ideaInternalPlugins := Seq("java-decompiler")
+      ideaInternalPlugins ++= Seq("java-decompiler")
     )
 
 
