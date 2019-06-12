@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.adapters;
 
 import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiJvmModifiersOwner;
 import com.intellij.psi.PsiModifierListOwner;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 //This interface is required because it's impossible to implement
 //overloaded method with different array return types in scala.
-public interface PsiModifierListOwnerAdapter extends PsiModifierListOwner, PsiAnnotatedAdapter {
+public interface PsiModifierListOwnerAdapter extends PsiJvmModifiersOwner, PsiAnnotatedAdapter {
     @NotNull
     @Override
     default PsiAnnotation[] getAnnotations() {
@@ -20,6 +21,6 @@ public interface PsiModifierListOwnerAdapter extends PsiModifierListOwner, PsiAn
 
     @Override
     default boolean hasAnnotation(@NotNull String fqn) {
-        return PsiModifierListOwner.super.hasAnnotation(fqn);
+        return PsiJvmModifiersOwner.super.hasAnnotation(fqn);
     }
 }

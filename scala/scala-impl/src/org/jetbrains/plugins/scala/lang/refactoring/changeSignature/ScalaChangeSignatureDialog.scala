@@ -20,8 +20,8 @@ import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{util => _, _}
 import com.intellij.util.Consumer
-import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
+import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 import javax.swing._
 import javax.swing.border.MatteBorder
 import javax.swing.event.{ChangeEvent, HyperlinkEvent}
@@ -488,7 +488,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   def clauseSeparatorColor: Color = {
     val background = getContentPane.getBackground
-    if (UIUtil.isUnderDarcula) background.brighter.brighter else background.darker()
+    if (StartupUiUtil.isUnderDarcula) background.brighter.brighter else background.darker()
   }
 
   private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None

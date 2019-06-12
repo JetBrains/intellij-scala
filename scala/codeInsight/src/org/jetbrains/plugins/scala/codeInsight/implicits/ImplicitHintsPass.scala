@@ -13,7 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
-import com.intellij.util.ui.UIUtil
+import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.plugins.scala.annotator.TypeDiff._
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, TypeDiff, TypeMismatchError, TypeMismatchHighlightingMode}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
@@ -384,7 +384,7 @@ private object ImplicitHintsPass {
     }
 
     val result = attributes.clone()
-    if (UIUtil.isUnderDarcula && result.getBackgroundColor != null) {
+    if (StartupUiUtil.isUnderDarcula && result.getBackgroundColor != null) {
       val notSoBright = result.getBackgroundColor.brighter
       val tooBright = notSoBright.brighter
       result.setBackgroundColor(average(notSoBright, tooBright))

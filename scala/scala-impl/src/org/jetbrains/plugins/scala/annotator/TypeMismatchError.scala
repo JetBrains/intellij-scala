@@ -5,7 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.PsiElement
-import com.intellij.util.ui.UIUtil
+import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
@@ -63,7 +63,7 @@ object TypeMismatchError {
 
     // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
     def red(text: String) = {
-      val color = if (UIUtil.isUnderDarcula) "FF6B68" else "red"
+      val color = if (StartupUiUtil.isUnderDarcula) "FF6B68" else "red"
       "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
     }
 

@@ -49,8 +49,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
 
-  def getDocumentationElementForLookupItem(psiManager: PsiManager, obj: Object,
-                                           element: PsiElement): PsiElement = {
+  override def getDocumentationElementForLookupItem(psiManager: PsiManager, obj: Object,
+                                                    element: PsiElement): PsiElement = {
     obj match {
       case (_, element: PsiElement, _) => element
       case el: ScalaLookupItem => el.element
@@ -59,9 +59,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     }
   }
 
-  def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
+  override def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
 
-  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
+  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
       case ref: ScReference =>
         ref.bind() match {
@@ -75,10 +75,10 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   }
 
 
-  def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = 
+  override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
     JavaDocUtil.findReferenceTarget(psiManager, link, context)
 
-  def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+  override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
     val containingFile = element.getContainingFile
 
     if (!containingFile.isInstanceOf[ScalaFile]) {
