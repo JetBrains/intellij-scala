@@ -17,8 +17,16 @@ abstract class ScLiteralImplBase(node: ASTNode,
   extends expr.ScExpressionImplBase(node)
     with ScLiteral {
 
-  override protected final def innerType: result.TypeResult =
-    ScLiteralType.inferType(this)
+  protected def wrappedValue(value: V): ScLiteral.Value[V]
+
+  override protected def innerType: result.TypeResult = getValue match {
+    case null =>
+      result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", getText))
+    case value =>
+      Right {
+        ScLiteralType(wrappedValue(value))(getProject)
+      }
+  }
 
   override protected final def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitLiteral(this)

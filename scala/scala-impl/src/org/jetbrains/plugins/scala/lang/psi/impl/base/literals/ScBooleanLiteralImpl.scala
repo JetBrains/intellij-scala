@@ -8,12 +8,17 @@ package literals
 import java.lang.{Boolean => JBoolean}
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, literals}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 final class ScBooleanLiteralImpl(node: ASTNode,
                                  override val toString: String)
   extends ScLiteralImplBase(node, toString)
-    with ScBooleanLiteral {
+    with literals.ScBooleanLiteral {
+
+  override protected def wrappedValue(value: JBoolean) =
+    ScBooleanLiteralImpl.Value(value)
 
   override def getValue: JBoolean = {
     import lang.lexer.ScalaTokenTypes._
@@ -21,5 +26,13 @@ final class ScBooleanLiteralImpl(node: ASTNode,
       case `kTRUE` => JBoolean.TRUE
       case `kFALSE` => JBoolean.FALSE
     }
+  }
+}
+
+object ScBooleanLiteralImpl {
+
+  final case class Value(override val value: JBoolean) extends ScLiteral.Value(value) {
+
+    override def wideType(implicit project: Project): ScType = api.Boolean
   }
 }

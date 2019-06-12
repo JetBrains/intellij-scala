@@ -4,9 +4,7 @@ package psi
 package types
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -45,30 +43,6 @@ object ScLiteralType {
 
   def unapply(literalType: ScLiteralType): Some[(Value[_], Boolean)] =
     Some(literalType.value, literalType.allowWiden)
-
-  // TODO supposed to be polymorphic
-  def inferType[E <: ScalaPsiElement](literal: ScLiteral,
-                                      allowWiden: Boolean = true): result.TypeResult = {
-    implicit val project: Project = literal.getProject
-    val literalValue = literal match {
-      case _: ScNullLiteral => ScNullLiteral.Value
-      case ScIntegerLiteral(value) => ScIntegerLiteral.Value(value)
-      case ScLongLiteral(value) => ScLongLiteral.Value(value)
-      case ScFloatLiteral(value) => ScFloatLiteral.Value(value)
-      case ScDoubleLiteral(value) => ScDoubleLiteral.Value(value)
-      case ScBooleanLiteral(value) => ScBooleanLiteral.Value(value)
-      case ScSymbolLiteral(value) => ScSymbolLiteral.Value(value)
-      case ScCharLiteral(value) => ScCharLiteral.Value(value)
-      case ScLiteral(value) => ScLiteral.StringValue(value)
-      case _ => null
-    }
-
-    literalValue match {
-      case null => result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", literal.getText))
-      case ScNullLiteral.Value => Right(literalValue.wideType)
-      case _ => Right(ScLiteralType(literalValue, allowWiden))
-    }
-  }
 
   def widenRecursive(`type`: ScType): ScType = {
     import api._

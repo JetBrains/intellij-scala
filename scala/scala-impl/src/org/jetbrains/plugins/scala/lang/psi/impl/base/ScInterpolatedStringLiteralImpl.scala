@@ -52,7 +52,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override def isString: Boolean = true
 
-  override def getValue: AnyRef = findChildByClassScala(classOf[ScLiteralImpl]) match {
+  override def getValue: String = findChildByClassScala(classOf[ScLiteralImpl]) match {
     // FIXME: it is actually always "" because child with type ScLiteralImpl can't be found...
     case literal: ScLiteralImpl => literal.getValue
     case _ => ""

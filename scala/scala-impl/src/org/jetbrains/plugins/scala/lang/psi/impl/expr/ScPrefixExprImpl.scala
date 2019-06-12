@@ -6,8 +6,8 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.NumberLiteralImplBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
@@ -49,7 +49,7 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
   //TODO we have also support for Byte and Short, but that's not a big deal since literal types for them currently can't be parsed
   private def foldUnOpTypes(literal: ScLiteralType, name: String)
                            (implicit project: Project): Option[ScLiteralType] = literal.value match {
-    case value: ScLiteral.NumericValue =>
+    case value: NumberLiteralImplBase.Value[_] =>
       name match {
         case "unary_+" => Some(literal)
         case "unary_-" => Some(ScLiteralType(value.negate))

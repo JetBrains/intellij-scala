@@ -16,8 +16,11 @@ abstract class QuotedLiteralImplBase(node: ASTNode,
 
   protected def endQuote: String = startQuote
 
-  override def getValue: AnyRef =
+  protected def toValue(text: String): V
+
+  override final def getValue: V = toValue {
     QuotedLiteralImplBase.trimQuotes(getText, startQuote)(endQuote)
+  }
 
   override final def contentRange: TextRange = {
     val range = super.contentRange

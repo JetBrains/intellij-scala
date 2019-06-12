@@ -5,27 +5,12 @@ package api
 package base
 package literals
 
-import java.lang.{Long => JLong}
-
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
-
 trait ScLongLiteral extends ScLiteral {
-
-  override def getValue: JLong
+  override protected type V = java.lang.Long
 }
 
 object ScLongLiteral {
 
   def unapply(literal: ScLongLiteral): Option[Long] =
-    Option(literal.getValue)
-
-  final case class Value(override val value: JLong) extends ScLiteral.Value(value) with ScLiteral.NumericValue {
-
-    override def negate = Value(-value)
-
-    override def presentation: String = super.presentation + 'L'
-
-    override def wideType(implicit project: Project): ScType = api.Long
-  }
+    Option(literal.getValue).map(_.longValue) // DO NOT REMOVE MAPPING
 }

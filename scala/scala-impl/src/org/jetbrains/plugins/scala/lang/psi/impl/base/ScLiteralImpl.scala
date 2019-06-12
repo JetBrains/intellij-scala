@@ -5,10 +5,12 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
+import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -20,18 +22,28 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
  */
 class ScLiteralImpl(node: ASTNode,
                     override val toString: String) extends expr.ScExpressionImplBase(node)
-  with ScLiteral with ContributedReferenceHost {
+  with ScLiteral
+  with ContributedReferenceHost {
 
   import ScLiteralImpl._
   import lang.lexer.ScalaTokenTypes._
 
+  override protected type V = String
+
   def isValidHost: Boolean = getValue.isInstanceOf[String]
 
-  protected override def innerType: result.TypeResult =
-    ScLiteralType.inferType(this)
+  // TODO to be removed
+  override protected def innerType: result.TypeResult = getValue match {
+    case value: String =>
+      Right {
+        ScLiteralType(Value(value))(getProject)
+      }
+    case null =>
+      result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", getText))
+  }
 
   @CachedInUserData(this, util.PsiModificationTracker.MODIFICATION_COUNT)
-  def getValue: AnyRef = {
+  def getValue: String = {
     import literals.QuotedLiteralImplBase._
     literalElementType match {
       case `tSTRING` | `tWRONG_STRING` =>
@@ -90,6 +102,7 @@ class ScLiteralImpl(node: ASTNode,
     }
   }
 
+  // TODO to be removed
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitLiteral(this)
   }
@@ -103,5 +116,12 @@ object ScLiteralImpl {
   private[base] def stringShifts(quote: String): Some[(Int, Int)] = {
     val quoteLength = quote.length
     Some(quoteLength, quoteLength)
+  }
+
+  final case class Value(override val value: String) extends ScLiteral.Value(value) {
+
+    override def presentation: String = "\"" + StringEscapeUtils.escapeJava(super.presentation) + "\""
+
+    override def wideType(implicit project: Project): ScType = cachedClass(CommonClassNames.JAVA_LANG_STRING)
   }
 }

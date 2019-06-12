@@ -5,25 +5,12 @@ package api
 package base
 package literals
 
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
-
 trait ScCharLiteral extends ScLiteral {
-
-  override def getValue: Character
+  override protected type V = Character
 }
 
 object ScCharLiteral {
 
-  def unapply(literal: ScCharLiteral): Option[Character] =
-    Option(literal.getValue)
-
-  final case class Value(override val value: Char) extends ScLiteral.Value(value) {
-
-    import ScLiteral.CharQuote
-
-    override def presentation: String = CharQuote + super.presentation + CharQuote
-
-    override def wideType(implicit project: Project): ScType = api.Char
-  }
+  def unapply(literal: ScCharLiteral): Option[Char] =
+    Option(literal.getValue).map(_.charValue) // DO NOT REMOVE MAPPING
 }

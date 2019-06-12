@@ -5,13 +5,11 @@ package api
 package base
 package literals
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ScNullLiteral extends ScLiteral {
-
-  override def getValue: Null
+  override protected type V = Null
 }
 
 object ScNullLiteral {
@@ -24,10 +22,5 @@ object ScNullLiteral {
   def update(literal: ScNullLiteral,
              `type`: ScType): Unit = {
     literal.putCopyableUserData(TypeKey, `type`)
-  }
-
-  final case object Value extends ScLiteral.Value(null) {
-
-    override def wideType(implicit project: Project): ScType = api.Null
   }
 }
