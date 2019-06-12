@@ -3,7 +3,8 @@ package codeInspection
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -12,21 +13,6 @@ import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.junit.Assert._
 
 import scala.collection.JavaConverters
-
-/**
-  * Nikolay.Tropin
-  * 6/3/13
-  */
-abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
-
-  protected val classOfInspection: Class[_ <: LocalInspectionTool]
-
-  protected override def setUp(): Unit = {
-    super.setUp()
-    getFixture.enableInspections(classOfInspection)
-  }
-
-}
 
 abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   self: ScalaLightCodeInsightFixtureTestAdapter =>
@@ -37,13 +23,13 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
-  protected override final def checkTextHasNoErrors(text: String): Unit = {
+  protected override def checkTextHasNoErrors(text: String): Unit = {
     val ranges = findRanges(text)
     assertTrue(if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}." else failingPassed,
       !shouldPass ^ ranges.isEmpty)
   }
 
-  protected final def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
+  protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
     val foundRanges = findRanges(text)
     val expectedHighlightRange = selectedRange(getEditor.getSelectionModel)
     if (shouldPass) {
@@ -65,7 +51,9 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     }
   }
 
-  protected final def configureByText(text: String): Seq[(HighlightInfo, TextRange)] = {
+  private def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
+
+  protected def configureByText(text: String): Seq[(HighlightInfo, TextRange)] = {
     val fileText = createTestText(text)
     val (normalizedText, offset) = findCaretOffset(fileText, stripTrailingSpaces = true)
 
@@ -80,8 +68,6 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   }
 
   protected def createTestText(text: String): String = text
-
-  private def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
 }
 
 object ScalaHighlightsTestBase {
@@ -102,7 +88,7 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase
 abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   import ScalaAnnotatorQuickFixTestBase.quickFixes
 
-  protected final def testQuickFix(text: String, expected: String, hint: String): Unit = {
+  protected def testQuickFix(text: String, expected: String, hint: String): Unit = {
     val maybeAction = findQuickFix(text, hint)
     assertFalse(s"Quick fix not found: $hint", maybeAction.isEmpty)
 
@@ -114,12 +100,12 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
     getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
   }
 
-  protected final def checkNotFixable(text: String, hint: String): Unit = {
+  protected def checkNotFixable(text: String, hint: String): Unit = {
     val maybeAction = findQuickFix(text, hint)
     assertTrue("Quick fix found.", maybeAction.isEmpty)
   }
 
-  protected final def checkIsNotAvailable(text: String, hint: String): Unit = {
+  protected def checkIsNotAvailable(text: String, hint: String): Unit = {
     val maybeAction = findQuickFix(text, hint)
     assertTrue("Quick fix not found.", maybeAction.nonEmpty)
     assertTrue("Quick fix is available", maybeAction.forall(action => !action.isAvailable(getProject, getEditor, getFile)))
@@ -142,4 +128,38 @@ object ScalaAnnotatorQuickFixTestBase {
       .flatMap(pair => Option(pair))
       .map(_.getFirst.getAction)
   }
+}
+
+abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
+
+  protected val classOfInspection: Class[_ <: LocalInspectionTool]
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+    getFixture.enableInspections(classOfInspection)
+  }
+}
+
+trait ForceInspectionSeverity extends ScalaInspectionTestBase {
+
+  private var oldSeverity: String = _
+  protected override def setUp(): Unit = {
+    super.setUp()
+    oldSeverity = inspectionEP.level
+    inspectionEP.level = forcedInspectionSeverity.getName
+    getFixture.enableInspections(classOfInspection)
+  }
+
+  override def tearDown(): Unit = {
+    inspectionEP.level = oldSeverity
+    super.tearDown()
+  }
+
+  private def inspectionEP =
+    LocalInspectionEP.LOCAL_INSPECTION
+      .getExtensions
+      .find(_.implementationClass == classOfInspection.getCanonicalName)
+      .get
+
+  protected def forcedInspectionSeverity: HighlightSeverity
 }

@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala.codeInspection
 package methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
-class OverrideAbstractMemberInspectionTest extends ScalaQuickFixTestBase {
-  import CodeInsightTestFixture.{CARET_MARKER => CARET}
+class OverrideAbstractMemberInspectionTest extends ScalaQuickFixTestBase with ForceInspectionSeverity {
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[OverrideAbstractMemberInspection]
+
+  override protected def forcedInspectionSeverity: HighlightSeverity =
+    HighlightSeverity.WARNING
 
   override protected val description: String =
     InspectionBundle.message("method.signature.override.abstract.member")
