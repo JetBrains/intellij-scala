@@ -87,6 +87,9 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     true
   }
 
+  override def hashCode(): Int =
+    super.hashCode() + 31 * isNamedParameter.## + 31 * 31 * Option(containingClass).hashCode()
+
   override def renderElement(presentation: LookupElementPresentation) {
     if (isNamedParameter) {
       presentation.setTailText(s" = $typeText")
