@@ -14,6 +14,7 @@ import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 
+import scala.annotation.tailrec
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.io.Source
@@ -132,6 +133,7 @@ class BspSession private(bspIn: InputStream,
       }
   }
 
+  @tailrec
   private def waitForSession(timeout: Duration): bsp4j.InitializeBuildResult = try {
     sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS)
   } catch {

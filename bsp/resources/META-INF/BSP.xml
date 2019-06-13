@@ -42,8 +42,6 @@
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory"
                     conditionClass="org.jetbrains.bsp.BspToolWindowFactoryCondition"/>
 
-        <!--<configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>-->
-
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
         <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
         <applicationInitializedListener implementation="org.jetbrains.bsp.StartupRoutine"/>
