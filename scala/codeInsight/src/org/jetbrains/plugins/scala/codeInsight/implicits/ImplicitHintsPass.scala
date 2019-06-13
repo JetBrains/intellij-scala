@@ -24,16 +24,17 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private class ImplicitHintsPass(protected val editor: Editor, protected val rootElement: ScalaPsiElement)
-  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false) with TypeMismatchHints {
+private class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement)
+  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false) {
 
-  protected var hints: Seq[Hint] = Seq.empty
+  private var hints: Seq[Hint] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
     hints = Seq.empty
 
     if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
-      collectTypeMismatches()
+      // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
+      rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       collectConversionsAndArguments()
     }
   }
