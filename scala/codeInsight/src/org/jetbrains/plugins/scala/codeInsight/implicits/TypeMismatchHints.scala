@@ -4,9 +4,8 @@ import java.awt.Insets
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorFontType}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match, Mismatch}
-import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
+import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.annotator.{TypeDiff, TypeMismatchError, TypeMismatchHighlightingMode}
-import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass.{foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
