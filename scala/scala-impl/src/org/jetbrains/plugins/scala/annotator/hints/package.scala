@@ -7,8 +7,9 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.plugins.scala.extensions._
 
+// TODO Use built-in "advanced" hint API when it will be available in IDEA, SCL-14502
 package object hints {
-  implicit class TextAttributesExt(val v: TextAttributes) extends AnyVal {
+  implicit class TextAttributesExt(private val v: TextAttributes) extends AnyVal {
     def + (attributes: TextAttributes): TextAttributes = {
       val result = v.clone()
       Option(attributes.getForegroundColor).foreach(result.setForegroundColor)
@@ -23,7 +24,7 @@ package object hints {
       attributes.foldLeft(v)(_ + _)
   }
 
-  implicit class SeqTextExt(val parts: Seq[Text]) extends AnyVal {
+  implicit class SeqTextExt(private val parts: Seq[Text]) extends AnyVal {
 
     def withAttributes(attr: TextAttributes): Seq[Text] = parts.map(_.withAttributes(attr))
 
@@ -37,7 +38,7 @@ package object hints {
     def parenthesized: Seq[Text] = Text("(") +: parts :+ Text(")")
   }
 
-  implicit class TextExt(val text: Text) extends AnyVal {
+  implicit class TextExt(private val text: Text) extends AnyVal {
     def seq: Seq[Text] = Seq(text)
   }
 

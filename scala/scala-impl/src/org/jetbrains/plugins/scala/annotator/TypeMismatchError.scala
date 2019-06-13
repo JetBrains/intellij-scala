@@ -2,28 +2,18 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.intellij.util.ui.{StartupUiUtil, UIUtil}
-import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
-import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 
-case class TypeMismatchError(expectedType: Option[ScType], actualType: Option[ScType], tooltip: String, modificationCount: Long)
-
-object TypeMismatchError {
-  private val TypeMismatchErrorKey = Key.create[TypeMismatchError]("TypeMismatch")
-
-  def apply(element: PsiElement): Option[TypeMismatchError] = Option(element.getUserData(TypeMismatchErrorKey))
-
+private object TypeMismatchError {
   def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)(formatMessage: (String, String) => String): Annotation = {
     val (actualTypeText, expectedTypeText) = ScTypePresentation.different(actualType, expectedType)
 
@@ -45,50 +35,23 @@ object TypeMismatchError {
       annotation
     }
 
-    annotation.setTooltip(if (highlightExpression) typeMismatchTooltipFor(expectedType, actualType) else null)
+    annotation.setTooltip(if (highlightExpression) TypeMismatchHints.tooltipFor(expectedType, actualType) else null)
     annotation.registerFix(ReportHighlightingErrorQuickFix)
 
-    val error = TypeMismatchError(
-      Some(expectedType), Some(actualType),
-      typeMismatchTooltipFor(expectedType, actualType),
-      fileModCount(element.getContainingFile))
+    if (!highlightExpression) {
+      val delegateElement = holder match {
+        // handle possible element mapping (e.g. ScGeneratorAnnotator)
+        case DelegateAnnotationHolder(element) => element
+        case _ => annotatedElement
+      }
 
-    val dataHolder = holder match {
-      case DelegateAnnotationHolder(e) => e
-      case _ => annotatedElement
-    }
+      // TODO Can we detect a "current" color scheme in a "current" editor somehow?
+      implicit val scheme = EditorColorsManager.getInstance().getGlobalScheme
 
-    if (canBeHint) {
-      dataHolder.putUserData(TypeMismatchErrorKey, error)
+      TypeMismatchHints.createFor(delegateElement, expectedType, actualType).putTo(delegateElement)
     }
 
     annotation
-  }
-
-  private def typeMismatchTooltipFor(expectedType: ScType, actualType: ScType): String = {
-    def format(diff: TypeDiff, f: String => String) = {
-      val parts = diff.flatten.map {
-        case Match(text, _) => text
-        case Mismatch(text, _) => f(text)
-      } map {
-        "<td style=\"text-align:center\">" + _ + "</td>"
-      }
-      parts.mkString
-    }
-
-    // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
-    def red(text: String) = {
-      val color = if (StartupUiUtil.isUnderDarcula) "FF6B68" else "red"
-      "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
-    }
-
-    val (diff1, diff2) = TypeDiff.forBoth(expectedType, actualType)
-
-    ScalaBundle.message("type.mismatch.tooltip", format(diff1, s => s"<b>$s</b>"), format(diff2, red))
-  }
-
-  def clear(element: PsiElement): Unit = {
-    element.putUserData(TypeMismatchErrorKey, null)
   }
 
   private def elementAt(element: PsiElement, blockLevel: Int) = blockLevel match {
