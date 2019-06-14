@@ -59,7 +59,7 @@ object GlobalImplicitInstance {
     val project = clazz.getProject
 
     for {
-      psiClass  <- clazz +: inheritors(clazz, scope)
+      psiClass  <- ScalaStubsUtil.withStableScalaInheritors(clazz)
       candidate <- exactClassCandidates(psiClass, scope, project)
     } yield {
       candidate

@@ -8,8 +8,12 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep
+import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.util.ObjectUtils
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, ScalaAddImportAction}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -51,22 +55,20 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
-        val notFoundType = params.flatMap(withoutApplicableInstances).headOption
-        notFoundType.foreach(tp => annotation.registerFix(new SearchImplicitQuickFix(tp, element)))
+        val notFoundTypes = params.flatMap(withProbableArguments).flatMap(implicitTypeToSearch)
+        if (notFoundTypes.nonEmpty) {
+          annotation.registerFix(new SearchImplicitQuickFix(notFoundTypes, element))
+        }
 
         //make annotation invisible in editor in favor of inlay hint
         adjustTextAttributesOf(annotation)
     }
   }
 
-  private def withoutApplicableInstances(parameter: ScalaResolveResult): Seq[ScType] = {
-    ImplicitCollector.probableArgumentsFor(parameter) match {
-      case Seq() => implicitTypeToSearch(parameter).toSeq
-      case args  =>
-        args.flatMap {
-          case (arg, ImplicitParameterNotFoundResult) => arg.implicitParameters.flatMap(withoutApplicableInstances)
-          case _                                      => Seq.empty
-        }
+  private def withProbableArguments(parameter: ScalaResolveResult): Seq[ScalaResolveResult] = {
+    parameter +: ImplicitCollector.probableArgumentsFor(parameter).flatMap {
+      case (arg, ImplicitParameterNotFoundResult) => arg.implicitParameters.flatMap(withProbableArguments)
+      case _                                      => Seq.empty
     }
   }
 
@@ -94,21 +96,52 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
   def message(types: Seq[String]): String =
     types.mkString("No implicit arguments of type: ", ", ", "")
 
-  private class SearchImplicitQuickFix(notFoundType: ScType, element: ImplicitArgumentsOwner) extends IntentionAction {
-    def getText: String = s"Search implicit instances for ${notFoundType.presentableText(element)}"
+  private class SearchImplicitQuickFix(typesToSearch: Seq[ScType], place: ImplicitArgumentsOwner) extends IntentionAction {
+    def getText: String = {
+      val typeOrEllipsis = typesToSearch match {
+        case Seq(tp) => tp.presentableText(place)
+        case _ => "..."
+      }
+      s"Search implicit instances for $typeOrEllipsis"
+    }
 
-    def getFamilyName: String = getText
+    def getFamilyName: String = "Search implicit instances"
 
     def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean = true
 
     def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
-      val instances = GlobalImplicitInstance.compatibleInstances(notFoundType, element.elementScope)
+      typesToSearch match {
+        case Seq(tp) => searchAndSuggestImport(tp, editor)
+        case _       => chooseType(editor)
+      }
+    }
+
+    private def chooseType(editor: Editor): Unit = {
+      val popup = new BaseListPopupStep("Choose type to search", typesToSearch: _*) {
+        override def getIconFor(aValue: ScType): Icon = null
+
+        override def getTextFor(value: ScType): String =
+          ObjectUtils.assertNotNull(value.presentableText(place))
+
+        override def isAutoSelectionEnabled: Boolean = false
+
+        override def onChosen(selectedValue: ScType, finalChoice: Boolean): PopupStep[_] = {
+          searchAndSuggestImport(selectedValue, editor)
+          PopupStep.FINAL_CHOICE
+        }
+      }
+      JBPopupFactory.getInstance.createListPopup(popup)
+        .showInBestPositionFor(editor)
+    }
+
+    private def searchAndSuggestImport(typeToSearch: ScType, editor: Editor): Unit = {
+      val instances = GlobalImplicitInstance.compatibleInstances(typeToSearch, place.elementScope)
 
       if (instances.isEmpty)
         HintManager.getInstance().showInformationHint(editor, "Applicable implicits not found")
       else {
         val title = ScalaBundle.message("import.implicitInstance.chooser.title")
-        ScalaAddImportAction.importImplicits(editor, instances.map(ImplicitToImport).toArray, element, title)
+        ScalaAddImportAction.importImplicits(editor, instances.map(ImplicitToImport).toArray, place, title)
           .execute
       }
     }

@@ -4,8 +4,6 @@ package psi
 package stubs
 package util
 
-
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
@@ -24,6 +22,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable.ArrayBuffer
+import scala.reflect.ClassTag
 
 /**
  * User: Alexander Podkhalyuzin
@@ -107,29 +106,32 @@ object ScalaStubsUtil {
     else selfTypeInheritorsInner()
   }
 
-  def inheritorOrThisObjects(clazz: ScTemplateDefinition): Seq[ScObject] = {
-    val buffer = ArrayBuffer.empty[ScObject]
-    collectInheritorObjectsRecursively(clazz, Set.empty, buffer)
+  def inheritorOrThisObjects(clazz: ScTemplateDefinition): Seq[ScObject] =
+    collectStableInheritors[ScObject](clazz)
+
+  def withStableScalaInheritors(clazz: PsiClass): Seq[ScTypeDefinition] =
+    collectStableInheritors[ScTypeDefinition](clazz)
+
+  private def collectStableInheritors[T <: ScTypeDefinition : ClassTag](clazz: PsiClass,
+                                                                        visited: Set[PsiClass] = Set.empty,
+                                                                        buffer: ArrayBuffer[T] = ArrayBuffer.empty[T]): Seq[T] = {
+    if (!visited(clazz)) {
+
+      clazz match {
+        case t: T if ScalaPsiUtil.hasStablePath(t) => buffer += t
+        case _ =>
+      }
+
+      clazz match {
+        case td: ScTypeDefinition if !td.isEffectivelyFinal =>
+          val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, deep = false))
+          directInheritors
+            .foreach(collectStableInheritors(_, visited + clazz, buffer))
+        case _ =>
+      }
+    }
+
     buffer
   }
 
-  private def collectInheritorObjectsRecursively(clazz: ScTemplateDefinition, visited: Set[PsiClass], buffer: ArrayBuffer[ScObject]): Unit = {
-    if (visited(clazz))
-      return
-
-    clazz match {
-      case o: ScObject if o.isStatic =>
-        buffer += o
-
-      case td: ScTypeDefinition if !td.isEffectivelyFinal =>
-        val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, deep = false))
-        directInheritors
-          .foreach(collectInheritorObjectsRecursively(_, visited + clazz, buffer))
-
-      case _ =>
-    }
-
-  }
-
-  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil")
 }
