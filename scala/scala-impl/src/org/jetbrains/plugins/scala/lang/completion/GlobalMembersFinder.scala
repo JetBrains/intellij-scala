@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.completion.JavaCompletionFeatures
+import com.intellij.codeInsight.completion.{JavaCompletionFeatures, JavaCompletionUtil}
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
@@ -33,7 +33,7 @@ abstract class GlobalMembersFinder {
     protected val elementToImport: PsiNamedElement
 
     def createLookupItem(originalFile: PsiFile,
-                         elements: Set[PsiNamedElement]): Option[ScalaLookupItem] = {
+                         elements: Set[PsiNamedElement]): Option[ScalaLookupItem] =
       resolveResult.getLookupElement(
         isClassName = true,
         isOverloadedForClassName = isOverloadedForClassName,
@@ -42,9 +42,9 @@ abstract class GlobalMembersFinder {
       ).headOption.map { lookupItem =>
         lookupItem.classToImport = Some(classToImport)
         lookupItem.elementToImport = Some(elementToImport)
+        lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
         lookupItem
       }
-    }
 
     private def shouldImport(element: PsiNamedElement,
                              originalFile: PsiFile,
