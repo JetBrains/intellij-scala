@@ -1,10 +1,39 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.debugger.Scala_2_13
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+/*
+ Tests complex interactions between various type-mismatch highlighting features, including:
+   https://youtrack.jetbrains.net/issue/SCL-15138 Only highlight initial, not derivative errors
+   https://youtrack.jetbrains.net/issue/SCL-14778 Better highlighting of compound expressions
+   https://youtrack.jetbrains.net/issue/SCL-14777 Block expression: underline final expression instead of closing brace
+   https://youtrack.jetbrains.net/issue/SCL-15250 Use inlay type ascription to indicate type mismatch
+   https://youtrack.jetbrains.net/issue/SCL-15481 Type mismatch: fine-grained diff
+   https://youtrack.jetbrains.net/issue/SCL-15544 Type ascription: highlight type, not expression
+   https://youtrack.jetbrains.net/issue/SCL-15571 Type mismatch errors: widen literal types when the value is of no importance
+   https://youtrack.jetbrains.net/issue/SCL-15592 Method / constructor invocation: highlight only a single kind of error
+   https://youtrack.jetbrains.net/issue/SCL-15594 Don't highlight arguments when there are multiple inapplicable overloaded methods
+ */
 
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_13
+  override implicit val version = Scala_2_13
+
+  override protected def withHints = true
+
+  private var savedIsTypeMismatchHints: Boolean = _
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    savedIsTypeMismatchHints = ScalaProjectSettings.in(project).isTypeMismatchHints
+    ScalaProjectSettings.in(project).setTypeMismatchHints(true)
+  }
+
+  override def tearDown(): Unit = {
+    ScalaProjectSettings.in(project).setTypeMismatchHints(savedIsTypeMismatchHints)
+    super.tearDown()
+  }
 
   // Type ascription
 
@@ -73,5 +102,31 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   // Don't show additional type mismatch when there's an error in type ascription (handled in ScTypedExpressionAnnotator), SCL-15544
   def testTypeMismatchAndTypeAscriptionInnerError(): Unit = {
     assertMessages(errorsFromScalaCode("val v: Int = 1: String"))(Error("String", "Cannot upcast Int to String"))
+  }
+
+  // Type mismatch hint
+
+  // Use type ascription to show type mismatch, SCL-15250 (invisible Error is added for statusbar message / scollbar mark / quick-fix)
+  def testTypeMismatchHint(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = ()"))(Hint("()", ": Unit"),
+      Error("()", "Expression of type Unit doesn't conform to expected type String"))
+  }
+
+  // Widen literal type when non-literal type is expected, SCL-15571
+  def testTypeMismatchHintWiden(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = 1"))(Hint("1", ": Int"),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  // Don't widen literal type when literal type is expected, SCL-15571
+  def testTypeMismatchHintNotWiden(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: 1 = 2"))(Hint("2", ": 2"),
+      Error("2", "Expression of type 2 doesn't conform to expected type 1"))
+  }
+
+  // Add parentheses when needed
+  def testTypeMismatchHintParentheses(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = 1 + 2"))(Hint("1 + 2", "("), Hint("1 + 2", "): Int"),
+      Error("1 + 2", "Expression of type Int doesn't conform to expected type String"))
   }
 }
