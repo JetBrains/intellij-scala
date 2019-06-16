@@ -11,6 +11,9 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.openapi.updateSettings.impl.UpdateSettings;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.PsiModificationTrackerImpl;
+import com.intellij.psi.util.PsiModificationTracker;
 import com.intellij.ui.*;
 import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -204,6 +207,10 @@ public class ScalaProjectSettingsPanel {
     boolean typeMismatchHighlightingModeChanged = scalaProjectSettings.isTypeMismatchHints() != highlightHints;
     scalaProjectSettings.setTypeMismatchHints(highlightHints);
     if (typeMismatchHighlightingModeChanged) {
+      PsiModificationTracker modificationTracker = PsiManager.getInstance(myProject).getModificationTracker();
+      if (modificationTracker instanceof PsiModificationTrackerImpl) {
+        ((PsiModificationTrackerImpl) modificationTracker).incCounter();
+      }
       DaemonCodeAnalyzer.getInstance(myProject).restart();
     }
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
