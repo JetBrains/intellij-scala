@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.TypeDiff.Mismatch
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTypedExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.extensions._
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
@@ -26,7 +26,12 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
         val ranges = mismatchRangesIn(typeElement, actual)
         // TODO add messange to the whole element, but higlight separate parts?
         // TODO fine-grained tooltip
-        val message = s"Cannot upcast ${actual.presentableText} to ${expected.presentableText}"
+        val wideActual = (expected, actual) match {
+          case (_: ScLiteralType, t2: ScLiteralType) => t2
+          case (_, t2: ScLiteralType) => t2.wideType
+          case (_, t2) => t2
+        }
+        val message = s"Cannot upcast ${wideActual.presentableText} to ${expected.presentableText}"
         ranges.foreach { range =>
           val annotation = holder.createErrorAnnotation(range, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)
