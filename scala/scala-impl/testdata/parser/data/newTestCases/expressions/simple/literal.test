@@ -50,8 +50,8 @@ ScalaFile
         PrefixExpression
           ReferenceExpression: -
             PsiElement(identifier)('-')
-          FloatLiteral
-            PsiElement(float)('1.0')
+          DoubleLiteral
+            PsiElement(double)('1.0')
         PsiWhiteSpace('\n  ')
         CharLiteral
           PsiElement(Character)(''a'')

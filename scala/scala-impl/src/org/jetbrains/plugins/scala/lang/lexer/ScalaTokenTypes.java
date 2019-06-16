@@ -21,6 +21,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Double;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Float;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
 
 /**
  * @author ilyas
@@ -65,12 +69,6 @@ public interface ScalaTokenTypes {
 
     IElementType tCHAR = new ScalaTokenType("Character");
     IElementType tSYMBOL = new ScalaTokenType("Symbol");
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////// integer and float literals ///////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    IElementType tINTEGER = new ScalaTokenType("integer");
-    IElementType tFLOAT = new ScalaTokenType("float");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Operators ////////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +260,12 @@ public interface ScalaTokenTypes {
 
     TokenSet VAL_VAR_TOKEN_SET = TokenSet.create(kVAL, kVAR);
 
-    TokenSet NUMBER_TOKEN_SET = TokenSet.create(tINTEGER, tFLOAT);
+    TokenSet NUMBER_TOKEN_SET = TokenSet.create(
+            Long(),
+            Integer(),
+            Double(),
+            Float()
+    );
 
     TokenSet BOOLEAN_TOKEN_SET = TokenSet.create(kTRUE, kFALSE);
 

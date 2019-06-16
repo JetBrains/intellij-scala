@@ -12,4 +12,4 @@ white space in line {
 integer {0x_FF_FF__FF___FF_}
 white space in line {
 }
-integer {0_777_L}
+long {0_777_L}

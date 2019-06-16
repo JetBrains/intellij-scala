@@ -42,7 +42,7 @@ white space in line { }
 identifier {u}
 white space in line { }
 identifier {\}
-float {21D}
+double {21D}
 integer {2}
 white space in line {
     }

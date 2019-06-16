@@ -27,7 +27,7 @@ identifier {x1}
 white space in line { }
 = {=}
 white space in line { }
-integer {2L}
+long {2L}
 white space in line {
   }
 val {val}
@@ -36,7 +36,7 @@ identifier {y}
 white space in line { }
 = {=}
 white space in line { }
-float {1.0}
+double {1.0}
 white space in line {
   }
 val {val}

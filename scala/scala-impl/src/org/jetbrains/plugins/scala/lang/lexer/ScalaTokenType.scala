@@ -7,3 +7,11 @@ class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLan
 
   override def isLeftBound: Boolean = true
 }
+
+object ScalaTokenType {
+
+  val Long = new ScalaTokenType("long")
+  val Integer = new ScalaTokenType("integer")
+  val Double = new ScalaTokenType("double")
+  val Float = new ScalaTokenType("float")
+}

@@ -62,8 +62,8 @@ ScalaFile
             ReferenceExpression: +=
               PsiElement(identifier)('+=')
             InfixExpression
-              FloatLiteral
-                PsiElement(float)('1.0')
+              DoubleLiteral
+                PsiElement(double)('1.0')
               ReferenceExpression: /
                 PsiElement(identifier)('/')
               ExpressionInParenthesis

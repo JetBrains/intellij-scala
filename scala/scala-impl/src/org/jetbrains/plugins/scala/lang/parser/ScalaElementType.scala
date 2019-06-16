@@ -225,24 +225,20 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScNullLiteralImpl(node, toString)
   }
 
-  object IntegerLiteral extends ScExpressionElementType("IntegerLiteral") {
+  object LongLiteral extends ScExpressionElementType("LongLiteral") {
+    override def createElement(node: ASTNode) = new ScLongLiteralImpl(node, toString)
+  }
 
-    // TODO to be fixed via lexer
-    override def createElement(node: ASTNode): NumberLiteralImplBase =
-      if (node.getText.matches(".*[lL]$"))
-        new ScLongLiteralImpl(node, toString)
-      else
-        new ScIntegerLiteralImpl(node, toString) // but a conversion exists to narrower types in case range fits
+  object IntegerLiteral extends ScExpressionElementType("IntegerLiteral") {
+    override def createElement(node: ASTNode) = new ScIntegerLiteralImpl(node, toString) // but a conversion exists to narrower types in case range fits
+  }
+
+  object DoubleLiteral extends ScExpressionElementType("DoubleLiteral") {
+    override def createElement(node: ASTNode) = new ScDoubleLiteralImpl(node, toString)
   }
 
   object FloatLiteral extends ScExpressionElementType("FloatLiteral") {
-
-    // TODO to be fixed via lexer
-    override def createElement(node: ASTNode): NumberLiteralImplBase =
-      if (node.getText.matches(".*[fF]$"))
-        new ScFloatLiteralImpl(node, toString)
-      else
-        new ScDoubleLiteralImpl(node, toString)
+    override def createElement(node: ASTNode) = new ScFloatLiteralImpl(node, toString)
   }
 
   object BooleanLiteral extends ScExpressionElementType("BooleanLiteral") {

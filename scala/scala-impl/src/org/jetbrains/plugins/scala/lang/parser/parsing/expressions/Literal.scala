@@ -4,6 +4,8 @@ package parser
 package parsing
 package expressions
 
+import com.intellij.psi.tree.IElementType
+
 /**
  * Literal ::= ['-']integerLiteral
  * | ['-']floatingPointLiteral
@@ -23,7 +25,9 @@ object Literal {
 
   import ScalaElementType._
   import builder.ScalaPsiBuilder
-  import lang.lexer.ScalaTokenTypes._
+  import lang.lexer._
+  import ScalaTokenType._
+  import ScalaTokenTypes._
 
   def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -36,18 +40,24 @@ object Literal {
       true
     }
 
+    def matchNumber(tokenType: IElementType) = tokenType match {
+      case Long =>
+        advanceAndMarkDone(LongLiteral)
+      case Integer =>
+        advanceAndMarkDone(IntegerLiteral)
+      case Double =>
+        advanceAndMarkDone(DoubleLiteral)
+      case Float =>
+        advanceAndMarkDone(FloatLiteral)
+      case _ =>
+        marker.rollbackTo()
+        false
+    }
+
     builder.getTokenType match {
       case `tIDENTIFIER` if builder.getTokenText == "-" =>
         builder.advanceLexer() //Ate -
-        builder.getTokenType match {
-          case `tINTEGER` =>
-            advanceAndMarkDone(IntegerLiteral)
-          case `tFLOAT` =>
-            advanceAndMarkDone(FloatLiteral)
-          case _ =>
-            marker.rollbackTo()
-            false
-        }
+        matchNumber(builder.getTokenType)
       case `tINTERPOLATED_STRING_ID` =>
         CommonUtils.parseInterpolatedString(builder, isPattern = false)
         marker.done(InterpolatedString)
@@ -64,18 +74,13 @@ object Literal {
         advanceAndMarkDone(SymbolLiteral)
       case `tCHAR` =>
         advanceAndMarkDone(CharLiteral)
-      case `tINTEGER` =>
-        advanceAndMarkDone(IntegerLiteral)
-      case `tFLOAT` =>
-        advanceAndMarkDone(FloatLiteral)
       case `tSTRING` |
            `tMULTILINE_STRING` =>
         advanceAndMarkDone(StringLiteral)
       case `tWRONG_STRING` =>
         advanceAndMarkDone(StringLiteral, "Wrong string literal")
-      case _ =>
-        marker.rollbackTo()
-        false
+      case tokenType =>
+        matchNumber(tokenType)
     }
   }
 }

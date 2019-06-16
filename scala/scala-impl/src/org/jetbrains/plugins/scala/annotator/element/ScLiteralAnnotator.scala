@@ -3,19 +3,17 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.project._
 
 object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
-
-  import lang.lexer.{ScalaTokenTypes => T}
 
   private val StringLiteralSizeLimit = 65536
   private val StringCharactersCountLimit = StringLiteralSizeLimit / 4
@@ -26,27 +24,20 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     implicit val implicitHolder: AnnotationHolder = holder
     implicit val containingFile: PsiFile = literal.getContainingFile
 
-    val node = literal.getFirstChild.getNode
-    (literal, node.getElementType) match {
-      case (_, T.tINTEGER) =>
-        checkIntegerLiteral(node, literal)
-      case (_, T.tSTRING |
-               T.tWRONG_STRING |
-               T.tMULTILINE_STRING) =>
-        createStringIsTooLongAnnotation(literal) { literal =>
-          Option(literal.getValue.asInstanceOf[String])
-        }
-      case (interpolatedStringLiteral: ScInterpolatedStringLiteral, _) =>
-        createStringIsTooLongAnnotation(interpolatedStringLiteral)(_.getStringParts)
+    literal match {
+      case _: ScLongLiteral => checkIntegerLiteral(literal, isLong = true)
+      case _: ScIntegerLiteral => checkIntegerLiteral(literal, isLong = false)
+      case interpolatedStringLiteral: ScInterpolatedStringLiteral =>
+        createStringIsTooLongAnnotation(interpolatedStringLiteral, interpolatedStringLiteral.getStringParts: _*)
+      case ScLiteral(string) => createStringIsTooLongAnnotation(literal, string)
       case _ =>
     }
   }
 
-  private def createStringIsTooLongAnnotation[L <: ScLiteral](literal: L)
-                                                             (strings: L => Traversable[String])
+  private def createStringIsTooLongAnnotation[L <: ScLiteral](literal: L, strings: String*)
                                                              (implicit holder: AnnotationHolder,
                                                               containingFile: PsiFile) =
-    if (strings(literal).exists(stringIsTooLong)) {
+    if (strings.exists(stringIsTooLong)) {
       holder.createErrorAnnotation(
         literal,
         ScalaBundle.message("string.literal.is.too.long")
@@ -102,21 +93,13 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
       case '0' if text.length > 1 =>
         text(1) match {
           case 'x' | 'X' => Hex
-          case IsLongMarker() => Dec
+          case 'l' | 'L' => Dec
           case _ => Oct
         }
       case _ => Dec
     }
 
     def unapply(kind: IntegerKind): IntegerKind = kind
-
-    object IsLongMarker {
-
-      def unapply(char: Char): Boolean = char match {
-        case 'l' | 'L' => true
-        case _ => false
-      }
-    }
   }
 
   private case object Dec extends IntegerKind(10, 0, 1)
@@ -125,14 +108,12 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
 
   private case object Oct extends IntegerKind(8, 1)
 
-  private def checkIntegerLiteral(node: ASTNode, literal: ScLiteral)
+  private def checkIntegerLiteral(literal: ScLiteral, isLong: Boolean) // TODO isLong smells
                                  (implicit holder: AnnotationHolder): Unit = {
     import ScalaLanguageLevel._
     val languageLevel = literal.scalaLanguageLevel
-    val text = node.getText
 
-    val isLong = IntegerKind.IsLongMarker.unapply(text.last)
-
+    val text = literal.getLastChild.getText
     val kind = IntegerKind(text)
 
     val maybeParent = literal.getParent match {

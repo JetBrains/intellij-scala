@@ -49,7 +49,7 @@ ScalaFile
                 PsiElement(integer)('2')
               ReferenceExpression: +
                 PsiElement(identifier)('+')
-              FloatLiteral
-                PsiElement(float)('2.0')
+              DoubleLiteral
+                PsiElement(double)('2.0')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

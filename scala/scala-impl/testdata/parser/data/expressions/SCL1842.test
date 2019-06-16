@@ -2,8 +2,8 @@
 -----
 ScalaFile
   InfixExpression
-    FloatLiteral
-      PsiElement(float)('1.')
+    DoubleLiteral
+      PsiElement(double)('1.')
     PsiWhiteSpace(' ')
     ReferenceExpression: +
       PsiElement(identifier)('+')

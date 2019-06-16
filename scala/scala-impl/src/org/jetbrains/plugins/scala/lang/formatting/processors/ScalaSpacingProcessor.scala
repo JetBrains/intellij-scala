@@ -16,7 +16,7 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -810,7 +810,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiComment]) return COMMON_SPACING
     //; : . and , processing
     if (rightBlockString.startsWith(".") &&
-      rightElementType != ScalaTokenTypes.tFLOAT && !rightPsi.isInstanceOf[ScLiteral]) {
+      rightElementType != ScalaTokenType.Float &&
+      rightElementType != ScalaTokenType.Double &&
+      !rightPsi.isInstanceOf[ScLiteral]) {
       return WITHOUT_SPACING
     }
     if (rightBlockString.startsWith(",")) {
@@ -847,7 +849,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return leftElementType match {
         case ScalaElementType.StringLiteral |
              ScalaElementType.NullLiteral |
+             ScalaElementType.LongLiteral |
              ScalaElementType.IntegerLiteral |
+             ScalaElementType.DoubleLiteral |
              ScalaElementType.FloatLiteral |
              ScalaElementType.BooleanLiteral |
              ScalaElementType.SymbolLiteral |
@@ -1122,7 +1126,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             ScalaTokenTypes.tIDENTIFIER, _,
       ScalaElementType.StringLiteral |
       ScalaElementType.NullLiteral |
+      ScalaElementType.LongLiteral |
       ScalaElementType.IntegerLiteral |
+      ScalaElementType.DoubleLiteral |
       ScalaElementType.FloatLiteral |
       ScalaElementType.BooleanLiteral |
       ScalaElementType.SymbolLiteral |

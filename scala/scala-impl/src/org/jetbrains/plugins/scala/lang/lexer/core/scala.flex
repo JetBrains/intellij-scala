@@ -6,6 +6,8 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.containers.Stack;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 %%
 
 %class _ScalaCoreLexer
@@ -114,23 +116,26 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 /////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-integerLiteral = ({decimalNumeral} | {hexNumeral} | {octalNumeral}) [Ll]?
+longLiteal = {integerLiteral} [Ll]
+integerLiteral = {decimalNumeral} | {hexNumeral} | {octalNumeral}
 decimalNumeral = 0 | [1-9] {digitOrUnderscore}*
 hexNumeral = 0 [Xx] {hexDigitOrUnderscore}+
 octalNumeral = 0 {octalDigitOrUndescrore}+
-digit = [0-9]
 digitOrUnderscore = [_0-9]
 octalDigitOrUndescrore = [_0-7]
 hexDigitOrUnderscore = [_0-9A-Fa-f]
 
-floatingPointLiteral =
-      {digit}+ "." {digit}* {exponentPart}? {floatType}?
-    | "." {digit}+ {exponentPart}? {floatType}?
-    | {digit}+ {exponentPart} {floatType}?
-    | {digit}+ {exponentPart}? {floatType}
+doubleLiteral = ({floatingDecimalNumber} [Dd]?)
+          | ({fractionPart} [Dd])
+floatingLiteral = ({floatingDecimalNumber} | {fractionPart}) [Ff]
 
-exponentPart = [Ee] [+-]? {digit}+
-floatType = [DdFf]
+floatingDecimalNumber = {digits} "." {digits}? {exponentPart}?
+          | "." {fractionPart}
+          | {digits} {exponentPart}
+
+digits = [0-9]+
+exponentPart = [Ee] [+-]? {digits}
+fractionPart = {digits} {exponentPart}?
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
@@ -512,9 +517,11 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral} / "." {identifier}
-                                        {   return process(tINTEGER);  }
-{floatingPointLiteral}                  {   return process(tFLOAT);      }
-{integerLiteral}                        {   return process(tINTEGER);  }
+                                        {   return process(Integer());  }
+{doubleLiteral}                         {   return process(Double());}
+{floatingLiteral}                       {   return process(Float());      }
+{longLiteal}                            {   return process(Long());}
+{integerLiteral}                        {   return process(Integer());  }
 {WhiteSpace}                            {   yybegin(YYINITIAL);
                                             return process(tWHITE_SPACE_IN_LINE);  }
 {mNLS}                                  {   yybegin(YYINITIAL);
