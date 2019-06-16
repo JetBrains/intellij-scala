@@ -16,3 +16,4 @@ sealed abstract class Message extends Ordered[Message] {
 case class Info(element: String, message: String) extends Message
 case class Warning(element: String, message: String) extends Message
 case class Error(element: String, message: String) extends Message
+case class Hint(element: String, text: String, message: String) extends Message
