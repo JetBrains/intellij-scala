@@ -63,11 +63,6 @@ private object TypeMismatchHints {
       .map(_.copy(errorTooltip = Some(message)))
   }
 
-  private def typeMismatchHintWith(message: String)(implicit scheme: EditorColorsScheme): Seq[Text] =
-    Seq(Text("<:",
-      attributes = Some(scheme.getAttributes(CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES)),
-      errorTooltip = Some(message)))
-
   def tooltipFor(expectedType: ScType, actualType: ScType): String = {
     def format(diff: TypeDiff, f: String => String) = {
       val parts = diff.flatten.map {
