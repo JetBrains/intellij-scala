@@ -24,16 +24,8 @@ private object TypeMismatchHints {
       if (needsParentheses) Seq(Hint(Seq(Text("(")), element, suffix = false))
       else Seq.empty
 
-    val parts = {
-      val message = tooltipFor(expectedType, actualType)
-
-      val typeParts =
-        if (TypeMismatchHighlightingMode.in(element.getProject) == TypeMismatchHighlightingMode.SHOW_TYPE_MISMATCH_HINT) typeMismatchHintWith(message)
-        else partsOf(expectedType, actualType, message)
-
-      Text(": ") +: typeParts |> { parts =>
-        if (needsParentheses) Text(")") +: parts else parts
-      }
+    val parts = Text(": ") +: partsOf(expectedType, actualType, tooltipFor(expectedType, actualType)) |> { parts =>
+      if (needsParentheses) Text(")") +: parts else parts
     }
 
     val margin = if (needsParentheses) None else Some(new Insets(0, widthOf(' ').getOrElse(0), 0, 0))

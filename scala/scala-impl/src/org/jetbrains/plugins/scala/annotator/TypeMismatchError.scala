@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private object TypeMismatchError {
   def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)(formatMessage: (String, String) => String): Annotation = {
@@ -24,7 +25,7 @@ private object TypeMismatchError {
 
     val annotatedElement = elementAt(element, blockLevel)
 
-    val highlightExpression = TypeMismatchHighlightingMode.in(element.getProject) == TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION || !canBeHint
+    val highlightExpression = !ScalaProjectSettings.in(element.getProject).isTypeMismatchHints || !canBeHint
 
     // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
     val annotation = if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {

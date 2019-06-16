@@ -19,7 +19,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.annotator.TypeMismatchHighlightingMode;
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsUiTableModel;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
@@ -199,8 +198,9 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
     scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
-    boolean typeMismatchHighlightingModeChanged = scalaProjectSettings.getTypeMismatchHighlightingMode() != typeMismatchHighlightingMode.getSelectedItem();
-    scalaProjectSettings.setTypeMismatchHighlightingMode((TypeMismatchHighlightingMode) typeMismatchHighlightingMode.getSelectedItem());
+    boolean highlightHints = typeMismatchHighlightingMode.getSelectedItem() == TypeMismatchHighlightingMode.HIGHLIGHT_TYPE_HINT;
+    boolean typeMismatchHighlightingModeChanged = scalaProjectSettings.isTypeMismatchHints() != highlightHints;
+    scalaProjectSettings.setTypeMismatchHints(highlightHints);
     if (typeMismatchHighlightingModeChanged) {
       DaemonCodeAnalyzer.getInstance(myProject).restart();
     }
@@ -323,8 +323,8 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
       return true;
 
-    if (scalaProjectSettings.getTypeMismatchHighlightingMode() !=
-            typeMismatchHighlightingMode.getSelectedItem()) return true;
+    if (scalaProjectSettings.isTypeMismatchHints() !=
+            (typeMismatchHighlightingMode.getSelectedItem() == TypeMismatchHighlightingMode.HIGHLIGHT_TYPE_HINT)) return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
             collectionHighlightingChooser.getSelectedIndex()) return true;
@@ -398,7 +398,8 @@ public class ScalaProjectSettingsPanel {
     setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
     setValue(myAotCompletion, scalaProjectSettings.isAotCompletion());
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
-    typeMismatchHighlightingMode.setSelectedItem(scalaProjectSettings.getTypeMismatchHighlightingMode());
+    typeMismatchHighlightingMode.setSelectedItem(scalaProjectSettings.isTypeMismatchHints()
+            ? TypeMismatchHighlightingMode.HIGHLIGHT_TYPE_HINT : TypeMismatchHighlightingMode.HIGHLIGHT_EXPRESSION);
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
     setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
 
