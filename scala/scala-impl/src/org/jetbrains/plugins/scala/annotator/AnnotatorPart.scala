@@ -3,17 +3,14 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-
-import scala.reflect.ClassTag
 
 /**
   * Pavel Fatin
   */
-abstract class AnnotatorPart[T <: ScalaPsiElement : ClassTag] {
-  def annotate(element: T,
-               holder: AnnotationHolder,
-               typeAware: Boolean): Unit
+abstract class AnnotatorPart[T <: ScalaPsiElement : reflect.ClassTag] {
+
+  def annotate(element: T, typeAware: Boolean)
+              (implicit holder: AnnotationHolder): Unit
 }
 
 /*{

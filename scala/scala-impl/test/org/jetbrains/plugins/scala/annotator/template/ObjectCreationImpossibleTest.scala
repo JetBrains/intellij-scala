@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.annotator.template
 
-import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator._
+import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * Pavel Fatin
  */
 
-class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateObjectCreationImpossible(_, _)) {
+class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
   def testFineNew() {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
@@ -84,4 +85,8 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
   def testSkipTypeDeclarationSCL2887() {
     assertNothing(messages("trait A { type a }; new A {}"))
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateObjectCreationImpossible(element)
 }

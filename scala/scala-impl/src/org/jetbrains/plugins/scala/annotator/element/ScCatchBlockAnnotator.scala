@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.quickfix.ChangeTypeFix
 import org.jetbrains.plugins.scala.extensions._
@@ -19,7 +20,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.Seq
 
 object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
-  override def annotate(element: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScCatchBlock, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     element.expression match {
@@ -69,7 +72,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
                           case Some(te) if te.containingFile == t.containingFile =>
                             val fix = new ChangeTypeFix(te, returnType.getOrNothing)
                             annotation.registerFix(fix)
-                            val teAnnotation = annotationWithoutHighlighting(holder, te)
+                            val teAnnotation = annotationWithoutHighlighting(te)
                             teAnnotation.registerFix(fix)
                           case _ =>
                         }

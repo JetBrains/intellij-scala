@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -408,10 +407,10 @@ class FunctionAnnotatorTest extends AnnotatorSimpleTestCase {
     val annotator = ScalaAnnotator.forProject
     val parse: ScalaFile = (Header + code).parse
 
-    val mock = new AnnotatorHolderMock(parse)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(parse)
 
     parse.depthFirst().instancesOf[ScFunctionDefinition].foreach {
-      annotator.annotateFunction(_, mock, typeAware = true)
+      annotator.annotateFunction(_)
     }
 
     mock.annotations

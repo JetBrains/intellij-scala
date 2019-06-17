@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
@@ -6,9 +8,7 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder, HighlightSeve
 import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
-import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
@@ -39,22 +39,26 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeRef
 import scala.collection.Seq
 
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
-  override def annotate(element: ScReference, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScReference, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     if (typeAware) {
-      annotateReference(element, holder)
+      annotateReference(element)
     }
 
-    qualifierPart(element, holder, typeAware)
+    qualifierPart(element, typeAware)
   }
 
-  def qualifierPart(element: ScReference, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  def qualifierPart(element: ScReference, typeAware: Boolean)
+                   (implicit holder: AnnotationHolder): Unit = {
     element.qualifier match {
-      case None => checkNotQualifiedReferenceElement(element, holder, typeAware)
-      case Some(_) => checkQualifiedReferenceElement(element, holder, typeAware)
+      case None => checkNotQualifiedReferenceElement(element, typeAware)
+      case Some(_) => checkQualifiedReferenceElement(element, typeAware)
     }
   }
 
-  def annotateReference(reference: ScReference, holder: AnnotationHolder) {
+  def annotateReference(reference: ScReference)
+                       (implicit holder: AnnotationHolder): Unit = {
     val results = reference.multiResolveScala(false)
 
     if (results.length > 1) {
@@ -66,7 +70,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       UsageTracker.registerUsedImports(reference, r)
 
       if (r.isAssignment) {
-        annotateAssignmentReference(reference, holder)
+        annotateAssignmentReference(reference)
       }
       if (!r.isApplicable()) {
         r.element match {
@@ -128,7 +132,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
                     if (countMatches && !typeMismatchShown) {
                       expression.`type`().foreach {
-                        registerTypeMismatchError(_, expectedType, holder, expression)
+                        registerTypeMismatchError(_, expectedType, expression)
                       }
                       typeMismatchShown = true
                     }
@@ -169,7 +173,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   /**
     * Annotates: val a = 1; a += 1;
     */
-  private def annotateAssignmentReference(reference: ScReference, holder: AnnotationHolder) {
+  private def annotateAssignmentReference(reference: ScReference)
+                                         (implicit holder: AnnotationHolder): Unit = {
     val qualifier = reference.getContext match {
       case x: ScMethodCall => x.getEffectiveInvokedExpr match {
         case x: ScReferenceExpression => x.qualifier
@@ -191,7 +196,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  private def checkNotQualifiedReferenceElement(refElement: ScReference, holder: AnnotationHolder, typeAware: Boolean) {
+  private def checkNotQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
+                                               (implicit holder: AnnotationHolder): Unit = {
     refElement match {
       case _: ScInterpolatedStringPartReference =>
         return //do not inspect interpolated literal, it will be highlighted in other place
@@ -304,7 +310,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
     UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
 
-    checkAccessForReference(resolve, refElement, holder)
+    checkAccessForReference(resolve, refElement)
 
     if (resolve.length == 1) {
       val resolveResult = resolve(0)
@@ -315,7 +321,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
             case Some(fun) =>
               val pref = e.getParent.asInstanceOf[ScPrefixExpr]
               val expr = pref.operand
-              highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+              highlightImplicitMethod(expr, resolveResult, refElement, fun)
             case _ =>
           }
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
@@ -324,7 +330,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
             case Some(fun) =>
               val inf = e.getParent.asInstanceOf[ScInfixExpr]
               val expr = inf.getBaseExpr
-              highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+              highlightImplicitMethod(expr, resolveResult, refElement, fun)
             case _ =>
           }
         case _ =>
@@ -377,12 +383,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  private def checkQualifiedReferenceElement(refElement: ScReference, holder: AnnotationHolder, typeAware: Boolean) {
+  private def checkQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
+                                            (implicit holder: AnnotationHolder): Unit = {
     val resolve = refElement.multiResolveScala(false)
 
     UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
 
-    checkAccessForReference(resolve, refElement, holder)
+    checkAccessForReference(resolve, refElement)
     val resolveCount = resolve.length
     if (refElement.isInstanceOf[ScExpression] && resolveCount == 1) {
       val resolveResult = resolve(0)
@@ -390,7 +397,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case Some(fun) =>
           val qualifier = refElement.qualifier.get
           val expr = qualifier.asInstanceOf[ScExpression]
-          highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+          highlightImplicitMethod(expr, resolveResult, refElement, fun)
         case _ =>
       }
     }
@@ -463,15 +470,17 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
-                                      fun: PsiNamedElement, holder: AnnotationHolder) {
+                                      fun: PsiNamedElement)
+                                     (implicit holder: AnnotationHolder): Unit = {
     val typeTo = resolveResult.implicitType match {
       case Some(tp) => tp
       case _ => Any(expr.projectContext)
     }
-    highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
+    highlightImplicitView(expr, fun, typeTo, refElement.nameId)
   }
 
-  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference, holder: AnnotationHolder) {
+  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
+                                     (implicit holder: AnnotationHolder): Unit = {
     if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
     resolve(0) match {
       case r if !r.isAccessible =>

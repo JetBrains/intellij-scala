@@ -624,9 +624,9 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
     file.depthFirst().foreach {
-      ScopeAnnotator.annotateScope(_, mock)
+      ScopeAnnotator.annotateScope(_)
     }
     
     mock.annotations

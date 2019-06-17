@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
   * Pavel Fatin
   */
-class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(_, _, typeAware = true)) {
+class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -64,6 +65,10 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition](ScTe
       case Nil =>
     }
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(element)
 
   private def message(params: String*) =
     ScalaBundle.message("member.implementation.required", params: _*)

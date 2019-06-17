@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 
 /**
@@ -174,10 +174,10 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
     val assignment = file.depthFirst().instanceOf[ScAssignment].get
-    
-    val mock = new AnnotatorHolderMock(file)
-    
-    ScAssignmentAnnotator.annotate(assignment, mock, typeAware = true)
+
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+
+    ScAssignmentAnnotator.annotate(assignment)
     mock.annotations
   }
   

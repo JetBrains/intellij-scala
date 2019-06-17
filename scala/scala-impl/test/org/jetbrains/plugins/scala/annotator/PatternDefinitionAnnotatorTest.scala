@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.annotator.element.ScPatternDefinitionAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.annotator.element.ScPatternDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
@@ -67,9 +67,9 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     val definition = file.depthFirst().instanceOf[ScPatternDefinition].get
 
     val annotator = ScalaAnnotator.forProject(ctx)//new PatternDefinitionAnnotator() {}
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    ScPatternDefinitionAnnotator.annotate(definition, mock, typeAware = true)
+    ScPatternDefinitionAnnotator.annotate(definition)
     file.depthFirst().instanceOf[ScUnderscoreSection].foreach(annotator.annotate(_, mock))
     mock.annotations
   }

@@ -14,11 +14,10 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
   import project.ScalaLanguageLevel._
   import quickfix.NumberLiteralQuickFix._
 
-  override def annotate(literal: Numeric,
-                        holder: AnnotationHolder,
-                        typeAware: Boolean): Unit = literal match {
-    case _: ScLongLiteral => checkIntegerLiteral(literal, isLong = true)(holder)
-    case _: ScIntegerLiteral => checkIntegerLiteral(literal, isLong = false)(holder)
+  override def annotate(literal: Numeric, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = literal match {
+    case _: ScLongLiteral => checkIntegerLiteral(literal, isLong = true)
+    case _: ScIntegerLiteral => checkIntegerLiteral(literal, isLong = false)
     case _ =>
   }
 

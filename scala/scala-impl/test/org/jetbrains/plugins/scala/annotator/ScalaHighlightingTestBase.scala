@@ -31,10 +31,9 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Asser
 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
-    val mock = new AnnotatorHolderMock(getFile)
-    val annotator = getAnnotator
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
 
-    getFile.depthFirst().foreach(annotator(_, mock))
+    getFile.depthFirst().foreach(annotate(_))
 
     val messages = mock.annotations.filter {
       case Error(_, null) | Error(null, _) => false
@@ -53,5 +52,7 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Asser
     }
   }
 
-  def getAnnotator: (PsiElement, AnnotationHolder) => Unit = ScalaAnnotator.forProject.annotate(_, _)
+  def annotate(element: PsiElement)
+              (implicit holder: AnnotationHolder): Unit =
+    ScalaAnnotator.forProject.annotate(element, holder)
 }

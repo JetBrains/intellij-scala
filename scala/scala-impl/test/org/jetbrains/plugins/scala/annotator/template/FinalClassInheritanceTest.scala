@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * Pavel Fatin
  */
-class FinalClassInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateFinalClassInheritance(_, _)) {
+class FinalClassInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))
@@ -56,4 +57,8 @@ class FinalClassInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](
     assertMatches(messages("class C(val x: Int) extends AnyVal; new C {}"))(expectation)
     assertMatches(messages("class C(val x: Int) extends AnyVal; class X extends C(2)"))(expectation)
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateFinalClassInheritance(element)
 }

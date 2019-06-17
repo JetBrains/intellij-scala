@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
@@ -14,7 +16,9 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
-  override def annotate(element:ScAssignment, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScAssignment, typeAware: Boolean = true)
+                       (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     val left = element.leftExpression
@@ -31,7 +35,7 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
                 right.foreach { expression =>
                   expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
                     if(!ScalaPsiUtil.isUnderscoreEq(element, rType)) {
-                      registerTypeMismatchError(rType, lType, holder, expression)
+                      registerTypeMismatchError(rType, lType, expression)
                     }
                   }
                 }
@@ -54,7 +58,7 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
                     ra.problems.foreach {
                       case TypeMismatch(expression, expectedType) =>
                         expression.`type`().foreach {
-                          registerTypeMismatchError(_, expectedType, holder, expression)
+                          registerTypeMismatchError(_, expectedType, expression)
                         }
                       case MissedValueParameter(_) => // simultaneously handled above
                       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved

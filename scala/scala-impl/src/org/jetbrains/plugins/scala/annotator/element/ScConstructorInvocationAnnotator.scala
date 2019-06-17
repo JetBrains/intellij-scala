@@ -1,13 +1,14 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScMethodLike, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -19,15 +20,18 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.extensions._
 
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
-  override def annotate(element: ScConstructorInvocation, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScConstructorInvocation, typeAware: Boolean = true)
+                       (implicit holder: AnnotationHolder): Unit = {
     if (typeAware) {
-      ImplicitParametersAnnotator.annotate(element, holder, typeAware)
-      annotateConstructorInvocation(element, holder)
+      ImplicitParametersAnnotator.annotate(element, typeAware)
+      annotateConstructorInvocation(element)
     }
   }
 
   // TODO duplication with application annotator.
-  private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation, holder: AnnotationHolder) {
+  private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation)
+                                           (implicit holder: AnnotationHolder) {
     constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>
         holder.createErrorAnnotation(constrInvocation.typeElement, s"Class type required but ($lit) found")
@@ -76,16 +80,17 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
           constr.effectiveParameterClauses
         )
 
-        annotateProblems(res.problems, r, constrInvocation, holder)
+        annotateProblems(res.problems, r, constrInvocation)
       case results if results.length > 1 =>
         holder.createErrorAnnotation(constrInvocation.typeElement, s"Cannot resolve overloaded constructor `${constrInvocation.typeElement.getText}`")
       case _ =>
         for (r <- resolved)
-          annotateProblems(r.problems, r, constrInvocation, holder)
+          annotateProblems(r.problems, r, constrInvocation)
     }
   }
 
-  def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike, holder: AnnotationHolder): Unit = {
+  def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike)
+                      (implicit holder: AnnotationHolder): Unit = {
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
     // TODO decouple
@@ -131,7 +136,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
           expression.`type`().foreach {
-            registerTypeMismatchError(_, expectedType, holder, expression)
+            registerTypeMismatchError(_, expectedType, expression)
           }
           typeMismatchShown = true
         }

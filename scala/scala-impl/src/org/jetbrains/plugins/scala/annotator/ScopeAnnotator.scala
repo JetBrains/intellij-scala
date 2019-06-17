@@ -27,16 +27,19 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
+
   private case class Definitions(types: List[ScNamedElement],
                                  functions: List[ScFunction],
                                  parameterless: List[ScNamedElement],
                                  fieldLike: List[ScNamedElement],
                                  classParameters: List[ScClassParameter])
 
-  def annotate(element: ScalaPsiElement, holder: AnnotationHolder, typeAware: Boolean): Unit =
-    annotateScope(element, holder)
+  def annotate(element: ScalaPsiElement, typeAware: Boolean)
+              (implicit holder: AnnotationHolder): Unit =
+    annotateScope(element)
 
-  def annotateScope(element: PsiElement, holder: AnnotationHolder): Unit = {
+  def annotateScope(element: PsiElement)
+                   (implicit holder: AnnotationHolder): Unit = {
     if (!isScope(element)) return
 
     def checkScope(elements: PsiElement*) {

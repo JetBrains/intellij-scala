@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
@@ -7,7 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
-  override def annotate(element: ScParameterizedTypeElement, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScParameterizedTypeElement, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     val typeParamOwner = element.typeElement.getTypeNoConstructor.toOption
       .flatMap(_.extractDesignated(expandAliases = false))
       .collect {case t: ScTypeParametersOwner => t}

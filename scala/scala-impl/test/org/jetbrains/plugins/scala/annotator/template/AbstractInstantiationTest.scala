@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScNewTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 
 /**
  * Pavel Fatin
  */
-class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinition](ScNewTemplateDefinitionAnnotator.annotateAbstractInstantiation(_, _)) {
+class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinition] {
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))
@@ -54,6 +55,10 @@ class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinitio
     }
     assertNothing(messages("abstract class C; new { val a = 0 } with C"))
   }
+
+  override protected def annotate(element: ScNewTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScNewTemplateDefinitionAnnotator.annotateAbstractInstantiation(element)
 
   private def message(params: String*) =
     ScalaBundle.message("illegal.instantiation", params: _*)

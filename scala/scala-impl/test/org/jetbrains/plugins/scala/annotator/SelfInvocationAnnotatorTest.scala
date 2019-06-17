@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.annotator.element.ScSelfInvocationAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.annotator.element.ScSelfInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 
@@ -157,10 +157,10 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
   def messages(@Language(value = "Scala") code: String): List[Message] = {
     val file: ScalaFile = code.parse
 
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     file.depthFirst().instancesOf[ScSelfInvocation].foreach { constr =>
-      ScSelfInvocationAnnotator.annotate(constr, mock, typeAware = true)
+      ScSelfInvocationAnnotator.annotate(constr)
     }
 
     mock.annotations

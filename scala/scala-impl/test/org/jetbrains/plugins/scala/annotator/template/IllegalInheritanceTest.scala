@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
   * Pavel Fatin
   */
-class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateIllegalInheritance(_, _)) {
+class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -93,4 +94,8 @@ class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](ScT
     //but at least we don't have an infinite recursion here (see SCL-13410)
     assertNothing(messages(code))
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateIllegalInheritance(element)
 }

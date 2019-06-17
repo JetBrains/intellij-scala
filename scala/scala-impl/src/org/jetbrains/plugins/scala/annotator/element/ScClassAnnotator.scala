@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
@@ -10,9 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import scala.annotation.tailrec
 
 object ScClassAnnotator extends ElementAnnotator[ScClass] {
-  override def annotate(element: ScClass, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScClass, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     if (typeAware && ValueClassType.extendsAnyVal(element)) {
-      annotateValueClass(element, holder)
+      annotateValueClass(element)
     }
   }
 
@@ -28,25 +31,27 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     *  … cannot be extended by another class.
     *  @see SCL-9263
     */
-  def annotateValueClass(valueClass: ScClass, holder: AnnotationHolder): Unit = {
-    annotateValueClassConstructor(valueClass, holder)
-    annotateValueClassTypeParameters(valueClass.typeParametersClause, holder)
-    annotateInnerMembers(valueClass, holder: AnnotationHolder)
-    annotateContainingClass(valueClass, holder, Option(valueClass.containingClass))
+  def annotateValueClass(valueClass: ScClass)
+                        (implicit holder: AnnotationHolder): Unit = {
+    annotateValueClassConstructor(valueClass)
+    annotateValueClassTypeParameters(valueClass.typeParametersClause)
+    annotateInnerMembers(valueClass)
+    annotateContainingClass(valueClass, Option(valueClass.containingClass))
   }
 
   @tailrec
-  private def annotateContainingClass(valueClass: ScClass, holder: AnnotationHolder,
-                                      containingClass: Option[ScTemplateDefinition]): Unit = {
+  private def annotateContainingClass(valueClass: ScClass, containingClass: Option[ScTemplateDefinition])
+                                     (implicit holder: AnnotationHolder): Unit = {
     containingClass match {
-      case Some(obj: ScObject) => annotateContainingClass(valueClass, holder, Option(obj.containingClass)) //keep going
+      case Some(obj: ScObject) => annotateContainingClass(valueClass, Option(obj.containingClass)) //keep going
       case Some(_) => //value class is inside a trait or a class, need to highlight it
         holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.classes.may.not.be.member.of.another.class"))
       case _ => //we are done, value class is either top level or inside a statically accessible object
     }
   }
 
-  private def annotateInnerMembers(valueClass: ScClass, holder: AnnotationHolder): Unit = {
+  private def annotateInnerMembers(valueClass: ScClass)
+                                  (implicit holder: AnnotationHolder): Unit = {
     valueClass.allInnerTypeDefinitions.foreach { td =>
       holder.createErrorAnnotation(td.nameId, ScalaBundle.message("value.classes.cannot.have.nested.objects"))
     }
@@ -69,7 +74,8 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     }
   }
 
-  private def annotateValueClassConstructor(valueClass: ScClass, holder: AnnotationHolder): Unit = {
+  private def annotateValueClassConstructor(valueClass: ScClass)
+                                           (implicit holder: AnnotationHolder): Unit = {
     valueClass.constructor match {
       case Some(c) =>
         c.parameters match {
@@ -86,7 +92,8 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     }
   }
 
-  private def annotateValueClassTypeParameters(tp: Option[ScTypeParamClause], holder: AnnotationHolder): Unit = tp match {
+  private def annotateValueClassTypeParameters(tp: Option[ScTypeParamClause])
+                                              (implicit holder: AnnotationHolder): Unit = tp match {
     case Some(tpClause) => tpClause.typeParameters.filter(_.hasAnnotation("scala.specialized")).foreach {
       tpParam =>
         val message: String = ScalaBundle.message("type.parameter.value.class.may.not.be.specialized")

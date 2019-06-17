@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.extensions.Extensions
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9446Injector, SCL9446InjectorNoOverride}
 
 
-class NeedsToBeAbstractBugsTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(_, _, typeAware = true)) {
+class NeedsToBeAbstractBugsTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testSCL2981(): Unit = {
     assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T = Int; def t(p: T) = ()}")) {
@@ -93,6 +94,10 @@ class B extends A {
       }
     }
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(element)
 
   private def doInjectorTest(injector: SyntheticMembersInjector)(body: => Unit): Unit = {
     val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)

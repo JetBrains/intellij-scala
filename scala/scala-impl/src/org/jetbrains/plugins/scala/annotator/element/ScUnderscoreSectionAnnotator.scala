@@ -1,20 +1,24 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 
 object ScUnderscoreSectionAnnotator extends ElementAnnotator[ScUnderscoreSection] {
-  override def annotate(element: ScUnderscoreSection, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    checkUnboundUnderscore(element, holder)
+
+  override def annotate(element: ScUnderscoreSection, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
+    checkUnboundUnderscore(element)
     // TODO (otherwise there's no type conformance check)
     // super.visitUnderscoreExpression  }
   }
 
-  private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
+  private def checkUnboundUnderscore(under: ScUnderscoreSection)
+                                    (implicit holder: AnnotationHolder) {
     if (under.getText == "_") {
       under.parentOfType(classOf[ScValueOrVariable], strict = false).foreach {
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>

@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.template.PrivateBeanProperty
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.expansion.RecompileAnnotationAction
@@ -11,17 +12,21 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.meta.intellij.MetaExpansionsManager
 
 object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
-  override def annotate(element: ScAnnotation, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    checkAnnotationType(element, holder)
-    checkMetaAnnotation(element, holder)
-    PrivateBeanProperty.annotate(element, holder)
+
+  override def annotate(element: ScAnnotation, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
+    checkAnnotationType(element)
+    checkMetaAnnotation(element)
+    PrivateBeanProperty.annotate(element)
   }
 
-  private def checkAnnotationType(element: ScAnnotation, holder: AnnotationHolder) {
+  private def checkAnnotationType(element: ScAnnotation)
+                                 (implicit holder: AnnotationHolder): Unit = {
     //TODO: check annotation is inheritor for class scala.Annotation
   }
 
-  private def checkMetaAnnotation(element: ScAnnotation, holder: AnnotationHolder): Unit = {
+  private def checkMetaAnnotation(element: ScAnnotation)
+                                 (implicit holder: AnnotationHolder): Unit = {
     import ScalaProjectSettings.ScalaMetaMode
 
     import scala.meta.intellij.psi._

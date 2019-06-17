@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * @author Alefas
  * @since 17.10.12
  */
-class NeedsToBeMixinTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateNeedsToBeMixin(_, _)) {
+class NeedsToBeMixinTest extends AnnotatorTestBase[ScTemplateDefinition] {
   def testProblem() {
     val message = ScalaBundle.message("mixin.required", "Class", "C", "base", "T")
 
@@ -44,4 +45,8 @@ class NeedsToBeMixinTest extends AnnotatorTestBase[ScTemplateDefinition](ScTempl
       """.stripMargin
     ))
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateNeedsToBeMixin(element)
 }

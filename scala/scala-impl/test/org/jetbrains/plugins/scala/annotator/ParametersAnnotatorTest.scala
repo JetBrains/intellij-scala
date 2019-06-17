@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
@@ -83,14 +82,14 @@ class ParametersAnnotatorTest extends AnnotatorSimpleTestCase {
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
 
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
     val owner = file.depthFirst().instancesOf[ScParameterOwner].collectFirst {
       case named: ScNamedElement if !Set("A", "B", "C").contains(named.name) => named
     }.get
 
-    ScParametersAnnotator.annotate(owner.clauses.get, mock, typeAware = true)
+    ScParametersAnnotator.annotate(owner.clauses.get)
     for (p <- owner.parameters) {
-      ScParameterAnnotator.annotate(p, mock, typeAware = true)
+      ScParameterAnnotator.annotate(p)
     }
     mock.annotations
   }

@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -21,20 +22,23 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
-  override def annotate(element: ScPattern, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScPattern, typeAware: Boolean = true)
+                       (implicit holder: AnnotationHolder): Unit = {
     if (typeAware) {
-      ScPatternAnnotator.checkPattern(element, holder)
+      checkPattern(element)
     }
   }
 
-  def checkPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
+  private def checkPattern(pattern: ScPattern)
+                          (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = pattern
 
     for {
       pType <- patternType(pattern)
       eType <- pattern.expectedType
     } {
-      checkPatternType(pType, eType, pattern, holder)
+      checkPatternType(pType, eType, pattern)
     }
   }
 
@@ -43,7 +47,8 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
     *
     */
-  private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder) = {
+  private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern)
+                              (implicit holder: AnnotationHolder) = {
     implicit val ctx: ProjectContext = pattern
 
     val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))

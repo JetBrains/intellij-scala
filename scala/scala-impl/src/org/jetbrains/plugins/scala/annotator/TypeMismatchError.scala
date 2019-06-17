@@ -15,7 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private object TypeMismatchError {
-  def register(holder: AnnotationHolder, element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)(formatMessage: (String, String) => String): Annotation = {
+  def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
+              (formatMessage: (String, String) => String)
+              (implicit holder: AnnotationHolder): Annotation = {
     // TODO update the test data, SCL-15483
     val message = {
       val wideActualType = (expectedType, actualType) match {

@@ -3,8 +3,8 @@ package annotator
 
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.annotator.element.{ScMethodInvocationAnnotator, ScReferenceAnnotator}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -26,18 +26,18 @@ abstract class ApplicationAnnotatorTestBase extends AnnotatorSimpleTestCase {
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
 
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     val seq = file.depthFirst().instanceOf[ScClass]
     Compatibility.seqClass = seq
     try {
       // TODO use the general annotate() method
       file.depthFirst().instancesOf[ScReference].foreach {
-        ScReferenceAnnotator.annotateReference(_, mock)
+        ScReferenceAnnotator.annotateReference(_)
       }
 
       file.depthFirst().instancesOf[ScMethodCall].foreach {
-        ScMethodInvocationAnnotator.annotateMethodInvocation(_, mock)
+        ScMethodInvocationAnnotator.annotateMethodInvocation(_)
       }
 
       mock.annotations

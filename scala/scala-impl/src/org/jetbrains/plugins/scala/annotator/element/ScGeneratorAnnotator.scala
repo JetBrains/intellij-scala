@@ -1,17 +1,21 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{AnnotationHolder, AnnotationSession}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 
 object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
-  override def annotate(element: ScGenerator, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    checkGenerator(element, holder, typeAware)
+
+  override def annotate(element: ScGenerator, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
+    checkGenerator(element, typeAware)
 
     element.valKeyword match {
       case Some(valKeyword) =>
@@ -22,25 +26,24 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
     }
   }
 
-  private def checkGenerator(generator: ScGenerator, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  private def checkGenerator(generator: ScGenerator, typeAware: Boolean)
+                            (implicit holder: AnnotationHolder): Unit = {
 
     for {
       forExpression <- generator.forStatement
       ScEnumerator.withDesugaredAndEnumeratorToken(desugaredGenerator, generatorToken) <- Some(generator)
+      session = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile)
     } {
-      val sessionForDesugaredCode = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile)
-      def delegateHolderFor(element: PsiElement) = new DelegateAnnotationHolder(element, holder, sessionForDesugaredCode) with ErrorIndication
-
       val followingEnumerators = generator.nextSiblings
         .takeWhile(!_.isInstanceOf[ScGenerator])
 
       val foundUnresolvedSymbol = followingEnumerators
         .exists {
-          case enum@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, enumToken) =>
-            val holder = delegateHolderFor(enumToken)
+          case ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, enumToken) =>
+            val errorHolder = delegateHolderFor(enumToken, session)
             // TODO decouple
-            desugaredEnum.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, holder, typeAware))
-            holder.hadError
+            desugaredEnum.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, typeAware)(errorHolder))
+            errorHolder.hadError
           case _ =>
             false
         }
@@ -58,28 +61,37 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
           for (nextGen <- nextGenOpt) {
             foundMonadicError = nextGen.desugared.exists {
               nextDesugaredGen =>
-                val holder = delegateHolderFor(nextGen)
+                val errorHolder = delegateHolderFor(nextGen, session)
                 // TODO decouple
-                ScExpressionAnnotator.checkExpressionType(nextDesugaredGen.analogMethodCall, holder, typeAware)
-                holder.hadError
+                ScExpressionAnnotator.checkExpressionType(nextDesugaredGen.analogMethodCall, typeAware)(errorHolder)
+                errorHolder.hadError
             }
 
             if (!foundMonadicError) {
-              val holder = delegateHolderFor(nextGen)
+              val errorHolder = delegateHolderFor(nextGen, session)
               // TODO decouple
-              desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_, holder))
-              foundMonadicError = holder.hadError
+              desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_)(errorHolder))
+              foundMonadicError = errorHolder.hadError
             }
           }
         }
 
         if (!foundMonadicError) {
           // TODO decouple
-          desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, delegateHolderFor(generatorToken), typeAware))
+          desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, typeAware)(delegateHolderFor(generatorToken, session)))
         }
       }
     }
   }
+
+  private def delegateHolderFor(target: PsiElement, session: AnnotationSession)
+                               (implicit holder: AnnotationHolder) =
+    new DelegateAnnotationHolder(session) with ErrorIndication {
+
+      override protected val element: Some[PsiElement] = Some(target)
+
+      override protected def transformRange(range: TextRange): TextRange = target.getTextRange
+    }
 }
 
 

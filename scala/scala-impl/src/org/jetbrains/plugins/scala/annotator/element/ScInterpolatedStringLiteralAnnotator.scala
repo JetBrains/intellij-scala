@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{AnnotationHolder, AnnotationSession}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -14,7 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartRe
 import scala.collection.mutable
 
 object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpolatedStringLiteral] {
-  override def annotate(element: ScInterpolatedStringLiteral, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScInterpolatedStringLiteral, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     if (element.getFirstChild == null) return
 
     val ref = element.findReferenceAt(0) match {
@@ -38,7 +41,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
         elementsMap += params.length -> i
         params.append(i.getText).append(",")
       }
-      if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
+      if (injections.nonEmpty) params.setCharAt(params.length - 1, ')') else params.append(')')
 
       val (expr, ref, shift) = element.getStringContextExpression match {
         case Some(mc @ ScMethodCall(invoked: ScReferenceExpression, _)) =>
@@ -49,9 +52,13 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
 
       val sessionForExpr = new AnnotationSession(expr.getContainingFile)
       def mapPosInExprToElement(range: TextRange) = elementsMap.getOrElse(range.getStartOffset - shift, prefix)
-      val fakeAnnotator = new DelegateAnnotationHolder(mapPosInExprToElement(_).getTextRange, holder, sessionForExpr)
 
-      ScReferenceAnnotator.annotateReference(ref, fakeAnnotator)
+      ScReferenceAnnotator.annotateReference(ref) {
+        new DelegateAnnotationHolder(sessionForExpr) {
+          override protected def transformRange(range: TextRange): TextRange =
+            mapPosInExprToElement(range).getTextRange
+        }
+      }
     }
 
     ref.bind() match {

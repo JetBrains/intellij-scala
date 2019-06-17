@@ -28,13 +28,14 @@ import scala.collection.Seq
 // TODO move to org.jetbrains.plugins.scala.lang.psi.annotator
 object AnnotatorUtils {
 
-  def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
+  def checkConformance(expression: ScExpression, typeElement: ScTypeElement)
+                      (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = expression
 
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {
-        TypeMismatchError.register(holder, expression, expected, actual, blockLevel = 1) { (expected, actual) =>
+        TypeMismatchError.register(expression, expected, actual, blockLevel = 1) { (expected, actual) =>
           ScalaBundle.message("type.mismatch.found.required", actual, expected)
         }
       }
@@ -42,7 +43,8 @@ object AnnotatorUtils {
   }
 
   //fix for SCL-7176
-  def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
+  def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement])
+                                        (implicit holder: AnnotationHolder): Unit = {
     element match {
       case fun: ScFunctionDeclaration if fun.isNative =>
       case modOwner: ScModifierListOwner =>
@@ -58,16 +60,19 @@ object AnnotatorUtils {
     }
   }
 
-  def registerTypeMismatchError(actualType: ScType, expectedType: ScType, holder: AnnotationHolder, expression: ScExpression): Unit = {
+  def registerTypeMismatchError(actualType: ScType, expectedType: ScType,
+                                expression: ScExpression)
+                               (implicit holder: AnnotationHolder): Unit = {
     //TODO show parameter name
     if (!actualType.conforms(expectedType)) {
-      TypeMismatchError.register(holder, expression, expectedType, actualType) { (expected, actual) =>
+      TypeMismatchError.register(expression, expectedType, actualType) { (expected, actual) =>
         ScalaBundle.message("type.mismatch.expected.actual", expected, actual)
       }
     }
   }
 
-  def annotationWithoutHighlighting(holder: AnnotationHolder, te: PsiElement): Annotation = {
+  def annotationWithoutHighlighting(te: PsiElement)
+                                   (implicit holder: AnnotationHolder): Annotation = {
     val teAnnotation = holder.createErrorAnnotation(te, null)
     teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
     val emptyAttr = new TextAttributes()
@@ -94,7 +99,8 @@ object AnnotatorUtils {
 
   // TODO encapsulate
   def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
-                                    elementToHighlight: PsiElement, holder: AnnotationHolder) {
+                            elementToHighlight: PsiElement)
+                           (implicit holder: AnnotationHolder) {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
       val range = elementToHighlight.getTextRange
       val annotation: Annotation = holder.createInfoAnnotation(range, null)

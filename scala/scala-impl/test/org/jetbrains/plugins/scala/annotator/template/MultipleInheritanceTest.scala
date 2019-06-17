@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
   * Pavel Fatin
   */
-class MultipleInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateMultipleInheritance(_, _)) {
+class MultipleInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testMultipleTraitInheritance(): Unit = {
     assertNothing(messages("trait T; new T {}"))
@@ -36,4 +37,8 @@ class MultipleInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition](Sc
       case Error("T", `message`) :: Error("T", `message`) :: Error("T", `message`) :: Nil =>
     }
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateMultipleInheritance(element)
 }

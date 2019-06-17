@@ -1,18 +1,27 @@
-package org.jetbrains.plugins.scala.annotator.annotationHolder
+package org.jetbrains.plugins.scala
+package annotator
+package annotationHolder
 
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
-class DelegateAnnotationHolder(transformRange: TextRange => TextRange, holder: AnnotationHolder, session: AnnotationSession, private val element: Option[PsiElement] = None)
+abstract class DelegateAnnotationHolder(session: AnnotationSession)
+                                       (implicit holder: AnnotationHolder)
   extends AnnotationHolderImpl(session, holder.isBatchMode) {
 
-  def this(elem: PsiElement, holder: AnnotationHolder, session: AnnotationSession) = this(_ => elem.getTextRange, holder, session, Some(elem))
+  protected val element: Option[PsiElement] = None
 
-  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, tooltip: String): Annotation = {
-    holder.createAnnotation(severity, transformRange(range), message, tooltip)
-  }
+  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, tooltip: String): Annotation =
+    holder.createAnnotation(
+      severity,
+      transformRange(range),
+      message,
+      tooltip
+    )
+
+  protected def transformRange(range: TextRange): TextRange
 }
 
 object DelegateAnnotationHolder {

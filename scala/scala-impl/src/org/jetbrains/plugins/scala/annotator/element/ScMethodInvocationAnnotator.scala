@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
@@ -14,13 +16,16 @@ import scala.annotation.tailrec
 
 // TODO Why it's only used for ScMethodCall and ScInfixExp, but not for ScPrefixExp or ScPostfixExpr?
 object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
-  override def annotate(element: MethodInvocation, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: MethodInvocation, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     if (typeAware) {
-      annotateMethodInvocation(element, holder)
+      annotateMethodInvocation(element)
     }
   }
 
-  def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder) {
+  def annotateMethodInvocation(call: MethodInvocation)
+                              (implicit holder: AnnotationHolder) {
     implicit val ctx: ProjectContext = call
 
     //do we need to check it:
@@ -74,7 +79,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
           expression.`type`().foreach {
-            registerTypeMismatchError(_, expectedType, holder, expression)
+            registerTypeMismatchError(_, expectedType, expression)
           }
           typeMismatchShown = true
         }

@@ -1,10 +1,14 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 
 object ScParametersAnnotator extends ElementAnnotator[ScParameters] {
-  override def annotate(element: ScParameters, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScParameters, typeAware: Boolean = true)
+                       (implicit holder: AnnotationHolder): Unit = {
     def checkRepeatedParams() {
       element.clauses.foreach { cl =>
         cl.parameters.dropRight(1).foreach {

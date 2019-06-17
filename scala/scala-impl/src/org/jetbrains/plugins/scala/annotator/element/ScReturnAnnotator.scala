@@ -1,15 +1,18 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScReturnAnnotator extends ElementAnnotator[ScReturn] {
-  override def annotate(element: ScReturn, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScReturn, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     val function = element.method.getOrElse {

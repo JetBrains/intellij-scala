@@ -3,7 +3,7 @@ package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
-import org.jetbrains.plugins.scala.base.{AssertMatches, SimpleTestCase}
+import org.jetbrains.plugins.scala.base.AssertMatches
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
@@ -367,14 +367,14 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file: ScalaFile = (Header + code).parseWithEventSystem
 
-    val mock = new AnnotatorHolderMock(file)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     val seq = file.depthFirst().instanceOf[ScClass]
     Compatibility.seqClass = seq
 
     try {
       file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
-        ScConstructorInvocationAnnotator.annotate(_, mock, typeAware = true)
+        ScConstructorInvocationAnnotator.annotate(_)
       }
 
       mock.annotations

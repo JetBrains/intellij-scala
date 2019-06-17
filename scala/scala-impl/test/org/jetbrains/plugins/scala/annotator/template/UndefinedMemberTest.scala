@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * Pavel Fatin
  */
-class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemplateDefinitionAnnotator.annotateUndefinedMember(_, _)) {
+class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testValidHolders(): Unit = {
     assertNothing(messages("class C { def f }"))
@@ -55,6 +56,10 @@ class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinition](ScTemp
     assertNothing(messages("new { var v: Object = null }"))
     assertNothing(messages("new { type T = Any }"))
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: AnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateUndefinedMember(element)
 
   private val Message = ScalaBundle.message("illegal.undefined.member")
 }

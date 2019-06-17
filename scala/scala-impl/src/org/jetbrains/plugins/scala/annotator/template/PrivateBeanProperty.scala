@@ -14,9 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
   */
 object PrivateBeanProperty extends AnnotatorPart[ScAnnotation] {
 
-  def annotate(annotation: ScAnnotation,
-               holder: AnnotationHolder,
-               typeAware: Boolean = false): Unit =
+  override def annotate(annotation: ScAnnotation, typeAware: Boolean = false)
+                       (implicit holder: AnnotationHolder): Unit =
     if (isBeanPropertyAnnotation(annotation)) {
 
       PsiTreeUtil.getParentOfType(annotation, classOf[ScMember]) match {

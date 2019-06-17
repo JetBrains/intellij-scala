@@ -51,6 +51,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   override final implicit def projectContext: ProjectContext = project
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
+    implicit val h: AnnotationHolder = holder
 
     val typeAware = isAdvancedHighlightingEnabled(element)
     val (compiled, isInSources) = element.getContainingFile match {
@@ -71,21 +72,21 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     }
 
     element match {
-      case e: ScalaPsiElement => ElementAnnotator.annotate(e, holder, typeAware)
+      case e: ScalaPsiElement => ElementAnnotator.annotate(e, typeAware)
       case _ =>
     }
 
     val visitor = new ScalaElementVisitor {
       override def visitExpression(expr: ScExpression) {
         if (!compiled) {
-          ImplicitParametersAnnotator.annotate(expr, holder, typeAware)
-          ByNameParameter.annotate(expr, holder, typeAware)
+          ImplicitParametersAnnotator.annotate(expr, typeAware)
+          ByNameParameter.annotate(expr, typeAware)
         }
 
         if (isAdvancedHighlightingEnabled(element)) {
           expr.getTypeAfterImplicitConversion() match {
             case ExpressionTypeResult(Right(t), _, Some(implicitFunction)) =>
-              highlightImplicitView(expr, implicitFunction.element, t, expr, holder)
+              highlightImplicitView(expr, implicitFunction.element, t, expr)
             case _ =>
           }
         }
@@ -114,19 +115,19 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
       override def visitFunctionDefinition(fun: ScFunctionDefinition) {
         if (!compiled && !fun.isConstructor)
-          annotateFunction(fun, holder, typeAware)
+          annotateFunction(fun, typeAware)
         super.visitFunctionDefinition(fun)
       }
 
       override def visitFunctionDeclaration(fun: ScFunctionDeclaration) {
-        checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId), holder)
+        checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId))
         super.visitFunctionDeclaration(fun)
       }
 
       override def visitFunction(function: ScFunction) {
-        if (typeAware && !compiled) checkOverrideMethods(function, isInSources)(holder)
+        if (typeAware && !compiled) checkOverrideMethods(function, isInSources)
 
-        if (!function.isConstructor) checkFunctionForVariance(function, holder)
+        if (!function.isConstructor) checkFunctionForVariance(function)
         super.visitFunction(function)
       }
 
@@ -135,7 +136,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       }
 
       override def visitModifierList(modifierList: ScModifierList) {
-        ModifierChecker.checkModifiers(modifierList)(holder)
+        ModifierChecker.checkModifiers(modifierList)
         super.visitModifierList(modifierList)
       }
 
@@ -145,53 +146,53 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       }
 
       override def visitTypeAlias(alias: ScTypeAlias) {
-        if (typeAware && !compiled) checkOverrideTypeAliases(alias)(holder)
+        if (typeAware && !compiled) checkOverrideTypeAliases(alias)
 
-        if(!compoundType(alias)) checkBoundsVariance(alias, holder, alias.nameId, alias, checkTypeDeclaredSameBracket = false)
+        if (!compoundType(alias)) checkBoundsVariance(alias, alias.nameId, alias, checkTypeDeclaredSameBracket = false)
         super.visitTypeAlias(alias)
       }
 
       override def visitVariable(variable: ScVariable) {
-        if (typeAware && !compiled) checkOverrideVariables(variable, isInSources)(holder)
+        if (typeAware && !compiled) checkOverrideVariables(variable, isInSources)
 
         variable.typeElement match {
-          case Some(typ) => checkBoundsVariance(variable, holder, typ, variable, checkTypeDeclaredSameBracket = false)
+          case Some(typ) => checkBoundsVariance(variable, typ, variable, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
         if (!childHasAnnotation(variable.typeElement, "uncheckedVariance")) {
-          checkValueAndVariableVariance(variable, Covariant, variable.declaredElements, holder)
-          checkValueAndVariableVariance(variable, Contravariant, variable.declaredElements, holder)
+          checkValueAndVariableVariance(variable, Covariant, variable.declaredElements)
+          checkValueAndVariableVariance(variable, Contravariant, variable.declaredElements)
         }
         super.visitVariable(variable)
       }
 
       override def visitValueDeclaration(v: ScValueDeclaration) {
-        checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId), holder)
+        checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId))
         super.visitValueDeclaration(v)
       }
 
       override def visitValue(value: ScValue) {
-        if (typeAware && !compiled) checkOverrideValues(value, isInSources)(holder)
+        if (typeAware && !compiled) checkOverrideValues(value, isInSources)
 
         value.typeElement match {
-          case Some(typ) => checkBoundsVariance(value, holder, typ, value, checkTypeDeclaredSameBracket = false)
+          case Some(typ) => checkBoundsVariance(value, typ, value, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
         if (!childHasAnnotation(value.typeElement, "uncheckedVariance")) {
-          checkValueAndVariableVariance(value, Covariant, value.declaredElements, holder)
+          checkValueAndVariableVariance(value, Covariant, value.declaredElements)
         }
         super.visitValue(value)
       }
 
       override def visitClassParameter(parameter: ScClassParameter) {
-        if (typeAware && !compiled) checkOverrideClassParameters(parameter)(holder)
+        if (typeAware && !compiled) checkOverrideClassParameters(parameter)
 
-        checkClassParameterVariance(parameter, holder)
+        checkClassParameterVariance(parameter)
         super.visitClassParameter(parameter)
       }
 
       override def visitTemplateParents(tp: ScTemplateParents): Unit = {
-        checkTemplateParentsVariance(tp, holder)
+        checkTemplateParentsVariance(tp)
         super.visitTemplateParents(tp)
       }
     }
@@ -199,11 +200,11 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
 
     element match {
       case templateDefinition: ScTemplateDefinition =>
-        checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, Covariant)
+        checkBoundsVariance(templateDefinition, templateDefinition.nameId, templateDefinition.nameId, Covariant)
 
         templateDefinition match {
-          case cls: ScClass => CaseClassWithoutParamList.annotate(cls, holder, typeAware)
-          case trt: ScTrait => TraitHasImplicitBound.annotate(trt, holder, typeAware)
+          case cls: ScClass => CaseClassWithoutParamList.annotate(cls, typeAware)
+          case trt: ScTrait => TraitHasImplicitBound.annotate(trt, typeAware)
           case _ =>
         }
       case _ =>
@@ -216,8 +217,9 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
     ScalaAnnotator.isAdvancedHighlightingEnabled(element)
 
-  def checkBoundsVariance(toCheck: PsiElement, holder: AnnotationHolder, toHighlight: PsiElement, checkParentOf: PsiElement,
-                          upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false) {
+  def checkBoundsVariance(toCheck: PsiElement, toHighlight: PsiElement, checkParentOf: PsiElement,
+                          upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false)
+                         (implicit holder: AnnotationHolder): Unit = {
     toCheck match {
       case boundOwner: ScTypeBoundsOwner =>
         checkAndHighlightBounds(boundOwner.upperTypeElement, upperV)
@@ -228,7 +230,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
       case paramOwner: ScTypeParametersOwner =>
         val inParameterized = if (paramOwner.isInstanceOf[ScTemplateDefinition]) false else true
         for (param <- paramOwner.typeParameters) {
-          checkBoundsVariance(param, holder, param.nameId, checkParentOf, -upperV, insideParameterized = inParameterized)
+          checkBoundsVariance(param, param.nameId, checkParentOf, -upperV, insideParameterized = inParameterized)
         }
       case _ =>
     }
@@ -236,7 +238,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Variance) {
       boundOption match {
         case Some(bound) if !childHasAnnotation(Some(bound), "uncheckedVariance") =>
-          checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, holder, checkTypeDeclaredSameBracket, insideParameterized)
+          checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, checkTypeDeclaredSameBracket, insideParameterized)
         case _ =>
       }
     }
@@ -257,14 +259,15 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
     case _ => false
   }
 
-  private def checkFunctionForVariance(fun: ScFunction, holder: AnnotationHolder) {
+  private def checkFunctionForVariance(fun: ScFunction)
+                                      (implicit holder: AnnotationHolder) {
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
-      checkBoundsVariance(fun, holder, fun.nameId, fun.getParent)
+      checkBoundsVariance(fun, fun.nameId, fun.getParent)
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
           case Right(returnType) =>
             checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId,
-              fun.getParent, holder)
+              fun.getParent)
           case _ =>
         }
       }
@@ -272,42 +275,45 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
         parameter.typeElement match {
           case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
             checkVariance(ScalaType.expandAliases(te.calcType).getOrElse(te.calcType), Contravariant,
-              parameter.nameId, fun.getParent, holder)
+              parameter.nameId, fun.getParent)
           case _ =>
         }
       }
     }
   }
 
-  private def checkTypeVariance(typeable: Typeable, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement,
-                                holder: AnnotationHolder): Unit = {
+  private def checkTypeVariance(typeable: Typeable, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement)
+                               (implicit holder: AnnotationHolder): Unit = {
     typeable.`type`() match {
       case Right(tp) =>
         ScalaType.expandAliases(tp) match {
-          case Right(newTp) => checkVariance(newTp, variance, toHighlight, checkParentOf, holder)
-          case _ => checkVariance(tp, variance, toHighlight, checkParentOf, holder)
+          case Right(newTp) => checkVariance(newTp, variance, toHighlight, checkParentOf)
+          case _ => checkVariance(tp, variance, toHighlight, checkParentOf)
         }
       case _ =>
     }
   }
 
-  def checkClassParameterVariance(toCheck: ScClassParameter, holder: AnnotationHolder): Unit = {
+  def checkClassParameterVariance(toCheck: ScClassParameter)
+                                 (implicit holder: AnnotationHolder): Unit = {
     if (toCheck.isVar && !modifierIsThis(toCheck) && !childHasAnnotation(Some(toCheck), "uncheckedVariance"))
-      checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck, holder)
+      checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck)
   }
 
-  def checkTemplateParentsVariance(parents: ScTemplateParents, holder: AnnotationHolder): Unit = {
+  def checkTemplateParentsVariance(parents: ScTemplateParents)
+                                  (implicit holder: AnnotationHolder): Unit = {
     for (typeElement <- parents.typeElements) {
       if (!childHasAnnotation(Some(typeElement), "uncheckedVariance") && !parents.parent.flatMap(_.parent).exists(_.isInstanceOf[ScNewTemplateDefinition]))
-        checkTypeVariance(typeElement, Covariant, typeElement, parents, holder)
+        checkTypeVariance(typeElement, Covariant, typeElement, parents)
     }
   }
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
-                                    declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder) {
+                                    declaredElements: Seq[Typeable with ScNamedElement])
+                                   (implicit holder: AnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
-        checkTypeVariance(element, variance, element.nameId, toCheck, holder)
+        checkTypeVariance(element, variance, element.nameId, toCheck)
       }
     }
   }
@@ -328,8 +334,8 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   //fix for SCL-807
-  private def checkVariance(typeParam: ScType, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement,
-                            holder: AnnotationHolder, checkIfTypeIsInSameBrackets: Boolean = false, insideParameterized: Boolean = false) = {
+  private def checkVariance(typeParam: ScType, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement, checkIfTypeIsInSameBrackets: Boolean = false, insideParameterized: Boolean = false)
+                           (implicit holder: AnnotationHolder) = {
 
     def highlightVarianceError(elementV: Variance, positionV: Variance, name: String) = {
       if (positionV != elementV && elementV != Invariant) {

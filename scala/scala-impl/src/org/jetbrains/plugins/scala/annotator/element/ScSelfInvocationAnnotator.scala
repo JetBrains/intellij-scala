@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
@@ -10,7 +12,8 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
   // TODO unify using ConstructorInvocationLike
   import ScConstructorInvocationAnnotator._
 
-  override def annotate(element: ScSelfInvocation, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(element: ScSelfInvocation, typeAware: Boolean = true)
+                       (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     if (!typeAware)
@@ -41,10 +44,10 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
           constr.effectiveParameterClauses
         )
 
-        annotateProblems(res.problems, r, element, holder)
+        annotateProblems(res.problems, r, element)
       case _ =>
         for (r <- resolved)
-          annotateProblems(r.problems, r, element, holder)
+          annotateProblems(r.problems, r, element)
     }
   }
 }

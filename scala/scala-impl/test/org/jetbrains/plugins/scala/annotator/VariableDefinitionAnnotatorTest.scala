@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.annotator.element.ScVariableDefinitionAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.annotator.element.ScVariableDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 
@@ -64,9 +64,9 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file: ScalaFile = (Header + code).parse
     val definition = file.depthFirst().instanceOf[ScVariableDefinition].get
-    
-    val mock = new AnnotatorHolderMock(file)
-    ScVariableDefinitionAnnotator.annotate(definition, mock, typeAware = true)
+
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    ScVariableDefinitionAnnotator.annotate(definition)
     mock.annotations
   }
   

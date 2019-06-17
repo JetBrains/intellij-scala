@@ -11,12 +11,11 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScLiteral] {
   private val StringLiteralSizeLimit = 65536
   private val StringCharactersCountLimit = StringLiteralSizeLimit / 4
 
-  override def annotate(literal: ScLiteral,
-                        holder: AnnotationHolder,
-                        typeAware: Boolean): Unit = literal match {
+  override def annotate(literal: ScLiteral, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = literal match {
     case interpolated: ScInterpolatedStringLiteral =>
-      createStringIsTooLongAnnotation(interpolated, interpolated.getStringParts: _*)(holder)
-    case ScLiteral(string) => createStringIsTooLongAnnotation(literal, string)(holder)
+      createStringIsTooLongAnnotation(interpolated, interpolated.getStringParts: _*)
+    case ScLiteral(string) => createStringIsTooLongAnnotation(literal, string)
     case _ =>
   }
 

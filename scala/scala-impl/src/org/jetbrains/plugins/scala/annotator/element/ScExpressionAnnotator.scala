@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, smartCheckConformance}
-import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{&&, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
@@ -14,12 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.extensions.&&
 
 import scala.annotation.tailrec
 
 object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
-  override def annotate(element: ScExpression, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+  override def annotate(element: ScExpression, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
     // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest.tuples_1.scala
     // TODO see visitUnderscoreExpression in ScalaAnnotator
     if (element.isInstanceOf[ScUnderscoreSection]) {
@@ -33,12 +34,13 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       element match {
         case Parent(_: ScTypedExpression) =>
         case Parent((_: ScParenthesisedExpr) && Parent(_: ScTypedExpression)) =>
-        case _ => checkExpressionType(element, holder, typeAware)
+        case _ => checkExpressionType(element, typeAware)
       }
     }
   }
 
-  def checkExpressionType(element: ScExpression, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  def checkExpressionType(element: ScExpression, typeAware: Boolean)
+                         (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
     @tailrec
@@ -120,7 +122,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                     typedExpression.typeElement.getOrElse(element)
                   case _ => element
                 }
-                TypeMismatchError.register(holder, target, tp, exprType.getOrNothing, blockLevel = 2, canBeHint = !element.is[ScTypedExpression]) { (expected, actual) =>
+                TypeMismatchError.register(target, tp, exprType.getOrNothing, blockLevel = 2, canBeHint = !element.is[ScTypedExpression]) { (expected, actual) =>
                   ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
                 }
               }
@@ -135,7 +137,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                 case Some(te) if te.getContainingFile == element.getContainingFile =>
                   val fix = new ChangeTypeFix(te, exprType.getOrNothing)
                   annotation.registerFix(fix)
-                  val teAnnotation = annotationWithoutHighlighting(holder, te)
+                  val teAnnotation = annotationWithoutHighlighting(te)
                   teAnnotation.registerFix(fix)
                 case _ =>
               }

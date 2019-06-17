@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.failed.resolve
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.junit.experimental.categories.Category
 
@@ -37,8 +37,8 @@ class OverrideSetterTest extends SimpleTestCase {
     val file = code.parse
     val assignment = file.depthFirst().find(_.isInstanceOf[ScAssignment]).get.asInstanceOf[ScAssignment]
 
-    val mock = new AnnotatorHolderMock(file)
-    ScAssignmentAnnotator.annotate(assignment, mock, typeAware = true)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    ScAssignmentAnnotator.annotate(assignment)
     mock.annotations
   }
 }

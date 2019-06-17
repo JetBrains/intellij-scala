@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import org.jetbrains.plugins.scala.annotator.element.ScPatternAnnotator
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.annotator.element.ScPatternAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -24,9 +24,9 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   private def collectAnnotatorMessages(text: String): List[Message] = {
     configureFromFileTextAdapter("dummy.scala", text)
-    val mock = new AnnotatorHolderMock(getFileAdapter)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFileAdapter)
     val patterns = getFileAdapter.depthFirst().instancesOf[ScPattern]
-    patterns.foreach(ScPatternAnnotator.annotate(_, mock, typeAware = true))
+    patterns.foreach(ScPatternAnnotator.annotate(_))
     mock.annotations
   }
 

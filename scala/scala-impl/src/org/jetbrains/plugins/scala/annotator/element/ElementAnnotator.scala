@@ -1,57 +1,63 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala
+package annotator
+package element
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.annotator.ScopeAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-import scala.reflect.ClassTag
+abstract class ElementAnnotator[T: reflect.ClassTag] {
 
-abstract class ElementAnnotator[T: ClassTag] {
-  def annotate(element: T, holder: AnnotationHolder, typeAware: Boolean): Unit
+  def annotate(element: T, typeAware: Boolean)
+              (implicit holder: AnnotationHolder): Unit
 
-  private def doAnnotate(element: ScalaPsiElement, holder: AnnotationHolder, typeAware: Boolean): Unit = element match {
-    case it: T => annotate(it, holder, typeAware)
+  private def doAnnotate(element: ScalaPsiElement, typeAware: Boolean)
+                        (implicit holder: AnnotationHolder): Unit = element match {
+    case element: T => annotate(element, typeAware)
     case _ =>
   }
 }
 
 object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
-  private val All: Seq[ElementAnnotator[_]] = Seq(
-    ScAnnotationAnnotator,
-    ScAssignmentAnnotator,
-    ScCatchBlockAnnotator,
-    ScClassAnnotator,
-    ScConstrBlockAnnotator,
-    ScConstructorInvocationAnnotator,
-    ScExpressionAnnotator,
-    ScEnumeratorsAnnotator,
-    ScForBindingAnnotator,
-    ScGeneratorAnnotator,
-    ScImportExprAnnotator,
-    ScInterpolatedStringLiteralAnnotator,
-    ScStringLiteralAnnotator,
-    ScNumericLiteralAnnotator,
-    ScLiteralTypeElementAnnotator,
-    ScMethodCallAnnotator,
-    ScMethodInvocationAnnotator,
-    ScNewTemplateDefinitionAnnotator,
-    ScParameterAnnotator,
-    ScParameterizedTypeElementAnnotator,
-    ScParametersAnnotator,
-    ScPatternAnnotator,
-    ScPatternDefinitionAnnotator,
-    ScReferenceAnnotator,
-    ScReturnAnnotator,
-    ScSelfInvocationAnnotator,
-    ScSimpleTypeElementAnnotator,
-    ScTemplateDefinitionAnnotator,
-    ScTypeBoundsOwnerAnnotator,
-    ScTypedExpressionAnnotator,
-    ScUnderscoreSectionAnnotator,
-    ScVariableDeclarationAnnotator,
-    ScopeAnnotator,
-  )
 
-  def annotate(element: ScalaPsiElement, holder: AnnotationHolder, typeAware: Boolean): Unit =
-    All.foreach(_.doAnnotate(element, holder, typeAware))
+  private val Instances =
+    ScAnnotationAnnotator ::
+      ScAssignmentAnnotator ::
+      ScCatchBlockAnnotator ::
+      ScClassAnnotator ::
+      ScConstrBlockAnnotator ::
+      ScConstructorInvocationAnnotator ::
+      ScExpressionAnnotator ::
+      ScEnumeratorsAnnotator ::
+      ScForBindingAnnotator ::
+      ScGeneratorAnnotator ::
+      ScImportExprAnnotator ::
+      ScInterpolatedStringLiteralAnnotator ::
+      ScStringLiteralAnnotator ::
+      ScNumericLiteralAnnotator ::
+      ScLiteralTypeElementAnnotator ::
+      ScMethodCallAnnotator ::
+      ScMethodInvocationAnnotator ::
+      ScNewTemplateDefinitionAnnotator ::
+      ScParameterAnnotator ::
+      ScParameterizedTypeElementAnnotator ::
+      ScParametersAnnotator ::
+      ScPatternAnnotator ::
+      ScPatternDefinitionAnnotator ::
+      ScReferenceAnnotator ::
+      ScReturnAnnotator ::
+      ScSelfInvocationAnnotator ::
+      ScSimpleTypeElementAnnotator ::
+      ScTemplateDefinitionAnnotator ::
+      ScTypeBoundsOwnerAnnotator ::
+      ScTypedExpressionAnnotator ::
+      ScUnderscoreSectionAnnotator ::
+      ScVariableDeclarationAnnotator ::
+      ScopeAnnotator ::
+      Nil
+
+  override def annotate(element: ScalaPsiElement, typeAware: Boolean = true)
+                       (implicit holder: AnnotationHolder): Unit =
+    Instances.foreach {
+      _.doAnnotate(element, typeAware)
+    }
 }
