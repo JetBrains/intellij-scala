@@ -71,8 +71,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
   def testTypeMismatch() {
     assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
-      case Error("B", "Type mismatch, expected: A, actual: B.type") ::
-              Error("A", "Type mismatch, expected: B, actual: A.type") ::Nil =>
+      case Error("B", "Type mismatch, expected: A, actual: B.type") :: Nil => // SCL-15592
     }
   }
 
@@ -172,8 +171,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       """.stripMargin
 
     assertMessagesSorted(messages(code))(
-      Error("true", "Type mismatch, expected: Float, actual: Boolean"),
-      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+      Error("true", "Type mismatch, expected: Float, actual: Boolean") // SCL-15592
     )
   }
 

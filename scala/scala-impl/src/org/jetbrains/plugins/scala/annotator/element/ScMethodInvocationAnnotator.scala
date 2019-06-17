@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{DefaultTypeParameterMismatch, DoesNotTakeParameters, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.extensions._
 
 // TODO Why it's only used for ScMethodCall and ScInfixExp, but not for ScPrefixExp or ScPostfixExpr?
 object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
@@ -40,6 +41,10 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     if(missed.nonEmpty)
       holder.createErrorAnnotation(call.argsElement, "Unspecified value parameters: " + missed.mkString(", "))
 
+    val countMatches = !problems.exists(_.is[MissedValueParameter, ExcessArgument])
+
+    var typeMismatchShown = false
+
     //todo: better error explanation?
     //todo: duplicate
     problems.foreach {
@@ -56,8 +61,11 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
-        expression.`type`().foreach {
-          registerTypeMismatchError(_, expectedType, holder, expression)
+        if (countMatches && !typeMismatchShown) {
+          expression.`type`().foreach {
+            registerTypeMismatchError(_, expectedType, holder, expression)
+          }
+          typeMismatchShown = true
         }
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
