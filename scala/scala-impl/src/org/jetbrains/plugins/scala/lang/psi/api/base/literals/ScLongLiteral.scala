@@ -5,12 +5,10 @@ package api
 package base
 package literals
 
-trait ScLongLiteral extends ScLiteral {
+trait ScLongLiteral extends ScLiteral.Numeric {
   override protected type V = java.lang.Long
+
+  override private[psi] type T = Long
 }
 
-object ScLongLiteral {
-
-  def unapply(literal: ScLongLiteral): Option[Long] =
-    Option(literal.getValue).map(_.longValue) // DO NOT REMOVE MAPPING
-}
+object ScLongLiteral extends ScLiteral.NumericCompanion[ScLongLiteral]

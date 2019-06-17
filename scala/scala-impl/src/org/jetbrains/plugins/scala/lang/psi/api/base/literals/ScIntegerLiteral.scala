@@ -5,12 +5,10 @@ package api
 package base
 package literals
 
-trait ScIntegerLiteral extends ScLiteral {
+trait ScIntegerLiteral extends ScLiteral.Numeric {
   override protected type V = Integer
+
+  override private[psi] type T = Int
 }
 
-object ScIntegerLiteral {
-
-  def unapply(literal: ScIntegerLiteral): Option[Int] =
-    Option(literal.getValue).map(_.intValue) // DO NOT REMOVE MAPPING
-}
+object ScIntegerLiteral extends ScLiteral.NumericCompanion[ScIntegerLiteral]

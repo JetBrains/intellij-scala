@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 final class ScLongLiteralImpl(node: ASTNode,
                               override val toString: String)
-  extends NumberLiteralImplBase(node, toString)
+  extends NumericLiteralImplBase(node, toString)
     with ScLongLiteral {
 
   override protected def wrappedValue(value: JLong) =
@@ -23,12 +23,15 @@ final class ScLongLiteralImpl(node: ASTNode,
 
   override protected def parseNumber(text: String): JLong =
     PsiLiteralUtil.parseLong(text)
+
+  override private[psi] def unwrappedValue(value: JLong) =
+    value.longValue
 }
 
 object ScLongLiteralImpl {
 
   final case class Value(override val value: JLong)
-    extends NumberLiteralImplBase.Value(value) {
+    extends NumericLiteralImplBase.Value(value) {
 
     override def negate = Value(-value)
 

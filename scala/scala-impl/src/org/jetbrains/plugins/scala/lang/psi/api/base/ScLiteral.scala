@@ -38,7 +38,24 @@ object ScLiteral {
     case _ => None
   }
 
-  abstract class Value[V <: Any](val value: V) {
+  trait Numeric extends ScLiteral {
+
+    override protected type V >: Null <: Number
+
+    private[psi] type T <: AnyVal
+
+    private[psi] def unwrappedValue(value: V): T
+  }
+
+  private[psi] abstract class NumericCompanion[L <: Numeric] {
+
+    final def unapply(literal: L): Option[L#T] = literal.getValue match {
+      case null => None
+      case value => Some(literal.unwrappedValue(value))
+    }
+  }
+
+  private[psi] abstract class Value[V <: Any](val value: V) {
 
     def presentation: String = String.valueOf(value)
 

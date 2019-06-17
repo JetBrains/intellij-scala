@@ -5,12 +5,10 @@ package api
 package base
 package literals
 
-trait ScFloatLiteral extends ScLiteral {
+trait ScFloatLiteral extends ScLiteral.Numeric {
   override protected type V = java.lang.Float
+
+  override private[psi] type T = Float
 }
 
-object ScFloatLiteral {
-
-  def unapply(literal: ScFloatLiteral): Option[Float] =
-    Option(literal.getValue).map(_.floatValue) // DO NOT REMOVE MAPPING
-}
+object ScFloatLiteral extends ScLiteral.NumericCompanion[ScFloatLiteral]

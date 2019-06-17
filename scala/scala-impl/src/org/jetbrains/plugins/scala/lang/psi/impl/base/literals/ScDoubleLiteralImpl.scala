@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 final class ScDoubleLiteralImpl(node: ASTNode,
                                 override val toString: String)
-  extends NumberLiteralImplBase(node, toString)
+  extends NumericLiteralImplBase(node, toString)
     with ScDoubleLiteral {
 
   override protected def wrappedValue(value: JDouble) =
@@ -23,12 +23,15 @@ final class ScDoubleLiteralImpl(node: ASTNode,
 
   override protected def parseNumber(text: String): JDouble =
     PsiLiteralUtil.parseDouble(text)
+
+  override private[psi] def unwrappedValue(value: JDouble) =
+    value.doubleValue
 }
 
 object ScDoubleLiteralImpl {
 
   final case class Value(override val value: JDouble)
-    extends NumberLiteralImplBase.Value(value) {
+    extends NumericLiteralImplBase.Value(value) {
 
     override def negate = Value(-value)
 

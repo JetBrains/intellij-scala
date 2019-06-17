@@ -9,11 +9,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.util.text.LiteralFormatUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
-abstract class NumberLiteralImplBase(node: ASTNode,
-                                     override val toString: String)
-  extends ScLiteralImplBase(node, toString) {
-
-  override protected type V >: Null <: Number
+abstract class NumericLiteralImplBase(node: ASTNode,
+                                      override val toString: String)
+  extends ScLiteralImplBase(node, toString)
+    with ScLiteral.Numeric {
 
   protected def parseNumber(text: String): V
 
@@ -22,7 +21,7 @@ abstract class NumberLiteralImplBase(node: ASTNode,
   }
 }
 
-object NumberLiteralImplBase {
+object NumericLiteralImplBase {
 
   abstract class Value[V <: Number](override val value: V)
     extends ScLiteral.Value[V](value) {

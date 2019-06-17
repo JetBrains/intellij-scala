@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 final class ScFloatLiteralImpl(node: ASTNode,
                                override val toString: String)
-  extends NumberLiteralImplBase(node, toString)
+  extends NumericLiteralImplBase(node, toString)
     with ScFloatLiteral {
 
   override protected def wrappedValue(value: JFloat) =
@@ -23,12 +23,15 @@ final class ScFloatLiteralImpl(node: ASTNode,
 
   override protected def parseNumber(text: String): JFloat =
     PsiLiteralUtil.parseFloat(text)
+
+  override private[psi] def unwrappedValue(value: JFloat) =
+    value.floatValue
 }
 
 object ScFloatLiteralImpl {
 
   final case class Value(override val value: JFloat)
-    extends NumberLiteralImplBase.Value(value) {
+    extends NumericLiteralImplBase.Value(value) {
 
     override def negate = Value(-value)
 
