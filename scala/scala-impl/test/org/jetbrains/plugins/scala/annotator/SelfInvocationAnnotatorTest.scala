@@ -115,8 +115,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     )
 
     assertMessagesSorted(messagesForNonGeneric("this(true, false)"))(
-      Error("true", "Type mismatch, expected: Int, actual: Boolean"),
-      Error("false", "Type mismatch, expected: Int, actual: Boolean")
+      Error("true", "Type mismatch, expected: Int, actual: Boolean") // SCL-15592
     )
 
     assertMessagesSorted(messagesForNonGenericMulti("this(true, 1)"))(

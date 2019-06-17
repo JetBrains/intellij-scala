@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.debugger.Scala_2_13
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /*
- Tests complex interactions between various type-mismatch highlighting features, including:
+ Tests complex interactions between various type mismatch highlighting features, including:
    https://youtrack.jetbrains.net/issue/SCL-15138 Only highlight initial, not derivative errors
    https://youtrack.jetbrains.net/issue/SCL-14778 Better highlighting of compound expressions
    https://youtrack.jetbrains.net/issue/SCL-14777 Block expression: underline final expression instead of closing brace
@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
    https://youtrack.jetbrains.net/issue/SCL-15571 Type mismatch errors: widen literal types when the value is of no importance
    https://youtrack.jetbrains.net/issue/SCL-15592 Method / constructor invocation: highlight only a single kind of error
    https://youtrack.jetbrains.net/issue/SCL-15594 Don't highlight arguments when there are multiple inapplicable overloaded methods
+   https://youtrack.jetbrains.net/issue/SCL-14042 Show missing arguments as inlay hints
+   https://youtrack.jetbrains.net/issue/IDEA-195336 Show missing arguments as inlay hints
  */
 
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
@@ -22,6 +24,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   override protected def withHints = true
 
+  // TODO Remove when / if type mismatch hints will be enabled by default, SCL-15250
   private var savedIsTypeMismatchHints: Boolean = _
 
   override protected def setUp(): Unit = {
@@ -35,7 +38,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     super.tearDown()
   }
 
-  // Type ascription
+  // Type ascription, SCL-15544
 
   // SCL-15544
   def testTypeAscriptionOk(): Unit = {
@@ -62,7 +65,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertMessages(errorsFromScalaCode("Some(1): Option[String]"))(Error("String", "Cannot upcast Some[Int] to Option[String]"))
   }
 
-  // Expected type & type ascription
+  // Expected type & type ascription, SCL-15544
 
   // SCL-15544
   def testTypeMismatchAndTypeAscriptionOk(): Unit = {
@@ -71,25 +74,25 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   // When present, highlight type ascription, not expression, SCL-15544
   def testTypeMismatchAndTypeAscriptionError(): Unit = {
-    // TODO unify the message
+    // TODO unify the message in tests
     assertMessages(errorsFromScalaCode("val v: Int = \"foo\": String"))(Error("String", "Expression of type String doesn't conform to expected type Int"))
   }
 
   // Widen type when non-literal type is expected, SCL-15571
   def testTypeMismatchAndTypeAscriptionErrorWiden(): Unit = {
-    // TODO unify the message
+    // TODO unify the message in tests
     assertMessages(errorsFromScalaCode("val v: Int = true: true"))(Error("true", "Expression of type Boolean doesn't conform to expected type Int"))
   }
 
   // Don't widen type when literal type is expected, SCL-15571
   def testTypeMismatchAndTypeAscriptionErrorNotWiden(): Unit = {
-    // TODO unify the message
+    // TODO unify the message in tests
     assertMessages(errorsFromScalaCode("val v: 1 = 2: 2"))(Error("2", "Expression of type 2 doesn't conform to expected type 1"))
   }
 
   // Don't narrow type when non-literal type is ascribed but literal type is expected, SCL-15571
   def testTypeMismatchAndTypeAscriptionErrorNotNarrow(): Unit = {
-    // TODO unify the message
+    // TODO unify the message in tests
     assertMessages(errorsFromScalaCode("val v: 1 = 2: Int"))(Error("Int", "Expression of type Int doesn't conform to expected type 1"))
   }
 
@@ -104,7 +107,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertMessages(errorsFromScalaCode("val v: Int = 1: String"))(Error("String", "Cannot upcast Int to String"))
   }
 
-  // Type mismatch hint
+  // Type mismatch hint, SCL-15250
 
   // Use type ascription to show type mismatch, SCL-15250 (invisible Error is added for statusbar message / scollbar mark / quick-fix)
   def testTypeMismatchHint(): Unit = {
@@ -129,4 +132,53 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertMessages(errorsFromScalaCode("val v: String = 1 + 2"))(Hint("1 + 2", "("), Hint("1 + 2", "): Int"),
       Error("1 + 2", "Expression of type Int doesn't conform to expected type String"))
   }
+
+  // TODO test fine-grained errors
+  // TODO test error tooltips
+
+  // Method invocation, SCL-15592
+
+  def testMethodInvocationOk(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: Int, b: Boolean): Unit = f(1, true)"))()
+  }
+
+  def testMethodInvocationMissingArgument(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: Int, b: Boolean): Unit = f(true)"))(
+      Error("(true)", "Unspecified value parameters: b: Boolean"))
+  }
+
+  def testMethodInvocationExcessiveArgument(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: Int): Unit = f(true, 1)"))(
+      Error("1", "Too many arguments for method f(Int)"))
+  }
+
+  def testMethodInvocationMultipleTypeMismatches(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: Int, b: Boolean): Unit = f(true, 1)"))(
+      Hint("true", ": Boolean"),
+      Error("true", "Type mismatch, expected: Int, actual: Boolean"))
+  }
+
+  // Constructor invocation, SCL-15592
+
+  def testConstructorInvocationOk(): Unit = {
+    assertMessages(errorsFromScalaCode("class C(i: Int, b: Boolean); new C(1, true)"))()
+  }
+
+  def testConstructorInvocationMissingArgument(): Unit = {
+    assertMessages(errorsFromScalaCode("class C(i: Int, b: Boolean); new C(true)"))(
+      Error("(true)", "Unspecified value parameters: b: Boolean"))
+  }
+
+  def testConstructorInvocationExcessiveArgument(): Unit = {
+    assertMessages(errorsFromScalaCode("class C(i: Int); new C(true, 1)"))(
+      Error("1", "Too many arguments for constructor(Int)")) // TODO constructor name, whitespace?
+  }
+
+  def testConstructorInvocationMultipleTypeMismatches(): Unit = {
+    assertMessages(errorsFromScalaCode("class C(i: Int, b: Boolean); new C(true, 1)"))(
+      Hint("true", ": Boolean"),
+      Error("true", "Type mismatch, expected: Int, actual: Boolean"))
+  }
+
+  // TODO overloading
 }

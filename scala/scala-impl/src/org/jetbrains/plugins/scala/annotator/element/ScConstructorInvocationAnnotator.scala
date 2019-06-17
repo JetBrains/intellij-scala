@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, DefaultTypeParameterMismatch, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedParametersClause, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.extensions._
 
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
   override def annotate(element: ScConstructorInvocation, holder: AnnotationHolder, typeAware: Boolean): Unit = {
@@ -118,12 +119,19 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       case _ =>
     }
 
+    val countMatches = !problems.exists(_.is[MissedValueParameter, ExcessArgument])
+
+    var typeMismatchShown = false
+
     problems.foreach {
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, s"Too many arguments for constructor$signature")
       case TypeMismatch(expression, expectedType) =>
-        expression.`type`().foreach {
-          registerTypeMismatchError(_, expectedType, holder, expression)
+        if (countMatches && !typeMismatchShown) {
+          expression.`type`().foreach {
+            registerTypeMismatchError(_, expectedType, holder, expression)
+          }
+          typeMismatchShown = true
         }
       case MissedParametersClause(_) =>
         // try to mark the right-most bracket

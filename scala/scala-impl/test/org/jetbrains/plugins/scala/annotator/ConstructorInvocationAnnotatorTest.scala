@@ -307,8 +307,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
 
     assertMessagesSorted(messages("new DDD(true)(false)"))(
-      Error("true", "Type mismatch, expected: Int, actual: Boolean"),
-      Error("false", "Type mismatch, expected: Int, actual: Boolean")
+      Error("true", "Type mismatch, expected: Int, actual: Boolean") // SCL-15592
     )
 
     assertMessagesSorted(messages("new FFF(3)(true)"))(

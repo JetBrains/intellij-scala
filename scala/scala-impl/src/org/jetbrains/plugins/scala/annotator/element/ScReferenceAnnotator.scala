@@ -108,6 +108,10 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case _ => (r.problems, f)
                 }
 
+                val countMatches = !problems.exists(_.is[MissedValueParameter, ExcessArgument])
+
+                var typeMismatchShown = false
+
                 problems.foreach {
                   case DoesNotTakeParameters() =>
                     registerCreateFromUsageFixesFor(reference,
@@ -116,8 +120,11 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
-                    expression.`type`().foreach {
-                      registerTypeMismatchError(_, expectedType, holder, expression)
+                    if (countMatches && !typeMismatchShown) {
+                      expression.`type`().foreach {
+                        registerTypeMismatchError(_, expectedType, holder, expression)
+                      }
+                      typeMismatchShown = true
                     }
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
