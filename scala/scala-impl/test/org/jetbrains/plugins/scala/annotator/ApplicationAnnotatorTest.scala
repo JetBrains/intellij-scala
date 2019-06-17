@@ -137,8 +137,8 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       """.stripMargin
 
     assertMessagesSorted(messages(code))(
-      Error("true", "Type mismatch, expected: Float, actual: Boolean"),
-      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+      // Handled by ScReferenceAnnotator.annotate
+      // Error("Test", "Cannot resolve overloaded method 'Test'") // SCL-15594
     )
   }
 
@@ -154,8 +154,8 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       """.stripMargin
 
     assertMessagesSorted(messages(code))(
-      Error("true", "Type mismatch, expected: Float, actual: Boolean"),
-      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+      // Handled by ScReferenceAnnotator.annotate
+      // Error("test", "Cannot resolve overloaded method 'test'") // SCL-15594
     )
   }
 
@@ -171,7 +171,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       """.stripMargin
 
     assertMessagesSorted(messages(code))(
-      Error("true", "Type mismatch, expected: Float, actual: Boolean") // SCL-15592
+      Error("test(3)(3)", "Cannot resolve overloaded method") // SCL-15594
     )
   }
 

@@ -47,3 +47,5 @@ case class MissedTypeParameter(param: TypeParameter) extends ApplicabilityProble
 case object ExpectedTypeMismatch extends ApplicabilityProblem
 case class NotFoundImplicitParameter(tpe: ScType) extends ApplicabilityProblem
 case class AmbiguousImplicitParameters(resuts: Seq[ScalaResolveResult]) extends ApplicabilityProblem
+
+// TODO AmbiguousOverloading(results: Seq[ScalaResolveResult]) extends ApplicabilityProblem ?
