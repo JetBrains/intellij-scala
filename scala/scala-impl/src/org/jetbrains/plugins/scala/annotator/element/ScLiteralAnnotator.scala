@@ -9,11 +9,11 @@ import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.project._
 
 object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
+
+  import quickfix.NumberLiteralQuickFix._
 
   private val StringLiteralSizeLimit = 65536
   private val StringCharactersCountLimit = StringLiteralSizeLimit / 4
@@ -88,13 +88,13 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
 
     kind match {
       case Oct if languageLevel.exists(_ >= Scala_2_11) =>
-        createAnnotation(
+        createOctToHexAnnotation(
           literal,
-          ScalaBundle.message("octal.literal.removed")
+          ScalaBundle.message("octal.literals.removed")
         )
         return
       case Oct if languageLevel.contains(Scala_2_10) =>
-        createAnnotation(
+        createOctToHexAnnotation(
           literal,
           ScalaBundle.message("octal.literals.deprecated"),
           ProblemHighlightType.LIKE_DEPRECATED
@@ -121,40 +121,39 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
           ScalaBundle.message("long.literal.is.out.of.range")
         )
       case Some(Right(_)) if !isLong =>
-        val expression = maybeParent.getOrElse(literal)
-        val annotation = holder.createErrorAnnotation(
-          expression,
-          ScalaBundle.message("integer.literal.is.out.of.range")
+        createToLongAnnotation(
+          literal,
+          ScalaBundle.message("integer.literal.is.out.of.range"),
+          maybeParent
         )
-
-        val shouldRegisterFix = expression.expectedType().forall { `type` =>
-          val longAndBigInt = api.Long(literal.getProject) :: ScalaPsiElementFactory.createTypeFromText(
-            "_root_.scala.math.BigInt",
-            literal.getContext,
-            literal
-          ).toList
-
-          longAndBigInt.exists {
-            _.weakConforms(`type`)
-          }
-        }
-
-        if (shouldRegisterFix) {
-          annotation.registerFix(new quickfix.AddLToLongLiteralFix(literal))
-        }
       case _ =>
     }
   }
 
-  private def createAnnotation(literal: ScLiteral, message: String,
-                               highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR)
-                              (implicit holder: AnnotationHolder): Unit = {
+  private def createOctToHexAnnotation(literal: ScLiteral, message: String,
+                                       highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR)
+                                      (implicit holder: AnnotationHolder): Unit = {
     val annotation = highlightType match {
       case ProblemHighlightType.GENERIC_ERROR => holder.createErrorAnnotation(literal, message)
       case _ => holder.createWarningAnnotation(literal, message)
     }
     annotation.setHighlightType(highlightType)
-    annotation.registerFix(new quickfix.ConvertOctalToHexFix(literal))
+    annotation.registerFix(new ConvertOctToHex(literal))
+  }
+
+  private def createToLongAnnotation(literal: ScLiteral, message: String,
+                                     maybeParent: Option[ScPrefixExpr])
+                                    (implicit holder: AnnotationHolder): Unit = {
+    val expression = maybeParent.getOrElse(literal)
+    val annotation = holder.createErrorAnnotation(expression, message)
+
+    val shouldRegisterFix = expression.expectedType().forall {
+      ConvertToLong.isApplicableTo(literal, _)
+    }
+
+    if (shouldRegisterFix) {
+      annotation.registerFix(new ConvertToLong(literal))
+    }
   }
 
   private[this] def parseIntegerNumber(number: String,

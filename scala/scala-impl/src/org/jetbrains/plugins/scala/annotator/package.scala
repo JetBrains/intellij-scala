@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala
 package object annotator {
 
   private[annotator] sealed abstract class IntegerKind(val radix: Int,
-                                                       protected val beginIndex: Int,
+                                                       protected val prefix: String,
                                                        val divider: Int = 2) {
 
     final def apply(text: String,
                     isLong: Boolean): String = text.substring(
-      beginIndex,
+      prefix.length,
       text.length - (if (isLong) 1 else 0)
     )
 
@@ -19,6 +19,14 @@ package object annotator {
     final def _1: Int = radix
 
     final def _2: Int = divider
+
+    final def to(kind: IntegerKind)
+                (text: String,
+                 isLong: Boolean): String =
+      prefix + math.BigInt(
+        apply(text, isLong),
+        radix
+      ).toString(kind.radix)
   }
 
   private[annotator] object IntegerKind {
@@ -36,9 +44,9 @@ package object annotator {
     def unapply(kind: IntegerKind): IntegerKind = kind
   }
 
-  private[annotator] case object Dec extends IntegerKind(10, 0, 1)
+  private[annotator] case object Dec extends IntegerKind(10, "", 1)
 
-  private[annotator] case object Hex extends IntegerKind(16, 2)
+  private[annotator] case object Hex extends IntegerKind(16, "0x")
 
-  private[annotator] case object Oct extends IntegerKind(8, 1)
+  private[annotator] case object Oct extends IntegerKind(8, "0")
 }
