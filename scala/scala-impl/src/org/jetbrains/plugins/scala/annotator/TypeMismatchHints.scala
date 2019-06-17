@@ -76,7 +76,7 @@ private object TypeMismatchHints {
 
     // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
     def red(text: String) = {
-      val color = if (StartupUIUtil.isUnderDarcula) "FF6B68" else "red"
+      val color = if (StartupUiUtil.isUnderDarcula) "FF6B68" else "red"
       "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
     }
 

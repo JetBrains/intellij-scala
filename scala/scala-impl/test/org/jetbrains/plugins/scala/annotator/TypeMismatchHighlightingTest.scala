@@ -29,12 +29,12 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
-    savedIsTypeMismatchHints = ScalaProjectSettings.in(project).isTypeMismatchHints
-    ScalaProjectSettings.in(project).setTypeMismatchHints(true)
+    savedIsTypeMismatchHints = ScalaProjectSettings.in(getProject).isTypeMismatchHints
+    ScalaProjectSettings.in(getProject).setTypeMismatchHints(true)
   }
 
   override def tearDown(): Unit = {
-    ScalaProjectSettings.in(project).setTypeMismatchHints(savedIsTypeMismatchHints)
+    ScalaProjectSettings.in(getProject).setTypeMismatchHints(savedIsTypeMismatchHints)
     super.tearDown()
   }
 
