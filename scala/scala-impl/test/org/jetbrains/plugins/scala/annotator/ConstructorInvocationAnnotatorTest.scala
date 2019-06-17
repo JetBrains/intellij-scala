@@ -85,18 +85,15 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
     }
 
     assertMessagesSorted(messages("new D(0, 1)"))(
-      Error("1", "Too many arguments for constructor(Int)"),
-      Error("1", "Too many arguments for constructor(Boolean)")
+      Error("D", "Cannot resolve overloaded constructor `D`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new D(true, 1)"))(
-      Error("1", "Too many arguments for constructor(Int)"),
-      Error("1", "Too many arguments for constructor(Boolean)")
+      Error("D", "Cannot resolve overloaded constructor `D`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new D(true, 1) {}"))(
-      Error("1", "Too many arguments for constructor(Int)"),
-      Error("1", "Too many arguments for constructor(Boolean)")
+      Error("D", "Cannot resolve overloaded constructor `D`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new DDD(1)(2, 3)"))(
@@ -126,28 +123,23 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
     }
 
     assertMessagesSorted(messages("new D"))(
-      Error("D", "Unspecified value parameters: b: Boolean"),
-      Error("D", "Unspecified value parameters: a: Int")
+      Error("D", "Cannot resolve overloaded constructor `D`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new D() {}"))(
-      Error("()", "Unspecified value parameters: b: Boolean"),
-      Error("()", "Unspecified value parameters: a: Int")
+      Error("D", "Cannot resolve overloaded constructor `D`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new DD()"))(
-      Error("()", "Unspecified value parameters: b: Boolean, c: Int"),
-      Error("()", "Unspecified value parameters: a: Int")
+      Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new DD()"))(
-      Error("()", "Unspecified value parameters: b: Boolean, c: Int"),
-      Error("()", "Unspecified value parameters: a: Int")
+      Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new DD() {}"))(
-      Error("()", "Unspecified value parameters: b: Boolean, c: Int"),
-      Error("()", "Unspecified value parameters: a: Int")
+      Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new DDD(3)()"))(
@@ -181,8 +173,7 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
 
   def testMissingAndTypeMismatch() {
     assertMessagesSorted(messages("new DD(true)"))(
-      Error("(true)", "Unspecified value parameters: c: Int"),
-      Error("true", "Type mismatch, expected: Int, actual: Boolean")
+      Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
     )
   }
 
@@ -297,13 +288,11 @@ class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
     }
 
     assertMessagesSorted(messages("new D(3.3)"))(
-      Error("3.3", "Type mismatch, expected: Boolean, actual: Double"),
-      Error("3.3", "Type mismatch, expected: Int, actual: Double")
+      Error("D", "Cannot resolve overloaded constructor `D`") // SCL-15594
     )
 
     assertMessagesSorted(messages("new D(3.3) {}"))(
-      Error("3.3", "Type mismatch, expected: Boolean, actual: Double"),
-      Error("3.3", "Type mismatch, expected: Int, actual: Double")
+      Error("D", "Cannot resolve overloaded constructor `D`")// SCL-15594
     )
 
     assertMessagesSorted(messages("new DDD(true)(false)"))(

@@ -77,6 +77,8 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         )
 
         annotateProblems(res.problems, r, constrInvocation, holder)
+      case results if results.length > 1 =>
+        holder.createErrorAnnotation(constrInvocation.typeElement, s"Cannot resolve overloaded constructor `${constrInvocation.typeElement.getText}`")
       case _ =>
         for (r <- resolved)
           annotateProblems(r.problems, r, constrInvocation, holder)

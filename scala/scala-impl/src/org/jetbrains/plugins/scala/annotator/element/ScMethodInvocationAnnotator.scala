@@ -6,9 +6,11 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFi
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{DefaultTypeParameterMismatch, DoesNotTakeParameters, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.extensions._
+
+import scala.annotation.tailrec
 
 // TODO Why it's only used for ScMethodCall and ScInfixExp, but not for ScPrefixExp or ScPostfixExpr?
 object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
@@ -40,6 +42,15 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
     if(missed.nonEmpty)
       holder.createErrorAnnotation(call.argsElement, "Unspecified value parameters: " + missed.mkString(", "))
+
+    if (problems.isEmpty) {
+      return
+    }
+
+    if (isAmbiguousOverload(problems) || isAmbiguousOverload(call)) {
+      holder.createErrorAnnotation(call.getEffectiveInvokedExpr, s"Cannot resolve overloaded method")
+      return
+    }
 
     val countMatches = !problems.exists(_.is[MissedValueParameter, ExcessArgument])
 
@@ -81,5 +92,15 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case DefaultTypeParameterMismatch(_, _) => //it will be reported later
       case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")
     }
+  }
+
+  private def isAmbiguousOverload(problems: Seq[ApplicabilityProblem]): Boolean =
+    problems.filterBy[TypeMismatch].groupBy(_.expression).exists(_._2.length > 1)
+
+  @tailrec
+  private def isAmbiguousOverload(call: MethodInvocation): Boolean = call.getEffectiveInvokedExpr match {
+    case call: MethodInvocation => isAmbiguousOverload(call)
+    case reference: ScReference => reference.multiResolveScala(false).length > 1
+    case _ => false
   }
 }

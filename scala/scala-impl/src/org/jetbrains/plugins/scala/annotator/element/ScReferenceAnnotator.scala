@@ -55,7 +55,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   def annotateReference(reference: ScReference, holder: AnnotationHolder) {
-    for {r <- reference.multiResolveScala(false)} {
+    val results = reference.multiResolveScala(false)
+
+    if (results.length > 1) {
+      return
+    }
+
+    for {r <- results} {
 
       UsageTracker.registerUsedImports(reference, r)
 

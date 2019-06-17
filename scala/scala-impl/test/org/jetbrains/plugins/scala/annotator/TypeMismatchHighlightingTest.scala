@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.debugger.Scala_2_13
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /*
- Tests complex interactions between various type mismatch highlighting features, including:
+ Complex interactions between different type mismatch highlighting features, including:
    https://youtrack.jetbrains.net/issue/SCL-15138 Only highlight initial, not derivative errors
    https://youtrack.jetbrains.net/issue/SCL-14778 Better highlighting of compound expressions
    https://youtrack.jetbrains.net/issue/SCL-14777 Block expression: underline final expression instead of closing brace
@@ -158,6 +158,24 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("true", "Type mismatch, expected: Int, actual: Boolean"))
   }
 
+  // SCL-15594
+  def testMethodOverloading(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: Int) = (); def f(f: Float) = (); f(false)"))(
+      Error("f", "Cannot resolve overloaded method 'f'"))
+  }
+
+  // SCL-15594
+  def testMethodOverloadingParameterList(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(prefix: Int)(i: Int) = (); def f(prefix: Int)(f: Float) = (); f(1)(false)"))(
+      Error("f", "Cannot resolve overloaded method 'f'"))
+  }
+
+  // SCL-15594
+  def testMethodOverloadingApply(): Unit = {
+    assertMessages(errorsFromScalaCode("object O { def apply(i: Int) = (); def apply(f: Float) = () }; O(false)"))(
+      Error("O", "Cannot resolve overloaded method 'O'")) // TODO "apply", not "O"?
+  }
+
   // Constructor invocation, SCL-15592
 
   def testConstructorInvocationOk(): Unit = {
@@ -180,5 +198,9 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("true", "Type mismatch, expected: Int, actual: Boolean"))
   }
 
-  // TODO overloading
+  // SCL-15594
+  def testConstructorOverloading(): Unit = {
+    assertMessages(errorsFromScalaCode("class C(i: Int) { def this(f: Float) }; new C(false)"))(
+      Error("C", "Cannot resolve overloaded constructor `C`"))
+  }
 }
