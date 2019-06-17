@@ -4,73 +4,26 @@ package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.ElementText
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
-import org.jetbrains.plugins.scala.project._
 
-object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
+object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
 
+  import project.ScalaLanguageLevel._
   import quickfix.NumberLiteralQuickFix._
 
-  private val StringLiteralSizeLimit = 65536
-  private val StringCharactersCountLimit = StringLiteralSizeLimit / 4
-
-  override def annotate(literal: ScLiteral,
+  override def annotate(literal: Numeric,
                         holder: AnnotationHolder,
-                        typeAware: Boolean): Unit = {
-    implicit val implicitHolder: AnnotationHolder = holder
-    implicit val containingFile: PsiFile = literal.getContainingFile
-
-    literal match {
-      case _: ScLongLiteral => checkIntegerLiteral(literal, isLong = true)
-      case _: ScIntegerLiteral => checkIntegerLiteral(literal, isLong = false)
-      case interpolatedStringLiteral: ScInterpolatedStringLiteral =>
-        createStringIsTooLongAnnotation(interpolatedStringLiteral, interpolatedStringLiteral.getStringParts: _*)
-      case ScLiteral(string) => createStringIsTooLongAnnotation(literal, string)
-      case _ =>
-    }
+                        typeAware: Boolean): Unit = literal match {
+    case _: ScLongLiteral => checkIntegerLiteral(literal, isLong = true)(holder)
+    case _: ScIntegerLiteral => checkIntegerLiteral(literal, isLong = false)(holder)
+    case _ =>
   }
 
-  private def createStringIsTooLongAnnotation[L <: ScLiteral](literal: L, strings: String*)
-                                                             (implicit holder: AnnotationHolder,
-                                                              containingFile: PsiFile) =
-    if (strings.exists(stringIsTooLong)) {
-      holder.createErrorAnnotation(
-        literal,
-        ScalaBundle.message("string.literal.is.too.long")
-      )
-    }
-
-  private def stringIsTooLong(string: String)
-                             (implicit containingFile: PsiFile): Boolean = string.length match {
-    case length if length >= StringLiteralSizeLimit => true
-    case length if length >= StringCharactersCountLimit => utf8Size(string) >= StringLiteralSizeLimit
-    case _ => false
-  }
-
-  private def utf8Size(string: String)
-                      (implicit containingFile: PsiFile): Int = {
-    val lineSeparator = Option(containingFile)
-      .flatMap(file => Option(file.getVirtualFile))
-      .flatMap(virtualFile => Option(virtualFile.getDetectedLineSeparator))
-      .getOrElse(Option(System.lineSeparator).getOrElse("\n"))
-
-    string.map {
-      case '\n' => lineSeparator.length
-      case '\r' => 0
-      case character if character >= 0 && character <= '\u007F' => 1
-      case character if character >= '\u0080' && character <= '\u07FF' => 2
-      case character if character >= '\u0800' && character <= '\uFFFF' => 3
-      case _ => 4
-    }.sum
-  }
-
-  private def checkIntegerLiteral(literal: ScLiteral, isLong: Boolean) // TODO isLong smells
+  private def checkIntegerLiteral(literal: Numeric, isLong: Boolean) // TODO isLong smells
                                  (implicit holder: AnnotationHolder): Unit = {
-    import ScalaLanguageLevel._
     val languageLevel = literal.scalaLanguageLevel
 
     val text = literal.getLastChild.getText
@@ -130,7 +83,7 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     }
   }
 
-  private def createOctToHexAnnotation(literal: ScLiteral, message: String,
+  private def createOctToHexAnnotation(literal: Numeric, message: String,
                                        highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR)
                                       (implicit holder: AnnotationHolder): Unit = {
     val annotation = highlightType match {
@@ -141,7 +94,7 @@ object ScLiteralAnnotator extends ElementAnnotator[ScLiteral] {
     annotation.registerFix(new ConvertOctToHex(literal))
   }
 
-  private def createToLongAnnotation(literal: ScLiteral, message: String,
+  private def createToLongAnnotation(literal: Numeric, message: String,
                                      maybeParent: Option[ScPrefixExpr])
                                     (implicit holder: AnnotationHolder): Unit = {
     val expression = maybeParent.getOrElse(literal)
