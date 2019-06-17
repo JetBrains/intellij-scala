@@ -205,16 +205,21 @@ class getDummyBlocks(private val block: ScalaBlock) {
         childBlocks match {
           case tagName :: space :: tagParameter :: tail
             if Option(docTag.getValueElement).map(_.getNode).contains(tagParameter) =>
+
             subBlocks.add(subBlock(tagName))
             subBlocks.add(subBlock(space))
             subBlocks.add(subBlock(tagParameter, tail.lastOption.orNull))
-          case tagName :: tail if Option(docTag.getNameElement).map(_.getNode).contains(tagName) =>
+          case tagName :: tail
+            if Option(docTag.getNameElement).map(_.getNode).contains(tagName) =>
+
             subBlocks.add(subBlock(tagName))
             if (tail.nonEmpty) {
-              if (tail.head.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
-                subBlocks.add(subBlock(tail.head, tail.last))
-              else for (child <- tail) {
-                subBlocks.add(subBlock(child))
+              val (leadingAsterisks, other) = tail.span(_.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
+              leadingAsterisks.foreach { a =>
+                subBlocks.add(subBlock(a))
+              }
+              if (other.nonEmpty) {
+                subBlocks.add(subBlock(other.head, other.last))
               }
             }
           case _ =>
@@ -512,7 +517,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
             val enumerators = tail.head
             val context = if (commonSettings.ALIGN_MULTILINE_FOR && !enumerators.getPsi.startsFromNewLine()) {
               val alignment = Alignment.createAlignment()
-              Some(SubBlocksContext(Map(rParent -> alignment , enumerators -> alignment)))
+              Some(SubBlocksContext(Map(rParent -> alignment, enumerators -> alignment)))
             } else {
               None
             }
@@ -838,11 +843,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     children.view.filter(isCorrectBlock).foreach { child =>
       val firstSibling = node.getTreeParent.getFirstChildNode
+      val childType = child.getElementType
 
       val isDataInsideDocTag =
         node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
-          child.getElementType != ScalaDocTokenType.DOC_WHITESPACE &&
-          child.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
+          childType != ScalaDocTokenType.DOC_WHITESPACE &&
+          childType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
           child != firstSibling &&
           firstSibling.getElementType == ScalaDocTokenType.DOC_TAG_NAME &&
           child.getText.trim.length > 0
@@ -850,12 +856,14 @@ class getDummyBlocks(private val block: ScalaBlock) {
       val (childAlignment, childWrap) =
         if (isDataInsideDocTag) {
           val docTagName = firstSibling.getText
+
           val alignment = docTagName match {
+            case _ if childType == ScalaDocTokenType.DOC_INNER_CODE => null
+            case _ if childType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => null
+            case _ if childType == ScalaDocTokenType.DOC_INNER_CODE_TAG => null
             case "@param" | "@tparam" => if (ss.SD_ALIGN_PARAMETERS_COMMENTS) normalAlignment else null
             case "@return" => if (ss.SD_ALIGN_RETURN_COMMENTS) normalAlignment else null
             case "@throws" => if (ss.SD_ALIGN_EXCEPTION_COMMENTS) normalAlignment else null
-            case _ if child.getElementType == ScalaDocTokenType.DOC_INNER_CODE => null
-            case _ if child.getElementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => null
             case _ => if (ss.SD_ALIGN_OTHER_TAGS_COMMENTS) normalAlignment else null
           }
           val noWrap = Wrap.createWrap(WrapType.NONE, false)

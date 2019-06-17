@@ -1556,6 +1556,92 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after, 3)
   }
 
+  def testSCL5444_ScaladocCodeSnippetAsTagValue_1(): Unit = {
+    val before =
+      """/**
+        | * @example
+        |     {{{
+        | * val x = 2
+        | *      }}}
+        | */
+        |class A
+      """.stripMargin
+    val after =
+      """/**
+        | * @example
+        | * {{{
+        | * val x = 2
+        | * }}}
+        | */
+        |class A
+      """.stripMargin
+    doTextTest(before, after, 3)
+  }
+
+  def testSCL5444_ScaladocCodeSnippetAsTagValue_2(): Unit = {
+    val before =
+      """/**
+        | * @param a some description for a {{{
+        | * val x = 42
+        | * }}}
+        | */
+        |def foo(a: Int) = ???
+        |""".stripMargin
+    val after =
+      """/**
+        | * @param a some description for a {{{
+        | * val x = 42
+        | * }}}
+        | */
+        |def foo(a: Int) = ???
+        |""".stripMargin
+    doTextTest(before, after, 3)
+  }
+
+  def testSCL5444_ScaladocCodeSnippetAsTagValue_3(): Unit = {
+    val before =
+      """/**
+        | * @param a some description for a
+        | * {{{
+        | * val x = 42
+        | * }}}
+        | */
+        |def foo(a: Int) = ???
+        |""".stripMargin
+    val after =
+      """/**
+        | * @param a some description for a
+        | * {{{
+        | * val x = 42
+        | * }}}
+        | */
+        |def foo(a: Int) = ???
+        |""".stripMargin
+    doTextTest(before, after, 3)
+  }
+
+  def testSCL5444_ScaladocCodeSnippetAsTagValue_4(): Unit = {
+    val before =
+      """/**
+        | * @param a some description for a
+        | *     {{{
+        | *     val x = 42
+        | *     }}}
+        | */
+        |def foo(a: Int) = ???
+        |""".stripMargin
+    val after =
+      """/**
+        | * @param a some description for a
+        | * {{{
+        | *     val x = 42
+        | * }}}
+        | */
+        |def foo(a: Int) = ???
+        |""".stripMargin
+    doTextTest(before, after, 3)
+  }
+
   def testSpaceInsideClosureBracesDisabled(): Unit = {
     getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
 
