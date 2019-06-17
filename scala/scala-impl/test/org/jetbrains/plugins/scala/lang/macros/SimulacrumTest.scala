@@ -4,23 +4,23 @@ package macros
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter._
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.macros.SynteticInjectorsTestUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
-class SimulacrumTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+class SimulacrumTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private val caret = "<caret>"
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
-    Seq(IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % "0.14.0"))
+  override def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % "0.14.0")
 
   private def getSourceElement(text: String): ScObject = {
     val normalized = normalize(text)
     val caretPos = normalized.indexOf("<caret>")
-    configureFromFileTextAdapter("dummy.scala", normalized.replace("<caret>", ""))
-    val cls = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScTypeDefinition], false)
+    val file = configureFromFileText(normalized.replace("<caret>", ""))
+    val cls = PsiTreeUtil.findElementOfClassAtOffset(file, caretPos, classOf[ScTypeDefinition], false)
     cls.fakeCompanionModule.getOrElse(
       throw new IllegalArgumentException(s"Companion object not found for class at caret in $text.")
     )
@@ -272,5 +272,28 @@ class SimulacrumTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       )
 
     trifunctorObject mustBeExactly syntheticStructure
+  }
+
+  def testNonPublic(): Unit = {
+    val text =
+      s"""
+         |package foo.bar
+         |import simulactum._
+         |
+         |@typeclass trait Fo${caret}o[T] {
+         |  private[bar] def foo(t1: T, t2: T): T
+         |}
+         |""".stripMargin
+
+    val fooObject = getSourceElement(text)
+
+    val syntheticStructure =
+      `object`("Foo")(
+        `trait`("Ops[T]")(
+          `def`("foo", "T => T")
+        )
+      )
+
+    fooObject mustBeLike syntheticStructure
   }
 }

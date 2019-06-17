@@ -93,7 +93,6 @@ object SimulacrumInjector {
     }
   }
 
-
   private[this] def adaptForProperType(m: ScFunction, properTpe: ScTypeParam): Seq[String] = {
     val firstParamType = m.parameters.headOption.flatMap(_.`type`().toOption)
 
@@ -193,13 +192,16 @@ object SimulacrumInjector {
     liftedTypeParams: Seq[ScTypeParam],
     proper:           Boolean
   ): Seq[String] = {
-    val typeClassMethods = source.functions.filterNot(f => f.isPrivate || f.isProtected)
+    val typeClassMethods = source.functions.filter(isEligibleForAdaptation)
 
     typeClassMethods.flatMap { m =>
       if (proper) adaptForProperType(m, tCons)
       else        adaptForAppliedType(m, tCons, liftedTypeParams)
     }
   }
+
+  private[this] def isEligibleForAdaptation(f: ScFunction): Boolean =
+    !f.getModifierList.accessModifier.exists(mod => mod.isUnqualifiedPrivateOrThis || mod.isProtected)
 
   private[this] def allOpsSupers(source: ScTypeDefinition, tConsName: String, tParamsText: String): Seq[String] = {
     source.extendsBlock.templateParents.toSeq.flatMap(_.superTypes).flatMap { superTpe =>
