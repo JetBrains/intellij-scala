@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.base
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_10}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -33,5 +33,5 @@ trait ScalaSdkOwner {
 
 // Java compatibility
 trait DefaultScalaSdkOwner extends ScalaSdkOwner with TestFixtureProvider {
-  override implicit val version: ScalaVersion = Scala_2_10
+  override implicit val version: ScalaVersion = Scala_2_13
 }
