@@ -285,6 +285,16 @@ class TypeIsObviousTest extends TestCase {
 
   // 2.5
   def testRightHandSideIdentifier(): Unit = {
+    assertTrue(isTypeObvious("color", "Color", ""))
+    assertTrue(isTypeObvious("", "Color", "color"))
+
+    assertTrue(isTypeObvious("color", "Color", "foo"))
+    assertTrue(isTypeObvious("foo", "Color", "color"))
+
+    assertTrue(isTypeObvious("color", "Color", "color"))
+
+    assertFalse(isTypeObvious("foo", "Color", "foo"))
+
     // 1.1
     assertTrue(isTypeObvious("", "BackgroundColor", "backgroundColor2"))
     assertFalse(isTypeObvious("", "BackgroundColor", "backgroundcolor2"))
