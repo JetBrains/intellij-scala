@@ -112,9 +112,9 @@ private object ScalaTypeHintsPass {
     case SequenceTypeArgument(argument) => argument
   }
 
-  private val PrepositionPrefix = "(.+)(?:In|Of|From)".r
+  private val PrepositionPrefix = "(.+)(?:In|Of|From|At|On|For|To|With|Before|After|Inside)".r
 
-  private val suffix: Chain = (name, tpe) => delegate => name match {
+  private val prepositionSuffix: Chain = (name, tpe) => delegate => name match {
     case PrepositionPrefix(namePrefix) => delegate(namePrefix, tpe) || delegate(name, tpe)
     case _ => delegate(name, tpe)
   }
@@ -170,7 +170,7 @@ private object ScalaTypeHintsPass {
           optionPrefix(_, _)(
             booleanPrefix(_, _)(
               getPrefix(_, _)(
-                suffix(_, _)(
+                prepositionSuffix(_, _)(
                   plural(_, _)(
                     firstLetterCase(_, _)(_ == _)))))))))
 }
