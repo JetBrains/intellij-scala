@@ -17,7 +17,7 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
   with ScInterpolatedStringLiteral with ScInterpolatedStringLiteralAnnotator {
 
   def getType: InterpolatedStringType.StringType = getNode.getFirstChildNode.getText match {
-    case "s" => InterpolatedStringType.STANDART
+    case "s" => InterpolatedStringType.STANDARD
     case "f" => InterpolatedStringType.FORMAT
     case "id" => InterpolatedStringType.PATTERN
     case "raw" => InterpolatedStringType.RAW
