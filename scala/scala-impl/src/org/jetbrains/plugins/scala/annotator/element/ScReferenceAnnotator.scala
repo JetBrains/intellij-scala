@@ -5,7 +5,7 @@ package element
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, HighlightSeverity}
-import com.intellij.openapi.util.{Condition, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
@@ -28,9 +28,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ElementApplicabilityProblem, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
@@ -66,7 +66,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       return
     }
 
-    for {r <- results} {
+    for (r <- results) {
 
       UsageTracker.registerUsedImports(reference, r)
 
@@ -78,7 +78,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           case Constructor(_) =>
           // don't handle constructors here
 
-          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction)=>
+          case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction | _: ScParameter) =>
             reference.getContext match {
               case genCall: ScGenericCall =>
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
@@ -303,9 +303,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   //if it has not lazy val or var between reference and statement then it's forward reference
                   val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
                   if (context != null) {
-                    val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
-                      override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
-                    }) match {
+                    val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, elem => elem.getContext.eq(context)) match {
                       case s: ScalaPsiElement => s.getDeepSameElementInContext
                       case elem => elem
                     }).getPrevSibling

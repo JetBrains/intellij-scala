@@ -55,6 +55,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScVariableDeclarationAnnotator ::
       ScopeAnnotator ::
       ScSymbolLiteralAnnotator ::
+      ScFunctionalTypeElementAnnotator ::
       Nil
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean = true)
