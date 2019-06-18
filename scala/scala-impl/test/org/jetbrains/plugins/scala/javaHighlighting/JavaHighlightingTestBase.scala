@@ -6,7 +6,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.junit.experimental.categories.Category
 
@@ -18,8 +17,6 @@ import org.junit.experimental.categories.Category
 abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with AssertMatches {
 
   private var filesCreated: Boolean = false
-
-  override implicit val version: ScalaVersion = Scala_2_11
 
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
