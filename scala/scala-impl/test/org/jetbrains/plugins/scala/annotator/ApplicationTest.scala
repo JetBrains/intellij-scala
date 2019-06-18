@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-
 /**
   * @author Nikolay.Tropin
   */
@@ -83,8 +80,7 @@ class ApplicationTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   }
 }
 
-class ApplicationTest212 extends ScalaLightCodeInsightFixtureTestAdapter {
-  override implicit val version: ScalaVersion = Scala_2_12
+class ApplicationTest212 extends AnnotatorLightCodeInsightFixtureTestAdapter {
 
   //adapted from `better-files` project
   def testImplicitArgNotSAM(): Unit = {
