@@ -3,12 +3,11 @@ package codeInsight
 package hints
 
 import com.intellij.application.options.editor.CodeFoldingOptionsProvider
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.{getInstance => DaemonCodeAnalyzer}
 import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
 import com.intellij.openapi.options.BeanConfigurable
-import com.intellij.openapi.project.ProjectManager.{getInstance => ProjectManager}
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
+import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 
 final class ScalaTypeHintsConfigurable
   extends BeanConfigurable[ScalaCodeInsightSettings](ScalaCodeInsightSettings)
@@ -60,11 +59,7 @@ object ScalaTypeHintsConfigurable {
   import java.lang.{Boolean => JBoolean}
 
   private def forceHintsUpdateOnNextPass(): Unit = {
-    ScalaTypeHintsPassFactory.StampHolder.forceHintsUpdateOnNextPass()
-
-    ProjectManager.getOpenProjects
-      .map(DaemonCodeAnalyzer)
-      .foreach(_.restart())
+    ImplicitHints.updateInAllEditors()
   }
 
   sealed abstract class ToogleTypeAction(getter: Getter[JBoolean],
