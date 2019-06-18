@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.util.text.LiteralFormatUtil
+
 package object annotator {
 
   private[annotator] sealed abstract class IntegerKind(val radix: Int,
@@ -23,8 +25,8 @@ package object annotator {
     final def to(kind: IntegerKind)
                 (text: String,
                  isLong: Boolean): String =
-      prefix + math.BigInt(
-        apply(text, isLong),
+      kind.prefix + BigInt(
+        apply(LiteralFormatUtil.removeUnderscores(text), isLong),
         radix
       ).toString(kind.radix)
   }

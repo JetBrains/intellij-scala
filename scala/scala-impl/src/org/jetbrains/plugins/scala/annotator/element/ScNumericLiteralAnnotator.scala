@@ -16,12 +16,23 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
 
   override def annotate(literal: Numeric, typeAware: Boolean)
                        (implicit holder: AnnotationHolder): Unit = literal match {
-    case _: ScLongLiteral => checkIntegerLiteral(literal, isLong = true)
-    case _: ScIntegerLiteral => checkIntegerLiteral(literal, isLong = false)
+    case literal: ScLongLiteral =>
+      checkIntegerLiteral(literal, None)
+
+      if (ConvertMarker.isApplicableTo(literal)) {
+        val annotation = holder.createWeakWarningAnnotation(
+          literal,
+          ScalaBundle.message("lowercase.long.marker")
+        )
+        annotation.registerFix(new ConvertMarker(literal))
+      }
+    case literal: ScIntegerLiteral =>
+      checkIntegerLiteral(literal, Some(literal))
     case _ =>
   }
 
-  private def checkIntegerLiteral(literal: Numeric, isLong: Boolean) // TODO isLong smells
+  private def checkIntegerLiteral(literal: Numeric,
+                                  maybeIntegerLiteral: Option[ScIntegerLiteral]) // TODO isLong smells
                                  (implicit holder: AnnotationHolder): Unit = {
     val languageLevel = literal.scalaLanguageLevel
 
@@ -38,17 +49,20 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
       case _ => None
     }
 
+    val isLong = maybeIntegerLiteral.isEmpty
     kind match {
       case Oct if languageLevel.exists(_ >= Scala_2_11) =>
         createOctToHexAnnotation(
           literal,
-          ScalaBundle.message("octal.literals.removed")
+          ScalaBundle.message("octal.literals.removed"),
+          isLong
         )
         return
       case Oct if languageLevel.contains(Scala_2_10) =>
         createOctToHexAnnotation(
           literal,
           ScalaBundle.message("octal.literals.deprecated"),
+          isLong,
           ProblemHighlightType.LIKE_DEPRECATED
         )
       case _ =>
@@ -74,7 +88,7 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
         )
       case Some(Right(_)) if !isLong =>
         createToLongAnnotation(
-          literal,
+          maybeIntegerLiteral.get,
           ScalaBundle.message("integer.literal.is.out.of.range"),
           maybeParent
         )
@@ -83,6 +97,7 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
   }
 
   private def createOctToHexAnnotation(literal: Numeric, message: String,
+                                       isLong: Boolean,
                                        highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR)
                                       (implicit holder: AnnotationHolder): Unit = {
     val annotation = highlightType match {
@@ -90,10 +105,10 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
       case _ => holder.createWarningAnnotation(literal, message)
     }
     annotation.setHighlightType(highlightType)
-    annotation.registerFix(new ConvertOctToHex(literal))
+    annotation.registerFix(new ConvertOctToHex(literal, isLong))
   }
 
-  private def createToLongAnnotation(literal: Numeric, message: String,
+  private def createToLongAnnotation(literal: ScIntegerLiteral, message: String,
                                      maybeParent: Option[ScPrefixExpr])
                                     (implicit holder: AnnotationHolder): Unit = {
     val expression = maybeParent.getOrElse(literal)

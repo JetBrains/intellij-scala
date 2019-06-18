@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api._
 
 /**
-  * @author Ye Xianjin
-  * @since 11/27/14
-  */
+ * @author Ye Xianjin
+ * @since 11/27/14
+ */
 class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
 
   import IntegerLiteralCheckTest._
@@ -33,7 +33,9 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
       literalText <- longStrings
       longLiteralText <- appendL(literalText)
       actual = messages(longLiteralText)
-    } assertNothing(actual)
+    } assertMatches(actual) {
+      case OptionalWarning() =>
+    }
   }
 
   def testLiteralOverflowInt(): Unit = {
@@ -44,7 +46,7 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
       literalText <- longStrings
       actual = messages(literalText)
     } assertMatches(actual) {
-      case Error(`literalText`, OverflowIntPattern()) :: Nil =>
+      case Error(_, OverflowIntPattern()) :: OptionalWarning() =>
     }
   }
 
@@ -65,7 +67,7 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
       literalText <- overflowLongStrings ++ overflowLongStringsWithL ++ Seq("9223372036854775808l", "-9223372036854775809l")
       actual = messages(literalText)
     } assertMatches(actual) {
-      case Error(_, OverflowLongPattern()) :: Nil =>
+      case Error(_, OverflowLongPattern()) :: OptionalWarning() =>
     }
   }
 
@@ -76,11 +78,22 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
     val mock = new AnnotatorHolderMock(file)
 
     file.depthFirst()
-      .filter(_.isInstanceOf[base.ScLiteral])
+      .filter(_.isInstanceOf[base.ScLiteral.Numeric])
       .foreach(annotator.annotate(_, mock))
 
     mock.annotations
       .filterNot(_.isInstanceOf[Info])
+  }
+
+  private object OptionalWarning {
+
+    private val LowerCaseLongMarkerPattern = BundleMessagePattern("lowercase.long.marker")
+
+    def unapply(list: List[Message]): Boolean = list match {
+      case Nil |
+           Warning(_, LowerCaseLongMarkerPattern()) :: Nil => true
+      case _ => false
+    }
   }
 }
 
