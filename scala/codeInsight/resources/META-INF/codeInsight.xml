@@ -251,9 +251,6 @@
             <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPassFactory</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPassFactory</implementation-class>
         </component>
     </project-components>

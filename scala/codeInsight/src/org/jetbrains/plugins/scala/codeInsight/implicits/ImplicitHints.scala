@@ -6,7 +6,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-private object ImplicitHints {
+private[codeInsight] object ImplicitHints {
   private val ModificationCount = new ModificationCount("IMPLICIT_HINTS_MODIFICATION_COUNT")
 
   private var _enabled: Boolean = false
