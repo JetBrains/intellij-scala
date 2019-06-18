@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
   * Nikolay.Tropin
   * 23-May-18
   */
-class AkkaHttpHighlightingTest extends ScalaHighlightingTestBase {
+class AkkaHttpHighlightingTest_2_12 extends ScalaHighlightingTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_12
   private val akkaHttpVersion = "10.0.11"

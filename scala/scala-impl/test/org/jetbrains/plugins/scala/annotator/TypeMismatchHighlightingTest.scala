@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.debugger.Scala_2_13
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /*
@@ -23,9 +22,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
  */
 
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
-
-  override implicit val version = Scala_2_13
-
   override protected def withHints = true
 
   // TODO Remove when / if type mismatch hints will be enabled by default, SCL-15250

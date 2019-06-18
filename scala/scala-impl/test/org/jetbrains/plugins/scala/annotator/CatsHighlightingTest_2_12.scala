@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
-class CatsHighlightingTest extends ScalaHighlightingTestBase {
+class CatsHighlightingTest_2_12 extends ScalaHighlightingTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_12
 

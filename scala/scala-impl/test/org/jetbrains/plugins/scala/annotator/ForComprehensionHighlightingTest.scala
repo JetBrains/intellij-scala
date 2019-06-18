@@ -6,15 +6,10 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase {
-  override def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+
-      IvyManagedLoader("org.typelevel" %% "cats-core" % "1.5.0", "org.typelevel" %% "cats-effect" % "1.1.0")
-}
+abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase
 
-class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_11
+class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestBase {
 
   def test_guard_type(): Unit = {
     val code =
@@ -25,8 +20,8 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
 
     assertMatches(errorsFromScalaCode(code)){
       case Error("if", "Cannot resolve overloaded method 'withFilter'") ::
-            Error("x", "Expression of type Int doesn't conform to expected type Boolean") ::
-            Nil =>
+        Error("x", "Expression of type Int doesn't conform to expected type Boolean") ::
+        Nil =>
     }
   }
 
@@ -54,8 +49,8 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
 
     assertMatches(errorsFromScalaCode(code)){
       case Error("if", "Cannot resolve overloaded method 'withFilter'") ::
-            Error("i", "Expression of type Int doesn't conform to expected type Boolean") ::
-            Nil =>
+        Error("i", "Expression of type Int doesn't conform to expected type Boolean") ::
+        Nil =>
     }
   }
 
@@ -116,10 +111,10 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
 
     assertMatches(errorsFromScalaCode(code)){
       case Error("<-", "Cannot resolve symbol foreach") ::
-            Error("<-", "Cannot resolve symbol map") ::
-            Error("<-", "Cannot resolve symbol flatMap") ::
-            Error("<-", "Cannot resolve symbol map") ::
-            Nil =>
+        Error("<-", "Cannot resolve symbol map") ::
+        Error("<-", "Cannot resolve symbol flatMap") ::
+        Error("<-", "Cannot resolve symbol map") ::
+        Nil =>
     }
   }
 
@@ -221,22 +216,6 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
     }
   }
 
-  def test_SCL14801(): Unit = {
-    val code =
-      """
-        |import cats.implicits._
-        |import cats.effect.IO
-        |def getCounts: IO[(Int, Int)] = ???
-        |for {
-        |  (x, y) <- getCounts
-        |} yield x + y
-      """.stripMargin
-
-    assertMatches(errorsFromScalaCode(code)){
-      case Error("<-", "Cannot resolve symbol map") :: Error("+", "Cannot resolve symbol +") :: Nil =>
-    }
-  }
-
   def test_SCL14903(): Unit = {
     val code =
       """
@@ -268,6 +247,81 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
 
     assertNothing(errorsFromScalaCode(code))
   }
+
+  def test_filterOnly(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): S[X] = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+      """.stripMargin
+
+    assertMessagesSorted(errorsFromScalaCode(code))(
+      Error("if", "Cannot resolve symbol withFilter"),
+      Error(">", "Cannot resolve symbol >")
+    )
+  }
+
+  def test_implicitWithFilter_before_filter(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): Unit = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |implicit class SExt[X](s: S[X]) {
+        |  def withFilter(f: X => Boolean): S[X] = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+        |
+        |s.filter(x => x > 0)
+        |s.withFilter(x => x > 0)
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
+  }
+}
+
+class ForComprehensionHighlightingTest_2_12 extends ForComprehensionHighlightingTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+
+      IvyManagedLoader("org.typelevel" %% "cats-core" % "1.5.0", "org.typelevel" %% "cats-effect" % "1.1.0")
+
+  def test_SCL14801(): Unit = {
+    val code =
+      """
+        |import cats.implicits._
+        |import cats.effect.IO
+        |def getCounts: IO[(Int, Int)] = ???
+        |for {
+        |  (x, y) <- getCounts
+        |} yield x + y
+      """.stripMargin
+
+    assertMatches(errorsFromScalaCode(code)){
+      case Error("<-", "Cannot resolve symbol map") :: Error("+", "Cannot resolve symbol +") :: Nil =>
+    }
+  }
+}
+
+class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlightingTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_11
 
   def test_filterOnly(): Unit = {
     val code =
@@ -373,58 +427,9 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
   }
 }
 
-
-class ForComprehensionHighlightingTest_2_12 extends ForComprehensionHighlightingTestBase {
+class ForComprehensionHighlightingTest_2_12_WithBetterMonadicFor extends ForComprehensionHighlightingTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_12
-
-  def test_filterOnly(): Unit = {
-    val code =
-      """
-        |class S[X] {
-        |  def filter(f: X => Boolean): S[X] = ???
-        |  def foreach(f: X => Unit): Unit = ???
-        |}
-        |
-        |val s = new S[Int]
-        |for {
-        |  x <- s
-        |  if x > 0
-        |} ()
-      """.stripMargin
-
-    assertMessagesSorted(errorsFromScalaCode(code))(
-      Error("if", "Cannot resolve symbol withFilter"),
-      Error(">", "Cannot resolve symbol >")
-    )
-  }
-
-  def test_implicitWithFilter_before_filter(): Unit = {
-    val code =
-      """
-        |class S[X] {
-        |  def filter(f: X => Boolean): Unit = ???
-        |  def foreach(f: X => Unit): Unit = ???
-        |}
-        |implicit class SExt[X](s: S[X]) {
-        |  def withFilter(f: X => Boolean): S[X] = ???
-        |}
-        |
-        |val s = new S[Int]
-        |for {
-        |  x <- s
-        |  if x > 0
-        |} ()
-        |
-        |s.filter(x => x > 0)
-        |s.withFilter(x => x > 0)
-      """.stripMargin
-
-    assertNothing(errorsFromScalaCode(code))
-  }
-}
-
-class ForComprehensionHighlightingTest_WithBetterMonadicFor extends ForComprehensionHighlightingTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()

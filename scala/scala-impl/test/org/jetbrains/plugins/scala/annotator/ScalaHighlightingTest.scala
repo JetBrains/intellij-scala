@@ -61,7 +61,7 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
         |}
       """.stripMargin
     assertMatches(errorsFromScalaCode(scalaText)){
-      case Error(_, "Pattern type is incompatible with expected type, found: Int, required: String") :: Nil =>
+      case Error("128", "Pattern type is incompatible with expected type, found: Int, required: String") :: Nil =>
     }
   }
 
