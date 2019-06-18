@@ -10,6 +10,7 @@ import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -55,9 +56,8 @@ private object TypeMismatchHints {
           tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
     }
-    // TODO user-configurable maxChars
     TypeDiff.forActual(expected, actual)
-      .flattenTo(maxChars = 25, groupLength = foldedString.length)
+      .flattenTo(maxChars = ScalaCodeInsightSettings.getInstance.presentationLength, groupLength = foldedString.length)
       .map(toText)
       .map(_.copy(errorTooltip = Some(message)))
   }
