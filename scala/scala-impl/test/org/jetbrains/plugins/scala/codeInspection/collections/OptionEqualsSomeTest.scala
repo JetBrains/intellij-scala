@@ -3,7 +3,7 @@ package codeInspection
 package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_10, Scala_2_11}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_10}
 
 /**
  * @author Nikolay.Tropin
@@ -18,8 +18,6 @@ class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
-
-  override implicit val version: ScalaVersion = Scala_2_11
 
   def test1(): Unit = {
     doTest(
@@ -58,8 +56,6 @@ class OptionNotEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
-
-  override implicit val version: ScalaVersion = Scala_2_11
 
   def test1(): Unit = {
     doTest(
