@@ -133,7 +133,7 @@ floatingDecimalNumber = {digits} "." {digits}? {exponentPart}?
           | "." {fractionPart}
           | {digits} {exponentPart}
 
-digits = [0-9]+
+digits = [0-9] {digitOrUnderscore}*
 exponentPart = [Ee] [+-]? {digits}
 fractionPart = {digits} {exponentPart}?
 

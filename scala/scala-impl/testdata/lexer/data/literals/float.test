@@ -1,7 +1,7 @@
 0.0
 1e30f
-3.14159f
-1.0e-100
+3.14__159_f
+1_.0e-1_00_
 .1
 -----
 double {0.0}
@@ -10,10 +10,10 @@ white space in line {
 float {1e30f}
 white space in line {
 }
-float {3.14159f}
+float {3.14__159_f}
 white space in line {
 }
-double {1.0e-100}
+double {1_.0e-1_00_}
 white space in line {
 }
 double {.1}
