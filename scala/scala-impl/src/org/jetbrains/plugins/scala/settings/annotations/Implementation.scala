@@ -42,6 +42,8 @@ sealed abstract class Implementation {
 
 sealed abstract class Definition extends Implementation {
 
+  def name: Option[String] = None
+
   def parameterList: Option[ScalaPsiElement] = None
 
   def bodyCandidate: Option[ScExpression] = None
@@ -60,6 +62,8 @@ object Definition {
 
   case class ValueDefinition(value: ScPatternDefinition) extends Definition {
 
+    override def name = if (value.isSimple) value.names.headOption else None
+
     override def bodyCandidate: Option[ScExpression] =
       if (value.isSimple) value.expr
       else None
@@ -71,6 +75,8 @@ object Definition {
 
   case class VariableDefinition(variable: ScVariableDefinition) extends Definition {
 
+    override def name = if (variable.isSimple) variable.names.headOption else None
+
     override def bodyCandidate: Option[ScExpression] =
       if (variable.isSimple) variable.expr
       else None
@@ -81,6 +87,8 @@ object Definition {
   }
 
   case class FunctionDefinition(function: ScFunctionDefinition) extends Definition {
+
+    override def name = Some(function.name)
 
     override def parameterList: Option[ScalaPsiElement] =
       if (function.hasExplicitType || function.isConstructor) None

@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.TypeDiff
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match}
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text, foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
@@ -25,7 +26,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
         element <- root.elements
         val definition = Definition(element)
         (tpe, body) <- typeAndBodyOf(definition)
-        if showObviousType || !(definition.hasStableType || isTypeObviousFor(body, tpe.extractClass))
+        if showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- inlayInfoFor(definition, tpe)(editor.getColorsScheme)
       } yield info
     }.toSeq
@@ -49,13 +50,6 @@ private[codeInsight] trait ScalaTypeHintsPass {
   private def typeOf(member: ScFunction): Option[ScType] =
     if (showFunctionReturnType) member.returnType.toOption else None
 
-  private def isTypeObviousFor(body: ScExpression, maybeClass: Option[PsiClass]): Boolean =
-    maybeClass
-      .map(_.name -> body)
-      .exists {
-        case (className, ReferenceName(name, _)) => !name.mismatchesCamelCase(className)
-        case _ => false
-      }
 
   private def inlayInfoFor(definition: Definition, returnType: ScType)(implicit scheme: EditorColorsScheme): Option[Hint] = for {
     anchor <- definition.parameterList
@@ -81,4 +75,102 @@ private[codeInsight] trait ScalaTypeHintsPass {
       .flattenTo(maxChars = presentationLength, groupLength = foldedString.length)
       .map(toText)
   }
+}
+
+private object ScalaTypeHintsPass {
+  private val NonIdentifierChar = Set('\n', '(', '[', '{', ';', ',')
+
+  def isTypeObvious(name: Option[String], tpe: ScType, body: ScExpression): Boolean =
+    isTypeObvious(name.getOrElse(""), tpe.presentableText, body.getText.takeWhile(!NonIdentifierChar(_)))
+
+  // SCL-14339
+  // Text-based algorithm is easy to implement, easy to test, and is highly portable (e.g. can be reused in Kotlin)
+  def isTypeObvious(name: String, tpe: String, body: String): Boolean =
+    isTypeObvious(name, tpe) || isTypeObvious(body, tpe)
+
+  private def isTypeObvious(name: String, tpe: String): Boolean =
+    name.trim.nonEmpty && Predicate(name, tpe)
+
+  private type Name = String
+  private type Type = String
+  private type Predicate = (Name, Type) => Boolean
+  private type Chain = (Name, Type) => Predicate => Boolean
+
+  private val firstLetterCase: Chain = (name, tpe) => delegate =>
+    delegate(fromLowerCase(name), fromLowerCase(tpe))
+
+  private def fromLowerCase(s: String): String =
+    if (s.isEmpty) "" else s.substring(0, 1).toLowerCase + s.substring(1)
+
+  private val plural: Chain = (name, tpe) => delegate =>
+    name.endsWith("s") && sequenceTypeArgumentIn(tpe).exists(delegate(name.substring(0, name.length - 1), _)) ||
+      delegate(name, tpe)
+
+  private val SequenceTypeArgument = "(?:Seq|Iterable|Iterator|List|Vector|Buffer)\\[(.+)\\]".r
+
+  private def sequenceTypeArgumentIn(tpe: String): Option[String] = Some(tpe) collect {
+    case SequenceTypeArgument(argument) => argument
+  }
+
+  private val PrepositionPrefix = "(.+)(?:In|Of|From)".r
+
+  private val suffix: Chain = (name, tpe) => delegate => name match {
+    case PrepositionPrefix(namePrefix) => delegate(namePrefix, tpe) || delegate(name, tpe)
+    case _ => delegate(name, tpe)
+  }
+
+  private val GetSuffix = "get(\\p{Lu}.*)".r
+
+  private val getPrefix: Chain = (name, tpe) => delegate => name match {
+    case GetSuffix(nameSuffix) => delegate(nameSuffix, tpe) || delegate(name, tpe)
+    case _ => delegate(name, tpe)
+  }
+
+  private val BooleanSuffix = "(?:is|has|have)(\\p{Lu}.*|)".r
+
+  private val booleanPrefix: Chain = (name, tpe) => delegate => name match {
+    case BooleanSuffix(_) if tpe == "Boolean" => true
+    case _ => delegate(name, tpe)
+  }
+
+  private val MaybeSuffix = "(?:maybe|optionOf)(\\p{Lu}.*)".r
+  private val OptionArgument = "(?:Option|Some)\\[(.+)\\]".r
+
+  private val optionPrefix: Chain = (name, tpe) => delegate => (name, tpe) match {
+    case (MaybeSuffix(nameSuffix), OptionArgument(typeArgument)) => delegate(nameSuffix, typeArgument) || delegate(name, tpe)
+    case _ => delegate(name, tpe)
+  }
+
+  private val codingConvention: Chain = (name, tpe) => delegate => (name, tpe) match {
+    case ("i" | "j" | "k" | "n", "Int" | "Integer") |
+         ("b" | "bool", "Boolean") |
+         ("o" | "obj", "Object") |
+         ("c" | "char", "Char" | "Character") |
+         ("s" | "str", "String") => true
+    case _ => delegate(name, tpe)
+  }
+
+  private val knownThing: Chain = (name, tpe) => delegate => (name, tpe) match {
+    case ("width" | "height" | "length" | "count", "Int" | "Integer") |
+         ("name", "String") => true
+    case _ => delegate(name, tpe)
+  }
+
+  private val NumberPrefix = "(.+?)\\d+".r
+
+  private val numberSuffix: Chain = (name, tpe) => delegate => name match {
+    case NumberPrefix(namePrefix) => delegate(namePrefix, tpe) || delegate(name, tpe)
+    case _ => delegate(name, tpe)
+  }
+
+  private val Predicate: Predicate =
+    numberSuffix(_, _)(
+      knownThing(_, _)(
+        codingConvention(_, _)(
+          optionPrefix(_, _)(
+            booleanPrefix(_, _)(
+              getPrefix(_, _)(
+                suffix(_, _)(
+                  plural(_, _)(
+                    firstLetterCase(_, _)(_ == _)))))))))
 }
