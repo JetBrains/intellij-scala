@@ -39,7 +39,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
     if (support == null)
       return
 
-    val literals: Seq[ScLiteral] = literalsOf(host)
+    val literals: Seq[StringLiteral] = literalsOf(host)
     if (literals.isEmpty)
       return
 
@@ -82,7 +82,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
    *         2) string concatenation operands if `host` is a top level concatenation expression <br>
    *         3) empty collection otherwise
    */
-  private def literalsOf(host: PsiElement): Seq[ScLiteral] = host.getParent match {
+  private def literalsOf(host: PsiElement): Seq[StringLiteral] = host.getParent match {
     case ScInfixExpr(_, ElementText("+"), _) =>
       // if string literal is inside concatenations skip it
       // we would like to process top-level expressions only
@@ -103,12 +103,11 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 
       if (suitable) {
         expressions.filter {
-          case literal: ScLiteral => literal.isString
+          case literal: StringLiteral => literal.isString
           case _ => false
         }.map {
-          _.asInstanceOf[ScLiteral]
+          _.asInstanceOf[StringLiteral]
         }
-
       } else {
         Seq.empty
       }
@@ -117,30 +116,31 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
   private def injectInInterpolation(host: PsiElement, literals: Seq[ScLiteral],
                                     mapping: ju.Map[String, String])
                                    (implicit support: ScalaLanguageInjectionSupport,
-                                    registrar: MultiHostRegistrar): Boolean = literals.filterBy[ScInterpolatedStringLiteral] match {
-    case interpolatedLiterals if interpolatedLiterals.size == literals.size =>
-      val languages = for {
-        interpolated <- interpolatedLiterals
-        reference <- interpolated.reference
+                                    registrar: MultiHostRegistrar): Boolean =
+    literals.filterBy[ScInterpolatedStringLiteral with PsiLanguageInjectionHost] match {
+      case interpolatedLiterals if interpolatedLiterals.size == literals.size =>
+        val languages = for {
+          interpolated <- interpolatedLiterals
+          reference <- interpolated.reference
 
-        langId = mapping.get(reference.getText)
-        if StringUtils.isNotBlank(langId)
-      } yield langId
+          langId = mapping.get(reference.getText)
+          if StringUtils.isNotBlank(langId)
+        } yield langId
 
-      languages.toSet.toList match {
-        case langId :: Nil =>
-          val language = Language.findLanguageByID(langId)
-          if (language != null) {
-            inject(host, interpolatedLiterals, language)
-          }
-        case _ => // only inject if all interpolations in string concatenation have same language ids
-      }
+        languages.toSet.toList match {
+          case langId :: Nil =>
+            val language = Language.findLanguageByID(langId)
+            if (language != null) {
+              inject(host, interpolatedLiterals, language)
+            }
+          case _ => // only inject if all interpolations in string concatenation have same language ids
+        }
 
-      true
-    case _ => false
-  }
+        true
+      case _ => false
+    }
 
-  private def injectUsingComment(host: PsiElement, literals: Seq[ScLiteral])
+  private def injectUsingComment(host: PsiElement, literals: Seq[StringLiteral])
                                 (implicit support: ScalaLanguageInjectionSupport,
                                  registrar: MultiHostRegistrar): Boolean = {
     val injection = support.findCommentInjection(host, null)
@@ -156,7 +156,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
   }
 
   private def inject(host: PsiElement,
-                     literals: Seq[ScLiteral],
+                     literals: Seq[StringLiteral],
                      language: Language,
                      prefix: String = "",
                      suffix: String = "")
@@ -190,8 +190,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
     InjectorUtils.registerSupport(support, true, host, language)
   }
 
-
-  private def injectUsingAnnotation(host: ScExpression, literals: Seq[ScLiteral],
+  private def injectUsingAnnotation(host: ScExpression, literals: Seq[StringLiteral],
                                     qualifiedName: String)
                                    (implicit support: ScalaLanguageInjectionSupport,
                                     registrar: MultiHostRegistrar): Boolean = {
@@ -226,7 +225,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
   }
 
   // FIXME: looks like this does not work for now, see SCL-15463
-  private def injectUsingIntention(host: PsiElement, literals: scala.Seq[ScLiteral])
+  private def injectUsingIntention(host: PsiElement, literals: Seq[StringLiteral])
                                   (implicit support: ScalaLanguageInjectionSupport,
                                    registrar: MultiHostRegistrar): Boolean = {
     host match {
@@ -245,6 +244,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 
 object ScalaLanguageInjector {
 
+  private type StringLiteral = ScLiteral with PsiLanguageInjectionHost
   private type AnnotationOwner = PsiAnnotationOwner with PsiElement
   private type MaybeAnnotationOwner = Option[AnnotationOwner]
 
@@ -269,7 +269,7 @@ object ScalaLanguageInjector {
   }
 
   @tailrec
-  private def injectUsingPatterns(host: PsiElement, literals: Seq[ScLiteral],
+  private def injectUsingPatterns(host: PsiElement, literals: Seq[StringLiteral],
                                   injections: ju.Iterator[BaseInjection])
                                  (implicit support: ScalaLanguageInjectionSupport,
                                   registrar: MultiHostRegistrar): Boolean =
@@ -359,7 +359,7 @@ object ScalaLanguageInjector {
     rangesCollected
   }
 
-  private def performSimpleInjection(literals: scala.Seq[ScLiteral], injectedLanguage: InjectedLanguage,
+  private def performSimpleInjection(literals: Seq[StringLiteral], injectedLanguage: InjectedLanguage,
                                      injection: BaseInjection, host: PsiElement, registrar: MultiHostRegistrar,
                                      support: LanguageInjectionSupport): Unit = {
     import JavaConverters._

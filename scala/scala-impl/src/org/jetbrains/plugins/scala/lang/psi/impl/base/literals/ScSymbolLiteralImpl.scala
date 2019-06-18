@@ -15,7 +15,7 @@ final class ScSymbolLiteralImpl(node: ASTNode,
   extends QuotedLiteralImplBase(node, toString)
     with literals.ScSymbolLiteral {
 
-  override protected def startQuote: String = ScLiteral.CharQuote
+  override protected def startQuote: String = QuotedLiteralImplBase.CharQuote
 
   override protected def endQuote: String = ""
 

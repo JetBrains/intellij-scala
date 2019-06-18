@@ -16,7 +16,7 @@ final class ScCharLiteralImpl(node: ASTNode,
   extends QuotedLiteralImplBase(node, toString)
     with literals.ScCharLiteral {
 
-  override protected def startQuote: String = ScLiteral.CharQuote
+  override protected def startQuote: String = QuotedLiteralImplBase.CharQuote
 
   override protected def wrappedValue(value: Character) =
     ScCharLiteralImpl.Value(value)
@@ -38,7 +38,7 @@ object ScCharLiteralImpl {
 
   final case class Value(override val value: Character) extends ScLiteral.Value(value) {
 
-    import ScLiteral.CharQuote
+    import QuotedLiteralImplBase.CharQuote
 
     override def presentation: String = CharQuote + super.presentation + CharQuote
 

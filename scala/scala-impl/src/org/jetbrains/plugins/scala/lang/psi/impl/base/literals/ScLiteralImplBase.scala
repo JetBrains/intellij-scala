@@ -7,7 +7,6 @@ package literals
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{LiteralTextEscaper, PsiLanguageInjectionHost}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, result}
@@ -36,13 +35,7 @@ abstract class ScLiteralImplBase(node: ASTNode,
 
   // TODO all the methods are not applicable
 
-  override final def isString: Boolean = false
+  override def isString: Boolean = false
 
-  override final def isMultiLineString: Boolean = false
-
-  override final def isValidHost: Boolean = false
-
-  override final def updateText(s: String): PsiLanguageInjectionHost = null
-
-  override final def createLiteralTextEscaper(): LiteralTextEscaper[_ <: PsiLanguageInjectionHost] = null
+  override def isMultiLineString: Boolean = false
 }

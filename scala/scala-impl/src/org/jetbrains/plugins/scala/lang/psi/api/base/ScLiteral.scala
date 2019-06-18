@@ -15,8 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
  *         Date: 22.02.2008
  */
 trait ScLiteral extends ScExpression
-  with PsiLiteral
-  with PsiLanguageInjectionHost {
+  with PsiLiteral {
 
   protected type V >: Null <: AnyRef
 
@@ -30,8 +29,6 @@ trait ScLiteral extends ScExpression
 }
 
 object ScLiteral {
-
-  val CharQuote = "\'"
 
   def unapply(literal: ScLiteral): Option[String] = literal.getValue match {
     case string: String => Some(string)

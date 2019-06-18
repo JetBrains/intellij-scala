@@ -5,7 +5,6 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -14,12 +13,12 @@ import scala.meta.intellij.QuasiquoteInferUtil._
 
 final class ScInterpolatedStringLiteralImpl(node: ASTNode,
                                             override val toString: String)
-  extends ScLiteralImpl(node, toString) with ScInterpolatedStringLiteral {
+  extends ScLiteralImpl(node, toString)
+    with ScInterpolatedStringLiteral {
 
   import ScInterpolatedStringLiteral._
-  import ScLiteralImpl._
 
-  override def kind: Kind = literalNode.getText match {
+  override def kind: Kind = referenceNode.getText match {
     case "s" => Standard
     case "f" => Format
     case "id" => Pattern
@@ -38,7 +37,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
       case _ => mc.getNonValueType()
     }
     case Some(expr) => expr.getNonValueType()
-    case _ => Failure(s"Cannot find method ${getFirstChild.getText} of StringContext")
+    case _ => Failure(s"Cannot find method ${referenceNode.getText} of StringContext")
   }
 
   override def reference: Option[ScReferenceExpression] = getFirstChild match {
@@ -48,25 +47,14 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override def referenceName: String = reference.fold("")(_.refName)
 
-  override def isMultiLineString: Boolean = getText.endsWith(MultiLineQuote)
-
   override def isString: Boolean = true
 
-  override def getValue: String = findChildByClassScala(classOf[ScLiteralImpl]) match {
-    // FIXME: it is actually always "" because child with type ScLiteralImpl can't be found...
-    case literal: ScLiteralImpl => literal.getValue
-    case _ => ""
-  }
+  override def isMultiLineString: Boolean =
+    referenceNode.getTreeNext.getElementType == lang.lexer.ScalaTokenTypes.`tINTERPOLATED_MULTILINE_STRING`
 
-  override def contentRange: TextRange = {
-    val Some((startShift, endShift)) = stringShifts(
-      if (isMultiLineString) MultiLineQuote else SingleLineQuote
-    )
+  override protected def startQuote: String = referenceName + super.startQuote
 
-    val range = getTextRange
-    new TextRange(
-      range.getStartOffset + referenceName.length + startShift,
-      range.getEndOffset - endShift
-    )
-  }
+  override protected def endQuote: String = super.startQuote
+
+  private def referenceNode = getNode.getFirstChildNode
 }
