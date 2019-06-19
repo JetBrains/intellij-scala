@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase
+import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase_2_12
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category
@@ -16,7 +16,7 @@ import scala.reflect.NameTransformer
   * Nikolay.Tropin
   * 14-Aug-17
   */
-abstract class FailedScalacTestsBase extends ScalacTestdataHighlightingTestBase {
+abstract class FailedScalacTestsBase_2_12 extends ScalacTestdataHighlightingTestBase_2_12 {
 
   override lazy val reporter = new ConsoleReporter(filesWithProblems)
 
@@ -57,7 +57,7 @@ abstract class FailedScalacTestsBase extends ScalacTestdataHighlightingTestBase 
 }
 
 @Category(Array(classOf[PerfCycleTests]))
-class FailedScalacTests extends FailedScalacTestsBase {
+class FailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
 
   def testDirName = "failed"
 
@@ -142,7 +142,7 @@ class FailedScalacTests extends FailedScalacTestsBase {
 }
 
 @Category(Array(classOf[PerfCycleTests]))
-class MacrosFailedScalacTests extends FailedScalacTestsBase {
+class MacrosFailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
   override def testDirName = "macros"
 
   def test_t8781(): Unit = doTest()
@@ -152,7 +152,7 @@ class MacrosFailedScalacTests extends FailedScalacTestsBase {
 
 //these tests pass locally but sometimes fail on teamcity
 @Category(Array(classOf[PerfCycleTests]))
-class FlakyScalacTests extends FailedScalacTestsBase {
+class FlakyScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
   override def testDirName = "flaky"
 
   def test_t7516(): Unit = doTest()

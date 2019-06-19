@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[PerfCycleTests]))
-class PartialUnificationCatsHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   override implicit val version: ScalaVersion = Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =

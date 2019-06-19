@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 
-class CirceCodecTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class CirceCodecTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_11
 

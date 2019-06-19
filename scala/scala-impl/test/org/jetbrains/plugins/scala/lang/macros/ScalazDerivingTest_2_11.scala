@@ -19,7 +19,7 @@ import org.junit.Assert._
  * @author Sam Halliday
  * @since  24/08/2017
  */
-class ScalazDerivingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_11
 

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.project._
 
-class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class PartialUnificationCatsResolveTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   override implicit val version: ScalaVersion = Scala_2_12
