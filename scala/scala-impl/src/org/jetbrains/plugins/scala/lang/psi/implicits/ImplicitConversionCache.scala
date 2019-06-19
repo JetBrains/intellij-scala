@@ -12,26 +12,12 @@ import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.concurrency.CancellablePromise
 import org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 
 import scala.collection.mutable
 import scala.util.Try
 
 object ImplicitConversionCache {
-
-  case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
-    def toImplicitConversionData: Option[ImplicitConversionData] = {
-      val node = TypeDefinitionMembers.getSignatures(containingObject).forName(function.name).findNode(function)
-      val substitutor = node.map(_.info.substitutor)
-      substitutor.flatMap {
-        ImplicitConversionData(function, _)
-      }
-    }
-  }
 
   type ImplicitConversionMap = collection.Map[GlobalImplicitConversion, ImplicitConversionData]
 
@@ -39,7 +25,6 @@ object ImplicitConversionCache {
     new ConcurrentHashMap()
 
   registerCleanups()
-
 
   def getOrScheduleUpdate(elementScope: ElementScope): ImplicitConversionMap = {
     val currentCount = currentTopLevelModCount(elementScope.project)
@@ -62,10 +47,6 @@ object ImplicitConversionCache {
   private val defaultTimeoutMs: Int =
     if (ApplicationManager.getApplication.isUnitTestMode) 10000
     else 100
-
-  private[this] def allImplicitConversions(elementScope: ElementScope)(): Iterable[ScMember] = {
-    ImplicitConversionIndex.allElements(elementScope.scope)(elementScope.projectContext)
-  }
 
   private def registerCleanups(): Unit = {
     LowMemoryWatcher.register(() => implicitConversionDataCache.clear(), LowMemoryWatcherType.ALWAYS)
@@ -95,34 +76,11 @@ object ImplicitConversionCache {
   private def computeImplicitConversionMap(elementScope: ElementScope): ImplicitConversionMap = {
     val resultMap = mutable.Map.empty[GlobalImplicitConversion, ImplicitConversionData]
     for {
-      globalConversion  <- collectImplicitConversions(elementScope)
+      globalConversion  <- GlobalImplicitConversion.collectIn(elementScope)
       data              <- globalConversion.toImplicitConversionData
     } {
       resultMap += (globalConversion -> data)
     }
     resultMap
-  }
-
-  private def collectImplicitConversions(elementScope: ElementScope): Iterable[GlobalImplicitConversion] = {
-    val manager = ScalaPsiManager.instance(elementScope.project)
-
-    def containingObjects(function: ScFunction): Set[ScObject] =
-      Option(function.containingClass)
-        .map(cClass => manager.inheritorOrThisObjects(cClass))
-        .getOrElse(Set.empty)
-
-    allImplicitConversions(elementScope).flatMap { member =>
-      val conversion = member match {
-        case f: ScFunction => Some(f)
-        case c: ScClass    => c.getSyntheticImplicitMethod
-        case _             => None
-      }
-
-      for {
-        function <- conversion.toSeq
-        obj <- containingObjects(function)
-        if obj.qualifiedName != "scala.Predef"
-      } yield GlobalImplicitConversion(obj, function)
-    }
   }
 }
