@@ -46,7 +46,7 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
       literalText <- longStrings
       actual = messages(literalText)
     } assertMatches(actual) {
-      case Error(_, OverflowIntPattern()) :: OptionalWarning() =>
+      case Error(`literalText`, OverflowIntPattern()) :: OptionalWarning() =>
     }
   }
 
@@ -67,7 +67,7 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
       literalText <- overflowLongStrings ++ overflowLongStringsWithL ++ Seq("9223372036854775808l", "-9223372036854775809l")
       actual = messages(literalText)
     } assertMatches(actual) {
-      case Error(_, OverflowLongPattern()) :: OptionalWarning() =>
+      case Error(`literalText`, OverflowLongPattern()) :: OptionalWarning() =>
     }
   }
 
@@ -90,8 +90,8 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
     private val LowerCaseLongMarkerPattern = BundleMessagePattern("lowercase.long.marker")
 
     def unapply(list: List[Message]): Boolean = list match {
-      case Nil |
-           Warning(_, LowerCaseLongMarkerPattern()) :: Nil => true
+      case Nil => true
+      case Warning(element, LowerCaseLongMarkerPattern()) :: Nil => element.endsWith("l")
       case _ => false
     }
   }

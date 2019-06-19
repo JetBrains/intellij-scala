@@ -4,67 +4,39 @@ package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
 
-object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
+sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean) extends ElementAnnotator[L] {
 
   import project.ScalaLanguageLevel._
-  import quickfix.NumberLiteralQuickFix._
 
-  override def annotate(literal: Numeric, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = literal match {
-    case literal: ScLongLiteral =>
-      checkIntegerLiteral(literal, None)
-
-      if (ConvertMarker.isApplicableTo(literal)) {
-        val annotation = holder.createWeakWarningAnnotation(
-          literal,
-          ScalaBundle.message("lowercase.long.marker")
-        )
-        annotation.registerFix(new ConvertMarker(literal))
-      }
-    case literal: ScIntegerLiteral =>
-      checkIntegerLiteral(literal, Some(literal))
-    case _ =>
-  }
-
-  private def checkIntegerLiteral(literal: Numeric,
-                                  maybeIntegerLiteral: Option[ScIntegerLiteral]) // TODO isLong smells
-                                 (implicit holder: AnnotationHolder): Unit = {
+  protected def annotate(literal: L)
+                        (implicit holder: AnnotationHolder): Option[(ScExpression, Boolean)] = {
     val languageLevel = literal.scalaLanguageLevel
 
     val text = literal.getLastChild.getText
     val kind = IntegerKind(text)
 
-    val maybeParent = literal.getParent match {
-      case prefixExpr: ScPrefixExpr =>
-        // only "-1234" is negative, "- 1234" should be considered as positive 1234
-        prefixExpr.getChildren match {
-          case Array(ElementText("-"), _) => Some(prefixExpr)
-          case _ => None
+    val target = literal.getParent match {
+      // only "-1234" is negative, "- 1234" should be considered as positive 1234
+      case parent: ScPrefixExpr =>
+        parent.getChildren match {
+          case Array(ElementText("-"), `literal`) => parent
+          case _ => literal
         }
-      case _ => None
+      case _ => literal
     }
 
-    val isLong = maybeIntegerLiteral.isEmpty
     kind match {
       case Oct if languageLevel.exists(_ >= Scala_2_11) =>
-        createOctToHexAnnotation(
-          literal,
-          ScalaBundle.message("octal.literals.removed"),
-          isLong
-        )
-        return
+        createOctToHexAnnotation(literal)(target, ProblemHighlightType.ERROR)
+        return None
       case Oct if languageLevel.contains(Scala_2_10) =>
-        createOctToHexAnnotation(
-          literal,
-          ScalaBundle.message("octal.literals.deprecated"),
-          isLong,
-          ProblemHighlightType.LIKE_DEPRECATED
-        )
+        createOctToHexAnnotation(literal)(target, ProblemHighlightType.LIKE_DEPRECATED)
       case _ =>
     }
 
@@ -73,63 +45,36 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
       case -1 =>
       case index =>
         if (languageLevel.exists(_ < Scala_2_13)) {
-          holder.createErrorAnnotation(literal, ScalaBundle.message("illegal.underscore.separator"))
+          holder.createErrorAnnotation(target, ScalaBundle.message("illegal.underscore.separator"))
         }
         if (index == number.length - 1) {
-          holder.createErrorAnnotation(literal, ScalaBundle.message("trailing.underscore.separator"))
+          holder.createErrorAnnotation(target, ScalaBundle.message("trailing.underscore.separator"))
         }
     }
 
-    parseIntegerNumber(number, kind, maybeParent.isDefined) match {
-      case None =>
-        holder.createErrorAnnotation(
-          literal,
-          ScalaBundle.message("long.literal.is.out.of.range")
-        )
-      case Some(Right(_)) if !isLong =>
-        createToLongAnnotation(
-          maybeIntegerLiteral.get,
-          ScalaBundle.message("integer.literal.is.out.of.range"),
-          maybeParent
-        )
-      case _ =>
+    val maybeNumber = stringToNumber(number, kind, target != literal)()
+    if (maybeNumber.isEmpty) {
+      holder.createErrorAnnotation(target, ScalaBundle.message("long.literal.is.out.of.range"))
+    }
+
+    maybeNumber.map {
+      case (_, exceedsIntLimit) => (target, exceedsIntLimit)
     }
   }
 
-  private def createOctToHexAnnotation(literal: Numeric, message: String,
-                                       isLong: Boolean,
-                                       highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR)
+  private def createOctToHexAnnotation(literal: L)
+                                      (target: ScExpression, highlightType: ProblemHighlightType)
                                       (implicit holder: AnnotationHolder): Unit = {
     val annotation = highlightType match {
-      case ProblemHighlightType.GENERIC_ERROR => holder.createErrorAnnotation(literal, message)
-      case _ => holder.createWarningAnnotation(literal, message)
+      case ProblemHighlightType.GENERIC_ERROR =>
+        holder.createErrorAnnotation(target, ScalaBundle.message("octal.literals.removed"))
+      case _ =>
+        holder.createWarningAnnotation(target, ScalaBundle.message("octal.literals.deprecated"))
     }
+
     annotation.setHighlightType(highlightType)
     annotation.registerFix(new ConvertOctToHex(literal, isLong))
   }
-
-  private def createToLongAnnotation(literal: ScIntegerLiteral, message: String,
-                                     maybeParent: Option[ScPrefixExpr])
-                                    (implicit holder: AnnotationHolder): Unit = {
-    val expression = maybeParent.getOrElse(literal)
-    val annotation = holder.createErrorAnnotation(expression, message)
-
-    val shouldRegisterFix = expression.expectedType().forall {
-      ConvertToLong.isApplicableTo(literal, _)
-    }
-
-    if (shouldRegisterFix) {
-      annotation.registerFix(new ConvertToLong(literal))
-    }
-  }
-
-  private[this] def parseIntegerNumber(number: String,
-                                       kind: IntegerKind,
-                                       isNegative: Boolean) =
-    stringToNumber(number, kind, isNegative)().map {
-      case (value, false) => Left(value.toInt)
-      case (value, _) => Right(value)
-    }
 
   @annotation.tailrec
   private[this] def stringToNumber(number: String,
@@ -162,4 +107,38 @@ object ScNumericLiteralAnnotator extends ElementAnnotator[Numeric] {
           )
       }
     }
+}
+
+object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](isLong = true) {
+
+  override def annotate(literal: ScLongLiteral, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
+    annotate(literal) match {
+      case Some((target, _)) if ConvertMarker.isApplicableTo(literal) =>
+        holder.createWeakWarningAnnotation(
+          target,
+          ScalaBundle.message("lowercase.long.marker")
+        ).registerFix(new ConvertMarker(literal))
+      case _ =>
+    }
+  }
+}
+
+object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLiteral](isLong = false) {
+
+  override def annotate(literal: ScIntegerLiteral, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = {
+    annotate(literal) match {
+      case Some((target, true)) =>
+        val annotation = holder.createErrorAnnotation(
+          target,
+          ScalaBundle.message("integer.literal.is.out.of.range")
+        )
+
+        if (target.expectedType().forall(ConvertToLong.isApplicableTo(literal, _))) {
+          annotation.registerFix(new ConvertToLong(literal))
+        }
+      case _ =>
+    }
+  }
 }
