@@ -3,8 +3,6 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert.assertTrue
 
@@ -14,7 +12,10 @@ import org.junit.Assert.assertTrue
   */
 class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
+  import ScalaCodeInsightTestBase._
+  import debugger.{ScalaVersion, Scala_2_13}
+
+  override implicit val version: ScalaVersion = Scala_2_13
 
   def testInImportSelector(): Unit = doCompletionTest(
     fileText = s"import scala.collection.immutable.{VBuil$CARET}",
@@ -123,7 +124,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
   def testBeanProperty(): Unit = doMultipleCompletionTest(
     fileText =
       s"""
-         |import scala.reflect.BeanProperty
+         |import scala.beans.BeanProperty
          |abstract class Foo {
          |  def setGoo(foo : String) {}
          |}
@@ -1067,6 +1068,18 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     fileText = s"1.toBin$CARET",
     resultText = s"1.toBinaryString$CARET",
     item = "toBinaryString"
+  )
+
+  def test2_13_extensionMethod1(): Unit = doCompletionTest(
+    fileText = s""""".toInt$CARET""",
+    resultText = s""""".toIntOption$CARET""",
+    item = "toIntOption"
+  )
+
+  def test2_13_extensionMethod2(): Unit = doCompletionTest(
+    fileText = s"Nil.length$CARET",
+    resultText = s"Nil.lengthIs$CARET",
+    item = "lengthIs"
   )
 
 }
