@@ -204,4 +204,27 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertMessages(errorsFromScalaCode("class C(i: Int) { def this(f: Float) }; new C(false)"))(
       Error("C", "Cannot resolve overloaded constructor `C`"))
   }
+
+  // Whitespace handling (keep hint at right-hand side after appending a whitespace)
+
+  def testTypeMismatchWhitespace1(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = 1 "))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchWhitespace2(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = 1  "))(Hint("1", ": Int", offsetDelta = 2),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchWhitespaceNewLine(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: String = 1 \n "))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Expression of type Int doesn't conform to expected type String"))
+  }
+
+  def testTypeMismatchWhitespaceParen(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: String) = (); f(1 )"))(Hint("1", ": Int", offsetDelta = 1),
+      Error("1", "Type mismatch, expected: String, actual: Int"))
+  }
+
 }

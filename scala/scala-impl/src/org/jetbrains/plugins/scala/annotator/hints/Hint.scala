@@ -10,7 +10,8 @@ case class Hint(parts: Seq[Text],
                 suffix: Boolean,
                 menu: Option[String] = None,
                 margin: Option[Insets] = None,
-                relatesToPrecedingElement: Boolean = false) { //gives more natural behaviour
+                relatesToPrecedingElement: Boolean = false,
+                offsetDelta: Int = 0) { //gives more natural behaviour
 
   // We want auto-generate apply() and copy() methods, but reference-based equality
   override def equals(obj: scala.Any): Boolean = obj.asOptionOf[AnyRef].exists(eq)

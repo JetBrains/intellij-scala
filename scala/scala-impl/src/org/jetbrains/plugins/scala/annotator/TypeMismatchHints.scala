@@ -4,7 +4,7 @@ import java.awt.Insets
 
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme, EditorFontType}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.UIUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -30,7 +30,13 @@ private object TypeMismatchHints {
 
     val margin = if (needsParentheses) None else Some(new Insets(0, widthOf(' ').getOrElse(0), 0, 0))
 
-    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true)
+    val offsetDelta = Option(element.getContainingFile)
+      .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
+      .filter(_.is[PsiWhiteSpace])
+      .map(_.getText.takeWhile(_ != '\n').length)
+      .getOrElse(0)
+
+    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta)
 
     AnnotatorHints(hints, element.getManager.getModificationTracker.getModificationCount)
   }

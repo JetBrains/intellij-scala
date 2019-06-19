@@ -43,7 +43,7 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Asser
       // TODO allow to check prefix / suffix, text attributes, error tooltip
       val hints = getFile.elements
         .flatMap(AnnotatorHints.in(_).toSeq.flatMap(_.hints))
-        .map(hint => Hint(hint.element.getText, hint.parts.map(_.string).mkString, "")).toList
+        .map(hint => Hint(hint.element.getText, hint.parts.map(_.string).mkString, offsetDelta = hint.offsetDelta)).toList
       hints ::: messages
     } else {
       messages
