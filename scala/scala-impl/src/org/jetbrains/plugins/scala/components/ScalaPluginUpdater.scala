@@ -203,7 +203,7 @@ object ScalaPluginUpdater {
           suggestIdeaUpdate(branch.toString, text)
       }
       catch {
-        case e: Throwable => LOG.info("Failed to check plugin compatibility", e)
+        case e: Throwable => LOG.warn("Failed to check plugin compatibility", e)
       }
     })
   }
@@ -213,55 +213,58 @@ object ScalaPluginUpdater {
   private def suggestIdeaUpdate(branch: String, suggestedVersion: String): Unit = {
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val appSettings = ScalaApplicationSettings.getInstance()
-    def getPlatformUpdateResult = {
-      val a = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
-      val info = HttpRequests.request(a).connect(new HttpRequests.RequestProcessor[Option[UpdatesInfo]] {
-        def process(request: HttpRequests.Request): Option[UpdatesInfo] = {
-          try { Some(new UpdatesInfo(JDOMUtil.load(request.getInputStream))) }
-          catch { case e: JDOMException => LOG.info(e); None }
+
+    def createPlatformChannelSwitchPopup(): Notification = {
+      val message = s"Your IDEA is outdated to use with $branch branch.<br/>Would you like to switch IDEA channel to EAP?" +
+        s"""<p/><a href="Yes">Yes</a>""" +
+        s"""<p/><a href="No">Not now</a>""" +
+        s"""<p/><a href="Ignore">Ignore this update</a>"""
+      GROUP.createNotification(
+        "Scala Plugin Update Failed",
+        message,
+        NotificationType.WARNING,
+        (notification: Notification, event: HyperlinkEvent) => {
+          notification.expire()
+          event.getDescription match {
+            case "No"     => // do nothing, will ask next time
+            case "Yes"    => UpdateSettings.getInstance().setSelectedChannelStatus(ChannelStatus.EAP)
+            case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
+          }
         }
-      })
-      if(info.isDefined) {
-        val strategy = new UpdateStrategy(
-          infoImpl.getBuild,
-          info.get,
-          UpdateSettings.getInstance(),
-        )
-        Some(strategy.checkForUpdates())
-      } else None
+      )
     }
-    def isUpToDatePlatform(result: CheckForUpdateResult) = {
+
+    def createPlatformUpdateSuggestPopup(): Notification = {
+      GROUP.createNotification(
+        s"Your IDEA is outdated to use with Scala plugin $branch branch.<br/>" +
+          s"Please update IDEA to at least $suggestedVersion to use latest Scala plugin.",
+        NotificationType.WARNING)
+    }
+
+    def getPlatformUpdateResult: Option[CheckForUpdateResult] = {
+      val url = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
+
+      val info: Option[UpdatesInfo] = HttpRequests.request(url).connect { request =>
+        try   { Some(new UpdatesInfo(JDOMUtil.load(request.getInputStream))) }
+        catch { case e: JDOMException => LOG.info(e); None }
+      }
+
+      info.map(new UpdateStrategy(infoImpl.getBuild, _, UpdateSettings.getInstance()).checkForUpdates())
+    }
+
+    def isUpToDatePlatform(result: CheckForUpdateResult): Boolean = {
       Option(result.getNewBuild)
         .exists(_.getNumber.compareTo(infoImpl.getBuild) <= 0)
     }
-    def isEAPPlatform = infoImpl.isEAP
+
     val notification = getPlatformUpdateResult match {
-      case Some(result) if isUpToDatePlatform(result) && !isEAPPlatform && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap
-        val message = s"Your IDEA is outdated to use with $branch branch.<br/>Would you like to switch IDEA channel to EAP?" +
-          s"""<p/><a href="Yes">Yes</a>\n""" +
-          s"""<p/><a href="No">Not now</a>""" +
-          s"""<p/><a href="Ignore">Ignore this update</a>"""
-        Some(GROUP.createNotification(
-          "Scala Plugin Update Failed",
-          message,
-          NotificationType.WARNING,
-          (notification: Notification, event: HyperlinkEvent) => {
-            notification.expire()
-            event.getDescription match {
-              case "No" => // do nothing, will ask next time
-              case "Yes" => UpdateSettings.getInstance().setSelectedChannelStatus(ChannelStatus.EAP)
-              case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
-            }
-          }
-        ))
+      case Some(result) if isUpToDatePlatform(result) && !infoImpl.isEAP && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap
+        Some(createPlatformChannelSwitchPopup())
       case Some(result) if result.getNewBuild != null =>
-        Some(GROUP.createNotification(
-            s"Your IDEA is outdated to use with Scala plugin $branch branch.<br/>" +
-            s"Please update IDEA to at least $suggestedVersion to use latest Scala plugin.",
-            NotificationType.WARNING)
-        )
-      case None => None
+        Some(createPlatformUpdateSuggestPopup())
+      case _ => None
     }
+
     notification.foreach(Notifications.Bus.notify)
   }
 
@@ -323,20 +326,6 @@ object ScalaPluginUpdater {
     XML.save(tempFile.getAbsolutePath, document.head, enc = "UTF-8")
     pluginDescriptor.loadFromFile(tempFile, null, true)
     tempFile.delete()
-  }
-
-  @deprecated("Unsafe method, use patchPluginVersion instead", "")
-  private def patchPluginVersionReflection(): Unit = {
-    // crime of reflection goes below - workaround until force updating is available
-    try {
-      val hack: Field = classOf[IdeaPluginDescriptorImpl].getDeclaredField("myVersion")
-      hack.setAccessible(true)
-      hack.set(pluginDescriptor, "0.0.0")
-    }
-    catch {
-      case _: NoSuchFieldException | _: IllegalAccessException  =>
-        Notifications.Bus.notify(new Notification(updGroupId, title, "Please remove and reinstall Scala plugin to finish downgrading", NotificationType.INFORMATION))
-    }
   }
 
   def askUpdatePluginBranch(): Unit = {
