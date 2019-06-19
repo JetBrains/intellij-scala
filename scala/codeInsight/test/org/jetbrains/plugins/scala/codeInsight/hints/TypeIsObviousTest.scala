@@ -6,6 +6,9 @@ import org.junit.Assert._
 
 // SCL-14339
 class TypeIsObviousTest extends TestCase {
+  // TODO Regex .r
+  // TODO Foo.getInstance
+
   def testEmpty(): Unit = {
     assertFalse(isTypeObvious("", "", ""))
     assertFalse(isTypeObvious(" ", " ", " "))
@@ -41,6 +44,7 @@ class TypeIsObviousTest extends TestCase {
     assertTrue(isTypeObvious("colors", "List[Color]", ""))
     assertTrue(isTypeObvious("colors", "Vector[Color]", ""))
     assertTrue(isTypeObvious("colors", "Array[Color]", ""))
+    assertTrue(isTypeObvious("colors", "Set[Color]", ""))
 
     assertTrue(isTypeObvious("boxes", "Seq[Box]", ""))
 
@@ -201,6 +205,9 @@ class TypeIsObviousTest extends TestCase {
     assertFalse(isTypeObvious("color", "Boolean", ""))
     assertTrue(isTypeObvious("b", "Boolean", ""))
     assertTrue(isTypeObvious("bool", "Boolean", ""))
+
+    assertFalse(isTypeObvious("flag", "Color", ""))
+    assertTrue(isTypeObvious("flag", "Boolean", ""))
 
     assertFalse(isTypeObvious("o", "Color", ""))
     assertFalse(isTypeObvious("obj", "Color", ""))

@@ -78,10 +78,10 @@ private[codeInsight] trait ScalaTypeHintsPass {
 }
 
 private object ScalaTypeHintsPass {
-  private val NonIdentifierChar = Set('\n', '(', '[', '{', ';', ',')
+  private val NonIdentifierChars = Set('\n', '(', '[', '{', ';', ',')
 
   def isTypeObvious(name: Option[String], tpe: ScType, body: ScExpression): Boolean =
-    isTypeObvious(name.getOrElse(""), tpe.presentableText, body.getText.takeWhile(!NonIdentifierChar(_)))
+    isTypeObvious(name.getOrElse(""), tpe.presentableText, body.getText.takeWhile(!NonIdentifierChars(_)))
 
   // SCL-14339
   // Text-based algorithm is easy to implement, easy to test, and is highly portable (e.g. can be reused in Kotlin)
@@ -103,7 +103,7 @@ private object ScalaTypeHintsPass {
     if (s.isEmpty) "" else s.substring(0, 1).toLowerCase + s.substring(1)
 
   private val Singular = "(.+?)(?:es|s)".r
-  private val SequenceTypeArgument = "(?:Traversable|Iterable|Seq|IndexedSeq|LinearSeq|List|Vector|Array)\\[(.+)\\]".r
+  private val SequenceTypeArgument = "(?:Traversable|Iterable|Seq|IndexedSeq|LinearSeq|List|Vector|Array|Set)\\[(.+)\\]".r
 
   private val plural: Chain = (name, tpe) => delegate => (name, tpe) match {
     case (Singular(noun), SequenceTypeArgument(argument)) if delegate(noun, argument) => true
@@ -141,7 +141,7 @@ private object ScalaTypeHintsPass {
 
   private val codingConvention: Chain = (name, tpe) => delegate => (name, tpe) match {
     case ("i" | "j" | "k" | "n", "Int" | "Integer") |
-         ("b" | "bool", "Boolean") |
+         ("b" | "bool" | "flag", "Boolean") |
          ("o" | "obj", "Object") |
          ("c" | "char", "Char" | "Character") |
          ("s" | "str", "String") => true
@@ -162,10 +162,10 @@ private object ScalaTypeHintsPass {
   }
 
   private val TailingWord = "(\\p{Ll}.*)(\\p{Lu}.*?)".r
-  private val TypeModifyingPrefix = Set("is", "has", "have", "maybe", "optionOf")
+  private val TypeModifyingPrefixes = Set("is", "has", "have", "maybe", "optionOf")
 
   private val tailingWord: Chain = (name, tpe) => delegate => delegate(name, tpe) || (name match {
-    case TailingWord(prefix, word) if !TypeModifyingPrefix(prefix) => delegate(fromLowerCase(word), tpe)
+    case TailingWord(prefix, word) if !TypeModifyingPrefixes(prefix) => delegate(fromLowerCase(word), tpe)
     case _ => false
   })
 
