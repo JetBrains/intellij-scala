@@ -26,6 +26,8 @@ class TypeIsObviousTest extends TestCase {
     assertFalse(isTypeObvious("backgroundcolor", "BackgroundColor", ""))
   }
 
+  // 1.1.1 TODO articles (a, an, the), tailing word == type
+
   // 1.2
   def testNamePlural(): Unit = {
     assertFalse(isTypeObvious("weights", "Seq[Color]", ""))
@@ -244,8 +246,47 @@ class TypeIsObviousTest extends TestCase {
     assertTrue(isTypeObvious("count", "Int", ""))
     assertTrue(isTypeObvious("count", "Integer", ""))
 
+    assertFalse(isTypeObvious("offset", "Color", ""))
+    assertTrue(isTypeObvious("offset", "Int", ""))
+    assertTrue(isTypeObvious("offset", "Integer", ""))
+
+    assertFalse(isTypeObvious("index", "Color", ""))
+    assertTrue(isTypeObvious("index", "Int", ""))
+    assertTrue(isTypeObvious("index", "Integer", ""))
+
+    assertFalse(isTypeObvious("start", "Color", ""))
+    assertTrue(isTypeObvious("start", "Int", ""))
+    assertTrue(isTypeObvious("start", "Integer", ""))
+
+    assertFalse(isTypeObvious("begin", "Color", ""))
+    assertTrue(isTypeObvious("begin", "Int", ""))
+    assertTrue(isTypeObvious("begin", "Integer", ""))
+
+    assertFalse(isTypeObvious("end", "Color", ""))
+    assertTrue(isTypeObvious("end", "Int", ""))
+    assertTrue(isTypeObvious("end", "Integer", ""))
+
     assertFalse(isTypeObvious("name", "Color", ""))
     assertTrue(isTypeObvious("name", "String", ""))
+
+    assertFalse(isTypeObvious("message", "Color", ""))
+    assertTrue(isTypeObvious("message", "String", ""))
+
+    assertFalse(isTypeObvious("text", "Color", ""))
+    assertTrue(isTypeObvious("text", "String", ""))
+
+    assertFalse(isTypeObvious("description", "Color", ""))
+    assertTrue(isTypeObvious("description", "String", ""))
+
+    assertFalse(isTypeObvious("prefix", "Color", ""))
+    assertTrue(isTypeObvious("prefix", "String", ""))
+
+    assertFalse(isTypeObvious("suffix", "Color", ""))
+    assertTrue(isTypeObvious("suffix", "String", ""))
+
+    // 1.9
+    assertFalse(isTypeObvious("variableName", "Color", ""))
+    assertTrue(isTypeObvious("variableName", "String", ""))
   }
 
   // 1.9 TODO
