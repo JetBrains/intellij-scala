@@ -86,7 +86,7 @@ object Generators {
     scalaVersion <- arbitrary[Option[String]]
     scalacClasspath <- arbitrary[File].list
     scalacOptions <- arbitrary[String].list
-  } yield ScalaSdkData(scalaOrganization, scalaVersion, scalacClasspath, scalacOptions)
+  } yield ScalaSdkData(scalaOrganization, scalaVersion.orNull , scalacClasspath, scalacOptions)
 
   def genModuleKind: Gen[ModuleKind] = for {
     scalaSdkData <- genScalaSdkData

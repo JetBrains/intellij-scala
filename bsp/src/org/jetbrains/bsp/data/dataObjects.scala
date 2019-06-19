@@ -7,6 +7,7 @@ import java.util
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspEntityData._
 
@@ -33,11 +34,11 @@ object BspEntityData {
 
 
 @SerialVersionUID(3)
-case class ScalaSdkData(
-                         scalaOrganization: String,
-                         scalaVersion: Option[String],
-                         scalacClasspath: util.List[File],
-                         scalacOptions: util.List[String]
+case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scalacOptions"))(
+  @NotNull scalaOrganization: String,
+  @Nullable scalaVersion: String,
+  @NotNull scalacClasspath: util.List[File],
+  @NotNull scalacOptions: util.List[String]
 ) extends BspEntityData
 
 object ScalaSdkData {
@@ -51,8 +52,7 @@ object ScalaSdkData {
   * @param targetIds target ids mapped to module
   */
 @SerialVersionUID(4)
-@PropertyMapping(Array("targetIds"))
-case class BspMetadata(targetIds: util.List[URI])
+case class BspMetadata @PropertyMapping(Array("targetIds"))(@NotNull targetIds: util.List[URI])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
 }

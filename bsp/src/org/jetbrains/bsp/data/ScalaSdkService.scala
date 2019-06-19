@@ -53,7 +53,7 @@ object ScalaSdkService {
       module.configureScalaCompilerSettingsFrom("bsp", scalacOptions.asScala)
       configureScalaSdk(
         module,
-        scalaVersion,
+        Option(scalaVersion),
         scalacClasspath.asScala
       )
     }

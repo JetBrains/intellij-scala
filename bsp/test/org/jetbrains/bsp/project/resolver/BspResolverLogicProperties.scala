@@ -47,7 +47,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
       val data = getScalaSdkData(scalaBuildTarget, Some(scalacOptionsItem))
       val jarsToClasspath = ! scalaBuildTarget.getJars.isEmpty ==> ! data.scalacClasspath.isEmpty
 
-      jarsToClasspath && data.scalaVersion.isDefined
+      jarsToClasspath && data.scalaVersion != null
     })
 
   @Test @Ignore
