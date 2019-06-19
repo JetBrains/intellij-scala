@@ -148,18 +148,10 @@ private object ScalaTypeHintsPass {
     case _ => delegate(name, tpe)
   }
 
-  private val TailingCapitalizedWord = ".+(\\p{Lu}.+?)".r
-
-  private val knownThing: Chain = (name, tpe) => delegate => {
-    val word = name match {
-      case TailingCapitalizedWord(word) => word.toLowerCase
-      case _ => name
-    }
-    (word, tpe) match {
-      case ("width" | "height" | "length" | "count" | "offset" | "index" | "start" | "begin" | "end", "Int" | "Integer") |
-           ("name" | "message" | "text" | "description" | "prefix" | "suffix", "String") => true
-      case _ => delegate(name, tpe)
-    }
+  private val knownThing: Chain = (name, tpe) => delegate => (name, tpe) match {
+    case ("width" | "height" | "length" | "count" | "offset" | "index" | "start" | "begin" | "end", "Int" | "Integer") |
+         ("name" | "message" | "text" | "description" | "prefix" | "suffix", "String") => true
+    case _ => delegate(name, tpe)
   }
 
   private val NumberPrefix = "(.+?)\\d+".r
@@ -169,14 +161,23 @@ private object ScalaTypeHintsPass {
     case _ => delegate(name, tpe)
   }
 
+  private val TailingWord = "(\\p{Ll}.*)(\\p{Lu}.+?)".r
+  private val TypeModifyingPrefix = Set("is", "has", "have", "maybe", "optionOf")
+
+  private val tailingWord: Chain = (name, tpe) => delegate => delegate(name, tpe) || (name match {
+    case TailingWord(prefix, word) if !TypeModifyingPrefix(prefix) => delegate(fromLowerCase(word), tpe)
+    case _ => false
+  })
+
   private val Predicate: Predicate =
-    numberSuffix(_, _)(
-      knownThing(_, _)(
-        codingConvention(_, _)(
-          optionPrefix(_, _)(
-            booleanPrefix(_, _)(
-              getPrefix(_, _)(
-                prepositionSuffix(_, _)(
-                  plural(_, _)(
-                    firstLetterCase(_, _)(_ == _)))))))))
+    tailingWord(_, _)(
+      numberSuffix(_, _)(
+        knownThing(_, _)(
+          codingConvention(_, _)(
+            optionPrefix(_, _)(
+              booleanPrefix(_, _)(
+                getPrefix(_, _)(
+                  prepositionSuffix(_, _)(
+                    plural(_, _)(
+                      firstLetterCase(_, _)(_ == _))))))))))
 }
