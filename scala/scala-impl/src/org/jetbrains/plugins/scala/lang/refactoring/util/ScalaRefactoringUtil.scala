@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -446,7 +446,7 @@ object ScalaRefactoringUtil {
                                  editor: Editor): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {
 
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(currentElement.getProject)
-    val inheritors = ScalaStubsUtil.directInheritorCandidates(currentElement, scope)
+    val inheritors = ScalaInheritors.directInheritorCandidates(currentElement, scope)
 
     def helper(classObject: ScTemplateDefinition,
                occurrencesRes: mutable.MutableList[Array[ScTypeElement]],

@@ -87,7 +87,7 @@ private object StaticMembersFinder {
     else {
       val manager = ScalaPsiManager.instance(m.getProject)
       cClass.asOptionOf[ScTemplateDefinition]
-        .map(manager.inheritorOrThisObjects).getOrElse(Seq.empty)
+        .map(manager.inheritorOrThisObjects).getOrElse(Set.empty).toSeq
     }
   }
 

@@ -6,7 +6,6 @@ import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
 import com.intellij.openapi.util.LowMemoryWatcher
 import com.intellij.openapi.util.LowMemoryWatcher.LowMemoryWatcherType
-import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
@@ -18,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.inheritorOrThisObjects
 
 import scala.collection.mutable
 import scala.util.Try
@@ -106,12 +104,12 @@ object ImplicitConversionCache {
   }
 
   private def collectImplicitConversions(elementScope: ElementScope): Iterable[GlobalImplicitConversion] = {
-    val inheritorObjectsCache = mutable.Map.empty[PsiClass, Seq[ScObject]]
+    val manager = ScalaPsiManager.instance(elementScope.project)
 
-    def containingObjects(function: ScFunction): Seq[ScObject] =
+    def containingObjects(function: ScFunction): Set[ScObject] =
       Option(function.containingClass)
-        .map(cClass => inheritorObjectsCache.getOrElseUpdate(cClass, inheritorOrThisObjects(cClass)))
-        .getOrElse(Seq.empty)
+        .map(cClass => manager.inheritorOrThisObjects(cClass))
+        .getOrElse(Set.empty)
 
     allImplicitConversions(elementScope).flatMap { member =>
       val conversion = member match {
@@ -127,5 +125,4 @@ object ImplicitConversionCache {
       } yield GlobalImplicitConversion(obj, function)
     }
   }
-
 }

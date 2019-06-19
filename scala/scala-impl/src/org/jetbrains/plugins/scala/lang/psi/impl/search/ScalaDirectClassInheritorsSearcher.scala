@@ -16,7 +16,7 @@ import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -71,7 +71,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
     val candidates: Seq[ScTemplateDefinition] = inReadAction {
       if (!clazz.isValid) return true
 
-      ScalaStubsUtil.directInheritorCandidates(clazz, scope)
+      ScalaInheritors.directInheritorCandidates(clazz, scope)
     }
 
     for (candidate <- candidates if inReadAction { candidate.showAsInheritor }) {

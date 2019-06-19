@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 
 import scala.collection.mutable
 
@@ -157,7 +157,7 @@ object ScalaOverridingMemberSearcher {
     }
 
     if (withSelfType) {
-      val inheritors = ScalaStubsUtil.getSelfTypeInheritors(parentClass)
+      val inheritors = ScalaInheritors.getSelfTypeInheritors(parentClass)
       break = false
       for (clazz <- inheritors if !break) {
         break = !process(clazz)

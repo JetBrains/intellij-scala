@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -29,7 +30,7 @@ import scala.reflect.ClassTag
  * Date: 24.10.2008
  */
 
-object ScalaStubsUtil {
+object ScalaInheritors {
   def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
@@ -106,15 +107,12 @@ object ScalaStubsUtil {
     else selfTypeInheritorsInner()
   }
 
-  def inheritorOrThisObjects(clazz: ScTemplateDefinition): Seq[ScObject] =
-    collectStableInheritors[ScObject](clazz)
-
-  def withStableScalaInheritors(clazz: PsiClass): Seq[ScTypeDefinition] =
+  def withStableScalaInheritors(clazz: PsiClass): Set[ScTypeDefinition] =
     collectStableInheritors[ScTypeDefinition](clazz)
 
   private def collectStableInheritors[T <: ScTypeDefinition : ClassTag](clazz: PsiClass,
                                                                         visited: Set[PsiClass] = Set.empty,
-                                                                        buffer: ArrayBuffer[T] = ArrayBuffer.empty[T]): Seq[T] = {
+                                                                        buffer: ArrayBuffer[T] = ArrayBuffer.empty[T]): Set[T] = {
     if (!visited(clazz)) {
 
       clazz match {
@@ -131,7 +129,22 @@ object ScalaStubsUtil {
       }
     }
 
-    buffer
+    buffer.toSet
   }
 
+  private def allInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] =
+    collectStableInheritors[ScObject](clazz)
+
+  //find objects which may be used to import members of `clazz`
+  //if `clazz` is not generic, members in all objects are the same, so we return one that have less methods as it is more specific
+  def findInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] = {
+    val allObjects = allInheritorObjects(clazz)
+
+    def nameCount(obj: ScObject): Int = TypeDefinitionMembers.getSignatures(obj).nameCount
+
+    if (clazz.hasTypeParameters || allObjects.isEmpty) allObjects
+    else {
+      Set(allObjects.minBy(nameCount))
+    }
+  }
 }
