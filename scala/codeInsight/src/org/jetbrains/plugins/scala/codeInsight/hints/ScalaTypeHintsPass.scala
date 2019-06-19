@@ -106,10 +106,13 @@ private object ScalaTypeHintsPass {
   private def fromLowerCase(s: String): String =
     if (s.isEmpty) "" else s.substring(0, 1).toLowerCase + s.substring(1)
 
+  // TODO use English.plural? But then both the name and the type would be plural,
+  //   how to handle "coding conventions" and "known things"?
+  private val Singular = "(.+?)(?:(?<=s|sh|ch|x|z)es|s)".r
   private val SequenceTypeArgument = "(?:Traversable|Iterable|Seq|IndexedSeq|LinearSeq|List|Vector|Array|Set)\\[(.+)\\]".r
 
   private val plural: Combinator = (name, tpe) => delegate => (name, tpe) match {
-    case (noun, SequenceTypeArgument(argument)) if delegate(noun, English.plural(argument)) => true
+    case (Singular(noun), SequenceTypeArgument(argument)) if delegate(noun, argument) => true
     case _ => delegate(name, tpe)
   }
 
@@ -182,12 +185,12 @@ private object ScalaTypeHintsPass {
 
   private val Predicate: Predicate =
     booleanPrefix(_, _)(
-      numberSuffix(_, _)(
-        prepositionSuffix(_, _)(
-          typeTailing(_, _)(
-            getPrefix(_, _)(
-              nameTailing(_, _)(
-                optionPrefix(_, _)(
+      optionPrefix(_, _)(
+        numberSuffix(_, _)(
+          prepositionSuffix(_, _)(
+            typeTailing(_, _)(
+              getPrefix(_, _)(
+                nameTailing(_, _)(
                   plural(_, _)(
                     nameFirstLetterCase(_, _)(
                       codingConvention(_, _)(
