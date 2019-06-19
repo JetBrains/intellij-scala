@@ -6,6 +6,7 @@ import java.util
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
+import com.intellij.serialization.PropertyMapping
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspEntityData._
 
@@ -50,6 +51,7 @@ object ScalaSdkData {
   * @param targetIds target ids mapped to module
   */
 @SerialVersionUID(4)
+@PropertyMapping(Array("targetIds"))
 case class BspMetadata(targetIds: util.List[URI])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])

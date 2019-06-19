@@ -96,7 +96,7 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
         descriptor
       }
 
-    viewManager.onEvent(startEvent)
+    viewManager.onEvent(taskId, startEvent)
   }
 
   override def finish(messages: BuildMessages): Unit = {
@@ -112,52 +112,52 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
 
     val finishEvent =
       new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), resultMessage, result)
-    viewManager.onEvent(finishEvent)
+    viewManager.onEvent(taskId, finishEvent)
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
     val failureResult = new FailureResultImpl(err)
     val finishEvent =
       new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
-    viewManager.onEvent(finishEvent)
+    viewManager.onEvent(taskId, finishEvent)
   }
 
   override def finishCanceled(): Unit = {
     val canceledResult = new SkippedResultImpl
     val finishEvent =
       new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "canceled", canceledResult)
-    viewManager.onEvent(finishEvent)
+    viewManager.onEvent(taskId, finishEvent)
   }
 
   def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
     val startEvent = new StartEventImpl(taskId, parent.orNull, time, message)
-    viewManager.onEvent(startEvent)
+    viewManager.onEvent(taskId, startEvent)
   }
 
   def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val unitOrDefault = if (unit == null) "items" else unit
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
-    viewManager.onEvent(event)
+    viewManager.onEvent(taskId, event)
   }
 
   def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val event = new FinishEventImpl(taskId, null, time, message, result)
-    viewManager.onEvent(event)
+    viewManager.onEvent(taskId, event)
   }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(event(message, Kind.WARNING, position))
+    viewManager.onEvent(taskId, event(message, Kind.WARNING, position))
 
   override def error(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(event(message, Kind.ERROR, position))
+    viewManager.onEvent(taskId, event(message, Kind.ERROR, position))
 
   override def info(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(event(message, Kind.INFO, position))
+    viewManager.onEvent(taskId, event(message, Kind.INFO, position))
 
   override def log(message: String): Unit =
-    viewManager.onEvent(logEvent(message))
+    viewManager.onEvent(taskId, logEvent(message))
 
   private def logEvent(msg: String): BuildEvent =
     new OutputBuildEventImpl(taskId, msg.trim + System.lineSeparator(), true)
