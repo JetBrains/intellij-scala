@@ -129,18 +129,10 @@ package object template {
   }
 
   private[this] def launcherOptions(path: String) =
-    jarWith.getParentFile / "launcher" / "sbt-launch.jar" match {
+    new File(PathUtil.getJarPathForClass(getClass)).getParentFile.getParentFile / "launcher" / "sbt-launch.jar" match {
       case launcher if launcher.exists => Seq("-jar", launcher.getAbsolutePath, "< " + path)
-      case launcher => throw new FileNotFoundException(launcher.getPath)
+      case launcher => throw new FileNotFoundException("Jar file not found for class: " + launcher.getPath)
     }
-
-  private[this] def jarWith = {
-    val aClass = getClass
-    PathUtil.getJarPathForClass(aClass) match {
-      case null => throw new RuntimeException("Jar file not found for class: " + aClass.getName)
-      case pathname => new File(pathname)
-    }
-  }
 
   private[this] def vmOptions = {
     import JavaConverters._
