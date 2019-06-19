@@ -26,8 +26,6 @@ class TypeIsObviousTest extends TestCase {
     assertFalse(isTypeObvious("backgroundcolor", "BackgroundColor", ""))
   }
 
-  // 1.1.1 TODO articles (a, an, the), tailing word == type
-
   // 1.2
   def testNamePlural(): Unit = {
     assertFalse(isTypeObvious("weights", "Seq[Color]", ""))
@@ -86,7 +84,7 @@ class TypeIsObviousTest extends TestCase {
     assertTrue(isTypeObvious("colorsIn", "Seq[Color]", ""))
   }
 
-  // 1.4
+  // 1.4 // TODO Can be superceeded by "tailing words" (if implemented fully)
   def testGetPrefix(): Unit = {
     assertFalse(isTypeObvious("getWeight", "Color", ""))
 
@@ -283,6 +281,12 @@ class TypeIsObviousTest extends TestCase {
 
     assertFalse(isTypeObvious("suffix", "Color", ""))
     assertTrue(isTypeObvious("suffix", "String", ""))
+
+    // TODO test 1.1 .. 1.7
+
+    // 1.6
+    assertFalse(isTypeObvious("maybeName", "Option[Color]", ""))
+    assertTrue(isTypeObvious("maybeName", "Option[String]", ""))
 
     // 1.9
     assertFalse(isTypeObvious("variableName", "Color", ""))

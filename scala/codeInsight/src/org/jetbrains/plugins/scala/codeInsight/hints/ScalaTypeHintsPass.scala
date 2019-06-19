@@ -148,7 +148,7 @@ private object ScalaTypeHintsPass {
     case _ => delegate(name, tpe)
   }
 
-  private val knownThing: Chain = (name, tpe) => delegate => (name, tpe) match {
+  private val knownThing: Chain = (name, tpe) => delegate => (fromLowerCase(name), tpe) match {
     case ("width" | "height" | "length" | "count" | "offset" | "index" | "start" | "begin" | "end", "Int" | "Integer") |
          ("name" | "message" | "text" | "description" | "prefix" | "suffix", "String") => true
     case _ => delegate(name, tpe)
@@ -161,7 +161,7 @@ private object ScalaTypeHintsPass {
     case _ => delegate(name, tpe)
   }
 
-  private val TailingWord = "(\\p{Ll}.*)(\\p{Lu}.+?)".r
+  private val TailingWord = "(\\p{Ll}.*)(\\p{Lu}.*?)".r
   private val TypeModifyingPrefix = Set("is", "has", "have", "maybe", "optionOf")
 
   private val tailingWord: Chain = (name, tpe) => delegate => delegate(name, tpe) || (name match {
@@ -172,12 +172,12 @@ private object ScalaTypeHintsPass {
   private val Predicate: Predicate =
     tailingWord(_, _)(
       numberSuffix(_, _)(
-        knownThing(_, _)(
-          codingConvention(_, _)(
-            optionPrefix(_, _)(
-              booleanPrefix(_, _)(
-                getPrefix(_, _)(
-                  prepositionSuffix(_, _)(
-                    plural(_, _)(
+        codingConvention(_, _)(
+          optionPrefix(_, _)(
+            booleanPrefix(_, _)(
+              getPrefix(_, _)(
+                prepositionSuffix(_, _)(
+                  plural(_, _)(
+                    knownThing(_, _)(
                       firstLetterCase(_, _)(_ == _))))))))))
 }
