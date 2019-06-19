@@ -4,7 +4,8 @@
     <resource-bundle xmlns="">messages.WorksheetBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileTypeFactory implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileTypeFactory"/>
+        <fileType name="Scala Worksheet" language="Scala Worksheet" extensions="sc"
+                  implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileType$" fieldName="MODULE$"/>
         <lang.parserDefinition language="Scala Worksheet"
                                implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.fileViewProviderFactory language="Scala Worksheet"

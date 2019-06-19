@@ -5,7 +5,7 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.ParserDefinition.SpaceRequirements
 import com.intellij.lang.{ASTNode, Language, ParserDefinition, PsiParser}
 import com.intellij.lexer.{FlexAdapter, Lexer}
-import com.intellij.openapi.fileTypes.{FileTypeConsumer, FileTypeFactory, LanguageFileType}
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IElementType, IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile, TokenType}
@@ -31,11 +31,6 @@ object SbtShellFileType extends LanguageFileType(SbtShellLanguage) {
   override def getIcon: Icon = language.SbtFileType.getIcon
 
   override def getDescription = "sbt shell file dummy"
-}
-
-class SbtShellFileTypeFactory extends FileTypeFactory {
-  override def createFileTypes(consumer: FileTypeConsumer): Unit =
-    consumer.consume(SbtShellFileType, SbtShellFileType.getDefaultExtension)
 }
 
 class SbtShellLexerAdapter extends FlexAdapter(new grammar._SbtShellLexer)

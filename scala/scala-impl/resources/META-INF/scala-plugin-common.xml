@@ -126,7 +126,8 @@
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
-        <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
+      <fileType name="Scala" language="Scala" extensions="scala"
+                implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
         <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
         <highlightErrorFilter implementation="org.jetbrains.plugins.scala.annotator.ScaladocHighlightErrorFilter"/>
         <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
