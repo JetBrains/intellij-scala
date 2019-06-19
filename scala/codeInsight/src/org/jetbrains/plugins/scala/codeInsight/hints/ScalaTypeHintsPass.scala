@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.PsiElement
+import org.atteo.evo.inflector.English
 import org.jetbrains.plugins.scala.annotator.TypeDiff
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match}
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text, foldedAttributes, foldedString}
@@ -105,11 +106,10 @@ private object ScalaTypeHintsPass {
   private def fromLowerCase(s: String): String =
     if (s.isEmpty) "" else s.substring(0, 1).toLowerCase + s.substring(1)
 
-  private val Singular = "(.+?)(?:es|s)".r
   private val SequenceTypeArgument = "(?:Traversable|Iterable|Seq|IndexedSeq|LinearSeq|List|Vector|Array|Set)\\[(.+)\\]".r
 
   private val plural: Combinator = (name, tpe) => delegate => (name, tpe) match {
-    case (Singular(noun), SequenceTypeArgument(argument)) if delegate(noun, argument) => true
+    case (noun, SequenceTypeArgument(argument)) if delegate(noun, English.plural(argument)) => true
     case _ => delegate(name, tpe)
   }
 
