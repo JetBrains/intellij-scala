@@ -148,10 +148,18 @@ private object ScalaTypeHintsPass {
     case _ => delegate(name, tpe)
   }
 
-  private val knownThing: Chain = (name, tpe) => delegate => (name, tpe) match {
-    case ("width" | "height" | "length" | "count", "Int" | "Integer") |
-         ("name", "String") => true
-    case _ => delegate(name, tpe)
+  private val TailingCapitalizedWord = ".+(\\p{Lu}.+?)".r
+
+  private val knownThing: Chain = (name, tpe) => delegate => {
+    val word = name match {
+      case TailingCapitalizedWord(word) => word.toLowerCase
+      case _ => name
+    }
+    (word, tpe) match {
+      case ("width" | "height" | "length" | "count" | "offset" | "index" | "start" | "begin" | "end", "Int" | "Integer") |
+           ("name" | "message" | "text" | "description" | "prefix" | "suffix", "String") => true
+      case _ => delegate(name, tpe)
+    }
   }
 
   private val NumberPrefix = "(.+?)\\d+".r
