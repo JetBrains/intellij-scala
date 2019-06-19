@@ -186,7 +186,7 @@ object ScalaPluginUpdater {
       case Nightly => Some(currentRepo(Nightly))
     }
 
-    url.foreach(u => extensions.invokeLater {
+    url.foreach(u => extensions.executeOnPooledThread {
       try {
         val factory = javax.xml.parsers.SAXParserFactory.newInstance()
         // disable DTD validation
