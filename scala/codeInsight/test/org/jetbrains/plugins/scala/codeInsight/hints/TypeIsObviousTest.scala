@@ -338,6 +338,27 @@ class TypeIsObviousTest extends TestCase {
 
   // 1.11 TODO
 
+  // Superset of 1.4
+  def testTailingWords(): Unit = {
+    assertFalse(isTypeObvious("myWidth", "Color", ""))
+
+    assertTrue(isTypeObvious("myColor", "Color", ""))
+
+    assertTrue(isTypeObvious("getColor", "Color", ""))
+
+    assertFalse(isTypeObvious("isColor", "Color", ""))
+    assertFalse(isTypeObvious("hasColor", "Color", ""))
+    assertFalse(isTypeObvious("haveColor", "Color", ""))
+    assertFalse(isTypeObvious("maybeColor", "Color", ""))
+    assertFalse(isTypeObvious("optionOfColor", "Color", ""))
+
+    assertTrue(isTypeObvious("myBestColor", "Color", ""))
+
+//    assertTrue(isTypeObvious("myBackgroundColor", "BackgroundColor", "")) // TODO
+
+    // TODO test 1.1 .. 1.10
+  }
+
   // 2.5
   def testRightHandSideIdentifier(): Unit = {
     assertTrue(isTypeObvious("color", "Color", ""))
