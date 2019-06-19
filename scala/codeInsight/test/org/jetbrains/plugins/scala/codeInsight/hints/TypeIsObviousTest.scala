@@ -231,6 +231,9 @@ class TypeIsObviousTest extends TestCase {
     assertFalse(isTypeObvious("char", "Color", ""))
     assertTrue(isTypeObvious("char", "Char", ""))
     assertTrue(isTypeObvious("char", "Character", ""))
+
+    //
+    assertTrue(isTypeObvious("getC", "Char", ""))
   }
 
   // 1.8
@@ -300,7 +303,18 @@ class TypeIsObviousTest extends TestCase {
     assertTrue(isTypeObvious("variableName", "String", ""))
   }
 
-  // 1.9 TODO
+  // 1.9
+  def testTypeTailing(): Unit = {
+    assertFalse(isTypeObvious("width", "BackgroundColor", ""))
+
+    assertTrue(isTypeObvious("color", "BackgroundColor", ""))
+
+    assertTrue(isTypeObvious("backgroundColor", "MyBackgroundColor", ""))
+
+//   assertFalse(isTypeObvious("backgroundColor", "ForegroundColor", "")) // TODO
+
+    // TODO test 1.1 .. 1.8
+  }
 
   // 1.10
   def testNumberSuffix(): Unit = {
@@ -350,7 +364,7 @@ class TypeIsObviousTest extends TestCase {
   // 1.11 TODO
 
   // Superset of 1.4
-  def testTailingWords(): Unit = {
+  def testNameTailing(): Unit = {
     assertFalse(isTypeObvious("myWidth", "Color", ""))
 
     assertTrue(isTypeObvious("myColor", "Color", ""))

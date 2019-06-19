@@ -94,10 +94,13 @@ private object ScalaTypeHintsPass {
   private type Name = String
   private type Type = String
   private type Predicate = (Name, Type) => Boolean
-  private type Chain = (Name, Type) => Predicate => Boolean
+  private type Combinator = (Name, Type) => Predicate => Boolean
 
-  private val firstLetterCase: Chain = (name, tpe) => delegate =>
-    delegate(fromLowerCase(name), fromLowerCase(tpe))
+  private val nameFirstLetterCase: Combinator = (name, tpe) => delegate =>
+    delegate(fromLowerCase(name), tpe)
+
+  private val typeFirstLetterCase: Combinator = (name, tpe) => delegate =>
+    delegate(name, fromLowerCase(tpe))
 
   private def fromLowerCase(s: String): String =
     if (s.isEmpty) "" else s.substring(0, 1).toLowerCase + s.substring(1)
@@ -105,28 +108,28 @@ private object ScalaTypeHintsPass {
   private val Singular = "(.+?)(?:es|s)".r
   private val SequenceTypeArgument = "(?:Traversable|Iterable|Seq|IndexedSeq|LinearSeq|List|Vector|Array|Set)\\[(.+)\\]".r
 
-  private val plural: Chain = (name, tpe) => delegate => (name, tpe) match {
+  private val plural: Combinator = (name, tpe) => delegate => (name, tpe) match {
     case (Singular(noun), SequenceTypeArgument(argument)) if delegate(noun, argument) => true
     case _ => delegate(name, tpe)
   }
 
   private val PrepositionPrefix = "(.+)(?:In|Of|From|At|On|For|To|With|Before|After|Inside)".r
 
-  private val prepositionSuffix: Chain = (name, tpe) => delegate => name match {
-    case PrepositionPrefix(namePrefix) => delegate(namePrefix, tpe) || delegate(name, tpe)
+  private val prepositionSuffix: Combinator = (name, tpe) => delegate => name match {
+    case PrepositionPrefix(namePrefix) if delegate(namePrefix, tpe) => true
     case _ => delegate(name, tpe)
   }
 
   private val GetSuffix = "get(\\p{Lu}.*)".r
 
-  private val getPrefix: Chain = (name, tpe) => delegate => name match {
-    case GetSuffix(nameSuffix) => delegate(nameSuffix, tpe) || delegate(name, tpe)
+  private val getPrefix: Combinator = (name, tpe) => delegate => name match {
+    case GetSuffix(nameSuffix) if delegate(nameSuffix, tpe) => true
     case _ => delegate(name, tpe)
   }
 
   private val BooleanSuffix = "(?:is|has|have)(\\p{Lu}.*|)".r
 
-  private val booleanPrefix: Chain = (name, tpe) => delegate => name match {
+  private val booleanPrefix: Combinator = (name, tpe) => delegate => name match {
     case BooleanSuffix(_) if tpe == "Boolean" => true
     case _ => delegate(name, tpe)
   }
@@ -134,12 +137,12 @@ private object ScalaTypeHintsPass {
   private val MaybeSuffix = "(?:maybe|optionOf)(\\p{Lu}.*)".r
   private val OptionArgument = "(?:Option|Some)\\[(.+)\\]".r
 
-  private val optionPrefix: Chain = (name, tpe) => delegate => (name, tpe) match {
-    case (MaybeSuffix(nameSuffix), OptionArgument(typeArgument)) => delegate(nameSuffix, typeArgument) || delegate(name, tpe)
+  private val optionPrefix: Combinator = (name, tpe) => delegate => (name, tpe) match {
+    case (MaybeSuffix(nameSuffix), OptionArgument(typeArgument)) if delegate(nameSuffix, typeArgument) => true
     case _ => delegate(name, tpe)
   }
 
-  private val codingConvention: Chain = (name, tpe) => delegate => (name, tpe) match {
+  private val codingConvention: Combinator = (name, tpe) => delegate => (name, tpe) match {
     case ("i" | "j" | "k" | "n", "Int" | "Integer") |
          ("b" | "bool" | "flag", "Boolean") |
          ("o" | "obj", "Object") |
@@ -148,7 +151,7 @@ private object ScalaTypeHintsPass {
     case _ => delegate(name, tpe)
   }
 
-  private val knownThing: Chain = (name, tpe) => delegate => (fromLowerCase(name), tpe) match {
+  private val knownThing: Combinator = (name, tpe) => delegate => (name, tpe) match {
     case ("width" | "height" | "length" | "count" | "offset" | "index" | "start" | "begin" | "end", "Int" | "Integer") |
          ("name" | "message" | "text" | "description" | "prefix" | "suffix", "String") => true
     case _ => delegate(name, tpe)
@@ -156,28 +159,38 @@ private object ScalaTypeHintsPass {
 
   private val NumberPrefix = "(.+?)\\d+".r
 
-  private val numberSuffix: Chain = (name, tpe) => delegate => name match {
-    case NumberPrefix(namePrefix) => delegate(namePrefix, tpe) || delegate(name, tpe)
+  private val numberSuffix: Combinator = (name, tpe) => delegate => name match {
+    case NumberPrefix(namePrefix) if delegate(namePrefix, tpe) => true
     case _ => delegate(name, tpe)
   }
 
-  private val TailingWord = "(\\p{Ll}.*)(\\p{Lu}.*?)".r
+  private val NameTailingWord = "(\\p{Ll}.*)(\\p{Lu}.*?)".r
   private val TypeModifyingPrefixes = Set("is", "has", "have", "maybe", "optionOf")
 
-  private val tailingWord: Chain = (name, tpe) => delegate => delegate(name, tpe) || (name match {
-    case TailingWord(prefix, word) if !TypeModifyingPrefixes(prefix) => delegate(fromLowerCase(word), tpe)
+  private val nameTailing: Combinator = (name, tpe) => delegate => delegate(name, tpe) || (name match {
+    case NameTailingWord(prefix, word) if !TypeModifyingPrefixes(prefix) => delegate(word, tpe)
+    case _ => false
+  })
+
+  private val TypeTailingWord = "\\w+(\\p{Lu}\\w*?)".r
+  private val PrepositionSuffixes = Set("In", "Of", "From", "At", "On", "For", "To", "With", "Before", "After", "Inside")
+
+  private val typeTailing: Combinator = (name, tpe) => delegate => delegate(name, tpe) || (tpe match {
+    case TypeTailingWord(word) if !PrepositionSuffixes(word) => delegate(name, word)
     case _ => false
   })
 
   private val Predicate: Predicate =
-    tailingWord(_, _)(
+    booleanPrefix(_, _)(
       numberSuffix(_, _)(
-        codingConvention(_, _)(
-          optionPrefix(_, _)(
-            booleanPrefix(_, _)(
-              getPrefix(_, _)(
-                prepositionSuffix(_, _)(
+        prepositionSuffix(_, _)(
+          typeTailing(_, _)(
+            getPrefix(_, _)(
+              nameTailing(_, _)(
+                optionPrefix(_, _)(
                   plural(_, _)(
-                    knownThing(_, _)(
-                      firstLetterCase(_, _)(_ == _))))))))))
+                    nameFirstLetterCase(_, _)(
+                      codingConvention(_, _)(
+                        knownThing(_, _)(
+                          typeFirstLetterCase(_, _)(_ == _))))))))))))
 }
