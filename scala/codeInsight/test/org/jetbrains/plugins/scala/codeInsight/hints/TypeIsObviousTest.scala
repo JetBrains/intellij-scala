@@ -48,7 +48,9 @@ class TypeIsObviousTest extends TestCase {
 
     assertTrue(isTypeObvious("boxes", "Seq[Box]", ""))
 
-    // TODO irregular plurals (mouse / mice, person / people, etc)
+    assertTrue(isTypeObvious("messages", "Seq[Message]", ""))
+
+    assertTrue(isTypeObvious("mice", "Seq[Mouse]", ""))
 
     assertFalse(isTypeObvious("colors", "Color", ""))
     assertTrue(isTypeObvious("colors", "Colors", ""))
