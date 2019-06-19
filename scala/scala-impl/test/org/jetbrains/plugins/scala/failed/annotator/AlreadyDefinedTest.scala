@@ -10,8 +10,6 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class AlreadyDefinedTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  override protected def shouldPass: Boolean = false
-
   def testSCL2101(): Unit =
     checkTextHasNoErrors(
       """
