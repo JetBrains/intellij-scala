@@ -35,7 +35,7 @@ object Hint {
       if (ImplicitHints.expanded) {
         renderer.expand()
       }
-      model.addInlineElement(offset, relatesToPrecedingElement, renderer)
+      model.addInlineElement(offset + offsetDelta, relatesToPrecedingElement, renderer)
     }
 
     if (existingInlays.nonEmpty) {
