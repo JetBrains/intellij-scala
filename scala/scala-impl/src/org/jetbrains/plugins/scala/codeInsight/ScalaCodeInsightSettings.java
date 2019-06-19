@@ -27,7 +27,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showPropertyType = false;
     public boolean showLocalVariableType = false;
 
-    public int presentationLength = 35;
+    public int presentationLength = 45;
 
     public boolean showObviousType = false;
 
