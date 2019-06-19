@@ -5,7 +5,7 @@ import com.intellij.application.options.codeStyle.CommenterForm;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -48,6 +48,12 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   }
 
   @Override
+  public void dispose() {
+    super.dispose();
+    Disposer.dispose(trailingCommaPanel);
+  }
+
+  @Override
   protected String getTabTitle() {
     return "Other";
   }
@@ -76,7 +82,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   }
 
   @Override
-  public void apply(CodeStyleSettings settings) throws ConfigurationException {
+  public void apply(CodeStyleSettings settings) {
     if (!isModified(settings)) return;
 
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
@@ -94,24 +100,16 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
 
   @Override
   public boolean isModified(CodeStyleSettings settings) {
-    ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
+    ScalaCodeStyleSettings ss = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
-    if (scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected())
-      return true;
-    if (scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox.isSelected())
-      return true;
-    if (scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox1.isSelected())
-      return true;
-    if (scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR != replaceInForGeneratorCheckBox.isSelected())
-      return true;
-    if (scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER != replaceLambdaWithGreekLetter.isSelected())
-      return true;
-    if (scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != alternateIndentationForParamsCheckBox.isSelected())
-      return true;
-    if (scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != (Integer) alternateIndentationForParamsSpinner.getValue())
-      return true;
-    if (scalaCodeStyleSettings.REFORMAT_ON_COMPILE != reformatOnCompileCheckBox.isSelected())
-      return true;
+    if (ss.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected()) return true;
+    if (ss.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox.isSelected()) return true;
+    if (ss.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox1.isSelected()) return true;
+    if (ss.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR != replaceInForGeneratorCheckBox.isSelected()) return true;
+    if (ss.REPLACE_LAMBDA_WITH_GREEK_LETTER != replaceLambdaWithGreekLetter.isSelected()) return true;
+    if (ss.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != alternateIndentationForParamsCheckBox.isSelected()) return true;
+    if (ss.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != (Integer) alternateIndentationForParamsSpinner.getValue()) return true;
+    if (ss.REFORMAT_ON_COMPILE != reformatOnCompileCheckBox.isSelected()) return true;
     return (myCommenterForm.isModified(settings) || trailingCommaPanel.isModified(settings));
   }
 

@@ -52,6 +52,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def getPreviewText: String = null
 
+  override def dispose(): Unit = {
+    super.dispose()
+    if (getEditor != null) {
+      EditorFactory.getInstance().releaseEditor(getEditor)
+    }
+  }
+
   override def apply(settings: CodeStyleSettings): Unit = {
     val editorText = getEditor.getDocument.getText
     val configTextChangedInEditor = configText.exists(_ != editorText)

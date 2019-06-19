@@ -7,6 +7,7 @@ import com.intellij.application.options._
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.util.Disposer
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.JBLabel
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
@@ -23,7 +24,20 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   import ScalaTabbedCodeStylePanel._
 
-  protected override def initTabs(settings: CodeStyleSettings) {
+  private var formatterSelectorComboBox: JComboBox[String] = _
+  private var outerPanel: JPanel = _
+  private var shortenedPanel: ScalafmtTabbedLanguageCodeStylePanel = _
+
+  override def dispose(): Unit = {
+    super.dispose()
+    Disposer.dispose(shortenedPanel)
+  }
+
+  override def getPanel: JComponent = outerPanel
+
+  private def innerPanel: JComponent = super.getPanel
+
+  override protected def initTabs(settings: CodeStyleSettings) {
     super.initTabs(settings)
     addTab(new ScalaDocFormattingPanel(settings))
     addTab(new ImportsPanel(settings))
@@ -51,7 +65,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
     scalaSettings.FORMATTER = getSelectedFormatterId
 
-    if (scalaSettings.USE_SCALAFMT_FORMATTER){
+    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
       shortenedPanel.exposeApply(settings)
     } else {
       super.apply(settings)
@@ -104,20 +118,18 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     outerPanel = new JPanel(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1))
     outerPanel.add(formatterSelectorPanel, constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     outerPanel.add(innerPanel, constraint(1, 0, FILL_BOTH, CAN_SHRINK_AND_GROW, CAN_SHRINK_AND_GROW))
+
+    shortenedPanel = new ScalafmtTabbedLanguageCodeStylePanel(currentSettings, settings)
     outerPanel.add(shortenedPanel.getPanel, constraint(2, 0, FILL_BOTH, CAN_SHRINK_AND_GROW, CAN_SHRINK_AND_GROW))
 
     toggleSettingsVisibility(false)
   }
 
-  def onProjectSet(project: Project): Unit = {
-    scalaFmtSettingsPanel.onProjectSet(project)
-  }
+  def onProjectSet(project: Project): Unit = shortenedPanel.onProjectSet(project)
 
   // scalaFmtSettingsPanel.setModel should be called in order that its settings are saved properly
   // setModel in TabbedLanguageCodeStylePanel is final so we can't override and have to use workaround method
-  def onModelSet(model: CodeStyleSchemesModel): Unit = {
-    scalaFmtSettingsPanel.setModel(model)
-  }
+  def onModelSet(model: CodeStyleSchemesModel): Unit = shortenedPanel.setModel(model)
 
   private def syncPanels(useExternalFormatter: Boolean): Unit = {
     val tempSettings = settings.clone()
@@ -136,16 +148,20 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     innerPanel.setVisible(!useExternalFormatter)
     shortenedPanel.getPanel.setVisible(useExternalFormatter)
   }
+}
 
-  private var formatterSelectorComboBox: JComboBox[String] = _
-  private var outerPanel: JPanel = _
-  private var scalaFmtSettingsPanel: ScalaFmtSettingsPanel = _
-  private def innerPanel: JComponent = super.getPanel
+object ScalaTabbedCodeStylePanel {
+  private val formatters: Map[String, Int] = Map(
+    "IntelliJ" -> ScalaCodeStyleSettings.INTELLIJ_FORMATTER,
+    "scalafmt" -> ScalaCodeStyleSettings.SCALAFMT_FORMATTER,
+  )
 
-  override def getPanel: JComponent = outerPanel
+  private class ScalafmtTabbedLanguageCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings)
+    extends TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
 
-  private lazy val shortenedPanel = new TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
-    protected override def initTabs(settings: CodeStyleSettings): Unit = {
+    private var scalaFmtSettingsPanel: ScalaFmtSettingsPanel = _
+
+    override protected def initTabs(settings: CodeStyleSettings): Unit = {
       scalaFmtSettingsPanel = new ScalaFmtSettingsPanel(settings)
       addTab(scalaFmtSettingsPanel)
       addTab(new ImportsPanel(settings))
@@ -160,17 +176,8 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     def exposeIsModified(settings: CodeStyleSettings): Boolean = super.isModified(settings)
     def exposeApply(settings: CodeStyleSettings): Unit = super.apply(settings)
     def exposeResetImpl(settings: CodeStyleSettings): Unit = super.resetImpl(settings)
-  }
 
-  override def dispose(): Unit = {
-    super.dispose()
-    shortenedPanel.dispose()
+    def onProjectSet(project: Project): Unit = scalaFmtSettingsPanel.onProjectSet(project)
+    def onModelSet(model: CodeStyleSchemesModel): Unit = scalaFmtSettingsPanel.setModel(model)
   }
-}
-
-object ScalaTabbedCodeStylePanel {
-  private val formatters: Map[String, Int] = Map(
-    "IntelliJ" -> ScalaCodeStyleSettings.INTELLIJ_FORMATTER,
-    "scalafmt" -> ScalaCodeStyleSettings.SCALAFMT_FORMATTER
-  )
 }

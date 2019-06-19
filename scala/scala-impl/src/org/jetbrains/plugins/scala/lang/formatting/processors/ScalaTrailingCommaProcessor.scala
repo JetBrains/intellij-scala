@@ -43,30 +43,30 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
   import scalaSettings._
   import util.ScalaUtil.isTrailingCommasDisabled
 
-  def processElement(source: PsiElement): PsiElement = {
-    if (scalaSettings.TRAILING_COMMA_MODE == TrailingCommaMode.TRAILING_COMMA_KEEP ||
-      scalaSettings.USE_SCALAFMT_FORMATTER ||
-      isTrailingCommasDisabled(source.getContainingFile)
-    ) {
-      source
+  def processElement(element: PsiElement): PsiElement = {
+    if (skipElement(element.getContainingFile)) {
+      element
     } else {
-      assert(source.isValid)
-      source.accept(this)
-      source
+      assert(element.isValid)
+      element.accept(this)
+      element
     }
   }
 
-  def processText(source: PsiFile, rangeToReformat: TextRange): TextRange = {
-    if (scalaSettings.TRAILING_COMMA_MODE == TrailingCommaMode.TRAILING_COMMA_KEEP ||
-      scalaSettings.USE_SCALAFMT_FORMATTER ||
-      isTrailingCommasDisabled(source)
-    ) {
+  def processText(element: PsiFile, rangeToReformat: TextRange): TextRange = {
+    if (skipElement(element)) {
       rangeToReformat
     } else {
       postProcessor.setResultTextRange(rangeToReformat)
-      source.accept(this)
+      element.accept(this)
       postProcessor.getResultTextRange
     }
+  }
+
+  private def skipElement(source: PsiFile): Boolean = {
+    scalaSettings.TRAILING_COMMA_MODE == TrailingCommaMode.TRAILING_COMMA_KEEP ||
+      scalaSettings.USE_SCALAFMT_FORMATTER ||
+      isTrailingCommasDisabled(source)
   }
 
   override def visitArgumentExprList(args: ScArgumentExprList): Unit = {

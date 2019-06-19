@@ -50,10 +50,13 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
     visitor.visitInfixExpression(this)
   }
 
-  private def unapply = findChildrenByClassScala(classOf[ScExpression]) match {
-    case Array(left, operation: ScReferenceExpression, right) =>
-      (left, operation, right)
-    case _ => throw new RuntimeException("Wrong infix expression: " + getText)
+  private def unapply: (ScExpression, ScReferenceExpression, ScExpression) = {
+    findChildrenByClassScala(classOf[ScExpression]) match {
+      case Array(left, operation: ScReferenceExpression, right) =>
+        (left, operation, right)
+      case _ =>
+        throw new RuntimeException("Wrong infix expression: " + getText)
+    }
   }
 }
 

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel._
 
 import scala.collection.immutable.ListMap
 
-class TrailingCommaPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
+class TrailingCommaPanel(settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
   private var innerPanel: JPanel = _
 
   private var trailingCommaModeSelector: JComboBox[ComboBoxItem[TrailingCommaMode]] = _
