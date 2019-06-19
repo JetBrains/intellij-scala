@@ -102,14 +102,12 @@ private object ScalaTypeHintsPass {
   private def fromLowerCase(s: String): String =
     if (s.isEmpty) "" else s.substring(0, 1).toLowerCase + s.substring(1)
 
-  private val plural: Chain = (name, tpe) => delegate =>
-    name.endsWith("s") && sequenceTypeArgumentIn(tpe).exists(delegate(name.substring(0, name.length - 1), _)) ||
-      delegate(name, tpe)
+  private val Singular = "(.+?)(?:es|s)".r
+  private val SequenceTypeArgument = "(?:Traversable|Iterable|Seq|IndexedSeq|LinearSeq|List|Vector|Array)\\[(.+)\\]".r
 
-  private val SequenceTypeArgument = "(?:Seq|Iterable|Iterator|List|Vector|Buffer)\\[(.+)\\]".r
-
-  private def sequenceTypeArgumentIn(tpe: String): Option[String] = Some(tpe) collect {
-    case SequenceTypeArgument(argument) => argument
+  private val plural: Chain = (name, tpe) => delegate => (name, tpe) match {
+    case (Singular(noun), SequenceTypeArgument(argument)) if delegate(noun, argument) => true
+    case _ => delegate(name, tpe)
   }
 
   private val PrepositionPrefix = "(.+)(?:In|Of|From|At|On|For|To|With|Before|After|Inside)".r

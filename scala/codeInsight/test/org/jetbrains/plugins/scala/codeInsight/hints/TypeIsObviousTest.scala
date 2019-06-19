@@ -33,19 +33,25 @@ class TypeIsObviousTest extends TestCase {
     assertFalse(isTypeObvious("colorS", "Seq[Color]", ""))
     assertFalse(isTypeObvious("color", "Seq[Color]", ""))
 
-    assertTrue(isTypeObvious("colors", "Seq[Color]", ""))
+    assertTrue(isTypeObvious("colors", "Traversable[Color]", ""))
     assertTrue(isTypeObvious("colors", "Iterable[Color]", ""))
-    assertTrue(isTypeObvious("colors", "Iterator[Color]", ""))
+    assertTrue(isTypeObvious("colors", "Seq[Color]", ""))
+    assertTrue(isTypeObvious("colors", "IndexedSeq[Color]", ""))
+    assertTrue(isTypeObvious("colors", "LinearSeq[Color]", ""))
     assertTrue(isTypeObvious("colors", "List[Color]", ""))
     assertTrue(isTypeObvious("colors", "Vector[Color]", ""))
-    assertTrue(isTypeObvious("colors", "Buffer[Color]", ""))
+    assertTrue(isTypeObvious("colors", "Array[Color]", ""))
+
+    assertTrue(isTypeObvious("boxes", "Seq[Box]", ""))
+
+    // TODO irregular plurals (mouse / mice, person / people, etc)
 
     assertFalse(isTypeObvious("colors", "Color", ""))
     assertTrue(isTypeObvious("colors", "Colors", ""))
 
     // 1.1
-    assertTrue(isTypeObvious("Colors", "Buffer[Color]", ""))
-    assertFalse(isTypeObvious("backgroundcolors", "Buffer[BackgroundColor]", ""))
+    assertTrue(isTypeObvious("Colors", "Seq[Color]", ""))
+    assertFalse(isTypeObvious("backgroundcolors", "Seq[BackgroundColor]", ""))
   }
 
   // 1.3
