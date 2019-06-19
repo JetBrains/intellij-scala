@@ -76,30 +76,41 @@ object CachesUtil {
   }
 
   def enclosingModificationOwner(element: PsiElement): ModificationTracker = {
-    @tailrec
-    def modificationCount(element: PsiElement, result: Long): Long = element.getContext match {
-      case null | _: ScalaFile => result
-      case owner: ScExpression if owner.shouldntChangeModificationCount =>
-        modificationCount(owner, result + owner.modificationCount)
-      case context =>
-        modificationCount(context, result)
-    }
 
     if (!element.isValid) {
       return ModificationTracker.NEVER_CHANGED
     }
 
-    val topLevel = scalaTopLevelModTracker(element.getProject)
+    new BlockModificationTracker(element)
+  }
 
-    @tailrec
-    def findTracker(element: PsiElement): ModificationTracker = element match {
-      case null => topLevel
-      case owner: ScExpression if owner.shouldntChangeModificationCount =>
-        () => modificationCount(owner, topLevel.getModificationCount + owner.modificationCount)
-      case owner => findTracker(owner.getContext)
+  @tailrec
+  private def contextsWithExplicitType(element: PsiElement, result: List[ScExpression] = Nil): List[ScExpression] =
+    contextWithExplicitType(element) match {
+      case Some(expr) => contextsWithExplicitType(expr.getContext, expr :: result)
+      case None       => result
     }
 
-    findTracker(element)
+  @tailrec
+  private def contextWithExplicitType(element: PsiElement): Option[ScExpression] =
+    originalPosition(element) match {
+      case null | _: ScalaFile => None
+      case owner: ScExpression if owner.shouldntChangeModificationCount => Some(owner)
+      case owner => contextWithExplicitType(owner.getContext)
+    }
+
+
+  private class BlockModificationTracker(element: PsiElement) extends ModificationTracker {
+    private val topLevel = scalaTopLevelModTracker(element.getProject)
+
+    def getModificationCount: Long = {
+      //to avoid intermediate list allocation
+      var result = topLevel.getModificationCount
+      contextsWithExplicitType(element.getContext).foreach {
+        result += _.modificationCount
+      }
+      result
+    }
   }
 
   case class ProbablyRecursionException[Data](elem: PsiElement,
@@ -168,4 +179,23 @@ object CachesUtil {
 
   def scalaTopLevelModTracker(project: Project): ModificationTracker =
     ScalaPsiManager.instance(project).TopLevelModificationTracker
+
+  private val originalPositionKey: Key[PsiElement] = Key.create("original.position.completion.key")
+
+  def setOriginalPosition(element: PsiElement, original: PsiElement): Unit = {
+    if (original != null) {
+      for {
+        elementContext  <- contextWithExplicitType(element)
+        originalContext <- contextWithExplicitType(original)
+      } {
+        elementContext.putUserDataIfAbsent(originalPositionKey, originalContext)
+      }
+//      assert(enclosingModificationOwner(element).getModificationCount == enclosingModificationOwner(original).getModificationCount)
+    }
+  }
+
+  private def originalPosition(element: PsiElement): PsiElement =
+    Option(element)
+      .flatMap(e => Option(e.getUserData(originalPositionKey)))
+      .getOrElse(element)
 }

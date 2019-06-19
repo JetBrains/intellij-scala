@@ -9,6 +9,7 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.{Consumer, ProcessingContext}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
@@ -72,28 +73,12 @@ package object completion {
   }
 
   def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
-    val element = parameters.getPosition
-    val file = parameters.getOriginalFile
-    val offset = parameters.getOffset
+    val positionInCompletionFile = parameters.getPosition
 
-    findModificationTrackerOwner(parameters.getOriginalPosition)
-      .filter { ancestor =>
-        file == ancestor.getContainingFile &&
-          PsiTreeUtil.isAncestor(ancestor, element, false)
-      }.fold(element) {
-      _.mirrorPosition(
-        dummyIdentifier(file, offset),
-        offset
-      )
-    }
+    CachesUtil.setOriginalPosition(positionInCompletionFile, parameters.getOriginalPosition)
+
+    positionInCompletionFile
   }
-
-  @tailrec
-  private[this] def findModificationTrackerOwner(element: PsiElement): Option[ScExpression] = element match {
-      case null => None // we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScExpression if owner.shouldntChangeModificationCount => Some(owner)
-      case _ => findModificationTrackerOwner(element.getContext)
-    }
 
   private[completion] def dummyIdentifier(file: PsiFile, offset: Int): String = {
     import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}

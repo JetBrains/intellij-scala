@@ -49,18 +49,6 @@ trait ScExpression extends ScBlockStatement
 
   final def incModificationCount(): Unit = blockModificationCount.incrementAndGet()
 
-  @Cached(ModCount.getBlockModificationCount, this)
-  final def mirrorPosition(dummyIdentifier: String, offset: Int): PsiElement = {
-    val newOffset = offset - getTextRange.getStartOffset
-    val text = new StringBuilder(getText)
-      .insert(newOffset, dummyIdentifier)
-      .toString
-
-    impl.ScalaPsiElementFactory
-      .createMirrorElement(text, getContext, this)
-      .findElementAt(newOffset)
-  }
-
   //element is always the child of this element because this function is called when going up the tree starting with elem
   //if this is a valid modification tracker owner, no need to change modification count
   override final def shouldChangeModificationCount(element: PsiElement): Boolean = getContext match {

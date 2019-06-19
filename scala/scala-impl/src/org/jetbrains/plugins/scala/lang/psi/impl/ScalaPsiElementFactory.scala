@@ -812,13 +812,6 @@ object ScalaPsiElementFactory {
     firstArgument
   }
 
-  def createMirrorElement(text: String, context: PsiElement, child: PsiElement): ScExpression = child match {
-    case _: ScConstrBlock | _: ScConstrExpr =>
-      createElementWithContext[ScExpression](text, context, child)(parsingStat.ConstrExpr.parse)
-    case _ =>
-      createExpressionWithContextFromText(text, context, child)
-  }
-
   def createElement(text: String)
                    (parse: builder.ScalaPsiBuilder => AnyVal)
                    (implicit ctx: ProjectContext): PsiElement =
