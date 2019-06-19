@@ -58,7 +58,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
       case _ => Seq.empty
     }
     text = Text(": ") +: (partsOf(returnType) ++ suffix)
-  } yield Hint(text, anchor, suffix = true, menu = Some("TypeHintsMenu"))
+  } yield Hint(text, anchor, suffix = true, menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
 
   private def partsOf(tpe: ScType)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     def toText(diff: TypeDiff): Text = diff match {
