@@ -783,7 +783,7 @@
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
                          displayName="Unnecessary parentheses" groupPath="Scala" groupName="General"
-                         shortName="ScalaUnnecessaryParentheses" level="WARNING"
+                         shortName="ScalaUnnecessaryParentheses" id="ScalaUnnecessaryParentheses" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
                          displayName="Type check can be pattern matching" groupPath="Scala" groupName="General"
