@@ -97,9 +97,12 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _ => true
     }
 
+    val isImplicit = definition.hasModifierPropertyScala("implicit")
+    val qualifiedName = definition.qualifiedName
+
     val implicitClassNames = definition match {
-      case obj: ScObject if obj.getModifierList.isImplicit =>
-        ScImplicitInstanceStub.superClassNames(obj)
+      case obj: ScObject if isImplicit => ScImplicitInstanceStub.superClassNames(obj)
+      case _: ScClass if isImplicit   => Array(qualifiedName)
       case _ => EMPTY_STRING_ARRAY
     }
 
@@ -107,14 +110,14 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       parent,
       this,
       nameRef = definition.name,
-      qualifiedName = definition.qualifiedName,
+      qualifiedName = qualifiedName,
       javaQualifiedName = definition.getQualifiedName,
       isPackageObject = maybeTypeDefinition.exists(_.isPackageObject),
       isScriptFileClass = definition.isScriptFileClass,
       sourceFileName = fileName,
       isDeprecated = isDeprecated,
-      isImplicitObject = definition.isInstanceOf[ScObject] && definition.hasModifierProperty("implicit"),
-      isImplicitClass = definition.isInstanceOf[ScClass] && definition.hasModifierProperty("implicit"),
+      isImplicitObject = definition.isInstanceOf[ScObject] && isImplicit,
+      isImplicitClass = definition.isInstanceOf[ScClass] && isImplicit,
       javaName = definition.getName,
       additionalJavaName = maybeAdditionalJavaName,
       isLocal = isLocal,
@@ -159,8 +162,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         else fqn.substring(0, i)
       sink.occurrence(CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) sink.occurrence(IMPLICIT_OBJECT_KEY, pack)
-      if (stub.isImplicitClass) ImplicitConversionIndex.occurrence(sink)
-      ImplicitInstanceIndex.occurrences(sink, stub.implicitClassNames)
+
+      stub.indexImplicits(sink)
     }
     if (stub.isPackageObject) {
       val packageName = fqn.stripSuffix(".package")

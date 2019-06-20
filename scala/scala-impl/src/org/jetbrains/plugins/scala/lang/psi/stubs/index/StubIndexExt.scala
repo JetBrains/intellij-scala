@@ -6,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex.occurrence
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters._
@@ -37,4 +38,6 @@ trait StubIndexExt[Key, Psi <: PsiElement] extends Any {
   }
 
   def occurrence(sink: IndexSink, key: Key): Unit = sink.occurrence(indexKey, key)
+
+  def occurrences(sink: IndexSink, keys: Array[Key]): Unit = keys.foreach(occurrence(sink, _))
 }

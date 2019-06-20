@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
+import com.intellij.psi.stubs.IndexSink
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitIndex, ImplicitInstanceIndex}
 
 trait ScImplicitInstanceStub {
 
@@ -13,6 +15,14 @@ trait ScImplicitInstanceStub {
    * It is in the same form as written in source or decompiled class file, so it may have prefix.
    */
   def implicitClassNames: Array[String]
+
+  def isImplicitConversion: Boolean = false
+
+  def indexImplicits(sink: IndexSink): Unit =
+    implicitIndex.occurrences(sink, implicitClassNames)
+
+  private def implicitIndex: ImplicitIndex =
+    if (isImplicitConversion) ImplicitConversionIndex else ImplicitInstanceIndex
 }
 
 object ScImplicitInstanceStub {
@@ -44,6 +54,7 @@ object ScImplicitInstanceStub {
           case Some(tp) => classNames(tp)
           case _ => EMPTY_STRING_ARRAY
         }
+      case tp: ScTypeProjection => Array(tp.refName)
       case _ => EMPTY_STRING_ARRAY
     }
 

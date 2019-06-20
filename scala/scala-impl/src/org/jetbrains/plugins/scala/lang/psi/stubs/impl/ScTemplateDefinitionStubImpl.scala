@@ -8,6 +8,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitIndex, ImplicitInstanceIndex}
 
 /**
   * @author ilyas
@@ -53,4 +54,6 @@ final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](parent
   override def isEnumConstantInitializer: Boolean = false
 
   override def getBaseClassReferenceText: String = null
+
+  override def isImplicitConversion: Boolean = isImplicitClass
 }

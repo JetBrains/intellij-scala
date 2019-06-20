@@ -85,11 +85,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
     sink.occurrences(METHOD_NAME_KEY, stub.getName)
-
-    if (stub.isImplicitConversion)
-      ImplicitConversionIndex.occurrence(sink)
-    else
-      ImplicitInstanceIndex.occurrences(sink, stub.implicitClassNames)
+    stub.indexImplicits(sink)
   }
 }
 

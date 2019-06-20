@@ -217,6 +217,17 @@ class StubIndexTest extends ScalaLightCodeInsightFixtureTestAdapter {
     assertContains(all, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")
     assertContains(all, "scala.Predef.augmentString")
     assertContains(all, "scala.Predef.ArrowAssoc")
+
+    def forClassFqn(fqn: String): Set[String] =
+      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibraries, getProject).flatMap(_.qualifiedNameOpt).toSet
+
+    Assert.assertEquals(forClassFqn("scala.math.Ordering.Ops"),
+      Set(
+        "scala.math.Ordering.ExtraImplicits.infixOrderingOps",
+        "scala.math.Numeric.ExtraImplicits.infixNumericOps"
+      )
+    )
+    Assert.assertEquals(forClassFqn("scala.Predef.ArrowAssoc"), Set("scala.Predef.ArrowAssoc"))
   }
 
   def testImplicitInstance(): Unit = {
