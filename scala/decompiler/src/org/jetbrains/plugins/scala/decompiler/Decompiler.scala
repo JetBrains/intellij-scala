@@ -108,7 +108,8 @@ object Decompiler {
         Log.warn(s"Error decompiling class $className, ${e.getMessage}")
         None
       case cause: Exception =>
-        throw new RuntimeException(s"Error decompiling class $className", cause)
+        Log.error(s"Error decompiling class $className", cause)
+        None
     }
 
   private def containsMarker(text: Array[Byte]): Boolean = {
