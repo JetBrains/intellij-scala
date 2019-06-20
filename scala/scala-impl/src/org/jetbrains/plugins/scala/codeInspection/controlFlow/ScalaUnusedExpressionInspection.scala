@@ -32,7 +32,7 @@ final class ScalaUnusedExpressionInspection extends AbstractRegisteredInspection
           else if (mayOnlyThrow(expression)) Some(InspectionBundle.message("unused.expression.throws"))
           else None
 
-        } yield manager.createProblemDescriptor(expression, descriptionTemplate, isOnTheFly, createQuickFixes(expression), highlightType)
+        } yield manager.createProblemDescriptor(expression, descriptionTemplate, isOnTheFly, createQuickFixes(expression), ProblemHighlightType.LIKE_UNUSED_SYMBOL)
       case _ => None
     }
 }

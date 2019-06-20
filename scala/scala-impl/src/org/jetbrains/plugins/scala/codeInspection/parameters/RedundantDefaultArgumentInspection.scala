@@ -27,7 +27,7 @@ class RedundantDefaultArgumentInspection extends AbstractInspection("Argument du
 
   private def registerProblem(expr: ScExpression)
                              (implicit holder: ProblemsHolder): Unit = {
-    holder.registerProblem(expr, getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DeleteRedundantDefaultArgumentQuickFix(expr))
+    holder.registerProblem(expr, getDisplayName, ProblemHighlightType.LIKE_UNUSED_SYMBOL, new DeleteRedundantDefaultArgumentQuickFix(expr))
   }
 }
 

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
-import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFixAndIntentionActionOnPsiElement, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 
 /**
@@ -13,7 +13,7 @@ trait HighlightingPassInspection extends LocalInspectionTool {
       new PsiElementVisitor {
         override def visitElement(element: PsiElement): Unit = {
           invoke(element, isOnTheFly).foreach { info =>
-            holder.registerProblem(info.element, info.message, info.fixes: _*)
+            holder.registerProblem(info.element, info.message, info.highlightingType, info.fixes: _*)
           }
         }
       }
@@ -25,4 +25,7 @@ trait HighlightingPassInspection extends LocalInspectionTool {
   def shouldProcessElement(elem: PsiElement): Boolean
 }
 
-case class ProblemInfo(element: PsiElement, message: String, fixes: Seq[LocalQuickFixAndIntentionActionOnPsiElement])
+case class ProblemInfo(element: PsiElement,
+                       message: String,
+                       highlightingType: ProblemHighlightType,
+                       fixes: Seq[LocalQuickFixAndIntentionActionOnPsiElement])

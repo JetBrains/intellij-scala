@@ -23,7 +23,7 @@ class RedundantNewCaseClassInspection extends AbstractInspection("Redundant New 
     case newTemplate: ScNewTemplateDefinition if !newTemplate.extendsBlock.isAnonymousClass =>
       if (hasRedundantNew(newTemplate)) {
         holder.registerProblem(newTemplate.getFirstChild, ScalaBundle.message("new.on.case.class.instantiation.redundant"),
-          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveNewQuickFix(newTemplate))
+          ProblemHighlightType.LIKE_UNUSED_SYMBOL, new RemoveNewQuickFix(newTemplate))
       }
   }
 

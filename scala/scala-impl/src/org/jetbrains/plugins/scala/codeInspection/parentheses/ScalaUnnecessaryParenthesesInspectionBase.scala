@@ -110,7 +110,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
 
     def descriptorFor(range: TextRange) =
       new ProblemDescriptorImpl(elt, elt, "", Array.empty,
-        ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false, range, holder.isOnTheFly)
+        ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, range, holder.isOnTheFly)
 
     holder.registerProblem(descriptorFor(TextRange.create(0, 1)))
     holder.registerProblem(descriptorFor(TextRange.create(elt.getTextLength - 1, elt.getTextLength)))

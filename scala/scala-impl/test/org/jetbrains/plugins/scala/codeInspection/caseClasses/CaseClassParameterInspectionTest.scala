@@ -17,12 +17,12 @@ class CaseClassParameterInspectionTest extends ScalaQuickFixTestBase {
 
   override protected val description: String = ScalaBundle.message("val.on.case.class.param.redundant")
 
-  def testSimpleParam(): Unit = checkTextHasError(s"case class A(${START}val x: Int$END)")
+  def testSimpleParam(): Unit = checkTextHasError(s"case class A(${START}val$END x: Int)")
 
   def testSecondClause(): Unit = checkTextHasNoErrors(s"case class A(x: Int)(val s: String)")
 
   def testDefault(): Unit = {
-    val text = s"case class A(${START}val x: Int = 1$END)"
+    val text = s"case class A(${START}val$END x: Int = 1)"
 
     checkTextHasError(text)
     testQuickFix(text, "case class A(x: Int = 1)", ScalaBundle.message("remove.val"))

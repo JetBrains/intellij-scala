@@ -72,6 +72,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
       highlightInfos ++= infos.map { info =>
         val range = info.element.getTextRange
         val annotation = new Annotation(range.getStartOffset, range.getEndOffset, severity, info.message, info.message)
+        annotation.setHighlightType(info.highlightingType)
         info.fixes.foreach(annotation.registerFix(_, range, highlightKey))
         HighlightInfo.fromAnnotation(annotation)
       }

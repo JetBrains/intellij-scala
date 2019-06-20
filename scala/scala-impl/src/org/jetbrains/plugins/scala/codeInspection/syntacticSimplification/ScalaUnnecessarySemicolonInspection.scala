@@ -56,7 +56,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             if (shiftInNewFile(startOffset(elem2), offset) > startOffset(elem1) ||
                     shiftInNewFile(endOffset(elem2), offset) < endOffset(elem1)) return
             holder.registerProblem(holder.getManager.createProblemDescriptor(element, "Unnecessary semicolon", true,
-              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, new RemoveSemicolonFix(element)))
+              ProblemHighlightType.LIKE_UNUSED_SYMBOL, isOnTheFly, new RemoveSemicolonFix(element)))
           }
         }
         super.visitElement(element)

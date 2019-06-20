@@ -4,6 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
+// TODO constructors
 class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
