@@ -3,6 +3,8 @@ package codeInspection
 package caseClassParamInspection
 
 import com.intellij.codeInspection._
+import com.intellij.codeInspection.ex.ProblemDescriptorImpl
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -19,8 +21,10 @@ class CaseClassParamInspection extends AbstractInspection("Case Class Parameter"
         classParam@(__ : ScClassParameter) <- paramClause.parameters
         if classParam.isVal && classParam.isCaseClassVal && !hasExplicitModifier(classParam)
       } {
-        holder.registerProblem(classParam, ScalaBundle.message("val.on.case.class.param.redundant"),
-          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveValQuickFix(classParam))
+        val descriptor = new ProblemDescriptorImpl(classParam, classParam,
+          ScalaBundle.message("val.on.case.class.param.redundant"), Array(new RemoveValQuickFix(classParam)),
+          ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, TextRange.create(0, 3), holder.isOnTheFly)
+        holder.registerProblem(descriptor)
       }
   }
 

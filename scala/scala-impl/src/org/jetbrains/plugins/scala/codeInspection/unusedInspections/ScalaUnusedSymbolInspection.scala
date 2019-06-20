@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package unusedInspections
 
+import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
@@ -46,7 +47,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     elements.flatMap {
       case named: ScNamedElement =>
         if (!isElementUsed(named, isOnTheFly)) {
-          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.Annotation, Seq(new DeleteUnusedElementFix(named))))
+          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.Annotation, ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new DeleteUnusedElementFix(named))))
         } else Seq.empty
       case _ => Seq.empty
     }
