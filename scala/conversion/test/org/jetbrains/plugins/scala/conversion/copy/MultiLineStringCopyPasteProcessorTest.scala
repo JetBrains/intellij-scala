@@ -465,4 +465,22 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
+  def testDoNotHandleIfEditorHasSomeSelection(): Unit ={
+    val from =
+      s"""s'''${Start}first line
+         |    second line$End
+         |   '''.stripMargin
+         |"""
+    val to =
+      s"""s'''${Start}green yellow$End
+         |   | $Caret'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""s'''first line
+         |    second line$Caret
+         |   | '''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+
+  }
 }

@@ -34,7 +34,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
                                  editor: Editor,
                                  text: String,
                                  rawText: RawText): String = {
-    if (requiresMarginProcess(file)) {
+    if (requiresMarginProcess(file) && !editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
       val element = file.findElementAt(offset)
       findStringParent(element) match {
