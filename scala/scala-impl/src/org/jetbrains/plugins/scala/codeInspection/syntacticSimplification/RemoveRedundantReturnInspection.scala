@@ -22,7 +22,7 @@ class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Retu
             if (returns.contains(r)) {
               holder.registerProblem(
                 r.keyword, "Return keyword is redundant",
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                ProblemHighlightType.LIKE_UNUSED_SYMBOL,
                 new RemoveReturnKeywordQuickFix(r)
               )
             }

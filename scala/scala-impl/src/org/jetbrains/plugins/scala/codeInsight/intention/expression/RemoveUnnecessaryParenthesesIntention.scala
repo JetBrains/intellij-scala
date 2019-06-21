@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
+import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
@@ -24,10 +26,15 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
 
   override def getText = "Remove unnecessary parentheses"
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement], false))
-      .exists(_.isParenthesisRedundant)
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+    !isInspectionEnabledIn(project, "ScalaUnnecessaryParentheses") &&
+      Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement], false))
+        .exists(_.isParenthesisRedundant)
+  }
 
+  private def isInspectionEnabledIn(project: Project, id: String) =
+    Option(HighlightDisplayKey.find(id)).exists(
+      InspectionProjectProfileManager.getInstance(project).getCurrentProfile.isToolEnabled)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement])) map {

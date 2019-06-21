@@ -49,6 +49,9 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
+  private def checkTextHasError(text: String): Unit = {
+    super.checkTextHasError(text, allowAdditionalHighlights = true)
+  }
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
