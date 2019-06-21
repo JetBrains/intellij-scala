@@ -32,7 +32,8 @@ class ScalaCompletionScopeTest extends ScalaCodeInsightTestBase {
     allLookups.foreach { lookup =>
       val psiElement = lookup.getPsiElement
       val vFile = psiElement.getContainingFile.getVirtualFile
-      Assert.assertTrue(s"Module scope doesn't contain element from ${vFile.getCanonicalPath}", scope.contains(vFile))
+      if (vFile != null)
+        Assert.assertTrue(s"Module scope doesn't contain element from ${vFile.getCanonicalPath}", scope.contains(vFile))
 
       if (checkAccessibility) {
         psiElement match {
