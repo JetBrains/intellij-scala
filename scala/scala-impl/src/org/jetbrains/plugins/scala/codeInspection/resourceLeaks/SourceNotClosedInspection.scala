@@ -37,7 +37,8 @@ class SourceNotClosedInspection extends AbstractRegisteredInspection {
     // in the listed base classes, everything will not close the Source
     private val nonClosingBaseClasses = Array(
       "scala.Any", "scala.AnyRef", "scala.collection.Iterator",
-      "scala.collection.TraversableOnce", "scala.collection.GenTraversableOnce"
+      "scala.collection.TraversableOnce", "scala.collection.GenTraversableOnce",
+      "scala.collection.IterableOnceOps"
     )
     private val baseClassesNonClosingMethods = new Qualified(_ => true).from(nonClosingBaseClasses)
 
