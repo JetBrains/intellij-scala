@@ -211,7 +211,9 @@ class ScalaBlock(val parentBlock: ScalaBlock,
   }
 
   override def getSpacing(child1: Block, child2: Block): Spacing = {
-    ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
+    val spacing = ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
+    // printSubBlocksSpacingDebugInfoToConsole(child1, child2, spacing)
+    spacing
   }
 
   override def getSubBlocks: util.List[Block] = {
@@ -279,16 +281,30 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
 
   // use these methods only for debugging
-  private def printSubBlocksDebugInfoToConsole(): Unit ={
+  private def printSubBlocksDebugInfoToConsole(): Unit = {
     println("#########################################")
     println(s"Parent: ${node.getPsi.getClass.getSimpleName} $getTextRange $indent $alignment")
     println(this.debugText)
-    println(s"Children: (${if(subBlocks.isEmpty) "<empty>" else subBlocks.size()})")
+    println(s"Children: (${if (subBlocks.isEmpty) "<empty>" else subBlocks.size()})")
     subBlocks.asScala.map(_.asInstanceOf[ScalaBlock]).zipWithIndex.foreach { case (child, idx) =>
       println(s"$idx: ${child.debugText}")
       println(s"$idx: ${child.getTextRange} ${child.indent} ${child.alignment} ${child.wrap}")
     }
     println()
+  }
+
+  private def printSubBlocksSpacingDebugInfoToConsole(child1: Block, child2: Block, spacing: Spacing): Unit = {
+    (child1, child2, spacing) match {
+      case (c1: ScalaBlock, c2: ScalaBlock, s: SpacingImpl) =>
+        println(
+          s"""Spacing:
+             |    child1: ${c1.debugText}
+             |    child2: ${c2.debugText}
+             |    result: $s (${s.isReadOnly})
+             |""".stripMargin
+        )
+      case _ =>
+    }
   }
 
   private def debugText: String = {
