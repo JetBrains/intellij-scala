@@ -3,20 +3,15 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
-class ScalaDeprecationInspectionTest extends ScalaInspectionTestBase {
+abstract class ScalaDeprecationInspectionTestBase extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecationInspection]
   override protected val description: String = "is deprecated"
   override protected def descriptionMatches(s: String) = s != null && s.contains(description)
+}
 
-  def testDeprecatedParamName(): Unit = {
-    val code =
-      s"""
-         |def inc(x: Int, @deprecatedName('y, "FooLib 12.0") n: Int): Int = x + n
-         |inc(1, ${START}y$END = 2)
-       """.stripMargin
-    checkTextHasError(code)
-  }
+class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase {
 
   def testDeprecatedImport(): Unit = {
     val code =
@@ -185,4 +180,19 @@ class ScalaDeprecationInspectionTest extends ScalaInspectionTestBase {
       |x.test()
     """.stripMargin
   )
+}
+
+class ScalaDeprecationInspectionTest_2_12 extends ScalaDeprecationInspectionTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  def testDeprecatedParamName(): Unit = {
+    val code =
+      s"""
+         |def inc(x: Int, @deprecatedName('y, "FooLib 12.0") n: Int): Int = x + n
+         |inc(1, ${START}y$END = 2)
+       """.stripMargin
+    checkTextHasError(code)
+  }
+
 }
