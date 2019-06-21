@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.conversion.copy
 import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
 
+// TODO: maybe, taking into account that there is too much escaping, we should move these tests to files?
 class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
   override protected def setUp(): Unit = {
     super.setUp()
@@ -470,7 +471,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
       s"""s'''${Start}first line
          |    second line$End
          |   '''.stripMargin
-         |"""
+         |""".stripMargin
     val to =
       s"""s'''${Start}green yellow$End
          |   | $Caret'''.stripMargin
@@ -481,6 +482,43 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |   | '''.stripMargin
          |""".stripMargin
     doTestMultiline(from, to, after)
+  }
 
+  def testEscapeTripleQuotesWhenPastingToMultilineStringAnotherStringWithTripleQuotes(): Unit = {
+    val from =
+      s"""s$Start'''first line
+         |   |  second line
+         |   |'''.stripMargin$End
+         |""".stripMargin
+    val to =
+      s"""s'''green yellow
+         |   | $Caret'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""s'''green yellow
+         |   | \\\"\\\"\\\"first line
+         |   |   |  second line
+         |   |   |\\\"\\\"\\\".stripMargin$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testEscapeTripleQuotesWhenPastingToMultilineStringAnotherStringWithTripleQuotes_1(): Unit = {
+    val from =
+      s"""s$Start'''first line
+         |   |  second line
+         |   |'''.stripMargin$End
+         |""".stripMargin
+    val to =
+      s"""s'''green yellow
+         |    $Caret'''
+         |""".stripMargin
+    val after =
+      s"""s'''green yellow
+         |    \\\"\\\"\\\"first line
+         |   |  second line
+         |   |\\\"\\\"\\\".stripMargin$Caret'''
+         |""".stripMargin
+    doTestMultiline(from, to, after)
   }
 }

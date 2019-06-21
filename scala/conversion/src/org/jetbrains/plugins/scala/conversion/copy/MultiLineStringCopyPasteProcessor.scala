@@ -20,7 +20,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
                                 endOffsets: Array[Int],
                                 text: String): String = (file, startOffsets, endOffsets) match {
     case (requiresMarginProcess(), Array(startOffset), Array(endOffset)) =>
-      findStringParent(file.findElementAt(startOffset)) match {
+      findMultilineStringParent(file.findElementAt(startOffset)) match {
         case Some(literal) if literal.getTextRange.containsRange(startOffset, endOffset) =>
           val marginChar = getMarginChar(literal)
           text.stripMargin(marginChar)
@@ -34,24 +34,26 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
                                  editor: Editor,
                                  text: String,
                                  rawText: RawText): String = {
-    if (requiresMarginProcess(file) && !editor.getSelectionModel.hasSelection) {
-      val offset = editor.getCaretModel.getOffset
-      val element = file.findElementAt(offset)
-      findStringParent(element) match {
-        case Some(literal) =>
-          if (offset >= literal.getTextOffset + 3 && MultilineStringUtil.looksLikeUsesMargins(literal)) {
-            // TODO: handle case when some range is selected but caret is inside some multiline string
-            val marginChar = getMarginChar(element)
-
-            def marginIsMissing = !startsWithChar(text.trim, marginChar)
-            def startsFromNewLine = StringUtil.isEmptyOrSpaces(linePrefix(editor.getDocument, offset))
-            val needMargin = marginIsMissing && startsFromNewLine
-            val marginPrefix = if (needMargin) marginChar else ""
-            marginPrefix + text.replace("\n", "\n " + marginChar)
-          } else text
-        case _ => text
-      }
-    } else text
+    val result = for {
+      f <- Option(file)
+      if requiresMarginProcess(f)
+      if !editor.getSelectionModel.hasSelection
+      offset = editor.getCaretModel.getOffset
+      element = file.findElementAt(offset)
+      literal <- findMultilineStringParent(element)
+    } yield if (MultilineStringUtil.looksLikeUsesMargins(literal)) {
+      val marginChar = getMarginChar(element)
+      val marginIsMissing = !startsWithChar(text.trim, marginChar)
+      val startsFromNewLine = StringUtil.isEmptyOrSpaces(linePrefix(editor.getDocument, offset))
+      val needMargin = marginIsMissing && startsFromNewLine
+      val marginPrefix = if (needMargin) marginChar else ""
+      marginPrefix + text.replace("\n", "\n " + marginChar)
+    } else {
+      text
+    }
+    result
+      .map(_.replace("\"\"\"", """\"\"\""""))
+      .getOrElse(text)
   }
 }
 
@@ -65,13 +67,13 @@ object MultiLineStringCopyPasteProcessor {
     def unapply(file: ScalaFile): Boolean = apply(file)
   }
 
-  private def findStringParent(element: PsiElement): Option[ScLiteral] = element match {
+  private def findMultilineStringParent(element: PsiElement): Option[ScLiteral] = (element match {
     case literal: ScInterpolatedStringLiteral => Some(literal)
-    case literal: ScLiteral if literal.isMultiLineString => Some(literal)
+    case literal: ScLiteral => Some(literal)
     case _ childOf (literal: ScInterpolatedStringLiteral) => Some(literal)
     case _ childOf (literal: ScLiteral) => Some(literal)
     case _ => None
-  }
+  }).filter(_.isMultiLineString)
 
   private def linePrefix(document: Document, offset: Int): String = {
     val lineStartOffset = document.getLineStartOffset(document.getLineNumber(offset))
