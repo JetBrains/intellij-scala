@@ -1,6 +1,17 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
-class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
+class FunctionParameterInfoSimpleTest extends FunctionParameterInfoSimpleTestBase
+
+class FunctionParameterInfoSimpleTest_2_12 extends FunctionParameterInfoSimpleTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  def testJavaLibrary() = doTest()
+}
+
+
+abstract class FunctionParameterInfoSimpleTestBase extends FunctionParameterInfoTestBase {
 
   override def getTestDataPath: String =
     s"${super.getTestDataPath}simple/"
@@ -40,8 +51,6 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   def testInfixTuple() = doTest()
 
   def testInfixUnit() = doTest()
-
-  def testJavaLibrary() = doTest()
 
   def testLocal() = doTest()
 
