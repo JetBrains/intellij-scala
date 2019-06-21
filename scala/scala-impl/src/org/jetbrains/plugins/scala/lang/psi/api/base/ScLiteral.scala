@@ -26,6 +26,8 @@ trait ScLiteral extends ScExpression
   def isMultiLineString: Boolean
 
   def contentRange: TextRange
+
+  def contentText: String
 }
 
 object ScLiteral {

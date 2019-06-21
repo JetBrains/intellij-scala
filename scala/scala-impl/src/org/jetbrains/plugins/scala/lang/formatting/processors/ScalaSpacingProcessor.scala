@@ -281,13 +281,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         (ScalaXmlTokenTypes.XML_ELEMENTS.contains(el1) || ScalaXmlTokenTypes.XML_ELEMENTS.contains(el2)) => Spacing.getReadOnlySpacing
       case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER, _, _, _) => Spacing.getReadOnlySpacing
       case (_, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => Spacing.getReadOnlySpacing
-    }  match {
+    } match {
       case Some(result) => return result
       case _ =>
     }
 
-    if(leftElementType == ScalaTokenTypes.tLINE_COMMENT) {
-      if(!rightPsi.is[ScPackaging, ScImportStmt]) {
+    if (leftElementType == ScalaTokenTypes.tLINE_COMMENT) {
+      if (!rightPsi.is[ScPackaging, ScImportStmt]) {
         return ON_NEW_LINE
       }
     }
@@ -306,10 +306,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //for interpolated strings
     if (rightElementType == tINTERPOLATED_STRING_ESCAPE)
       return Spacing.getReadOnlySpacing
-    if (Set(tINTERPOLATED_STRING, tINTERPOLATED_MULTILINE_STRING).contains(rightElementType))
+    if (rightElementType == tINTERPOLATED_STRING) {
       return if (leftBlockString == MultilineStringUtil.getMarginChar(leftPsi).toString) Spacing.getReadOnlySpacing
       else WITHOUT_SPACING
-    if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION) || rightElementType == tINTERPOLATED_STRING_END)
+    }
+    if (leftElementType == ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE) {
+      return WITHOUT_SPACING
+    }
+    if (rightElementType == tINTERPOLATED_STRING_END) {
+      leftElementType match {
+        case `tINTERPOLATED_STRING`  | `tINTERPOLATED_STRING_ESCAPE` | ScalaElementType.`REFERENCE_EXPRESSION` | _: ScCodeBlockElementType  =>
+          return Spacing.getReadOnlySpacing
+        case _ =>
+      }
+    }
+    if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION))
       return Spacing.getReadOnlySpacing
     if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID))
       return Spacing.getReadOnlySpacing
@@ -330,21 +341,29 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //multiline strings
-    if(scalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE && isMultiLineStringCase(rightPsi)) {
+    if (scalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE && isMultiLineStringCase(rightPsi)) {
       return ON_NEW_LINE
     }
 
-    def allLinesHaveMargin(literalText: String) = literalText.split("\n").map(_.trim).
-      forall(line => line.startsWith("|") || line.startsWith("\"\"\""))
-
     leftPsi match {
       case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
-        val marginChar = "" + MultilineStringUtil.getMarginChar(leftPsi)
-
-        return if (allLinesHaveMargin(fileText.substring(l.getTextRange)) &&
-          (leftBlockString != marginChar || rightBlockString == marginChar)) NO_SPACING_WITH_NEWLINE else Spacing.getReadOnlySpacing
+        return spacingForMultilineStringPart(l)
+      case Parent(l: ScLiteral) if l.isMultiLineString =>
+        return spacingForMultilineStringPart(l)
       case _ =>
     }
+
+    def spacingForMultilineStringPart(l: ScLiteral): Spacing = {
+      val marginChar = MultilineStringUtil.getMarginChar(leftPsi).toString
+      if (MultilineStringUtil.looksLikeUsesMargins(l) && leftBlockString != marginChar && rightBlockString == marginChar) {
+        NO_SPACING_WITH_NEWLINE
+      } else if (rightBlockString == MultilineStringUtil.MultilineQuotes && scalaSettings.MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES) {
+        NO_SPACING_WITH_NEWLINE
+      } else {
+        Spacing.getReadOnlySpacing
+      }
+    }
+
 
     val rightIsLineComment =
       rightElementType == ScalaTokenTypes.tLINE_COMMENT ||
@@ -521,7 +540,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       val leftIsImport = leftElementType == ScalaTokenTypes.tSEMICOLON && leftPsi.getPrevSiblingNotWhitespace.isInstanceOf[ScImportStmt]
       val leftIsCommentInsideImport = leftPsi.isInstanceOf[PsiComment] && leftPsi.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScImportStmt]
       if (!leftIsImport && !leftIsCommentInsideImport) {
-        if(rightPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
+        if (rightPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_IMPORTS + 1, keepLineBreaks, keepBlankLinesInCode)
         }
       }
@@ -532,8 +551,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (leftPsi.isInstanceOf[ScTypeDefinition]) {
-      if(rightElementType != ScalaTokenTypes.tSEMICOLON){
-        if(leftPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
+      if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
+        if (leftPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         }
       }
@@ -543,7 +562,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (leftPsi.isInstanceOf[PsiComment]) {
         return ON_NEW_LINE
       }
-      if(rightPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
+      if (rightPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
         return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
       }
     }
@@ -551,7 +570,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightPsi.isInstanceOf[PsiComment]) {
       val pseudoRightPsi = rightPsi.getNextSiblingNotWhitespaceComment
       if (pseudoRightPsi.isInstanceOf[ScTypeDefinition]) {
-        if(pseudoRightPsi.getParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
+        if (pseudoRightPsi.getParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         }
       }
@@ -615,7 +634,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (scalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE) ON_NEW_LINE
           else if (scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES) WITH_SPACING_NO_KEEP
           else WITHOUT_SPACING_NO_KEEP
-        case b @ (_: ScEarlyDefinitions | _: ScTemplateBody) =>
+        case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
           if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
             Spacing.createDependentLFSpacing(0, 0, b.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
           } else {
@@ -704,7 +723,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     // TODO: how to name it normally?
     def spacingMagicProcessor(psi: PsiElement): Option[Spacing] = {
       psi.getParent match {
-        case b @ (_: ScEarlyDefinitions | _: ScTemplateBody) =>
+        case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
           val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
           val setting = (psi, p) match {
             case (_: ScFunction, _: ScTrait) => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
@@ -769,7 +788,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[ScFinallyBlock]) {
-      return if (settings.FINALLY_ON_NEW_LINE)  ON_NEW_LINE
+      return if (settings.FINALLY_ON_NEW_LINE) ON_NEW_LINE
       else WITH_SPACING
     }
 
@@ -823,7 +842,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       var left = leftNode
       // For operations like
       // var Object_!= : Symbol = _
-      if (scalaSettings.SPACE_BEFORE_TYPE_COLON) return WITH_SPACING  //todo:
+      if (scalaSettings.SPACE_BEFORE_TYPE_COLON) return WITH_SPACING //todo:
       while (left != null && left.getLastChildNode != null) {
         left = left.getLastChildNode
       }
@@ -881,7 +900,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightElementType == ScalaTokenTypes.tLPARENTHESIS) {
       leftElementType match {
         case ScalaTokenTypes.kIF =>
-          return if (settings.SPACE_BEFORE_IF_PARENTHESES)  WITH_SPACING
+          return if (settings.SPACE_BEFORE_IF_PARENTHESES) WITH_SPACING
           else WITHOUT_SPACING
         case ScalaTokenTypes.kWHILE =>
           return if (settings.SPACE_BEFORE_WHILE_PARENTHESES) WITH_SPACING

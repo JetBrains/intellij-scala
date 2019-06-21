@@ -33,6 +33,11 @@ abstract class ScLiteralImplBase(node: ASTNode,
 
   override def contentRange: TextRange = getTextRange
 
+  override def contentText: String = {
+    val rangeLocal = contentRange.shiftLeft(getTextRange.getStartOffset)
+    rangeLocal.substring(getText)
+  }
+
   // TODO all the methods are not applicable
 
   override def isString: Boolean = false

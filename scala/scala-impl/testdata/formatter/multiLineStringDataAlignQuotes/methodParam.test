@@ -13,4 +13,4 @@ f(
   """.stripMargin,
   """blah blah
      |  blah blah
-                     """.stripMargin)
+  """.stripMargin)

@@ -144,6 +144,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
   public boolean MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
   public boolean MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = true;
+  public boolean MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES = false;
   public String MULTILINE_STRING_MARGIN_CHAR = "|";
   public int MULTILINE_STRING_MARGIN_INDENT = 2;
 

@@ -11,7 +11,7 @@ object A {
     """blah
        |  blah blah
        |   blah blah blah
-           """ +
+    """ +
     """blah blah blah
        |  blah blah blah""".stripMargin
 }

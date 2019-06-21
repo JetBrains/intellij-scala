@@ -1,0 +1,14 @@
+s"random"
+s"$$random"
+s"${42}random"
+s"""random"""
+s"""${42}random"""
+s"""$$random"""
+-----------
+s"random"
+s"$$random"
+s"${42}random"
+s"""random"""
+s"""${42}random"""
+s"""$$random"""
+

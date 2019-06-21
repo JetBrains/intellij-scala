@@ -1,0 +1,35 @@
+val x = 42
+
+val a =
+s"""|first  ${x}
+             | third1
+      | third11
+      """
+
+val b =
+s"""first  $x
+          | third2
+      """
+
+val c =
+s"""first  $$
+          | third3
+      """
+----------
+val x = 42
+
+val a =
+  s"""|first  ${x}
+      | third1
+      | third11
+      """
+
+val b =
+  s"""first  $x
+      | third2
+      """
+
+val c =
+  s"""first  $$
+      | third3
+      """

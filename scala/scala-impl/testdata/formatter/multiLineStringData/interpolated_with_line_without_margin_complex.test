@@ -1,0 +1,17 @@
+class A {
+  s"""blah
+       |      blah blah
+           ${42}
+|      blah blah blah
+ dangling line
+           """
+}
+-----
+class A {
+  s"""blah
+       |      blah blah
+           ${42}
+|      blah blah blah
+ dangling line
+           """
+}

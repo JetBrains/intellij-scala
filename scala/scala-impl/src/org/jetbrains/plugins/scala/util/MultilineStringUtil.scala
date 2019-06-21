@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference, literals}
@@ -16,12 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 import scala.collection.mutable.ArrayBuffer
-
-
-/**
- * Nikolay.Tropin
- * 2014-03-13
- */
 
 object MultilineStringUtil {
   val MultilineQuotes = "\"\"\""
@@ -75,6 +70,25 @@ object MultilineStringUtil {
 
   def needAddStripMargin(element: PsiElement, marginChar: String): Boolean = {
     findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element, marginChar)
+  }
+
+  /** @return true <br>
+   *          1) if multiline string literal has stripMargin on the call site and at least one line with margin<br>
+   *          2) all non-empty lines start with a margin<br><br>
+   *          false  otherwise
+   */
+  def looksLikeUsesMargins(literal: ScLiteral): Boolean = {
+    val text = literal.contentText
+    val lines = text.lines
+      .map(_.trim)
+      .filterNot(_.isEmpty)
+
+    literal match {
+      case WithStrippedMargin(_, marginChar) =>
+        lines.exists(_.startsWith(marginChar))
+      case _ =>
+        lines.drop(1).forall(_.startsWith("|"))
+    }
   }
 
   def needAddByType(literal: ScLiteral): Boolean = literal match {
