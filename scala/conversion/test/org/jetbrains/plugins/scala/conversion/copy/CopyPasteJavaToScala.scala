@@ -3,18 +3,16 @@ package conversion
 package copy
 
 import com.intellij.codeInsight.CodeInsightSettings
+import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
 
 /**
-  * [[CopyJavaToScala]] check imports addition to converted code, when they were not copied
-  *
-  * Conversion functionaluty from java to scala
-  * tested with [[org.jetbrains.plugins.scala.conversion.JavaToScalaConversionTestBase]]
-  *
-  * Created by Kate Ustuyzhanina on 12/28/16.
-  */
-class CopyJavaToScala extends CopyTestBase {
-
-  import settings._
+ * Check imports addition to converted code, when they were not copied
+ *
+ * Conversion functionality from java to scala is tested in
+ * [[org.jetbrains.plugins.scala.conversion.JavaToScalaConversionTestBase]]
+ */
+class CopyPasteJavaToScala extends CopyPasteTestBase {
+  override val fromLangExtension: String = ".java"
 
   override def setUp(): Unit = {
     super.setUp()
@@ -24,12 +22,12 @@ class CopyJavaToScala extends CopyTestBase {
 
   def testAddSimpleImport(): Unit = {
     val fromText =
-      """
-        |import java.io.File;
-        |
-        |<selection>public class AnonymousClass {
-        |   File file = new File("super");
-        |}</selection>
+      s"""
+         |import java.io.File;
+         |
+         |${Start}public class AnonymousClass {
+         |   File file = new File("super");
+         |}$End
       """.stripMargin
 
     val expected =
@@ -39,17 +37,17 @@ class CopyJavaToScala extends CopyTestBase {
         |  val file: File = new File("super")
         |}""".stripMargin
 
-    doTestEmptyToFile(fromText, expected)
+    doTestToEmptyFile(fromText, expected)
   }
 
-  def testRefAsArray(): Unit ={
+  def testRefAsArray(): Unit = {
     val fromText =
-      """
-        |import java.io.File;
-        |
-        |<selection>public class Test {
-        |   File[] array = new File[23];
-        |}</selection>
+      s"""
+         |import java.io.File;
+         |
+         |${Start}public class Test {
+         |   File[] array = new File[23];
+         |}$End
       """.stripMargin
 
     val expected =
@@ -59,18 +57,18 @@ class CopyJavaToScala extends CopyTestBase {
         |  val array: Array[File] = new Array[File](23)
         |}""".stripMargin
 
-    doTestEmptyToFile(fromText, expected)
+    doTestToEmptyFile(fromText, expected)
   }
 
-  def testParametrizedType(): Unit ={
+  def testParametrizedType(): Unit = {
     val fromText =
-      """
-        |import java.util.ArrayList;
-        |import java.util.List;
-        |
-        |<selection>public class Test {
-        |    List<Integer> list = new ArrayList<Integer>();
-        |}</selection>
+      s"""
+         |import java.util.ArrayList;
+         |import java.util.List;
+         |
+         |${Start}public class Test {
+         |    List<Integer> list = new ArrayList<Integer>();
+         |}$End
       """.stripMargin
 
     val expected =
@@ -81,29 +79,29 @@ class CopyJavaToScala extends CopyTestBase {
         |  val list: util.List[Integer] = new util.ArrayList[Integer]
         |}""".stripMargin
 
-    doTestEmptyToFile(fromText, expected)
+    doTestToEmptyFile(fromText, expected)
   }
 
   def testPackageWithComment(): Unit = {
     val fromText =
-      """<selection>//comment before
-        |package qwert;
-        |
-        |import java.util.ArrayList;
-        |import java.util.HashSet;
-        |import java.util.List;
-        |import java.util.Set;
-        |
-        |
-        |public class Test {
-        |    List<Integer> list = new ArrayList<Integer>();
-        |
-        |    private static class Inner {
-        |        void foo() {
-        |            Set<String> st = new HashSet<>();
-        |        }
-        |    }
-        |}</selection>""".stripMargin
+      s"""$Start//comment before
+         |package qwert;
+         |
+         |import java.util.ArrayList;
+         |import java.util.HashSet;
+         |import java.util.List;
+         |import java.util.Set;
+         |
+         |
+         |public class Test {
+         |    List<Integer> list = new ArrayList<Integer>();
+         |
+         |    private static class Inner {
+         |        void foo() {
+         |            Set<String> st = new HashSet<>();
+         |        }
+         |    }
+         |}$End""".stripMargin
 
     val expected =
       """//comment before
@@ -127,8 +125,6 @@ class CopyJavaToScala extends CopyTestBase {
         |  private[qwert] val list: util.List[Integer] = new util.ArrayList[Integer]
         |}""".stripMargin
 
-    doTestEmptyToFile(fromText, expected)
+    doTestToEmptyFile(fromText, expected)
   }
-
-  override val fromLangExtension: String = ".java"
 }
