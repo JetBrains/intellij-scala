@@ -152,7 +152,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (c == '"' && isClosingScalaString(offset, element, elementType)) {
       moveCaret()
       Result.STOP
-    } else if (c == ' ' && needClosingScaladocTag(element, prevElement, editor)) {
+    } else if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement, editor)) {
       insertClosingScaladocTag(offset, element, editor)
       moveCaret()
       Result.STOP
