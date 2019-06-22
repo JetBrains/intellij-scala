@@ -230,9 +230,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         return subBlocks
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
-        val quotesAlignment = Alignment.createAlignment()
-        val marginAlignment = Alignment.createAlignment()
-        alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, (quotesAlignment, marginAlignment))
+        alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, buildQuotesAndMarginAlignments)
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered: Array[ASTNode] = children.filter(isCorrectBlock)
         val childHead :: childTail = childrenFiltered.toList
@@ -581,14 +579,20 @@ class getDummyBlocks(private val block: ScalaBlock) {
     } else 0
   }
 
+  private def buildQuotesAndMarginAlignments: (Alignment, Alignment) = {
+    val quotesAlignment = if (scalaSettings.MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES) Alignment.createAlignment() else null
+    val marginAlignment = Alignment.createAlignment(true)
+    (quotesAlignment, marginAlignment)
+  }
+
   private def getMultilineStringBlocks(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val interpolatedOpt = Option(PsiTreeUtil.getParentOfType(node.getPsi, classOf[ScInterpolatedStringLiteral]))
-    val (quotesAlignment: Alignment, marginAlignment: Alignment) =
+    val (quotesAlignment, marginAlignment) =
       interpolatedOpt
         .flatMap(cachedAlignment)
-        .getOrElse((Alignment.createAlignment(true), Alignment.createAlignment(true)))
+        .getOrElse(buildQuotesAndMarginAlignments)
 
     val wrap = Wrap.createWrap(WrapType.NONE, true)
     val marginChar = MultilineStringUtil.getMarginChar(node.getPsi)
@@ -629,8 +633,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
                 (relativeRange(linePrefixLength, lineLength), Indent.getNoneIndent, quotesAlignment)
               }
             } else {
-              val a = if (scalaSettings.MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES) quotesAlignment else null
-              (relativeRange(linePrefixLength, lineLength, acc), Indent.getNoneIndent, a)
+              (relativeRange(linePrefixLength, lineLength, acc), Indent.getNoneIndent, quotesAlignment)
             }
           } else {
             (relativeRange(0, lineLength, acc), Indent.getAbsoluteNoneIndent, null)
