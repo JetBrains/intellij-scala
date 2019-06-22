@@ -136,13 +136,19 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
+    implicit val e: Editor = editor
+    implicit val p: Project = project
+
     val offset = editor.offset
-    val element = file.findElementAt(offset)
     val prevElement = file.findElementAt(offset - 1)
-    if (element == null) return Result.CONTINUE
+    val element = file.findElementAt(offset)
+    if (element == null)
+      return beforeCharTypedForEmptyElementAtOffset(c, offset, prevElement, None)
+
     val elementType = element.getNode.getElementType
 
-    val settings = CodeStyle.getSettings(project)
+    implicit val f: PsiFile = file
+    implicit val settings: CodeStyleSettings = CodeStyle.getSettings(project)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
     def moveCaret(): Unit = {
@@ -152,8 +158,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (c == '"' && isClosingScalaString(offset, element, elementType)) {
       moveCaret()
       Result.STOP
-    } else if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement, editor)) {
-      insertClosingScaladocTag(offset, element, editor)
+    } else if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
+      insertClosingScaladocTag(offset, element)
       moveCaret()
       Result.STOP
     } else if (isClosingScaladocTagOrMarkup(c, element, elementType)) {
@@ -173,21 +179,47 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '>' && scalaSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       Result.STOP
-    } else if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance().INSERT_MULTILINE_QUOTES) {
-      val prevType = prevElement.getNode.getElementType
-
-      if (elementType != ScalaTokenTypes.tSTRING && prevType == ScalaTokenTypes.tSTRING &&
-        prevElement.getParent.getText == "\"\"") {
-        completeMultilineString(offset, editor, project)
-      } else if (prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END && elementType != ScalaTokenTypes.tINTERPOLATED_STRING_END &&
-        Set("f\"\"", "s\"\"", "q\"\"").contains(prevElement.getParent.getText)) {
-        completeMultilineString(offset, editor, project)
-      }
-      Result.CONTINUE
     } else if (c == '{' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
-      handleLeftBrace(offset, element)(project, file, editor, settings)
+      handleLeftBrace(offset, element)
+    } else {
+      beforeCharTypedForEmptyElementAtOffset(c, offset, prevElement, Some(elementType))
+    }
+  }
+
+  /**
+   * Handles cases when no elements were found at the caret position.
+   * This can happen, for example, when you are typing in an empty file and the caret is in the very end if the file.
+   *
+   * @see [[beforeCharTyped]]
+   */
+  private def beforeCharTypedForEmptyElementAtOffset(c: Char, offset: Int, prevElement: PsiElement, elementType: Option[IElementType])
+                                                    (implicit editor: Editor, project: Project): Result = {
+    if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance().INSERT_MULTILINE_QUOTES) {
+      tryCompleteMultiline(offset, prevElement, elementType)
+      Result.CONTINUE
     } else {
       Result.CONTINUE
+    }
+  }
+
+  private def tryCompleteMultiline(offset: Int, prevElement: PsiElement, elementType: Option[IElementType])
+                                  (implicit editor: Editor, project: Project): Unit = {
+    val prevType = prevElement.getNode.getElementType
+
+    def prevParentText = prevElement.getParent.getText
+
+    def shouldCompleteToMultiline: Boolean =
+      prevType == ScalaTokenTypes.tSTRING &&
+        prevParentText == "\"\"" &&
+        !elementType.contains(ScalaTokenTypes.tSTRING)
+
+    def shouldCompleteToInterpolatedMultiline: Boolean =
+      prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
+        Set("f\"\"", "s\"\"", "q\"\"").contains(prevParentText) &&
+        !elementType.contains(ScalaTokenTypes.tINTERPOLATED_STRING_END)
+
+    if (shouldCompleteToMultiline || shouldCompleteToInterpolatedMultiline) {
+      completeMultilineString(offset, editor, project)
     }
   }
 
@@ -210,7 +242,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   @inline
   private def isInDocComment(element: PsiElement): Boolean = isInPlace(element, classOf[ScDocComment])
 
-  private def needClosingScaladocTag(element: PsiElement, prevElement: PsiElement, editor: Editor): Boolean = {
+  private def needClosingScaladocTag(element: PsiElement, prevElement: PsiElement)(implicit editor: Editor): Boolean = {
     prevElement.elementType == ScalaDocTokenType.DOC_COMMENT_START && (prevElement.getParent match {
       case comment: ScDocComment =>
         val isAtNewLine = element match {
@@ -223,7 +255,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     })
   }
 
-  private def insertClosingScaladocTag(offset: Int, element: PsiElement, editor: Editor): Unit = {
+  private def insertClosingScaladocTag(offset: Int, element: PsiElement)(implicit editor: Editor): Unit = {
     val docEnd = ScalaCommenter.getDocumentationCommentSuffix
     insertAndCommit(offset, "  " + docEnd, editor.getDocument, editor.getProject)
   }
