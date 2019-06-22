@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInspection.redundantBlock
 
-import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -27,11 +26,8 @@ class RedundantBlockInspection extends AbstractInspection {
     case block: ScBlockExpr if block.getChildren.length == 3 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
         holder.registerProblem(block, "The enclosing block is redundant", ProblemHighlightType.INFORMATION, new QuickFix(block))
-        def descriptorFor(range: TextRange) =
-          new ProblemDescriptorImpl(block, block, "", Array.empty,
-            ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, range, holder.isOnTheFly)
-        holder.registerProblem(descriptorFor(TextRange.create(0, 1)))
-        holder.registerProblem(descriptorFor(TextRange.create(block.getTextLength - 1, block.getTextLength)))
+        holder.registerProblem(block, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, 1))
+        holder.registerProblem(block, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(block.getTextLength - 1, block.getTextLength))
       }
   }
 
