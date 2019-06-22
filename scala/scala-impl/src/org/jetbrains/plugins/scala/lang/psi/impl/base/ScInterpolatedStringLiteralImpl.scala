@@ -49,8 +49,10 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override def isString: Boolean = true
 
-  override def isMultiLineString: Boolean =
-    referenceNode.getTreeNext.getElementType == lang.lexer.ScalaTokenTypes.`tINTERPOLATED_MULTILINE_STRING`
+  override def isMultiLineString: Boolean = {
+    val next = referenceNode.getTreeNext
+    next != null && next.getElementType == lang.lexer.ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
+  }
 
   override protected def startQuote: String = referenceName + super.startQuote
 
