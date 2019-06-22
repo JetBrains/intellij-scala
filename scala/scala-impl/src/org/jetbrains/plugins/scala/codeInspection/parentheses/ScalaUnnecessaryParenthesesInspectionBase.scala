@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package parentheses
 
-import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.codeInspection.{LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -107,12 +106,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
 
   private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder): Unit = {
     holder.registerProblem(elt, "Unnecessary parentheses", ProblemHighlightType.INFORMATION, qf)
-
-    def descriptorFor(range: TextRange) =
-      new ProblemDescriptorImpl(elt, elt, "", Array.empty,
-        ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, range, holder.isOnTheFly)
-
-    holder.registerProblem(descriptorFor(TextRange.create(0, 1)))
-    holder.registerProblem(descriptorFor(TextRange.create(elt.getTextLength - 1, elt.getTextLength)))
+    holder.registerProblem(elt, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, 1))
+    holder.registerProblem(elt, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(elt.getTextLength - 1, elt.getTextLength))
   }
 }
