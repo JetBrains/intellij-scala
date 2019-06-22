@@ -513,17 +513,17 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   private def handleLeftBrace(caretOffset: Int, element: PsiElement)
                              (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     findElementToWrap(element) match {
-      case Some(wrap) if !wrap.wrapElement.isInstanceOf[ScBlockExpr] =>
-        wrapWithBraces(caretOffset, wrap)
+      case Some(wrapInfo) if !wrapInfo.wrapElement.isInstanceOf[ScBlockExpr] =>
+        wrapWithBraces(caretOffset, wrapInfo)
       case _ => Result.CONTINUE
     }
   }
 
-  private def wrapWithBraces(caretOffset: Int, wrap: ElementToWrap)
+  private def wrapWithBraces(caretOffset: Int, wrap: BraceWrapInfo)
                             (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     val document = editor.getDocument
 
-    val ElementToWrap(element, prev, parent, canShareLine) = wrap
+    val BraceWrapInfo(element, prev, parent, canShareLine) = wrap
 
     val elementStartOffset = element.startOffset
     val elementLine = document.getLineNumber(elementStartOffset)
@@ -617,11 +617,19 @@ object ScalaTypedHandler {
    * @param prev         element prior to the caret position just after typing or removing brace
    * @param parent       element against which we should check that `wrap` element is indented
    * @param canShareLine whether closing brace can be inserted just before some other element with the same parent
+   *                     for example in:
+   *                     if(...) {
+   *                     } else {
+   *                     }
+   *                     closing brace for if is inserted just right before else
    * @see [[org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler.handleLeftBrace]]
    */
-  case class ElementToWrap(wrapElement: PsiElement, prev: PsiElement, parent: PsiElement, canShareLine: Boolean = false)
+  case class BraceWrapInfo(wrapElement: PsiElement, prev: PsiElement, parent: PsiElement, canShareLine: Boolean = false)
 
-  def findElementToWrap(element: PsiElement): Option[ElementToWrap] = {
+  /**
+   * @param element element at caret position
+   */
+  def findElementToWrap(element: PsiElement): Option[BraceWrapInfo] = {
     val prevElement: PsiElement = PsiTreeUtil.prevLeaf(element) match {
       case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
       case prev => prev
@@ -631,13 +639,14 @@ object ScalaTypedHandler {
 
     val parent: PsiElement = prevElement.getParent
 
-    @inline def wrap(el: PsiElement, share: Boolean = false) = ElementToWrap(el, prevElement, parent, share)
+    @inline def wrap(el: PsiElement, share: Boolean = false) =
+      BraceWrapInfo(el, prevElement, firstElementOnTheLine(parent), share)
 
     // to evaluate wrapElement lazily and not to write `() => obj.body` everywhere
     @inline implicit def oToFo(el: Option[PsiElement]): () => Option[PsiElement] = () => el
 
     //noinspection NameBooleanParameters
-    val tuple: (PsiElement => Boolean, () => Option[PsiElement], PsiElement => ElementToWrap) = parent match {
+    val tuple: (PsiElement => Boolean, () => Option[PsiElement], PsiElement => BraceWrapInfo) = parent match {
       case funDef: ScFunctionDefinition => (funDef.assignment.contains, funDef.body, wrap(_))
       case varDef: ScVariableDefinition => (varDef.assignment.contains, varDef.expr, wrap(_))
       case patDef: ScPatternDefinition => (patDef.assignment.contains, patDef.expr, wrap(_))
@@ -651,17 +660,27 @@ object ScalaTypedHandler {
       case f: ScFinallyBlock => (
         f.getFirstChild.eq,
         f.getFirstChild.getNextSiblingNotWhitespace.toOption,
-        ElementToWrap(_, prevElement, f.getParent)
+        BraceWrapInfo(_, prevElement, firstElementOnTheLine(f.getParent))
       )
       case f: ScFor => ((if (f.isYield) f.getYield else f.getRightBracket).contains, f.body, wrap(_))
       case _ => (_ => false, None, _ => null)
     }
 
-    val (isAllowedAfter, elementToWrap, wrapper) = tuple
-    if (isAllowedAfter(prevElement)) {
+    val (prevElementChecker, elementToWrap, wrapper) = tuple
+    if (prevElementChecker(prevElement)) {
       elementToWrap().map(wrapper)
     } else {
       None
+    }
+  }
+
+  @scala.annotation.tailrec
+  private def firstElementOnTheLine(el: PsiElement): PsiElement = {
+    if (el.startsFromNewLine()) el else {
+      PsiTreeUtil.prevLeaf(el, true) match {
+        case null => el
+        case prev => firstElementOnTheLine(prev)
+      }
     }
   }
 }

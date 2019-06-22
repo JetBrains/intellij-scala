@@ -110,7 +110,7 @@ class ClosingBraceRemoveTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
-  def testNotRemove_FunctionBody_NotIntended(): Unit = {
+  def testNotRemove_FunctionBody_NotIndented(): Unit = {
     // here there is an error - C closing brace is considered as foo closing brace, we do not want to remove it
     val before =
       s"""class C {
@@ -256,6 +256,38 @@ class ClosingBraceRemoveTest extends EditorActionTestBase {
          |}
       """.stripMargin
 
+    doTest(before, after)
+  }
+
+  def testNotRemove_IfElse_NonIndented(): Unit = {
+    val before =
+      s"""class A {
+         |  if (true) 42 else if(false) 23 else {$CARET
+         |    42
+         |}""".stripMargin
+    val after =
+      s"""class A {
+         |  if (true) 42 else if(false) 23 else $CARET
+         |    42
+         |}""".stripMargin
+    doTest(before, after)
+  }
+
+  def testNotRemove_IfElse_NonIndented_1(): Unit = {
+    val before =
+      s"""class A {
+         |  {
+         |    if (true) 42 else if(false) 23 else {$CARET
+         |      42
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""class A {
+         |  {
+         |    if (true) 42 else if(false) 23 else $CARET
+         |      42
+         |  }
+         |}""".stripMargin
     doTest(before, after)
   }
 
