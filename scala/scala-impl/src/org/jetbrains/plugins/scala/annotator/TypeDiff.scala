@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
@@ -31,13 +30,13 @@ sealed trait TypeDiff {
 }
 
 object TypeDiff {
-  final case class Group(diffs: Seq[TypeDiff]) extends TypeDiff {
+  final case class Group(diffs: TypeDiff*) extends TypeDiff {
     override def flattenTo0(maxChars: Int, groupLength: Int): (Seq[TypeDiff], Int) = {
       val (xs, length) = diffs.reverse.foldlr(0, (Vector.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
         val (xs, length) = x.flattenTo0(maxChars - l - r, groupLength)
         (acc ++ xs, length + r)
       }
-      if (length <= maxChars.max(groupLength)) (xs, length) else (Seq(Group(xs)), groupLength)
+      if (length <= maxChars.max(groupLength)) (xs, length) else (Seq(Group(xs: _*)), groupLength)
     }
 
     override protected def length(groupLength: Int): Int = groupLength
@@ -54,21 +53,19 @@ object TypeDiff {
   }
 
   // To display a type hint
-  def parse(tpe: ScType): TypeDiff = group(tpe, tpe)((_, _) => true)
+  def parse(tpe: ScType): TypeDiff = diff(tpe, tpe)((_, _) => true)
 
   // To highlight a type ascription
-  def forExpected(expected: ScType, actual: ScType): TypeDiff = group(actual, expected)((t1, t2) => t1.conforms(t2))
+  def forExpected(expected: ScType, actual: ScType): TypeDiff = diff(actual, expected)((t1, t2) => t1.conforms(t2))
 
   // To display a type mismatch hint
-  def forActual(expected: ScType, actual: ScType): TypeDiff = group(expected, actual)((t1, t2) => t2.conforms(t1))
+  def forActual(expected: ScType, actual: ScType): TypeDiff = diff(expected, actual)((t1, t2) => t2.conforms(t1))
 
   // To display a type mismatch tooltip
   def forBoth(expected: ScType, actual: ScType): (TypeDiff, TypeDiff) = (forExpected(expected, actual), forActual(expected, actual))
 
-  private def group(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean) = Group(diff(tpe1, tpe2))
-
   // TODO refactor (decompose, unify, etc.)
-  private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): Seq[TypeDiff] = {
+  private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): TypeDiff = {
     def conformanceFor(variance: Variance) = variance match {
       case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
       case Variance.Covariant => conforms
@@ -84,63 +81,41 @@ object TypeDiff {
           }
           case _ => (Variance.Invariant, Variance.Invariant)
         }
-        diff(l1, l2)(conformanceFor(v1)) ++ (Match(" ") +: diff(d1, d2) :+ Match(" ")) ++ diff(r1, r2)(conformanceFor(v2))
+        Group(diff(l1, l2)(conformanceFor(v1)), Match(" "), diff(d1, d2), Match(" "), diff(r1, r2)(conformanceFor(v2)))
 
       case (TupleType(ts1), TupleType(ts2)) =>
-        if (ts1.length == ts2.length)
-          ts1.zip(ts2).join[TypeDiff](
-            Match("("),
-            Match(", "),
-            Match(")")
-          ) {
-            case (t1, t2) => diff(t1, t2)
-          }
-        else
-          Seq(Mismatch(tpe2.presentableText))
+        if (ts1.length == ts2.length) Group(Match("(") +: (ts1, ts2).zipped.map(diff).intersperse(Match(", ")) :+ Match(")"): _*)
+        else Group(Mismatch(tpe2.presentableText))
 
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val left = {
           if (p1.length == p2.length) {
-            val parameters = p1.zip(p2)
-              .join(Match(", "): TypeDiff) {
-                case (t1, t2) => diff(t1, t2)(reversed)
-              }
-            if (parameters.length == 1) parameters else Seq(Match("("), Group(parameters), Match(")"))
+            val parameters = (p1, p2).zipped.map((t1, t2) => diff(t1, t2)(reversed)).intersperse(Match(", "))
+            if (p2.length > 1 || p2.exists(FunctionType.isFunctionType)) Seq(Match("("), Group(parameters: _*), Match(")")) else parameters
           } else {
             Seq(Mismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
           }
         }
         val right = diff(r1, r2)
-        left ++ Seq(Match(" => "), Group(right))
+        Group(left :+ Match(" => ") :+ Group(right): _*)
 
-      case (left: ScParameterizedType, right: ScParameterizedType) =>
-        val ParameterizedType(leftDesignator, leftTypeArguments) = left
-        val ParameterizedType(rightDesignator, rightTypeArguments) = right
-
-        val fs: Seq[(ScType, ScType) => Boolean] = leftDesignator.extractClass match {
+      case (t1: ScParameterizedType, t2: ScParameterizedType) =>
+        val fs: Seq[(ScType, ScType) => Boolean] = t1.designator.extractClass match {
           case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map(conformanceFor)
-          case _ => Seq.fill(rightTypeArguments.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
+          case _ => Seq.fill(t2.typeArguments.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
-
-        val inner = if (leftTypeArguments.length == rightTypeArguments.length)
-          leftTypeArguments.zip(rightTypeArguments)
-            .zip(fs)
-            .join(Match(", "): TypeDiff) {
-              case ((t1, t2), conforms) => diff(t1, t2)(conforms)
-            }
+        val inner = if (t1.typeArguments.length == t2.typeArguments.length)
+          (t1.typeArguments, t2.typeArguments, fs).zipped.map((t1, t2, conforms) => diff(t1, t2)(conforms)).intersperse(Match(", "))
         else
-          Seq(Mismatch(rightTypeArguments.map(_.presentableText).mkString(", ")))
+          Seq(Mismatch(t2.typeArguments.map(_.presentableText).mkString(", ")))
 
-        diff(leftDesignator, rightDesignator) :+
-          Match("[") :+
-          Group(inner) :+
-          Match("]")
+        Group(diff(t1.designator, t2.designator), Match("["), Group(inner: _*), Match("]"))
 
       // On-demand widening of literal types (SCL-15481)
       case (t1, t2: ScLiteralType) if !t1.is[ScLiteralType] => diff(t1, t2.wideType)
 
       case (t1, t2) =>
-        Seq(if (conforms(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2))) // TODO wrap each type in a Group?
+        Group(if (conforms(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2)))
     }
   }
 
