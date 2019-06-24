@@ -36,7 +36,8 @@
         <fileType name="SBT" language="Scala" extensions="sbt"
                   implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
         <fileType name="sbtShell" language="sbtShell" extensions="sbts"
-                  implementationClass="org.jetbrains.sbt.shell.SbtShellFileType$" fieldName="MODULE$"/>
+                  implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
+                  fieldName="MODULE$"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
