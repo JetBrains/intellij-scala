@@ -8,6 +8,7 @@ import com.intellij.openapi.module.Module
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.beans.BeanProperty
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 /**
   * @author Pavel Fatin
@@ -56,8 +57,8 @@ object SbtModule {
             .toSeq
         }
 
-    def update(module: Module, imports: Seq[String]): Unit = {
-      val newImports = imports.mkString(Delimiter)
+    def update(module: Module, imports: java.util.List[String]): Unit = {
+      val newImports = imports.asScala.mkString(Delimiter)
         .replace(SubstitutePrefix, SubstitutePrefix + SubstitutePrefix)
         .replace("$", SubstitutePrefix + SubstituteDollar)
 
@@ -79,7 +80,7 @@ object SbtModule {
           .toSet
       }
 
-    def update(module: Module, resolvers: Set[SbtResolver]): Unit = {
+    def update(module: Module, resolvers: collection.Set[SbtResolver]): Unit = {
       val newResolvers = resolvers.map(_.toString)
         .mkString(Delimiter)
 

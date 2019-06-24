@@ -2,14 +2,20 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 import java.net.URI
+import java.util.{Optional, List => JList, Map => JMap, Set => JSet}
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
-import org.jetbrains.plugins.scala.project.external.SdkReference
+import com.intellij.serialization.{Property, PropertyMapping}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, JdkByVersion, SdkReference}
+import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtEntityData._
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product {
 
@@ -39,33 +45,55 @@ object SbtEntityData {
   * @param buildFor id of the project that this module describes the build for
   */
 @SerialVersionUID(2)
-case class SbtBuildModuleData(imports: Seq[String],
-                              resolvers: Set[SbtResolver],
-                              buildFor: URI) extends SbtEntityData
+case class SbtBuildModuleData @PropertyMapping(Array("imports", "resolvers", "buildFor")) (
+  imports: JList[String],
+  resolvers: JSet[SbtResolver],
+  buildFor: URI
+) extends SbtEntityData
 
 object SbtBuildModuleData {
   val Key: Key[SbtBuildModuleData] = datakey(classOf[SbtBuildModuleData])
+
+  def apply(imports: Seq[String], resolvers: Set[SbtResolver], buildFor: URI): SbtBuildModuleData =
+    SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), buildFor)
 }
 
 
 /** Data describing a project which is part of an sbt build. */
 @SerialVersionUID(1)
-case class SbtModuleData(id: String, buildURI: URI) extends SbtEntityData
+case class SbtModuleData @PropertyMapping(Array("id", "buildURI")) (id: String, buildURI: URI) extends SbtEntityData
 
 object SbtModuleData {
   val Key: Key[SbtModuleData] = datakey(classOf[SbtModuleData])
 }
 
 @SerialVersionUID(1)
-case class SbtProjectData(basePackages: Seq[String],
-                          jdk: Option[SdkReference],
-                          javacOptions: Seq[String],
-                          sbtVersion: String,
-                          projectPath: String
-                    ) extends SbtEntityData
+case class SbtProjectData @PropertyMapping(Array("basePackages", "jdk", "javacOptions", "sbtVersion", "projectPath"))(
+  basePackages: JList[String],
+//  jdk: Optional[SdkReference],
+
+  @Property(allowedTypes = Array(classOf[JdkByName], classOf[JdkByHome], classOf[JdkByVersion], classOf[AndroidJdk]))
+  @Nullable jdk: SdkReference,
+  javacOptions: JList[String],
+  sbtVersion: String,
+  projectPath: String
+) extends SbtEntityData
 
 object SbtProjectData {
   val Key: Key[SbtProjectData] = datakey(classOf[SbtProjectData])
+
+  def apply(basePackages: Seq[String],
+            jdk: Option[SdkReference],
+            javacOptions: Seq[String],
+            sbtVersion: String,
+            projectPath: String): SbtProjectData =
+    SbtProjectData(
+      basePackages.toJavaList,
+//      toJavaOptional(jdk),
+      jdk.orNull,
+      javacOptions.toJavaList,
+      sbtVersion,
+      projectPath)
 }
 
 sealed trait SbtNamedKey {
@@ -77,48 +105,102 @@ sealed trait SbtRankedKey {
 }
 
 @SerialVersionUID(1)
-case class SbtSettingData(name: String, description: String, rank: Int, value: String)
-  extends SbtEntityData with SbtNamedKey with SbtRankedKey
+case class SbtSettingData @PropertyMapping(Array("name", "description", "rank", "value"))(
+  name: String,
+  description: String,
+  rank: Int,
+  value: String
+)  extends SbtEntityData with SbtNamedKey with SbtRankedKey
+
 object SbtSettingData {
   val Key: Key[SbtSettingData] = datakey(classOf[SbtSettingData])
 }
 
 @SerialVersionUID(1)
-case class SbtTaskData(name: String, description: String, rank: Int)
-  extends SbtEntityData with SbtNamedKey with SbtRankedKey
+case class SbtTaskData @PropertyMapping(Array("name", "description", "rank")) (
+  name: String,
+  description: String,
+  rank: Int) extends SbtEntityData with SbtNamedKey with SbtRankedKey
+
 object SbtTaskData {
   val Key: Key[SbtTaskData] = datakey(classOf[SbtTaskData])
 }
 
 @SerialVersionUID(1)
-case class SbtCommandData(name: String, help: Seq[(String,String)])
-  extends SbtEntityData with SbtNamedKey
+case class SbtCommandData @PropertyMapping(Array("name", "help")) (
+  name: String,
+  help: JMap[String, String]
+) extends SbtEntityData with SbtNamedKey
+
 object SbtCommandData {
   val Key: Key[SbtCommandData] = datakey(classOf[SbtCommandData])
+
+  def apply(name: String, help: Seq[(String, String)]): SbtCommandData =
+    SbtCommandData(name, toJavaMap(help.toMap))
 }
 
 @SerialVersionUID(1)
-case class ModuleExtData(scalaVersion: Option[String],
-                         scalacClasspath: Seq[File] = Seq.empty,
-                         scalacOptions: Seq[String] = Seq.empty,
-                         sdk: Option[SdkReference] = None,
-                         javacOptions: Seq[String] = Seq.empty) extends SbtEntityData
+case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions")) (
+  scalaVersion: Optional[String],
+  scalacClasspath: JList[File],
+  scalacOptions: JList[String],
+  sdk: Optional[SdkReference],
+  javacOptions: JList[String]
+) extends SbtEntityData
 
 object ModuleExtData {
   val Key: Key[ModuleExtData] = datakey(classOf[ModuleExtData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
+
+  def apply(scalaVersion: Option[String],
+            scalacClasspath: Seq[File] = Seq.empty,
+            scalacOptions: Seq[String] = Seq.empty,
+            sdk: Option[SdkReference] = None,
+            javacOptions: Seq[String] = Seq.empty): ModuleExtData =
+    ModuleExtData(
+      toJavaOptional(scalaVersion),
+      scalacClasspath.toJavaList,
+      scalacOptions.toJavaList,
+      toJavaOptional(sdk),
+      javacOptions.toJavaList
+    )
 }
 
 
 @SerialVersionUID(1)
-case class Play2ProjectData(projectKeys: Map[String, Map[String, ParsedValue[_]]]) extends SbtEntityData
+case class Play2ProjectData @PropertyMapping(Array("projectKeysJava")) (
+  projectKeysJava: JMap[String, JMap[String, ParsedValue[_]]]
+) extends SbtEntityData {
+  def projectKeys: Map[String, Map[String, ParsedValue[_]]] =
+    projectKeysJava.asScala.toMap.map {
+      case (k, v) => (k, v.asScala.toMap)
+    }
+}
+
+
 object Play2ProjectData {
   val Key: Key[Play2ProjectData] = datakey(classOf[Play2ProjectData], ProjectKeys.PROJECT.getProcessingWeight + 1)
+
+  def apply(projectKeys: Map[String, Map[String, ParsedValue[_]]]): Play2ProjectData = {
+    val withJavaMapsValues = projectKeys.map {
+      case (key, value) => (key, toJavaMap(value))
+    }
+    Play2ProjectData(toJavaMap(withJavaMapsValues))
+  }
 }
 
 @SerialVersionUID(1)
-case class AndroidFacetData(version: String, manifest: File, apk: File,
-                            res: File, assets: File, gen: File, libs: File,
-                            isLibrary: Boolean, proguardConfig: Seq[String]) extends SbtEntityData
+case class AndroidFacetData @PropertyMapping(Array("version", "manifest", "apk", "res", "assets", "gen", "libs", "isLibrary", "proguardConfig")) (
+  version: String,
+  manifest: File,
+  apk: File,
+  res: File,
+  assets: File,
+  gen: File,
+  libs: File,
+  isLibrary: Boolean,
+  proguardConfig: JList[String]
+) extends SbtEntityData
+
 object AndroidFacetData {
   // TODO Change to "+ 1" when external system will enable the proper service separation.
   // The external system now invokes data services regardless of system ID.
@@ -126,4 +208,9 @@ object AndroidFacetData {
   // As a workaround, we now rely on the additional "weight" to invoke the service after the Android / Gradle's one.
   // We expect the external system to update the architecture so that different services will be properly separated.
   val Key: Key[AndroidFacetData] = datakey(classOf[AndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight +100500)
+
+  def apply(version: String, manifest: File, apk: File,
+            res: File, assets: File, gen: File, libs: File,
+            isLibrary: Boolean, proguardConfig: Seq[String]): AndroidFacetData =
+    AndroidFacetData(version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig.toJavaList)
 }

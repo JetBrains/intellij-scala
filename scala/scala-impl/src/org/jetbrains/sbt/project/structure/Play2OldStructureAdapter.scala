@@ -2,10 +2,10 @@ package org.jetbrains.sbt.project.structure
 
 import java.io.File
 
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.Play2ProjectData
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys._
 import org.jetbrains.sbt.structure.Play2Data
+import org.jetbrains.sbt.RichSeq
 
 import scala.collection.immutable.HashMap
 
@@ -17,12 +17,14 @@ object Play2OldStructureAdapter {
   type ProjectId = String
 
   def apply(newData: Seq[(ProjectId, File, Play2Data)]): Play2ProjectData = {
-    val projectKeyValueTriples = newData.toSeq.flatMap {
+    val projectKeyValueTriples = newData.flatMap {
       case (id, baseDir, data) => extractProjectKeyValue(id, baseDir, data)
     }
-    val oldData = projectKeyValueTriples.groupBy(_._2).mapValues(_.map({ case (id, _, v) => (id, v)}))
+    val oldData = projectKeyValueTriples.groupBy(_._2).map {
+      case (string, triples) => (string, triples.map(t => (t._1, t._3)))
+    }
 
-    Play2ProjectData(avoidSL7005Bug(oldData.mapValues(_.toMap)))
+    Play2ProjectData(avoidSL7005Bug[String, ProjectId, ParsedValue[_]](oldData))
   }
 
   private def extractProjectKeyValue(id: ProjectId, baseDir: File, data: Play2Data): Seq[(ProjectId, String, ParsedValue[_])] =  {
@@ -30,8 +32,8 @@ object Play2OldStructureAdapter {
     val confDirectory = data.confDirectory.map(d => (PLAY_CONF_DIR, new StringParsedValue(d.getCanonicalPath))).toSeq
 
     val keyValues = playVersion ++ confDirectory ++ Seq(
-      (TEMPLATES_IMPORT, new SeqStringParsedValue(data.templatesImports)),
-      (ROUTES_IMPORT, new SeqStringParsedValue(data.routesImports)),
+      (TEMPLATES_IMPORT, new SeqStringParsedValue(data.templatesImports.toJavaList)),
+      (ROUTES_IMPORT, new SeqStringParsedValue(data.routesImports.toJavaList)),
       (SOURCE_DIR, new StringParsedValue(data.sourceDirectory.getCanonicalPath)),
       (PROJECT_URI, new StringParsedValue(baseDir.getCanonicalFile.toURI.toString))
     )
@@ -39,5 +41,9 @@ object Play2OldStructureAdapter {
     keyValues.map({ case (k, v) => (id, k.name, v)})
   }
 
-  @inline private def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
+  //SCL-7005
+  @inline private def avoidSL7005Bug[K, A, B](m: Map[K, Seq[(A, B)]]): Map[K, Map[A, B]] = {
+    val withMapsValues = m.mapValues(_.toMap)
+    HashMap(withMapsValues.toSeq:_*)
+  }
 }

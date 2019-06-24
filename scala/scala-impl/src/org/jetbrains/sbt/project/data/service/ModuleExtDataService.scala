@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 
 import scala.collection.JavaConverters
+import scala.collection.JavaConverters._
+import org.jetbrains.sbt.RichOptional
 
 /**
  * @author Pavel Fatin
@@ -45,11 +47,11 @@ object ModuleExtDataService {
       module <- getIdeModuleByNode(dataNode)
       ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions) = dataNode.getData
     } {
-      module.configureScalaCompilerSettingsFrom("sbt", scalacOptions)
-      scalaVersion.foreach(configureScalaSdk(module, _, scalacClasspath))
-      configureOrInheritSdk(module, sdk)
-      configureLanguageLevel(module, javacOptions)
-      configureJavacOptions(module, javacOptions)
+      module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
+      scalaVersion.asScala.foreach(configureScalaSdk(module, _, scalacClasspath.asScala))
+      configureOrInheritSdk(module, sdk.asScala)
+      configureLanguageLevel(module, javacOptions.asScala)
+      configureJavacOptions(module, javacOptions.asScala)
     }
 
     private def configureScalaSdk(module: Module,

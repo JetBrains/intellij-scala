@@ -3,6 +3,8 @@ package org.jetbrains
 import _root_.java.io._
 import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
+import _root_.java.util.Optional
+import _root_.java.util.{ArrayList => JArrayList, List => JList}
 
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.application.ApplicationManager
@@ -14,6 +16,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.util.{PathUtil, Function => IdeaFunction}
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
@@ -118,11 +121,22 @@ package object sbt {
       }
       ys
     }
+
+    def toJavaList: JList[T] = new JArrayList[T](xs.asJava)
   }
 
   implicit class RichOption[T](private val opt: Option[T]) extends AnyVal {
     // Use for safely checking for null in chained calls
     @inline def safeMap[A](f: T => A): Option[A] = if (opt.isEmpty) None else Option(f(opt.get))
+
+    def toJavaOptional: Optional[T] = opt match {
+      case Some(a) => Optional.of(a)
+      case None => Optional.empty()
+    }
+  }
+
+  implicit class RichOptional[T](val opt: Optional[T]) extends AnyVal {
+    def asScala: Option[T] = if (opt.isPresent) Some(opt.get) else None
   }
 
   def jarWith[T : ClassTag]: File = {

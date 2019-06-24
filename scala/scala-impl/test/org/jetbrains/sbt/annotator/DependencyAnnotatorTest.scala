@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package annotator
 
+import java.util.Collections
+
 import _root_.junit.framework.Assert._
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil

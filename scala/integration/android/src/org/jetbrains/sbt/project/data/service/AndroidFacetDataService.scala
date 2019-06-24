@@ -15,6 +15,8 @@ import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootU
 import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer}
 import org.jetbrains.sbt.project.data.AndroidFacetData
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+
 /**
  * @author Nikolay Obedin
  * @since 8/12/14.
@@ -71,9 +73,9 @@ object AndroidFacetDataService {
       configuration.APK_PATH = getRelativePath(data.apk)
       configuration.myProGuardCfgFiles = new util.ArrayList[String]()
 
-      if (data.proguardConfig.nonEmpty) {
+      if (!data.proguardConfig.isEmpty) {
         val proguardFile = new File(module.getProject.getBasePath) / "proguard-sbt.txt"
-        FileUtil.writeToFile(proguardFile, data.proguardConfig.mkString(SystemProperties.getLineSeparator))
+        FileUtil.writeToFile(proguardFile, data.proguardConfig.asScala.mkString(SystemProperties.getLineSeparator))
         configuration.myProGuardCfgFiles.add(proguardFile.getCanonicalPath)
         configuration.RUN_PROGUARD = true
       }

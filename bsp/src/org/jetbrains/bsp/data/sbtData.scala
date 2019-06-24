@@ -4,6 +4,7 @@ import java.net.URI
 import java.util
 
 import com.intellij.openapi.externalSystem.model.Key
+import com.intellij.serialization.PropertyMapping
 import org.jetbrains.bsp.data.BspEntityData.datakey
 
 object sbtData {
@@ -16,8 +17,10 @@ object sbtData {
   * @param buildFor target Ids associated with the modules that this module describes the build for
   */
 @SerialVersionUID(1)
-case class SbtBuildModuleDataBsp(imports: util.List[String],
-                                 buildFor: util.List[URI]) extends BspEntityData
+case class SbtBuildModuleDataBsp @PropertyMapping(Array("imports", "buildFor"))(
+  imports: util.List[String],
+  buildFor: util.List[URI]
+) extends BspEntityData
 
 object SbtBuildModuleDataBsp {
   val Key: Key[SbtBuildModuleDataBsp] = datakey(classOf[SbtBuildModuleDataBsp])

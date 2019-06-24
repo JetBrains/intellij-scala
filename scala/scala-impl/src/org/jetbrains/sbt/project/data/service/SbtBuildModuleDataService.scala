@@ -11,6 +11,8 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter}
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 
+import scala.collection.JavaConverters._
+
 /**
   * @author Pavel Fatin
   */
@@ -38,15 +40,15 @@ object SbtBuildModuleDataService {
     val SbtBuildModuleData(imports, resolvers, buildFor) = data
 
     Imports(sbtModule) = imports
-    Resolvers(sbtModule) = resolvers
+    Resolvers(sbtModule) = resolvers.asScala
     setLocalIvyCache(resolvers)(sbtModule.getProject)
     Build(sbtModule) = buildFor
   }
 
-  private[this] def setLocalIvyCache(resolvers: Set[SbtResolver])
+  private[this] def setLocalIvyCache(resolvers: java.util.Set[SbtResolver])
                                     (implicit project: Project): Unit =
     for {
-      localIvyResolver <- resolvers.find(_.name == "Local cache")
+      localIvyResolver <- resolvers.asScala.find(_.name == "Local cache")
       indexesManager <- SbtIndexesManager.getInstance(project)
     } indexesManager.scheduleLocalIvyIndexUpdate(localIvyResolver)
 }
