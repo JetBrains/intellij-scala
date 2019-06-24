@@ -8,7 +8,7 @@ import org.junit.Assert.assertEquals
 class TypeDiffFlattenTest extends TestCase {
   private val element = P(CharPred(_.isLetterOrDigit).rep(1)).!.map(Match(_))
   private val comma = P(", ".rep(0))
-  private val group = P("(" ~ parser.rep(0) ~ ")").map(Group)
+  private val group = P("(" ~ parser.rep(0) ~ ")").map(Group(_: _*))
   private val parser: Parser[TypeDiff] = P((group | element) ~ comma)
 
   def testFlatten(): Unit = {
@@ -76,7 +76,7 @@ class TypeDiffFlattenTest extends TestCase {
   }
 
   private def asString(diff: TypeDiff): String = diff match {
-    case Group(elements) => s"(${elements.map(asString).mkString(", ")})"
+    case Group(elements @_*) => s"(${elements.map(asString).mkString(", ")})"
     case Match(text, _) => text
     case Mismatch(text, _) => s"~$text~"
   }

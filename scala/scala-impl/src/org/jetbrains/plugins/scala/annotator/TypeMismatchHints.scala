@@ -48,7 +48,7 @@ private object TypeMismatchHints {
 
   private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     def toText(diff: TypeDiff): Text = diff match {
-      case Group(diffs) =>
+      case Group(diffs @_*) =>
         Text(foldedString,
           foldedAttributes(diff.flatten.exists(_.is[Mismatch])),
           expansion = Some(() => diffs.map(toText)))
