@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.data.service
 
 import java.io.File
+import java.util.Optional
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.externalSystem.model.DataNode

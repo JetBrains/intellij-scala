@@ -1,8 +1,13 @@
 package org.jetbrains.sbt
 package project.structure
 
-import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{SeqStringParsedValue, StringParsedValue, ParsedValue}
+import java.util
 
+import com.intellij.serialization.PropertyMapping
+import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
+import org.jetbrains.sbt.RichSeq
+
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.xml.Text
 
@@ -21,7 +26,7 @@ object Play2Keys {
   }
 
   class StringXmlKey(val name: String, val values: Map[String, String]) extends SettingKey[String] {}
-  class SeqStringXmlKey(val name: String, val values: Map[String, Seq[String]]) extends SettingKey[Seq[String]] {}
+  class SeqStringXmlKey(val name: String, val values: Map[String, util.List[String]]) extends SettingKey[util.List[String]] {}
 
   object KeyExtractor {
     def extract(elem: scala.xml.Node): Option[SettingKey[_]] = {
@@ -35,7 +40,7 @@ object Play2Keys {
       } else if (children.forall(_.child.forall(node => node.label == ENTRY_SEQ_NAME || node.isInstanceOf[Text]))) {
         val values = children.flatMap{
           case _: Text => None
-          case projectKey => Some((projectKey.label, projectKey \ ENTRY_SEQ_NAME map (_.text)))
+          case projectKey => Some((projectKey.label, (projectKey \ ENTRY_SEQ_NAME).map(_.text).toJavaList))
         }.toMap
         Some(new SeqStringXmlKey(keyName, values))
       } else None
@@ -64,11 +69,12 @@ object Play2Keys {
 
 
   object AllKeys {
-    abstract class ParsedValue[T](val parsed: T) extends Serializable {
+    abstract sealed class ParsedValue[T](val parsed: T) extends Serializable {
       override def toString: String = parsed.toString
     }
-    class StringParsedValue(parsed: String) extends ParsedValue[String](parsed)
-    class SeqStringParsedValue(parsed: Seq[String]) extends ParsedValue[Seq[String]](parsed)
+    class StringParsedValue @PropertyMapping(Array("parsed")) (parsed: String) extends ParsedValue[String](parsed)
+
+    class SeqStringParsedValue @PropertyMapping(Array("parsed")) (parsed: util.List[String]) extends ParsedValue[util.List[String]](parsed)
 
     abstract class ParsedKey[T](val name: String) {
       def in(allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[Map[String, ParsedValue[_]]] = allKeys get name
@@ -97,7 +103,7 @@ object Play2Keys {
       override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, Seq[String])] = {
         in(allKeys) map {
           case vs => vs.toSeq flatMap {
-            case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed))
+            case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala))
             case _ => None
           }
         } getOrElse Seq.empty

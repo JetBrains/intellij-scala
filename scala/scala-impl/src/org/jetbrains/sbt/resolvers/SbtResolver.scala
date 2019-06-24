@@ -4,6 +4,7 @@ import java.io.File
 import java.util.regex.Pattern
 
 import com.intellij.openapi.project.Project
+import com.intellij.serialization.PropertyMapping
 import org.jetbrains.idea.maven.indices.MavenIndicesManager
 import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, ResolverIndex}
 
@@ -35,7 +36,11 @@ object SbtResolver {
   }
 }
 
-class SbtMavenResolver(val name: String, val root: String) extends SbtResolver {
+class SbtMavenResolver @PropertyMapping(Array("name", "root")) (
+  val name: String,
+  val root: String
+) extends SbtResolver {
+
   override def getIndex(project: Project): Option[ResolverIndex] = try {
       MavenIndicesManager.getInstance()
       Some(new MavenProxyIndex(root, name, project))
@@ -47,7 +52,11 @@ class SbtMavenResolver(val name: String, val root: String) extends SbtResolver {
   override def toString = s"$root|maven|$name"
 }
 
-class SbtIvyResolver(val name: String, val root: String) extends SbtResolver {
+class SbtIvyResolver @PropertyMapping(Array("name", "root")) (
+  val name: String,
+  val root: String
+) extends SbtResolver {
+
   override def getIndex(project: Project): Option[ResolverIndex] =
     SbtIndexesManager.getInstance(project).map(_.getIvyIndex(name, root))
 

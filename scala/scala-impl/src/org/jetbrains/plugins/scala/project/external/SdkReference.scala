@@ -6,6 +6,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.serialization.PropertyMapping
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
 import scala.language.implicitConversions
@@ -17,10 +18,10 @@ import scala.language.implicitConversions
  */
 sealed abstract class SdkReference
 
-final case class JdkByName(name: String) extends SdkReference
-final case class JdkByHome(home: File) extends SdkReference
-final case class JdkByVersion(version: String) extends SdkReference
-final case class AndroidJdk(version: String) extends SdkReference
+final case class JdkByName @PropertyMapping(Array("name")) (name: String) extends SdkReference
+final case class JdkByHome @PropertyMapping(Array("home")) (home: File) extends SdkReference
+final case class JdkByVersion @PropertyMapping(Array("version")) (version: String) extends SdkReference
+final case class AndroidJdk @PropertyMapping(Array("version")) (version: String) extends SdkReference
 
 object SdkUtils {
   def findProjectSdk(sdk: SdkReference): Option[Sdk] = {

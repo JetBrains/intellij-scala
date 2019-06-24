@@ -75,7 +75,7 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(Seq("some import"), Set.empty, new URI("somewhere")))
+      arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(Seq("some import"), Set.empty[SbtResolver], new URI("somewhere")))
     }.build.toDataNode
 
     importProjectData(testProject)

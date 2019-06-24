@@ -127,7 +127,7 @@ private object SbtViewContributor {
     extends ExternalSystemNode[SbtCommandData](view, null, dataNode) {
     private lazy val helpString = {
       val data = dataNode.getData()
-      data.help.map { case (name, description) =>
+      data.help.asScala.map { case (name, description) =>
         s"$name : $description"
       }.mkString("\n")
     }

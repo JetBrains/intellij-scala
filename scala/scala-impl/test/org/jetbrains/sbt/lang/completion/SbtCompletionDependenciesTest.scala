@@ -30,7 +30,9 @@ class SbtCompletionDependenciesTest extends SbtCompletionTestBase {
       case manager =>
         for {
           module <- manager.getModules
-        } SbtModule.Resolvers(module) += testResolver
+        } {
+          SbtModule.Resolvers(module) += testResolver
+        }
     }
   }
 
