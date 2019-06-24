@@ -1,22 +1,18 @@
 package org.jetbrains.sbt
 package annotator
 
-import java.io.File
-
 import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.startup.StartupManager
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
-import com.intellij.psi.PsiManager
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator.{Error, _}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
@@ -56,14 +52,13 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     super.tearDown()
   }
 
-  override def loadTestFile(): SbtFileImpl = {
-    val fileName = "SbtAnnotator.sbt"
-    val filePath = testdataPath + fileName
-    val vfile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    val psifile = PsiManager.getInstance(getProject).findFile(vfile)
-    psifile.putUserData(ModuleUtilCore.KEY_MODULE, getModule)
-    psifile.asInstanceOf[SbtFileImpl]
+  override def loadTestFile() = {
+    val result = super.loadTestFile()
+    result.putUserData(ModuleUtilCore.KEY_MODULE, getModule)
+    result
   }
+
+  override def getTestName(lowercaseFirstLetter: Boolean) = "SbtAnnotator"
 
   override def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 

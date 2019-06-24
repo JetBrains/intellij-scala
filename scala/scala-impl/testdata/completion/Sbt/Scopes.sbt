@@ -1,4 +1,4 @@
-logLevel in /*caret*/
+logLevel in <caret>
 /*
 ThisScope
 GlobalScope

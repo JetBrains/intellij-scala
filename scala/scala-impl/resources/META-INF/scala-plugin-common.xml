@@ -4,7 +4,6 @@
 
     <extensionPoints>
         <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
-        <extensionPoint name="scalaFileFactory" interface="org.jetbrains.plugins.scala.lang.parser.ScalaFileFactory"/>
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
         <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier"/>
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>

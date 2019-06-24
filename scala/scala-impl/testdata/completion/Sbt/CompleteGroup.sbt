@@ -1,4 +1,4 @@
-libraryDependencies += "/*caret*/" % "test-one" % ""
+libraryDependencies += "<caret>" % "test-one" % ""
 /*
 org.jetbrains
 */

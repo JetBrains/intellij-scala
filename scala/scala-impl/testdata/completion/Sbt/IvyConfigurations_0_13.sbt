@@ -1,4 +1,4 @@
-ivyConfigurations += /*caret*/
+ivyConfigurations += <caret>
 /*
 Compile
 Default

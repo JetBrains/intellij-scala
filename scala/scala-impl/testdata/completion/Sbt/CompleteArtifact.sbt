@@ -1,4 +1,4 @@
-libraryDependencies += "" % "/*caret*/" % ""
+libraryDependencies += "" % "<caret>" % ""
 /*
 test-one
 test-two

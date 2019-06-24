@@ -1,4 +1,4 @@
 val myFilter = globFilter(".test")
 
-includeFilter := /*caret*/
+includeFilter := <caret>
 //myFilter

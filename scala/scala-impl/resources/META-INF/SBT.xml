@@ -33,7 +33,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationInitializedListener implementation="org.jetbrains.sbt.settings.StartupRoutine"/>
-        <fileType name="SBT" language="Scala" extensions="sbt"
+        <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
+        <lang.fileViewProviderFactory language="sbt"
+                                      implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
+        <fileType name="SBT" language="sbt" extensions="sbt"
                   implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
         <fileType name="sbtShell" language="sbtShell" extensions="sbts"
                   implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
@@ -122,7 +125,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-        <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
         <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider" />
     </extensions>
 

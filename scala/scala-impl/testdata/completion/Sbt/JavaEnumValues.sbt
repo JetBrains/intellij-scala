@@ -1,4 +1,4 @@
-compileOrder := /*caret*/
+compileOrder := <caret>
 /*
 Mixed
 ScalaThenJava

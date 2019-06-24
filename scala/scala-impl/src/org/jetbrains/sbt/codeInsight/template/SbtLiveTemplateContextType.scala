@@ -1,12 +1,15 @@
 package org.jetbrains.sbt
-package codeInsight.template
+package codeInsight
+package template
 
 import com.intellij.codeInsight.template.FileTypeBasedContextType
-import org.jetbrains.sbt.language.SbtFileType
 
 /**
  * @author Nikolay Obedin
  * @since 7/31/14.
  */
-class SbtLiveTemplateContextType extends FileTypeBasedContextType("sbt", "sbt", SbtFileType)
-
+final class SbtLiveTemplateContextType extends FileTypeBasedContextType(
+  Sbt.Name,
+  Sbt.Name,
+  language.SbtFileType
+)

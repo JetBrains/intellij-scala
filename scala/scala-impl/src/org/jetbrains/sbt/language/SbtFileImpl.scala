@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package language
 
-import java.net.URI
-
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
@@ -14,14 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule
 
 import scala.collection.JavaConverters
 
 /**
-  * @author Pavel Fatin
-  */
-final class SbtFileImpl private(provider: FileViewProvider)
+ * @author Pavel Fatin
+ */
+final class SbtFileImpl private[language](provider: FileViewProvider)
   extends ScalaFileImpl(provider, SbtFileType)
     with ScDeclarationSequenceHolder {
 
@@ -91,32 +90,20 @@ final class SbtFileImpl private(provider: FileViewProvider)
       }
 
   private def projectDefinitionModule(module: Module) = {
-    implicit val manager: ModuleManager = ModuleManager.getInstance(getProject)
+    val manager = ModuleManager.getInstance(getProject)
 
-    SbtUtil.getSbtModuleData(module)
-      .map(_.buildURI)
-      .flatMap(SbtFileImpl.findBuildModule)
-      .orElse {
+    for {
+      SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
+
+      module <- manager.getModules.find { module =>
+        SbtModule.Build(module) == buildURI
+      }.orElse {
         // TODO remove in 2018.3+
         // this is the old way of finding a build module which breaks if the way the module name is assigned changes
         Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
       }
+    } yield module
   }
 
   private def findModule = ModuleUtilCore.findModuleForPsiElement(this)
-}
-
-object SbtFileImpl {
-
-  def unapply(provider: FileViewProvider): Option[SbtFileImpl] =
-    provider.getVirtualFile.getFileType match {
-      case SbtFileType => Some(new SbtFileImpl(provider))
-      case _ => None
-    }
-
-  private def findBuildModule(uri: URI)
-                             (implicit manager: ModuleManager) =
-    manager.getModules.find { module =>
-      SbtModule.Build(module) == uri
-    }
 }

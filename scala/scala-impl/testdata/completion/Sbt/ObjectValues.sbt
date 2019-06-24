@@ -1,4 +1,4 @@
-logLevel := /*caret*/
+logLevel := <caret>
 /*Debug
 Info
 Error

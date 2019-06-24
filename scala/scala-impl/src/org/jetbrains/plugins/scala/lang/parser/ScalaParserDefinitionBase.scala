@@ -7,9 +7,9 @@ import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import com.intellij.psi.{FileViewProvider, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{getInstance => ScalaProjectSettings}
 
@@ -29,11 +29,7 @@ abstract class ScalaParserDefinitionBase(override val getFileNodeType: ScStubFil
     case _ => new ASTWrapperPsiElement(node)
   }
 
-  override def createFile(viewProvider: FileViewProvider): PsiFile =
-    ScalaFileFactory.EP_NAME.getExtensions.view
-      .flatMap(_.createFile(viewProvider))
-      .headOption
-      .getOrElse(new ScalaFileImpl(viewProvider))
+  override def createFile(viewProvider: FileViewProvider): ScalaFile
 
   import lexer.ScalaTokenTypes.{COMMENTS_TOKEN_SET, STRING_LITERAL_TOKEN_SET, WHITES_SPACES_TOKEN_SET, kIMPORT => Import, tWHITE_SPACE_IN_LINE => WS}
 
