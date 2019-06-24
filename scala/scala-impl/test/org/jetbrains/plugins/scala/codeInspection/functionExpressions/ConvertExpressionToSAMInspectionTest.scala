@@ -346,11 +346,11 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
          |  })
          |}
          |
-        |trait MyChangeListener[T] {
+         |trait MyChangeListener[T] {
          |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
          |}
          |
-        |class MyObservable[T] {
+         |class MyObservable[T] {
          |  def addListener (listener: MyChangeListener[_ >: T]) = ???
          |}
       """.stripMargin
@@ -363,11 +363,11 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
          |  })
          |}
          |
-        |trait MyChangeListener[T] {
+         |trait MyChangeListener[T] {
          |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
          |}
          |
-        |class MyObservable[T] {
+         |class MyObservable[T] {
          |  def addListener (listener: MyChangeListener[_ >: T]) = ???
          |}
       """.stripMargin
