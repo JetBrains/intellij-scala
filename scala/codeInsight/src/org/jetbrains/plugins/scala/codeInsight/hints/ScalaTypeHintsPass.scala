@@ -63,7 +63,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
 
   private def partsOf(tpe: ScType)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     def toText(diff: TypeDiff): Text = diff match {
-      case Group(diffs) =>
+      case Group(diffs @_*) =>
         Text(foldedString,
           foldedAttributes(error = false),
           expansion = Some(() => diffs.map(toText)))
