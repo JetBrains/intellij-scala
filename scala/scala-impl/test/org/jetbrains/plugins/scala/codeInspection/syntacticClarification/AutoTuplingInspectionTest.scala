@@ -47,7 +47,7 @@ class AutoTuplingInspectionTest extends ScalaQuickFixTestBase {
         |trait SAM {
         |  def foo(): Int
         |}
-        |def foo(s: SAM) = s.foo()
+        |def foo(s: SAM) = ()
         |foo(() => 2)
       """.stripMargin
     checkTextHasNoErrors(text)
