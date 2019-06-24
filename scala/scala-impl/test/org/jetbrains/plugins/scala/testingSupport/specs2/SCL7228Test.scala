@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package testingSupport.specs2
+package testingSupport
+package specs2
 
 /**
  * @author Roman.Shein

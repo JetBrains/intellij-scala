@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_2_11_2_4_15
-
-import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2RegExpTestNameTest
-import org.junit.experimental.categories.Category
+package org.jetbrains.plugins.scala
+package testingSupport
+package specs2
+package specs2_2_11_2_4_15
 
 /**
   * @author Roman.Shein

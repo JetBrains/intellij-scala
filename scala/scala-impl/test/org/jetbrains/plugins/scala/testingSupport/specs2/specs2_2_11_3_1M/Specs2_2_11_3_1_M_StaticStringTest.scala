@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_2_11_3_1M
-
-import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2StaticStringTest
-import org.junit.experimental.categories.Category
+package org.jetbrains.plugins.scala
+package testingSupport
+package specs2
+package specs2_2_11_3_1M
 
 /**
   * @author Roman.Shein
