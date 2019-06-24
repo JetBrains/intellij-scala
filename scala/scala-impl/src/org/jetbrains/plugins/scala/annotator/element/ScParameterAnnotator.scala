@@ -6,6 +6,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
@@ -37,16 +38,17 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
   private def annotateCallByNameParameter(element: ScParameter)
                                          (implicit holder: AnnotationHolder): Any = {
-    def errorWithMessageAbout(topic: String) = {
+    def errorWithMessageAbout(topic: String): Unit = {
       val message = s"$topic parameters may not be call-by-name"
       holder.createErrorAnnotation(element, message)
     }
     // TODO move to ScClassParameter
     element match {
-      case cp: ScClassParameter if cp.isVal => errorWithMessageAbout("\'val\'")
-      case cp: ScClassParameter if cp.isVar => errorWithMessageAbout("\'var\'")
+      case cp: ScClassParameter if cp.isVal => errorWithMessageAbout("""'val'""")
+      case cp: ScClassParameter if cp.isVar => errorWithMessageAbout("""'var'""")
       case cp: ScClassParameter if cp.isCaseClassVal => errorWithMessageAbout("case class")
-      case p if p.isImplicitParameter => errorWithMessageAbout("implicit")
+      case p if p.isImplicitParameter && p.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_2_13) =>
+          errorWithMessageAbout("implicit")
       case _ =>
     }
   }

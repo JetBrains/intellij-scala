@@ -1,54 +1,67 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
-class ParametersAnnotatorTest extends AnnotatorSimpleTestCase {
+abstract class ParametersAnnotatorTestBase_(override val version: ScalaVersion) extends ScalaHighlightingTestBase {
   final val Header = "class A; class B; class C;\n"
-  
-  def testFine(): Unit = {
-    assertMatches(messages("def f(a: A) {}")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f(a: A*) {}")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f(a: A, b: B) {}")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f(a: A, b: B*) {}")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f(a: A, b: B, c: C*) {}")) {
-      case Nil =>
+
+  protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
+    val result = errorsFromScalaCode(Header + code)
+    result
+  }
+
+  override def annotate(element: PsiElement)(implicit holder: AnnotationHolder): Unit = {
+    element match {
+      case owner: ScParameterOwner =>
+        ScParametersAnnotator.annotate(owner.clauses.get)
+        for (p <- owner.parameters) {
+          ScParameterAnnotator.annotate(p)
+        }
+      case _ =>
     }
   }
-  
-  def testMalformed(): Unit = {
+
+  def testFine1(): Unit = assertNothing(messages("def f(a: A) {}"))
+  def testFine2(): Unit = assertNothing(messages("def f(a: A*) {}"))
+  def testFine3(): Unit = assertNothing(messages("def f(a: A, b: B) {}"))
+  def testFine4(): Unit = assertNothing(messages("def f(a: A, b: B*) {}"))
+  def testFine5(): Unit = assertNothing(messages("def f(a: A, b: B, c: C*) {}"))
+
+  def testMalformed1(): Unit = {
     assertMatches(messages("def f(a: A*, b: B) {}")) {
       case Error("a: A*", "*-parameter must come last") :: Nil =>
     }
+  }
+
+  def testMalformed2(): Unit = {
     assertMatches(messages("def f(a: A, b: B*, c: C) {}")) {
       case Error("b: B*", "*-parameter must come last") :: Nil =>
     }
+  }
+
+  def testMalformed3(): Unit = {
     assertMatches(messages("def f(a: A*, b: B*) {}")) {
       case Error("a: A*", "*-parameter must come last") :: Nil =>
     }
+  }
+
+  def testMalformed4(): Unit = {
     assertMatches(messages("def f(a: A*, b: B*, c: C) {}")) {
-      case Error("a: A*", "*-parameter must come last") :: 
-              Error("b: B*", "*-parameter must come last") :: Nil =>
+      case Error("a: A*", "*-parameter must come last") ::
+        Error("b: B*", "*-parameter must come last") :: Nil =>
     }
+  }
+
+  def testMalformed5(): Unit = {
     assertMatches(messages("def f(a: A*, c: C)(b: B*, c: C) {}")) {
-      case Error("a: A*", "*-parameter must come last") :: 
-              Error("b: B*", "*-parameter must come last") :: Nil =>
+      case Error("a: A*", "*-parameter must come last") ::
+        Error("b: B*", "*-parameter must come last") :: Nil =>
     }
   }
 
@@ -58,16 +71,25 @@ class ParametersAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testByName(): Unit = {
+  def testByName_ImplicitParam(): Unit = {
     assertMatches(messages("def f(a: A)(implicit b: => B) {}")) {
       case Error("b: => B", "implicit parameters may not be call-by-name") :: Nil =>
     }
+  }
+
+  def testByName_CaseClassParam(): Unit = {
     assertMatches(messages("case class D(a: A, b: => B)")) {
       case Error("b: => B", "case class parameters may not be call-by-name") :: Nil =>
     }
+  }
+
+  def testByName_ValParam(): Unit = {
     assertMatches(messages("class D(a: A, val b: => B)")) {
       case Error("val b: => B", "'val' parameters may not be call-by-name") :: Nil =>
     }
+  }
+
+  def testByName_VarParam(): Unit = {
     assertMatches(messages("class D(a: A, var b: => B)")) {
       case Error("var b: => B", "'var' parameters may not be call-by-name") :: Nil =>
     }
@@ -78,19 +100,14 @@ class ParametersAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("p2 = \"default\"", "Missing type annotation for parameter: p2") :: Nil =>
     }
   }
-   
-  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse
+}
 
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-    val owner = file.depthFirst().instancesOf[ScParameterOwner].collectFirst {
-      case named: ScNamedElement if !Set("A", "B", "C").contains(named.name) => named
-    }.get
+class ParametersAnnotatorTest_2_11 extends ParametersAnnotatorTestBase_(Scala_2_11)
 
-    ScParametersAnnotator.annotate(owner.clauses.get)
-    for (p <- owner.parameters) {
-      ScParameterAnnotator.annotate(p)
-    }
-    mock.annotations
+class ParametersAnnotatorTest_2_12 extends ParametersAnnotatorTestBase_(Scala_2_12)
+
+class ParametersAnnotatorTest_2_13 extends ParametersAnnotatorTestBase_(Scala_2_13) {
+  override def testByName_ImplicitParam(): Unit = {
+    assertNothing(messages("def f(a: A)(implicit b: => B) {}"))
   }
 }
