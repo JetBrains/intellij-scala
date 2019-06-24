@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
@@ -86,13 +87,24 @@ object TypeDiff {
         diff(l1, l2)(conformanceFor(v1)) ++ (Match(" ") +: diff(d1, d2) :+ Match(" ")) ++ diff(r1, r2)(conformanceFor(v2))
 
       case (TupleType(ts1), TupleType(ts2)) =>
-        if (ts1.length == ts2.length) Match("(") +: (ts1, ts2).zipped.map(diff).intersperse(Seq(Match(", "))).flatten :+ Match(")")
-        else Seq(Mismatch(tpe2.presentableText))
+        if (ts1.length == ts2.length)
+          ts1.zip(ts2).join[TypeDiff](
+            Match("("),
+            Match(", "),
+            Match(")")
+          ) {
+            case (t1, t2) => diff(t1, t2)
+          }
+        else
+          Seq(Mismatch(tpe2.presentableText))
 
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val left = {
           if (p1.length == p2.length) {
-            val parameters = (p1, p2).zipped.map((t1, t2) => diff(t1, t2)(reversed)).intersperse(Seq(Match(", "))).flatten
+            val parameters = p1.zip(p2)
+              .join(Match(", "): TypeDiff) {
+                case (t1, t2) => diff(t1, t2)(reversed)
+              }
             if (parameters.length == 1) parameters else Seq(Match("("), Group(parameters), Match(")"))
           } else {
             Seq(Mismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
@@ -101,17 +113,28 @@ object TypeDiff {
         val right = diff(r1, r2)
         left ++ Seq(Match(" => "), Group(right))
 
-      case (t1: ScParameterizedType, t2: ScParameterizedType) =>
-        val fs: Seq[(ScType, ScType) => Boolean] = t1.designator.extractClass match {
-          case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map(conformanceFor)
-          case _ => Seq.fill(t2.typeArguments.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
-        }
-        val inner = if (t1.typeArguments.length == t2.typeArguments.length)
-          (t1.typeArguments, t2.typeArguments, fs).zipped.map((t1, t2, conforms) => diff(t1, t2)(conforms)).intersperse(Seq(Match(", "))).flatten
-        else
-          Seq(Mismatch(t2.typeArguments.map(_.presentableText).mkString(", ")))
+      case (left: ScParameterizedType, right: ScParameterizedType) =>
+        val ParameterizedType(leftDesignator, leftTypeArguments) = left
+        val ParameterizedType(rightDesignator, rightTypeArguments) = right
 
-        diff(t1.designator, t2.designator) :+ Match("[") :+ Group(inner) :+ Match("]")
+        val fs: Seq[(ScType, ScType) => Boolean] = leftDesignator.extractClass match {
+          case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map(conformanceFor)
+          case _ => Seq.fill(rightTypeArguments.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
+        }
+
+        val inner = if (leftTypeArguments.length == rightTypeArguments.length)
+          leftTypeArguments.zip(rightTypeArguments)
+            .zip(fs)
+            .join(Match(", "): TypeDiff) {
+              case ((t1, t2), conforms) => diff(t1, t2)(conforms)
+            }
+        else
+          Seq(Mismatch(rightTypeArguments.map(_.presentableText).mkString(", ")))
+
+        diff(leftDesignator, rightDesignator) :+
+          Match("[") :+
+          Group(inner) :+
+          Match("]")
 
       // On-demand widening of literal types (SCL-15481)
       case (t1, t2: ScLiteralType) if !t1.is[ScLiteralType] => diff(t1, t2.wideType)

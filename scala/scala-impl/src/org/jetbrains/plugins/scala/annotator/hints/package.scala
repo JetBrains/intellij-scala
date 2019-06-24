@@ -1,16 +1,16 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import java.awt.Color
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.util.ui.StartupUiUtil
-import org.jetbrains.plugins.scala.extensions._
 
 // TODO Use built-in "advanced" hint API when it will be available in IDEA, SCL-14502
 package object hints {
   implicit class TextAttributesExt(private val v: TextAttributes) extends AnyVal {
-    def + (attributes: TextAttributes): TextAttributes = {
+    def +(attributes: TextAttributes): TextAttributes = {
       val result = v.clone()
       Option(attributes.getForegroundColor).foreach(result.setForegroundColor)
       Option(attributes.getBackgroundColor).foreach(result.setBackgroundColor)
@@ -20,7 +20,7 @@ package object hints {
       result
     }
 
-    def ++ (attributes: Iterable[TextAttributes]): TextAttributes =
+    def ++(attributes: Iterable[TextAttributes]): TextAttributes =
       attributes.foldLeft(v)(_ + _)
   }
 
@@ -34,20 +34,13 @@ package object hints {
     }
 
     def withErrorTooltipIfEmpty(tooltip: Option[String]): Seq[Text] = tooltip.map(parts.withErrorTooltipIfEmpty).getOrElse(parts)
-
-    def parenthesized: Seq[Text] = Text("(") +: parts :+ Text(")")
-  }
-
-  implicit class TextExt(private val text: Text) extends AnyVal {
-    def seq: Seq[Text] = Seq(text)
   }
 
   val foldedString: String = "..."
 
   def foldedAttributes(error: Boolean)(implicit scheme: EditorColorsScheme): Option[TextAttributes] = {
     val plainFolded =
-      scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES)
-        .toOption
+      Option(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))
         .map(adjusted)
 
     if (error) plainFolded.map(_ + errorAttributes)

@@ -50,9 +50,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.io.Source
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
@@ -246,7 +245,32 @@ package object extensions {
       }
     }
 
-    def intersperse[B >: A](sep: B): Seq[B] = value.iterator.intersperse(sep).toSeq
+    def join[B](separator: B)
+               (generator: A => Seq[B]): Seq[B] = {
+      val delegate = value.iterator
+
+      @annotation.tailrec
+      def join(result: Seq[B],
+               intersperseNext: Boolean = false): Seq[B] =
+        if (intersperseNext) join(result :+ separator)
+        else {
+          if (delegate.hasNext) {
+            val value = generator(delegate.next())
+            join(
+              result ++ value,
+              delegate.hasNext
+            )
+          } else result
+        }
+
+      join(ListBuffer.empty[B])
+    }
+
+    def join[B](start: B,
+                separator: B,
+                end: B)
+               (generator: A => Seq[B]): Seq[B] =
+      start +: join(separator)(generator) :+ end
 
     // https://pavelfatin.com/twitter-puddles-and-foldlr
     def foldlr[L, R](l: L, r: R)(f1: (L, A) => L)(f2: (L, A, R) => R): R =
@@ -887,18 +911,6 @@ package object extensions {
     def findBy[T: ClassTag]: Option[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       delegate.find(clazz.isInstance).asInstanceOf[Option[T]]
-    }
-
-    def intersperse[B >: A](sep: B): Iterator[B] = new Iterator[B] {
-      private var intersperseNext = false
-
-      override def hasNext: Boolean = intersperseNext || delegate.hasNext
-
-      override def next(): B = {
-        val element = if (intersperseNext) sep else delegate.next()
-        intersperseNext = !intersperseNext && delegate.hasNext
-        element
-      }
     }
   }
 

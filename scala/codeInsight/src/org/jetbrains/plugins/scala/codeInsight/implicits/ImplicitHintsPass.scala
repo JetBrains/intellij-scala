@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInsight.implicits
+package org.jetbrains.plugins.scala
+package codeInsight
+package implicits
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
@@ -20,13 +22,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false) with ScalaTypeHintsPass {
+
+  import annotator.hints._
 
   private var hints: Seq[Hint] = Seq.empty
 
@@ -163,18 +166,24 @@ private object ImplicitHintsPass {
       val folding = Text(foldedString,
         attributes = foldedAttributes(error = problems.nonEmpty),
         expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))
-      ).seq
+      )
 
-      folding.parenthesized
-        .withErrorTooltipIfEmpty(notFoundTooltip(problems))
+      Seq(
+        Text("("),
+        folding,
+        Text(")")
+      ).withErrorTooltipIfEmpty(notFoundTooltip(problems))
     }
 
   private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])
                                     (implicit scheme: EditorColorsScheme): Seq[Text] =
     if (arguments.isEmpty) Seq.empty
     else {
-      arguments.map(it => presentationOf(it)).intersperse(Seq(Text(", "))).flatten
-        .parenthesized
+      arguments.join(
+        Text("("),
+        Text(", "),
+        Text(")")
+      )(presentationOf)
     }
 
   private def presentationOf(argument: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] =
@@ -189,7 +198,9 @@ private object ImplicitHintsPass {
     }
 
     val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
-    Text(result.name, navigatable = delegate.asOptionOf[Navigatable], tooltip = Some(tooltip)).seq
+    Seq(
+      Text(result.name, navigatable = delegate.asOptionOf[Navigatable], tooltip = Some(tooltip))
+    )
   }
 
   private def problemPresentation(parameter: ScalaResolveResult)
@@ -220,14 +231,14 @@ private object ImplicitHintsPass {
     val presentationString =
       if (!ImplicitHints.enabled) foldedString else foldedString + typeSuffix(parameter)
 
-    Text(
+    Seq(Text(
       presentationString,
       foldedAttributes(error = parameter.isImplicitParameterProblem),
       effectRange = Some((0, foldedString.length)),
       navigatable = parameter.element.asOptionOf[Navigatable],
       errorTooltip = Some(errorTooltip),
       expansion = Some(() => expandedProblemPresentation(parameter, probableArgs))
-    ).seq
+    ))
   }
 
   private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
@@ -240,16 +251,12 @@ private object ImplicitHintsPass {
   }
 
   private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
-                                           (implicit scheme: EditorColorsScheme) = {
-
-    val separator = Seq(Text(" | ", likeWrongReference))
-
-    arguments
-      .map { case (argument, result) => presentationOfProbable(argument, result) }
-      .intersperse(separator)
-      .flatten
-      .withErrorTooltipIfEmpty(ambiguousTooltip(parameter))
-  }
+                                           (implicit scheme: EditorColorsScheme) =
+    arguments.join(Text(" | ", likeWrongReference)) {
+      case (argument, result) => presentationOfProbable(argument, result)
+    }.withErrorTooltipIfEmpty {
+      ambiguousTooltip(parameter)
+    }
 
   private def presentationOfProbable(argument: ScalaResolveResult, result: FullInfoResult)
                                     (implicit scheme: EditorColorsScheme): Seq[Text] = {
@@ -259,9 +266,12 @@ private object ImplicitHintsPass {
 
       case ImplicitParameterNotFoundResult =>
         val presentationOfParameters = argument.implicitParameters
-          .map(parameter => presentationOf(parameter))
-          .intersperse(Text(", ").seq).flatten
-        namedBasicPresentation(argument) ++ (Text("(") +: presentationOfParameters :+ Text(")"))
+          .join(
+            Text("("),
+            Text(", "),
+            Text(")")
+          )(presentationOf)
+        namedBasicPresentation(argument) ++ presentationOfParameters
 
       case DivergedImplicitResult =>
         namedBasicPresentation(argument)
