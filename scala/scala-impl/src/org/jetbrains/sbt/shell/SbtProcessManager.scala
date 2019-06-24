@@ -424,7 +424,9 @@ object SbtProcessManager {
   val mayUpgradeSbtVersion = Version("0.13.0")
 
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File): Seq[String] = {
+    val hardcoded = List("-Dsbt.supershell=false")
     val opts =
+      hardcoded ++
       SbtOpts.loadFrom(workingDir) ++
       JvmOpts.loadFrom(workingDir) ++
       sbtSettings.vmOptions
