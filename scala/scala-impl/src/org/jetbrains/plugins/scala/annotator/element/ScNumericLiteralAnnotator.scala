@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.lang.annotation.{AnnotationHolder, HighlightSeverity}
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
@@ -31,14 +30,18 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
       case _ => literal
     }
 
-    kind match {
-      case Oct if languageLevel.exists(_ >= Scala_2_11) =>
-        createOctToHexAnnotation(literal)(target, ProblemHighlightType.ERROR)
-        return None
-      case Oct if languageLevel.contains(Scala_2_10) =>
-        createOctToHexAnnotation(literal)(target, ProblemHighlightType.LIKE_DEPRECATED)
-      case _ =>
-    }
+    for {
+      level <- languageLevel
+      if kind == Oct
+
+      (message, severity) <- level match {
+        case Scala_2_10 => Some(ScalaBundle.message("octal.literals.deprecated"), HighlightSeverity.WARNING)
+        case level if level >= Scala_2_11 => Some(ScalaBundle.message("octal.literals.removed"), HighlightSeverity.ERROR)
+        case _ => None
+      }
+
+      annotation = holder.createAnnotation(severity, target.getTextRange, message)
+    } annotation.registerFix(new ConvertOctToHex(literal, isLong))
 
     val number = kind(text, isLong)
     number.lastIndexOf('_') match {
@@ -60,20 +63,6 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
     maybeNumber.map {
       case (_, exceedsIntLimit) => (target, exceedsIntLimit)
     }
-  }
-
-  private def createOctToHexAnnotation(literal: L)
-                                      (target: ScExpression, highlightType: ProblemHighlightType)
-                                      (implicit holder: AnnotationHolder): Unit = {
-    val annotation = highlightType match {
-      case ProblemHighlightType.GENERIC_ERROR =>
-        holder.createErrorAnnotation(target, ScalaBundle.message("octal.literals.removed"))
-      case _ =>
-        holder.createWarningAnnotation(target, ScalaBundle.message("octal.literals.deprecated"))
-    }
-
-    annotation.setHighlightType(highlightType)
-    annotation.registerFix(new ConvertOctToHex(literal, isLong))
   }
 
   @annotation.tailrec
