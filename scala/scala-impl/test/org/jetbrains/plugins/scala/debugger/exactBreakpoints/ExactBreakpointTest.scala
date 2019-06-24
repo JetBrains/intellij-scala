@@ -1,17 +1,17 @@
-package org.jetbrains.plugins.scala.debugger.exactBreakpoints
-
-import scala.collection.JavaConverters._
+package org.jetbrains.plugins.scala
+package debugger
+package exactBreakpoints
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.SourcePositionHighlighter
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.DocumentUtil
 import com.intellij.xdebugger.XDebuggerUtil
-import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay.Tropin

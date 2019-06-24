@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.debugger.stepInto
+package org.jetbrains.plugins.scala
+package debugger
+package stepInto
 
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
-import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 /**

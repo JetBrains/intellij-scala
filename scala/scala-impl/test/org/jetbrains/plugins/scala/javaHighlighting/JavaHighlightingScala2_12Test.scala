@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.javaHighlighting
-
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+package org.jetbrains.plugins
+package scala
+package javaHighlighting
 
 /**
   * @author Alefas

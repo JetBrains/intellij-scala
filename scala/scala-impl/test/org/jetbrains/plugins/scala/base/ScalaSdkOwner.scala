@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.base
+package org.jetbrains.plugins.scala
+package base
 
 import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

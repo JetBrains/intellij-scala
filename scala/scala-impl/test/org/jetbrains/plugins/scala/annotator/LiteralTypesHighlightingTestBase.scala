@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBase {

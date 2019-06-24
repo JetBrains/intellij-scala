@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.findUsages.compilerReferences
+package org.jetbrains.plugins.scala
+package findUsages
+package compilerReferences
 
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.{Condition, Lock, ReentrantLock}
@@ -8,10 +10,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiClass
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.project._
 import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category

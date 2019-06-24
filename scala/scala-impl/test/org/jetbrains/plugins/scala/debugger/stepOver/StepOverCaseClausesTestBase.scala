@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.debugger.stepOver
+package org.jetbrains.plugins.scala
+package debugger
+package stepOver
 
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.junit.experimental.categories.Category
 
 

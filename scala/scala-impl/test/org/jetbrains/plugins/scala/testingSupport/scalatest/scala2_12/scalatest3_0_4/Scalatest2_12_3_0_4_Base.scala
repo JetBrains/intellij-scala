@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_12.scalatest3_0_4
+package org.jetbrains.plugins.scala
+package testingSupport
+package scalatest
+package scala2_12.scalatest3_0_4
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
  * @author Roman.Shein

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.base.libraryLoaders
+package org.jetbrains.plugins.scala
+package base
+package libraryLoaders
 
 import java.io.File
 
@@ -8,7 +10,6 @@ import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 

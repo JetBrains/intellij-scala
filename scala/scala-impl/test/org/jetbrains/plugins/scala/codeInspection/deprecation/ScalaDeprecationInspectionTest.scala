@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.codeInspection.deprecation
+package org.jetbrains.plugins.scala
+package codeInspection
+package deprecation
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
 abstract class ScalaDeprecationInspectionTestBase extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecationInspection]

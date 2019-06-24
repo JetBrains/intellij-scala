@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_10.scalatest2_1_7
+package org.jetbrains.plugins.scala
+package testingSupport
+package scalatest
+package scala2_10.scalatest2_1_7
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_10}
-import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
-import org.junit.experimental.categories.Category
 
 /**
  * @author Roman.Shein

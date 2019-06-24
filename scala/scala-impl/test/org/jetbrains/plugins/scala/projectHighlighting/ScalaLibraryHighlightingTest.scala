@@ -14,7 +14,6 @@ import org.junit.experimental.categories.Category
 class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   import base.libraryLoaders._
-  import debugger.{ScalaVersion, Scala_2_12}
   import util.reporter.ProgressReporter
 
   private val filesWithProblems = Map(

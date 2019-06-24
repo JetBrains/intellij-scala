@@ -2,7 +2,7 @@ package scala.meta
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
 
 import scala.meta.intellij.IDEAContext
 

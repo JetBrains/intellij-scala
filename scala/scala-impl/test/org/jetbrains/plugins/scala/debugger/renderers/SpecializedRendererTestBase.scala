@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.debugger.renderers
+package org.jetbrains.plugins.scala
+package debugger
+package renderers
 
 import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
-import com.intellij.debugger.ui.tree.{FieldDescriptor, NodeDescriptor}
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
+import com.intellij.debugger.ui.tree.NodeDescriptor
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 

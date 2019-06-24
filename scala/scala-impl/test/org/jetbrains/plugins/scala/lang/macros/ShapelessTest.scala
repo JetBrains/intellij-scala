@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.lang.macros
+package org.jetbrains.plugins.scala
+package lang
+package macros
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class ShapelessTest extends TypeInferenceTestBase {

@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.debugger.evaluateExpression
+package org.jetbrains.plugins.scala
+package debugger
+package evaluateExpression
 
-import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 /**

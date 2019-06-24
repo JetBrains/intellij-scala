@@ -3,8 +3,8 @@ package org.jetbrains.sbt
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_12, Scala_2_9}
 
 /**
   * @author Nikolay Obedin

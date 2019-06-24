@@ -3,7 +3,6 @@ package codeInspection
 package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_10}
 
 /**
  * @author Nikolay.Tropin

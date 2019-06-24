@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.debugger.renderers
+package org.jetbrains.plugins.scala
+package debugger
+package renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
-import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
 import org.junit.experimental.categories.Category
 

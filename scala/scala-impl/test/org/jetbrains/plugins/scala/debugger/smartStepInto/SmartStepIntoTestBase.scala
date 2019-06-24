@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.scala.debugger.smartStepInto
+package org.jetbrains.plugins.scala
+package debugger
+package smartStepInto
 
 import com.intellij.debugger.actions.SmartStepTarget
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
-import org.jetbrains.plugins.scala.debugger._
+import com.intellij.debugger.engine.SuspendContextImpl
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
-import scala.collection.JavaConverters._
 
-import com.intellij.debugger.engine.SuspendContextImpl
+import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay.Tropin

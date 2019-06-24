@@ -4,8 +4,7 @@ package project
 import java.io.File
 import java.net.URI
 
-import org.jetbrains.plugins.scala.debugger.Scala_2_11
-import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, SlowTests}
+import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, Scala_2_11, SlowTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))

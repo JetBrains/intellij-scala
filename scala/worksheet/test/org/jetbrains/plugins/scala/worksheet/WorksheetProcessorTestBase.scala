@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader
-import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion}
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 

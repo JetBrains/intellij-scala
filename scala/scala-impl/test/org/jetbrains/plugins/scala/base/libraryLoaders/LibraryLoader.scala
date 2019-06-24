@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.base.libraryLoaders
+package org.jetbrains.plugins.scala
+package base
+package libraryLoaders
 
 import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
 
 /**
   * @author adkozlov

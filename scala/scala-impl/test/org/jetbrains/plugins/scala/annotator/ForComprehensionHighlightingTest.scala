@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase

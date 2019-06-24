@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.debugger.positionManager
+package org.jetbrains.plugins.scala
+package debugger
+package positionManager
 
 import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger._

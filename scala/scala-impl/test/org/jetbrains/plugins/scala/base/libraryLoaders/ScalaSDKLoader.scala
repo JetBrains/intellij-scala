@@ -21,7 +21,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
   import DependencyManagerBase._
   import ScalaSDKLoader._
-  import debugger.ScalaVersion
   import template.Artifact.ScalaCompiler.{versionOf => ScalaCompilerVersion}
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =

@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.lang.resolve
+package org.jetbrains.plugins.scala
+package lang
+package resolve
 
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass

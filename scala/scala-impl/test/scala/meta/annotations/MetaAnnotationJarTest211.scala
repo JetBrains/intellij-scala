@@ -1,6 +1,6 @@
 package scala.meta.annotations
 
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
 
 /**
   * @author mutcianm

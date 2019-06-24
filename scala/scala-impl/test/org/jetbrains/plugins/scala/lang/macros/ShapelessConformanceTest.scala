@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.lang.macros
+package org.jetbrains.plugins.scala
+package lang
+package macros
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
 /**

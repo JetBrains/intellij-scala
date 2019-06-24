@@ -4,7 +4,6 @@ package intention
 package types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {

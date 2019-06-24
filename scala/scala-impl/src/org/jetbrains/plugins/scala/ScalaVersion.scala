@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala
-package debugger
 
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 

@@ -13,7 +13,6 @@ import org.junit.Assert.assertTrue
 class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._
-  import debugger.{ScalaVersion, Scala_2_13}
 
   override implicit val version: ScalaVersion = Scala_2_13
 

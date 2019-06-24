@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.lang.typeInference.generated
-
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
-import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
+package org.jetbrains.plugins.scala
+package lang
+package typeInference
+package generated
 
 /**
   * Author: Svyatoslav Ilinskiy

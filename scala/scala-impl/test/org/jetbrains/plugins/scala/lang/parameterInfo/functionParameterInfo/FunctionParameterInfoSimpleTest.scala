@@ -1,5 +1,7 @@
-package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+package org.jetbrains.plugins.scala
+package lang
+package parameterInfo
+package functionParameterInfo
 
 class FunctionParameterInfoSimpleTest extends FunctionParameterInfoSimpleTestBase
 
