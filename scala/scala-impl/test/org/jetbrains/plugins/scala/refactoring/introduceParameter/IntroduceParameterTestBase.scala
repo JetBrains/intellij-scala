@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{a
  */
 
 abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  protected def folderPath = baseRootPath() + "introduceParameter/"
+  protected def folderPath = baseRootPath + "introduceParameter/"
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
   private val allMarker = "//all = "

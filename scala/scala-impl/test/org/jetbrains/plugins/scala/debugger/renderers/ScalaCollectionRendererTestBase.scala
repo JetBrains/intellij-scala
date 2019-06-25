@@ -12,12 +12,12 @@ import org.junit.experimental.categories.Category
  * Date: 9/5/12
  */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_211 extends ScalaCollectionRendererTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
+class ScalaCollectionRendererTest_until_2_11 extends ScalaCollectionRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 }
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
+class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   addFileWithBreakpoints("Lazy.scala",
     s"""
@@ -35,8 +35,8 @@ class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
   }
 }
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_213 extends ScalaCollectionRendererTestBase {
-  override implicit val version: ScalaVersion = Scala_2_13
+class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
 
   addFileWithBreakpoints("Lazy.scala",
     s"""

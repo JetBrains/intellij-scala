@@ -39,7 +39,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   }
 
   override def folderPath: String = {
-    super.folderPath() + "resolve2/"
+    super.folderPath + "resolve2/"
   }
 
   def configureReferences(): PsiReference = {

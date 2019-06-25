@@ -16,11 +16,9 @@ import org.junit.Assert._
 
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
   protected val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.5.0")
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
+  override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader(
       monocleOrg %% "monocle-core"    % monocleVer,
       monocleOrg %% "monocle-macro"   % monocleVer,

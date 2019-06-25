@@ -8,17 +8,7 @@ import org.junit.experimental.categories.Category
  * Nikolay.Tropin
  * 8/2/13
  */
-
 @Category(Array(classOf[DebuggerTests]))
-class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTest_212_Base {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-
 abstract class InAnonFunEvaluationTest_212_Base extends InAnonFunEvaluationTestBase {
   //todo SCL-9139
   override def testPartialFunction(): Unit = {

@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
  * User: Dmitry Naydanov
  * Date: 3/5/12
  */
-abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightJavaCodeInsightFixtureTestCase with DefaultScalaSdkOwner with FailableTest {
+abstract class ScalaLightCodeInsightFixtureTestAdapter
+  extends LightJavaCodeInsightFixtureTestCase with ScalaSdkOwner with TestFixtureProvider with FailableTest {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._

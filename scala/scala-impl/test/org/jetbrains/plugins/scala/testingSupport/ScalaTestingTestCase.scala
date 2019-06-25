@@ -47,8 +47,6 @@ import scala.collection.JavaConverters._
 @Category(Array(classOf[TestingSupportTests]))
 abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with IntegrationTest with ScalaSdkOwner {
 
-  override implicit val version: ScalaVersion = Scala_2_11
-
   protected val configurationProducer: AbstractTestConfigurationProducer
 
   override def runInDispatchThread(): Boolean = false

@@ -25,7 +25,7 @@ import org.junit.Assert._
 abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val refMarker = "/*ref*/"
 
-  protected def folderPath = baseRootPath() + "checkers/checkPrivateAccess/"
+  protected def folderPath = baseRootPath + "checkers/checkPrivateAccess/"
 
   protected def doTest() {
     val filePath = folderPath + getTestName(false) + ".scala"

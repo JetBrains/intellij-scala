@@ -14,8 +14,6 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._
 
-  override implicit val version: ScalaVersion = Scala_2_13
-
   def testInImportSelector(): Unit = doCompletionTest(
     fileText = s"import scala.collection.immutable.{VBuil$CARET}",
     resultText = s"import scala.collection.immutable.{VectorBuilder$CARET}",

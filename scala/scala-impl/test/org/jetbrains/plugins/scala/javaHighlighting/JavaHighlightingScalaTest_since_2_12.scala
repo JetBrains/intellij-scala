@@ -2,13 +2,14 @@ package org.jetbrains.plugins
 package scala
 package javaHighlighting
 
+
 /**
   * @author Alefas
   * @since 22/12/2016
   */
-class JavaHighlightingScala2_12Test extends JavaHighlightingTestBase {
+class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   def testSCL11016(): Unit = {
     val java =

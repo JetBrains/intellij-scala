@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  def folderPath: String = baseRootPath() + "optimize/"
+  def folderPath: String = baseRootPath + "optimize/"
 
   protected def settings(file: PsiFile) = OptimizeImportSettings(file)
 

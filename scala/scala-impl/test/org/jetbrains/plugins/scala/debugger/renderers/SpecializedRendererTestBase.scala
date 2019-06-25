@@ -12,12 +12,12 @@ import org.junit.experimental.categories.Category
   * 14-Mar-17
   */
 @Category(Array(classOf[DebuggerTests]))
-class SpecializedRenderer_211 extends SpecializedRendererTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
+class SpecializedRenderer_until_2_11 extends SpecializedRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 }
 @Category(Array(classOf[DebuggerTests]))
-class SpecializedRenderer_212 extends SpecializedRendererTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
+class SpecializedRenderer_since_2_12 extends SpecializedRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 }
 
 abstract class SpecializedRendererTestBase extends RendererTestBase {

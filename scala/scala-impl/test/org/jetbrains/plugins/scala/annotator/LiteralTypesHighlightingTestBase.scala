@@ -7,8 +7,10 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import org.jetbrains.plugins.scala.util.TestUtils
 
-abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBase {
+class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBase {
   def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/"
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_12
 
   private def messageNoSupport(typeText: String): String = ScalaBundle.message("wrong.type.no.literal.types", typeText)
 
@@ -28,7 +30,7 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
     assertMessages(errors)(expectedErrors: _*)
   }
 
-  protected def checkNotSupported(): Unit = {
+  def testDefaultIsOff(): Unit = {
     val expectedErrors =
       Error("-1", messageNoSupport("-1")) ::
         Error("1", messageNoSupport("1")) :: Nil
@@ -43,7 +45,7 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
 
   }
 
-  protected def checkSupportedWithFlag(): Unit = {
+  def testSupportedWithFlag(): Unit = {
     val fileText = Some {
       """
         |object SimpleTest {
@@ -53,22 +55,4 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
     }
     doTest(fileText = fileText, settingOn = true)
   }
-}
-
-class LiteralTypesHightlightingTest_2_12 extends LiteralTypesHighlightingTestBase {
-
-  override implicit val version: ScalaVersion = Scala_2_12
-
-  def testDefaultIsOff(): Unit = checkNotSupported()
-
-  def testSimple(): Unit = checkSupportedWithFlag()
-}
-
-class LiteralTypesHightlightingTest_2_11 extends LiteralTypesHighlightingTestBase {
-
-  override implicit val version: ScalaVersion = Scala_2_11
-
-  def testDefaultIsOff(): Unit = checkNotSupported()
-
-  def testSimple(): Unit = checkSupportedWithFlag()
 }

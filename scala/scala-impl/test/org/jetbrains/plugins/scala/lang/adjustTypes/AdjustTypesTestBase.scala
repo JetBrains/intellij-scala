@@ -23,9 +23,9 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
-  protected def folderPath = baseRootPath() + "adjustTypes/"
+  protected def folderPath = baseRootPath + "adjustTypes/"
 
-  protected override def sourceRootPath(): String = folderPath
+  protected override def sourceRootPath: String = folderPath
 
   protected def doTest() {
     import _root_.junit.framework.Assert._

@@ -17,7 +17,7 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
   }
 
   @Override
-  protected String sourceRootPath() {
+  public String sourceRootPath() {
     return folderPath();
   }
 
@@ -29,7 +29,7 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
 
     final ScClass clazz = (ScClass) ((ScPrimaryConstructor) resolved).containingClass();
     final String name = clazz.getName();
-    assertTrue(name.equals("Description"));
+    assertEquals("Description", name);
 
   }
 
@@ -41,7 +41,7 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
 
     final ScTypeAlias alias = (ScTypeAlias) resolved;
     final String name = alias.getName();
-    assertTrue(name.equals("Den"));
+    assertEquals("Den", name);
 
   }
 
@@ -53,8 +53,7 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
 
     final PsiNamedElement named = (PsiNamedElement) resolved;
     final String name = named.getName();
-    assertTrue("popa".equals(name));
-
+    assertEquals("popa", name);
   }
 
 }

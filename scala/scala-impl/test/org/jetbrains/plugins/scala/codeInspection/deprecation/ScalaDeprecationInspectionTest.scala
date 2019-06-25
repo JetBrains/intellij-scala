@@ -182,9 +182,9 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
   )
 }
 
-class ScalaDeprecationInspectionTest_2_12 extends ScalaDeprecationInspectionTestBase {
+class ScalaDeprecationInspectionTest_where_duprecatedName_is_deprecated extends ScalaDeprecationInspectionTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_12
 
   def testDeprecatedParamName(): Unit = {
     val code =

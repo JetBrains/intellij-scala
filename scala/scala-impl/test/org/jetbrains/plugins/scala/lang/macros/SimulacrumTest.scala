@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 class SimulacrumTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val caret = "<caret>"
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     Seq(IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % "0.14.0"))
 

@@ -9,16 +9,7 @@ import org.junit.experimental.categories.Category
  * Date: 17.10.11
  */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaFieldEvaluationTest extends ScalaFieldEvaluationTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class ScalaFieldEvaluationTest_212 extends ScalaFieldEvaluationTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-
-abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
+class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
 
   addFileWithBreakpoints("Static.scala",
    s"""

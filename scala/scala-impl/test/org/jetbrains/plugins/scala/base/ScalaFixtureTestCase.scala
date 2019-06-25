@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryL
   * Date: 03.08.2009
   */
 
-abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with DefaultScalaSdkOwner {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner with TestFixtureProvider {
 
   protected val includeReflectLibrary: Boolean = false
 

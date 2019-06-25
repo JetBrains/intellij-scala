@@ -25,7 +25,7 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
   val BEGIN_MARKER: String = "/*begin*/"
   val END_MARKER: String = "/*end*/"
 
-  protected def folderPath = baseRootPath() + "introduceVariable/scopeSuggester/"
+  protected def folderPath = baseRootPath + "introduceVariable/scopeSuggester/"
 
   protected def doTest(suggestedScopesNames: Seq[String]) {
     val filePath = folderPath + getTestName(false) + ".scala"

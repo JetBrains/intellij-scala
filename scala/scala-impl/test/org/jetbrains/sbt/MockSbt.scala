@@ -1,16 +1,17 @@
 package org.jetbrains.sbt
 
+import junit.framework.Test
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_12, Scala_2_9}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_12}
 
 /**
   * @author Nikolay Obedin
   * @since 7/27/15.
   */
-trait MockSbtBase extends ScalaSdkOwner {
+trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
   implicit val sbtVersion: Version
 
@@ -22,9 +23,7 @@ trait MockSbtBase extends ScalaSdkOwner {
   ))
 }
 
-trait MockSbt_0_12 extends MockSbtBase {
-
-  override implicit val version: ScalaVersion = Scala_2_9
+trait MockSbt_0_12 extends MockSbtBase { this: Test =>
 
   override protected def librariesLoaders: Seq[LibraryLoader] =Seq(HeavyJDKLoader(), IvyManagedLoader(
     scalaCompilerDescription,
@@ -33,10 +32,10 @@ trait MockSbt_0_12 extends MockSbtBase {
   ))
 }
 
-trait MockSbt_0_13 extends MockSbtBase {
-  override implicit val version: ScalaVersion = Scala_2_10
+trait MockSbt_0_13 extends MockSbtBase { this: Test =>
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
 }
 
-trait MockSbt_1_0 extends MockSbtBase {
-  override implicit val version: ScalaVersion = Scala_2_12
+trait MockSbt_1_0 extends MockSbtBase { this: Test =>
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 }

@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
 abstract class InlineRefactoringTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val caretMarker = "/*caret*/"
 
-  protected def folderPath = baseRootPath() + "inline/"
+  protected def folderPath = baseRootPath + "inline/"
 
   protected def doTest() {
     import _root_.junit.framework.Assert._

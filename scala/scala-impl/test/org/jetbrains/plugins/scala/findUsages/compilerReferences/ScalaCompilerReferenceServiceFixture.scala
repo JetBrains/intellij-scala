@@ -24,7 +24,7 @@ import scala.util.control.NonFatal
 
 @Category(Array(classOf[SlowTests]))
 abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtureTestCase with ScalaSdkOwner {
-  override implicit val version: ScalaVersion                 = Scala_2_12
+
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader(includeScalaReflect = true))
 
   private[this] val compilerIndexLock: Lock                = new ReentrantLock()

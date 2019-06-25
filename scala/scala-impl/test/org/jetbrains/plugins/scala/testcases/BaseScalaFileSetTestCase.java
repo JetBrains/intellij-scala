@@ -39,11 +39,11 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
   }
 
   public abstract String transform(String testName, String[] data) throws Exception;
-
+  
   private static final String BEFORE_AND_AFTER_SEPARATOR = "-----";
   private static final String UNCHANGED_TAG = "<unchanged>";
 
-  protected void runTest(final File myTestFile) throws Throwable {
+  public void runTest(final File myTestFile) throws Throwable {
     String content = new String(FileUtil.loadFileText(myTestFile, "UTF-8"));
     Assert.assertNotNull(content);
 

@@ -9,16 +9,7 @@ import org.junit.experimental.categories.Category
  * Date: 13.10.11
  */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaLocalVariablesEvaluationTest extends ScalaLocalVariablesEvaluationTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class ScalaLocalVariablesEvaluationTest_212 extends ScalaLocalVariablesEvaluationTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-
-abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCase {
+class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Local.scala",
     s"""
        |object Local {

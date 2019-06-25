@@ -3,17 +3,19 @@ package lang
 package parameterInfo
 package functionParameterInfo
 
-class FunctionParameterInfoSimpleTest extends FunctionParameterInfoSimpleTestBase
 
-class FunctionParameterInfoSimpleTest_2_12 extends FunctionParameterInfoSimpleTestBase {
+class FunctionParameterInfoSimpleTest_since_2_12 extends FunctionParameterInfoTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}simple/"
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   def testJavaLibrary() = doTest()
 }
 
 
-abstract class FunctionParameterInfoSimpleTestBase extends FunctionParameterInfoTestBase {
+class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   override def getTestDataPath: String =
     s"${super.getTestDataPath}simple/"

@@ -17,7 +17,7 @@ public class DependenciesFromJavaResolveTest extends ScalaResolveTestCase {
   }
 
   @Override
-  protected String sourceRootPath() {
+  public String sourceRootPath() {
     return super.folderPath() + "resolve/aux1/idea/";
   }
 

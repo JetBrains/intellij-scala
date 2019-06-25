@@ -15,6 +15,8 @@ abstract class OptionEqualsSomeToContainsInspectionTest extends OperationsOnColl
 
 class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
 
@@ -78,7 +80,7 @@ class OptionEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTes
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
 
-  override implicit val version: ScalaVersion = Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")
@@ -90,7 +92,7 @@ class OptionNotEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspection
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
 
-  override implicit val version: ScalaVersion = Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")

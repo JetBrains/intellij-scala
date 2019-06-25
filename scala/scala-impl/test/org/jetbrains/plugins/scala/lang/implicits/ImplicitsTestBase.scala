@@ -28,7 +28,7 @@ abstract class ImplicitsTestBase extends ScalaLightPlatformCodeInsightTestCaseAd
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  def folderPath: String = baseRootPath() + "implicits/"
+  def folderPath: String = baseRootPath + "implicits/"
 
   protected def doTest() {
     import _root_.junit.framework.Assert._

@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[PerfCycleTests]))
 class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+ IvyManagedLoader("org.typelevel" %% "cats-core" % "1.4.0")

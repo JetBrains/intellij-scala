@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
-  override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
+  override def folderPath: String = super.folderPath + "resolve/imports/simple/"
 
   def testHidePredefImplicit() {
     findReferenceAtCaret() match {

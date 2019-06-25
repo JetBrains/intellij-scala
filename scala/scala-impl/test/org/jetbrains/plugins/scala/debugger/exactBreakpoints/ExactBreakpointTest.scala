@@ -17,54 +17,7 @@ import scala.collection.JavaConverters._
  * @author Nikolay.Tropin
  */
 @Category(Array(classOf[DebuggerTests]))
-class ExactBreakpointTest extends ExactBreakpointTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-@Category(Array(classOf[DebuggerTests]))
-class ExactBreakpointTest_212 extends ExactBreakpointTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
-
-  addSourceFile("SamAbstractClass.scala",
-    """object SamAbstractClass  {
-      |
-      |  def main(args: Array[String]): Unit = {
-      |    val test: Parser[String] = (in: String) => {
-      |      println()
-      |      in
-      |    }
-      |
-      |    test.parse(string)
-      |
-      |    parse(string)(firstChar)
-      |  }
-      |
-      |  def parse[T](s: String)(p: Parser[T]) = p.parse(s)
-      |
-      |  def firstChar(s: String): Option[Char] = s.headOption
-      |
-      |  val string = "string"
-      |
-      |  abstract class Parser[T] {
-      |    def parse(s: String): T
-      |  }
-      |}
-    """.stripMargin)
-  def testSamAbstractClass(): Unit = {
-    val printlnBp       = Breakpoint(4, null)
-    val testParseBp     = Breakpoint(8, null)
-    val firstCharLambda = Breakpoint(10, 0)
-    val firstCharMethod = Breakpoint(15, null)
-
-    checkStopResumeSeveralTimes(printlnBp, testParseBp, firstCharLambda, firstCharMethod)(
-      "test.parse(string)",
-      "println()",
-      "firstChar",
-      "def firstChar..."
-    )
-  }
-}
-
-abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
+class ExactBreakpointTest extends ScalaDebuggerTestCase {
 
   case class Breakpoint(line: Int, ordinal: Integer) {
     override def toString: String = s"line = $line, ordinal=$ordinal"
@@ -366,5 +319,42 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     )
   }
 
+  addSourceFile("SamAbstractClass.scala",
+    """object SamAbstractClass  {
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    val test: Parser[String] = (in: String) => {
+      |      println()
+      |      in
+      |    }
+      |
+      |    test.parse(string)
+      |
+      |    parse(string)(firstChar)
+      |  }
+      |
+      |  def parse[T](s: String)(p: Parser[T]) = p.parse(s)
+      |
+      |  def firstChar(s: String): Option[Char] = s.headOption
+      |
+      |  val string = "string"
+      |
+      |  abstract class Parser[T] {
+      |    def parse(s: String): T
+      |  }
+      |}
+    """.stripMargin)
+  def testSamAbstractClass(): Unit = {
+    val printlnBp       = Breakpoint(4, null)
+    val testParseBp     = Breakpoint(8, null)
+    val firstCharLambda = Breakpoint(10, 0)
+    val firstCharMethod = Breakpoint(15, null)
 
+    checkStopResumeSeveralTimes(printlnBp, testParseBp, firstCharLambda, firstCharMethod)(
+      "test.parse(string)",
+      "println()",
+      "firstChar",
+      "def firstChar..."
+    )
+  }
 }

@@ -2,16 +2,13 @@ package org.jetbrains.plugins.scala
 package debugger
 package sbtIncremental
 
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class SbtIncrementalTest extends SbtIncrementalTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-abstract class SbtIncrementalTestBase extends ScalaDebuggerTestBase {
+class SbtIncrementalTest extends ScalaDebuggerTestBase with ScalaSdkOwner {
   protected def addOtherLibraries(): Unit = {}
 
   override def setUp(): Unit = {

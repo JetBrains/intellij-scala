@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.types.utils.ScPsiElementAssertionTestBas
  * @author Alexander Podkhalyuzin
  */
 abstract class ExistentialSimplificationTestBase extends ScPsiElementAssertionTestBase[ScExpression] {
-  override def folderPath: String = baseRootPath() + "types/existentialSimplification/"
+  override def folderPath: String = baseRootPath + "types/existentialSimplification/"
 
   override def computeRepresentation(expr: ScExpression): Either[String, String] = {
     expr.`type`() match {

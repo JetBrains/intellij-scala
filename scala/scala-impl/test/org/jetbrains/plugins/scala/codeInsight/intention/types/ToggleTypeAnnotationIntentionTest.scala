@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
 
   override def familyName: String             = ToggleTypeAnnotation.FamilyName
-  override implicit val version: ScalaVersion = Scala_2_12
 
   override def setUp(): Unit = {
     super.setUp()

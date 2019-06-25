@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.types.utils.ScPsiElementAssertionTestBase
 
 abstract class KindProjectorTestBase extends ScPsiElementAssertionTestBase[ScParameterizedTypeElement] with KindProjectorSetUp {
-  def folderPath: String = baseRootPath() + "types/kindProjector/"
+  def folderPath: String = baseRootPath + "types/kindProjector/"
 
   override def computeRepresentation(t: ScParameterizedTypeElement): Either[String, String] = {
     t.computeDesugarizedType match {

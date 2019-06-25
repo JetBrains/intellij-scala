@@ -10,15 +10,8 @@ import org.junit.experimental.categories.Category
  * @author Nikolay.Tropin
  */
 @Category(Array(classOf[DebuggerTests]))
-class GetAllClassesTest extends GetAllClassesTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-@Category(Array(classOf[DebuggerTests]))
-class GetAllClassesTest_212 extends GetAllClassesTest_212_Base {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-
-abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
+abstract class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   override def testForStmt(): Unit = {
     checkGetAllClasses("ForStmt$")
@@ -55,6 +48,11 @@ abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
   override def testPartialFunctions(): Unit = {
     checkGetAllClasses("PartialFunctions$$anonfun$foo$2")
   }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class GetAllClassesTest_until_2_11 extends GetAllClassesTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {

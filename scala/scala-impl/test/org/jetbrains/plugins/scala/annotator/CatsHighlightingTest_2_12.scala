@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 
 class CatsHighlightingTest_2_12 extends ScalaHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+

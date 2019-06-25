@@ -53,13 +53,13 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
         getCommonSettings().getIndentOptions().TAB_SIZE = 2;
     }
 
-    protected void setUp(Project project) {
+    public void setUp(Project project) {
         super.setUp(project);
         ScalaLoader.loadScala();
         setSettings();
     }
 
-    protected void tearDown(Project project) {
+    public void tearDown(Project project) {
         super.tearDown(project);
     }
 }

@@ -14,13 +14,13 @@ import scala.collection.JavaConverters._
  * @author Nikolay.Tropin
  */
 @Category(Array(classOf[DebuggerTests]))
-class SmartStepIntoTest extends SmartStepIntoTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
+class SmartStepIntoTest_until_2_11 extends SmartStepIntoTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class SmartStepIntoTest_212 extends SmartStepIntoTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
+class SmartStepIntoTest_since_2_12 extends SmartStepIntoTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   override def testByNameArgument(): Unit = {
     runDebugger() {

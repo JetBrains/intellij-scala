@@ -27,7 +27,7 @@ import scala.collection.JavaConverters
 
 abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  def folderPath: String = baseRootPath() + "keywordCompletion/"
+  def folderPath: String = baseRootPath + "keywordCompletion/"
 
   protected def doTest() {
     val filePath = folderPath + getTestName(false) + ".scala"

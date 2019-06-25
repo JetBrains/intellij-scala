@@ -18,7 +18,7 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
   private def intKey(s: String): Integer = Integer.valueOf(s.hashCode)
 

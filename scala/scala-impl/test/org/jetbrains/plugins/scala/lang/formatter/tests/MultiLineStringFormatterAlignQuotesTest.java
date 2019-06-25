@@ -25,7 +25,7 @@ public class MultiLineStringFormatterAlignQuotesTest extends FormatterTest {
   }
 
   @Override
-  protected void setUp(Project project) {
+  public void setUp(Project project) {
     super.setUp(project);
     CommonCodeStyleSettings settings = getCommonSettings();
     ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);

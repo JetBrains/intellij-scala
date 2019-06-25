@@ -12,7 +12,7 @@ public class DefaultPackageResolveTest extends ScalaResolveTestCase {
   }
 
   @Override
-  protected String sourceRootPath() {
+  public String sourceRootPath() {
     return folderPath();
   }
 

@@ -5,8 +5,8 @@ import com.intellij.psi.PsiMember
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ParameterInfo}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
@@ -23,7 +23,7 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     element.asInstanceOf[ScMethodLike]
   }
 
-  override def folderPath: String = baseRootPath() + "changeSignature/inScala/"
+  override def folderPath: String = baseRootPath + "changeSignature/inScala/"
 
   override def processor(newVisibility: String,
                          newName: String,

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
  */
 
 class ImportsUsagesTest extends ScalaResolveTestCase {
-  override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
+  override def folderPath: String = super.folderPath + "resolve/imports/simple/"
 
   def printResults(imports: Object) {
   }

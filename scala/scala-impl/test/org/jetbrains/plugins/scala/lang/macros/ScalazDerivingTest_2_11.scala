@@ -22,7 +22,7 @@ import org.junit.Assert._
  */
 class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  override implicit val version: ScalaVersion = Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
 
   override def librariesLoaders = super.librariesLoaders :+ IvyManagedLoader(
     "com.fommil"           %% "stalactite" % "0.0.5",

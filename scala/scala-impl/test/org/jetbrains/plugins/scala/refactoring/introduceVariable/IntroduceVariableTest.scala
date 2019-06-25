@@ -16,8 +16,6 @@ import org.junit.runners.AllTests
 class IntroduceVariableTest extends AbstractIntroduceVariableTestBase(TestUtils.getTestDataPath + IntroduceVariableTest.DATA_PATH)
   with ScalaSdkOwner {
 
-  override implicit val version: ScalaVersion = Scala_2_10
-
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader())
 }
 

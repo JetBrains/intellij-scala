@@ -9,16 +9,7 @@ import org.junit.experimental.categories.Category
  * Date: 20.10.11
  */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest extends ScalaThisAndSuperEvaluationTestBaseClass {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest_212 extends ScalaThisAndSuperEvaluationTestBaseClass {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-
-abstract class ScalaThisAndSuperEvaluationTestBaseClass extends ScalaDebuggerTestCase {
+class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("TraitThis.scala",
     s"""
        |object TraitThis {

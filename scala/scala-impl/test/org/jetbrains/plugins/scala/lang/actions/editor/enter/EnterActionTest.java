@@ -20,7 +20,7 @@ public class EnterActionTest extends AbstractEnterActionTestBase {
   }
 
   @Override
-  protected void setUp(Project project) {
+  public void setUp(Project project) {
     super.setUp(project);
 
     CodeInsightSettings.getInstance().JAVADOC_STUB_ON_ENTER = false; //No, we don't need it.
@@ -33,7 +33,7 @@ public class EnterActionTest extends AbstractEnterActionTestBase {
   }
 
   @Override
-  protected void tearDown(Project project) {
+  public void tearDown(Project project) {
     CodeInsightSettings.getInstance().JAVADOC_STUB_ON_ENTER = true;
 
     super.tearDown(project);

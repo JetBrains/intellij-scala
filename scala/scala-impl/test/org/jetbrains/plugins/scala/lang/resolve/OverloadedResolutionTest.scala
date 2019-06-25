@@ -8,7 +8,7 @@ import org.junit.Assert._
   */
 class OverloadedResolutionTest extends ScalaResolveTestCase {
 
-  override def folderPath(): String = s"${super.folderPath()}resolve/overloadedResolution"
+  override def folderPath: String = s"${super.folderPath}resolve/overloadedResolution"
 
   def testSCL7890(): Unit = doTest()
 

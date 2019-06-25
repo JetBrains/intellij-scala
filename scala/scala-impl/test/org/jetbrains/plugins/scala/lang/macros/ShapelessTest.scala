@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class ShapelessTest extends TypeInferenceTestBase {
-
-  override implicit val version: ScalaVersion = Scala_2_11
-
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3") :: Nil
 

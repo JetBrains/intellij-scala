@@ -7,7 +7,7 @@ import org.junit.Assert._
   * Created by katejim on 5/26/16.
   */
 class ResolvePackagesWithBacktickeds extends ScalaResolveTestCase {
-  override def folderPath: String = s"${super.folderPath()}resolve/packages/backtickeds"
+  override def folderPath: String = s"${super.folderPath}resolve/packages/backtickeds"
 
   override protected def sourceRootPath: String = folderPath
 

@@ -29,7 +29,7 @@ import org.junit.experimental.categories.Category
 abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with FailableTest {
   protected val caretMarker = "/*caret*/"
 
-  def folderPath: String = baseRootPath() + "typeConformance/"
+  def folderPath: String = baseRootPath + "typeConformance/"
 
   protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false) {
     configureFromFileTextAdapter(fileName, fileText.trim)

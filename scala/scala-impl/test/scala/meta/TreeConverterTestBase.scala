@@ -21,5 +21,5 @@ abstract class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
 }
 
 abstract class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 }

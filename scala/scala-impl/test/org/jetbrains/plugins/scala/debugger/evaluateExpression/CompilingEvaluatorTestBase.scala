@@ -8,17 +8,8 @@ import org.junit.experimental.categories.Category
 /**
   * @author Nikolay.Tropin
   */
-
 @Category(Array(classOf[DebuggerTests]))
-class CompilingEvaluatorTest extends CompilingEvaluatorTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class CompilingEvaluatorTest_212 extends CompilingEvaluatorTestBase {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
+class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
 
   override def setUp(): Unit = {
     super.setUp()

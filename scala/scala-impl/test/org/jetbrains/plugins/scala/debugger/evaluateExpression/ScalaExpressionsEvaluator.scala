@@ -8,23 +8,8 @@ import org.junit.experimental.categories.Category
  * User: Alefas
  * Date: 19.10.11
  */
-
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase {
-  override implicit val version: ScalaVersion = Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
-  override implicit val version: ScalaVersion = Scala_2_12
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
-  override implicit val version: ScalaVersion = Scala_2_13
-}
-
-abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
+abstract class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrefixUnary.scala",
     s"""
       |object PrefixUnary {

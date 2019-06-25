@@ -10,8 +10,6 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class WorksheetCompileTest extends WorksheetProcessorTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_11
-
   def testSimple1(): Unit = doTest {
     """
       | val a = 1

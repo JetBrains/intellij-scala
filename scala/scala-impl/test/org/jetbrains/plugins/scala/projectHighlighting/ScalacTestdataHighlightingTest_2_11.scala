@@ -38,8 +38,6 @@ abstract class ScalacTestdataHighlightingTestBase_2_12
 
   override def getModule: Module = super.getModule
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
   override def librariesLoaders = Seq(
     ScalaSDKLoader(includeScalaReflect = true)
   )

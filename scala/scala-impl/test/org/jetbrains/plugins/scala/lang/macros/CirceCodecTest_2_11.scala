@@ -18,7 +18,7 @@ import org.junit.Assert._
 
 class CirceCodecTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  override implicit val version: ScalaVersion = Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
 
   override def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders :+ IvyManagedLoader(
     "io.circe" %% "circe-core" % "0.9.3",

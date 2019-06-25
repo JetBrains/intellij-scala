@@ -30,6 +30,7 @@ import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.XBreakpointType
 import com.sun.jdi.VoidValue
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
@@ -45,7 +46,7 @@ import scala.util.{Failure, Success, Try}
  * User: Alefas
  * Date: 13.10.11
  */
-abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
+abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdkOwner {
 
   protected val bp = "<breakpoint>"
 

@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
   */
 class AkkaHttpHighlightingTest_2_12 extends ScalaHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+
   private val akkaHttpVersion = "10.0.11"
   private val akkaVersion     = "2.5.8"
 

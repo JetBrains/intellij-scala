@@ -10,9 +10,9 @@ import org.junit.Assert._
   */
 abstract class FailedResolveTest(dirName: String) extends ScalaResolveTestCase with FailableTest {
 
-  override def folderPath(): String = s"${super.folderPath()}resolve/failed/$dirName"
+  override def folderPath: String = s"${super.folderPath}resolve/failed/$dirName"
 
-  override def sourceRootPath(): String = folderPath()
+  override def sourceRootPath(): String = folderPath
 
   override protected def shouldPass: Boolean = false
 

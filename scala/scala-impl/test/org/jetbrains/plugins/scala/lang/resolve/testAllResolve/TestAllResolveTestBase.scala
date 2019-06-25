@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
  */
 
 abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  def folderPath: String = baseRootPath() + "resolve/testAllResolve/"
+  def folderPath: String = baseRootPath + "resolve/testAllResolve/"
 
   protected def doTest() {
     import _root_.junit.framework.Assert._

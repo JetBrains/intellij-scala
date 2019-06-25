@@ -12,11 +12,9 @@ import org.junit.Assert
   * 23-Mar-18
   */
 class MacroBundleTest extends ScalaResolveTestCase {
-  override implicit val version: ScalaVersion = Scala_2_11
-
   override protected def isIncludeReflectLibrary = true
 
-  override def folderPath = super.folderPath() + "resolve/macroBundle/"
+  override def folderPath = super.folderPath + "resolve/macroBundle/"
 
   def testSCL8414a(): Unit = findReferenceAtCaret() match {
     case ResolvesTo(_: ScClass) =>

@@ -293,9 +293,9 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
   }
 }
 
-class ForComprehensionHighlightingTest_2_12 extends ForComprehensionHighlightingTestBase {
+class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+
@@ -318,9 +318,9 @@ class ForComprehensionHighlightingTest_2_12 extends ForComprehensionHighlighting
   }
 }
 
-class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlightingTestBase {
+class ForComprehensionHighlightingTest_with_filter_allowed extends ForComprehensionHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 
   def test_filterOnly(): Unit = {
     val code =
@@ -426,9 +426,9 @@ class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlighting
   }
 }
 
-class ForComprehensionHighlightingTest_2_12_WithBetterMonadicFor extends ForComprehensionHighlightingTestBase {
+class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   override protected def setUp(): Unit = {
     super.setUp()

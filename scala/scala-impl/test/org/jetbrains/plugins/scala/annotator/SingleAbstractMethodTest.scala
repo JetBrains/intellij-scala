@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
   */
 abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with AssertMatches {
 
+
+
   def testBasicGenerics() {
     val code =
       """
@@ -599,6 +601,8 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
 
 class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+
   def testFunctionSAM() {
     val code =
       """
@@ -764,7 +768,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
 class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
-  override implicit val version: ScalaVersion = Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
 
   protected override def setUp() {
     super.setUp()

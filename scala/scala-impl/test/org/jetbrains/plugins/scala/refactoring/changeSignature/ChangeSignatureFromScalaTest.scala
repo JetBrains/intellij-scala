@@ -15,7 +15,7 @@ import org.junit.Assert._
  * 2014-09-05
  */
 class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
-  override def folderPath: String = baseRootPath() + "changeSignature/fromScala/"
+  override def folderPath: String = baseRootPath + "changeSignature/fromScala/"
 
   override def mainFileName(testName: String) = testName + ".scala"
   override def secondFileName(testName: String) = testName + ".java"

@@ -33,7 +33,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
   private val initLocallyMarker = "/*initLocally*/"
   private val selectedClassNumberMarker = "/*selectedClassNumber = "
 
-  def folderPath: String = baseRootPath() + "introduceField/"
+  def folderPath: String = baseRootPath + "introduceField/"
 
   implicit def projectContext: Project = getProjectAdapter
 

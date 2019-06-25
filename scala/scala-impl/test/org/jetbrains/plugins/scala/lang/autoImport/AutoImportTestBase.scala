@@ -26,9 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val refMarker =  "/*ref*/"
 
-  protected def folderPath = baseRootPath() + "autoImport/"
+  protected def folderPath = baseRootPath + "autoImport/"
 
-  protected override def sourceRootPath(): String = folderPath
+  protected override def sourceRootPath: String = folderPath
 
   import ScalaImportTypeFix._
   import org.junit.Assert._

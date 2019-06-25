@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
   */
 abstract class UTestTestBase_2_12_0_5_4 extends UTestTestCase {
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
   override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader("com.lihaoyi" %% "utest" % "0.5.4") :: Nil
 

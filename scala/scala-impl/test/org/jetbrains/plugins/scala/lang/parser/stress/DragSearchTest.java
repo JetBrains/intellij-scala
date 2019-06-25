@@ -51,7 +51,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     return null;
   }
 
-  protected void runTest(final File myTestFile) throws Throwable {
+  public void runTest(final File myTestFile) throws Throwable {
 
     String content = new String(FileUtil.loadFileText(myTestFile));
     Assert.assertNotNull(content);

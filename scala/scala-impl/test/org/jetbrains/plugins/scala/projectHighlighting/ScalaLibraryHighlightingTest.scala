@@ -20,8 +20,6 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
     "scala/Responder.scala" -> Set[TextRange]((1987, 1988), (2133, 2134), (2278, 2279))
   )
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
   override def librariesLoaders = Seq(
     CustomSDKLoader,
     HeavyJDKLoader()
