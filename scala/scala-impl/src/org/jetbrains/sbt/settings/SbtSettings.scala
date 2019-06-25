@@ -8,8 +8,6 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jetbrains.annotations.NotNull
@@ -84,18 +82,11 @@ class SbtSettings(project: Project)
   def getLinkedProjectSettings(module: Module): Option[SbtProjectSettings] =
     Option(ExternalSystemApiUtil.getExternalRootProjectPath(module)).safeMap(getLinkedProjectSettings)
 
-  def getLinkedProjectSettings(element: PsiElement): Option[SbtProjectSettings] =
-    for {
-      virtualFile <- Option(element.getContainingFile).safeMap(_.getVirtualFile)
-      projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-      module <- Option(projectFileIndex.getModuleForFile(virtualFile))
-      if project == element.getProject
-      projectSettings <- getLinkedProjectSettings(module)
-    } yield projectSettings
-
   override def getLinkedProjectSettings(linkedProjectPath: String): SbtProjectSettings =
-    Option(super.getLinkedProjectSettings(linkedProjectPath))
-      .getOrElse(super.getLinkedProjectSettings(ExternalSystemApiUtil.normalizePath(linkedProjectPath)))
+    super.getLinkedProjectSettings(linkedProjectPath) match {
+      case null => super.getLinkedProjectSettings(ExternalSystemApiUtil.normalizePath(linkedProjectPath))
+      case settings => settings
+    }
 
   override def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings): Unit = {}
 }
