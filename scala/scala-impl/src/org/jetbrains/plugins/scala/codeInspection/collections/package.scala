@@ -383,24 +383,31 @@ package object collections {
     case _ => isOfClassFrom(expr, Array("scala.Array"))
   }
 
-  def isSet: ScExpression => Boolean = isExpressionOfType("scala.collection.GenSetLike")
+  def isSet: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.GenSetLike", "scala.collection.SetOps")
 
-  def isSeq: ScExpression => Boolean = isExpressionOfType("scala.collection.GenSeqLike")
+  def isSeq: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.GenSeqLike", "scala.collection.SeqOps")
 
-  def isIndexedSeq: ScExpression => Boolean = isExpressionOfType("scala.collection.IndexedSeqLike")
+  def isIndexedSeq: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.IndexedSeqLike", "scala.collection.IndexedSeqOps")
 
   def isNonIndexedSeq: ScExpression => Boolean = expr => isSeq(expr) && !isIndexedSeq(expr)
 
-  def isMap: ScExpression => Boolean = isExpressionOfType("scala.collection.GenMapLike")
+  def isMap: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.GenMapLike", "scala.collection.MapOps")
 
-  def isSortedSet: ScExpression => Boolean = isExpressionOfType("scala.collection.SortedSetLike")
+  def isSortedSet: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.SortedSetLike", "scala.collection.SortedSetOps")
 
-  def isSortedMap: ScExpression => Boolean = isExpressionOfType("scala.collection.SortedMapLike")
+  def isSortedMap: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.SortedMapLike", "scala.collection.SortedMapOps")
 
-  def isIterator: ScExpression => Boolean = isExpressionOfType("scala.collection.Iterator")
+  def isIterator: ScExpression => Boolean =
+    isExpressionOfType("scala.collection.Iterator")
 
-  private def isExpressionOfType(fqn: String): ScExpression => Boolean = {
-    case expression@Typeable(scType) => conformsToTypeFromClass(scType, fqn)(expression)
+  private def isExpressionOfType(fqns: String*): ScExpression => Boolean = {
+    case expression@Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(expression))
     case _ => false
   }
 
