@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.psi.PsiFileFactory
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
+import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match, Mismatch}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
@@ -15,8 +15,6 @@ import org.junit.Assert._
 
 // TODO Work in progress
 class TypeDiffTest extends ScalaFixtureTestCase {
-  // TODO test parsing of groups
-  // TODO test region nesting (for code folding)
   // TODO test separation of matched elements, such as [ or ]
 
   override implicit val version: ScalaVersion = Scala_2_13
@@ -28,6 +26,12 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       java array types
     */
 
+  def testSingularParsing(): Unit = {
+    assertParsedAs(
+      "class Foo",
+      "Foo", "<Foo>")
+  }
+
   def testSingular(): Unit = {
     assertDiffsAre(
       "class Foo",
@@ -37,6 +41,12 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "class Foo; class Bar",
       "~Foo~", "~Bar~"
     )
+  }
+
+  def testLiteralParsing(): Unit = {
+    assertParsedAs(
+      "",
+      "1", "<1>")
   }
 
   def testLiteral(): Unit = {
@@ -104,6 +114,15 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "",
       "~true~", "~1~"
     )
+  }
+
+  def testParameterizedParsing(): Unit = {
+    assertParsedAs(
+      "class A; class Foo[T]",
+      "Foo[A]", "<<Foo>[<<A>>]>")
+    assertParsedAs(
+      "class A; class B; class Foo[T1, T2]",
+      "Foo[A, B]", "<<Foo>[<<A>, <B>>]>")
   }
 
   def testParameterized(): Unit = {
@@ -208,6 +227,12 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     )
   }
 
+  def testTupleParsing(): Unit = {
+    assertParsedAs(
+      "class A; class B",
+      "(A, B)", "<(<<A>, <B>>)>")
+  }
+
   def testTuple(): Unit = {
     assertDiffsAre(
       "class A; class B",
@@ -257,6 +282,12 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "class A; class B; class C",
       "~A~", "~(A, A)~"
     )
+  }
+
+  def testInfixParsing(): Unit = {
+    assertParsedAs(
+      "class A; class B; class &[T1, T2]",
+      "A & B", "<<A> <&> <B>>")
   }
 
   def testInfix(): Unit = {
@@ -322,6 +353,15 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "class A; class B; class C; class &[T1, T2]; class &&[T1, T2]",
       "A & B && C", "A & B && C"
     )
+  }
+
+  def testFunctionParsing(): Unit = {
+    assertParsedAs(
+      "class P; class R",
+      "P => R", "<<P> => <R>>")
+    assertParsedAs(
+      "class P1; class P2; class R",
+      "(P1, P2) => R", "<(<<P1>, <P2>>) => <R>>")
   }
 
   def testFunction(): Unit = {
@@ -424,11 +464,19 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     )
   }
 
+  private def assertParsedAs(context: String, tpe: String, structure: String): Unit = {
+    def asString(diff: TypeDiff): String = diff match {
+      case Match(text, _) => text
+      case Group(diffs @_*) => "<" + diffs.map(asString).mkString + ">"
+    }
+    assertEquals(structure, asString(TypeDiff.parse(typesIn(context, tpe).head)))
+  }
+
   private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
     // Make sure that the expected diffs are coherent
     assertEquals(expectedDiff1.contains("~"), expectedDiff2.contains("~"))
 
-    val (tpe1, tpe2) = typesIn(context, clean(expectedDiff1), clean(expectedDiff2))
+    val Seq(tpe1, tpe2) = typesIn(context, clean(expectedDiff1), clean(expectedDiff2))
     val (actualDiffData1, actualDiffData2) = TypeDiff.forBoth(tpe1, tpe2)
 
     // Make sure that the actual diffs match the expected diffs
@@ -464,10 +512,10 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     parts.mkString
   }
 
-  private def typesIn(context: String, type1: String, type2: String): (ScType, ScType) = {
-    val Seq(tpe1, tpe2) = parseText(s"$context; null: $type1; null: $type2").children.instancesOf[ScTypedExpression].toSeq.map(typeOf)
-    (tpe1, tpe2)
-  }
+  private def typesIn(context: String, types: String*): Seq[ScType] =
+    parseText(s"$context; ${types.map("null: " + _).mkString(";")}")
+      .children.instancesOf[ScTypedExpression]
+      .map(typeOf).toSeq
 
   private def typeOf(e: ScTypedExpression) = {
     val typeElement = e.typeElement.getOrElse(throw new IllegalArgumentException("No type element: " + e.getText))
