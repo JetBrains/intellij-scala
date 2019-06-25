@@ -113,7 +113,9 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
         if (moduleCommands.size == 1) moduleCommands.head
         else moduleCommands.mkString("all ", " ", "")
 
-      FileDocumentManager.getInstance().saveAllDocuments()
+      extensions.invokeAndWait {
+        FileDocumentManager.getInstance().saveAllDocuments()
+      }
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
       val task = new CommandTask(project, modules.toArray, command, callbackOpt)
