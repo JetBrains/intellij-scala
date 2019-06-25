@@ -50,6 +50,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.annotation.tailrec
+import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.io.Source
@@ -271,6 +272,11 @@ package object extensions {
                 end: B)
                (generator: A => Seq[B]): Seq[B] =
       start +: join(separator)(generator) :+ end
+
+    // https://github.com/scala/collection-strawman/issues/208
+    def intersperse[B >: A](sep: B): Seq[B] = value.iterator.intersperse(sep).toSeq
+
+    def intersperse[B >: A](start: B, sep: B, end: B): Seq[B] = value.iterator.intersperse(start, sep, end).toSeq
 
     // https://pavelfatin.com/twitter-puddles-and-foldlr
     def foldlr[L, R](l: L, r: R)(f1: (L, A) => L)(f2: (L, A, R) => R): R =
@@ -912,6 +918,22 @@ package object extensions {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       delegate.find(clazz.isInstance).asInstanceOf[Option[T]]
     }
+
+    // https://github.com/scala/collection-strawman/issues/208
+    def intersperse[B >: A](sep: B): Iterator[B] = new Iterator[B] {
+      private var intersperseNext = false
+
+      override def hasNext: Boolean = intersperseNext || delegate.hasNext
+
+      override def next(): B = {
+        val element = if (intersperseNext) sep else delegate.next()
+        intersperseNext = !intersperseNext && delegate.hasNext
+        element
+      }
+    }
+
+    def intersperse[B >: A](start: B, sep: B, end: B): Iterator[B] =
+      Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
   }
 
   implicit class ConcurrentMapExt[K, V](val map: java.util.concurrent.ConcurrentMap[K, V]) extends AnyVal {
