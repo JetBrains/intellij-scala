@@ -4,7 +4,7 @@ package psi
 package impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, Language}
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
@@ -60,6 +60,8 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
+
+  override final def getLanguage: Language = super.getLanguage
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
@@ -128,4 +130,6 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
     stubbed.context = this.context
     stubbed.child = this.child
   }
+
+  override final def getLanguage: Language = super.getLanguage
 }

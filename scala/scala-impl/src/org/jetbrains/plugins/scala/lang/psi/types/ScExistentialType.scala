@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author ilyas
@@ -18,7 +17,7 @@ final class ScExistentialType private (val quantified: ScType,
                                        val wildcards: List[ScExistentialArgument],
                                        private val simplified: Option[ScType]) extends ScalaType with ValueType {
 
-  override implicit def projectContext: ProjectContext = quantified.projectContext
+  override implicit def projectContext: project.ProjectContext = quantified.projectContext
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
@@ -104,10 +103,7 @@ final class ScExistentialType private (val quantified: ScType,
 
   def simplify(): ScType = simplified.getOrElse(this)
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialType(this)
-    case _ =>
-  }
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitExistentialType(this)
 
   override def typeDepth: Int = quantified.typeDepth + 1
 

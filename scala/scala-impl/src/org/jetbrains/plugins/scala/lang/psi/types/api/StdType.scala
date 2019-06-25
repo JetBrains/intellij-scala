@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
+package api
 
 import java.util.concurrent.atomic.AtomicReference
 
@@ -8,7 +12,6 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed class StdType(val name: String, val tSuper: Option[StdType])
@@ -17,7 +20,7 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
 
   val fullName = s"scala.$name"
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor.visitStdType(this)
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitStdType(this)
 
   /**
     * Return wrapped to option appropriate synthetic class.

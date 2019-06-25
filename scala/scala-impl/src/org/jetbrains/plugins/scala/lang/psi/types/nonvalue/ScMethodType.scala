@@ -1,22 +1,20 @@
 package org.jetbrains.plugins.scala
-package lang.psi.types.nonvalue
-
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.project.ProjectContext
+package lang
+package psi
+package types
+package nonvalue
 
 final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
-  implicit def projectContext: ProjectContext = elementScope.projectContext
+  implicit def projectContext: project.ProjectContext = elementScope.projectContext
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor.visitMethodType(this)
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitMethodType(this)
 
   override def typeDepth: Int = result.typeDepth
 
-  def inferValueType: ValueType = {
-    FunctionType(result.inferValueType, params.map(p => {
+  def inferValueType: api.ValueType = {
+    api.FunctionType(result.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
       else inferredParamType.tryWrapIntoSeqType
