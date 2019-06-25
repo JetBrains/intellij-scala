@@ -14,6 +14,7 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.collection.JavaConverters._
+import org.jetbrains.sbt.RichOption
 
 object Generators {
 
@@ -86,7 +87,7 @@ object Generators {
     scalaVersion <- arbitrary[Option[String]]
     scalacClasspath <- arbitrary[File].list
     scalacOptions <- arbitrary[String].list
-  } yield ScalaSdkData(scalaOrganization, scalaVersion.orNull , scalacClasspath, scalacOptions)
+  } yield ScalaSdkData(scalaOrganization, scalaVersion.toJavaOptional, scalacClasspath, scalacOptions)
 
   def genModuleKind: Gen[ModuleKind] = for {
     scalaSdkData <- genScalaSdkData
