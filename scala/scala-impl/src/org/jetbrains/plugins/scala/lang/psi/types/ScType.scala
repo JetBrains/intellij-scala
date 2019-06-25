@@ -4,15 +4,12 @@ package psi
 package types
 
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
-import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
 import scala.language.implicitConversions
 
-trait ScType extends ProjectContextOwner {
+trait ScType extends project.ProjectContextOwner {
 
-  def typeSystem: TypeSystem = projectContext.typeSystem
+  def typeSystem: api.TypeSystem = projectContext.typeSystem
 
   private var aliasType: Option[AliasType] = null
 
@@ -36,13 +33,15 @@ trait ScType extends ProjectContextOwner {
 
   protected def isAliasTypeInner: Option[AliasType] = None
 
-  override final def toString: String = ifReadAllowed(presentableText)(getClass.getSimpleName)
+  override final def toString: String = extensions.ifReadAllowed {
+    presentableText
+  }(getClass.getSimpleName)
 
   def isValue: Boolean
 
   def isFinalType: Boolean = false
 
-  def inferValueType: ValueType
+  def inferValueType: api.ValueType
 
   protected def unpackedTypeInner: ScType = ScExistentialType(this) match {
     case ScExistentialType(q, Seq())                                       => q
@@ -54,12 +53,12 @@ trait ScType extends ProjectContextOwner {
     ConstraintsResult.Left
   }
 
-  def visitType(visitor: TypeVisitor)
+  def visitType(visitor: ScalaTypeVisitor): Unit
 
   def typeDepth: Int = 1
 
   def presentableText(implicit context: TypePresentationContext): String =
-    typeSystem.presentableText(this, withPrefix = true)
+    typeSystem.presentableText(this)
 
   def canonicalText: String = typeSystem.canonicalText(this)
 }

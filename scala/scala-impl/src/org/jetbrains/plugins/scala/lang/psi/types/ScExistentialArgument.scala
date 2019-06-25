@@ -1,7 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType, TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -45,10 +48,7 @@ trait ScExistentialArgument extends NamedType with ValueType {
     }
   }
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialArgument(this)
-    case _ =>
-  }
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitExistentialArgument(this)
 }
 
 object ScExistentialArgument {

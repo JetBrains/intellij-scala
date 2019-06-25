@@ -16,7 +16,7 @@ final class ScLiteralType private(val value: ScLiteral.Value[_],
 
   override implicit def projectContext: ProjectContext = project
 
-  override def visitType(visitor: api.TypeVisitor): Unit = visitor.visitLiteralType(this)
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitLiteralType(this)
 
   def wideType: ScType = value.wideType
 

@@ -1,14 +1,15 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
+package api
 
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType, ScTypeExt, ScalaType}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 final case class JavaArrayType(argument: ScType) extends ValueType {
 
-  override implicit def projectContext: ProjectContext = argument.projectContext
+  override implicit def projectContext: project.ProjectContext = argument.projectContext
 
   def getParameterizedType(implicit elementScope: ElementScope): Option[ValueType] = {
     elementScope.getCachedClasses("scala.Array").collect {
@@ -29,7 +30,7 @@ final case class JavaArrayType(argument: ScType) extends ValueType {
       case _ => ConstraintsResult.Left
     }
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor.visitJavaArrayType(this)
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitJavaArrayType(this)
 
   override def typeDepth: Int = argument.typeDepth
 }

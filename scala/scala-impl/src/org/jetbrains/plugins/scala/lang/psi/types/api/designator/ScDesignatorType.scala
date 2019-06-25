@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api.designator
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
+package api
+package designator
 
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 /**
@@ -15,7 +18,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
   * It can be whether singleton type (v.type) or simple type (java.lang.String).
   * element can be any stable element, class, value or type alias
   */
-case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner with LeafType {
+final case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner with LeafType {
 
   private var static = false
 
@@ -92,7 +95,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner wi
     }
   }
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor.visitDesignatorType(this)
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitDesignatorType(this)
 }
 
 object ScDesignatorType {

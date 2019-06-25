@@ -1,9 +1,11 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
+package api
 
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class TypeParameterType private (val typeParameter: TypeParameter)
@@ -47,7 +49,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
     else ConstraintsResult.Left
   }
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor.visitTypeParameterType(this)
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitTypeParameterType(this)
 
   override def equals(other: Any): Boolean = other match {
     case that: TypeParameterType => typeParameter == that.typeParameter

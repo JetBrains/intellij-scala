@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType with NonValueType with LeafType {
+final class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType with NonValueType with LeafType {
 
   override implicit def projectContext: ProjectContext = typeParameter.psiTypeParameter
 
@@ -46,10 +46,7 @@ class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType with No
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
   }
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitAbstractType(this)
-    case _ =>
-  }
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitAbstractType(this)
 
   //for allocation-free extractor
   def isEmpty: Boolean = false

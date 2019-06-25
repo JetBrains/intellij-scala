@@ -1,8 +1,11 @@
-package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
+package nonvalue
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -149,10 +152,7 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
     }
   }
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitTypePolymorphicType(this)
-    case _ =>
-  }
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitTypePolymorphicType(this)
 
   override def typeDepth: Int = internalType.typeDepth.max(typeParameters.toArray.depth)
 }

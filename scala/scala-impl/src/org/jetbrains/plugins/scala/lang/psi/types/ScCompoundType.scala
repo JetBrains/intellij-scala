@@ -9,17 +9,15 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-final case class ScCompoundType private (
+final case class ScCompoundType private(
   components:   Seq[ScType],
   signatureMap: Map[TermSignature, ScType]          = Map.empty,
   typesMap:     Map[String, TypeAliasSignature] = Map.empty
-)(implicit override val projectContext: ProjectContext) extends ScalaType with ValueType {
+                                       )(implicit override val projectContext: ProjectContext) extends ScalaType with api.ValueType {
 
   private var hash: Int = -1
 
@@ -31,10 +29,7 @@ final case class ScCompoundType private (
   }
 
 
-  override def visitType(visitor: TypeVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitCompoundType(this)
-    case _ =>
-  }
+  override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitCompoundType(this)
 
   override def typeDepth: Int = {
     val depths = signatureMap.map {
@@ -113,10 +108,10 @@ final case class ScCompoundType private (
           val filtered = components.filter {
             case t if t.isAny => false
             case t if t.isAnyRef =>
-              if (!r.conforms(AnyRef)) return ConstraintsResult.Left
+              if (!r.conforms(api.AnyRef)) return ConstraintsResult.Left
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(AnyRef)) return ConstraintsResult.Left
+              if (!r.conforms(api.AnyRef)) return ConstraintsResult.Left
               false
             case _ => true
           }
