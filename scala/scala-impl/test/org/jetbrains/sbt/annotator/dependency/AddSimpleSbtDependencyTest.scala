@@ -4,7 +4,6 @@ package dependency
 
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -17,7 +16,7 @@ class AddSimpleSbtDependencyTest extends AnnotatorTestBase {
   import AddSbtDependencyUtils._
   import AddSimpleSbtDependencyTest._
 
-  override def testdataPath: String = s"$getTestDataPath/annotator/intention/sbt"
+  override def testdataPath: String = s"${super.testdataPath}/dependency"
 
   def testSingleLibraryDependency(): Unit = {
     val testFile = loadTestFile()
