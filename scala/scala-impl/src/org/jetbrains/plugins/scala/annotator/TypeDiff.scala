@@ -30,6 +30,7 @@ sealed trait TypeDiff {
 }
 
 object TypeDiff {
+  // TODO diffs: Seq[TypeDiff]
   final case class Group(diffs: TypeDiff*) extends TypeDiff {
     override def flattenTo0(maxChars: Int, groupLength: Int): (Seq[TypeDiff], Int) = {
       val (xs, length) = diffs.reverse.foldlr(0, (Vector.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
@@ -84,7 +85,7 @@ object TypeDiff {
         Group(diff(l1, l2)(conformanceFor(v1)), Match(" "), diff(d1, d2), Match(" "), diff(r1, r2)(conformanceFor(v2)))
 
       case (TupleType(ts1), TupleType(ts2)) =>
-        if (ts1.length == ts2.length) Group(Match("(") +: (ts1, ts2).zipped.map(diff).intersperse(Match(", ")) :+ Match(")"): _*)
+        if (ts1.length == ts2.length) Group(Match("("), Group((ts1, ts2).zipped.map(diff).intersperse(Match(", ")): _*), Match(")"))
         else Group(Mismatch(tpe2.presentableText))
 
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
@@ -97,7 +98,7 @@ object TypeDiff {
           }
         }
         val right = diff(r1, r2)
-        Group(left :+ Match(" => ") :+ Group(right): _*)
+        Group(left :+ Match(" => ") :+ right: _*)
 
       case (t1: ScParameterizedType, t2: ScParameterizedType) =>
         val fs: Seq[(ScType, ScType) => Boolean] = t1.designator.extractClass match {
