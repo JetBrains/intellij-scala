@@ -4,7 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -30,7 +30,6 @@ sealed trait TypeDiff {
 }
 
 object TypeDiff {
-  // TODO diffs: Seq[TypeDiff]
   final case class Group(diffs: TypeDiff*) extends TypeDiff {
     override def flattenTo0(maxChars: Int, groupLength: Int): (Seq[TypeDiff], Int) = {
       val (xs, length) = diffs.reverse.foldlr(0, (Vector.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
@@ -65,12 +64,14 @@ object TypeDiff {
   // To display a type mismatch tooltip
   def forBoth(expected: ScType, actual: ScType): (TypeDiff, TypeDiff) = (forExpected(expected, actual), forActual(expected, actual))
 
+  private type Conformance = (ScType, ScType) => Boolean
+
   // TODO refactor (decompose, unify, etc.)
-  private def diff(tpe1: ScType, tpe2: ScType)(implicit conforms: (ScType, ScType) => Boolean): TypeDiff = {
-    def conformanceFor(variance: Variance) = variance match {
+  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance): TypeDiff = {
+    def conformanceFor(variance: Variance): Conformance = variance match {
       case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
-      case Variance.Covariant => conforms
-      case Variance.Contravariant => reversed(conforms)
+      case Variance.Covariant => conformance
+      case Variance.Contravariant => reversed
     }
 
     (tpe1, tpe2) match {
@@ -91,7 +92,7 @@ object TypeDiff {
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val left = {
           if (p1.length == p2.length) {
-            val parameters = (p1, p2).zipped.map((t1, t2) => diff(t1, t2)(reversed)).intersperse(Match(", "))
+            val parameters = (p1, p2).zipped.map(diff(_, _)(reversed)).intersperse(Match(", "))
             if (p2.length > 1 || p2.exists(FunctionType.isFunctionType)) Seq(Match("("), Group(parameters: _*), Match(")")) else parameters
           } else {
             Seq(Mismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
@@ -100,27 +101,27 @@ object TypeDiff {
         val right = diff(r1, r2)
         Group(left :+ Match(" => ") :+ right: _*)
 
-      case (t1: ScParameterizedType, t2: ScParameterizedType) =>
-        val fs: Seq[(ScType, ScType) => Boolean] = t1.designator.extractClass match {
+      case (ParameterizedType(d1, args1), ParameterizedType(d2, args2)) =>
+        val conformances: Seq[(ScType, ScType) => Boolean] = d1.extractClass match {
           case Some(scalaClass: ScClass) => scalaClass.typeParameters.map(_.variance).map(conformanceFor)
-          case _ => Seq.fill(t2.typeArguments.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
+          case _ => Seq.fill(args2.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
-        val inner = if (t1.typeArguments.length == t2.typeArguments.length)
-          (t1.typeArguments, t2.typeArguments, fs).zipped.map((t1, t2, conforms) => diff(t1, t2)(conforms)).intersperse(Match(", "))
+        val inner = if (args1.length == args2.length)
+          (args1, args2, conformances).zipped.map(diff(_, _)(_)).intersperse(Match(", "))
         else
-          Seq(Mismatch(t2.typeArguments.map(_.presentableText).mkString(", ")))
+          Seq(Mismatch(args2.map(_.presentableText).mkString(", ")))
 
-        Group(diff(t1.designator, t2.designator), Match("["), Group(inner: _*), Match("]"))
+        Group(diff(d1, d2), Match("["), Group(inner: _*), Match("]"))
 
       // On-demand widening of literal types (SCL-15481)
       case (t1, t2: ScLiteralType) if !t1.is[ScLiteralType] => diff(t1, t2.wideType)
 
       case (t1, t2) =>
-        Group(if (conforms(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2)))
+        Group(if (conformance(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2)))
     }
   }
 
-  private def reversed(implicit conforms: (ScType, ScType) => Boolean) = (t1: ScType, t2: ScType) => conforms(t2, t1)
+  private def reversed(implicit conformance: Conformance): Conformance = (t1: ScType, t2: ScType) => conformance(t2, t1)
 
   private def isInfix(designatorType: ScType) = {
     val designator = designatorType.extractDesignated(expandAliases = false)
