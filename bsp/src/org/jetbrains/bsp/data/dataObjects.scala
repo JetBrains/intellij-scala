@@ -3,6 +3,7 @@ package org.jetbrains.bsp.data
 import java.io.File
 import java.net.URI
 import java.util
+import java.util.Optional
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
@@ -36,7 +37,7 @@ object BspEntityData {
 @SerialVersionUID(3)
 case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scalacOptions"))(
   @NotNull scalaOrganization: String,
-  @Nullable scalaVersion: String,
+  @NotNull scalaVersion: Optional[String],
   @NotNull scalacClasspath: util.List[File],
   @NotNull scalacOptions: util.List[String]
 ) extends BspEntityData

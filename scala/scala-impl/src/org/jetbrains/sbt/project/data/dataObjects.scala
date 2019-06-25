@@ -6,9 +6,8 @@ import java.util.{Optional, List => JList, Map => JMap, Set => JSet}
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
-import com.intellij.serialization.{Property, PropertyMapping}
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, JdkByVersion, SdkReference}
+import com.intellij.serialization.PropertyMapping
+import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtEntityData._
@@ -70,10 +69,7 @@ object SbtModuleData {
 @SerialVersionUID(1)
 case class SbtProjectData @PropertyMapping(Array("basePackages", "jdk", "javacOptions", "sbtVersion", "projectPath"))(
   basePackages: JList[String],
-//  jdk: Optional[SdkReference],
-
-  @Property(allowedTypes = Array(classOf[JdkByName], classOf[JdkByHome], classOf[JdkByVersion], classOf[AndroidJdk]))
-  @Nullable jdk: SdkReference,
+  jdk: Optional[SdkReference],
   javacOptions: JList[String],
   sbtVersion: String,
   projectPath: String
@@ -89,8 +85,7 @@ object SbtProjectData {
             projectPath: String): SbtProjectData =
     SbtProjectData(
       basePackages.toJavaList,
-//      toJavaOptional(jdk),
-      jdk.orNull,
+      toJavaOptional(jdk),
       javacOptions.toJavaList,
       sbtVersion,
       projectPath)

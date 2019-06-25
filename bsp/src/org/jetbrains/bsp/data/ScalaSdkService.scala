@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
 
 import scala.collection.JavaConverters._
+import org.jetbrains.sbt.RichOptional
 
 
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {
@@ -53,7 +54,7 @@ object ScalaSdkService {
       module.configureScalaCompilerSettingsFrom("bsp", scalacOptions.asScala)
       configureScalaSdk(
         module,
-        Option(scalaVersion),
+        scalaVersion.asScala,
         scalacClasspath.asScala
       )
     }

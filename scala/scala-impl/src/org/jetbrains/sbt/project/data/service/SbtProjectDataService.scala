@@ -63,8 +63,7 @@ object SbtProjectDataService {
     private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
       val projectJdk =
-//        data.jdk.asScala
-        Option(data.jdk)
+        data.jdk.asScala
           .flatMap(SdkUtils.findProjectSdk)
           .orElse(existingJdk)
           .orElse(SdkUtils.mostRecentJdk)

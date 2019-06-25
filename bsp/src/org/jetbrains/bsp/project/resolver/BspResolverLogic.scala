@@ -3,7 +3,7 @@ package org.jetbrains.bsp.project.resolver
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
-import java.util.Collections
+import java.util.{Collections, Optional}
 
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
@@ -49,7 +49,7 @@ private[resolver] object BspResolverLogic {
     val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
     ScalaSdkData(
       scalaOrganization = target.getScalaOrganization,
-      scalaVersion = target.getScalaVersion,
+      scalaVersion = Optional.of(target.getScalaVersion),
       scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
       scalacOptions = scalaOptionsStrings
     )
