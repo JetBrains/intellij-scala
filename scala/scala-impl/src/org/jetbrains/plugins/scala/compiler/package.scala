@@ -19,7 +19,7 @@ package object compiler {
     case _ => None
   }
 
-  implicit class RichFile(val file: File) extends AnyVal {
+  implicit class RichFile(private val file: File) extends AnyVal {
     def canonicalPath: String = FileUtil.toCanonicalPath(file.getPath)
   }
 }

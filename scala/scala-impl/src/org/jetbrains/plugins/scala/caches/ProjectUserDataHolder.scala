@@ -17,7 +17,7 @@ trait ProjectUserDataHolder[-E] {
 
 object ProjectUserDataHolder {
 
-  implicit class Syntax[E](val e: E) extends AnyVal {
+  implicit class Syntax[E](private val e: E) extends AnyVal {
 
     def getProject(implicit ev: ProjectUserDataHolder[E]): Project = ev.project(e)
 

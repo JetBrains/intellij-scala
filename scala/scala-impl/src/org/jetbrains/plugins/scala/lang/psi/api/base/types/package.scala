@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   */
 package object types {
 
-  implicit class ScTypeElementExt(val typeElement: ScTypeElement) extends AnyVal {
+  implicit class ScTypeElementExt(private val typeElement: ScTypeElement) extends AnyVal {
     def calcType: ScType = typeElement.`type`().getOrAny
     
     def getParamTypeText: String =

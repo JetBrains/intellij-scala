@@ -64,7 +64,7 @@ package object psi {
       }
   }
 
-  implicit class AnnotationExt(val repr: ScAnnotation) extends AnyVal {
+  implicit class AnnotationExt(private val repr: ScAnnotation) extends AnyVal {
 
     def isMetaMacro: Boolean = repr.isMetaEnabled && cached
 
@@ -80,7 +80,7 @@ package object psi {
     }
   }
 
-  implicit class AnnotationHolderExt(val repr: ScAnnotationsHolder) extends AnyVal {
+  implicit class AnnotationHolderExt(private val repr: ScAnnotationsHolder) extends AnyVal {
 
     def metaExpand: Either[String, Tree] =
       if (repr.isMetaEnabled) cached

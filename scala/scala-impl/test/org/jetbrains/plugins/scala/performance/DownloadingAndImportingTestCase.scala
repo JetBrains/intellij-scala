@@ -13,7 +13,7 @@ import org.junit.Assert
   */
 abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase with GithubRepo {
 
-  implicit class IntExt(val i: Int) {
+  implicit class IntExt(private val i: Int) {
     def seconds: Int = i * 1000
   }
 

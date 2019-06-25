@@ -20,7 +20,7 @@ import scala.annotation.tailrec
   */
 object ParenthesizedElement {
 
-  implicit class Ops(val parenthesized: ScParenthesizedElement) extends AnyVal {
+  implicit class Ops(private val parenthesized: ScParenthesizedElement) extends AnyVal {
 
     /** Returns true if these parentheses are nested within other parentheses. */
     def isNestedParenthesis: Boolean = parenthesized.sameTreeParent.exists(_.isInstanceOf[ScParenthesizedElement])

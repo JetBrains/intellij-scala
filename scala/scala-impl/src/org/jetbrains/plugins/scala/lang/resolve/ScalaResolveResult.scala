@@ -292,7 +292,7 @@ object ScalaResolveResult {
   implicit val arrayFactory: ArrayFactory[ScalaResolveResult] = (count: Int) =>
     if (count == 0) EMPTY_ARRAY else new Array[ScalaResolveResult](count)
 
-  implicit class ScalaResolveResultExt(val resolveResult: ScalaResolveResult) extends AnyVal {
+  implicit class ScalaResolveResultExt(private val resolveResult: ScalaResolveResult) extends AnyVal {
 
     def getLookupElement(qualifierType: Option[ScType] = None,
                          isClassName: Boolean = false,

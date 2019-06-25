@@ -50,7 +50,7 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
     (parseText(trimmed.replaceAll(caretMarker, "")), caretPos)
   }
 
-  implicit class Findable(val element: ScalaFile) {
+  implicit class Findable(private val element: ScalaFile) {
     def target: PsiElement = element.depthFirst()
       .dropWhile(!_.isInstanceOf[PsiComment])
       .drop(1)
@@ -67,8 +67,8 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
     val title = "%s%s\n".format(indent, content)
     title + root.children.map(toString(_, level + 1)).mkString
   }
-  
-  implicit class ScalaCode(@Language("Scala") val s: String) {
+
+  implicit class ScalaCode(@Language("Scala") private val s: String) {
     def stripComments: String =
       s.replaceAll("""(?s)/\*.*?\*/""", "")
               .replaceAll("""(?m)//.*$""", "")

@@ -68,7 +68,7 @@ package object extensions {
 
   val Placeholder = "_"
 
-  implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
+  implicit class PsiMethodExt(private val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
 
@@ -139,7 +139,7 @@ package object extensions {
       else None
   }
 
-  implicit class TraversableExt[CC[X] <: Traversable[X], A](val value: CC[A]) extends AnyVal {
+  implicit class TraversableExt[CC[X] <: Traversable[X], A](private val value: CC[A]) extends AnyVal {
     private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
@@ -167,7 +167,7 @@ package object extensions {
     def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
   }
 
-  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
+  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
 
     def distinctBy[K](f: A => K): Seq[A] = {
       val buffer = new ArrayBuffer[A](value.size)
@@ -284,7 +284,7 @@ package object extensions {
       else f2(l, value.head, value.tail.foldlr(f1(l, value.head), r)(f1)(f2))
   }
 
-  implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
+  implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
 
     def mapToArray[B <: AnyRef](f: A => B)(implicit factory: ArrayFactory[B]): Array[B] = {
       val size = value.size
@@ -328,17 +328,17 @@ package object extensions {
     }
   }
 
-  implicit class ToNullSafe[+A >: Null](val a: A) extends AnyVal {
+  implicit class ToNullSafe[+A >: Null](private val a: A) extends AnyVal {
     def nullSafe = NullSafe(a)
   }
 
-  implicit class OptionToNullSafe[+A >: Null](val a: Option[A]) extends AnyVal {
+  implicit class OptionToNullSafe[+A >: Null](private val a: Option[A]) extends AnyVal {
     //to handle Some(null) case and avoid wrapping of intermediate function results
     //in chained map/flatMap calls
     def toNullSafe = NullSafe(a.orNull)
   }
 
-  implicit class ObjectExt[T](val v: T) extends AnyVal {
+  implicit class ObjectExt[T](private val v: T) extends AnyVal {
     def toOption: Option[T] = Option(v)
 
     def asOptionOf[E: ClassTag]: Option[E] = {
@@ -357,7 +357,7 @@ package object extensions {
     @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag, T5: ClassTag]: Boolean = is[T1, T2, T3, T4] || is[T5]
   }
 
-  implicit class OptionExt[T](val option: Option[T]) extends AnyVal {
+  implicit class OptionExt[T](private val option: Option[T]) extends AnyVal {
     def getOrThrow(exception: => Exception): T = option.getOrElse(throw exception)
 
     def filterByType[S: ClassTag]: Option[S] = {
@@ -369,7 +369,7 @@ package object extensions {
     }
   }
 
-  implicit class BooleanExt(val b: Boolean) extends AnyVal {
+  implicit class BooleanExt(private val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if (b) Option(a) else None
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
@@ -382,7 +382,7 @@ package object extensions {
     def toInt: Int = if (b) 1 else 0
   }
 
-  implicit class IntArrayExt(val array: Array[Int]) extends AnyVal {
+  implicit class IntArrayExt(private val array: Array[Int]) extends AnyVal {
     import java.util.Arrays
 
     def ===(other: Array[Int]): Boolean = Arrays.equals(array, other)
@@ -401,7 +401,7 @@ package object extensions {
     def hash: Int = Arrays.hashCode(array)
   }
 
-  implicit class StringExt(val string: String) extends AnyVal {
+  implicit class StringExt(private val string: String) extends AnyVal {
     def startsWith(ch: Char): Boolean = {
       !string.isEmpty && string.charAt(0) == ch
     }
@@ -422,7 +422,7 @@ package object extensions {
       StringUtil.convertLineSeparators(string)
   }
 
-  implicit class CharSeqExt(val cs: CharSequence) extends AnyVal {
+  implicit class CharSeqExt(private val cs: CharSequence) extends AnyVal {
     private def iterator: Iterator[Char] = new Iterator[Char] {
       var idx = 0
 
@@ -454,7 +454,7 @@ package object extensions {
       CharArrayUtil.indexOf(cs, pattern, fromIndex)
   }
 
-  implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
+  implicit class StringsExt(private val strings: Seq[String]) extends AnyVal {
     def commaSeparated(model: Model.Val = Model.None): String =
       strings.mkString(model.start, ", ", model.end)
   }
@@ -469,7 +469,7 @@ package object extensions {
     val SquareBrackets = new Val("[", "]")
   }
 
-  implicit class RangeMarkerExt(val marker: RangeMarker) extends AnyVal {
+  implicit class RangeMarkerExt(private val marker: RangeMarker) extends AnyVal {
     def getTextRange: TextRange = TextRange.create(marker.getStartOffset, marker.getEndOffset)
   }
 
@@ -889,11 +889,11 @@ package object extensions {
 
   }
 
-  implicit class PipedObject[T](val value: T) extends AnyVal {
+  implicit class PipedObject[T](private val value: T) extends AnyVal {
     def |>[R](f: T => R): R = f(value)
   }
 
-  implicit class IteratorExt[A](val delegate: Iterator[A]) extends AnyVal {
+  implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
     def instanceOf[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.find(aClass.isInstance).map(_.asInstanceOf[T])
@@ -936,7 +936,7 @@ package object extensions {
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
   }
 
-  implicit class ConcurrentMapExt[K, V](val map: java.util.concurrent.ConcurrentMap[K, V]) extends AnyVal {
+  implicit class ConcurrentMapExt[K, V](private val map: java.util.concurrent.ConcurrentMap[K, V]) extends AnyVal {
 
     //getOrElseUpdate in JConcurrentMapWrapper is not atomic!
     def atomicGetOrElseUpdate(key: K, update: => V): V = {

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   */
 package object toplevel {
 
-  implicit class ScNamedElementExt(val namedElement: ScNamedElement) extends AnyVal {
+  implicit class ScNamedElementExt(private val namedElement: ScNamedElement) extends AnyVal {
     private def typeParametersOwnerDepth(f: ScTypeParametersOwner, typeDepth: Int): Int = {
       if (f.typeParameters.nonEmpty) {
         (f.typeParameters.map(elemTypeDepth(_)).max + 1).max(typeDepth)

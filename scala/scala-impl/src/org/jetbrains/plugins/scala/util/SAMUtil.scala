@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.project._
 
 
 object SAMUtil {
-  implicit class ScExpressionExt(val expr: ScExpression) extends AnyVal {
+  implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
     @CachedInUserData(expr, ModCount.getModificationCount)
     def samTypeParent: Option[PsiClass] =
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {

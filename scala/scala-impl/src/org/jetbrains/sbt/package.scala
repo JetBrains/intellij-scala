@@ -33,7 +33,7 @@ package object sbt {
     def fun(pair: IdeaPair[A, B]): C = f(pair.getFirst, pair.getSecond)
   }
 
-  implicit class RichFile(val file: File) {
+  implicit class RichFile(private val file: File) {
 
     def /(path: String): File = new File(file, path)
 
@@ -83,7 +83,7 @@ package object sbt {
       if (level > 0) parent(file.getParentFile, level - 1) else file
   }
 
-  implicit class RichVirtualFile(val entry: VirtualFile) extends AnyVal {
+  implicit class RichVirtualFile(private val entry: VirtualFile) extends AnyVal {
     def containsDirectory(name: String): Boolean = find(name).exists(_.isDirectory)
 
     def containsFile(name: String): Boolean = find(name).exists(_.isFile)
@@ -93,7 +93,7 @@ package object sbt {
     def isFile: Boolean = !entry.isDirectory
   }
 
-  implicit class RichString(val str: String) extends AnyVal {
+  implicit class RichString(private val str: String) extends AnyVal {
     def toFile: File = new File(str)
     def shaDigest: String = {
       val digest = MessageDigest.getInstance("SHA1").digest(str.getBytes)
@@ -101,7 +101,7 @@ package object sbt {
     }
   }
 
-  implicit class RichBoolean(val b: Boolean) extends AnyVal {
+  implicit class RichBoolean(private val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if(b) Some(a) else None
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
@@ -109,7 +109,7 @@ package object sbt {
     def seq[A](a: A*): Seq[A] = if (b) Seq(a: _*) else Seq.empty
   }
 
-  implicit class RichSeq[T](val xs: Seq[T]) extends AnyVal {
+  implicit class RichSeq[T](private val xs: Seq[T]) extends AnyVal {
     def distinctBy[A](f: T => A): Seq[T] = {
       val (_, ys) = xs.foldLeft((Set.empty[A], Vector.empty[T])) {
         case ((set, acc), x) =>
@@ -120,7 +120,7 @@ package object sbt {
     }
   }
 
-  implicit class RichOption[T](val opt: Option[T]) extends AnyVal {
+  implicit class RichOption[T](private val opt: Option[T]) extends AnyVal {
     // Use for safely checking for null in chained calls
     @inline def safeMap[A](f: T => A): Option[A] = if (opt.isEmpty) None else Option(f(opt.get))
   }

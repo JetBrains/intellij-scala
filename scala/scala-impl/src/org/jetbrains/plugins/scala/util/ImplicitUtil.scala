@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.tailrec
 
 object ImplicitUtil {
-  implicit class ImplicitTargetExt(val targetImplicit: PsiElement) extends AnyVal {
+  implicit class ImplicitTargetExt(private val targetImplicit: PsiElement) extends AnyVal {
     private def isTarget(candidate: PsiElement): Boolean = candidate match {
       case `targetImplicit`                                                => true
       case f: ScFunction if targetImplicit == f.syntheticNavigationElement => true

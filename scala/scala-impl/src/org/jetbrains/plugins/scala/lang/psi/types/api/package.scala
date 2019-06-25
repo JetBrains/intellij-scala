@@ -8,11 +8,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   */
 package object api {
 
-  implicit class TypeParametersArrayExt(val typeParameters: Array[TypeParameter]) extends AnyVal {
+  implicit class TypeParametersArrayExt(private val typeParameters: Array[TypeParameter]) extends AnyVal {
     def depth: Int = typeParameters.toSeq.depth
   }
 
-  implicit class TypeParametersSeqExt(val typeParameters: Seq[TypeParameter]) extends AnyVal {
+  implicit class TypeParametersSeqExt(private val typeParameters: Seq[TypeParameter]) extends AnyVal {
     def depth: Int = {
       def depth(tp: TypeParameter): Int = Seq(tp.lowerType.typeDepth, tp.upperType.typeDepth, tp.typeParameters.depth).max
 
@@ -21,7 +21,7 @@ package object api {
     }
   }
 
-  implicit class PsiTypeParamatersExt(val typeParameters: Array[PsiTypeParameter]) extends AnyVal {
+  implicit class PsiTypeParamatersExt(private val typeParameters: Array[PsiTypeParameter]) extends AnyVal {
     def instantiate: Seq[TypeParameter] = typeParameters match {
       case Array() => Seq.empty
       case array => array.toSeq.map(TypeParameter(_))

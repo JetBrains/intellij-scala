@@ -454,7 +454,7 @@ object ScExpression {
     }
   }
 
-  private implicit class ExprTypeUpdates(val scType: ScType) extends AnyVal {
+  private implicit class ExprTypeUpdates(private val scType: ScType) extends AnyVal {
 
     def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
       def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().isInstanceOf[ScLiteralType]

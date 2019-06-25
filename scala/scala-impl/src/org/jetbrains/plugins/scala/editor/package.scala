@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
   * 27-Oct-17
   */
 package object editor {
-  implicit class DocumentExt(val document: Document) extends AnyVal {
+  implicit class DocumentExt(private val document: Document) extends AnyVal {
     def commit(project: Project): Unit = PsiDocumentManager.getInstance(project).commitDocument(document)
 
     def lineStartOffset(offset: Int): Int =
@@ -23,7 +23,7 @@ package object editor {
       document.getLineEndOffset(document.getLineNumber(offset))
   }
 
-  implicit class EditorExt(val editor: Editor) extends AnyVal {
+  implicit class EditorExt(private val editor: Editor) extends AnyVal {
     def offset: Int = editor.getCaretModel.getOffset
 
     def commitDocument(project: Project): Unit = editor.getDocument.commit(project)

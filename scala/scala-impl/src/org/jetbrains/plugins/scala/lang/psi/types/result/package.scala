@@ -12,7 +12,7 @@ package object result {
 
   type TypeResult = Either[Failure, ScType]
 
-  implicit class OptionTypeExt(val maybeRight: Option[ScType]) extends AnyVal {
+  implicit class OptionTypeExt(private val maybeRight: Option[ScType]) extends AnyVal {
 
     def asTypeResult(implicit context: ProjectContext): TypeResult = maybeRight match {
       case Some(result) => Right(result)
@@ -20,7 +20,7 @@ package object result {
     }
   }
 
-  implicit class TypeResultExt(val result: TypeResult) extends AnyVal {
+  implicit class TypeResultExt(private val result: TypeResult) extends AnyVal {
 
     def get: ScType = getOrApiType(null)
 
@@ -35,7 +35,7 @@ package object result {
     }
   }
 
-  implicit class TypeableExt(val typeable: ScalaPsiElement with Typeable) extends AnyVal {
+  implicit class TypeableExt(private val typeable: ScalaPsiElement with Typeable) extends AnyVal {
 
     def flatMap[E <: ScalaPsiElement](maybeElement: Option[E])
                                      (function: E => TypeResult): TypeResult =

@@ -562,7 +562,7 @@ private object ExpectedTypesImpl {
       InferUtil.updateAccordingToExpectedType(`type`, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE = false)
   }
 
-  implicit class ScExpressionForExpectedTypesEx(val expr: ScExpression) extends AnyVal {
+  implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
 
     import expr.projectContext
     import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._

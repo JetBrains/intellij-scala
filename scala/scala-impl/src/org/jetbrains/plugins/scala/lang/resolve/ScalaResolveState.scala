@@ -15,7 +15,7 @@ object ScalaResolveState extends ResolveStateOps {
 
   def resolveState: ResolveState = empty
 
-  implicit class ResolveStateExt(val resolveState: ResolveState) extends AnyVal with ResolveStateOps
+  implicit class ResolveStateExt(override val resolveState: ResolveState) extends AnyVal with ResolveStateOps
 }
 
 trait ResolveStateOps extends Any {

@@ -129,7 +129,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
 object ScFunction {
 
-  implicit class Ext(val function: ScFunction) extends AnyVal {
+  implicit class Ext(private val function: ScFunction) extends AnyVal {
 
     import CommonNames._
 

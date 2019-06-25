@@ -21,7 +21,7 @@ import scala.util.control.NoStackTrace
   */
 package object types {
 
-  implicit class ScTypeExt(val scType: ScType) extends AnyVal {
+  implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem
     private def projectContext = scType.projectContext
     private def stdTypes = projectContext.stdTypes
@@ -244,7 +244,7 @@ package object types {
     }
   }
 
-  implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
+  implicit class ScTypesExt(private val types: Seq[ScType]) extends AnyVal {
     def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
       project.typeSystem.glb(types, checkWeak)
     }

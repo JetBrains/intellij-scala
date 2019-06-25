@@ -98,7 +98,7 @@ object DynamicResolveProcessor {
     case scType => scType
   }
 
-  implicit class ScTypeForDynamicProcessorEx(val tp: ScType) extends AnyVal {
+  implicit class ScTypeForDynamicProcessorEx(private val tp: ScType) extends AnyVal {
     def updateTypeOfDynamicCall(isDynamic: Boolean): ScType = if (isDynamic) getDynamicReturn(tp) else tp
   }
 

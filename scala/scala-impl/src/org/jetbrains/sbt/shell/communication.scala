@@ -210,7 +210,7 @@ private[shell] object SbtProcessUtil {
   def debuggerMessage(line: String): Boolean =
     line.contains("Listening for transport")
 
-  implicit class StringExt(val str: String) extends AnyVal {
+  implicit class StringExt(private val str: String) extends AnyVal {
     def trimRight: String = str.replaceAll("\\s+$", "")
   }
 }

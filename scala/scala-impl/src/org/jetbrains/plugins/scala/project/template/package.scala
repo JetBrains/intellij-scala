@@ -105,7 +105,7 @@ package object template {
     }
   }
 
-  implicit class FileExt(val delegate: File) extends AnyVal {
+  implicit class FileExt(private val delegate: File) extends AnyVal {
     def /(path: String): File = new File(delegate, path)
 
     def /(paths: Seq[String]): File = paths.foldLeft(delegate)(_ / _)

@@ -20,7 +20,7 @@ sealed trait ConstraintsResult
 
 object ConstraintsResult {
 
-  implicit class ConstraintsResultExt(val result: ConstraintsResult) extends AnyVal {
+  implicit class ConstraintsResultExt(private val result: ConstraintsResult) extends AnyVal {
 
     def isLeft: Boolean = result eq Left
 
@@ -265,7 +265,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
 
 private object ConstraintSystemImpl {
 
-  private implicit class LongMapExt(val map: LongMap[Set[ScType]]) extends AnyVal {
+  private implicit class LongMapExt(private val map: LongMap[Set[ScType]]) extends AnyVal {
 
     def getOrDefault(id: Long): Set[ScType] = map.getOrElse(id, Set.empty)
 

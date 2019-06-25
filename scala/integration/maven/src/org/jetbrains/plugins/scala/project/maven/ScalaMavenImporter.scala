@@ -103,7 +103,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 }
 
 private object ScalaMavenImporter {
-  implicit class RichMavenProject(val project: MavenProject) extends AnyVal {
+  implicit class RichMavenProject(private val project: MavenProject) extends AnyVal {
     def localPathTo(id: MavenId): File = {
       val suffix = id.classifier.map("-" + _).getOrElse("")
       val jarName = s"${id.artifactId}-${id.version}$suffix.jar"
@@ -112,7 +112,7 @@ private object ScalaMavenImporter {
     }
   }
 
-  implicit class RichFile(val file: File) extends AnyVal {
+  implicit class RichFile(private val file: File) extends AnyVal {
     def /(child: String): File = new File(file, child)
   }
 

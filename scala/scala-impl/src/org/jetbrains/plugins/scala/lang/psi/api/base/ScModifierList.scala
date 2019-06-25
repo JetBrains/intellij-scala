@@ -22,7 +22,7 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
 
 object ScModifierList {
 
-  implicit class ScModifierListExt(val list: ScModifierList) extends AnyVal {
+  implicit class ScModifierListExt(private val list: ScModifierList) extends AnyVal {
 
     import ScalaModifier._
 

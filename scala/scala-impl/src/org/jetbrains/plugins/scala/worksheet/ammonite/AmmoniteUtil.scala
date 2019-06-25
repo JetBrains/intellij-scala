@@ -301,7 +301,7 @@ object AmmoniteUtil {
   class RegexExtractor {
     private val patternCache = mutable.HashMap[String, Regex]()
 
-    implicit class MyStringExtractorContext(val sc: StringContext) {
+    implicit class MyStringExtractorContext(private val sc: StringContext) {
       object mre {
         def apply(args: Any*): String = sc.s(args: _*)
 

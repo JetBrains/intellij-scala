@@ -186,7 +186,7 @@ package object project {
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
   }
 
-  implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
+  implicit class UserDataHolderExt(private val holder: UserDataHolder) extends AnyVal {
     def getOrUpdateUserData[T](key: Key[T], update: => T): T = {
       Option(holder.getUserData(key)).getOrElse {
         val newValue = update
@@ -201,7 +201,7 @@ package object project {
     }
   }
 
-  implicit class ProjectPsiElementExt(val element: PsiElement) extends AnyVal {
+  implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)

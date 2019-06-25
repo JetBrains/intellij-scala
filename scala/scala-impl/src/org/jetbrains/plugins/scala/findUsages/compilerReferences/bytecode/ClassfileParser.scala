@@ -21,7 +21,7 @@ import scala.reflect.NameTransformer
 import scala.reflect.internal.pickling.ByteCodecs
 
 private[compilerReferences] object ClassfileParser {
-  private[this] implicit class RichScalaSigSymbol(val sym: Symbol) extends AnyVal {
+  private[this] implicit class RichScalaSigSymbol(private val sym: Symbol) extends AnyVal {
     def encodedName: String = NameTransformer.encode(sym.name)
 
     @tailrec

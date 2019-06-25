@@ -42,7 +42,7 @@ object ScalaIndexKeys {
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = createIndexKey("sc.super.class.name")
   val SELF_TYPE_CLASS_NAME_KEY: StubIndexKey[String, ScSelfTypeElement] = createIndexKey("sc.self.type.class.name.key")
 
-  implicit class StubIndexKeyExt[Key, Psi <: PsiElement](val indexKey: StubIndexKey[Key, Psi])
+  implicit class StubIndexKeyExt[Key, Psi <: PsiElement](override val indexKey: StubIndexKey[Key, Psi])
     extends AnyVal with StubIndexExt[Key, Psi]
 
   implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[Integer, Psi]) extends AnyVal {

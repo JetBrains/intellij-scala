@@ -14,7 +14,7 @@ package object implicits {
 
   private[implicits] type Inlay = com.intellij.openapi.editor.Inlay[_ <: EditorCustomElementRenderer]
 
-  implicit class Model(val model: InlayModel) extends AnyVal {
+  implicit class Model(private val model: InlayModel) extends AnyVal {
     def inlaysIn(range: TextRange): Seq[Inlay] =
       model.getInlineElementsInRange(range.getStartOffset, range.getEndOffset)
         .asScala

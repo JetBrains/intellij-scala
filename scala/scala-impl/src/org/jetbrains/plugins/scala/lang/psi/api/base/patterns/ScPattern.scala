@@ -55,7 +55,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
 }
 
 object ScPattern {
-  implicit class Ext(val pattern: ScPattern) extends AnyVal {
+  implicit class Ext(private val pattern: ScPattern) extends AnyVal {
 
     import pattern.{elementScope, projectContext}
 

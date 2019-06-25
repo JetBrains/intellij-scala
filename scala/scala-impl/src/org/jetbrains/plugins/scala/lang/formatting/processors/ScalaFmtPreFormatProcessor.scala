@@ -914,7 +914,7 @@ object ScalaFmtPreFormatProcessor {
     rangesDeltaCache.clear()
   }
 
-  private implicit class PsiWhiteSpaceExt(val ws: PsiWhiteSpace) extends AnyVal {
+  private implicit class PsiWhiteSpaceExt(private val ws: PsiWhiteSpace) extends AnyVal {
 
     /** @return Some(whitespace) with `indent` spaces after last new line character or ws beginning <br>
      *         None if resulting whitespace text is empty, due to PsiWhitespace can't contain empty text
@@ -989,7 +989,7 @@ object ScalaFmtPreFormatProcessor {
     override def isValid: Boolean = true
   }
 
-  private implicit class ScalafmtReflectExt(val scalafmt: ScalafmtReflect) extends AnyVal {
+  private implicit class ScalafmtReflectExt(private val scalafmt: ScalafmtReflect) extends AnyVal {
     def tryFormat(code: String, config: ScalafmtDynamicConfig): Either[ScalafmtFormatError, String] = {
       Try(scalafmt.format(code, config)).toEither.left.map {
         case ReflectionException(e) => ScalafmtFormatError(e)

@@ -80,7 +80,7 @@ object MethodTypeProvider {
     case pc: ScPrimaryConstructor => ScPrimaryConstructorProvider(pc)
   }
 
-  implicit class PsiMethodTypeProviderExt(val m: PsiMethod) extends AnyVal {
+  implicit class PsiMethodTypeProviderExt(private val m: PsiMethod) extends AnyVal {
     def methodTypeProvider(scope: ElementScope): MethodTypeProvider[PsiMethod] = m match {
       case ml: ScMethodLike => fromScMethodLike(ml)
       case m: PsiMethod     => JavaMethodProvider(m)(scope)

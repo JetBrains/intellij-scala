@@ -170,7 +170,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
 }
 
 object SubtypeUpdater {
-  implicit class TypeParameterUpdateExt(val typeParameter: TypeParameter) extends AnyVal {
+  implicit class TypeParameterUpdateExt(private val typeParameter: TypeParameter) extends AnyVal {
     def update(substitutor: ScSubstitutor)
               (implicit visited: Set[ScType] = Set.empty): TypeParameter =
       SubtypeUpdaterNoVariance.updateTypeParameter(typeParameter, substitutor)

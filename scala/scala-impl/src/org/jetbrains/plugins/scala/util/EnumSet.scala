@@ -69,7 +69,7 @@ object EnumSet {
     aClass.getEnumConstants
   }
 
-  implicit class EnumSetOps[E <: Enum[E]](val set: EnumSet[E]) extends AnyVal {
+  implicit class EnumSetOps[E <: Enum[E]](private val set: EnumSet[E]) extends AnyVal {
     //I would prefer `+` here, but it clashes with int addition
     def ++(e: E): EnumSet[E] = instance.add(set, e)
 

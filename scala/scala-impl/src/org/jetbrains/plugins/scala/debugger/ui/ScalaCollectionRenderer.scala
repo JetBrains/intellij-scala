@@ -39,7 +39,7 @@ class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSett
 }
 
 object ScalaCollectionRenderer {
-  implicit class ToExpressionEvaluator(val e: Evaluator) extends AnyVal {
+  implicit class ToExpressionEvaluator(private val e: Evaluator) extends AnyVal {
     def exprEval = new ExpressionEvaluatorImpl(e)
   }
 

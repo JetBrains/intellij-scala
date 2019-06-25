@@ -61,7 +61,7 @@ package object params {
 
   private def cachedId(element: PsiNamedElement, name: String): Long = paramToIdMap.computeIfAbsent(element, freshTypeParamId(_))
 
-  implicit class TypeParamIdOwner[T](val t: T) extends AnyVal {
+  implicit class TypeParamIdOwner[T](private val t: T) extends AnyVal {
     def typeParamId(implicit ev: TypeParamId[T]): Long = ev.typeParamId(t)
   }
 

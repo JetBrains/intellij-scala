@@ -13,7 +13,7 @@ trait ResolvableStableCodeReference
 
 object ResolvableStableCodeReference {
 
-  implicit class Ext(val stableRef: ScStableCodeReference) extends AnyVal {
+  implicit class Ext(private val stableRef: ScStableCodeReference) extends AnyVal {
 
     @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
     def resolveTypesOnly(incomplete: Boolean): Array[ScalaResolveResult] = {

@@ -538,7 +538,7 @@ object ScTemplateDefinition {
 
   private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
 
-  implicit class SyntheticMembersExt(val td: ScTemplateDefinition) extends AnyVal {
+  implicit class SyntheticMembersExt(private val td: ScTemplateDefinition) extends AnyVal {
     //this method is not in the ScTemplateDefinition trait to avoid binary incompatible change
     def membersWithSynthetic: Seq[ScMember] =
       td.members ++ td.syntheticMembers ++ td.syntheticMethods ++ td.syntheticTypeDefinitions

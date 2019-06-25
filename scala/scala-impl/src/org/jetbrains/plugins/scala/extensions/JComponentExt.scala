@@ -14,7 +14,7 @@ object JComponentExt {
     def addActionListener(al: ActionListener)
   }
 
-  implicit class ActionListenersOwner(val jc: WithAddActionListener) extends AnyVal {
+  implicit class ActionListenersOwner(private val jc: WithAddActionListener) extends AnyVal {
     def addActionListenerEx(body: => Unit): Unit = jc.addActionListener(_ => body)
   }
 }
