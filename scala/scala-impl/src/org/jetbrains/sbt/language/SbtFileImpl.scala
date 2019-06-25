@@ -44,7 +44,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
   @Cached(ModCount.getModificationCount, this)
   private def syntheticFile: Option[ScalaFile] = {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
-    val imports = TargetModule(this).imports.map {
+    val imports = importsFor(targetModule).map {
       // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
       case "Keys._" => "sbt.Keys._"
       case "Build._" => "sbt.Build._"
@@ -59,10 +59,32 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";")))
   }
 
-  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-  override def getFileResolveScope: GlobalSearchScope = TargetModule(this) match {
+  override def getFileResolveScope: GlobalSearchScope = targetModule match {
     case SbtModuleWithScope(_, moduleWithDependenciesAndLibrariesScope) => moduleWithDependenciesAndLibrariesScope
     case _ => super.getFileResolveScope
+  }
+
+  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
+  private def targetModule: TargetModule = ModuleUtilCore.findModuleForPsiElement(this) match {
+    case null => ModuleLess
+    case module =>
+      val manager = ModuleManager.getInstance(getProject)
+
+      val moduleByUri = for {
+        SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
+
+        module <- manager.getModules.find { module =>
+          Build(module) == buildURI
+        }
+      } yield module
+
+      moduleByUri.orElse {
+        // TODO remove in 2018.3+
+        // this is the old way of finding a build module which breaks if the way the module name is assigned changes
+        Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+      }.fold(DefinitionModule(module): TargetModule) { module =>
+        SbtModuleWithScope(module, module.getModuleWithDependenciesAndLibrariesScope(false))
+      }
   }
 }
 
@@ -70,55 +92,6 @@ object SbtFileImpl {
 
   private sealed trait TargetModule {
     def module: Module
-  }
-
-  private object TargetModule {
-
-    def apply(file: SbtFileImpl): TargetModule =
-      ModuleUtilCore.findModuleForPsiElement(file) match {
-        case null => ModuleLess
-        case module =>
-          val manager = ModuleManager.getInstance(file.getProject)
-
-          val moduleByUri = for {
-            SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
-
-            module <- manager.getModules.find { module =>
-              Build(module) == buildURI
-            }
-          } yield module
-
-          moduleByUri.orElse {
-            // TODO remove in 2018.3+
-            // this is the old way of finding a build module which breaks if the way the module name is assigned changes
-            Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
-          }.fold(DefinitionModule(module): TargetModule) { module =>
-            SbtModuleWithScope(module, module.getModuleWithDependenciesAndLibrariesScope(false))
-          }
-      }
-
-    implicit class Ext(private val module: TargetModule) extends AnyVal {
-
-      def imports(implicit manager: ScalaPsiManager): Seq[String] = module match {
-        case ModuleLess => Seq.empty
-        case DefinitionModule(module) => Imports(module)
-        case SbtModuleWithScope(module, moduleWithDependenciesAndLibrariesScope) =>
-          import JavaConverters._
-
-          val moduleScope = module.getModuleScope
-          val localObjectsWithDefinitions = for {
-            fqn <- Sbt.DefinitionHolderClasses
-            aClass <- manager.getCachedClasses(moduleWithDependenciesAndLibrariesScope, fqn)
-
-            inheritor <- searches.ClassInheritorsSearch
-              .search(aClass, moduleScope, true)
-              .findAll
-              .asScala
-          } yield s"${inheritor.qualifiedName}._"
-
-          Imports(module) ++ localObjectsWithDefinitions
-      }
-    }
   }
 
   private case object ModuleLess extends TargetModule {
@@ -129,4 +102,25 @@ object SbtFileImpl {
 
   private case class SbtModuleWithScope(module: Module,
                                         moduleWithDependenciesAndLibrariesScope: GlobalSearchScope) extends TargetModule
+
+  private def importsFor(module: TargetModule)
+                        (implicit manager: ScalaPsiManager): Seq[String] = module match {
+    case ModuleLess => Seq.empty
+    case DefinitionModule(module) => Imports(module)
+    case SbtModuleWithScope(module, moduleWithDependenciesAndLibrariesScope) =>
+      import JavaConverters._
+
+      val moduleScope = module.getModuleScope
+      val localObjectsWithDefinitions = for {
+        fqn <- Sbt.DefinitionHolderClasses
+        aClass <- manager.getCachedClasses(moduleWithDependenciesAndLibrariesScope, fqn)
+
+        inheritor <- searches.ClassInheritorsSearch
+          .search(aClass, moduleScope, true)
+          .findAll
+          .asScala
+      } yield s"${inheritor.qualifiedName}._"
+
+      Imports(module) ++ localObjectsWithDefinitions
+  }
 }
