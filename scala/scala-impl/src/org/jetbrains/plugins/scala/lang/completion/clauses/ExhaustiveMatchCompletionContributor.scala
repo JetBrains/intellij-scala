@@ -60,19 +60,19 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
     inside[Capture],
     new ClauseCompletionProvider[Target] {
 
-      import ClauseCompletionProvider._
-
       override protected def addCompletions(typeable: Target, result: CompletionResultSet)
                                            (implicit place: PsiElement): Unit = for {
         PatternGenerationStrategy(strategy) <- `type`(typeable, place)
-      } result.addElement(
-        keywordLookupString,
-        new ClausesInsertHandler[Expression](strategy, prefixAndSuffix)
-      )(
-        itemTextBold = true,
-        tailText = rendererTailText,
-        grayed = true
-      )
+
+        lookupElement = buildLookupElement(
+          keywordLookupString,
+          new ClausesInsertHandler[Expression](strategy, prefixAndSuffix)
+        )(
+          itemTextBold = true,
+          tailText = rendererTailText,
+          grayed = true
+        )
+      } result.addElement(lookupElement)
     }
   )
 }

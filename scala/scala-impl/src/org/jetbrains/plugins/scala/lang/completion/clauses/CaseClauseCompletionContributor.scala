@@ -4,6 +4,7 @@ package completion
 package clauses
 
 import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
@@ -12,64 +13,52 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, result}
 
 final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   import CaseClauseCompletionContributor._
-  import ClauseCompletionProvider._
-
-  import reflect.ClassTag
 
   extend[ScArgumentExprList](
-    new ClauseCompletionProvider[ScBlockExpr] {
+    new SingleClauseCompletionProvider[ScBlockExpr] {
 
-      override protected def addCompletions(block: ScBlockExpr, result: CompletionResultSet)
-                                           (implicit place: PsiElement): Unit =
+      override protected def targetType(block: ScBlockExpr): Option[ScType] =
         block.expectedType().collect {
-          case PartialFunctionType(_, targetType) => targetType
-          case FunctionType(_, Seq(targetType)) => targetType
-        }.flatMap {
-          _.extractClass
-        }.collect {
-          case SealedDefinition(inheritors) => inheritors
-        }.foreach { inheritors =>
-          for {
-            components <- inheritors.inexhaustivePatterns // TODO objects!!!
-            patternText = components.extractorText()
-          } result.addElement(
-            ScalaKeyword.CASE,
-            new CaseClauseInsertHandler(patternText)
-          )(
-            itemTextBold = true,
-            tailText = " " + patternText
-          )
+          case api.PartialFunctionType(_, targetType) => targetType
+          case api.FunctionType(_, Seq(targetType)) => targetType
         }
+
+      override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+                                                (implicit place: PsiElement): LookupElement = {
+        buildLookupElement(
+          ScalaKeyword.CASE,
+          new CaseClauseInsertHandler(patternText)
+        )(
+          itemTextBold = true,
+          tailText = " " + patternText
+        )
+      }
     }
   )
 
   extend[ScCaseClause](
-    new ClauseCompletionProvider[ScStableReferencePattern] {
+    new SingleClauseCompletionProvider[ScStableReferencePattern] {
 
-      override protected def addCompletions(pattern: ScStableReferencePattern, result: CompletionResultSet)
-                                           (implicit place: PsiElement): Unit = {
-        val maybeInheritors = pattern.expectedType
-          .flatMap(_.extractClass)
-          .collect {
-            case SealedDefinition(inheritors) => inheritors
-            case definition: ScTypeDefinition => Inheritors(Seq(definition))
-          }
+      override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
+        pattern.expectedType
 
-        for {
-          inheritors <- maybeInheritors.toSeq
-          components <- inheritors.inexhaustivePatterns
+      override protected def findInheritors(typeDefinition: ScTypeDefinition): Some[Inheritors] =
+        super.findInheritors(typeDefinition) match {
+          case Some(value) => Some(value)
+          case _ => Some(Inheritors(Seq(typeDefinition)))
+        }
 
-          lookupString = components.extractorText()
-        } result.addElement(
-          lookupString,
-          new PatternInsertHandler(lookupString, components)
+      override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+                                                (implicit place: PsiElement): LookupElement =
+        buildLookupElement(
+          patternText,
+          new PatternInsertHandler(patternText, components)
         )(itemTextItalic = true)
-      }
     }
   )
 
@@ -87,7 +76,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
   )
 
   private def extend[
-    Capture <: ScalaPsiElement : ClassTag
+    Capture <: ScalaPsiElement : reflect.ClassTag
   ](provider: CompletionProvider[CompletionParameters]): Unit =
     extend(CompletionType.BASIC, inside[Capture], provider)
 
@@ -98,7 +87,32 @@ object CaseClauseCompletionContributor {
   import ExhaustiveMatchCompletionContributor.PatternGenerationStrategy._
   import ScalaPsiElementFactory.createPatternFromTextWithContext
 
-  private object AotCompletionProvider extends aot.CompletionProvider[ScTypedPattern] {
+  private abstract class SingleClauseCompletionProvider[
+    T <: ScalaPsiElement with result.Typeable : reflect.ClassTag
+  ] extends ClauseCompletionProvider[T] {
+
+    override final protected def addCompletions(typeable: T, result: CompletionResultSet)
+                                               (implicit place: PsiElement): Unit = for {
+      api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toSeq
+      inheritors <- findInheritors(typeDefinition)
+
+      components <- inheritors.inexhaustivePatterns // TODO objects!!!
+      lookupElement = createLookupElement(
+        components.extractorText(),
+        components
+      )
+    } result.addElement(lookupElement)
+
+    protected def targetType(typeable: T): Option[ScType]
+
+    protected def findInheritors(typeDefinition: ScTypeDefinition): Option[Inheritors] =
+      SealedDefinition.unapply(typeDefinition)
+
+    protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+                                     (implicit place: PsiElement): LookupElement
+  }
+
+  private final object AotCompletionProvider extends aot.CompletionProvider[ScTypedPattern] {
 
     override protected def findTypeElement(pattern: ScTypedPattern): Option[ScalaPsiElement] =
       pattern.typePattern.map(_.typeElement)
@@ -120,12 +134,12 @@ object CaseClauseCompletionContributor {
     }
   }
 
-  private final class PatternInsertHandler(lookupString: String,
+  private final class PatternInsertHandler(patternText: String,
                                            components: ExtractorPatternComponents[_])
     extends ClauseInsertHandler[ScConstructorPattern] {
 
     override def handleInsert(implicit context: InsertionContext): Unit = {
-      replaceText(lookupString)
+      replaceText(patternText)
 
       onTargetElement { pattern =>
         adjustTypes(false, (pattern, components)) {
@@ -141,7 +155,7 @@ object CaseClauseCompletionContributor {
    * this handler add open and closed brackets to treat element as ScCodeReferenceElement
    * and run ScalaBasicCompletionContributor.
    */
-  private class ExtractorCompletionProvider(pattern: ScPattern) extends DelegatingCompletionProvider[ScPattern] {
+  private final class ExtractorCompletionProvider(pattern: ScPattern) extends DelegatingCompletionProvider[ScPattern] {
 
     override protected def addCompletions(resultSet: CompletionResultSet,
                                           prefix: String)

@@ -4,7 +4,6 @@ package completion
 package clauses
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
@@ -26,31 +25,4 @@ private[clauses] abstract class ClauseCompletionProvider[T <: ScalaPsiElement wi
 
   protected def addCompletions(typeable: T, result: CompletionResultSet)
                               (implicit place: PsiElement): Unit
-}
-
-private[clauses] object ClauseCompletionProvider {
-
-  implicit class CompletionResultSetExt(private val result: CompletionResultSet) extends AnyVal {
-
-    def addElement(lookupString: String,
-                   insertHandler: ClauseInsertHandler[_])
-                  (itemTextItalic: Boolean = false,
-                   itemTextBold: Boolean = false,
-                   tailText: String = null,
-                   grayed: Boolean = false): Unit = {
-      val lookupElement = LookupElementBuilder.create(lookupString)
-        .withInsertHandler(insertHandler)
-        .withRenderer {
-          (_: LookupElement, presentation: LookupElementPresentation) => {
-            presentation.setItemText(lookupString)
-            presentation.setItemTextItalic(itemTextItalic)
-            presentation.setItemTextBold(itemTextBold)
-            presentation.setTailText(tailText, grayed)
-          }
-        }
-
-      result.addElement(lookupElement)
-    }
-  }
-
 }

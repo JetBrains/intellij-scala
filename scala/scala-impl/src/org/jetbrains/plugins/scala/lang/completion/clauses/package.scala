@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
@@ -21,6 +22,25 @@ package object clauses {
   ]: PsiElementPattern.Capture[PsiElement] =
     PlatformPatterns.psiElement.inside {
       classTag[Capture].runtimeClass.asInstanceOf[Class[Capture]]
+    }
+
+  private[clauses] def buildLookupElement(lookupString: String,
+                                          insertHandler: ClauseInsertHandler[_])
+                                         (itemTextItalic: Boolean = false,
+                                          itemTextBold: Boolean = false,
+                                          tailText: String = null,
+                                          grayed: Boolean = false): LookupElement =
+    LookupElementBuilder.create {
+      lookupString
+    }.withInsertHandler {
+      insertHandler
+    }.withRenderer {
+      (_: LookupElement, presentation: LookupElementPresentation) => {
+        presentation.setItemText(lookupString)
+        presentation.setItemTextItalic(itemTextItalic)
+        presentation.setItemTextBold(itemTextBold)
+        presentation.setTailText(tailText, grayed)
+      }
     }
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
