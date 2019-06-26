@@ -22,10 +22,12 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
  * 4/25/13
  */
 abstract class ScalaUnnecessaryParenthesesInspectionBase
-  extends AbstractInspection("Remove unnecessary parentheses") {
+  extends AbstractInspection("Remove unnecessary parentheses")
+    with RedundantBracketsInspectionLike {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case p: ScParenthesizedElement if isProblem(p)                                                             => registerProblem(p)
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+    case p: ScParenthesizedElement if isProblem(p) =>
+      registerProblem(p)
     case f: ScFunctionExpr if hasSingleParenthesizedParam(f) && !currentSettings.ignoreAroundFunctionExprParam =>
       f.params.clauses.headOption.foreach(registerProblem)
   }
@@ -36,7 +38,6 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   def setSettings(settings: UnnecessaryParenthesesSettings): Unit
 
   private def hasSingleParenthesizedParam(f: ScFunctionExpr): Boolean = {
-
     // If an anonymous function (x: T) => e with a single typed parameter appears as the result expression of a block, it can be abbreviated to x: T => e.
     def isBlockResultExpr: Boolean = f.getParent match {
       case block: ScBlockExpr if block.resultExpression.contains(f) => true
@@ -50,7 +51,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
     f.parameters.size == 1 && hasParenthesizedClause && (hasNoParamType || isBlockResultExpr)
   }
 
-  def isParenthesesRedundant(elem: ScParenthesizedElement, settings: UnnecessaryParenthesesSettings): Boolean = {
+  private def isParenthesesRedundant(elem: ScParenthesizedElement, settings: UnnecessaryParenthesesSettings): Boolean = {
     if (elem.isParenthesisNeeded) return false
 
     elem match {
@@ -70,7 +71,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
       isParenthesesRedundant(elem, currentSettings)
 
 
-  private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder): Unit =
+  private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit =
     registerProblem(parenthesized, new AbstractFixOnPsiElement("Remove unnecessary parentheses " + getShortText(parenthesized), parenthesized) {
       override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
         val keepParentheses = element.isNestingParenthesis
@@ -88,9 +89,9 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
 
         ScalaPsiUtil padWithWhitespaces replaced
       }
-  })
+    })
 
-  private def registerProblem(elt: ScParameterClause)(implicit holder: ProblemsHolder): Unit = {
+  private def registerProblem(elt: ScParameterClause)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
     val quickFix = new AbstractFixOnPsiElement[ScParameterClause]("Remove unnecessary parentheses " + getShortText(elt), elt) {
       override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit = {
         if (isParenthesised(element)) {
@@ -103,10 +104,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
     registerProblem(elt, quickFix)
   }
 
-
-  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder): Unit = {
-    holder.registerProblem(elt, "Unnecessary parentheses", ProblemHighlightType.INFORMATION, qf)
-    holder.registerProblem(elt, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, 1))
-    holder.registerProblem(elt, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(elt.getTextLength - 1, elt.getTextLength))
+  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+    registerRedundantParensProblem("Unnecessary parentheses", elt, qf)
   }
 }

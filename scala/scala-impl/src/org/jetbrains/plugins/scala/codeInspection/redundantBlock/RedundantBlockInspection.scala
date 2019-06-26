@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInspection.redundantBlock
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.parentheses.RedundantBracketsInspectionLike
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -16,18 +17,16 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
  * Pavel Fatin
  */
 
-class RedundantBlockInspection extends AbstractInspection {
+class RedundantBlockInspection extends AbstractInspection with RedundantBracketsInspectionLike {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.getText == "{" &&
-              blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
+        blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
       holder.registerProblem(block, new TextRange(0, 1), "Remove redundant braces", new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.getChildren.length == 3 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
-        holder.registerProblem(block, "The enclosing block is redundant", ProblemHighlightType.INFORMATION, new QuickFix(block))
-        holder.registerProblem(block, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, 1))
-        holder.registerProblem(block, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(block.getTextLength - 1, block.getTextLength))
+        registerRedundantParensProblem("The enclosing block is redundant", block, new QuickFix(block))
       }
   }
 
@@ -38,7 +37,7 @@ class RedundantBlockInspection extends AbstractInspection {
       elem.replace(elem.getChildren.apply(1))
     }
   }
-  
+
   private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFixOnPsiElement("Remove redundant braces", block) {
 
     override protected def doApplyFix(bl: ScBlock)
