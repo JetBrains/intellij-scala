@@ -11,14 +11,14 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-private[clauses] abstract class ClauseCompletionProvider[T <: ScalaPsiElement with Typeable](clazz: Class[T])
+private[clauses] abstract class ClauseCompletionProvider[T <: ScalaPsiElement with Typeable : reflect.ClassTag]
   extends CompletionProvider[CompletionParameters] {
 
   override final def addCompletions(parameters: CompletionParameters,
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
     implicit val place: PsiElement = positionFromParameters(parameters)
-    PsiTreeUtil.getParentOfType(place, clazz) match {
+    PsiTreeUtil.getParentOfType(place, reflect.classTag.runtimeClass.asInstanceOf[Class[T]]) match {
       case null =>
       case typeable => addCompletions(typeable, result)
     }

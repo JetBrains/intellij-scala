@@ -2,16 +2,26 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation
 
 import scala.collection.JavaConverters
+import scala.reflect.{ClassTag, classTag}
 
 package object clauses {
+
+  private[clauses] def inside[
+    Capture <: ScalaPsiElement : ClassTag
+  ]: PsiElementPattern.Capture[PsiElement] =
+    PlatformPatterns.psiElement.inside {
+      classTag[Capture].runtimeClass.asInstanceOf[Class[Capture]]
+    }
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
                                          isInstantiatiable: Boolean = false) {
