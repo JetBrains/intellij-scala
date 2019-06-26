@@ -4,7 +4,6 @@ package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.Lookup
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
 /**
@@ -12,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefiniti
   */
 class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaCodeInsightTestBase._
 
   def testParameterName(): Unit = doAotCompletionTest(
@@ -210,10 +208,15 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
                                   itemText: String,
                                   tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString,
                                   char: Char = Lookup.REPLACE_SELECT_CHAR): Unit = {
-    val tailText = if (tailTextSuffix != null) " " + tailTextSuffix else null
+    val grayed = tailTextSuffix != null
+    val tailText = if (grayed) " " + tailTextSuffix else null
 
     doCompletionTest(fileText, resultText, char, DEFAULT_TIME, CompletionType.BASIC) {
-      hasItemText(_, lookupString, itemText, tailText = tailText)
+      hasItemText(_, lookupString)(
+        itemText = itemText,
+        tailText = tailText,
+        grayed = grayed
+      )
     }
   }
 }

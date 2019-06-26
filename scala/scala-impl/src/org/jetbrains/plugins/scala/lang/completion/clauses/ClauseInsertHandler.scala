@@ -5,45 +5,54 @@ package clauses
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement](clazz: Class[E])
   extends InsertHandler[LookupElement] {
 
-  protected def handleInsert(implicit insertionContext: InsertionContext): Unit
+  protected def handleInsert(implicit context: InsertionContext): Unit
 
-  override final def handleInsert(insertionContext: InsertionContext,
+  override final def handleInsert(context: InsertionContext,
                                   lookupElement: LookupElement): Unit =
-    handleInsert(insertionContext)
+    handleInsert(context)
 
   protected final def onTargetElement[U >: Null](onElement: E => U)
-                                                (implicit insertionContext: InsertionContext): U = {
-    val elementAtOffset = insertionContext.getFile.findElementAt(insertionContext.getStartOffset)
+                                                (implicit context: InsertionContext): U = {
+    val elementAtOffset = context.getFile.findElementAt(context.getStartOffset)
     PsiTreeUtil.getContextOfType(elementAtOffset, false, clazz) match {
       case null => null
       case targetElement => onElement(targetElement)
     }
   }
+
+  protected final def replaceText(text: String)
+                                 (implicit context: InsertionContext): Unit = {
+    context.getDocument.replaceString(
+      context.getStartOffset,
+      context.getSelectionEndOffset,
+      text
+    )
+    context.commitDocument()
+  }
+
+  protected final def moveCaret(offset: Int)
+                               (implicit context: InsertionContext): Unit = {
+    val InsertionContextExt(editor, document, _, project) = context
+    PsiDocumentManager.getInstance(project)
+      .doPostponedOperationsAndUnblockDocument(document)
+    editor.getCaretModel.moveToOffset(offset)
+  }
 }
 
 private[clauses] object ClauseInsertHandler {
-
-  def replaceText(text: String)
-                 (implicit insertionContext: InsertionContext): Unit = {
-    insertionContext.getDocument.replaceString(
-      insertionContext.getStartOffset,
-      insertionContext.getSelectionEndOffset,
-      text
-    )
-    insertionContext.commitDocument()
-  }
 
   def adjustTypes(addImports: Boolean,
                   pairs: (ScPattern, PatternComponents)*)

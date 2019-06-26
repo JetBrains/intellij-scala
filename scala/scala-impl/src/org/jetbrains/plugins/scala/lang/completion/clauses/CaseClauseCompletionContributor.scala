@@ -8,18 +8,45 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
 
-class CaseClauseCompletionContributor extends ScalaCompletionContributor {
+final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   import CaseClauseCompletionContributor._
+  import ClauseCompletionProvider._
+
+  extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement.inside(classOf[ScArgumentExprList]),
+    new ClauseCompletionProvider(classOf[ScBlockExpr]) {
+      override protected def addCompletions(block: ScBlockExpr, result: CompletionResultSet)
+                                           (implicit place: PsiElement): Unit =
+        block.expectedType().collect {
+          case PartialFunctionType(_, targetType) => targetType
+          case FunctionType(_, Seq(targetType)) => targetType
+        }.flatMap {
+          _.extractClass
+        }.collect {
+          case SealedDefinition(inheritors) => inheritors
+        }.foreach { inheritors =>
+          for {
+            components <- inheritors.inexhaustivePatterns // TODO objects!!!
+            patternText = components.extractorText()
+          } result.addElement(ScalaKeyword.CASE, new CaseClauseInsertHandler(patternText))(
+            itemTextBold = true,
+            tailText = " " + patternText
+          )
+        }
+    }
+  )
 
   extend(new ClauseCompletionProvider(classOf[ScStableReferencePattern]) {
-
-    import ClauseCompletionProvider._
 
     override protected def addCompletions(pattern: ScStableReferencePattern, result: CompletionResultSet)
                                          (implicit place: PsiElement): Unit = {
@@ -75,13 +102,24 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private class PatternInsertHandler(lookupString: String,
-                                     components: ExtractorPatternComponents[_])
+  import ClauseInsertHandler._
+
+  private final class CaseClauseInsertHandler(patternText: String)
+                                             (implicit place: PsiElement)
+    extends ClauseInsertHandler(classOf[ScCaseClause]) {
+
+    override protected def handleInsert(implicit context: InsertionContext): Unit = {
+      replaceText(s"${ScalaKeyword.CASE} $patternText ${ScalaPsiUtil.functionArrow} ") // TODO see createClauses
+
+      moveCaret(context.getTailOffset)
+    }
+  }
+
+  private final class PatternInsertHandler(lookupString: String,
+                                           components: ExtractorPatternComponents[_])
     extends ClauseInsertHandler(classOf[ScConstructorPattern]) {
 
-    import ClauseInsertHandler._
-
-    override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
+    override def handleInsert(implicit context: InsertionContext): Unit = {
       replaceText(lookupString)
 
       onTargetElement { pattern =>
@@ -93,11 +131,11 @@ object CaseClauseCompletionContributor {
   }
 
   /**
-    * Enable completion for object with unapply/unapplySeq methods on case label position.
-    * Case label with low letter treat as ScReferencePattern and don't handle with ScalaBasicCompletionContributor,
-    * this handler add open and closed brackets to treat element as ScCodeReferenceElement
-    * and run ScalaBasicCompletionContributor.
-    */
+   * Enable completion for object with unapply/unapplySeq methods on case label position.
+   * Case label with low letter treat as ScReferencePattern and don't handle with ScalaBasicCompletionContributor,
+   * this handler add open and closed brackets to treat element as ScCodeReferenceElement
+   * and run ScalaBasicCompletionContributor.
+   */
   private class ExtractorCompletionProvider(pattern: ScPattern) extends DelegatingCompletionProvider[ScPattern] {
 
     override protected def addCompletions(resultSet: CompletionResultSet,

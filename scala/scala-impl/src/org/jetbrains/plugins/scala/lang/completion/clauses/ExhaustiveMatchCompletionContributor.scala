@@ -65,8 +65,14 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
       override protected def addCompletions(typeable: T, result: CompletionResultSet)
                                            (implicit place: PsiElement): Unit = for {
         PatternGenerationStrategy(strategy) <- `type`(typeable, place)
-        handler = new ClausesInsertHandler(strategy, handlerTargetClass, prefixAndSuffix)
-      } result.addElement(lookupString, handler)(tailText = rendererTailText)
+      } result.addElement(
+        lookupString,
+        new ClausesInsertHandler(strategy, handlerTargetClass, prefixAndSuffix)
+      )(
+        itemTextBold = true,
+        tailText = rendererTailText,
+        grayed = true
+      )
     }
   )
 }
@@ -103,7 +109,7 @@ object ExhaustiveMatchCompletionContributor {
 
         val components = strategy.patterns
         val clausesText = components.map { component =>
-          ScalaKeyword.CASE + " " + component.text + " " + functionArrow
+          s"${ScalaKeyword.CASE} ${component.text} $functionArrow"
         }.mkString(prefix, "\n", suffix)
 
         (components, clausesText)
@@ -174,20 +180,23 @@ object ExhaustiveMatchCompletionContributor {
     }
   }
 
-  private class ClausesInsertHandler[E <: ScExpression](strategy: PatternGenerationStrategy, clazz: Class[E],
-                                                        prefixAndSuffix: PrefixAndSuffix)
-                                                       (implicit place: PsiElement)
+  private final class ClausesInsertHandler[E <: ScExpression](strategy: PatternGenerationStrategy, clazz: Class[E],
+                                                              prefixAndSuffix: PrefixAndSuffix)
+                                                             (implicit place: PsiElement)
     extends ClauseInsertHandler(clazz) {
 
-    override protected def handleInsert(implicit insertionContext: InsertionContext): Unit = {
+    override protected def handleInsert(implicit context: InsertionContext): Unit = {
       val (components, clausesText) = strategy.createClauses(prefixAndSuffix)
-      ClauseInsertHandler.replaceText(clausesText)
+      replaceText(clausesText)
 
-      val InsertionContextExt(editor, document, file, project) = insertionContext
       onTargetElement { statement =>
         val clauses = findCaseClauses(statement)
         strategy.adjustTypes(components, clauses.caseClauses)
-        CodeStyleManager.getInstance(project).reformatText(file, ju.Collections.singleton(statement.getTextRange))
+
+        CodeStyleManager.getInstance(context.getProject).reformatText(
+          context.getFile,
+          ju.Collections.singleton(statement.getTextRange)
+        )
       }
 
       val whiteSpace = onTargetElement { statement =>
@@ -196,10 +205,7 @@ object ExhaustiveMatchCompletionContributor {
         replaceWhiteSpace(caseClauses.head)(clauses.getNextSibling)
       }
 
-      val offset = whiteSpace.getStartOffset + 1
-      PsiDocumentManager.getInstance(project)
-        .doPostponedOperationsAndUnblockDocument(document)
-      editor.getCaretModel.moveToOffset(offset)
+      moveCaret(whiteSpace.getStartOffset + 1)
     }
 
     private def findCaseClauses(target: E): ScCaseClauses =

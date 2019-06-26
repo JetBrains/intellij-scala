@@ -4,13 +4,11 @@ package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   import CompletionType.BASIC
-  import EditorTestUtil.{CARET_TAG => CARET}
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
   import completion.ScalaKeyword.{CASE, MATCH}
@@ -127,7 +125,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo()"
   )
 
-  def testNestedPatternCompletion(): Unit = doPatternCompletionTest(
+  def testNestedPattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""sealed trait Foo
          |
@@ -159,7 +157,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "Baz(foo)"
   )
 
-  def testCollectPatternCompletion(): Unit = doPatternCompletionTest(
+  def testCollectPattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""case class Foo(foo: Int = 42)(bar: Int = 42)
          |
@@ -177,7 +175,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "Foo(foo)"
   )
 
-  def testNamedPatternCompletion(): Unit = doPatternCompletionTest(
+  def testNamedPattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""case class Foo(foo: Int = 42)
          |
@@ -193,6 +191,26 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin,
     itemText = "Foo(foo)"
+  )
+
+  def testCompleteClause(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case Bar() => $CARET
+         |}""".stripMargin,
+    item = CASE
   )
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
@@ -640,7 +658,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
     doCompletionTest(fileText, resultText) {
-      hasItemText(_, itemText, itemText, itemTextItalic = true)
+      hasItemText(_, itemText)(itemTextItalic = true)
     }
 
   //  private def doMultipleCompletionTest(fileText: String,
@@ -655,12 +673,12 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   private def isExhaustiveMatch(lookup: LookupElement) =
     isExhaustive(lookup, MATCH)
 
-  private def isExhaustive(lookup: LookupElement, lookupString: String) = hasItemText(
-    lookup,
-    lookupString,
-    lookupString,
-    tailText = completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText
-  )
+  private def isExhaustive(lookup: LookupElement, lookupString: String) =
+    hasItemText(lookup, lookupString)(
+      itemTextBold = true,
+      tailText = completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,
+      grayed = true
+    )
 
   private def isExhaustiveCase(lookup: LookupElement) =
     isExhaustive(lookup, CASE)

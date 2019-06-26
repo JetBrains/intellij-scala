@@ -14,8 +14,8 @@ import org.junit.Assert.{assertEquals, fail}
 import scala.collection.JavaConverters
 
 /**
-  * @author Alexander Podkhalyuzin
-  */
+ * @author Alexander Podkhalyuzin
+ */
 abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import CompletionType.BASIC
@@ -126,16 +126,20 @@ object ScalaCodeInsightTestBase {
     lookup.getLookupString == lookupString
 
   def hasItemText(lookup: LookupElement,
-                  lookupString: String,
-                  itemText: String,
+                  lookupString: String)
+                 (itemText: String = lookupString,
                   itemTextItalic: Boolean = false,
-                  tailText: String = null): Boolean =
+                  itemTextBold: Boolean = false,
+                  tailText: String = null,
+                  grayed: Boolean = false): Boolean =
     hasLookupString(lookup, lookupString) && {
       val presentation = new LookupElementPresentation
       lookup.renderElement(presentation)
       presentation.getItemText == itemText &&
         presentation.isItemTextItalic == itemTextItalic &&
-        presentation.getTailText == tailText
+        presentation.isItemTextBold == itemTextBold &&
+        presentation.getTailText == tailText &&
+        presentation.isTailGrayed == grayed
     }
 
   private def lookupItems(lookup: LookupImpl) = {

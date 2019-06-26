@@ -35,14 +35,17 @@ private[clauses] object ClauseCompletionProvider {
     def addElement(lookupString: String,
                    insertHandler: ClauseInsertHandler[_])
                   (itemTextItalic: Boolean = false,
-                   tailText: String = null): Unit = {
+                   itemTextBold: Boolean = false,
+                   tailText: String = null,
+                   grayed: Boolean = false): Unit = {
       val lookupElement = LookupElementBuilder.create(lookupString)
         .withInsertHandler(insertHandler)
         .withRenderer {
           (_: LookupElement, presentation: LookupElementPresentation) => {
             presentation.setItemText(lookupString)
             presentation.setItemTextItalic(itemTextItalic)
-            presentation.setTailText(tailText, true)
+            presentation.setItemTextBold(itemTextBold)
+            presentation.setTailText(tailText, grayed)
           }
         }
 
