@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.format.{Injection, Span, _}
  */
 class ScalaMalformedFormatStringInspection extends AbstractInspection {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element =>
       val representation = FormattedStringParser.parse(element)
               .orElse(PrintStringParser.parse(element))

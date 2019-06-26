@@ -56,7 +56,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 
     override def migrateLocal(file: PsiFile, holder: ProblemsHolder): Option[PartialFunction[PsiElement, Any]] = {
       file match {
-        case scalaFile: ScalaFile => Some(samInspection.actionFor(holder))
+        case scalaFile: ScalaFile => Some(samInspection.actionFor(holder, isOnTheFly = false))
         case _ => None
       }
     }

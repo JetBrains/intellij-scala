@@ -52,7 +52,7 @@ object ConvertibleToMethodValueInspection {
 
 class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionName) {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ArgumentToPolymorphicLambda() => () // disallowed by kind projector rules
     case MethodRepr(_, _, Some(ref), _)
       if ref.bind().exists(involvesImplicitsOrByNameParams) => //do nothing

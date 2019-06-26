@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  */
 class TypeParameterShadowInspection extends AbstractInspection("Suspicious shadowing by a Type Parameter") {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case refPat: ScTypeParam => check(refPat, holder)
   }
   

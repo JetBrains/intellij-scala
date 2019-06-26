@@ -16,7 +16,7 @@ class ScalaDeprecatedIdentifierInspection extends AbstractInspection(inspectionN
 
   private def message(deprecatedName: String) = s"Usage of $deprecatedName as identifier is deprecated. It can be used as a keyword in future versions of scala."
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ref: ScReference if deprecatedNames.contains(ref.refName) =>
       holder.registerProblem(ref.nameId, message(ref.refName), ProblemHighlightType.LIKE_DEPRECATED, null: TextRange)
     case named: ScNamedElement if deprecatedNames.contains(named.name) =>

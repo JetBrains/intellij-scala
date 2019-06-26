@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
  */
 class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName) {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition
       if definition.isSAMEnabled && containsSingleFunction(definition) =>
       definition.expectedTypes().flatMap {

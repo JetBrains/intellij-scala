@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class PostfixMethodCallInspection extends AbstractInspection("Use of postfix method call") {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case pexpr: ScPostfixExpr if !safe(pexpr) =>
       holder.registerProblem(pexpr, getDisplayName, new AddDotFix(pexpr))
   }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.EnumSet._
 
 class CaseClassParamInspection extends AbstractInspection("Case Class Parameter") {
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case c: ScClass if c.isCase =>
       for{
         paramClause <- c.allClauses.take(1)

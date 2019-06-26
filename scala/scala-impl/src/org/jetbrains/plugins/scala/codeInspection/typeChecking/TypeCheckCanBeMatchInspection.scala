@@ -35,7 +35,7 @@ final class TypeCheckCanBeMatchInspection extends AbstractInspection(TypeCheckCa
 
   import TypeCheckCanBeMatchInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case IsInstanceOfCall(call) =>
       for {
         ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIf]))

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 class LegacyStringFormattingInspection extends AbstractInspection {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element if FormattedStringParser.extractFormatCall(element).isDefined =>
       holder.registerProblem(element, "Legacy string formatting, an interpolated string can be used instead", new QuickFix(element))
   }

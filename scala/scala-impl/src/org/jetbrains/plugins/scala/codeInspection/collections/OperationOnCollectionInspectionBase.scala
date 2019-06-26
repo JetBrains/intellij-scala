@@ -56,7 +56,7 @@ object OperationOnCollectionInspectionBase {
 abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionName) {
   private val settings = ScalaApplicationSettings.getInstance()
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case SimplifiableExpression(expr) => simplifications(expr).foreach {
       case s@Simplification(toReplace, _, hint, rangeInParent) =>
         val quickFix = OperationOnCollectionQuickFix(s)

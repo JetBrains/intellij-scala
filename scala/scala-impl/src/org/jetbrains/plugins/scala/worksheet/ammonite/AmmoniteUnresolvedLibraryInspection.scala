@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
   * Date: 30.08.17.
   */
 class AmmoniteUnresolvedLibraryInspection extends AbstractInspection("Unresolved Ivy import") {
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case stableRef: ScStableCodeReference => stableRef.qualifier.foreach(processExpr(stableRef, _, holder))
     case selector: ScImportSelector =>
       new ParentsIterator(selector).find {

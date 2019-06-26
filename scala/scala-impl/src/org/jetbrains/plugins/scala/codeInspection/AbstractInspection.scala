@@ -16,11 +16,11 @@ abstract class AbstractInspection protected(customDisplayName: String = null) ex
     case name => name
   }
 
-  protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any]
+  protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any]
 
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
 
-    override def visitElement(element: PsiElement): Unit = actionFor(holder) match {
+    override def visitElement(element: PsiElement): Unit = actionFor(holder, isOnTheFly) match {
       case action if action.isDefinedAt(element) => action(element)
       case _ =>
     }

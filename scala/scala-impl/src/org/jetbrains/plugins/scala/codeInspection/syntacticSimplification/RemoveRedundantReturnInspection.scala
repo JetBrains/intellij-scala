@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExpressionExt, ScF
 
 class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Return") {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case function: ScFunctionDefinition =>
       for (body <- function.body) {
         val returns = body.calculateTailReturns

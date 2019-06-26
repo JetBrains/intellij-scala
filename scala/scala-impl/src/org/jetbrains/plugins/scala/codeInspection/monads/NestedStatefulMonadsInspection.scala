@@ -19,7 +19,7 @@ final class NestedStatefulMonadsInspection extends AbstractInspection(NestedStat
 
   import NestedStatefulMonadsInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case call: ScMethodCall =>
       import call.projectContext
       for {

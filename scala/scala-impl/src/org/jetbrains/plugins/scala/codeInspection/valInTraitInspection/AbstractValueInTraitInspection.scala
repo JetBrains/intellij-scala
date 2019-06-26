@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 class AbstractValueInTraitInspection
   extends AbstractInspection("Abstract Value in Trait") {
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     //todo: we should use dataflow analysis to get if it's safe to use declaration here
     case v: ScValueDeclaration if v.getParent.isInstanceOf[ScTemplateBody] =>
       v.containingClass match {

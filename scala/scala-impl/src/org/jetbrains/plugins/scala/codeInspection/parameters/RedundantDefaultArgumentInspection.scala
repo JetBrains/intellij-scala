@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 class RedundantDefaultArgumentInspection extends AbstractInspection("Argument duplicates corresponding parameter default value") {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ScMethodCall(referenceExpression: ScReferenceExpression, arguments: Seq[ScExpression]) =>
       referenceExpression.resolve() match {
         case function: ScFunction =>

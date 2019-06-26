@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
   */
 class VariableNullInitializerInspection extends AbstractInspection(inspectionName) {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if !definition.isLocal =>
       val maybeDeclaredType = definition.declaredType
         .filter(isApplicable)

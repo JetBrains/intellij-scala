@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 class NotImplementedCodeInspection extends AbstractInspection {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case reference @ ReferenceTarget(Member("???", "scala.Predef")) =>
       holder.registerProblem(reference, "Not implemented",
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new ImplementQuickFix(reference))

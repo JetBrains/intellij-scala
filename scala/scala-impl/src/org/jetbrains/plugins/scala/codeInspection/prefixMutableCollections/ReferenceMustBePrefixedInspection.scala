@@ -24,7 +24,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMust
 
   import ReferenceMustBePrefixedInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case reference: ScReference if reference.qualifier.isEmpty && !reference.getParent.isInstanceOf[ScImportSelector] =>
       reference.bind().collect {
         case result@withActual(clazz: PsiClass) if result.renamed.isEmpty && isValid(clazz, reference) => clazz

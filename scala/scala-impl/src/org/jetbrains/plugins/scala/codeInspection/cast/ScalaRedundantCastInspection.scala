@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
  */
 class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") {
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case call: ScGenericCall =>
 
 

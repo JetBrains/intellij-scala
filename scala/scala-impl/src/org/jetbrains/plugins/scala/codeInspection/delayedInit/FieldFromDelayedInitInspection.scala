@@ -18,7 +18,7 @@ final class FieldFromDelayedInitInspection extends AbstractInspection("Field fro
 
   import FieldFromDelayedInitInspection._
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ref: ScReferenceExpression =>
       for {
         FieldInDelayedInit(delayedInitClass) <- ref.bind()

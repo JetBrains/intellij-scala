@@ -12,16 +12,19 @@ import javax.swing.*;
  * Nikolay.Tropin
  * 6/26/13
  */
+@SuppressWarnings("WeakerAccess")
 public class ScalaUnnecessaryParenthesesInspection extends ScalaUnnecessaryParenthesesInspectionBase {
   public boolean ignoreClarifying = true;
   public boolean ignoreAroundFunctionType = false;
   public boolean ignoreAroundFunctionTypeParam = false;
   public boolean ignoreAroundFunctionExprParam = false;
 
+  @Override
   public UnnecessaryParenthesesSettings currentSettings() {
     return new UnnecessaryParenthesesSettings(ignoreClarifying, ignoreAroundFunctionType, ignoreAroundFunctionTypeParam, ignoreAroundFunctionExprParam);
   }
 
+  @Override
   public void setSettings(UnnecessaryParenthesesSettings settings) {
     ignoreClarifying = settings.ignoreClarifying();
     ignoreAroundFunctionType = settings.ignoreAroundFunctionType();

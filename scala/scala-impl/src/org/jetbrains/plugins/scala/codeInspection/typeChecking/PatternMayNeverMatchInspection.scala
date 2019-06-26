@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
   */
 class PatternMayNeverMatchInspection extends AbstractInspection(inspectionName) {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case pat@ScPatternExpectedAndPatternType(exTp, patType) =>
       if (!ScPatternAnnotator.matchesPattern(exTp, patType) && !patType.conforms(exTp) &&
         !isNeverSubType(exTp, patType)) {

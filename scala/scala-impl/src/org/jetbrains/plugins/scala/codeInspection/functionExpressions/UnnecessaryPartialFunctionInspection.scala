@@ -24,7 +24,7 @@ object UnnecessaryPartialFunctionInspection {
 class UnnecessaryPartialFunctionInspection
   extends AbstractInspection(inspectionName) {
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case expression: ScBlockExpr =>
       def isNotPartialFunction(expectedType: ScType) =
         findPartialFunctionType(holder.getFile).exists(!expectedType.conforms(_))

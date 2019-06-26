@@ -22,7 +22,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
 
   import UnitInMapInspection._
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case MethodRepr(call, _, Some(ref), Seq(arg@lambdaWithBody(body))) if ref.refName == "map" &&
       checkResolve(ref, getLikeCollectionClasses) && expressionResultIsNotUsed(call) =>
 

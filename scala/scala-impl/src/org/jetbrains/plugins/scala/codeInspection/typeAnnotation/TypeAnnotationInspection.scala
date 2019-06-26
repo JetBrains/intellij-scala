@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util._
 class TypeAnnotationInspection extends AbstractInspection {
   import TypeAnnotationInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
       inspect(value, value.bindings.head, value.expr)
     case variable: ScVariableDefinition if variable.isSimple && !variable.hasExplicitType =>

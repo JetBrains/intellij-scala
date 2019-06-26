@@ -18,7 +18,7 @@ class ForwardReferenceInspection extends AbstractInspection {
 
   import ForwardReferenceInspection.asValueOrVariable
 
-  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case ref: ScReferenceExpression =>
       val maybeMember = ref.parentOfType(classOf[ScMember])
         .collect(asValueOrVariable)
