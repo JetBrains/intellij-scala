@@ -62,7 +62,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
 
   def testReferenceToByNameParam(): Unit = checkTextHasNoErrors {
     s"""def foo(i: => Int): Int = {
-       |  ${START}i$END
+       |  i
        |  0
        |}"""
   }
@@ -70,14 +70,14 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
   def testStringBuffer(): Unit = checkTextHasNoErrors {
     s"""def foo(): Int = {
        |  val b = new StringBuffer()
-       |  ${START}b.append("a")$END
+       |  b.append("a")
        |  0
        |}"""
   }
 
   def testObjectMethodWithSideEffects(): Unit = checkTextHasNoErrors {
     s"""def foo(): Int = {
-       |  $START"1".wait()$END
+       |  "1".wait()
        |  0
        |}"""
   }
@@ -106,7 +106,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
     s"""def foo(): Int = {
        |  val f = (i: Int) => i + 1
        |  0 match {
-       |    case 0 => ${START}List(1).foreach(f)$END
+       |    case 0 => List(1).foreach(f)
        |    case 1 =>
        |  }
        |  1
@@ -137,11 +137,77 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}"""
   }
 
+  def testUnusedFunctionRef(): Unit = checkTextHasError {
+    s"""
+       |def foo(): Unit = {
+       | val f = foo _
+       |  ${START}f$END
+       |}
+       |""".stripMargin
+  }
+
+  def testUsedFunctionRef(): Unit = checkTextHasNoErrors {
+    s"""
+       |def foo: Unit = {
+       |  foo
+       |}
+       |""".stripMargin
+  }
+
+  def testUnusedPrimitiveParam(): Unit = checkTextHasError {
+    s"""
+      |def foo(i: Int): Unit = {
+      |  ${START}i$END
+      |}
+      |""".stripMargin
+  }
+
+  def testUnusedStableReferenceParam(): Unit = checkTextHasError {
+    s"""
+       |def foo(s: Seq[Int]): Unit = {
+       |  ${START}s$END
+       |}
+       |""".stripMargin
+  }
+
   def testFunctionalParam(): Unit = checkTextHasNoErrors {
     s"""def foo(f: Int => Unit): Unit = {
-       |  ${START}List(1) foreach f$END
+       |  List(1) foreach f
        |}
        """
+  }
+
+  def testUnusedFunctionalParam(): Unit = checkTextHasError {
+    s"""
+       |def foo(f: () => Int): Unit = {
+       |  ${START}f$END
+       |}
+       |""".stripMargin
+  }
+
+  def testUsedFunctionalParam(): Unit = checkTextHasNoErrors {
+    s"""
+       |def foo(f: () => Unit) = {
+       |  f
+       |}
+       |""".stripMargin
+  }
+
+  def testUnusedFunctionalParamWhenUsedAfter(): Unit = checkTextHasError {
+    s"""
+       |def foo(f: () => Int) = {
+       |  ${START}f$END
+       |  f
+       |}
+       |""".stripMargin
+  }
+
+  def testLazyFunctionalParam(): Unit = checkTextHasNoErrors {
+    s"""
+       |def foo(f: => Unit): Unit = {
+       |  f
+       |}
+       |""".stripMargin
   }
 
   def testStringMethod(): Unit = checkTextHasError {
@@ -157,7 +223,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
   def testNoForAssignment(): Unit = checkTextHasNoErrors {
     s"""def foo(): Int = {
        |    var x = 0
-       |    ${START}x += 1$END
+       |    x += 1
        |    0
        |}"""
   }
@@ -165,7 +231,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
   def testNoForAssignment2(): Unit = checkTextHasNoErrors {
     s"""def foo(): Int = {
        |    var x = 0
-       |    ${START}x = 1$END
+       |    x = 1
        |    0
        |}"""
   }
@@ -180,7 +246,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
 
   def testUnitFunction2(): Unit = checkTextHasNoErrors {
     s"""def foo(): Unit = {
-       |  $START"1".wait()$END
+       |  "1".wait()
        |}"""
   }
 
@@ -190,7 +256,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}
        |
        |def foo(): Unit = {
-       |  $START"1".print()$END
+       |  "1".print()
        |}"""
   }
 
@@ -254,6 +320,62 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
       |}
     """
   }
+
+  def test_SCL15653_0(): Unit = checkTextHasError(
+    s"""
+       |object Main extends App {
+       |  def executeSum(a: Int, b: Int): Unit = ${START}a + b$END
+       |  def executeWrong(f: () => Unit): Unit = f // not used or converted to Unit
+       |  def executeRight(f: () => Unit): Unit = f()
+       |  executeWrong(() => println("there"))
+       |}
+       |""".stripMargin,
+    allowAdditionalHighlights = true
+  )
+
+  def test_SCL15653_1(): Unit = checkTextHasError(
+    s"""
+      |object Main extends App {
+      |  def executeSum(a: Int, b: Int): Unit = a + b
+      |  def executeWrong(f: () => Unit): Unit = ${START}f$END // not used or converted to Unit
+      |  def executeRight(f: () => Unit): Unit = f()
+      |  executeWrong(() => println("there"))
+      |}
+      |""".stripMargin,
+    allowAdditionalHighlights = true
+  )
+
+  def test_SCL15653_2(): Unit = checkTextHasError(
+    s"""
+       |object Main extends App {
+       |  def executeSum(a: Int, b: Int): Unit = a + b
+       |  def executeWrong(f: () => Unit): Unit = f // not used or converted to Unit
+       |  def executeDoubleWrong(f: () => Unit): Unit = {
+       |    ${START}f$END // not used
+       |    f // not used or converted to Unit
+       |  }
+       |  def executeRight(f: () => Unit): Unit = f()
+       |  executeWrong(() => println("there"))
+       |}
+       |""".stripMargin,
+    allowAdditionalHighlights = true
+  )
+
+  def test_SCL15653_3(): Unit = checkTextHasError(
+    s"""
+       |object Main extends App {
+       |  def executeSum(a: Int, b: Int): Unit = a + b
+       |  def executeWrong(f: () => Unit): Unit = f // not used or converted to Unit
+       |  def executeDoubleWrong(f: () => Unit): Unit = {
+       |    f // not used
+       |    ${START}f$END // not used or converted to Unit
+       |  }
+       |  def executeRight(f: () => Unit): Unit = f()
+       |  executeWrong(() => println("there"))
+       |}
+       |""".stripMargin,
+    allowAdditionalHighlights = true
+  )
 }
 
 class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTestBase {

@@ -45,7 +45,10 @@ object SideEffectsUtil {
 
   def mayOnlyThrow(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = true)
 
-  private def hasNoSideEffectsInner(expr: ScExpression)(implicit allowThrows: Boolean): Boolean = {
+  private def hasNoSideEffectsInner(expr: ScExpression)(implicit allowThrows: Boolean): Boolean =
+    hasNoSideEffectsInner(expr, asArg = false)
+
+  private def hasNoSideEffectsInner(expr: ScExpression, asArg: Boolean)(implicit allowThrows: Boolean): Boolean = {
 
     expr match {
       case lit: ScInterpolatedStringLiteral =>
@@ -69,11 +72,10 @@ object SideEffectsUtil {
               if pd.hasModifierProperty("lazy") => false
             case bp: ScBindingPattern =>
               val tp = bp.`type`()
-              !FunctionType.isFunctionType(tp.getOrAny)
+              !(asArg && FunctionType.isFunctionType(tp.getOrAny))
             case _: ScObject => false
-            case p: ScParameter
-              if !p.isCallByNameParameter &&
-                !FunctionType.isFunctionType(p.getRealParameterType.getOrAny) => true
+            case p: ScParameter if p.isCallByNameParameter => false
+            case p: ScParameter if !(asArg && FunctionType.isFunctionType(p.getRealParameterType.getOrAny)) => true
             case _: ScSyntheticFunction => true
             case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.`type`().toOption))
             case _ => false
@@ -89,7 +91,7 @@ object SideEffectsUtil {
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.`type`().toOption)
           case _ => false
         }
-        checkOperation && hasNoSideEffectsInner(baseExpr) && args.forall(hasNoSideEffectsInner)
+        checkOperation && hasNoSideEffectsInner(baseExpr) && args.forall(hasNoSideEffectsInner(_, asArg = true))
       case ScMethodCall(baseExpr, args) =>
         val (checkQual, typeOfQual) = baseExpr match {
           case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffectsInner(qual), qual.`type`().toOption)
@@ -110,7 +112,7 @@ object SideEffectsUtil {
             }
           case _ => hasNoSideEffectsInner(baseExpr)
         }
-        checkQual && checkBaseExpr && args.forall(hasNoSideEffectsInner)
+        checkQual && checkBaseExpr && args.forall(hasNoSideEffectsInner(_, asArg = true))
       case _: ScNewTemplateDefinition => false
       case _ => false
     }
