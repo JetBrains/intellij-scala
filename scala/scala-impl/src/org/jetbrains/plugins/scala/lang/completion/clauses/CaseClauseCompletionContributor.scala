@@ -32,7 +32,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
                                                 (implicit place: PsiElement): LookupElement = {
         buildLookupElement(
           ScalaKeyword.CASE,
-          new CaseClauseInsertHandler(patternText)
+          new CaseClauseInsertHandler(patternText, components)
         )(itemTextBold = true, tailText = patternText)
       }
     }
@@ -120,12 +120,17 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private final class CaseClauseInsertHandler(patternText: String)
+  private final class CaseClauseInsertHandler(patternText: String,
+                                              components: ExtractorPatternComponents[_])
                                              (implicit place: PsiElement)
     extends ClauseInsertHandler[ScCaseClause] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
-      replaceText(createClause(patternText) + " ")
+      replaceText(createClause(components.text) + " ")
+
+      onTargetElement { clause =>
+        adjustTypesOnClauses(addImports = false, (clause, components))
+      }
 
       moveCaret(context.getTailOffset)
     }
@@ -140,7 +145,7 @@ object CaseClauseCompletionContributor {
 
       onTargetElement { pattern =>
         adjustTypes(false, (pattern, components)) {
-          case ScParenthesisedPattern(ScTypedPattern(typeElement)) => typeElement
+          case pattern@ScParenthesisedPattern(ScTypedPattern(typeElement)) => pattern -> typeElement
         }
       }
     }

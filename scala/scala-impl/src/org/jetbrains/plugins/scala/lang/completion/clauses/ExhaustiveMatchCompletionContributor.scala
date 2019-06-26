@@ -92,12 +92,10 @@ object ExhaustiveMatchCompletionContributor {
 
       def adjustTypes(components: Seq[PatternComponents],
                       caseClauses: Seq[ScCaseClause]): Unit =
-        PatternGenerationStrategy.adjustTypes(
-          strategy.isInstanceOf[SealedClassGenerationStrategy],
-          caseClauses.flatMap(_.pattern).zip(components): _*
-        ) {
-          case ScTypedPattern(typeElement) => typeElement
-        }
+        adjustTypesOnClauses(
+          addImports = strategy.isInstanceOf[SealedClassGenerationStrategy],
+          caseClauses.zip(components): _*
+        )
 
       def createClauses(prefixAndSuffix: PrefixAndSuffix = None)
                        (implicit place: PsiElement): (Seq[PatternComponents], String) = {
@@ -137,24 +135,31 @@ object ExhaustiveMatchCompletionContributor {
         case _ => None
       }
 
-    def adjustTypes(addImports: Boolean,
-                    pairs: (ScPattern, PatternComponents)*)
-                   (collector: PartialFunction[ScPattern, ScTypeElement]): Unit = {
+    def adjustTypesOnClauses(addImports: Boolean,
+                             pairs: (ScCaseClause, PatternComponents)*): Unit =
+      adjustTypes(addImports, pairs: _*) {
+        case ScCaseClause(Some(pattern@ScTypedPattern(typeElement)), _, _) => pattern -> typeElement
+      }
+
+    def adjustTypes[E <: ScalaPsiElement](addImports: Boolean,
+                                          pairs: (E, PatternComponents)*)
+                                         (collector: PartialFunction[E, (ScPattern, ScTypeElement)]): Unit = {
       val findTypeElement = collector.lift
       TypeAdjuster.adjustFor(
-        pairs.flatMap {
-          case (pattern, _) => findTypeElement(pattern)
-        },
+        for {
+          (element, _) <- pairs
+          (_, typeElement) <- findTypeElement(element)
+        } yield typeElement,
         addImports = addImports,
         useTypeAliases = false
       )
 
       for {
-        (pattern, components) <- pairs
-        typeElement <- findTypeElement(pattern)
+        (element, components) <- pairs
+        (pattern, typeElement) <- findTypeElement(element)
 
         patternText = replacementText(typeElement, components)
-        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, pattern.getContext, pattern)
+        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, element.getContext, element)
       } pattern.replace(replacement)
     }
 

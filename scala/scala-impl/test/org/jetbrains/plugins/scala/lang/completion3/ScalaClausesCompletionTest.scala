@@ -197,7 +197,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""sealed trait Foo
          |
-         |case class Bar() extends Foo
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |}
          |
          |Option.empty[Foo].map {
          |  c$CARET
@@ -205,10 +207,12 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""sealed trait Foo
          |
-         |case class Bar() extends Foo
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |}
          |
          |Option.empty[Foo].map {
-         |  case Bar() => $CARET
+         |  case Foo.Bar() => $CARET
          |}""".stripMargin,
     item = CASE
   )
