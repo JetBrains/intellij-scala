@@ -81,13 +81,13 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   }
 }
 
-class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) extends BuildReporter {
+class BuildToolWindowReporter(project: Project, buildId: EventId, title: String) extends BuildReporter {
   import MessageEvent.Kind
 
   private lazy val viewManager: BuildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
 
   override def start(): Unit = {
-    val buildDescriptor = new DefaultBuildDescriptor(taskId, title, project.getBasePath, System.currentTimeMillis())
+    val buildDescriptor = new DefaultBuildDescriptor(buildId, title, project.getBasePath, System.currentTimeMillis())
     val startEvent = new StartBuildEventImpl(buildDescriptor, "running ...")
       .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
         val descriptor = new RunContentDescriptor(null, null, new JComponent {}, title)
@@ -96,7 +96,7 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
         descriptor
       }
 
-    viewManager.onEvent(taskId, startEvent)
+    viewManager.onEvent(buildId, startEvent)
   }
 
   override def finish(messages: BuildMessages): Unit = {
@@ -111,59 +111,59 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
       }
 
     val finishEvent =
-      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), resultMessage, result)
-    viewManager.onEvent(taskId, finishEvent)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), resultMessage, result)
+    viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
     val failureResult = new FailureResultImpl(err)
     val finishEvent =
-      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
-    viewManager.onEvent(taskId, finishEvent)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), "failed", failureResult)
+    viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishCanceled(): Unit = {
     val canceledResult = new SkippedResultImpl
     val finishEvent =
-      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "canceled", canceledResult)
-    viewManager.onEvent(taskId, finishEvent)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), "canceled", canceledResult)
+    viewManager.onEvent(buildId, finishEvent)
   }
 
   def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
     val startEvent = new StartEventImpl(taskId, parent.orNull, time, message)
-    viewManager.onEvent(taskId, startEvent)
+    viewManager.onEvent(buildId, startEvent)
   }
 
   def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val unitOrDefault = if (unit == null) "items" else unit
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
-    viewManager.onEvent(taskId, event)
+    viewManager.onEvent(buildId, event)
   }
 
   def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val event = new FinishEventImpl(taskId, null, time, message, result)
-    viewManager.onEvent(taskId, event)
+    viewManager.onEvent(buildId, event)
   }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(taskId, event(message, Kind.WARNING, position))
+    viewManager.onEvent(buildId, event(message, Kind.WARNING, position))
 
   override def error(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(taskId, event(message, Kind.ERROR, position))
+    viewManager.onEvent(buildId, event(message, Kind.ERROR, position))
 
   override def info(message: String, position: Option[FilePosition]): Unit =
-    viewManager.onEvent(taskId, event(message, Kind.INFO, position))
+    viewManager.onEvent(buildId, event(message, Kind.INFO, position))
 
   override def log(message: String): Unit =
-    viewManager.onEvent(taskId, logEvent(message))
+    viewManager.onEvent(buildId, logEvent(message))
 
   private def logEvent(msg: String): BuildEvent =
-    new OutputBuildEventImpl(taskId, msg.trim + System.lineSeparator(), true)
+    new OutputBuildEventImpl(buildId, msg.trim + System.lineSeparator(), true)
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
-    BuildMessages.message(taskId, message, kind, position)
+    BuildMessages.message(buildId, message, kind, position)
 
 }
 
