@@ -676,7 +676,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   private def isExhaustive(lookup: LookupElement, lookupString: String) =
     hasItemText(lookup, lookupString)(
       itemTextBold = true,
-      tailText = completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,
+      tailText = " " + completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,
       grayed = true
     )
 

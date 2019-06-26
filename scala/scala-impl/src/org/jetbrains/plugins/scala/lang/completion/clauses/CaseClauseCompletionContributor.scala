@@ -33,10 +33,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         buildLookupElement(
           ScalaKeyword.CASE,
           new CaseClauseInsertHandler(patternText)
-        )(
-          itemTextBold = true,
-          tailText = " " + patternText
-        )
+        )(itemTextBold = true, tailText = patternText)
       }
     }
   )

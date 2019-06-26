@@ -67,11 +67,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
         lookupElement = buildLookupElement(
           keywordLookupString,
           new ClausesInsertHandler[Expression](strategy, prefixAndSuffix)
-        )(
-          itemTextBold = true,
-          tailText = rendererTailText,
-          grayed = true
-        )
+        )(itemTextBold = true, tailText = rendererTailText, grayed = true)
       } result.addElement(lookupElement)
     }
   )
@@ -81,7 +77,7 @@ object ExhaustiveMatchCompletionContributor {
 
   private[lang] val Exhaustive = "exhaustive"
 
-  private[lang] def rendererTailText = s" ($Exhaustive)"
+  private[lang] def rendererTailText = "(" + Exhaustive + ")"
 
   private type PrefixAndSuffix = Option[(String, String)]
 

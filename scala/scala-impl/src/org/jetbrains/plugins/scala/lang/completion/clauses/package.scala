@@ -39,7 +39,11 @@ package object clauses {
         presentation.setItemText(lookupString)
         presentation.setItemTextItalic(itemTextItalic)
         presentation.setItemTextBold(itemTextBold)
-        presentation.setTailText(tailText, grayed)
+
+        if (tailText != null) {
+          presentation.setTailText(" ", grayed)
+          presentation.appendTailText(tailText, grayed)
+        }
       }
     }
 

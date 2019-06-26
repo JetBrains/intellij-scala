@@ -37,7 +37,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     lookupString = "Foo",
     itemText = "foo",
-    tailTextSuffix = null
+    tailText = null
   )
 
   def testVariableName(): Unit = doAotCompletionTest(
@@ -51,7 +51,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     lookupString = "Foo",
     itemText = "foo",
-    tailTextSuffix = null
+    tailText = null
   )
 
   def testPartialName(): Unit = doAotCompletionTest(
@@ -78,7 +78,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     lookupString = "Rectangle",
     itemText = "rectangle: Rectangle",
-    tailTextSuffix = "(java.awt)"
+    tailText = "(java.awt)"
   )
 
   def testErasure(): Unit = doAotCompletionTest(
@@ -123,7 +123,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin,
     lookupString = "Int",
     itemText = "int",
-    tailTextSuffix = null
+    tailText = null
   )
 
   def testDefaultPattern(): Unit = doAotCompletionTest(
@@ -206,15 +206,15 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
                                   resultText: String,
                                   lookupString: String,
                                   itemText: String,
-                                  tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString,
+                                  tailText: String = ScTypeDefinitionImpl.DefaultLocationString,
                                   char: Char = Lookup.REPLACE_SELECT_CHAR): Unit = {
-    val grayed = tailTextSuffix != null
-    val tailText = if (grayed) " " + tailTextSuffix else null
+    val grayed = tailText != null
+    val fullTailText = if (grayed) " " + tailText else null
 
     doCompletionTest(fileText, resultText, char, DEFAULT_TIME, CompletionType.BASIC) {
       hasItemText(_, lookupString)(
         itemText = itemText,
-        tailText = tailText,
+        tailText = fullTailText,
         grayed = grayed
       )
     }
