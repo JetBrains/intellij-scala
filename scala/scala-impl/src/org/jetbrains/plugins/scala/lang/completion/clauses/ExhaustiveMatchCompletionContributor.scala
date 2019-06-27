@@ -17,12 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
@@ -44,12 +40,12 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
     ScalaKeyword.CASE,
     Some("", "")
   ) {
-    case (ExpectedType(FunctionType(_, Seq(targetType))), _) => Some(targetType)
+    case (ExpectedType(api.FunctionType(_, Seq(targetType))), _) => Some(targetType)
     case _ => None
   }
 
   private def extend[
-    Target <: ScalaPsiElement with Typeable : ClassTag,
+    Target <: ScalaPsiElement with result.Typeable : ClassTag,
     Expression <: ScExpression : ClassTag,
     Capture <: ScalaPsiElement : ClassTag
   ](keywordLookupString: String,
@@ -103,7 +99,7 @@ object ExhaustiveMatchCompletionContributor {
 
         val components = strategy.patterns
         val clausesText = components
-          .map(_.text)
+          .map(_.textFor())
           .map(createClause)
           .mkString(prefix, "\n", suffix)
 
@@ -114,6 +110,8 @@ object ExhaustiveMatchCompletionContributor {
     def createClause(patternText: String)
                     (implicit place: PsiElement): String =
       s"${ScalaKeyword.CASE} $patternText ${ScalaPsiUtil.functionArrow}"
+
+    import api.designator._
 
     def unapply(`type`: ScType)
                (implicit place: PsiElement): Option[PatternGenerationStrategy] =
@@ -129,7 +127,7 @@ object ExhaustiveMatchCompletionContributor {
           }
         case valueType@ScDesignatorType(enumClass@NonEmptyJavaEnum(constants)) =>
           Some(new EnumGenerationStrategy(enumClass, valueType.presentableText, constants.map(_.getName)))
-        case ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
+        case api.ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
           Some(new SealedClassGenerationStrategy(inheritors))
         case _ => None
       }
@@ -157,7 +155,11 @@ object ExhaustiveMatchCompletionContributor {
         (element, components) <- pairs
         (pattern, typeElement) <- findTypeElement(element)
 
-        patternText = replacementText(typeElement, components)
+        patternText = typeElement match {
+          case singleton@ScSimpleTypeElement(ElementText(reference)) if singleton.singleton => reference
+          case _ => components.textFor(Some(typeElement))
+        }
+
         replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, pattern.getContext, pattern)
       } pattern.replace(replacement)
     }
@@ -194,23 +196,6 @@ object ExhaustiveMatchCompletionContributor {
      (collector: PartialFunction[In, Out]) =
       if (predicate(clazz)) toOption(members(clazz).collect(collector))
       else None
-
-    private[this] def replacementText(typeElement: ScTypeElement,
-                                      components: PatternComponents): String = typeElement match {
-      case singleton@ScSimpleTypeElement(ElementText(reference)) if singleton.singleton => reference
-      case _ =>
-        components match {
-          case extractorComponents: ExtractorPatternComponents[_] =>
-            typeElement match {
-              case ScSimpleTypeElement.unwrapped(ElementText(reference)) => extractorComponents.extractorText(reference)
-            }
-          case _ =>
-            val name = typeElement.`type`().toOption
-              .flatMap(NameSuggester.suggestNamesByType(_).headOption)
-              .getOrElse(extensions.Placeholder)
-            s"$name: ${typeElement.getText}"
-        }
-    }
   }
 
   private final class SealedClassGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {

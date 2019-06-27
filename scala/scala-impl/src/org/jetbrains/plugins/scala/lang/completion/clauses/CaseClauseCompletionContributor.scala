@@ -28,12 +28,12 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
           case api.FunctionType(_, Seq(targetType)) => targetType
         }
 
-      override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+      override protected def createLookupElement(tailText: String, components: ExtractorPatternComponents[_])
                                                 (implicit place: PsiElement): LookupElement = {
         buildLookupElement(
           ScalaKeyword.CASE,
-          new CaseClauseInsertHandler(patternText, components)
-        )(itemTextBold = true, tailText = patternText)
+          new CaseClauseInsertHandler(components)
+        )(itemTextBold = true, tailText = tailText)
       }
     }
   )
@@ -44,10 +44,10 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
       override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
         pattern.expectedType
 
-      override protected def findInheritors(typeDefinition: ScTypeDefinition): Some[Inheritors] =
-        super.findInheritors(typeDefinition) match {
+      override protected def findInheritors(definition: ScTypeDefinition): Some[Inheritors] =
+        super.findInheritors(definition) match {
           case Some(value) => Some(value)
-          case _ => Some(Inheritors(Seq(typeDefinition)))
+          case _ => Some(Inheritors(Seq(definition)))
         }
 
       override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
@@ -93,7 +93,6 @@ object CaseClauseCompletionContributor {
       api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toSeq
       Inheritors(namedInheritors, _) <- findInheritors(typeDefinition)
 
-
       components <- namedInheritors.collect { // TODO objects!!!
         case SyntheticExtractorPatternComponents(components) => components
         case PhysicalExtractorPatternComponents(components) => components
@@ -106,10 +105,10 @@ object CaseClauseCompletionContributor {
 
     protected def targetType(typeable: T): Option[ScType]
 
-    protected def findInheritors(typeDefinition: ScTypeDefinition): Option[Inheritors] =
-      SealedDefinition.unapply(typeDefinition)
+    protected def findInheritors(definition: ScTypeDefinition): Option[Inheritors] =
+      SealedDefinition.unapply(definition)
 
-    protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+    protected def createLookupElement(text: String, components: ExtractorPatternComponents[_])
                                      (implicit place: PsiElement): LookupElement
   }
 
@@ -124,13 +123,12 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private final class CaseClauseInsertHandler(patternText: String,
-                                              components: ExtractorPatternComponents[_])
+  private final class CaseClauseInsertHandler(components: ExtractorPatternComponents[_])
                                              (implicit place: PsiElement)
     extends ClauseInsertHandler[ScCaseClause] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
-      replaceText(createClause(components.text) + " ")
+      replaceText(createClause(components.textFor()) + " ")
 
       onTargetElement { clause =>
         adjustTypesOnClauses(addImports = false, (clause, components))
