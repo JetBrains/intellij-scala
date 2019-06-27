@@ -242,7 +242,7 @@ object TypeAdjuster extends ApplicationListener {
 
       @tailrec
       private def qualifierInfo(element: PsiElement): Option[SimpleInfo] = element match {
-        case ScSimpleTypeElement(Some(reference: ScReference)) => qualifierInfo(reference)
+        case ScSimpleTypeElement(reference: ScReference) => qualifierInfo(reference)
         case ScReference.qualifier(reference: ScReference) => Some(SimpleInfo(reference))
         case _ => None
       }
@@ -281,7 +281,7 @@ object TypeAdjuster extends ApplicationListener {
     object CanBeInfixType {
 
       def unapply(typeElement: ScTypeElement): Boolean = typeElement match {
-        case ScParameterizedTypeElement(ScSimpleTypeElement(Some(ref)), Seq(_, _)) =>
+        case ScParameterizedTypeElement(ScSimpleTypeElement(ref), Seq(_, _)) =>
           isOperatorName(ref.refName) ||
             ref.bind().collect {
               case ScalaResolveResult(clazz: PsiClass, _) => clazz

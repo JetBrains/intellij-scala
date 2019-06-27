@@ -11,7 +11,6 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -197,31 +196,20 @@ object ExhaustiveMatchCompletionContributor {
       else None
 
     private[this] def replacementText(typeElement: ScTypeElement,
-                                      components: PatternComponents): String = {
-      def referenceText = (typeElement match {
-        case SimpleTypeReferenceReference(reference) => reference
-        case ScParameterizedTypeElement(SimpleTypeReferenceReference(reference), _) => reference
-      }).getText
-
-      typeElement match {
-        case simpleTypeElement: ScSimpleTypeElement if simpleTypeElement.singleton => referenceText
-        case _ =>
-          components match {
-            case extractorComponents: ExtractorPatternComponents[_] =>
-              extractorComponents.extractorText(referenceText)
-            case _ =>
-              val name = typeElement.`type`().toOption
-                .flatMap(NameSuggester.suggestNamesByType(_).headOption)
-                .getOrElse(extensions.Placeholder)
-              s"$name: ${typeElement.getText}"
-          }
-      }
-    }
-
-    private[this] object SimpleTypeReferenceReference {
-
-      def unapply(typeElement: ScSimpleTypeElement): Option[ScStableCodeReference] =
-        typeElement.reference
+                                      components: PatternComponents): String = typeElement match {
+      case singleton@ScSimpleTypeElement(ElementText(reference)) if singleton.singleton => reference
+      case _ =>
+        components match {
+          case extractorComponents: ExtractorPatternComponents[_] =>
+            typeElement match {
+              case ScSimpleTypeElement.unwrapped(ElementText(reference)) => extractorComponents.extractorText(reference)
+            }
+          case _ =>
+            val name = typeElement.`type`().toOption
+              .flatMap(NameSuggester.suggestNamesByType(_).headOption)
+              .getOrElse(extensions.Placeholder)
+            s"$name: ${typeElement.getText}"
+        }
     }
   }
 

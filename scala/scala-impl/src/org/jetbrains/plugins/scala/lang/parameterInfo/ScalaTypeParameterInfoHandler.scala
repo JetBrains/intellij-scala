@@ -210,7 +210,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
             case ScParameterizedTypeElement(typeElement, _) =>
               val maybeReferenceElement = typeElement match {
                 case projection: ScTypeProjection => Some(projection)
-                case ScSimpleTypeElement(maybeReference) => maybeReference
+                case ScSimpleTypeElement(reference) => Some(reference)
                 case _ => None
               }
 

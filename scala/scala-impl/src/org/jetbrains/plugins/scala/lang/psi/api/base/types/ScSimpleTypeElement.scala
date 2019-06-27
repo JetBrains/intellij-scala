@@ -5,8 +5,6 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-
 /**
  * Author: Alexander Podkhalyuzin
  * Date: 22.02.2008
@@ -15,9 +13,10 @@ trait ScSimpleTypeElement extends ScTypeElement {
   override protected val typeName = "SimpleType"
 
   def reference: Option[ScStableCodeReference] = findChild(classOf[ScStableCodeReference])
+
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 
-  def singleton: Boolean = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
+  def singleton: Boolean = getNode.findChildByType(lang.lexer.ScalaTokenTypes.kTYPE) != null
 
   def annotation: Boolean = ScalaPsiUtil.getContext(this, 2).exists(_.isInstanceOf[ScAnnotationExpr])
 
@@ -35,5 +34,17 @@ trait ScSimpleTypeElement extends ScTypeElement {
 }
 
 object ScSimpleTypeElement {
-  def unapply(te: ScSimpleTypeElement): Option[Option[ScStableCodeReference]] = Some(te.reference)
+
+  def unapply(typeElement: ScSimpleTypeElement): Option[ScStableCodeReference] =
+    typeElement.reference
+
+  object unwrapped {
+
+    def unapply(typeElement: ScTypeElement): Option[ScStableCodeReference] =
+      typeElement match {
+        case ScSimpleTypeElement(reference) => Some(reference)
+        case ScParameterizedTypeElement(ScSimpleTypeElement(reference), _) => Some(reference)
+        case _ => None
+      }
+  }
 }

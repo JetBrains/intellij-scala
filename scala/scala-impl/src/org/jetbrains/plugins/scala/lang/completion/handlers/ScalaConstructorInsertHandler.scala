@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -86,8 +86,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
             val element = file.findElementAt(endOffset - 1)
             element.parentOfType(classOf[ScNewTemplateDefinition]).foreach { newT =>
               val maybeRef = newT.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
-                case Seq(ScSimpleTypeElement(reference)) => reference
-                case Seq(ScParameterizedTypeElement(ScSimpleTypeElement(reference), _)) => reference
+                case Seq(ScSimpleTypeElement.unwrapped(reference)) => Some(reference)
                 case _ => None
               }
 

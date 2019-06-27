@@ -51,8 +51,12 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
           }
         case (_: ScTypeArgs) childOf (parameterized: ScParameterizedTypeElement) =>
           parameterized.typeElement match {
-            case ScSimpleTypeElement(Some(ResolvesTo(owner: ScTypeParametersOwner))) => noHigherKinds(owner)
-            case ScSimpleTypeElement(Some(ResolvesTo(ScPrimaryConstructor.ofClass(c)))) => noHigherKinds(c)
+            case ScSimpleTypeElement(ResolvesTo(target)) =>
+              target match {
+                case owner: ScTypeParametersOwner => noHigherKinds(owner)
+                case ScPrimaryConstructor.ofClass(c) => noHigherKinds(c)
+                case _ => false
+              }
             case _ => false
           }
         case infix: ScInfixTypeElement if infix.left == element || infix.rightOption.contains(element) =>

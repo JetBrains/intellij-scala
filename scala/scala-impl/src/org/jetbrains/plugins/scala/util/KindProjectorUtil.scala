@@ -94,11 +94,8 @@ object KindProjectorUtil {
       cons:        ScTypeParam,
       argument:    ScTypeParam
     ): Boolean = typeElement match {
-      case
-        ScParameterizedTypeElement(
-          ScSimpleTypeElement(Some(tcons)),
-          Seq(ScSimpleTypeElement(Some(arg)))
-        ) => tcons.refName == cons.name && arg.refName == argument.name
+      case ScParameterizedTypeElement(ScSimpleTypeElement(tcons), Seq(ScSimpleTypeElement(arg))) =>
+        tcons.refName == cons.name && arg.refName == argument.name
       case _ => false
     }
 

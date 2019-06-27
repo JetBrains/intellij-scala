@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
@@ -23,9 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl.addIfNotNull
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{result, _}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -259,32 +258,19 @@ object ScExtendsBlockImpl {
 
   private def extractSupers(typeElements: Seq[ScTypeElement])
                            (implicit project: ProjectContext): Seq[PsiClass] =
-    typeElements.flatMap { element =>
-      def tail(): Option[PsiClass] =
-        element.`type`().toOption
-          .flatMap(_.extractClass)
-
-      def refTail(reference: ScStableCodeReference): Option[PsiClass] =
+    typeElements.flatMap {
+      case typeElement@ScSimpleTypeElement.unwrapped(reference) =>
         reference.resolveNoConstructor match {
-          case Array(head) => head.element match {
-            case c: PsiClass => Some(c)
-            case ta: ScTypeAliasDefinition =>
-              ta.aliasedType.toOption
-                .flatMap(_.extractClass)
-            case _ => tail()
-          }
-          case _ => tail()
+          case Array(ScalaResolveResult(clazz: PsiClass, _)) =>
+            Some(clazz)
+          case Array(ScalaResolveResult(typeAlias: ScTypeAliasDefinition, _)) =>
+            tail(typeAlias.aliasedType)
+          case _ =>
+            tail(typeElement.`type`())
         }
-
-      val maybeReference = element match {
-        case ScSimpleTypeElement(result) => result
-        case ScParameterizedTypeElement(ScSimpleTypeElement(result), _) => result
-        case _ => None
-      }
-
-      maybeReference match {
-        case Some(reference) => refTail(reference)
-        case _ => tail()
-      }
+      case element => tail(element.`type`())
     }
+
+  private[this] def tail(typeResult: result.TypeResult) =
+    typeResult.toOption.flatMap(_.extractClass)
 }

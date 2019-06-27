@@ -1125,7 +1125,7 @@ object ScalaPsiUtil {
 
   @annotation.tailrec
   private def simpleBoundName(bound: ScTypeElement): String = bound match {
-    case ScSimpleTypeElement(Some(ref))     => NameTransformer.encode(ref.refName)
+    case ScSimpleTypeElement(ref) => NameTransformer.encode(ref.refName)
     case proj: ScTypeProjection             => NameTransformer.encode(proj.refName)
     case ScInfixTypeElement(_, op, _)       => NameTransformer.encode(op.refName)
     case ScParameterizedTypeElement(ref, _) => simpleBoundName(ref)
