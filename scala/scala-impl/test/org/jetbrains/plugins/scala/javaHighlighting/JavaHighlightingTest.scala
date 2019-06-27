@@ -306,6 +306,48 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
     assertNothing(errorsFromJavaCode(scala, java, javaClassName = "ThrowsJava"))
   }
 
+  def testThrowsWithTypeArgError(): Unit = {
+    val scalaThrows =
+      """
+        |abstract class Base {
+        |  @throws[Exception]
+        |  def test(): Unit
+        |}
+        |""".stripMargin
+
+    val java =
+      """
+        |public class Impl extends Base {
+        |    @Override
+        |    public void test() throws Exception {}
+        |}
+        |""".stripMargin
+
+    assertNothing(errorsFromJavaCode(scalaThrows, java, javaClassName = "Impl"))
+  }
+
+  def testThrowsWithTypeArgNoError(): Unit = {
+    val scalaNoThrows =
+      """
+        |abstract class Base {
+        |  def test(): Unit
+        |}
+        |""".stripMargin
+
+    val java =
+      """
+        |public class Impl extends Base {
+        |    @Override
+        |    public void test() throws Exception {}
+        |}
+        |""".stripMargin
+
+    assertMatches(errorsFromJavaCode(scalaNoThrows, java, javaClassName = "Impl")) {
+      case Error("Exception", message) :: Nil if message.contains("overridden method does not throw") =>
+    }
+  }
+
+
   def testOverrideFinal(): Unit = {
     val scala = ""
     val java =
