@@ -159,7 +159,7 @@ object ExhaustiveMatchCompletionContributor {
         (pattern, typeElement) <- findTypeElement(element)
 
         patternText = replacementText(typeElement, components)
-        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, element.getContext, element)
+        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, pattern.getContext, pattern)
       } pattern.replace(replacement)
     }
 
