@@ -7,7 +7,7 @@ import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert.{assertArrayEquals, assertFalse}
+import org.junit.Assert.{assertEquals, assertFalse}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -243,14 +243,12 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     }.toSet
 
     val expected = Set(
-      "D1.zeeGlobalDefInherited",
-      "D1.zeeGlobalValInherited",
       "D1.zeeGlobalDef",
       "D1.zeeGlobalVal",
       "D2.zeeGlobalDefInherited",
       "D2.zeeGlobalValInherited"
     )
-    assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
+    assertEquals(expected, actual)
   }
 
   def testCompanionObjectConversion(): Unit = doCompletionTest(
