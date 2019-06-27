@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.util.ObjectUtils
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, ScalaAddImportAction}
@@ -55,7 +55,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
-        val notFoundTypes = params.flatMap(withProbableArguments).flatMap(implicitTypeToSearch)
+        val notFoundTypes = params.flatMap(withProbableArguments(_)).flatMap(implicitTypeToSearch)
         if (notFoundTypes.nonEmpty) {
           annotation.registerFix(new SearchImplicitQuickFix(notFoundTypes, element))
         }
@@ -65,11 +65,17 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     }
   }
 
-  private def withProbableArguments(parameter: ScalaResolveResult): Seq[ScalaResolveResult] = {
-    parameter +: ImplicitCollector.probableArgumentsFor(parameter).flatMap {
-      case (arg, ImplicitParameterNotFoundResult) => arg.implicitParameters.flatMap(withProbableArguments)
+  private def withProbableArguments(parameter: ScalaResolveResult,
+                                    visited: Set[PsiNamedElement] = Set.empty): Seq[ScalaResolveResult] = {
+    if (visited(parameter.element))
+      return Seq.empty
+
+    val arguments = ImplicitCollector.probableArgumentsFor(parameter).flatMap {
+      case (arg, ImplicitParameterNotFoundResult) => arg.implicitParameters.flatMap(withProbableArguments(_, visited + parameter.element))
       case _                                      => Seq.empty
     }
+
+    parameter +: arguments
   }
 
   private def implicitTypeToSearch(parameter: ScalaResolveResult): Option[ScType] =
