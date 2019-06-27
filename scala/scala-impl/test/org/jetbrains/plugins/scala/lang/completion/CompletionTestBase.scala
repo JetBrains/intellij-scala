@@ -21,8 +21,6 @@ import org.junit.Assert._
 
 abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  import lang.lexer.ScalaTokenTypes._
-
   protected val caretMarker = "/*caret*/"
 
   protected val extension: String = "scala"
@@ -37,6 +35,8 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
    * @return Expected result string
    */
   protected final def getExpectedResult: String = {
+    import lang.lexer.ScalaTokenTypes._
+
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
@@ -59,10 +59,10 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
   }
 
   protected def doTest() {
-    val fileName = getTestName(false)
-    val filePath = s"$folderPath$fileName.$extension"
+    val fileName = getTestName(false) + s".$extension"
+    val filePath = s"$folderPath$fileName".replace(File.separatorChar, '/')
 
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath)
     assertNotNull(s"file '$filePath' not found", file)
 
     val fileText = StringUtil.convertLineSeparators(
@@ -71,7 +71,8 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
         CharsetToolkit.UTF8
       )
     )
-    configureFromFileTextAdapter(filePath, fileText)
+
+    configureFromFileTextAdapter(fileName, fileText)
 
     val offset = fileText.indexOf(caretMarker) match {
       case -1 => throw new AssertionError(s"Not specified end marker in test case. Use $caretMarker in scala file for this.")
