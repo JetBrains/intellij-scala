@@ -8,29 +8,31 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 
 private[clauses] sealed trait PatternComponents {
   def text: String
 }
 
-private[clauses] class TypedPatternComponents(clazz: PsiClass,
-                                              qualifiedName: String,
-                                              length: Int = 0)
+private[clauses] class TypedPatternComponents protected(clazz: PsiClass,
+                                                        qualifiedName: String,
+                                                        suffix: String = "")
   extends PatternComponents {
 
-  def this(clazz: ScTypeDefinition) =
-    this(clazz, clazz.qualifiedName, clazz.typeParameters.length)
-
-  override def text: String = {
-    val suffix = length match {
+  def this(clazz: ScTypeDefinition) = this(
+    clazz,
+    clazz.qualifiedName,
+    clazz.typeParameters.length match {
       case 0 => ""
-      case _ => Seq.fill(length)(Placeholder).commaSeparated(Model.SquareBrackets)
+      case length => Seq.fill(length)(Placeholder).commaSeparated(Model.SquareBrackets)
     }
-    s"$Placeholder: $qualifiedName$suffix"
-  }
+  )
+
+  override final def text: String = s"$Placeholder: $qualifiedName$suffix"
 }
+
+private[clauses] final class ObjectPatternComponents(scalaObject: ScObject)
 
 private[clauses] sealed abstract class ExtractorPatternComponents[T](clazz: ScTypeDefinition,
                                                                      components: Seq[T])
@@ -44,8 +46,8 @@ private[clauses] sealed abstract class ExtractorPatternComponents[T](clazz: ScTy
   protected def componentText(component: T): String
 }
 
-private[clauses] class SyntheticExtractorPatternComponents private(clazz: ScClass,
-                                                                   method: ScPrimaryConstructor)
+private[clauses] final class SyntheticExtractorPatternComponents private(clazz: ScClass,
+                                                                         method: ScPrimaryConstructor)
   extends ExtractorPatternComponents(clazz, method.effectiveFirstParameterSection) {
 
   override protected def componentText(parameter: ScClassParameter): String =
@@ -60,8 +62,8 @@ private[clauses] object SyntheticExtractorPatternComponents {
     }
 }
 
-private[clauses] class PhysicalExtractorPatternComponents private(clazz: ScTypeDefinition,
-                                                                  components: Seq[ScType])
+private[clauses] final class PhysicalExtractorPatternComponents private(clazz: ScTypeDefinition,
+                                                                        components: Seq[ScType])
   extends ExtractorPatternComponents(clazz, components) {
 
   override protected def componentText(`type`: ScType): String = Placeholder
@@ -78,16 +80,14 @@ private[clauses] object PhysicalExtractorPatternComponents {
     } yield new PhysicalExtractorPatternComponents(definition, components)
 }
 
-private[clauses] class StablePatternComponents(clazz: PsiClass,
-                                               qualifiedName: String,
-                                               name: String)
-  extends TypedPatternComponents(clazz, qualifiedName) {
+private[clauses] final class StablePatternComponents(clazz: PsiClass, qualifiedName: String)
+  extends TypedPatternComponents(clazz, qualifiedName, ScalaTypePresentation.ObjectTypeSuffix) {
 
-  override def text: String = s"${super.text}.$name${ScalaTypePresentation.ObjectTypeSuffix}"
+  def this(`object`: ScObject) = this(`object`, `object`.qualifiedName)
 }
 
 private[clauses] object WildcardPatternComponents
   extends PatternComponents {
 
-  override val text: String = Placeholder
+  override def text: String = Placeholder
 }

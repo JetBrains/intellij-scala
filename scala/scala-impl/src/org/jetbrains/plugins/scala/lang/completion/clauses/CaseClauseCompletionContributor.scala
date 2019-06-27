@@ -91,9 +91,13 @@ object CaseClauseCompletionContributor {
     override final protected def addCompletions(typeable: T, result: CompletionResultSet)
                                                (implicit place: PsiElement): Unit = for {
       api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toSeq
-      inheritors <- findInheritors(typeDefinition)
+      Inheritors(namedInheritors, _) <- findInheritors(typeDefinition)
 
-      components <- inheritors.inexhaustivePatterns // TODO objects!!!
+
+      components <- namedInheritors.collect { // TODO objects!!!
+        case SyntheticExtractorPatternComponents(components) => components
+        case PhysicalExtractorPatternComponents(components) => components
+      }
       lookupElement = createLookupElement(
         components.extractorText(),
         components

@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation
 
 import scala.collection.JavaConverters
 import scala.reflect.{ClassTag, classTag}
@@ -48,21 +47,7 @@ package object clauses {
     }
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
-                                         isInstantiatiable: Boolean = false) {
-
-    def exhaustivePatterns: Seq[PatternComponents] =
-      namedInheritors.map {
-        case scalaObject: ScObject => new TypedPatternComponents(scalaObject, scalaObject.qualifiedName + ScalaTypePresentation.ObjectTypeSuffix)
-        case SyntheticExtractorPatternComponents(components) => components
-        case definition => new TypedPatternComponents(definition)
-      } ++ (if (isInstantiatiable) Some(WildcardPatternComponents) else None)
-
-    def inexhaustivePatterns(implicit place: PsiElement): Seq[ExtractorPatternComponents[_]] =
-      namedInheritors.collect {
-        case SyntheticExtractorPatternComponents(components) => components
-        case PhysicalExtractorPatternComponents(components) => components
-      }
-  }
+                                         isInstantiatiable: Boolean = false)
 
   private[clauses] object SealedDefinition {
 

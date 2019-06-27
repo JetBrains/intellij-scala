@@ -225,17 +225,24 @@ object ExhaustiveMatchCompletionContributor {
     }
   }
 
-  private class SealedClassGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
+  private final class SealedClassGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
 
-    override def patterns: Seq[PatternComponents] = inheritors.exhaustivePatterns
+    override def patterns: Seq[PatternComponents] = {
+      val Inheritors(namedInheritors, isInstantiatiable) = inheritors
+
+      namedInheritors.map {
+        case scalaObject: ScObject => new StablePatternComponents(scalaObject)
+        case SyntheticExtractorPatternComponents(components) => components
+        case definition => new TypedPatternComponents(definition)
+      } ++ (if (isInstantiatiable) Some(WildcardPatternComponents) else None)
+    }
   }
 
-  private class EnumGenerationStrategy(enumClass: PsiClass,
-                                       qualifiedName: String,
-                                       membersNames: Seq[String]) extends PatternGenerationStrategy {
+  private final class EnumGenerationStrategy(enumClass: PsiClass, qualifiedName: String,
+                                             membersNames: Seq[String]) extends PatternGenerationStrategy {
 
-    override def patterns: Seq[TypedPatternComponents] = membersNames.map {
-      new StablePatternComponents(enumClass, qualifiedName, _)
+    override def patterns: Seq[TypedPatternComponents] = membersNames.map { name =>
+      new StablePatternComponents(enumClass, qualifiedName + "." + name)
     }
   }
 
