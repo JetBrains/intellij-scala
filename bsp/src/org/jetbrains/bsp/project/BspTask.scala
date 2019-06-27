@@ -12,13 +12,12 @@ import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.task.{ProjectTaskNotification, _}
+import com.intellij.task.ProjectTaskNotification
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
-import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
@@ -28,8 +27,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.util.control.NonFatal
 
-class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
-                   targets: Iterable[URI], callbackOpt: Option[ProjectTaskNotification])
+class BspTask[T](project: Project, targets: Iterable[URI], callbackOpt: Option[ProjectTaskNotification], onComplete: ()=>Unit)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private var buildMessages: BuildMessages = BuildMessages.empty
@@ -111,6 +109,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     }
 
     callbackOpt.foreach(_.finished(projectTaskResult))
+    onComplete()
   }
 
   @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): R = {
