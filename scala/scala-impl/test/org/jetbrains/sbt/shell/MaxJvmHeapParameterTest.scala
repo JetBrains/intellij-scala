@@ -12,6 +12,7 @@ class MaxJvmHeapParameterTest extends TestCase {
 
   val hiddenDefaultSize = JvmMemorySize.Megabytes(1500)
   val hiddenDefaultParam = "-Xmx" + hiddenDefaultSize
+  val superShellDisabled = "-Dsbt.supershell=false"
 
   def buildParamSeq(userOpts: String*)(jvmOpts: String*): Seq[String] = {
     val workingDir = FileUtil.createTempDirectory("maxHeapJvmParamTest", getName, true)
@@ -36,35 +37,35 @@ class MaxJvmHeapParameterTest extends TestCase {
 
   def testUserSettingsSmallerThanHiddenDefault(): Unit = {
     assertEquals(
-      Seq("-Xmx4g", "-Xms4g", "-Xmx1g"),
+      Seq(superShellDisabled,"-Xmx4g", "-Xms4g", "-Xmx1g"),
       buildParamSeq("-Xmx1g")("-Xmx4g", "-Xms4g")
     )
   }
 
   def testUserSettingsGreaterThanHiddenDefault(): Unit = {
     assertEquals(
-      Seq("-Xmx4g", "-Xms4g", "-Xmx2g"),
+      Seq(superShellDisabled,"-Xmx4g", "-Xms4g", "-Xmx2g"),
       buildParamSeq("-Xmx2g")("-Xmx4g", "-Xms4g")
     )
   }
 
   def testNoSettings(): Unit = {
     assertEquals(
-      Seq(hiddenDefaultParam),
+      Seq(hiddenDefaultParam, superShellDisabled),
       buildParamSeq()()
     )
   }
 
   def testNoSettingsWithXmsSmallerThanDefaultParam(): Unit = {
     assertEquals(
-      Seq(hiddenDefaultParam, "-Xms1g"),
+      Seq(hiddenDefaultParam, superShellDisabled, "-Xms1g"),
       buildParamSeq("-Xms1g")()
     )
   }
 
   def testNoSettingsWithXmsGreaterThanDefaultParam(): Unit = {
     assertEquals(
-      Seq("-Xms2g"),
+      Seq(superShellDisabled, "-Xms2g"),
       buildParamSeq("-Xms2g")()
     )
   }
