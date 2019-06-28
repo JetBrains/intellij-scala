@@ -6,8 +6,6 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
   override def familyName: String = BlockExpressionToArgumentIntention.FAMILY_NAME
 
-  import EditorTestUtil.{CARET_TAG => CARET}
-
   private val AFTER_SINGLE_EXPRESSION =
     s"""object Test {
        |  Some(1).foreach(${CARET}one => println(one))
@@ -250,5 +248,94 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
          |}
       """.stripMargin
     checkIntentionIsNotAvailable(text)
+  }
+
+  def testBlockNonFunctionArgument_SCL15724(): Unit = {
+    val before =
+      s"""object Test {
+         |  identity {$CARET 42 }
+         |}
+         |""".stripMargin
+    val after =
+      """object Test {
+        |  identity(42)
+        |}
+        |""".stripMargin
+    doTest(before, after)
+
+  }
+
+  def testBlockNonFunctionArgument_SCL15724_1(): Unit = {
+    val before =
+      s"""object Test {
+         |  identity {$CARET
+         |    42
+         |  }
+         |}
+         |""".stripMargin
+    val after =
+      """object Test {
+        |  identity(42)
+        |}
+        |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testBlockNonFunctionArgument_SCL15724_2(): Unit = {
+    val before =
+      s"""object Test {
+         |  identity {$CARET
+         |    println(42)
+         |  }
+         |}
+         |""".stripMargin
+    val after =
+      """object Test {
+        |  identity(println(42))
+        |}
+        |""".stripMargin
+    doTest(before, after)
+  }
+
+  "hello".toUpperCase()
+    .substring(0)
+
+  def testBlockNonFunctionArgument_SCL15724_3(): Unit = {
+    val before =
+      s"""object Test {
+         |  identity {$CARET
+         |    "hello".toUpperCase()
+         |      .substring(0)
+         |  }
+         |}
+         |""".stripMargin
+    val after =
+      """object Test {
+        |  identity("hello".toUpperCase()
+        |    .substring(0))
+        |}
+        |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testBlockNonFunctionArgument_ShouldNotBeAvailable_SCL15724(): Unit = {
+    val before =
+      s"""object Test {
+         |  identity {$CARET 42; 23 }
+         |}
+         |""".stripMargin
+    checkIntentionIsNotAvailable(before)
+  }
+
+  def testBlockNonFunctionArgument_ShouldNotBeAvailable_SCL15724_1(): Unit = {
+    val before =
+      s"""object Test {
+         |  identity {$CARET
+         |    42;
+         |    23
+         |  }
+         |}
+         |""".stripMargin
+    checkIntentionIsNotAvailable(before)
   }
 }
