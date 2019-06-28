@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-/** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]] */
-class ClosingBraceRemoveTest extends EditorActionTestBase {
-
-  private def doTest(before: String, after: String): Unit = {
-    checkGeneratedTextAfterBackspace(before, after)
-  }
+/** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]]*/
+class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
   def testRemove_FunctionBody_SingleExpression(): Unit = {
     val before =
