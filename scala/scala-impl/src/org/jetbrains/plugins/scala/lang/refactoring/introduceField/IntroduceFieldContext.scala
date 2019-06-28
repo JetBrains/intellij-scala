@@ -33,9 +33,9 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => null
   }
 
-  private implicit val validator: ScalaVariableValidator = ScalaVariableValidator(file, element, occurrences)
+  private val validator: ScalaVariableValidator = ScalaVariableValidator(file, element, occurrences)
 
-  val reporter: ValidationReporter = new ValidationReporter(project, new DialogConflictsReporter {})
+  val reporter: ValidationReporter = new ValidationReporter(project, new DialogConflictsReporter {}, validator)
 
   val canBeInitInDecl: Boolean = element match {
     case expr: ScExpression => canBeInitializedInDeclaration(expr, aClass)
@@ -44,7 +44,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
 
   val possibleNames: ju.Set[String] = element match {
     case expr: ScExpression =>
-      NameSuggester.suggestNames(expr).toSet[String].asJava
+      NameSuggester.suggestNames(expr, ScalaVariableValidator(file, element, occurrences)).toSet[String].asJava
     case _ => throw new IntroduceException
   }
 

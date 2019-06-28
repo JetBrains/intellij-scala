@@ -11,6 +11,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -62,9 +63,9 @@ trait IntroduceExpressions {
         getOccurrenceRanges(expr, _)
       }
 
-      implicit val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
+      val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
 
-      val suggestedNames = SuggestedNames(expr, types)
+      val suggestedNames = SuggestedNames(expr, types, validator)
       val occurrencesInFile = OccurrencesInFile(file, new TextRange(startOffset, endOffset), occurrences)
 
       if (isInplaceAvailable(editor)) {
@@ -77,6 +78,19 @@ trait IntroduceExpressions {
     catch {
       case _: IntroduceException =>
     }
+  }
+
+  //todo refactor to avoid duplication
+  @TestOnly
+  def suggestedNamesForExpression(file: PsiFile, startOffset: Int, endOffset: Int)
+                                 (implicit project: Project, editor: Editor): Array[String] = {
+    val Some((expr, types)) = getExpressionWithTypes(file, startOffset, endOffset)
+    val occurrences = fileEncloser(file, startOffset).toSeq.flatMap {
+      getOccurrenceRanges(expr, _)
+    }
+    val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
+
+    SuggestedNames(expr, types, validator).names
   }
 
   def runRefactoring(occurrences: OccurrencesInFile, expression: ScExpression, varName: String, varType: ScType,
@@ -117,11 +131,13 @@ trait IntroduceExpressions {
   }
 
   private def runWithDialog(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
-                           (implicit project: Project, editor: Editor, validator: ScalaVariableValidator): Unit = {
+                           (implicit project: Project, editor: Editor): Unit = {
     val occurrences_ = occurrences.occurrences
 
     val SuggestedNames(expression, types, names) = suggestedNames
-    val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, new ValidationReporter(project, this), names, expression)
+    val validator = suggestedNames.validator
+    val reporter = new ValidationReporter(project, this, validator)
+    val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, reporter, names, expression)
 
     this.showDialogImpl(dialog, occurrences_).foreach { dialog =>
       runRefactoring(occurrences, suggestedNames.expression,
@@ -136,15 +152,15 @@ trait IntroduceExpressions {
 
 object IntroduceExpressions {
 
-  private class SuggestedNames(val expression: ScExpression, val types: Array[ScType]) {
+  private class SuggestedNames(val expression: ScExpression, val types: Array[ScType], val validator: ScalaVariableValidator) {
 
-    def names: Array[String] = NameSuggester.suggestNames(expression).toArray
+    def names: Array[String] = NameSuggester.suggestNames(expression, validator).toArray
   }
 
   private object SuggestedNames {
 
-    def apply(expression: ScExpression, types: Array[ScType]): SuggestedNames =
-      new SuggestedNames(expression, types)
+    def apply(expression: ScExpression, types: Array[ScType], validator: ScalaVariableValidator): SuggestedNames =
+      new SuggestedNames(expression, types, validator)
 
     def unapply(names: SuggestedNames): Option[(ScExpression, Array[ScType], Array[String])] =
       Some(names.expression, names.types, names.names)

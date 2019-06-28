@@ -25,9 +25,8 @@ object NameSuggester {
 
   private val DefaultName = "value"
 
-  def suggestNames(expression: ScExpression)
-                  (implicit validator: ScalaVariableValidator = ScalaVariableValidator.empty): Seq[String] =
-    collectNames(namesByExpression(expression))
+  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator = ScalaVariableValidator.empty): Seq[String] =
+    collectNames(namesByExpression(expression), validator)
 
   private[this] def namesByType(expression: ScExpression): Seq[String] = {
     def collectTypes: Seq[ScType] = {
@@ -44,8 +43,7 @@ object NameSuggester {
     collectTypes.flatMap(namesByType(_))
   }
 
-  private[this] def collectNames(names: Seq[String])
-                                (implicit validator: ScalaValidator): Seq[String] = {
+  private[this] def collectNames(names: Seq[String], validator: ScalaValidator): Seq[String] = {
     import scala.collection.mutable
 
     val filteredNames = mutable.LinkedHashSet(names: _*).map {
@@ -63,9 +61,8 @@ object NameSuggester {
       .toSeq
   }
 
-  def suggestNamesByType(`type`: ScType)
-                        (implicit validator: ScalaTypeValidator = ScalaTypeValidator.empty): Seq[String] =
-    collectNames(namesByType(`type`))
+  def suggestNamesByType(`type`: ScType, validator: ScalaTypeValidator = ScalaTypeValidator.empty): Seq[String] =
+    collectNames(namesByType(`type`), validator)
 
   class UniqueNameSuggester(defaultName: String = DefaultName) extends (ScType => String) {
 

@@ -97,7 +97,7 @@ object ScopeSuggester {
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(currentElement, parent)
       val validator = ScalaTypeValidator(currentElement, parent, occurrences.isEmpty)
 
-      val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)(validator)
+      val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType, validator)
 
       containerName.foreach { name =>
         import JavaConverters._

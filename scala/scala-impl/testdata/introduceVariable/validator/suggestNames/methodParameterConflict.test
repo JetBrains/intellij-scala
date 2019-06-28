@@ -1,0 +1,17 @@
+class ScalaBlock {
+  def getNode: ASTNode = ???
+}
+class ASTNode {
+  def getTreeParent: Indent = ???
+}
+class Indent
+
+object Test {
+  def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
+    val node = parent.getNode
+    <begin>node.getTreeParent<end>
+  }
+}
+------
+parent1
+treeParent

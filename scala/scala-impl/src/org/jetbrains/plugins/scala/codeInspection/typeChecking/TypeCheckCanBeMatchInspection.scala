@@ -148,7 +148,7 @@ object TypeCheckCanBeMatchInspection {
               ifStmt.getParent
             )
 
-            val suggestedNames = NameSuggester.suggestNames(asInstOfEverywhere.head)(validator)
+            val suggestedNames = NameSuggester.suggestNames(asInstOfEverywhere.head, validator)
             val text = suggestedNames.head
             for {
               expression <- asInstOfEverywhere
