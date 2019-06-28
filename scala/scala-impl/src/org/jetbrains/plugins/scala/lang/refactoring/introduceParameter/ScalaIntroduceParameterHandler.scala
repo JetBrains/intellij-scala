@@ -174,9 +174,9 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     if (!CommonRefactoringUtil.checkReadOnlyStatus(project, superMethod)) return None
 
     val suggestedName = {
-      implicit val validator: ScalaVariableValidator = new ScalaVariableValidator(elems.head, false, methodLike, methodLike)
+      val validator: ScalaVariableValidator = new ScalaVariableValidator(elems.head, false, methodLike, methodLike)
       val possibleNames = elems match {
-        case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr)
+        case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr, validator)
         case _ => NameSuggester.suggestNamesByType(types(0))
       }
       possibleNames.head

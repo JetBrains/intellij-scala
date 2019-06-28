@@ -45,7 +45,7 @@ object ScalaNameSuggestionProvider {
   private def suggestedNamesByType(typeable: Typeable): Seq[String] =
     typeable.`type`()
       .toOption.toSeq
-      .flatMap(suggestNamesByType)
+      .flatMap(suggestNamesByType(_))
 }
 
 abstract class AbstractNameSuggestionProvider extends NameSuggestionProvider {

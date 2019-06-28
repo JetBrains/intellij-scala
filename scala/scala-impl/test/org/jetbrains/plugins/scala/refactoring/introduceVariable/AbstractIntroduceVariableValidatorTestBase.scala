@@ -27,8 +27,7 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
   override def transform(testName: String, data: Array[String]): String = {
     setSettings()
     val fileText = data(0)
-    val psiFile = createPseudoPhysicalScalaFile(getProject, fileText)
-    processFile(psiFile)
+    processTestFile(fileText)
   }
 
   protected def removeAllMarker(text: String): String = {
@@ -37,9 +36,9 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
     text.substring(0, index) + text.substring(index + ALL_MARKER.length)
   }
 
-  private def processFile(file: PsiFile): String = {
+  private def processTestFile(testFileText: String): String = {
     var replaceAllOccurrences = false
-    var fileText = file.getText
+    var fileText = testFileText
     var startOffset = fileText.indexOf(BEGIN_MARKER)
     if (startOffset < 0) {
       startOffset = fileText.indexOf(ALL_MARKER)
@@ -59,16 +58,20 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
     myEditor.getSelectionModel.setSelection(startOffset, endOffset)
 
     try {
-      val maybeValidator = getValidator(myFile)(getProject, myEditor)
-      maybeValidator.toSeq
-        .flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
-        .map(_._2)
-        .toSet[String]
-        .mkString("\n")
+      doTest(replaceAllOccurrences, fileText)
     } finally {
       fileEditorManager.closeFile(myFile.getVirtualFile)
       myEditor = null
     }
+  }
+
+  protected def doTest(replaceAllOccurrences: Boolean, fileText: String): String = {
+    val maybeValidator = getValidator(myFile)(getProject, myEditor)
+    maybeValidator.toSeq
+      .flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
+      .map(_._2)
+      .toSet[String]
+      .mkString("\n")
   }
 
   protected def getName(fileText: String): String

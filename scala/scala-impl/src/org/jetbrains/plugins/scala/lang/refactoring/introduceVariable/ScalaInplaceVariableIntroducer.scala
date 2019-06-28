@@ -379,9 +379,9 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       if (named != null && templateState != null) {
         val occurrences =
           (for (i <- 0 until templateState.getSegmentsCount) yield templateState.getSegmentRange(i)).toArray
-        implicit val validator: ScalaVariableValidator = ScalaVariableValidator(myFile, named, occurrences)
+        val validator: ScalaVariableValidator = ScalaVariableValidator(myFile, named, occurrences)
 
-        val reporter = new ValidationReporter(myProject, new BalloonConflictsReporter(myEditor))
+        val reporter = new ValidationReporter(myProject, new BalloonConflictsReporter(myEditor), validator)
         reporter.isOK(named.name, replaceAll)
       }
     }

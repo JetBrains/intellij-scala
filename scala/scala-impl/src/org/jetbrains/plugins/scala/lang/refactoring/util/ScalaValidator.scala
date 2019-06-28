@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 /**
   * @author Kate Ustyuzhanina
   */
-class ValidationReporter(project: Project, conflictsReporter: ConflictsReporter)
-                        (implicit validator: ScalaValidator) {
+class ValidationReporter(project: Project, conflictsReporter: ConflictsReporter, validator: ScalaValidator) {
   def isOK(dialog: NamedDialog): Boolean =
     isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
 
