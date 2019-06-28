@@ -4,7 +4,7 @@ package completion
 package clauses
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
@@ -28,13 +28,19 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
           case api.FunctionType(_, Seq(targetType)) => targetType
         }
 
-      override protected def createLookupElement(tailText: String, components: ExtractorPatternComponents[_])
-                                                (implicit place: PsiElement): LookupElement = {
+      override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+                                                (implicit place: PsiElement): LookupElement =
         buildLookupElement(
-          ScalaKeyword.CASE,
+          ScalaKeyword.CASE + patternText,
           new CaseClauseInsertHandler(components)
-        )(itemTextBold = true, tailText = tailText)
-      }
+        ) {
+          case (_, presentation: LookupElementPresentation) =>
+            presentation.setItemText(ScalaKeyword.CASE)
+            presentation.setItemTextBold(true)
+
+            presentation.setTailText(" ")
+            presentation.appendTailTextItalic(patternText, false)
+        }
     }
   )
 
@@ -55,7 +61,11 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         buildLookupElement(
           patternText,
           new PatternInsertHandler(patternText, components)
-        )(itemTextItalic = true)
+        ) {
+          case (_, presentation: LookupElementPresentation) =>
+            presentation.setItemText(patternText)
+            presentation.setItemTextItalic(true)
+        }
     }
   )
 
@@ -108,7 +118,7 @@ object CaseClauseCompletionContributor {
     protected def findInheritors(definition: ScTypeDefinition): Option[Inheritors] =
       SealedDefinition.unapply(definition)
 
-    protected def createLookupElement(text: String, components: ExtractorPatternComponents[_])
+    protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
                                      (implicit place: PsiElement): LookupElement
   }
 

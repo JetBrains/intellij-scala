@@ -6,6 +6,7 @@ package clauses
 import java.{util => ju}
 
 import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.lookup.LookupElementPresentation
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
@@ -62,7 +63,14 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
         lookupElement = buildLookupElement(
           keywordLookupString,
           new ClausesInsertHandler[Expression](strategy, prefixAndSuffix)
-        )(itemTextBold = true, tailText = rendererTailText, grayed = true)
+        ) {
+          case (_, presentation: LookupElementPresentation) =>
+            presentation.setItemText(keywordLookupString)
+            presentation.setItemTextBold(true)
+
+            presentation.setTailText(" ", true)
+            presentation.appendTailText(rendererTailText, true)
+        }
       } result.addElement(lookupElement)
     }
   )

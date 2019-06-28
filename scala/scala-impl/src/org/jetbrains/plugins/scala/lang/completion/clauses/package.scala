@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
 import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
@@ -25,26 +25,10 @@ package object clauses {
 
   private[clauses] def buildLookupElement(lookupString: String,
                                           insertHandler: ClauseInsertHandler[_])
-                                         (itemTextItalic: Boolean = false,
-                                          itemTextBold: Boolean = false,
-                                          tailText: String = null,
-                                          grayed: Boolean = false): LookupElement =
-    LookupElementBuilder.create {
-      lookupString
-    }.withInsertHandler {
-      insertHandler
-    }.withRenderer {
-      (_: LookupElement, presentation: LookupElementPresentation) => {
-        presentation.setItemText(lookupString)
-        presentation.setItemTextItalic(itemTextItalic)
-        presentation.setItemTextBold(itemTextBold)
-
-        if (tailText != null) {
-          presentation.setTailText(" ", grayed)
-          presentation.appendTailText(tailText, grayed)
-        }
-      }
-    }
+                                         (presentation: LookupElementRenderer[LookupElement]): LookupElement =
+    LookupElementBuilder.create(lookupString)
+      .withInsertHandler(insertHandler)
+      .withRenderer(presentation)
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
                                          isInstantiatiable: Boolean = false)
