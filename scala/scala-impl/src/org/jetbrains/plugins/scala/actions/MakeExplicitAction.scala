@@ -156,7 +156,7 @@ object MakeExplicitAction {
   private[this] def classAndPrefix(function: ScFunction, importStatically: Boolean)
                                   (className: ScTemplateDefinition => String) = {
     val maybeClass = if (importStatically) Option(function.containingClass) else None
-    (maybeClass, maybeClass.fold("")(className))
+    (maybeClass, maybeClass.fold("")(className.andThen(_ + ".")))
   }
 
   private[this] def runReplace(expression: ScExpression, replacementText: String)
