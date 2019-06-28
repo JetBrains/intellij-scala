@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTyp
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.util.IndentUtil
@@ -101,7 +102,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
       if element.isInstanceOf[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
-      if block.statements.size == 1
+      if canRemoveClosingBrace(block)
       rBrace <- block.getRBrace.map(_.getPsi())
       project = file.getProject
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
@@ -121,6 +122,19 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       val document = editor.getDocument
       document.deleteString(start, end)
       document.commit(project)
+    }
+  }
+
+  private def canRemoveClosingBrace(block: ScBlockExpr): Boolean = {
+    block.statements.size match {
+      case 0 =>
+        block.getParent match {
+          case fun: ScFunctionDefinition =>
+            fun.returnTypeElement.forall(_.getText == "Unit")
+          case _ => false
+        }
+      case 1 => true
+      case _ => false
     }
   }
 

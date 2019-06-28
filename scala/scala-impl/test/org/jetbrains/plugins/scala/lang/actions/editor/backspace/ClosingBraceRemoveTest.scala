@@ -709,4 +709,45 @@ class ClosingBraceRemoveTest extends EditorActionTestBase {
          |""".stripMargin
     doTest(before, after)
   }
+
+  def testRemove_EmptyFunctionWithExplicitUnitType(): Unit = {
+    val before =
+      s"""def foo(name: String): Unit = {$CARET
+         |
+         |}
+         |""".stripMargin
+    val after =
+      s"""def foo(name: String): Unit = $CARET
+         |
+         |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testRemove_EmptyFunctionWithImpliedUnitType(): Unit = {
+    val before =
+      s"""def foo(name: String) = {$CARET
+         |
+         |}
+         |""".stripMargin
+    val after =
+      s"""def foo(name: String) = $CARET
+         |
+         |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testNotRemove_EmptyFunctionWithNonUnitType(): Unit = {
+    val before =
+      s"""def foo(name: String): Int = {$CARET
+         |
+         |}
+         |""".stripMargin
+    val after =
+      s"""def foo(name: String): Int = $CARET
+         |
+         |}
+         |""".stripMargin
+    doTest(before, after)
+  }
+
 }
