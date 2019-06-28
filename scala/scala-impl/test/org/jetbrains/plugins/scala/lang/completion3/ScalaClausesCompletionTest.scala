@@ -193,11 +193,12 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "Foo(foo)"
   )
 
-  def testCompleteClause(): Unit = doCompletionTest(
+  def testCompleteClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
          |
          |object Foo {
+         |  final case class Baz() extends Foo
          |  final case class Bar() extends Foo
          |}
          |
@@ -209,6 +210,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       s"""sealed trait Foo
          |
          |object Foo {
+         |  final case class Baz() extends Foo
          |  final case class Bar() extends Foo
          |}
          |
@@ -216,28 +218,28 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |Option.empty[Foo].map {
          |  case Bar() => $CARET
          |}""".stripMargin,
-    item = CASE
+    itemText = "Bar()"
   )
 
-  def testCompleteObjectClause(): Unit = doCompletionTest(
-    fileText =
-      s"""sealed trait Foo
-         |
-         |final case object Baz extends Foo
-         |
-         |Option.empty[Foo].map {
-         |  c$CARET
-         |}""".stripMargin,
-    resultText =
-      s"""sealed trait Foo
-         |
-         |final case object Baz extends Foo
-         |
-         |Option.empty[Foo].map {
-         |  case Baz => $CARET
-         |}""".stripMargin,
-    item = CASE
-  )
+  //  def testCompleteObjectClause(): Unit = doClauseCompletionTest(
+  //    fileText =
+  //      s"""sealed trait Foo
+  //         |
+  //         |final case object Baz extends Foo
+  //         |
+  //         |Option.empty[Foo].map {
+  //         |  c$CARET
+  //         |}""".stripMargin,
+  //    resultText =
+  //      s"""sealed trait Foo
+  //         |
+  //         |final case object Baz extends Foo
+  //         |
+  //         |Option.empty[Foo].map {
+  //         |  case Baz => $CARET
+  //         |}""".stripMargin,
+  //    itemText = "Baz"
+  //  )
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
@@ -685,6 +687,15 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
     doCompletionTest(fileText, resultText) {
       hasItemText(_, itemText)(itemTextItalic = true)
+    }
+
+  private def doClauseCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
+    doCompletionTest(fileText, resultText) {
+      hasItemText(_, CASE + itemText)(
+        itemText = CASE,
+        itemTextBold = true,
+        tailText = " " + itemText
+      )
     }
 
   //  private def doMultipleCompletionTest(fileText: String,
