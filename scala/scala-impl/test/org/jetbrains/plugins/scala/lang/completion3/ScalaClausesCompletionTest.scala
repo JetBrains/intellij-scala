@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
@@ -221,25 +222,31 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "Bar()"
   )
 
-  //  def testCompleteObjectClause(): Unit = doClauseCompletionTest(
-  //    fileText =
-  //      s"""sealed trait Foo
-  //         |
-  //         |final case object Baz extends Foo
-  //         |
-  //         |Option.empty[Foo].map {
-  //         |  c$CARET
-  //         |}""".stripMargin,
-  //    resultText =
-  //      s"""sealed trait Foo
-  //         |
-  //         |final case object Baz extends Foo
-  //         |
-  //         |Option.empty[Foo].map {
-  //         |  case Baz => $CARET
-  //         |}""".stripMargin,
-  //    itemText = "Baz"
-  //  )
+  def testCompleteClauseFormatting(): Unit = withCaseAlignment {
+    doClauseCompletionTest(
+        fileText =
+          s"""sealed trait Foo
+             |
+             |final case class Bar() extends Foo
+             |final case class BarBaz() extends Foo
+             |
+             |Option.empty[Foo].map {
+             |  case Bar() =>
+             |  c$CARET
+             |}""".stripMargin,
+        resultText =
+          s"""sealed trait Foo
+             |
+             |final case class Bar() extends Foo
+             |final case class BarBaz() extends Foo
+             |
+             |Option.empty[Foo].map {
+             |  case Bar()    =>
+             |  case BarBaz() => $CARET
+             |}""".stripMargin,
+        itemText = "BarBaz()"
+      )
+  }
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
@@ -416,21 +423,23 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     completionType = BASIC
   )(isExhaustiveMatch)
 
-  def testMaybe(): Unit = doMatchCompletionTest(
-    fileText =
-      s"""val maybeFoo = Option("foo")
-         |
-         |maybeFoo m$CARET
+  def testMaybe(): Unit = withCaseAlignment {
+    doMatchCompletionTest(
+      fileText =
+        s"""val maybeFoo = Option("foo")
+           |
+           |maybeFoo m$CARET
        """.stripMargin,
-    resultText =
-      s"""val maybeFoo = Option("foo")
-         |
-         |maybeFoo match {
-         |  case Some(value) => $CARET
-         |  case None =>
-         |}
+      resultText =
+        s"""val maybeFoo = Option("foo")
+           |
+           |maybeFoo match {
+           |  case Some(value) => $CARET
+           |  case None        =>
+           |}
        """.stripMargin
-  )
+    )
+  }
 
   def testList(): Unit = doMatchCompletionTest(
     fileText =
@@ -683,6 +692,19 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     time = DEFAULT_TIME,
     completionType = BASIC
   )(isExhaustiveCase)
+
+  private def withCaseAlignment(doTest: => Unit): Unit = {
+    val settings = CodeStyle.getSettings(getProject)
+      .getCustomSettings(classOf[formatting.settings.ScalaCodeStyleSettings])
+    val oldValue = settings.ALIGN_IN_COLUMNS_CASE_BRANCH
+
+    try {
+      settings.ALIGN_IN_COLUMNS_CASE_BRANCH = true
+      doTest
+    } finally {
+      settings.ALIGN_IN_COLUMNS_CASE_BRANCH = false
+    }
+  }
 
   private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
     doCompletionTest(fileText, resultText) {

@@ -3,12 +3,9 @@ package lang
 package completion
 package clauses
 
-import java.{util => ju}
-
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -240,10 +237,7 @@ object ExhaustiveMatchCompletionContributor {
         val clauses = findCaseClauses(statement)
         strategy.adjustTypes(components, clauses.caseClauses)
 
-        CodeStyleManager.getInstance(context.getProject).reformatText(
-          context.getFile,
-          ju.Collections.singleton(statement.getTextRange)
-        )
+        reformatClauses(clauses)
       }
 
       val whiteSpace = onTargetElement { statement =>
