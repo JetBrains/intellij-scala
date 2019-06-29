@@ -142,6 +142,10 @@ object CaseClauseCompletionContributor {
 
       onTargetElement { clause =>
         adjustTypesOnClauses(addImports = false, (clause, components))
+
+        clause.getParent match {
+          case clauses: ScCaseClauses => reformatClauses(clauses)
+        }
       }
 
       moveCaret(context.getTailOffset)

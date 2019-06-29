@@ -3,11 +3,15 @@ package lang
 package completion
 package clauses
 
+import java.{util => ju}
+
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 
 private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement : reflect.ClassTag]
   extends InsertHandler[LookupElement] {
@@ -38,6 +42,13 @@ private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement : refle
     )
     context.commitDocument()
   }
+
+  protected final def reformatClauses(clauses: ScCaseClauses)
+                                     (implicit context: InsertionContext): Unit =
+    CodeStyleManager.getInstance(context.getProject).reformatText(
+      context.getFile,
+      ju.Collections.singleton(clauses.getTextRange)
+    )
 
   protected final def moveCaret(offset: Int)
                                (implicit context: InsertionContext): Unit = {
