@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, result}
 
@@ -28,7 +28,8 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
           case api.FunctionType(_, Seq(targetType)) => targetType
         }
 
-      override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+      override protected def createLookupElement(patternText: String,
+                                                 components: ClassPatternComponents[_])
                                                 (implicit place: PsiElement): LookupElement =
         buildLookupElement(
           ScalaKeyword.CASE + patternText,
@@ -56,7 +57,8 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
           case _ => Some(Inheritors(Seq(definition)))
         }
 
-      override protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+      override protected def createLookupElement(patternText: String,
+                                                 components: ClassPatternComponents[_])
                                                 (implicit place: PsiElement): LookupElement =
         buildLookupElement(
           patternText,
@@ -103,12 +105,15 @@ object CaseClauseCompletionContributor {
       api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toSeq
       Inheritors(namedInheritors, _) <- findInheritors(typeDefinition)
 
-      components <- namedInheritors.collect { // TODO objects!!!
+      inheritor <- namedInheritors
+      components = inheritor match {
+        case scalaObject: ScObject => new StablePatternComponents(scalaObject)
         case SyntheticExtractorPatternComponents(components) => components
         case PhysicalExtractorPatternComponents(components) => components
+        case definition => new TypedPatternComponents(definition)
       }
       lookupElement = createLookupElement(
-        components.extractorText(),
+        components.presentablePatternText(),
         components
       )
     } result.addElement(lookupElement)
@@ -118,7 +123,8 @@ object CaseClauseCompletionContributor {
     protected def findInheritors(definition: ScTypeDefinition): Option[Inheritors] =
       SealedDefinition.unapply(definition)
 
-    protected def createLookupElement(patternText: String, components: ExtractorPatternComponents[_])
+    protected def createLookupElement(patternText: String,
+                                      components: ClassPatternComponents[_])
                                      (implicit place: PsiElement): LookupElement
   }
 
@@ -133,12 +139,12 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private final class CaseClauseInsertHandler(components: ExtractorPatternComponents[_])
+  private final class CaseClauseInsertHandler(components: ClassPatternComponents[_])
                                              (implicit place: PsiElement)
     extends ClauseInsertHandler[ScCaseClause] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
-      replaceText(createClause(components.textFor()) + " ")
+      replaceText(components.presentableClauseText + " ")
 
       onTargetElement { clause =>
         adjustTypesOnClauses(addImports = false, (clause, components))
@@ -153,7 +159,7 @@ object CaseClauseCompletionContributor {
   }
 
   private final class PatternInsertHandler(patternText: String,
-                                           components: ExtractorPatternComponents[_])
+                                           components: ClassPatternComponents[_])
     extends ClauseInsertHandler[ScConstructorPattern] {
 
     override def handleInsert(implicit context: InsertionContext): Unit = {
