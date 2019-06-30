@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
@@ -104,17 +103,12 @@ object ExhaustiveMatchCompletionContributor {
 
         val components = strategy.patterns
         val clausesText = components
-          .map(_.textFor())
-          .map(createClause)
+          .map(_.canonicalClauseText)
           .mkString(prefix, "\n", suffix)
 
         (components, clausesText)
       }
     }
-
-    def createClause(patternText: String)
-                    (implicit place: PsiElement): String =
-      s"${ScalaKeyword.CASE} $patternText ${ScalaPsiUtil.functionArrow}"
 
     import api.designator._
 
@@ -147,7 +141,7 @@ object ExhaustiveMatchCompletionContributor {
                                           pairs: (E, PatternComponents)*)
                                          (collector: PartialFunction[E, (ScPattern, ScTypeElement)]): Unit = {
       val findTypeElement = collector.lift
-      TypeAdjuster.adjustFor(
+      psi.TypeAdjuster.adjustFor(
         for {
           (element, _) <- pairs
           (_, typeElement) <- findTypeElement(element)
@@ -157,15 +151,14 @@ object ExhaustiveMatchCompletionContributor {
       )
 
       for {
-        (element, components) <- pairs
-        (pattern, typeElement) <- findTypeElement(element)
+        (element, components: ClassPatternComponents[_]) <- pairs
+        (pattern, ScSimpleTypeElement.unwrapped(codeReference)) <- findTypeElement(element)
 
-        patternText = typeElement match {
-          case singleton@ScSimpleTypeElement(ElementText(reference)) if singleton.singleton => reference
-          case _ => components.textFor(Some(typeElement))
-        }
-
-        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, pattern.getContext, pattern)
+        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(
+          components.presentablePatternText(Right(codeReference)),
+          pattern.getContext,
+          pattern
+        )
       } pattern.replace(replacement)
     }
 
@@ -219,7 +212,7 @@ object ExhaustiveMatchCompletionContributor {
   private final class EnumGenerationStrategy(enumClass: PsiClass, qualifiedName: String,
                                              membersNames: Seq[String]) extends PatternGenerationStrategy {
 
-    override def patterns: Seq[TypedPatternComponents] = membersNames.map { name =>
+    override def patterns: Seq[StablePatternComponents] = membersNames.map { name =>
       new StablePatternComponents(enumClass, qualifiedName + "." + name)
     }
   }

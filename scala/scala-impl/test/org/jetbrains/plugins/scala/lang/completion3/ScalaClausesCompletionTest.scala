@@ -248,6 +248,66 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       )
   }
 
+  def testCompleteObjectClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case object Baz extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case object Baz extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case Baz => $CARET
+         |}""".stripMargin,
+    itemText = "Baz"
+  )
+
+  def testCompleteNamedClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final class FooImpl extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final class FooImpl extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case impl: FooImpl => $CARET
+         |}""".stripMargin,
+    itemText = "_: FooImpl"
+  )
+
+  def testCompleteParameterizedClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |trait FooExt[T] extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |trait FooExt[T] extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case ext: FooExt[_] => $CARET
+         |}""".stripMargin,
+    itemText = "_: FooExt[_]"
+  )
+
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
