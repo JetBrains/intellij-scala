@@ -30,7 +30,7 @@ class Test(elem: PsiElement,
 }
 
 object Test {
-  // TOOD custom type, add icon
+  // TODO: custom type, add icon SCL-15735
   val NormalStatusId = 1
   val IgnoredStatusId = 2
   val PendingStatusId = 3
