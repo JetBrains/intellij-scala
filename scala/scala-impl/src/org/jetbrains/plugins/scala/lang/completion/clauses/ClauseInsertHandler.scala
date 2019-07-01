@@ -3,18 +3,20 @@ package lang
 package completion
 package clauses
 
-import java.{util => ju}
-
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 
 private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement : reflect.ClassTag]
   extends InsertHandler[LookupElement] {
+
+  import ClauseInsertHandler._
 
   protected def handleInsert(implicit context: InsertionContext): Unit
 
@@ -43,18 +45,37 @@ private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement : refle
     context.commitDocument()
   }
 
-  protected final def reformatClauses(clauses: ScCaseClauses)
-                                     (implicit context: InsertionContext): Unit =
-    CodeStyleManager.getInstance(context.getProject).reformatText(
-      context.getFile,
-      ju.Collections.singleton(clauses.getTextRange)
+  protected final def reformatAndMoveCaret(clauses: ScCaseClauses)
+                                          (targetClause: ScCaseClause = clauses.caseClause)
+                                          (implicit context: InsertionContext): Unit = {
+    val InsertionContextExt(editor, doc, file, project) = context
+
+    import collection.JavaConverters._
+    CodeStyleManager.getInstance(project).reformatText(
+      file,
+      patternRanges(clauses).asJava
     )
 
-  protected final def moveCaret(offset: Int)
-                               (implicit context: InsertionContext): Unit = {
-    val InsertionContextExt(editor, document, _, project) = context
+    val newLine = findNewLine(clauses, targetClause)
+    val spaceAndNewLine = newLine.replaceWithText(" " + newLine.getText)
+
     PsiDocumentManager.getInstance(project)
-      .doPostponedOperationsAndUnblockDocument(document)
-    editor.getCaretModel.moveToOffset(offset)
+      .doPostponedOperationsAndUnblockDocument(doc)
+    editor.getCaretModel
+      .moveToOffset(1 + spaceAndNewLine.getStartOffset)
   }
+}
+
+object ClauseInsertHandler {
+
+  private def patternRanges(clauses: ScCaseClauses) = for {
+    clause <- clauses.caseClauses
+    Some(arrow) = clause.funType
+  } yield TextRange.from(clause.getTextOffset, arrow.getStartOffsetInParent)
+
+  private def findNewLine(clauses: ScCaseClauses, clause: ScCaseClause) =
+    (clause.getNextSibling match {
+      case null => clauses.getNextSibling
+      case sibling => sibling
+    }).asInstanceOf[PsiWhiteSpaceImpl]
 }
