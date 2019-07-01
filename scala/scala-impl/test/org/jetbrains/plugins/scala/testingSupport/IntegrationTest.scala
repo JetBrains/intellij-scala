@@ -25,12 +25,12 @@ import scala.collection.JavaConverters._
 trait IntegrationTest {
 
   protected def runTestFromConfig(
-                                   configurationCheck: RunnerAndConfigurationSettings => Boolean,
-                                   runConfig: RunnerAndConfigurationSettings,
-                                   checkOutputs: Boolean = false,
-                                   duration: Int = 3000,
-                                   debug: Boolean = false
-                                 ): (String, Option[AbstractTestProxy])
+    configurationCheck: RunnerAndConfigurationSettings => Boolean,
+    runConfig: RunnerAndConfigurationSettings,
+    checkOutputs: Boolean = false,
+    duration: Int = 3000,
+    debug: Boolean = false
+  ): (String, Option[AbstractTestProxy])
 
   protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings
 
@@ -49,7 +49,8 @@ trait IntegrationTest {
     def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
       root.getValue.isInstanceOf[Test] && {
         val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
-        presentation.isInstanceOf[Test] && presentation.getPresentableText == nodeName &&
+        presentation.isInstanceOf[Test] &&
+          presentation.getPresentableText == nodeName &&
           presentation.asInstanceOf[Test].testStatus == status &&
           parentName.forall(currentParentName == _)
       } ||
@@ -121,31 +122,43 @@ trait IntegrationTest {
 
   protected def getExactNamePathFromResultTree(root: AbstractTestProxy, names: Iterable[String], allowTail: Boolean = false): Option[List[AbstractTestProxy]] = {
     @tailrec
-    def buildConditions(names: Iterable[String], acc: List[AbstractTestProxy => Boolean] = List()):
-    List[AbstractTestProxy => Boolean] = names.size match {
-      case 0 => List(_ => true) //got an empty list of names as initial input
-      case 1 =>
-        ((node: AbstractTestProxy) => node.getName == names.head && (node.isLeaf || allowTail)) :: acc //last element must be leaf
-      case _ => buildConditions(names.tail,
-        ((node: AbstractTestProxy) => node.getName == names.head && !node.isLeaf) :: acc)
+    def buildConditions(
+      names: Iterable[String],
+      acc: List[AbstractTestProxy => Boolean] = List()
+    ): List[AbstractTestProxy => Boolean] = names.toList match {
+      case Nil => List(_ => true) //got an empty list of names as initial input
+      case head :: Nil =>
+        //last element must be leaf
+        val cond = (node: AbstractTestProxy) => node.getName == head && (node.isLeaf || allowTail)
+        cond :: acc
+      case head :: tail =>
+        val cond = (node: AbstractTestProxy) => node.getName == head && !node.isLeaf
+        buildConditions(tail, cond :: acc)
     }
 
     getPathFromResultTree(root, buildConditions(names).reverse, allowTail)
   }
 
   protected def getPathFromResultTree(root: AbstractTestProxy,
-                                      conditions: Iterable[AbstractTestProxy => Boolean], allowTail: Boolean = false):
-  Option[List[AbstractTestProxy]] = {
-    if (conditions.isEmpty) {
-      if (allowTail) return Some(List()) else return None
-    }
-    if (conditions.head(root)) {
-      val children = root.getChildren
-      if (children.isEmpty && conditions.size == 1) Some(List(root))
-      else children.asScala.map(getPathFromResultTree(_, conditions.tail, allowTail)).find(_.isDefined).
-        flatten.map(tail => root :: tail)
-    } else {
-      None
+                                      conditions: Iterable[AbstractTestProxy => Boolean],
+                                      allowTail: Boolean = false): Option[List[AbstractTestProxy]] = {
+    conditions.toList match {
+      case Nil =>
+        if (allowTail) Some(List())
+        else None
+      case condHead :: condTail if condHead(root) =>
+        val children = root.getChildren
+        if (children.isEmpty && condTail.isEmpty) {
+          Some(List(root))
+        } else {
+          children.asScala
+            .map(getPathFromResultTree(_, condTail, allowTail))
+            .find(_.isDefined)
+            .flatten
+            .map(tail => root :: tail)
+        }
+      case _ =>
+        None
     }
   }
 
