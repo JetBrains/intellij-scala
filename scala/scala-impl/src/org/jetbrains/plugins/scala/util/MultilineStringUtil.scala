@@ -85,7 +85,8 @@ object MultilineStringUtil {
 
     literal match {
       case WithStrippedMargin(_, marginChar) =>
-        lines.exists(_.startsWith(marginChar))
+        // TODO: test
+        !lines.hasNext || lines.exists(_.startsWith(marginChar))
       case _ =>
         val withoutFirst = lines.drop(1)
         withoutFirst.hasNext && withoutFirst.forall(_.startsWith("|"))
