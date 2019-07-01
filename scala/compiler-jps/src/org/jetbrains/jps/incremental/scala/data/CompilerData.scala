@@ -38,7 +38,7 @@ object CompilerData extends CompilerDataFactory {
 
               Left(s"$messagePrefix '$kind*$JarExtension'$messageInfix in Scala compiler classpath in Scala SDK ${sdk.getName}")
           }, {
-            case jars@CompilerJars(library, compiler, extra) =>
+            case jars @ CompilerJars(library, compiler, extra) =>
               val absentJars = for {
                 file <- library +: compiler +: extra
                 if !file.exists
@@ -63,9 +63,9 @@ object CompilerData extends CompilerDataFactory {
     )
   }
 
-  private def javaHome(model: JpsModel,
-                       module: JpsModule,
-                       isCompileServerEnabled: Boolean): Either[String, Option[File]] = {
+  def javaHome(model: JpsModel,
+               module: JpsModule,
+               isCompileServerEnabled: Boolean): Either[String, Option[File]] = {
     Option(module.getSdk(JpsJavaSdkType.INSTANCE))
       .toRight("No JDK in module " + module.getName)
       .flatMap { moduleJdk =>
@@ -104,7 +104,7 @@ object CompilerData extends CompilerDataFactory {
     }
   }
 
-  private def compilerJarsIn(module: JpsModule) =
+  def compilerJarsIn(module: JpsModule) =
     SettingsManager.getScalaSdk(module)
       .flatMap(compilerJarsInSdk(_).toOption)
 
@@ -147,13 +147,12 @@ object CompilerData extends CompilerDataFactory {
 
   // TODO implement a better version comparison
   private def versionIn(compiler: File,
-                        versions: String*) = readProperty(
-    compiler,
+                        versions: String*) =
+    compilerVersion(compiler).exists { version => versions.exists(version.startsWith) }
+
+  def compilerVersion(compiler: File): Option[String] = readProperty(compiler,
     "compiler.properties",
-    "version.number"
-  ).exists { version =>
-    versions.exists(version.startsWith)
-  }
+    "version.number")
 
   private def hasDotty(extra: Seq[File]) = extra.exists(_.getName.startsWith("dotty"))
 }
