@@ -82,5 +82,5 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
 }
 
 object BlockExpressionToArgumentIntention {
-  val FAMILY_NAME = "in "
+  val FAMILY_NAME = "Convert to argument in parentheses"
 }
