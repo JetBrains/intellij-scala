@@ -413,7 +413,7 @@ object ScPattern {
   }
 
   def isQuasiquote(fun: ScFunction): Boolean = {
-    val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
+    val fqnO  = Option(fun.containingClass).flatMap(_.qualifiedName.toOption)
     fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
   }
 
