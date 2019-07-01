@@ -198,24 +198,18 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""sealed trait Foo
          |
-         |object Foo {
-         |  final case class Baz() extends Foo
-         |  final case class Bar() extends Foo
-         |}
+         |final case class Baz() extends Foo
+         |final case class Bar() extends Foo
          |
-         |import Foo._
          |Option.empty[Foo].map {
          |  c$CARET
          |}""".stripMargin,
     resultText =
       s"""sealed trait Foo
          |
-         |object Foo {
-         |  final case class Baz() extends Foo
-         |  final case class Bar() extends Foo
-         |}
+         |final case class Baz() extends Foo
+         |final case class Bar() extends Foo
          |
-         |import Foo._
          |Option.empty[Foo].map {
          |  case Bar() => $CARET
          |}""".stripMargin,
@@ -286,6 +280,62 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case impl: FooImpl => $CARET
          |}""".stripMargin,
     itemText = "_: FooImpl"
+  )
+
+  def testCompleteClauseAdjustment(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |}
+         |
+         |import Foo.Baz
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |}
+         |
+         |import Foo.Baz
+         |Option.empty[Foo].map {
+         |  case Foo.Bar() => $CARET
+         |}""".stripMargin,
+    itemText = "Bar()"
+  )
+
+  def testCompleteClauseAdjustmentWithImport(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |}
+         |
+         |import Foo.Baz
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |}
+         |
+         |import Foo.Baz
+         |Option.empty[Foo].map {
+         |  case Baz() => $CARET
+         |}""".stripMargin,
+    itemText = "Baz()"
   )
 
   def testCompleteParameterizedClause(): Unit = doClauseCompletionTest(

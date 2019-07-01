@@ -81,15 +81,6 @@ sealed abstract class ClassPatternComponents[T](`class`: PsiClass,
   }
 }
 
-object ClassPatternComponents {
-
-  implicit class Ext(private val components: ClassPatternComponents[_]) extends AnyVal {
-
-    def presentableClauseText(implicit place: PsiElement): String =
-      components.clauseText(components.presentablePatternText())
-  }
-}
-
 final class TypedPatternComponents(`class`: ScTypeDefinition)
   extends ClassPatternComponents(`class`, `class`.typeParameters) {
 

@@ -144,7 +144,7 @@ object CaseClauseCompletionContributor {
     extends ClauseInsertHandler[ScCaseClause] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
-      replaceText(components.presentableClauseText + " ")
+      replaceText(components.canonicalClauseText + " ")
 
       onTargetElement { clause =>
         adjustTypesOnClauses(addImports = false, (clause, components))
