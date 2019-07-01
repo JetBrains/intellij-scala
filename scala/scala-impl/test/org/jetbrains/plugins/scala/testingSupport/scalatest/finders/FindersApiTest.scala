@@ -10,14 +10,22 @@ import org.scalatest.finders.Selection
   * @author Roman.Shein
   * @since 10.02.2015.
   */
-trait FindersApiTest extends FeatureSpecGenerator with FlatSpecGenerator with FreeSpecGenerator
-with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpecGenerator {
-  def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]) = {
+trait FindersApiTest
+  extends FeatureSpecGenerator
+    with FlatSpecGenerator
+    with FreeSpecGenerator
+    with FreeSpecPathGenerator
+    with FunSpecGenerator
+    with FunSuiteGenerator
+    with PropSpecGenerator
+    with WordSpecGenerator {
+
+  def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]): Unit = {
     val location = createLocation(lineNumber, offset, fileName)
     var selection: Selection = null
-    EdtTestUtil.runInEdtAndWait(
-      () => selection = ScalaTestAstTransformer.testSelection(location)
-    )
+    EdtTestUtil.runInEdtAndWait { () =>
+      selection = ScalaTestAstTransformer.testSelection(location)
+    }
     assertNotNull(selection)
     assertEquals(testNames, selection.testNames().map(_.trim).toSet)
   }
@@ -61,8 +69,12 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(19, 3, flatSpecFileName, Set("A FlatSpecTest should run tagged tests"))
   }
 
-  def testBehaviorFlatSpec() {
-    val testNames = Set("FlatSpec should run scopes", "FlatSpec should do other stuff", "FlatSpec should tag")
+  def testFlatSpec_WithBehavior() {
+    val testName1 = "FlatSpec should run scopes"
+    val testName2 = "FlatSpec should do other stuff"
+    val testName3 = "FlatSpec should tag"
+
+    val testNames = Set(testName1, testName2, testName3)
 
     //'behavior' word
     checkSelection(3, 3, behaviourFlatFileName, testNames)
@@ -70,14 +82,41 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(3, 12, behaviourFlatFileName, testNames)
     //object name
     checkSelection(3, 20, behaviourFlatFileName, testNames)
-    //specific test
-    checkSelection(5, 8, behaviourFlatFileName, Set("FlatSpec should run scopes"))
-    //tagged test
-    checkSelection(13, 7, behaviourFlatFileName, Set("FlatSpec should tag"))
+
+    //specific test, 'it' word
+    checkSelection(5, 3, behaviourFlatFileName, Set(testName1))
+    //specific test, should
+    checkSelection(5, 8, behaviourFlatFileName, Set(testName1))
+    //specific test, object name
+    checkSelection(5, 15, behaviourFlatFileName, Set(testName1))
+    //specific test, 'in' word
+    checkSelection(5, 30, behaviourFlatFileName, Set(testName1))
+    //specific test, test body
+    checkSelection(6, 1, behaviourFlatFileName, Set(testName1))
+
+    //tagged test, 'it' word
+    checkSelection(13, 3, behaviourFlatFileName, Set(testName3))
+    //tagged test, should word
+    checkSelection(13, 7, behaviourFlatFileName, Set(testName3))
+    //tagged test, object name
+    checkSelection(13, 14, behaviourFlatFileName, Set(testName3))
+    //tagged test, taggedAs
+    checkSelection(13, 20, behaviourFlatFileName, Set(testName3))
+    //tagged test, tag name
+    checkSelection(13, 30, behaviourFlatFileName, Set(testName3))
+    //tagged test, 'in' word
+    checkSelection(13, 41, behaviourFlatFileName, Set(testName3))
+    //tagged test, test body
+    checkSelection(14, 2, behaviourFlatFileName, Set(testName3))
   }
 
-  def testItFlatSpec(): Unit = {
-    checkSelection(3, 10, testItFlatFileName, Set("should run test with correct name"))
+  def testFlatSpec_ItOnly(): Unit = {
+    val testName1 = "should run test with correct name"
+    checkSelection(3, 3, testItFlatFileName, Set(testName1))
+    checkSelection(3, 7, testItFlatFileName, Set(testName1))
+    checkSelection(3, 10, testItFlatFileName, Set(testName1))
+    checkSelection(3, 41, testItFlatFileName, Set(testName1))
+    checkSelection(4, 1, testItFlatFileName, Set(testName1))
 
     checkSelection(9, 10, testItFlatFileName, Set("Test should be fine"))
 
