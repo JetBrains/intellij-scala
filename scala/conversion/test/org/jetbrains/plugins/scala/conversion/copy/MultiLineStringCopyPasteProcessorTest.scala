@@ -521,4 +521,72 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |""".stripMargin
     doTestMultiline(from, to, after)
   }
+
+  def testToEmptyMultilineString(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''$Caret
+         |'''
+         |""".stripMargin
+    val after =
+      s"""'''first line
+         |    second line$Caret
+         |'''
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyMultilineStringWithMargin(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''$Caret
+         |'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""'''first line
+         |  |    second line$Caret
+         |'''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyInterpMultilineString(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''$Caret
+         | '''
+         |""".stripMargin
+    val after =
+      s"""s'''first line
+         |    second line$Caret
+         | '''
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyInterpMultilineStringWithMargin(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''$Caret
+         | '''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""s'''first line
+         |   |    second line$Caret
+         | '''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
 }
