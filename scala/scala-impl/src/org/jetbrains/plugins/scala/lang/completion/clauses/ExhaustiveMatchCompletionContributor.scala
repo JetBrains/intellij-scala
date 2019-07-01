@@ -6,7 +6,6 @@ package clauses
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -227,32 +226,11 @@ object ExhaustiveMatchCompletionContributor {
       replaceText(clausesText)
 
       onTargetElement { statement: E =>
-        val clauses = findCaseClauses(statement)
+        val clauses = statement.findLastChildByType[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES)
         strategy.adjustTypes(components, clauses.caseClauses)
 
-        reformatClauses(clauses)
+        reformatAndMoveCaret(clauses)()
       }
-
-      val whiteSpace = onTargetElement { statement =>
-        val clauses = findCaseClauses(statement)
-        val caseClauses = clauses.caseClauses
-        replaceWhiteSpace(caseClauses.head)(clauses.getNextSibling)
-      }
-
-      moveCaret(whiteSpace.getStartOffset + 1)
-    }
-
-    private def findCaseClauses(target: E): ScCaseClauses =
-      target.findLastChildByType[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES)
-
-    private def replaceWhiteSpace(clause: ScCaseClause)
-                                 (nextSibling: => PsiElement) = {
-      val whiteSpace = (clause.getNextSibling match {
-        case null => nextSibling
-        case sibling => sibling
-      }).asInstanceOf[PsiWhiteSpaceImpl]
-
-      whiteSpace.replaceWithText(" " + whiteSpace.getText)
     }
   }
 

@@ -225,8 +225,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
              |final case class BarBaz() extends Foo
              |
              |Option.empty[Foo].map {
-             |  case Bar() =>
              |  c$CARET
+             |  case Bar() => println( 42 ) // rhs should not to be formatted
              |}""".stripMargin,
         resultText =
           s"""sealed trait Foo
@@ -235,8 +235,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
              |final case class BarBaz() extends Foo
              |
              |Option.empty[Foo].map {
-             |  case Bar()    =>
              |  case BarBaz() => $CARET
+             |  case Bar()    => println( 42 ) // rhs should not to be formatted
              |}""".stripMargin,
         itemText = "BarBaz()"
       )
