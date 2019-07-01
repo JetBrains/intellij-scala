@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
@@ -82,10 +83,12 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   }
 
   private def correctMultilineString(file: PsiFile, editor: Editor, closingQuotesOffset: Int): Unit = {
-    inWriteAction {
-      editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
-      //editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //https://youtrack.jetbrains.com/issue/SCL-6490
-      PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+    if(ScalaApplicationSettings.getInstance.REMOVE_MULTILINE_QUOTES) {
+      inWriteAction {
+        editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
+        //editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //https://youtrack.jetbrains.com/issue/SCL-6490
+        PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+      }
     }
   }
 
