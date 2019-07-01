@@ -37,7 +37,7 @@ object ScalaTestAstTransformer {
 
     try {
       val found = for {
-        finder <- Option(getFinder(clazz, location.getModule))
+        finder <- getFinder(clazz, location.getModule)
         selected <- getSelectedAstNode(clazz.qualifiedName, element)
       } yield {
         finder.find(selected)
@@ -50,7 +50,7 @@ object ScalaTestAstTransformer {
     }
   }
 
-  private def getFinder(clazz: ScTypeDefinition, module: Module): Finder = {
+  private def getFinder(clazz: ScTypeDefinition, module: Module): Option[Finder] = {
     val classes = MixinNodes.linearization(clazz).flatMap(_.extractClass.toSeq)
 
     for (clazz <- classes) {
@@ -59,7 +59,7 @@ object ScalaTestAstTransformer {
           val finderFqn: String = getFinderClassFqn(td, module, "org.scalatest.Style", "org.scalatest.Finders")
           if (finderFqn != null) try {
             val finderClass: Class[_] = Class.forName(finderFqn)
-            return finderClass.newInstance.asInstanceOf[Finder]
+            return Option(finderClass.newInstance.asInstanceOf[Finder])
           } catch {
             case _: ClassNotFoundException =>
               LOG.debug("Failed to load finders API class " + finderFqn)
@@ -67,7 +67,8 @@ object ScalaTestAstTransformer {
         case _ =>
       }
     }
-    null
+
+    None
   }
 
   @tailrec
@@ -206,8 +207,6 @@ object ScalaTestAstTransformer {
 
     current.getInvokedExpr match {
       case ref: ScReferenceExpression =>
-        val target: AstNode = getTarget(className, current, selected)
-
         val member = ref.resolve() match {
           case member: ScMember => Some(member)
           case pattern: ScBindingPattern =>
@@ -219,6 +218,8 @@ object ScalaTestAstTransformer {
         }
 
         val containingClassName = member.flatMap(_.containingClass.toOption).map(_.qualifiedName).orNull
+
+        val target: AstNode = getTarget(containingClassName, current, selected)
 
         val argsAst = arguments.map {
           case literal: ScLiteral if literal.isString =>
@@ -347,7 +348,7 @@ object ScalaTestAstTransformer {
                                    override val args: Array[AstNode])
     extends org.scalatest.finders.MethodInvocation(pClassName, pTarget, null, new Array[AstNode](0), pName, args: _*) {
 
-    override def parent: AstNode = getParentNode(pClassName, invocation)
+    override def parent: AstNode =  getParentNode(pClassName, invocation)
 
     override def children: Array[AstNode] = getChildren(pClassName, invocation)
 

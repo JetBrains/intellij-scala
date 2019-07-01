@@ -287,7 +287,9 @@ class ScalaTestConfigurationProducer extends {
             }
         }
       }
-      checkCallGeneral(call, namesSet, if (testNameIsAlwaysEmpty) _ => Some("") else inv, recursive = true, checkFirstArgIsUnitOrString)
+
+      val invActual: MethodInvocation => Option[String] = if (testNameIsAlwaysEmpty) _ => Some("") else inv
+      checkCallGeneral(call, namesSet, invActual, recursive = true, checkFirstArgIsUnitOrString)
     }
 
     import scala.language.implicitConversions
@@ -470,7 +472,7 @@ class ScalaTestConfigurationProducer extends {
         elem = parent
         parent = parent.getParent
       }
-      var sibling = elem.getPrevSibling
+      var sibling = elem.getPrevSiblingNotWhitespaceComment
       var result: Option[String] = null
 
       val infix: MethodInvocation => Option[String] = {
@@ -487,57 +489,27 @@ class ScalaTestConfigurationProducer extends {
           }
       }
 
-      val call = (call: MethodInvocation) => {
+      val call: MethodInvocation => Option[String] = call => {
         val literal = call.argumentExpressions.head
         endUpWithLiteral(literal)
       }
 
-      val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReferenceExpression(ref: ScReferenceExpression) {
-          ref.refName match {
-            case "should" =>
+      val visitor: ScalaRecursiveElementVisitor = new ScalaRecursiveElementVisitor {
+        private val wordToFqns = Map(
+          "should" -> (infix, Seq(shouldFqn, shouldFqn2)),
+          "must" -> (infix, Seq(mustFqn, mustFqn2)),
+          "can" -> (infix, Seq(canFqn, canFqn2)),
+          "of" -> (call, Seq("org.scalatest.FlatSpec.BehaviorWord"))
+        )
+
+        override def visitReferenceExpression(ref: ScReferenceExpression): Unit =
+          wordToFqns.get(ref.refName) match {
+            case Some((inv, fqns)) =>
               ref.resolve() match {
-                case fun: ScFunction if fun.containingClass != null &&
-                  fun.containingClass.qualifiedName == shouldFqn || fun.containingClass.qualifiedName == shouldFqn2 =>
+                case fun: ScFunction if fun.containingClass != null && fqns.contains(fun.containingClass.qualifiedName) =>
                   if (result == null) {
                     ref.getParent match {
-                      case m: MethodInvocation => result = infix(m)
-                      case _ => result = None
-                    }
-                  }
-                case _ =>
-              }
-            case "must" =>
-              ref.resolve() match {
-                case fun: ScFunction if fun.containingClass != null &&
-                  fun.containingClass.qualifiedName == mustFqn || fun.containingClass.qualifiedName == mustFqn2 =>
-                  if (result == null) {
-                    ref.getParent match {
-                      case m: MethodInvocation => result = infix(m)
-                      case _ => result = None
-                    }
-                  }
-                case _ =>
-              }
-            case "can" =>
-              ref.resolve() match {
-                case fun: ScFunction if fun.containingClass != null &&
-                  fun.containingClass.qualifiedName == canFqn || fun.containingClass.qualifiedName == canFqn2 =>
-                  if (result == null) {
-                    ref.getParent match {
-                      case m: MethodInvocation => result = infix(m)
-                      case _ => result = None
-                    }
-                  }
-                case _ =>
-              }
-            case "of" =>
-              ref.resolve() match {
-                case fun: ScFunction if fun.containingClass != null &&
-                  fun.containingClass.qualifiedName == "org.scalatest.FlatSpec.BehaviorWord" =>
-                  if (result == null) {
-                    ref.getParent match {
-                      case m: MethodInvocation => result = call(m)
+                      case m: MethodInvocation => result = inv(m)
                       case _ => result = None
                     }
                   }
@@ -545,15 +517,16 @@ class ScalaTestConfigurationProducer extends {
               }
             case _ =>
           }
-        }
       }
 
       while (sibling != null && result == null) {
         sibling.accept(visitor)
-        sibling = sibling.getPrevSibling
+        sibling = sibling.getPrevSiblingNotWhitespaceComment
       }
 
-      if (result == null) None
+      // if test starts with 'it' in the beginning of some TestSuite without any `behaviour of` specification
+      // then the test have test class name as a scope
+      if (result == null) Some("")
       else result
     }
 
@@ -638,8 +611,9 @@ class ScalaTestConfigurationProducer extends {
                 innerResult match {
                   case SuccessResult(invoc, tName, middleName) =>
                     call = invoc
-                    testName = tName + " " + middleName + (if (testName.isEmpty) "" else " ") + testName
-                  case WrongResult => return None
+                    testName = (if(tName.isEmpty) "" else tName + " ") + middleName + (if (testName.isEmpty) "" else " ") + testName
+                  case WrongResult =>
+                    return None
                   case _ => call = null
                 }
                 call = invocation
