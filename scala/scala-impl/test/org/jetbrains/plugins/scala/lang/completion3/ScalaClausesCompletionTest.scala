@@ -396,6 +396,52 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, i)"
   )
 
+  def testCompleteClauseBeforeAnother(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach { c$CARET
+         |  case _ =>
+         |}""".stripMargin,
+    resultText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach { case (str, i) => $CARET
+         |case _ =>
+         |}""".stripMargin,
+    itemText = "(str, i)"
+  )
+
+  def testCompleteClauseAfterAnother(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  case _ => c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  case _ =>
+         |  case (str, i) => $CARET
+         |}""".stripMargin,
+    itemText = "(str, i)"
+  )
+
+  def testNoCompleteClause(): Unit = checkNoCompletion(
+    fileText =
+      s"""List.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  case _ | $CARET
+         |}""".stripMargin
+  )(_.getLookupString.startsWith(CASE))
+
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -454,9 +500,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   def testEmptyJavaEnum(): Unit = {
     this.configureJavaFile("public enum EmptyEnum {}", "EmptyEnum")
     checkNoCompletion(
-      fileText = s"(_: EmptyEnum) m$CARET",
-      time = DEFAULT_TIME,
-      completionType = BASIC
+      fileText = s"(_: EmptyEnum) m$CARET"
     )(isExhaustiveMatch)
   }
 
@@ -531,9 +575,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Margin.Margin) m$CARET
-       """.stripMargin,
-    time = DEFAULT_TIME,
-    completionType = BASIC
+       """.stripMargin
   )(isExhaustiveMatch)
 
   def testVarargs(): Unit = doMatchCompletionTest(
@@ -566,9 +608,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Foo) m$CARET
-       """.stripMargin,
-    time = DEFAULT_TIME,
-    completionType = BASIC
+       """.stripMargin
   )(isExhaustiveMatch)
 
   def testMaybe(): Unit = withCaseAlignment {
@@ -836,9 +876,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |(_: Option[Foo]) match {
          |  ca$CARET
          |}
-       """.stripMargin,
-    time = DEFAULT_TIME,
-    completionType = BASIC
+       """.stripMargin
   )(isExhaustiveCase)
 
   private def withCaseAlignment(doTest: => Unit): Unit = {
@@ -890,6 +928,11 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   private def isExhaustiveCase(lookup: LookupElement) =
     isExhaustive(lookup, CASE)
 
-  private def doCompletionTest(fileText: String, resultText: String) =
-    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) _
+  private def doCompletionTest(fileText: String, resultText: String)
+                              (predicate: LookupElement => Boolean): Unit =
+    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(predicate)
+
+  private def checkNoCompletion(fileText: String)
+                               (predicate: LookupElement => Boolean): Unit =
+    checkNoCompletion(fileText, BASIC, DEFAULT_TIME)(predicate)
 }

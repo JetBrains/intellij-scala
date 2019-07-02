@@ -5,12 +5,14 @@ package clauses
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
+import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScBlockExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, result}
@@ -19,7 +21,10 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   import CaseClauseCompletionContributor._
 
-  extend[ScArgumentExprList](
+  extend(
+    leafElement.withParents(classOf[ScReferenceExpression], classOf[ScBlockExpr], classOf[ScArgumentExprList]) ||
+      leafElement.withParents(classOf[ScReferenceExpression], classOf[ScBlock], classOf[ScCaseClause])
+  ) {
     new SingleClauseCompletionProvider[ScBlockExpr] {
 
       override protected def targetType(block: ScBlockExpr): Option[ScType] =
@@ -43,9 +48,9 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
             presentation.appendTailTextItalic(patternText, false)
         }
     }
-  )
+  }
 
-  extend[ScCaseClause](
+  extend() {
     new SingleClauseCompletionProvider[ScStableReferencePattern] {
 
       override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
@@ -69,9 +74,9 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
             presentation.setItemTextItalic(true)
         }
     }
-  )
+  }
 
-  extend[ScCaseClause](
+  extend() {
     new CompletionProvider[CompletionParameters] {
 
       override def addCompletions(parameters: CompletionParameters,
@@ -82,12 +87,11 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         provider <- AotCompletionProvider :: provider :: Nil
       } provider.addCompletions(parameters, context, resultSet)
     }
-  )
+  }
 
-  private def extend[
-    Capture <: ScalaPsiElement : reflect.ClassTag
-  ](provider: CompletionProvider[CompletionParameters]): Unit =
-    extend(CompletionType.BASIC, inside[Capture], provider)
+  private def extend(place: ElementPattern[_ <: PsiElement] = inside[ScCaseClause])
+                    (provider: CompletionProvider[CompletionParameters]): Unit =
+    extend(CompletionType.BASIC, place, provider)
 
 }
 
@@ -95,6 +99,8 @@ object CaseClauseCompletionContributor {
 
   import ExhaustiveMatchCompletionContributor.PatternGenerationStrategy._
   import ScalaPsiElementFactory.createPatternFromTextWithContext
+
+  private def leafElement = PlatformPatterns.psiElement(classOf[LeafPsiElement])
 
   private abstract class SingleClauseCompletionProvider[
     T <: ScalaPsiElement with result.Typeable : reflect.ClassTag
