@@ -17,6 +17,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
     with ScInterpolatedStringLiteral {
 
   import ScInterpolatedStringLiteral._
+  import lang.lexer.ScalaTokenTypes._
 
   override def kind: Kind = referenceNode.getText match {
     case "s" => Standard
@@ -47,11 +48,12 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override def referenceName: String = reference.fold("")(_.refName)
 
-  override def isString: Boolean = true
+  override def isString: Boolean =
+    getNode.getLastChildNode.getElementType == tINTERPOLATED_STRING_END
 
-  override def isMultiLineString: Boolean = {
+  override def isMultiLineString: Boolean = isString && {
     val next = referenceNode.getTreeNext
-    next != null && next.getElementType == lang.lexer.ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
+    next != null && next.getElementType == tINTERPOLATED_MULTILINE_STRING
   }
 
   override protected def startQuote: String = referenceName + super.startQuote
