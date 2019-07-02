@@ -77,16 +77,13 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       element.getPrevSibling != null &&
       TokenSets.INTERPOLATED_PREFIX_TOKEN_SET.contains(element.getPrevSibling.getNode.getElementType)) {
       correctMultilineString(file, editor, element.getParent.getLastChild.getTextOffset)
-    } else if (c == '{') {
-      val settings = ScalaApplicationSettings.getInstance
-      if(settings.UNWRAP_SINGLE_EXPRESSION_BODY || settings.UNWRAP_EMPTY_EXPRESSION_BODY) {
-        handleLeftBrace(offset, element, file, editor)(settings)
-      }
+    } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
+      handleLeftBrace(offset, element, file, editor)
     }
   }
 
   private def correctMultilineString(file: PsiFile, editor: Editor, closingQuotesOffset: Int): Unit = {
-    if(ScalaApplicationSettings.getInstance.REMOVE_MULTILINE_QUOTES) {
+    if(ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES) {
       inWriteAction {
         editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
         //editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //https://youtrack.jetbrains.com/issue/SCL-6490
@@ -102,8 +99,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           element.getPrevSibling.getText == "'")
   }
 
-  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor)
-                             (implicit settings: ScalaApplicationSettings): Unit = {
+  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
     for {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
       if element.isInstanceOf[ScBlockExpr]
@@ -131,12 +127,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
   }
 
-  private def canRemoveClosingBrace(block: ScBlockExpr)(implicit settings: ScalaApplicationSettings): Boolean = {
-    block.statements.size match {
-      case 0 => settings.UNWRAP_EMPTY_EXPRESSION_BODY
-      case 1 => settings.UNWRAP_SINGLE_EXPRESSION_BODY
-      case _ => false
-    }
+  private def canRemoveClosingBrace(block: ScBlockExpr): Boolean = {
+    block.statements.size <= 1
   }
 
   /*
