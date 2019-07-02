@@ -132,8 +132,14 @@ final class ScProjectionType private(val projected: ScType,
           //for this type we shouldn't put this substitutor because of possible recursions
           //and we don't need that, because all types are already calculated with proper this type
           return Some(element, ScSubstitutor.empty)
+        case ScCompoundType(_, _, typesMap) =>
+          typesMap.get(element.name) match {
+            case Some(taSig) => return Some(taSig.typeAlias, taSig.substitutor)
+            case _ =>
+          }
         case _ => //continue with processor :(
       }
+      
 
       val processor = new ResolveProcessor(kinds, resolvePlace, element.name) {
         override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
