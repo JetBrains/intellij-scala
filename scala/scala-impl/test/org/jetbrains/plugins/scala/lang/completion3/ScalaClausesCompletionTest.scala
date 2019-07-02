@@ -194,6 +194,26 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "Foo(foo)"
   )
 
+  def testTuplePattern(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  case tuple@$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  case tuple@(str, i)$CARET
+         |}
+       """.stripMargin,
+    itemText = "(str, i)"
+  )
+
   def testCompleteClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -356,6 +376,24 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case ext: FooExt[_] => $CARET
          |}""".stripMargin,
     itemText = "_: FooExt[_]"
+  )
+
+  def testCompleteTupleClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""List
+         |.empty[String]
+         |.zipWithIndex
+         |.foreach {
+         |  case (str, i) => $CARET
+         |}""".stripMargin,
+    itemText = "(str, i)"
   )
 
   def testSealedTrait(): Unit = doMatchCompletionTest(

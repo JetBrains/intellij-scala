@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, result}
 
@@ -51,10 +51,10 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
       override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
         pattern.expectedType
 
-      override protected def findInheritors(definition: ScTypeDefinition): Some[Inheritors] =
-        super.findInheritors(definition) match {
-          case Some(value) => Some(value)
-          case _ => Some(Inheritors(Seq(definition)))
+      override protected def findTargetDefinitions(definition: ScTypeDefinition): List[ScTypeDefinition] =
+        super.findTargetDefinitions(definition) match {
+          case Nil => definition :: Nil
+          case list => list
         }
 
       override protected def createLookupElement(patternText: String,
@@ -102,16 +102,9 @@ object CaseClauseCompletionContributor {
 
     override final protected def addCompletions(typeable: T, result: CompletionResultSet)
                                                (implicit place: PsiElement): Unit = for {
-      api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toSeq
-      Inheritors(namedInheritors, _) <- findInheritors(typeDefinition)
+      scType@api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toList
+      components <- createComponents(scType, typeDefinition)
 
-      inheritor <- namedInheritors
-      components = inheritor match {
-        case scalaObject: ScObject => new StablePatternComponents(scalaObject)
-        case SyntheticExtractorPatternComponents(components) => components
-        case PhysicalExtractorPatternComponents(components) => components
-        case definition => new TypedPatternComponents(definition)
-      }
       lookupElement = createLookupElement(
         components.presentablePatternText(),
         components
@@ -120,12 +113,29 @@ object CaseClauseCompletionContributor {
 
     protected def targetType(typeable: T): Option[ScType]
 
-    protected def findInheritors(definition: ScTypeDefinition): Option[Inheritors] =
-      SealedDefinition.unapply(definition)
+    protected def findTargetDefinitions(definition: ScTypeDefinition): List[ScTypeDefinition] =
+      definition match {
+        case SealedDefinition(Inheritors(namedInheritors, _)) => namedInheritors
+        case _ => Nil
+      }
 
     protected def createLookupElement(patternText: String,
                                       components: ClassPatternComponents[_])
                                      (implicit place: PsiElement): LookupElement
+
+    private def createComponents(`type`: ScType, typeDefinition: ScTypeDefinition)
+                                (implicit place: PsiElement): List[ClassPatternComponents[_]] =
+      (`type`, typeDefinition) match {
+        case (api.TupleType(types), tupleClass: ScClass) =>
+          new TuplePatternComponents(tupleClass, types) :: Nil
+        case _ =>
+          findTargetDefinitions(typeDefinition).map {
+            case scalaObject: ScObject => new StablePatternComponents(scalaObject)
+            case CaseClassPatternComponents(components) => components
+            case PhysicalExtractorPatternComponents(components) => components
+            case definition => new TypedPatternComponents(definition)
+          }
+      }
   }
 
   private final object AotCompletionProvider extends aot.CompletionProvider[ScTypedPattern] {

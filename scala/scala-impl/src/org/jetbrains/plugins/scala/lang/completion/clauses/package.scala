@@ -30,7 +30,7 @@ package object clauses {
       .withInsertHandler(insertHandler)
       .withRenderer(presentation)
 
-  private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
+  private[clauses] case class Inheritors(namedInheritors: List[ScTypeDefinition],
                                          isInstantiatiable: Boolean = false)
 
   private[clauses] object SealedDefinition {
@@ -46,7 +46,7 @@ package object clauses {
       }
 
       Some(Inheritors(
-        namedInheritors.asInstanceOf[Seq[ScTypeDefinition]],
+        namedInheritors.asInstanceOf[List[ScTypeDefinition]],
         isInstantiatiable = isConcreteClass || anonymousInheritors.nonEmpty
       ))
     } else None
@@ -57,8 +57,9 @@ package object clauses {
         .search(definition, definition.getContainingFile.getResolveScope)
         .findAll()
         .asScala
-        .toSeq
+        .toIndexedSeq
         .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
+        .toList
     }
   }
 
