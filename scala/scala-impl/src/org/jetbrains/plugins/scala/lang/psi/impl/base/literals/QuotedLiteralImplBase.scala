@@ -45,7 +45,7 @@ abstract class QuotedLiteralImplBase(node: ASTNode,
 
 object QuotedLiteralImplBase {
 
-  private[base] val CharQuote = "\'"
-  private[base] val SingleLineQuote = "\""
-  private[base] val MultiLineQuote = "\"\"\""
+  private[psi] val CharQuote = "\'"
+  private[psi] val SingleLineQuote = "\""
+  private[psi] val MultiLineQuote = "\"\"\""
 }
