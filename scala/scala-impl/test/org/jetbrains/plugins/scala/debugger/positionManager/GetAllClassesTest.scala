@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
@@ -48,6 +48,10 @@ abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
       "packageObject.package$",
       "packageObject.package$"
     )
+  }
+
+  override def testPartialFunctions(): Unit = {
+    checkGetAllClasses("PartialFunctions$$anonfun$foo$2")
   }
 }
 
@@ -377,5 +381,26 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     """.stripMargin.trim)
   def testValueClass(): Unit = {
     checkGetAllClasses("ValueClass$Wrapper$")
+  }
+
+  setupFile("PartialFunctions.scala",
+  s"""
+      |object PartialFunctions {
+      |  def main(args: Array[String]): Unit = {
+      |    foo()
+      |    foo()
+      |  }
+      |  def foo(): Unit = {
+      |    println("foo")
+      |    Seq(1).map(x => x * 2)       // ANOTHER LAMBDA
+      |    Seq(1).collect { case el =>
+      |      println(s"collect")$bp
+      |      42$offsetMarker
+      |    }
+      |  }
+      |}
+      |""".stripMargin)
+  def testPartialFunctions(): Unit = {
+    checkGetAllClasses("PartialFunctions$$anonfun$foo$1")
   }
 }
