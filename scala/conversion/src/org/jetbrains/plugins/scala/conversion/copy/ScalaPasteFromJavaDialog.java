@@ -6,6 +6,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import javax.swing.*;
@@ -32,6 +33,16 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
         setTitle("Convert Code from Java");
         lable1.setText(message);
         init();
+    }
+
+    public static boolean showAndGet(String reason, Project project) {
+        ScalaProjectSettings projectSettings = ScalaProjectSettings.getInstance(project);
+        return projectSettings.isDontShowConversionDialog() ||
+                new ScalaPasteFromJavaDialog(
+                        project,
+                        projectSettings,
+                        ScalaConversionBundle.message("scala.copy.from", reason)
+                ).showAndGet();
     }
 
     protected JComponent createCenterPanel() {
