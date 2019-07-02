@@ -34,14 +34,14 @@ class StringLiteralBackspaceActionTest extends ScalaBackspaceHandlerBaseTest {
     s"""s$DoubleQuotes$CARET"""
   )
 
-  // Multiline Not Remove
+  // Multiline Not Remove if setting is disabled
   private def doTestNotRemove(before: String, after: String): Unit = {
-    val settingBefore = ScalaApplicationSettings.getInstance.REMOVE_MULTILINE_QUOTES
-    ScalaApplicationSettings.getInstance.REMOVE_MULTILINE_QUOTES = false
+    val settingBefore = ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES
+    ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES = false
     try {
       super.doTest(before, after)
     } finally {
-      ScalaApplicationSettings.getInstance.REMOVE_MULTILINE_QUOTES = settingBefore
+      ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES = settingBefore
     }
   }
 

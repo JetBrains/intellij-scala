@@ -46,11 +46,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION = true;
 
   public boolean INSERT_MULTILINE_QUOTES = true;
-  public boolean REMOVE_MULTILINE_QUOTES = true;
 
   public boolean WRAP_SINGLE_EXPRESSION_BODY = true;
-  public boolean UNWRAP_SINGLE_EXPRESSION_BODY = true;
-  public boolean UNWRAP_EMPTY_EXPRESSION_BODY = true;
 
   public boolean MOVE_COMPANION = true;
 

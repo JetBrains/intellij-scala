@@ -753,52 +753,29 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
   }
 
   def testApplicationSettingShouldDisableUnwrapping(): Unit = {
-    val beforeSingle =
+    val before =
       s"""def foo = {$CARET
          |  42
          |}
          |""".stripMargin
-    val afterSingleWithEnabled =
+    val afterWithEnabled =
       s"""def foo = $CARET
          |  42
          |""".stripMargin
-    val afterSingleWithDisabled =
+    val afterWithDisabled =
       s"""def foo = $CARET
          |  42
-         |}
-         |""".stripMargin
-
-    val beforeEmpty =
-      s"""def foo = {$CARET
-         |}
-         |""".stripMargin
-    val afterEmptyWithEnabled =
-      s"""def foo = $CARET
-         |""".stripMargin
-    val afterEmptyWithDisabled =
-      s"""def foo = $CARET
          |}
          |""".stripMargin
 
     val settings = ScalaApplicationSettings.getInstance
-    val settingBefore1 = settings.UNWRAP_SINGLE_EXPRESSION_BODY
-    val settingBefore2 = settings.UNWRAP_EMPTY_EXPRESSION_BODY
+    val settingBefore = settings.WRAP_SINGLE_EXPRESSION_BODY
     try {
-      doTest(beforeSingle, afterSingleWithEnabled)
-      doTest(beforeEmpty, afterEmptyWithEnabled)
-
-      settings.UNWRAP_SINGLE_EXPRESSION_BODY = false
-      settings.UNWRAP_EMPTY_EXPRESSION_BODY = true
-      doTest(beforeSingle, afterSingleWithDisabled)
-      doTest(beforeEmpty, afterEmptyWithEnabled)
-
-      settings.UNWRAP_SINGLE_EXPRESSION_BODY = true
-      settings.UNWRAP_EMPTY_EXPRESSION_BODY = false
-      doTest(beforeSingle, afterSingleWithEnabled)
-      doTest(beforeEmpty, afterEmptyWithDisabled)
+      doTest(before, afterWithEnabled)
+      settings.WRAP_SINGLE_EXPRESSION_BODY = false
+      doTest(before, afterWithDisabled)
     } finally {
-      settings.UNWRAP_SINGLE_EXPRESSION_BODY = settingBefore1
-      settings.UNWRAP_EMPTY_EXPRESSION_BODY = settingBefore2
+      settings.WRAP_SINGLE_EXPRESSION_BODY = settingBefore
     }
   }
 
