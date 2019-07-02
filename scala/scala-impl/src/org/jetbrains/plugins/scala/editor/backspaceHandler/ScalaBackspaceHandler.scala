@@ -64,7 +64,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         }
       }
     } else if (element.getNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING && offset - element.getTextOffset == 3) {
-      correctMultilineString(file, editor, element.getTextOffset + element.getTextLength - 3)
+      correctMultilineString(file, editor, offset, element.getTextOffset + element.getTextLength - 3)
     } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER && element.getNextSibling != null &&
       element.getNextSibling.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
       inWriteAction {
@@ -75,15 +75,17 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       element.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
       element.getParent.getLastChild.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
       element.getPrevSibling != null &&
-      TokenSets.INTERPOLATED_PREFIX_TOKEN_SET.contains(element.getPrevSibling.getNode.getElementType)) {
-      correctMultilineString(file, editor, element.getParent.getLastChild.getTextOffset)
+      TokenSets.INTERPOLATED_PREFIX_TOKEN_SET.contains(element.getPrevSibling.getNode.getElementType)
+    ) {
+      correctMultilineString(file, editor, offset, element.getParent.getLastChild.getTextOffset)
     } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element, file, editor)
     }
   }
 
-  private def correctMultilineString(file: PsiFile, editor: Editor, closingQuotesOffset: Int): Unit = {
-    if(ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES) {
+  private def correctMultilineString(file: PsiFile, editor: Editor, offset: Int, closingQuotesOffset: Int): Unit = {
+    val stingIsEmpty = closingQuotesOffset == offset
+    if(stingIsEmpty && ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES) {
       inWriteAction {
         editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
         //editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //https://youtrack.jetbrains.com/issue/SCL-6490
