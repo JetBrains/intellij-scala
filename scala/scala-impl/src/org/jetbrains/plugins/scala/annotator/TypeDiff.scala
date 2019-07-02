@@ -75,7 +75,7 @@ object TypeDiff {
     }
 
     (tpe1, tpe2) match {
-      case (ParameterizedType(d1, Seq(l1, r1)), ParameterizedType(d2, Seq(l2, r2))) if isInfix(d1) && isInfix(d2) =>
+      case (InfixType(l1, d1, r1), InfixType(l2, d2, r2)) =>
         val (v1, v2) = d1.extractDesignated(expandAliases = false) match {
           case Some(aClass: ScClass) => aClass.typeParameters match {
             case Seq(p1, p2) => (p1.variance, p2.variance)
@@ -123,11 +123,18 @@ object TypeDiff {
 
   private def reversed(implicit conformance: Conformance): Conformance = (t1: ScType, t2: ScType) => conformance(t2, t1)
 
-  private def isInfix(designatorType: ScType) = {
-    val designator = designatorType.extractDesignated(expandAliases = false)
-    designator.exists(it => ScalaNamesUtil.isOperatorName(it.name)) || designator.exists {
-      case aClass: PsiClass => aClass.getAnnotations.map(_.getQualifiedName).contains("scala.annotation.showAsInfix")
-      case _ => false
+  // TODO Move to ParameterizedType.scala / FunctionType.scala?
+  private object InfixType {
+    def unapply(tpe: ScType): Option[(ScType, ScType, ScType)] = Some(tpe) collect {
+      case ParameterizedType(d, Seq(l, r)) if isInfix(d) => (l, d, r)
+    }
+
+    private def isInfix(designatorType: ScType) = {
+      val designator = designatorType.extractDesignated(expandAliases = false)
+      designator.exists(it => ScalaNamesUtil.isOperatorName(it.name)) || designator.exists {
+        case aClass: PsiClass => aClass.getAnnotations.map(_.getQualifiedName).contains("scala.annotation.showAsInfix")
+        case _ => false
+      }
     }
   }
 }
