@@ -5,6 +5,7 @@ package plainText
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
 
+import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
@@ -26,13 +27,16 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
   import ConverterUtil._
 
   override protected def extractTransferableDataImpl(content: Transferable): Option[AnyRef] = {
-    def existsAssignable(flavors: Seq[DataFlavor]): Boolean = flavors
-      .map(_.getRepresentationClass)
-      .exists(classOf[ConvertedCode].isAssignableFrom)
+    def hasTextBlockTransferableData(content: Transferable) =
+      content.getTransferDataFlavors
+        .map(_.getRepresentationClass)
+        .exists(classOf[TextBlockTransferableData].isAssignableFrom)
 
-    if (ApplicationManager.getApplication.isUnitTestMode &&
-      !TextJavaCopyPastePostProcessor.insideIde ||
-      !existsAssignable(content.getTransferDataFlavors)) {
+    val isPlainTextCopy =
+      ApplicationManager.getApplication.isUnitTestMode && !TextJavaCopyPastePostProcessor.insideIde ||
+        !hasTextBlockTransferableData(content)
+
+    if (isPlainTextCopy) {
       super.extractTransferableDataImpl(content).map { text =>
         ConvertedCode(text = text.asInstanceOf[String])
       }
@@ -44,7 +48,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
                                       (implicit project: Project,
                                                  editor: Editor,
                                                  file: ScalaFile): Unit = {
-    implicit val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
+    val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     if (!settings.isEnableJavaToScalaConversion) return
 
     val ConvertedCode(_, text, _) = value
@@ -55,7 +59,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
     // TODO: Collect available imports in current scope. Use them while converting
     computejavaContext(text).foreach { javaCodeWithContext =>
 
-      if (shownDialog(ScalaConversionBundle.message("scala.copy.from.text"))) {
+      if (ScalaPasteFromJavaDialog.showAndGet(ScalaConversionBundle.message("scala.copy.from.text"), project)) {
         Stats.trigger(FeatureKey.convertFromJavaText)
 
         extensions.inWriteAction {
