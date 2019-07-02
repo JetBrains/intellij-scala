@@ -227,4 +227,19 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
       Error("1", "Type mismatch, expected: String, actual: Int"))
   }
 
+  // Don't show type mismatch on a term followed by a dot ("= Math."), SCL-15754
+
+  def testTypeMismatchDot1(): Unit = {
+    assertNothing(errorsFromScalaCode("val v: String = Math."))
+  }
+
+  def testTypeMismatchDot2(): Unit = {
+    assertNothing(errorsFromScalaCode("val v: String = Math\n."))
+  }
+
+  def testTypeMismatchDot3(): Unit = {
+    assertNothing(errorsFromScalaCode("val v: String = Math\n  ."))
+  }
+
+  // TODO val v = method, SCL-15663
 }
