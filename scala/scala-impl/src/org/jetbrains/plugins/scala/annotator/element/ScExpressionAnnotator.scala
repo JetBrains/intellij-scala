@@ -128,15 +128,15 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               }
               if (WrapInOptionQuickFix.isAvailable(element, expectedType, exprType)) {
                 val wrapInOptionFix = new WrapInOptionQuickFix(element, expectedType, exprType)
-                annotation.registerFix(wrapInOptionFix)
+                annotation.foreach(_.registerFix(wrapInOptionFix))
               }
               if (AddBreakoutQuickFix.isAvailable(element)) {
-                annotation.registerFix(new AddBreakoutQuickFix(element))
+                annotation.foreach(_.registerFix(new AddBreakoutQuickFix(element)))
               }
               typeElement match {
                 case Some(te) if te.getContainingFile == element.getContainingFile =>
                   val fix = new ChangeTypeFix(te, exprType.getOrNothing)
-                  annotation.registerFix(fix)
+                  annotation.foreach(_.registerFix(fix))
                   val teAnnotation = annotationWithoutHighlighting(te)
                   teAnnotation.registerFix(fix)
                 case _ =>
