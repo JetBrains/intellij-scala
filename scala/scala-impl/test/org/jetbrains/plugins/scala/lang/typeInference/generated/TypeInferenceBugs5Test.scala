@@ -1107,4 +1107,34 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   }
 
   def testSCL6008(): Unit = doTest()
+
+  def testSCL15739(): Unit = doTest {
+    s"""
+       |trait Element { self =>
+       |  type T
+       |  def *(other: Element { type T = self.T }): Element { type T = self.T } = ???
+       |}
+       |case class Column() extends Element
+       |
+       |class Columns {
+       |  def value: Column { type T = Double } = ???
+       |}
+       |
+       |class Builder[T] {
+       |  def select(element: T => Element): Builder[T] = ???
+       |}
+       |
+       |case class Constant[T0]() extends Element {
+       |  override type T = T0
+       |}
+       |
+       |object MCVE {
+       |  def create[T](shape: T): Builder[T] = ???
+       |
+       |  implicit def toConstant[T](s: T): Constant[T] = ???
+       |  ${START}create(new Columns).select(r => (r.value * r.value) * r.value)$END
+       |}
+       |//Builder[Columns]
+       |""".stripMargin
+  }
 }
