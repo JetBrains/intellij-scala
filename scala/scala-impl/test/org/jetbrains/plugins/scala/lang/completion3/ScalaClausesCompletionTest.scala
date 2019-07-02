@@ -218,28 +218,28 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   def testCompleteClauseFormatting(): Unit = withCaseAlignment {
     doClauseCompletionTest(
-        fileText =
-          s"""sealed trait Foo
-             |
-             |final case class Bar() extends Foo
-             |final case class BarBaz() extends Foo
-             |
-             |Option.empty[Foo].map {
-             |  c$CARET
-             |  case Bar() => println( 42 ) // rhs should not to be formatted
-             |}""".stripMargin,
-        resultText =
-          s"""sealed trait Foo
-             |
-             |final case class Bar() extends Foo
-             |final case class BarBaz() extends Foo
-             |
-             |Option.empty[Foo].map {
-             |  case BarBaz() => $CARET
-             |  case Bar()    => println( 42 ) // rhs should not to be formatted
-             |}""".stripMargin,
-        itemText = "BarBaz()"
-      )
+      fileText =
+        s"""sealed trait Foo
+           |
+           |final case class Bar() extends Foo
+           |final case class BarBaz() extends Foo
+           |
+           |Option.empty[Foo].map {
+           |  c$CARET
+           |  case Bar() => println( 42 ) // rhs should not to be formatted
+           |}""".stripMargin,
+      resultText =
+        s"""sealed trait Foo
+           |
+           |final case class Bar() extends Foo
+           |final case class BarBaz() extends Foo
+           |
+           |Option.empty[Foo].map {
+           |  case BarBaz() => $CARET
+           |  case Bar()    => println( 42 ) // rhs should not to be formatted
+           |}""".stripMargin,
+      itemText = "BarBaz()"
+    )
   }
 
   def testCompleteObjectClause(): Unit = doClauseCompletionTest(
@@ -812,7 +812,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       settings.ALIGN_IN_COLUMNS_CASE_BRANCH = true
       doTest
     } finally {
-      settings.ALIGN_IN_COLUMNS_CASE_BRANCH = false
+      settings.ALIGN_IN_COLUMNS_CASE_BRANCH = oldValue
     }
   }
 
