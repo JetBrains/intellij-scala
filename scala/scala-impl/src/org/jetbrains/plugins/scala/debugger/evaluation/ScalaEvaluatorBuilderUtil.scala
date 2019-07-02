@@ -1458,7 +1458,7 @@ object ScalaEvaluatorBuilderUtil {
 
   def isGenerateClass(elem: PsiElement): Boolean = {
     if (ScalaPositionManager.isCompiledWithIndyLambdas(elem.getContainingFile))
-      isGenerateNonAnonfunClass(elem) || isAnonfunInsideSuperCall(elem)
+      isGenerateNonAnonfunClass(elem) || isPartialFunction(elem) || isAnonfunInsideSuperCall(elem)
     else isGenerateNonAnonfunClass(elem) || isGenerateAnonfun(elem)
   }
 
@@ -1517,7 +1517,6 @@ object ScalaEvaluatorBuilderUtil {
       elem match {
         case _: ScFunctionExpr => true
         case (_: ScExpression) childOf (_: ScFor) => true
-        case (_: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
         case (_: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
         case _: ScForBinding => true
@@ -1525,7 +1524,12 @@ object ScalaEvaluatorBuilderUtil {
       }
     }
 
-    isGenerateAnonfunSimple || isGenerateAnonfunWithCache
+    isGenerateAnonfunSimple || isPartialFunction(elem) || isGenerateAnonfunWithCache
+  }
+
+  def isPartialFunction(elem: PsiElement): Boolean = elem match {
+    case (_: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
+    case _ => false
   }
 
   def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
