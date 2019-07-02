@@ -607,7 +607,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def tesRemove_ForStatement_WithBraces_SingleExpression(): Unit = {
+  def testRemove_ForStatement_WithBraces_SingleExpression(): Unit = {
     val before =
       s"""for { _ <- Seq() } {$CARET
          |  obj.method()
@@ -704,7 +704,8 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_EmptyFunctionWithExplicitUnitType(): Unit = {
+  // Empty body
+  def testRemove_EmptyFunctionBody_WithType(): Unit = {
     val before =
       s"""def foo(name: String): Unit = {$CARET
          |
@@ -717,30 +718,35 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_EmptyFunctionWithImpliedUnitType(): Unit = {
+  def testRemove_EmptyFunctionBody_WithoutType(): Unit = {
     val before =
       s"""def foo(name: String) = {$CARET
-         |
          |}
          |""".stripMargin
     val after =
       s"""def foo(name: String) = $CARET
-         |
          |""".stripMargin
     doTest(before, after)
   }
 
-  def testNotRemove_EmptyFunctionWithNonUnitType(): Unit = {
+  def testRemove_TryCathBlock_EmptyBody(): Unit = {
     val before =
-      s"""def foo(name: String): Int = {$CARET
-         |
+      s"""class A {
+         |  try {$CARET
+         |  } catch {
+         |    case _ =>
+         |  }
          |}
-         |""".stripMargin
+      """.stripMargin
     val after =
-      s"""def foo(name: String): Int = $CARET
-         |
+      s"""class A {
+         |  try $CARET
+         |  catch {
+         |    case _ =>
+         |  }
          |}
-         |""".stripMargin
+      """.stripMargin
+
     doTest(before, after)
   }
 

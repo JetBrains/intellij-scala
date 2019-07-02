@@ -129,16 +129,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   }
 
   private def canRemoveClosingBrace(block: ScBlockExpr): Boolean = {
-    block.statements.size match {
-      case 0 =>
-        block.getParent match {
-          case fun: ScFunctionDefinition =>
-            fun.returnTypeElement.forall(_.getText == "Unit")
-          case _ => false
-        }
-      case 1 => true
-      case _ => false
-    }
+    block.statements.size <= 1
   }
 
   /*
