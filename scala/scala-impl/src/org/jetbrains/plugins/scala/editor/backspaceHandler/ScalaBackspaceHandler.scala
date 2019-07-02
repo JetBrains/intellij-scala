@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTyp
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -78,8 +77,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       element.getPrevSibling != null &&
       TokenSets.INTERPOLATED_PREFIX_TOKEN_SET.contains(element.getPrevSibling.getNode.getElementType)) {
       correctMultilineString(file, editor, element.getParent.getLastChild.getTextOffset)
-    } else if (c == '{' && CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET) {
-      handleLeftBrace(offset, element, file, editor)
+    } else if (c == '{') {
+      val settings = ScalaApplicationSettings.getInstance
+      if(settings.UNWRAP_SINGLE_EXPRESSION_BODY || settings.UNWRAP_EMPTY_EXPRESSION_BODY) {
+        handleLeftBrace(offset, element, file, editor)(settings)
+      }
     }
   }
 
@@ -100,7 +102,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           element.getPrevSibling.getText == "'")
   }
 
-  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
+  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor)
+                             (implicit settings: ScalaApplicationSettings): Unit = {
     for {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
       if element.isInstanceOf[ScBlockExpr]
@@ -128,8 +131,12 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
   }
 
-  private def canRemoveClosingBrace(block: ScBlockExpr): Boolean = {
-    block.statements.size <= 1
+  private def canRemoveClosingBrace(block: ScBlockExpr)(implicit settings: ScalaApplicationSettings): Boolean = {
+    block.statements.size match {
+      case 0 => settings.UNWRAP_EMPTY_EXPRESSION_BODY
+      case 1 => settings.UNWRAP_SINGLE_EXPRESSION_BODY
+      case _ => false
+    }
   }
 
   /*

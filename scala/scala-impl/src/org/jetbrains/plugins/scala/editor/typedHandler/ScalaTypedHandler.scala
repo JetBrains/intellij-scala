@@ -179,7 +179,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '>' && scalaSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       Result.STOP
-    } else if (c == '{' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+    } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element)
     } else {
       beforeCharTypedForEmptyElementAtOffset(c, offset, prevElement, Some(elementType))
@@ -194,7 +194,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
    */
   private def beforeCharTypedForEmptyElementAtOffset(c: Char, offset: Int, prevElement: PsiElement, elementType: Option[IElementType])
                                                     (implicit editor: Editor, project: Project): Result = {
-    if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance().INSERT_MULTILINE_QUOTES) {
+    if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES) {
       tryCompleteMultiline(offset, prevElement, elementType)
       Result.CONTINUE
     } else {

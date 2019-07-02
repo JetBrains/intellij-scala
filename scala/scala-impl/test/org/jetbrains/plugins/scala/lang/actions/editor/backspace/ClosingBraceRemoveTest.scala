@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
 /** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]]*/
 class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
@@ -749,5 +751,56 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
     doTest(before, after)
   }
+
+  def testApplicationSettingShouldDisableUnwrapping(): Unit = {
+    val beforeSingle =
+      s"""def foo = {$CARET
+         |  42
+         |}
+         |""".stripMargin
+    val afterSingleWithEnabled =
+      s"""def foo = $CARET
+         |  42
+         |""".stripMargin
+    val afterSingleWithDisabled =
+      s"""def foo = $CARET
+         |  42
+         |}
+         |""".stripMargin
+
+    val beforeEmpty =
+      s"""def foo = {$CARET
+         |}
+         |""".stripMargin
+    val afterEmptyWithEnabled =
+      s"""def foo = $CARET
+         |""".stripMargin
+    val afterEmptyWithDisabled =
+      s"""def foo = $CARET
+         |}
+         |""".stripMargin
+
+    val settings = ScalaApplicationSettings.getInstance
+    val settingBefore1 = settings.UNWRAP_SINGLE_EXPRESSION_BODY
+    val settingBefore2 = settings.UNWRAP_EMPTY_EXPRESSION_BODY
+    try {
+      doTest(beforeSingle, afterSingleWithEnabled)
+      doTest(beforeEmpty, afterEmptyWithEnabled)
+
+      settings.UNWRAP_SINGLE_EXPRESSION_BODY = false
+      settings.UNWRAP_EMPTY_EXPRESSION_BODY = true
+      doTest(beforeSingle, afterSingleWithDisabled)
+      doTest(beforeEmpty, afterEmptyWithEnabled)
+
+      settings.UNWRAP_SINGLE_EXPRESSION_BODY = true
+      settings.UNWRAP_EMPTY_EXPRESSION_BODY = false
+      doTest(beforeSingle, afterSingleWithEnabled)
+      doTest(beforeEmpty, afterEmptyWithDisabled)
+    } finally {
+      settings.UNWRAP_SINGLE_EXPRESSION_BODY = settingBefore1
+      settings.UNWRAP_EMPTY_EXPRESSION_BODY = settingBefore2
+    }
+  }
+
 
 }
