@@ -93,7 +93,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   }
 
   protected def preprocessTasks(): String = if (!getUseSbtShell || getTasks.trim.startsWith(";")) getTasks else {
-    val commands = ParametersListUtil.parse(getTasks, true).asScala
+    val commands = ParametersListUtil.parse(getTasks, false).asScala
     if (commands.length == 1) commands.head else commands.mkString(";", " ;", "")
   }
 }
