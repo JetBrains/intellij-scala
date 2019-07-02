@@ -19,7 +19,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   import ScInterpolatedStringLiteral._
   import lang.lexer.ScalaTokenTypes._
 
-  override def kind: Kind = referenceNode.getText match {
+  override def kind: Kind = referenceText match {
     case "s" => Standard
     case "f" => Format
     case "id" => Pattern
@@ -38,7 +38,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
       case _ => mc.getNonValueType()
     }
     case Some(expr) => expr.getNonValueType()
-    case _ => Failure(s"Cannot find method ${referenceNode.getText} of StringContext")
+    case _ => Failure(s"Cannot find method $referenceText of StringContext")
   }
 
   override def reference: Option[ScReferenceExpression] = getFirstChild match {
@@ -56,9 +56,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
     next != null && next.getElementType == tINTERPOLATED_MULTILINE_STRING
   }
 
-  override protected def startQuote: String = referenceName + super.startQuote
+  override protected def startQuote: String = referenceText + super.startQuote
 
   override protected def endQuote: String = super.startQuote
-
-  private def referenceNode = getNode.getFirstChildNode
 }

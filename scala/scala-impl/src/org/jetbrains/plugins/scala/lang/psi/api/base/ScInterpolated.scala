@@ -4,15 +4,13 @@ package psi
 package api
 package base
 
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-
-import scala.collection.mutable.ListBuffer
 
 /**
  * @author kfeodorov
@@ -21,10 +19,15 @@ import scala.collection.mutable.ListBuffer
 trait ScInterpolated extends ScalaPsiElement {
 
   import QuotedLiteralImplBase._
+  import lexer.ScalaTokenTypes._
 
   def isMultiLineString: Boolean
 
   def isString: Boolean
+
+  protected final def referenceNode: ASTNode = getNode.getFirstChildNode
+
+  protected final def referenceText: String = referenceNode.getText
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = getContext match {
@@ -32,58 +35,46 @@ trait ScInterpolated extends ScalaPsiElement {
     case _ if !isString => None
     case context =>
       val quote = if (isMultiLineString) MultiLineQuote else SingleLineQuote
-      val partsString = getStringParts.mkString(quote, s"$quote, $quote", quote) // making list of string literals
 
-      val params = getInjections.map(_.getText).mkString("(", ",", ")")
+      val constructorParameters = getStringParts.map(quote + _ + quote)
+        .commaSeparated(Model.Parentheses)
+      val methodParameters = getInjections.map(_.getText)
+        .commaSeparated(Model.Parentheses)
 
       val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
-        s"_root_.scala.StringContext($partsString).${getFirstChild.getText}$params",
+        s"_root_.scala.StringContext$constructorParameters.$referenceText$methodParameters",
         context,
-        ScInterpolated.this
+        this
       )
       Some(expression)
   }
 
   def getInjections: Seq[ScExpression] =
-    getNode.getChildren(null).flatMap {
-      _.getPsi match {
-        case expression: ScBlockExpr => Some(expression)
-        case _: ScInterpolatedStringPartReference |
-             _: ScInterpolatedPrefixReference => None
-        case expression: ScReferenceExpression => Some(expression)
-        case _ => None
-      }
-    }
+    getChildren.toSeq.filter {
+      case _: ScBlockExpr => true
+      case _: ScInterpolatedStringPartReference |
+           _: ScInterpolatedPrefixReference => false
+      case _: ScReferenceExpression => true
+      case _ => false
+    }.asInstanceOf[Seq[ScExpression]]
 
-  def getStringParts: Seq[String] = {
-    val childNodes = this.children.map(_.getNode)
-    val result = ListBuffer[String]()
-    val emptyString = ""
-    for {
-      child <- childNodes
-    } {
-      child.getElementType match {
-        case ScalaTokenTypes.tINTERPOLATED_STRING =>
-          child.getText.headOption match {
-            case Some('"') => result += child.getText.substring(1)
-            case Some(_) => result += child.getText
-            case None => result += emptyString
-          }
-        case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
-          child.getText match {
-            case s if s.startsWith("\"\"\"") => result += s.substring(3)
-            case s: String => result += s
-            case _ => result += emptyString
-          }
-        case ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION | ScalaTokenTypes.tINTERPOLATED_STRING_END =>
-          val prev = child.getTreePrev
-          if (prev != null) prev.getElementType match {
-            case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>
-            case _ => result += emptyString //insert empty string between injections
-          }
-        case _ =>
-      }
+  def getStringParts: Seq[String] = for {
+    child <- getNode.getChildren(null)
+
+    part = child.getElementType match {
+      case `tINTERPOLATED_STRING` => child.getText.stripPrefix(SingleLineQuote)
+      case `tINTERPOLATED_MULTILINE_STRING` => child.getText.stripPrefix(MultiLineQuote)
+      case `tINTERPOLATED_STRING_INJECTION` | `tINTERPOLATED_STRING_END` =>
+        child.getTreePrev match {
+          case null => null
+          case prev =>
+            prev.getElementType match {
+              case `tINTERPOLATED_MULTILINE_STRING` | `tINTERPOLATED_STRING` => null
+              case _ => "" //insert empty string between injections
+            }
+        }
+      case _ => null
     }
-    result.toVector
-  }
+    if part != null
+  } yield part
 }

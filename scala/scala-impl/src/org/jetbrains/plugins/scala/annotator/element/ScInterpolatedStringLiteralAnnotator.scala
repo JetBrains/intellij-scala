@@ -5,69 +5,72 @@ package element
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{AnnotationHolder, AnnotationSession}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScInterpolated}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
-
-import scala.collection.mutable
 
 object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpolatedStringLiteral] {
 
-  override def annotate(element: ScInterpolatedStringLiteral, typeAware: Boolean)
-                       (implicit holder: AnnotationHolder): Unit = {
-    if (element.getFirstChild == null) return
+  override def annotate(literal: ScInterpolatedStringLiteral, typeAware: Boolean)
+                       (implicit holder: AnnotationHolder): Unit = literal.reference match {
+    case Some(partReference: ScInterpolatedStringPartReference) =>
+      partReference match {
+        case Resolved(resolveResult) =>
+          usageTracker.UsageTracker
+            .registerUsedImports(partReference, resolveResult)
 
-    val ref = element.findReferenceAt(0) match {
-      case r: ScInterpolatedStringPartReference => r
-      case _ => return
-    }
-    val prefix = element.getFirstChild
-    val injections = element.getInjections
+          literal.getStringContextExpression match {
+            case Some(call@ScMethodCall(reference: ScReferenceExpression, _)) =>
+              val offsetToRange = createOffsetToRangeMap(literal.getInjections.iterator)
+                .withDefaultValue(partReference.getTextRange)
 
-    def annotateBadPrefix(key: String) {
-      val annotation = holder.createErrorAnnotation(prefix.getTextRange,
-        ScalaBundle.message(key, prefix.getText))
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-    }
-
-    def annotateDesugared(): Unit = {
-      val elementsMap = mutable.HashMap[Int, PsiElement]()
-      val params = new mutable.StringBuilder("(")
-
-      injections.foreach { i =>
-        elementsMap += params.length -> i
-        params.append(i.getText).append(",")
+              annotateDesugared(
+                reference,
+                offsetToRange,
+                new AnnotationSession(call.getContainingFile)
+              )
+            case _ =>
+          }
+        case _ =>
+          holder.createErrorAnnotation(
+            partReference.getTextRange,
+            ScalaBundle.message("cannot.resolve.in.StringContext", partReference.refName)
+          ).setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       }
-      if (injections.nonEmpty) params.setCharAt(params.length - 1, ')') else params.append(')')
-
-      val (expr, ref, shift) = element.getStringContextExpression match {
-        case Some(mc @ ScMethodCall(invoked: ScReferenceExpression, _)) =>
-          val shift = invoked.getTextRange.getEndOffset
-          (mc, invoked, shift)
-        case _ => return
-      }
-
-      val sessionForExpr = new AnnotationSession(expr.getContainingFile)
-      def mapPosInExprToElement(range: TextRange) = elementsMap.getOrElse(range.getStartOffset - shift, prefix)
-
-      ScReferenceAnnotator.annotateReference(ref) {
-        new DelegateAnnotationHolder(sessionForExpr) {
-          override protected def transformRange(range: TextRange): TextRange =
-            mapPosInExprToElement(range).getTextRange
-        }
-      }
-    }
-
-    ref.bind() match {
-      case Some(srr) =>
-        registerUsedImports(ref, srr)
-        annotateDesugared()
-      case None =>
-        annotateBadPrefix("cannot.resolve.in.StringContext")
-    }
-
+    case _ =>
   }
+
+  private def annotateDesugared(reference: ScReferenceExpression,
+                                offsetToRange: Map[Int, TextRange],
+                                session: AnnotationSession)
+                               (implicit holder: AnnotationHolder): Unit =
+    ScReferenceAnnotator.annotateReference(reference) {
+
+      new annotationHolder.DelegateAnnotationHolder(session) {
+
+        private val shift = reference.getTextRange.getEndOffset
+
+        override protected def transformRange(range: TextRange): TextRange =
+          offsetToRange(range.getStartOffset - shift)
+      }
+    }
+
+  /**
+   * @see [[ScInterpolated.getStringContextExpression]] implementation dependent
+   */
+  @annotation.tailrec
+  private[this] def createOffsetToRangeMap(iterator: Iterator[ScExpression],
+                                           length: Int = 1, // "("
+                                           result: Map[Int, TextRange] = Map.empty): Map[Int, TextRange] =
+    if (iterator.hasNext) {
+      val injection = iterator.next()
+      createOffsetToRangeMap(
+        iterator,
+        length + injection.getTextLength + 2, // ", "
+        result + (length -> injection.getTextRange)
+      )
+    } else {
+      result
+    }
 }
