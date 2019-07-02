@@ -202,7 +202,7 @@ object ExhaustiveMatchCompletionContributor {
 
       namedInheritors.map {
         case scalaObject: ScObject => new StablePatternComponents(scalaObject)
-        case SyntheticExtractorPatternComponents(components) => components
+        case CaseClassPatternComponents(components) => components
         case definition => new TypedPatternComponents(definition)
       } ++ (if (isInstantiatiable) Some(WildcardPatternComponents) else None)
     }

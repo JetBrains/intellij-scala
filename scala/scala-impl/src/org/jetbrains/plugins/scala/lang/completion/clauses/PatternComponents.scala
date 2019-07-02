@@ -71,14 +71,16 @@ sealed abstract class ClassPatternComponents[T](`class`: PsiClass,
     }.flatMap {
       _.`type`()
     }.flatMap {
-      refactoring.namesSuggester.NameSuggester
-        .suggestNamesByType(_)
-        .headOption
-        .toRight(Placeholder)
+      suggestName(_).toRight(Placeholder)
     }.getOrElse(Placeholder)
 
     suggestedName + ": " + reference.fold(identity, _.getText)
   }
+
+  protected final def suggestName(`type`: ScType): Option[String] =
+    refactoring.namesSuggester.NameSuggester
+      .suggestNamesByType(`type`)
+      .headOption
 }
 
 final class TypedPatternComponents(`class`: ScTypeDefinition)
@@ -95,9 +97,9 @@ final class TypedPatternComponents(`class`: ScTypeDefinition)
     else Model.SquareBrackets
 }
 
-final class SyntheticExtractorPatternComponents private(`class`: ScClass,
-                                                        method: ScPrimaryConstructor)
-  extends ClassPatternComponents(`class`, method.effectiveFirstParameterSection) {
+final class CaseClassPatternComponents private(`class`: ScClass,
+                                               constructor: ScPrimaryConstructor)
+  extends ClassPatternComponents(`class`, constructor.effectiveFirstParameterSection) {
 
   override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
     super.presentablePatternText(reference) + suffix
@@ -106,13 +108,32 @@ final class SyntheticExtractorPatternComponents private(`class`: ScClass,
     parameter.name + (if (parameter.isVarArgs) "@_*" else "")
 }
 
-object SyntheticExtractorPatternComponents {
+object CaseClassPatternComponents {
 
-  def unapply(`class`: ScClass): Option[SyntheticExtractorPatternComponents] =
+  def unapply(`class`: ScClass): Option[CaseClassPatternComponents] =
     if (`class`.isCase)
-      `class`.constructor.map(new SyntheticExtractorPatternComponents(`class`, _))
+      `class`.constructor.map(new CaseClassPatternComponents(`class`, _))
     else
       None
+}
+
+final class TuplePatternComponents(tupleClass: ScClass, types: Seq[ScType])
+  extends ClassPatternComponents(
+    tupleClass,
+    tupleClass.constructor.get.effectiveFirstParameterSection.zip(types)
+  ) {
+
+  override def canonicalPatternText: String =
+    super.canonicalPatternText +
+      types.map(_.canonicalText).commaSeparated(Model.SquareBrackets)
+
+  override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
+    suffix
+
+  override protected def componentText(component: (ScClassParameter, ScType)): String = {
+    val (parameter, scType) = component
+    suggestName(scType).getOrElse(parameter.name)
+  }
 }
 
 final class PhysicalExtractorPatternComponents private(`class`: ScTypeDefinition,
