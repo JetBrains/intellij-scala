@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.settings;
 
-/**
- * @author ilyas
- */
-
 import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;
 
 @State(
@@ -51,6 +48,10 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean INSERT_MULTILINE_QUOTES = true;
   public boolean REMOVE_MULTILINE_QUOTES = true;
 
+  public boolean WRAP_SINGLE_EXPRESSION_BODY = true;
+  public boolean UNWRAP_SINGLE_EXPRESSION_BODY = true;
+  public boolean UNWRAP_EMPTY_EXPRESSION_BODY = true;
+
   public boolean MOVE_COMPANION = true;
 
   public boolean UPGRADE_TO_INTERPOLATED = true;
@@ -71,7 +72,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
     return this;
   }
 
-  public void loadState(ScalaApplicationSettings scalaApplicationSettings) {
+  public void loadState(@NotNull ScalaApplicationSettings scalaApplicationSettings) {
     XmlSerializerUtil.copyBean(scalaApplicationSettings, this);
   }
 

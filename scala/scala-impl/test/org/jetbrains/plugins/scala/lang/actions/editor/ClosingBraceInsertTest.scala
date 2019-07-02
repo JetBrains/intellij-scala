@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /** @see [[org.jetbrains.plugins.scala.lang.actions.editor.backspace.ClosingBraceRemoveTest]] */
 class ClosingBraceInsertTest extends EditorActionTestBase {
@@ -985,6 +986,33 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |""".stripMargin
 
     doTest(before, after)
+  }
+
+  def testApplicationSettingShouldDisableWrapping(): Unit = {
+    val before =
+      s"""def foo = $CARET
+         |  42
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo = {$CARET
+         |  42
+         |}
+         |""".stripMargin
+    // TODO: change after fixing SCL-14330
+    val afterWithDisabled =
+      s"""def foo = {$CARET}
+         |  42
+         |""".stripMargin
+
+    val settings = ScalaApplicationSettings.getInstance
+    val settingBefore = settings.WRAP_SINGLE_EXPRESSION_BODY
+    try {
+      doTest(before, afterWithEnabled)
+      settings.WRAP_SINGLE_EXPRESSION_BODY = false
+      doTest(before, afterWithDisabled)
+    } finally {
+      settings.WRAP_SINGLE_EXPRESSION_BODY = settingBefore
+    }
   }
 
 }
