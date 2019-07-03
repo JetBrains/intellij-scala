@@ -1,0 +1,13 @@
+/* comment */ type A
+-----
+ScalaFile
+  ScTypeAliasDeclaration: A
+    PsiComment(BlockComment)('/* comment */')
+    PsiWhiteSpace(' ')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
