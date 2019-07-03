@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.KindProjectorUtil
 
 /**
  * Simplifies types, so that they use Kind Projector plugin (if Kind Projector is enabled)
@@ -105,7 +106,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
                 currentTypeParam =
                   if (typeParamIt.hasNext) Option(typeParamIt.next())
                   else                     None
-                tpt.getText.replace(tpt.name, "?")
+                tpt.getText.replace(tpt.name, KindProjectorUtil.placeholderSymbolFor(alias))
               case _ => ta.presentableText
             }
           }
