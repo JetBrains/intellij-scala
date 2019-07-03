@@ -8,6 +8,7 @@ import org.junit.Assert._
 class TypeIsObviousTest extends TestCase {
   // TODO Regex .r
   // TODO Foo.getInstance
+  // TODO abbreviations (Expr == Expression)
 
   def testEmpty(): Unit = {
     assertFalse(isTypeObvious("", "", ""))
