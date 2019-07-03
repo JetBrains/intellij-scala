@@ -433,6 +433,32 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, i)"
   )
 
+  def testCompleteFirstClauseInInfix(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""Option.empty[(String, String)] foreach {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""Option.empty[(String, String)] foreach {
+         |  case (str, str) => $CARET
+         |}""".stripMargin,
+    itemText = "(str, str)"
+  )
+
+  def testCompleteSecondClauseInInfix(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""Option.empty[(String, String)] foreach {
+         |  case _ =>
+         |    c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""Option.empty[(String, String)] foreach {
+         |  case _ =>
+         |  case (str, str) => $CARET
+         |}""".stripMargin,
+    itemText = "(str, str)"
+  )
+
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
       s"""List.empty[String]

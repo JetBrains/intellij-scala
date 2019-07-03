@@ -5,14 +5,15 @@ package clauses
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
-import com.intellij.patterns.{ElementPattern, PlatformPatterns}
+import com.intellij.patterns.ElementPattern
+import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScBlockExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -24,8 +25,13 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
   import CaseClauseCompletionContributor._
 
   extend(
-    leafElement.withParents(classOf[ScReferenceExpression], classOf[ScBlockExpr], classOf[ScArgumentExprList]) ||
-      leafElement.withParents(classOf[ScReferenceExpression], classOf[ScBlock], classOf[ScCaseClause])
+    psiElement(classOf[LeafPsiElement])
+      .withParent(classOf[ScReferenceExpression])
+      .withSuperParent(
+        2,
+        psiElement(classOf[ScBlockExpr]).withParent(psiElement(classOf[ScArgumentExprList]) || psiElement(classOf[ScInfixExpr])) ||
+          psiElement(classOf[ScBlock]).withParent(classOf[ScCaseClause])
+      )
   ) {
     new SingleClauseCompletionProvider[ScBlockExpr] {
 
@@ -100,8 +106,6 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 object CaseClauseCompletionContributor {
 
   import ExhaustiveMatchCompletionContributor.PatternGenerationStrategy._
-
-  private def leafElement = PlatformPatterns.psiElement(classOf[LeafPsiElement])
 
   private abstract class SingleClauseCompletionProvider[
     T <: ScalaPsiElement with Typeable : reflect.ClassTag
