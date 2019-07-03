@@ -4,7 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType, TermSignature, TypeAliasSignature}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -75,6 +75,12 @@ object TypeDiff {
     }
 
     (tpe1, tpe2) match {
+      // TODO Comparison (now, it's just "parsing" for the type annotation hints)
+      case (Refinement(_, _, _), Refinement(cs2, tms2, tps2)) if conformance(tpe1, tpe2) =>
+        val signatures = tms2.keys.map(_.namedElement.getText).toSeq.sorted.map(s => Group(Match(s)))
+        val types = tps2.values.map("type " + _.name).toSeq.sorted.map(s => Group(Match(s)))
+        Group(Group(Match(cs2.presentableText, Some(cs2))), Match("{"), Group((signatures ++ types).intersperse(Match("; ")): _*), Match("}"))
+
       // TODO More flexible comparison (now, it's just "parsing" for the type annotation hints)
       case (CompoundType(cs1), CompoundType(cs2)) if cs1.length == cs2.length =>
         Group((cs1, cs2).zipped.map(diff).intersperse(Match(" with ")): _*)
@@ -146,6 +152,13 @@ object TypeDiff {
   private object CompoundType {
     def unapply(tpe: ScType): Option[Seq[ScType]] = Some(tpe) collect {
       case tpe: ScCompoundType => tpe.components
+    }
+  }
+
+  private object Refinement {
+    def unapply(tpe: ScType): Option[(ScType, Map[TermSignature, ScType], Map[String, TypeAliasSignature])] = Some(tpe) collect {
+      case tpe: ScCompoundType if tpe.components.length == 1 && (tpe.signatureMap.nonEmpty || tpe.typesMap.nonEmpty) =>
+        (tpe.components.head, tpe.signatureMap, tpe.typesMap)
     }
   }
 }
