@@ -2,11 +2,12 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 import java.net.URI
-import java.util.{Optional, List => JList, Map => JMap, Set => JSet}
+import java.util.{List => JList, Map => JMap, Set => JSet}
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -69,7 +70,7 @@ object SbtModuleData {
 @SerialVersionUID(1)
 case class SbtProjectData @PropertyMapping(Array("basePackages", "jdk", "javacOptions", "sbtVersion", "projectPath"))(
   basePackages: JList[String],
-  jdk: Optional[SdkReference],
+  @Nullable jdk: SdkReference,
   javacOptions: JList[String],
   sbtVersion: String,
   projectPath: String
@@ -85,7 +86,7 @@ object SbtProjectData {
             projectPath: String): SbtProjectData =
     SbtProjectData(
       basePackages.toJavaList,
-      toJavaOptional(jdk),
+      jdk.orNull,
       javacOptions.toJavaList,
       sbtVersion,
       projectPath)
@@ -136,10 +137,10 @@ object SbtCommandData {
 
 @SerialVersionUID(1)
 case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions")) (
-  scalaVersion: Optional[String],
+  @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
   scalacOptions: JList[String],
-  sdk: Optional[SdkReference],
+  @Nullable sdk: SdkReference,
   javacOptions: JList[String]
 ) extends SbtEntityData
 
@@ -152,10 +153,10 @@ object ModuleExtData {
             sdk: Option[SdkReference] = None,
             javacOptions: Seq[String] = Seq.empty): ModuleExtData =
     ModuleExtData(
-      toJavaOptional(scalaVersion),
+      scalaVersion.orNull,
       scalacClasspath.toJavaList,
       scalacOptions.toJavaList,
-      toJavaOptional(sdk),
+      sdk.orNull,
       javacOptions.toJavaList
     )
 }
