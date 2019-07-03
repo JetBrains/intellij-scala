@@ -5,6 +5,7 @@ package clauses
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
+import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
@@ -180,7 +181,15 @@ object CaseClauseCompletionContributor {
       onTargetElement { clause =>
         adjustTypesOnClauses(addImports = false, (clause, components))
 
-        reformatAndMoveCaret(clause.getParent.asInstanceOf[ScCaseClauses])(clause)
+        clause.getParent match {
+          case clauses: ScCaseClauses =>
+            val rangesToReformat = for {
+              clause <- clauses.caseClauses
+              Some(arrow) = clause.funType
+            } yield TextRange.from(clause.getTextOffset, arrow.getStartOffsetInParent)
+
+            reformatAndMoveCaret(clauses, clause, rangesToReformat: _*)
+        }
       }
     }
   }
