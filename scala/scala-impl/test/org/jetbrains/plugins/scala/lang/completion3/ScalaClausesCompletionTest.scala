@@ -485,6 +485,14 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, str1)"
   )
 
+  def testCompleteSingleLineClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""Option.empty[(String, String)].map{c$CARET}""".stripMargin,
+    resultText =
+      s"""Option.empty[(String, String)].map{ case (str, str1) => $CARET}""".stripMargin,
+    itemText = "(str, str1)"
+  )
+
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
       s"""List.empty[String]
@@ -897,6 +905,22 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin
   )
+
+  def testMatchFormatting(): Unit = withCaseAlignment {
+    doMatchCompletionTest(
+      fileText =
+        s"""def foo(maybeString: Option[String]: Unit = {
+           |  maybeString ma$CARET
+           |}""".stripMargin,
+      resultText =
+        s"""def foo(maybeString: Option[String]: Unit = {
+           |  maybeString match {
+           |    case Some(value) => $CARET
+           |    case None        =>
+           |  }
+           |}""".stripMargin
+    )
+  }
 
   def testCase(): Unit = doCompletionTest(
     fileText =

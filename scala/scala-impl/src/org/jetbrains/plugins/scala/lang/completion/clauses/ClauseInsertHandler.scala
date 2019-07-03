@@ -8,16 +8,14 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getNextSiblingOfType}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 
 private[clauses] abstract class ClauseInsertHandler[
   E <: ScalaPsiElement : reflect.ClassTag
 ] extends InsertHandler[LookupElement] {
-
-  import ClauseInsertHandler._
 
   protected def handleInsert(implicit context: InsertionContext): Unit
 
@@ -46,37 +44,30 @@ private[clauses] abstract class ClauseInsertHandler[
     context.commitDocument()
   }
 
-  protected final def reformatAndMoveCaret(clauses: ScCaseClauses)
-                                          (targetClause: ScCaseClause = clauses.caseClause)
+  protected final def reformatAndMoveCaret(clauses: ScCaseClauses, targetClause: ScCaseClause,
+                                           rangesToReformat: TextRange*)
                                           (implicit context: InsertionContext): Unit = {
     val InsertionContextExt(editor, doc, file, project) = context
 
     import collection.JavaConverters._
-    CodeStyleManager.getInstance(project).reformatText(
-      file,
-      patternRanges(clauses).asJava
-    )
+    CodeStyleManager.getInstance(project)
+      .reformatText(file, rangesToReformat.asJava)
 
-    val newLine = findNewLine(clauses, targetClause)
-    val spaceAndNewLine = newLine.replaceWithText(" " + newLine.getText)
+    val nextLeaf = findNextLeaf(targetClause) match {
+      case null => findNextLeaf(clauses)
+      case sibling: LeafPsiElement => sibling
+    }
+
+    val spaceAndNextLeaf = nextLeaf
+      .replaceWithText(" " + nextLeaf.getText)
 
     PsiDocumentManager.getInstance(project)
       .doPostponedOperationsAndUnblockDocument(doc)
     editor.getCaretModel
-      .moveToOffset(1 + spaceAndNewLine.getStartOffset)
+      .moveToOffset(1 + spaceAndNextLeaf.getStartOffset)
   }
+
+  private def findNextLeaf(sibling: ScalaPsiElement) =
+    getNextSiblingOfType(sibling, classOf[LeafPsiElement])
 }
 
-object ClauseInsertHandler {
-
-  private def patternRanges(clauses: ScCaseClauses) = for {
-    clause <- clauses.caseClauses
-    Some(arrow) = clause.funType
-  } yield TextRange.from(clause.getTextOffset, arrow.getStartOffsetInParent)
-
-  private def findNewLine(clauses: ScCaseClauses, clause: ScCaseClause) =
-    (clause.getNextSibling match {
-      case null => clauses.getNextSibling
-      case sibling => sibling
-    }).asInstanceOf[PsiWhiteSpaceImpl]
-}

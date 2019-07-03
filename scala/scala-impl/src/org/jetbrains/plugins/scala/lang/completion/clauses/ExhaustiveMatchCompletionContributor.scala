@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 
 import scala.reflect.ClassTag
@@ -227,10 +227,12 @@ object ExhaustiveMatchCompletionContributor {
       replaceText(clausesText)
 
       onTargetElement { statement: E =>
-        val clauses = statement.findLastChildByType[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES)
-        strategy.adjustTypes(components, clauses.caseClauses)
+        val caseClauses = statement.findLastChildByType[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES)
 
-        reformatAndMoveCaret(clauses)()
+        val clauses = caseClauses.caseClauses
+        strategy.adjustTypes(components, clauses)
+
+        reformatAndMoveCaret(caseClauses, clauses.head, statement.getTextRange)
       }
     }
   }
