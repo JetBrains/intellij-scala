@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
@@ -171,28 +170,17 @@ object ScExpression {
       expectedTypeEx(fromUnderscore).map(_._1)
 
     def expectedTypeEx(fromUnderscore: Boolean = true): Option[ParameterType] =
-      if (isInIncompeteCode) None else ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
+      ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
 
     def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
     @CachedWithRecursionGuard(expr, Array.empty[ParameterType], ModCount.getBlockModificationCount)
-    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] =
-      if (isInIncompeteCode) Array.empty else ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
+      ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+    }
 
     @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
-    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] =
-      if (isInIncompeteCode) None else ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
-
-    private def isInIncompeteCode: Boolean = {
-      def isIncompleteDot(e1: LeafPsiElement, e2: PsiErrorElement) =
-        e1.textMatches(".") && e2.getErrorDescription == "Identifier expected"
-
-      expr.nextSiblings.toSeq match {
-        case Seq(e1: LeafPsiElement, e2: PsiErrorElement, _ @_*) if isIncompleteDot(e1, e2) => true
-        case Seq(_: PsiWhiteSpace, e2: LeafPsiElement, e3: PsiErrorElement, _ @_*) if isIncompleteDot(e2, e3) => true
-        case _ => false
-      }
-    }
+    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
 
     def getTypeIgnoreBaseType: TypeResult = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
