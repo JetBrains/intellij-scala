@@ -440,9 +440,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}""".stripMargin,
     resultText =
       s"""Option.empty[(String, String)] foreach {
-         |  case (str, str) => $CARET
+         |  case (str, str1) => $CARET
          |}""".stripMargin,
-    itemText = "(str, str)"
+    itemText = "(str, str1)"
   )
 
   def testCompleteSecondClauseInInfix(): Unit = doClauseCompletionTest(
@@ -454,9 +454,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""Option.empty[(String, String)] foreach {
          |  case _ =>
-         |  case (str, str) => $CARET
+         |  case (str, str1) => $CARET
          |}""".stripMargin,
-    itemText = "(str, str)"
+    itemText = "(str, str1)"
   )
 
   def testCompleteFirstClauseInMatch(): Unit = doClauseCompletionTest(
@@ -466,9 +466,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}""".stripMargin,
     resultText =
       s"""("", "") match {
-         |  case (str, str) => $CARET
+         |  case (str, str1) => $CARET
          |}""".stripMargin,
-    itemText = "(str, str)"
+    itemText = "(str, str1)"
   )
 
   def testCompleteSecondClauseInMatch(): Unit = doClauseCompletionTest(
@@ -480,9 +480,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""("", "") match {
          |  case _ =>
-         |  case (str, str) => $CARET
+         |  case (str, str1) => $CARET
          |}""".stripMargin,
-    itemText = "(str, str)"
+    itemText = "(str, str1)"
   )
 
   def testNoCompleteClause(): Unit = checkNoCompletion(

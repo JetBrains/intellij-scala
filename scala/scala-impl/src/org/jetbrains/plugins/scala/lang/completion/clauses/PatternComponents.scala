@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScSt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.{UniqueNameSuggester, suggestNamesByType}
 
 sealed abstract class PatternComponents {
 
@@ -71,16 +72,13 @@ sealed abstract class ClassPatternComponents[T](`class`: PsiClass,
     }.flatMap {
       _.`type`()
     }.flatMap {
-      suggestName(_).toRight(Placeholder)
+      suggestNamesByType(_)
+        .headOption
+        .toRight(Placeholder)
     }.getOrElse(Placeholder)
 
     suggestedName + ": " + reference.fold(identity, _.getText)
   }
-
-  protected final def suggestName(`type`: ScType): Option[String] =
-    refactoring.namesSuggester.NameSuggester
-      .suggestNamesByType(`type`)
-      .headOption
 }
 
 final class TypedPatternComponents(`class`: ScTypeDefinition)
@@ -117,11 +115,9 @@ object CaseClassPatternComponents {
       None
 }
 
-final class TuplePatternComponents(tupleClass: ScClass, types: Seq[ScType])
-  extends ClassPatternComponents(
-    tupleClass,
-    tupleClass.constructor.get.effectiveFirstParameterSection.zip(types)
-  ) {
+final class TuplePatternComponents(tupleClass: ScClass, types: Seq[ScType]) extends {
+  private val suggester = new UniqueNameSuggester()
+} with ClassPatternComponents(tupleClass, types) {
 
   override def canonicalPatternText: String =
     super.canonicalPatternText +
@@ -130,10 +126,8 @@ final class TuplePatternComponents(tupleClass: ScClass, types: Seq[ScType])
   override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
     suffix
 
-  override protected def componentText(component: (ScClassParameter, ScType)): String = {
-    val (parameter, scType) = component
-    suggestName(scType).getOrElse(parameter.name)
-  }
+  override protected def componentText(`type`: ScType): String =
+    suggester(`type`)
 }
 
 final class PhysicalExtractorPatternComponents private(`class`: ScTypeDefinition,
