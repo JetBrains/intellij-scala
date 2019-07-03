@@ -9,12 +9,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 
-private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement : reflect.ClassTag]
-  extends InsertHandler[LookupElement] {
+private[clauses] abstract class ClauseInsertHandler[
+  E <: ScalaPsiElement : reflect.ClassTag
+] extends InsertHandler[LookupElement] {
 
   import ClauseInsertHandler._
 
@@ -26,7 +27,7 @@ private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement : refle
 
   protected final def onTargetElement[U >: Null](onElement: E => U)
                                                 (implicit context: InsertionContext): U =
-    PsiTreeUtil.getContextOfType(
+    getContextOfType(
       context.getFile.findElementAt(context.getStartOffset),
       false,
       reflect.classTag.runtimeClass.asInstanceOf[Class[E]]

@@ -7,21 +7,24 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
+
+import scala.reflect.ClassTag
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
   import ExhaustiveMatchCompletionContributor._
-
-  import reflect.ClassTag
 
   extend[ScSugarCallExpr, ScMatch, ScSugarCallExpr](
     ScalaKeyword.MATCH
@@ -36,12 +39,12 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
     ScalaKeyword.CASE,
     Some("", "")
   ) {
-    case (ExpectedType(api.FunctionType(_, Seq(targetType))), _) => Some(targetType)
+    case (ExpectedType(FunctionType(_, Seq(targetType))), _) => Some(targetType)
     case _ => None
   }
 
   private def extend[
-    Target <: ScalaPsiElement with result.Typeable : ClassTag,
+    Target <: ScExpression : ClassTag,
     Expression <: ScExpression : ClassTag,
     Capture <: ScalaPsiElement : ClassTag
   ](keywordLookupString: String,
@@ -109,8 +112,6 @@ object ExhaustiveMatchCompletionContributor {
       }
     }
 
-    import api.designator._
-
     def unapply(`type`: ScType)
                (implicit place: PsiElement): Option[PatternGenerationStrategy] =
       `type`.extractDesignatorSingleton.orElse {
@@ -125,7 +126,7 @@ object ExhaustiveMatchCompletionContributor {
           }
         case valueType@ScDesignatorType(enumClass@NonEmptyJavaEnum(constants)) =>
           Some(new EnumGenerationStrategy(enumClass, valueType.presentableText, constants.map(_.getName)))
-        case api.ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
+        case ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
           Some(new SealedClassGenerationStrategy(inheritors))
         case _ => None
       }
@@ -140,7 +141,7 @@ object ExhaustiveMatchCompletionContributor {
                                           pairs: (E, PatternComponents)*)
                                          (collector: PartialFunction[E, (ScPattern, ScTypeElement)]): Unit = {
       val findTypeElement = collector.lift
-      psi.TypeAdjuster.adjustFor(
+      adjustFor(
         for {
           (element, _) <- pairs
           (_, typeElement) <- findTypeElement(element)
@@ -153,7 +154,7 @@ object ExhaustiveMatchCompletionContributor {
         (element, components: ClassPatternComponents[_]) <- pairs
         (pattern, ScSimpleTypeElement.unwrapped(codeReference)) <- findTypeElement(element)
 
-        replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(
+        replacement = createPatternFromTextWithContext(
           components.presentablePatternText(Right(codeReference)),
           pattern.getContext,
           pattern
@@ -168,7 +169,7 @@ object ExhaustiveMatchCompletionContributor {
       def unapply(`object`: ScObject)
                  (implicit place: PsiElement): Option[Seq[ScValue]] =
         collectMembers(`object`)(_.supers.map(_.qualifiedName).contains(EnumerationFQN))(_.members) {
-          case value: ScValue if ResolveUtils.isAccessible(value, place, forCompletion = true) => value
+          case value: ScValue if isAccessible(value, place, forCompletion = true) => value
         }
     }
 
@@ -216,9 +217,9 @@ object ExhaustiveMatchCompletionContributor {
     }
   }
 
-  private final class ClausesInsertHandler[E <: ScExpression : reflect.ClassTag](strategy: PatternGenerationStrategy,
-                                                                                 prefixAndSuffix: PrefixAndSuffix)
-                                                                                (implicit place: PsiElement)
+  private final class ClausesInsertHandler[E <: ScExpression : ClassTag](strategy: PatternGenerationStrategy,
+                                                                         prefixAndSuffix: PrefixAndSuffix)
+                                                                        (implicit place: PsiElement)
     extends ClauseInsertHandler {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
