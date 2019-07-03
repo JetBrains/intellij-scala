@@ -26,6 +26,20 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     psiElement(classOf[LeafPsiElement])
+      .withParent(
+        psiElement(classOf[ScMatch]) ||
+          psiElement(classOf[ScReferenceExpression]).withParents(classOf[ScBlock], classOf[ScCaseClause], classOf[ScCaseClauses], classOf[ScMatch])
+      )
+  ) {
+    new SingleClauseCompletionProvider[ScMatch] {
+
+      override protected def targetType(`match`: ScMatch): Option[ScType] =
+        `match`.expression.flatMap(_.`type`().toOption)
+    }
+  }
+
+  extend(
+    psiElement(classOf[LeafPsiElement])
       .withParent(classOf[ScReferenceExpression])
       .withSuperParent(
         2,
@@ -39,21 +53,6 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         block.expectedType().collect {
           case PartialFunctionType(_, targetType) => targetType
           case FunctionType(_, Seq(targetType)) => targetType
-        }
-
-      override protected def createLookupElement(patternText: String,
-                                                 components: ClassPatternComponents[_])
-                                                (implicit place: PsiElement): LookupElement =
-        buildLookupElement(
-          ScalaKeyword.CASE + patternText,
-          new CaseClauseInsertHandler(components)
-        ) {
-          case (_, presentation: LookupElementPresentation) =>
-            presentation.setItemText(ScalaKeyword.CASE)
-            presentation.setItemTextBold(true)
-
-            presentation.setTailText(" ")
-            presentation.appendTailTextItalic(patternText, false)
         }
     }
   }
@@ -132,7 +131,18 @@ object CaseClauseCompletionContributor {
 
     protected def createLookupElement(patternText: String,
                                       components: ClassPatternComponents[_])
-                                     (implicit place: PsiElement): LookupElement
+                                     (implicit place: PsiElement): LookupElement =
+      buildLookupElement(
+        ScalaKeyword.CASE + patternText,
+        new CaseClauseInsertHandler(components)
+      ) {
+        case (_, presentation: LookupElementPresentation) =>
+          presentation.setItemText(ScalaKeyword.CASE)
+          presentation.setItemTextBold(true)
+
+          presentation.setTailText(" ")
+          presentation.appendTailTextItalic(patternText, false)
+      }
 
     private def createComponents(`type`: ScType, typeDefinition: ScTypeDefinition)
                                 (implicit place: PsiElement): List[ClassPatternComponents[_]] =

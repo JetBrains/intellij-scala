@@ -459,6 +459,32 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, str)"
   )
 
+  def testCompleteFirstClauseInMatch(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""("", "") match {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""("", "") match {
+         |  case (str, str) => $CARET
+         |}""".stripMargin,
+    itemText = "(str, str)"
+  )
+
+  def testCompleteSecondClauseInMatch(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""("", "") match {
+         |  case _ =>
+         |    c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""("", "") match {
+         |  case _ =>
+         |  case (str, str) => $CARET
+         |}""".stripMargin,
+    itemText = "(str, str)"
+  )
+
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
       s"""List.empty[String]
