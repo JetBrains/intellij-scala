@@ -4,7 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -75,6 +75,10 @@ object TypeDiff {
     }
 
     (tpe1, tpe2) match {
+      // TODO More flexible comparison (now, it's just "parsing" for the type annotation hints)
+      case (CompoundType(cs1), CompoundType(cs2)) if cs1.length == cs2.length =>
+        Group((cs1, cs2).zipped.map(diff).intersperse(Match(" with ")): _*)
+
       case (InfixType(l1, d1, r1), InfixType(l2, d2, r2)) =>
         val (v1, v2) = d1.extractDesignated(expandAliases = false) match {
           case Some(aClass: ScClass) => aClass.typeParameters match {
@@ -135,6 +139,13 @@ object TypeDiff {
         case aClass: PsiClass => aClass.getAnnotations.map(_.getQualifiedName).contains("scala.annotation.showAsInfix")
         case _ => false
       }
+    }
+  }
+
+  // TODO Move to ScCompoundType.scala?
+  private object CompoundType {
+    def unapply(tpe: ScType): Option[Seq[ScType]] = Some(tpe) collect {
+      case tpe: ScCompoundType => tpe.components
     }
   }
 }

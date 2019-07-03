@@ -464,6 +464,20 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     )
   }
 
+  def testCompoundParsing(): Unit = {
+    assertParsedAs(
+      "class A; class B",
+      "A with B", "<<A> with <B>>")
+    assertParsedAs(
+      "class A; class B; class C",
+      "A with B with C", "<<A> with <B> with <C>>")
+  }
+
+  // TODO def testCompound(): Unit = {
+
+  // TODO List[List[Int]]
+  // TODO FunctionN vs A => B
+
   private def assertParsedAs(context: String, tpe: String, structure: String): Unit = {
     def asString(diff: TypeDiff): String = diff match {
       case Match(text, _) => text
