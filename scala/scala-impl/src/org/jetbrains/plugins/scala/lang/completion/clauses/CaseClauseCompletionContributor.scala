@@ -14,8 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScBlockExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, result}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
@@ -29,8 +31,8 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
       override protected def targetType(block: ScBlockExpr): Option[ScType] =
         block.expectedType().collect {
-          case api.PartialFunctionType(_, targetType) => targetType
-          case api.FunctionType(_, Seq(targetType)) => targetType
+          case PartialFunctionType(_, targetType) => targetType
+          case FunctionType(_, Seq(targetType)) => targetType
         }
 
       override protected def createLookupElement(patternText: String,
@@ -98,17 +100,16 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 object CaseClauseCompletionContributor {
 
   import ExhaustiveMatchCompletionContributor.PatternGenerationStrategy._
-  import ScalaPsiElementFactory.createPatternFromTextWithContext
 
   private def leafElement = PlatformPatterns.psiElement(classOf[LeafPsiElement])
 
   private abstract class SingleClauseCompletionProvider[
-    T <: ScalaPsiElement with result.Typeable : reflect.ClassTag
+    T <: ScalaPsiElement with Typeable : reflect.ClassTag
   ] extends ClauseCompletionProvider[T] {
 
     override final protected def addCompletions(typeable: T, result: CompletionResultSet)
                                                (implicit place: PsiElement): Unit = for {
-      scType@api.ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toList
+      scType@ExtractClass(typeDefinition: ScTypeDefinition) <- targetType(typeable).toList
       components <- createComponents(scType, typeDefinition)
 
       lookupElement = createLookupElement(
@@ -132,7 +133,7 @@ object CaseClauseCompletionContributor {
     private def createComponents(`type`: ScType, typeDefinition: ScTypeDefinition)
                                 (implicit place: PsiElement): List[ClassPatternComponents[_]] =
       (`type`, typeDefinition) match {
-        case (api.TupleType(types), tupleClass: ScClass) =>
+        case (TupleType(types), tupleClass: ScClass) =>
           new TuplePatternComponents(tupleClass, types) :: Nil
         case _ =>
           findTargetDefinitions(typeDefinition).map {
