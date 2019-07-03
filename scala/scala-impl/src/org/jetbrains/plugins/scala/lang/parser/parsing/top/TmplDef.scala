@@ -26,7 +26,7 @@ object TmplDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()
-    templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
+    templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 
     val annotationsMarker = builder.mark()
     while (Annotation.parse(builder)) {

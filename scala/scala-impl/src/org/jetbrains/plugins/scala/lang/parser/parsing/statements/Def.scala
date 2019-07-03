@@ -29,7 +29,7 @@ object Def {
             isMod: Boolean = true,
             isImplicit: Boolean = false): Boolean = {
     val defMarker = builder.mark
-    defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
+    defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     if (isMod || isImplicit) {
       val annotationsMarker = builder.mark
       while (Annotation.parse(builder)) {}
