@@ -1,0 +1,17 @@
+// line comment
+/* block comment */
+type A
+-----
+ScalaFile
+  ScTypeAliasDeclaration: A
+    PsiComment(comment)('// line comment')
+    PsiWhiteSpace('\n')
+    PsiComment(BlockComment)('/* block comment */')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
