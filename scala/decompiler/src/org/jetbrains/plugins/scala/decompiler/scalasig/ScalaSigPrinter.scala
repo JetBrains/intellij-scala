@@ -485,6 +485,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case AnnotArgArray(args) =>
         args.map(ref => annotArgText(ref.get)).mkString("Array(", ", ", ")")
       case t: Type => "classOf[%s]" format toString(t)
+      case null => "null"
       case _ => arg.toString
     }
   }
