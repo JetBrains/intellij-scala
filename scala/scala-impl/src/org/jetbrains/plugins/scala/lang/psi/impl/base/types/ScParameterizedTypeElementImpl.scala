@@ -29,7 +29,7 @@ import scala.annotation.tailrec
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
   override def desugarizedText: String = {
-    val inlineSyntaxIds = Set("?", "+?", "-?")
+    val inlineSyntaxIds = Set("?", "+?", "-?", "*", "+*", "-*")
 
     def kindProjectorFunctionSyntax(elem: ScTypeElement): String = {
       def convertParameterized(param: ScParameterizedTypeElement): String = {
@@ -80,10 +80,12 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       val (paramOpt: Seq[Option[String]], body: Seq[String]) = typeArgList.typeArgs.zipWithIndex.map {
         case (simple: ScSimpleTypeElement, i) if inlineSyntaxIds.contains(simple.getText) =>
           val name = generateName(i)
-          (Some(simple.getText.replace("?", name)), name)
+          val placeholderSymbol = simple.getText.takeRight(1)
+          (Some(simple.getText.replace(placeholderSymbol, name)), name)
         case (param: ScParameterizedTypeElement, i) if inlineSyntaxIds.contains(param.typeElement.getText) =>
           val name = generateName(i)
-          (Some(param.getText.replace("?", name)), name)
+          val placeholderSymbol = param.typeElement.getText.takeRight(1)
+          (Some(param.getText.replace(placeholderSymbol, name)), name)
         case (a, _) => (None, a.getText)
       }.unzip
       val paramText = paramOpt.flatten.mkString(start = "[", sep = ", ", end = "]")

@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project._
 
 /**
   * Partially based on and inspired by contribution from @vovapolu
@@ -51,9 +53,30 @@ class KindProjectorUtil(project: Project) {
 object KindProjectorUtil {
   val Lambda: String               = "Lambda"
   val LambdaSymbolic: String       = "λ"
-  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?")
+  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?", "*", "+*", "-*")
 
   def apply(project: Project): KindProjectorUtil = ServiceManager.getService(project, classOf[KindProjectorUtil])
+
+  private[this] val newSyntaxVersion = new ComparableVersion("0.10.0")
+  private[this] val VersionPattern = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
+
+  def placeholderSymbolFor(e: PsiElement): String =
+    if (isQuestionMarkSyntaxDeprecatedFor(e)) "*"
+    else                                      "?"
+
+  /**
+   * Usage of `?` placeholder is going to be deprecated, since it will be used in Dotty
+   * to express wildcard types (e.g. `List[? <: Foo]`) to allow the use of `_` in type lambdas.
+   * Use `*` instead.
+   */
+  def isQuestionMarkSyntaxDeprecatedFor(e: PsiElement): Boolean =
+    e.kindProjectorPlugin.exists {
+      case VersionPattern(version) => isQuestionMarkSyntaxDeprecatedFor(version)
+      case _                       => false
+    }
+
+  private def isQuestionMarkSyntaxDeprecatedFor(version: String): Boolean =
+    new ComparableVersion(version).compareTo(newSyntaxVersion) >= 0
 
   /**
     * Creates synhtetic companion object used in value-level polymorphic lambdas

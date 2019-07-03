@@ -11,7 +11,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore, VirtualFile}
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
@@ -114,8 +114,14 @@ package object project {
      * @see https://github.com/non/kind-projector
      */
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def kindProjectorPluginEnabled: Boolean =
-      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kind-projector")))
+    def kindProjectorPluginEnabled: Boolean = kindProjectorPlugin.isDefined
+
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def kindProjectorPlugin: Option[String] =
+      compilerConfiguration.settingForHighlighting(
+        module,
+        _.plugins.find(_.contains("kind-projector"))
+      ).flatten
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def betterMonadicForPluginEnabled: Boolean =
@@ -212,20 +218,24 @@ package object project {
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault)
 
-    def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
+    def kindProjectorPluginEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorPluginEnabled)
+    def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
 
-    def betterMonadicForEnabled: Boolean = inThisModuleOrProject(_.betterMonadicForPluginEnabled)
+    def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
 
-    def isSAMEnabled: Boolean = inThisModuleOrProject(_.isSAMEnabled)
+    def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
 
-    def literalTypesEnabled: Boolean = inThisModuleOrProject(_.literalTypesEnabled)
+    def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
 
-    def partialUnificationEnabled: Boolean = inThisModuleOrProject(_.isPartialUnificationEnabled)
+    def partialUnificationEnabled: Boolean = isDefinedInModuleOrProject(_.isPartialUnificationEnabled)
 
-    private def inThisModuleOrProject(predicate: Module => Boolean): Boolean = module match {
-      case Some(m) => predicate(m)
-      case None => element.getProject.modulesWithScala.exists(predicate)
-    }
+    private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
+      inThisModuleOrProject(predicate).getOrElse(false)
+
+    private def inThisModuleOrProject[T](predicate: Module => T): Option[T] = module match {
+      case Some(m) => Option(predicate(m))
+      case None => element.getProject.modulesWithScala.collectFirst { case x => predicate(x) }
+      }
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {
