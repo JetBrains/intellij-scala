@@ -5,8 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiWhiteSpace}
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
@@ -14,17 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.extensions._
 
 private object TypeMismatchError {
   def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
               (formatMessage: (String, String) => String)
-              (implicit holder: AnnotationHolder): Option[Annotation] = {
-
-    if (isDerivativeError(element)) {
-      return None
-    }
-
+              (implicit holder: AnnotationHolder): Annotation = {
     // TODO update the test data, SCL-15483
     val message = {
       val wideActualType = (expectedType, actualType) match {
@@ -68,17 +61,7 @@ private object TypeMismatchError {
       TypeMismatchHints.createFor(delegateElement, expectedType, actualType).putTo(delegateElement)
     }
 
-    Some(annotation)
-  }
-
-  // Don't show type mismatch on a term followed by a dot ("= Math."), SCL-15754
-  private def isDerivativeError(e: PsiElement): Boolean = {
-    def isDot(e: PsiElement) = e.getTextLength == 1 && e.getText == "."
-    e.nextSiblings.toSeq match {
-      case Seq(e1: LeafPsiElement, _: PsiErrorElement, _ @_*) if isDot(e1) => true
-      case Seq(_: PsiWhiteSpace, e2: LeafPsiElement, _: PsiErrorElement, _ @_*) if isDot(e2) => true
-      case _ => false
-    }
+    annotation
   }
 
   private def elementAt(element: PsiElement, blockLevel: Int) = blockLevel match {
