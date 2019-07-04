@@ -135,6 +135,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
                   clause      <- constructor.effectiveParameterClauses if !clause.isImplicit
                   param       <- clause.effectiveParameters
                 } if (!addElementUsages(param)) return false
+              case _ =>
             }
           }
 
