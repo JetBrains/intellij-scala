@@ -104,12 +104,8 @@ object CachesUtil {
     private val topLevel = scalaTopLevelModTracker(element.getProject)
 
     def getModificationCount: Long = {
-      //to avoid intermediate list allocation
-      var result = topLevel.getModificationCount
-      contextsWithExplicitType(element.getContext).foreach {
-        result += _.modificationCount
-      }
-      result
+      contextsWithExplicitType(element.getContext)
+        .foldLeft(topLevel.getModificationCount)(_ + _.modificationCount)
     }
   }
 
@@ -118,6 +114,7 @@ object CachesUtil {
                                               key: Key[_],
                                               set: Set[ScFunction]) extends ControlThrowable
 
+  //used in caching macro annotations
   def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
                                                                      key: Key[CachedMap[Data, Result]],
                                                                      dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
@@ -136,6 +133,7 @@ object CachesUtil {
     cachedValue.getValue
   }
 
+  //used in caching macro annotations
   def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result](elem: Dom,
                                                                key: Key[CachedRef[Result]],
                                                                dependencyItem: () => Object): AtomicReference[Result] = {
