@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.lang.annotation.{AnnotationHolder, HighlightSeverity}
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
@@ -104,10 +105,11 @@ object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](i
                        (implicit holder: AnnotationHolder): Unit = {
     annotate(literal) match {
       case Some((target, _)) if ConvertMarker.isApplicableTo(literal) =>
-        holder.createWeakWarningAnnotation(
-          target,
+        val range = literal.getTextRange
+        holder.createWarningAnnotation(
+          TextRange.from(range.getEndOffset - 1, 1),
           ScalaBundle.message("lowercase.long.marker")
-        ).registerFix(new ConvertMarker(literal))
+        ).registerFix(new ConvertMarker(literal), range)
       case _ =>
     }
   }
