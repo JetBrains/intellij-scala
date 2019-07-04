@@ -657,7 +657,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          """.stripMargin
   )
 
-  def testNonSealedClass(): Unit = checkNoCompletion(
+  def testNonSealedClass(): Unit = doMatchCompletionTest(
     fileText =
       s"""trait Foo
          |
@@ -667,9 +667,21 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  def unapply(impl: FooImpl) = Some(impl)
          |}
          |
-         |(_: Foo) m$CARET
-       """.stripMargin
-  )(isExhaustiveMatch)
+         |(_: Foo) m$CARET""".stripMargin,
+    resultText =
+      s"""trait Foo
+         |
+         |class FooImpl extends Foo
+         |
+         |object FooImpl {
+         |  def unapply(impl: FooImpl) = Some(impl)
+         |}
+         |
+         |(_: Foo) match {
+         |  case impl: FooImpl => $CARET
+         |  case _ =>
+         |}""".stripMargin
+  )
 
   def testMaybe(): Unit = withCaseAlignment {
     doMatchCompletionTest(

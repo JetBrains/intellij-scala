@@ -126,7 +126,7 @@ object CaseClauseCompletionContributor {
 
     protected def findTargetDefinitions(definition: ScTypeDefinition): List[ScTypeDefinition] =
       definition match {
-        case SealedDefinition(Inheritors(namedInheritors, _)) => namedInheritors
+        case DirectInheritors(Inheritors(namedInheritors, _)) => namedInheritors
         case _ => Nil
       }
 

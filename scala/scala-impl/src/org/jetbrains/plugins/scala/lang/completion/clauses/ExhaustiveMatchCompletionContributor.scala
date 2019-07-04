@@ -94,7 +94,7 @@ object ExhaustiveMatchCompletionContributor {
       def adjustTypes(components: Seq[PatternComponents],
                       caseClauses: Seq[ScCaseClause]): Unit =
         adjustTypesOnClauses(
-          addImports = strategy.isInstanceOf[SealedClassGenerationStrategy],
+          addImports = strategy.isInstanceOf[DirectInheritorsGenerationStrategy],
           caseClauses.zip(components): _*
         )
 
@@ -113,23 +113,40 @@ object ExhaustiveMatchCompletionContributor {
     }
 
     def unapply(`type`: ScType)
-               (implicit place: PsiElement): Option[PatternGenerationStrategy] =
-      `type`.extractDesignatorSingleton.orElse {
-        Some(`type`)
-      }.flatMap {
-        case valueType@ScProjectionType(DesignatorOwner(enumClass@NonEmptyScalaEnumeration(values)), _) =>
-          toOption {
-            values.filter(_.`type`().exists(_.conforms(valueType)))
-              .flatMap(_.declaredNames)
-          }.map {
-            new EnumGenerationStrategy(enumClass, enumClass.qualifiedName, _)
+               (implicit place: PsiElement): Option[PatternGenerationStrategy] = {
+      val valueType = `type`.extractDesignatorSingleton.getOrElse(`type`)
+      val strategy = valueType match {
+        case ScProjectionType(DesignatorOwner(enumClass@ScalaEnumeration(values)), _) =>
+          val membersNames = for {
+            value <- values
+            if isAccessible(value, place, forCompletion = true)
+            if value.`type`().exists(_.conforms(valueType))
+
+            declaredName <- value.declaredNames
+          } yield declaredName
+
+          membersNames match {
+            case Seq() => null
+            case _ => new EnumGenerationStrategy(enumClass, enumClass.qualifiedName, membersNames)
           }
-        case valueType@ScDesignatorType(enumClass@NonEmptyJavaEnum(constants)) =>
-          Some(new EnumGenerationStrategy(enumClass, valueType.presentableText, constants.map(_.getName)))
-        case ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
-          Some(new SealedClassGenerationStrategy(inheritors))
-        case _ => None
+        case ScDesignatorType(enumClass@JavaEnum(enumConstants)) =>
+          enumConstants match {
+            case Seq() => null
+            case _ =>
+              new EnumGenerationStrategy(
+                enumClass,
+                valueType.presentableText,
+                enumConstants.map(_.getName)
+              )
+          }
+        case ExtractClass(DirectInheritors(inheritors)) =>
+          new DirectInheritorsGenerationStrategy(inheritors)
+        case _ =>
+          null
       }
+
+      Option(strategy)
+    }
 
     def adjustTypesOnClauses(addImports: Boolean,
                              pairs: (ScCaseClause, PatternComponents)*): Unit =
@@ -162,50 +179,37 @@ object ExhaustiveMatchCompletionContributor {
       } pattern.replace(replacement)
     }
 
-    private[this] object NonEmptyScalaEnumeration {
+    private[this] object ScalaEnumeration {
 
       private[this] val EnumerationFQN = "scala.Enumeration"
 
-      def unapply(`object`: ScObject)
-                 (implicit place: PsiElement): Option[Seq[ScValue]] =
-        collectMembers(`object`)(_.supers.map(_.qualifiedName).contains(EnumerationFQN))(_.members) {
-          case value: ScValue if isAccessible(value, place, forCompletion = true) => value
-        }
+      def unapply(enumClass: ScObject): Option[Seq[ScValue]] =
+        if (enumClass.supers.map(_.qualifiedName).contains(EnumerationFQN))
+          Some(enumClass.members.filterBy[ScValue])
+        else
+          None
     }
 
-    private[this] object NonEmptyJavaEnum {
+    private[this] object JavaEnum {
 
-      def unapply(clazz: PsiClass): Option[Seq[PsiEnumConstant]] =
-        collectMembers(clazz)(_.isEnum)(_.getFields) {
-          case constant: PsiEnumConstant => constant
-        }
+      def unapply(enumClass: PsiClass): Option[Seq[PsiEnumConstant]] =
+        if (enumClass.isEnum)
+          Some(enumClass.getFields.toSeq.filterBy[PsiEnumConstant])
+        else
+          None
     }
-
-    private[this] def toOption[T](seq: Seq[T]) =
-      if (seq.isEmpty) None else Some(seq)
-
-    private[this] def collectMembers[
-      C <: PsiClass,
-      In <: PsiMember,
-      Out <: PsiMember
-    ](clazz: C)
-     (predicate: C => Boolean)
-     (members: C => Seq[In])
-     (collector: PartialFunction[In, Out]) =
-      if (predicate(clazz)) toOption(members(clazz).collect(collector))
-      else None
   }
 
-  private final class SealedClassGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
+  private final class DirectInheritorsGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
 
     override def patterns: Seq[PatternComponents] = {
-      val Inheritors(namedInheritors, isInstantiatiable) = inheritors
+      val Inheritors(namedInheritors, isExhaustive) = inheritors
 
       namedInheritors.map {
         case scalaObject: ScObject => new StablePatternComponents(scalaObject)
         case CaseClassPatternComponents(components) => components
         case definition => new TypedPatternComponents(definition)
-      } ++ (if (isInstantiatiable) Some(WildcardPatternComponents) else None)
+      } ++ (if (isExhaustive) None else Some(WildcardPatternComponents))
     }
   }
 
