@@ -69,12 +69,13 @@ object Play2Keys {
 
 
   object AllKeys {
-    abstract sealed class ParsedValue[T](val parsed: T) extends Serializable {
+    sealed trait ParsedValue[T] extends Serializable {
+      def parsed: T
       override def toString: String = parsed.toString
     }
-    class StringParsedValue @PropertyMapping(Array("parsed")) (parsed: String) extends ParsedValue[String](parsed)
+    case class StringParsedValue @PropertyMapping(Array("parsed")) (parsed: String) extends ParsedValue[String]
 
-    class SeqStringParsedValue @PropertyMapping(Array("parsed")) (parsed: util.List[String]) extends ParsedValue[util.List[String]](parsed)
+    case class SeqStringParsedValue @PropertyMapping(Array("parsed")) (parsed: util.List[String]) extends ParsedValue[util.List[String]]
 
     abstract class ParsedKey[T](val name: String) {
       def in(allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[Map[String, ParsedValue[_]]] = allKeys get name
