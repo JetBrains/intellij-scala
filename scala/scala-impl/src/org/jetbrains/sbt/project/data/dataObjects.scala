@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 import java.net.URI
-import java.util.{List => JList, Map => JMap, Set => JSet}
+import java.util.{List => JList, Map => JMap, Set => JSet, HashMap => JHashMap}
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtEntityData._
-import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
+import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
@@ -163,11 +163,13 @@ object ModuleExtData {
 
 
 @SerialVersionUID(1)
-case class Play2ProjectData @PropertyMapping(Array("projectKeysJava")) (
-  projectKeysJava: JMap[String, JMap[String, ParsedValue[_]]]
+case class Play2ProjectData @PropertyMapping(Array("stringValues", "seqStringsValues")) (
+  stringValues: JMap[String, JMap[String, StringParsedValue]],
+  seqStringsValues: JMap[String, JMap[String, SeqStringParsedValue]]
 ) extends SbtEntityData {
+
   def projectKeys: Map[String, Map[String, ParsedValue[_]]] =
-    projectKeysJava.asScala.toMap.map {
+    (stringValues.asScala.toMap ++ seqStringsValues.asScala.toMap).map {
       case (k, v) => (k, v.asScala.toMap)
     }
 }
@@ -177,10 +179,22 @@ object Play2ProjectData {
   val Key: Key[Play2ProjectData] = datakey(classOf[Play2ProjectData], ProjectKeys.PROJECT.getProcessingWeight + 1)
 
   def apply(projectKeys: Map[String, Map[String, ParsedValue[_]]]): Play2ProjectData = {
-    val withJavaMapsValues = projectKeys.map {
-      case (key, value) => (key, toJavaMap(value))
+    val stringValues = new JHashMap[String, JMap[String, StringParsedValue]]()
+    val seqStringsValues = new JHashMap[String, JMap[String, SeqStringParsedValue]]()
+    for {
+      (key, value) <- projectKeys
+      (innerKey, innerValue) <- value
+    } {
+      innerValue match {
+        case str: StringParsedValue =>
+          val innerMap = stringValues.computeIfAbsent(key, _ => new JHashMap[String, StringParsedValue]())
+          innerMap.put(innerKey, str)
+        case seqStr: SeqStringParsedValue =>
+          val innerMap = seqStringsValues.computeIfAbsent(key, _ => new JHashMap[String, SeqStringParsedValue]())
+          innerMap.put(innerKey, seqStr)
+      }
     }
-    Play2ProjectData(toJavaMap(withJavaMapsValues))
+    Play2ProjectData(stringValues, seqStringsValues)
   }
 }
 
