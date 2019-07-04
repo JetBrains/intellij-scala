@@ -465,17 +465,15 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   }
 
   def testCompoundParsing(): Unit = {
+    // Components
     assertParsedAs(
       "class A; class B",
       "A with B", "<<A> with <B>>")
     assertParsedAs(
       "class A; class B; class C",
       "A with B with C", "<<A> with <B> with <C>>")
-  }
 
-  // TODO def testCompound(): Unit = {
-
-  def testRefinementParsing(): Unit = {
+    // Refinement
     assertParsedAs(
       "class A",
       "AnyRef{def a: A}", "<<AnyRef>{<<def a: A>>}>") // TODO signature types
@@ -493,9 +491,14 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     assertParsedAs(
       "class A",
       "AnyRef{def a: A; type T}", "<<AnyRef>{<<def a: A>; <type T>>}>")
+
+    // Components and refinement
+    assertParsedAs(
+      "class A; class B",
+      "A with B {def a: A}", "<<A> with <B>{<<def a: A>>}>")
   }
 
-  // TODO def testRefinement(): Unit = {
+  // TODO def testCompound(): Unit = {
 
   // TODO List[List[Int]]
   // TODO FunctionN vs A => B
