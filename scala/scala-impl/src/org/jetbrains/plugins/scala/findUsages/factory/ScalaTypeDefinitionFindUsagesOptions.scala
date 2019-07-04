@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import java.util
-
-import com.intellij.find.FindBundle
 import com.intellij.find.findUsages.JavaFindUsagesOptions
 import com.intellij.openapi.project.Project
 
