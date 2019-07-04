@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
@@ -76,13 +76,17 @@ object TypeDiff {
 
     (tpe1, tpe2) match {
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
-      case (Refinement(_, _, _), Refinement(cs2, tms2, tps2)) if conformance(tpe1, tpe2) =>
-        val signatures = tms2.keys.map(_.namedElement.getText).toSeq.sorted.map(s => Group(Match(s)))
-        val types = tps2.values.map("type " + _.name).toSeq.sorted.map(s => Group(Match(s)))
-        Group(Group(Match(cs2.presentableText, Some(cs2))), Match("{"), Group((signatures ++ types).intersperse(Match("; ")): _*), Match("}"))
+      case (CompoundType(_, _, _), CompoundType(cs2, tms2, tps2)) if tpe1 == tpe2 =>
+        val components = (cs2, cs2).zipped.map(diff).intersperse(Match(" with "))
+        if (tms2.isEmpty && tps2.isEmpty) Group(components: _*) else {
+          val members =
+            (tms2.keys.map(_.namedElement) ++ tps2.values.map(_.typeAlias))
+              .map(_.getText.takeWhile(_ != '=').trim).toSeq.sorted.map(s => Group(Match(s)))
+          Group(components :+ Match("{") :+ Group(members.intersperse(Match("; ")): _*) :+ Match("}"): _*)
+        }
 
-      // TODO More flexible comparison (now, it's just "parsing" for the type annotation hints)
-      case (CompoundType(cs1), CompoundType(cs2)) if cs1.length == cs2.length =>
+      // TODO More flexible comparison, unify with the clause above
+      case (CompoundType(cs1, EmptyMap(), EmptyMap()), CompoundType(cs2, EmptyMap(), EmptyMap())) if cs1.length == cs2.length =>
         Group((cs1, cs2).zipped.map(diff).intersperse(Match(" with ")): _*)
 
       case (InfixType(l1, d1, r1), InfixType(l2, d2, r2)) =>
@@ -150,15 +154,12 @@ object TypeDiff {
 
   // TODO Move to ScCompoundType.scala?
   private object CompoundType {
-    def unapply(tpe: ScType): Option[Seq[ScType]] = Some(tpe) collect {
-      case tpe: ScCompoundType => tpe.components
+    def unapply(tpe: ScType): Option[(Seq[ScType], Map[TermSignature, ScType], Map[String, TypeAliasSignature])] = Some(tpe) collect {
+      case tpe: ScCompoundType => (tpe.components, tpe.signatureMap, tpe.typesMap)
     }
   }
 
-  private object Refinement {
-    def unapply(tpe: ScType): Option[(ScType, Map[TermSignature, ScType], Map[String, TypeAliasSignature])] = Some(tpe) collect {
-      case tpe: ScCompoundType if tpe.components.length == 1 && (tpe.signatureMap.nonEmpty || tpe.typesMap.nonEmpty) =>
-        (tpe.components.head, tpe.signatureMap, tpe.typesMap)
-    }
+  private object EmptyMap {
+    def unapply(map: Map[_, _]): Boolean = map.isEmpty
   }
 }
