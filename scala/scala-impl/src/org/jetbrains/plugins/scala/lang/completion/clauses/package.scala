@@ -11,16 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
-import scala.collection.JavaConverters
-import scala.reflect.{ClassTag, classTag}
-
 package object clauses {
 
   private[clauses] def inside[
-    Capture <: ScalaPsiElement : ClassTag
+    Capture <: ScalaPsiElement : reflect.ClassTag
   ]: PsiElementPattern.Capture[PsiElement] =
     PlatformPatterns.psiElement.inside {
-      classTag[Capture].runtimeClass.asInstanceOf[Class[Capture]]
+      reflect.classTag[Capture].runtimeClass.asInstanceOf[Class[Capture]]
     }
 
   private[clauses] def buildLookupElement(lookupString: String,
@@ -31,35 +28,41 @@ package object clauses {
       .withRenderer(presentation)
 
   private[clauses] case class Inheritors(namedInheritors: List[ScTypeDefinition],
-                                         isInstantiatiable: Boolean = false)
+                                         isExhaustive: Boolean) {
 
-  private[clauses] object SealedDefinition {
+    if (namedInheritors.isEmpty) throw new IllegalArgumentException("Class contract violation")
+  }
 
-    def unapply(definition: ScTypeDefinition): Option[Inheritors] = if (definition.isSealed) {
-      val (namedInheritors, anonymousInheritors) = directInheritors(definition).partition {
-        _.isInstanceOf[ScTypeDefinition]
+  private[clauses] object DirectInheritors {
+
+    def unapply(definition: ScTypeDefinition): Option[Inheritors] =
+      directInheritors(definition).partition(_.isInstanceOf[ScTypeDefinition]) match {
+        case (Seq(), _) => None
+        case (namedInheritors, anonymousInheritors) =>
+          val isSealed = definition.isSealed
+          val inheritors = if (isSealed)
+            namedInheritors.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
+          else
+            namedInheritors
+
+          val isNotConcrete = definition match {
+            case scalaClass: ScClass => scalaClass.hasAbstractModifier
+            case _ => true
+          }
+
+          Some(Inheritors(
+            inheritors.toList.asInstanceOf[List[ScTypeDefinition]],
+            isSealed && isNotConcrete && anonymousInheritors.isEmpty
+          ))
       }
-
-      val isConcreteClass = definition match {
-        case scalaClass: ScClass => !scalaClass.hasAbstractModifier
-        case _ => false
-      }
-
-      Some(Inheritors(
-        namedInheritors.asInstanceOf[List[ScTypeDefinition]],
-        isInstantiatiable = isConcreteClass || anonymousInheritors.nonEmpty
-      ))
-    } else None
 
     private def directInheritors(definition: ScTypeDefinition) = {
-      import JavaConverters._
+      import collection.JavaConverters._
       DirectClassInheritorsSearch
-        .search(definition, definition.getContainingFile.getResolveScope)
+        .search(definition)
         .findAll()
         .asScala
         .toIndexedSeq
-        .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
-        .toList
     }
   }
 
