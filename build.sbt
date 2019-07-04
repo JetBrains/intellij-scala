@@ -22,6 +22,7 @@ lazy val scalaCommunity: sbt.Project =
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
+      uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
@@ -57,6 +58,13 @@ lazy val conversion = newProject(
   file("scala/conversion")
 ).dependsOn(
   codeInsight % "test->test;compile->compile"
+)
+
+lazy val uast = newProject(
+  "uast",
+  file("scala/uast")
+).dependsOn(
+  scalaImpl % "test->test;compile->compile"
 )
 
 lazy val worksheet = newProject(
