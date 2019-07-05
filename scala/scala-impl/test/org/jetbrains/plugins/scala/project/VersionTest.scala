@@ -55,6 +55,12 @@ class VersionTest {
 
     assertEquals(-1, Version("1").compareTo(Version("1.1")))
     assertEquals(1, Version("1.1").compareTo(Version("1")))
+
+    assertTrue(Version("1.3.0-RC") < Version("1.3.0"))
+    assertTrue(Version("1.3.0-RC1") < Version("1.3.0"))
+    assertTrue(Version("1.3.0-RC1") < Version("1.3.0-RC2"))
+    assertTrue(Version("1.3.0-M5") < Version("1.3.0"))
+    assertTrue(Version("1.3.0-M5") < Version("1.3.0-RC1"))
   }
 
   @Test

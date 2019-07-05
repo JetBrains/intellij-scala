@@ -15,16 +15,20 @@ case class Version(presentation: String) extends Ordered[Version] {
   private val groups = strings.map(Group(_))
 
   private val essentialGroups: Seq[Group] =
-    groups.reverse.dropWhile(_.essentialNumbers.forall(_ == 0L)).reverse
+    groups.reverse.dropWhile(_.isNotEssential).reverse
 
-  def compare(other: Version): Int =
-    implicitly[Ordering[Seq[Group]]].compare(essentialGroups, other.essentialGroups)
+  def compare(other: Version): Int = {
+    val emptyGroup = Group(Seq.empty, VersionStatus.DEFAULT)
+    val (groups1, groups2) = essentialGroups.zipAll(other.essentialGroups, emptyGroup, emptyGroup).unzip
+
+    implicitly[Ordering[Seq[Group]]].compare(groups1, groups2)
+  }
 
   /** Returns whether this version is equal to or more specific than the other version.
    * A version is "more specific" if LHS contains more digits than RHS.
    */
   def ~=(other: Version): Boolean =
-    zipLeft(groups, other.groups, Group(Seq(0l))).forall {
+    zipLeft(groups, other.groups, Group(Seq(0L), VersionStatus.DEFAULT)).forall {
       case (l, r) => l ~= r
     } && groups.lengthCompare(other.groups.length) >= 0
 
@@ -50,12 +54,13 @@ object Version {
       .mkString("-")
   }
 
-  private case class Group(numbers: Seq[Long]) extends Ordered[Group] {
+  private case class Group(numbers: Seq[Long], status: VersionStatus) extends Ordered[Group] {
     val essentialNumbers: Seq[Long] =
       numbers.reverse.dropWhile(_ == 0L).reverse
 
     override def compare(other: Group): Int =
-      implicitly[Ordering[Seq[Long]]].compare(essentialNumbers, other.essentialNumbers)
+      implicitly[Ordering[(VersionStatus, Seq[Long])]]
+        .compare((status, essentialNumbers), (other.status, other.essentialNumbers))
 
     def ~=(other: Group): Boolean = {
       zipLeft(numbers, other.numbers, 0).forall {
@@ -64,13 +69,20 @@ object Version {
     }
 
     override def toString: String = numbers.mkString(".")
+
+    def isNotEssential: Boolean = status == VersionStatus.DEFAULT && essentialNumbers.forall(_ == 0L)
   }
 
   private object Group {
     private val IntegerPattern = "\\d+".r
 
-    def apply(presentation: String): Group =
-      Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList)
+    def apply(presentation: String): Group = {
+      val prefix =
+        if (presentation.startsWith("M")) VersionStatus.MILESTONE
+        else if (presentation.startsWith("RC")) VersionStatus.RC
+        else VersionStatus.DEFAULT
+      Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList, prefix)
+    }
   }
 
   /** zips and pads elements if left is shorter, but not right */
