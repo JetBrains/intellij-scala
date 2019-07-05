@@ -113,7 +113,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
 
         val template = builder.buildTemplate()
 
-        val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
+        val isScalaConsole = file.getName == ScalaLanguageConsoleView.ScalaConsole
         if (!isScalaConsole) {
           val newEditor = positionCursor(entity.getLastChild)
           val range = entity.getTextRange

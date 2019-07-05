@@ -169,7 +169,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
 
     val template = builder.buildTemplate()
     val targetFile = clazz.getContainingFile
-    val isScalaConsole = targetFile.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
+    val isScalaConsole = targetFile.getName == ScalaLanguageConsoleView.ScalaConsole
 
     if (!isScalaConsole) {
       val newEditor = positionCursor(clazz.nameId)

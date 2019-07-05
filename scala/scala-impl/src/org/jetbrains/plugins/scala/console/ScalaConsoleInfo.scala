@@ -7,11 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.containers.ContainerUtil
 
-/**
- * @author Ksenia.Sautina
- * @since 7/27/12
- */
-
 object ScalaConsoleInfo {
   private val SCALA_LANGUAGE_CONSOLE_KEY = new com.intellij.openapi.util.Key[String]("ScalaLanguageConsoleKey")
   private val NULL = (null, null, null)
@@ -20,19 +15,21 @@ object ScalaConsoleInfo {
 
   def getConsole(file: PsiFile): ScalaLanguageConsole = get(file)._1
   def getConsole(project: Project): ScalaLanguageConsole = get(project)._1
-  def getController(project: Project): ConsoleHistoryController = get(project)._2
-  def getProcessHandler(project: Project): ProcessHandler = get(project)._3
   def getConsole(editor: Editor): ScalaLanguageConsole = get(editor)._1
+
+  def getController(project: Project): ConsoleHistoryController = get(project)._2
   def getController(editor: Editor): ConsoleHistoryController = get(editor)._2
+
+  def getProcessHandler(project: Project): ProcessHandler = get(project)._3
   def getProcessHandler(editor: Editor): ProcessHandler = get(editor)._3
 
-  def setIsConsole(file: PsiFile, flag: Boolean) {
+  def setIsConsole(file: PsiFile, flag: Boolean): Unit =
     file.putCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY, if (flag) "console" else null)
-  }
 
-  def isConsole(file: PsiFile): Boolean = file.getCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY) != null
-  
-  def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryController, processHandler: ProcessHandler) {
+  def isConsole(file: PsiFile): Boolean =
+    file.getCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY) != null
+
+  def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryController, processHandler: ProcessHandler): Unit = {
     val project = console.getProject
     synchronized {
       allConsoles.get(project) match {
@@ -44,7 +41,7 @@ object ScalaConsoleInfo {
     }
   }
 
-  def disposeConsole(console: ScalaLanguageConsole) {
+  def disposeConsole(console: ScalaLanguageConsole): Unit = {
     val project = console.getProject
     synchronized {
       allConsoles.get(project) match {
@@ -66,7 +63,7 @@ object ScalaConsoleInfo {
     }
   }
 
-  private def get(editor: Editor) = {
+  private def get(editor: Editor): (ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler) = {
     synchronized {
       allConsoles.get(editor.getProject) match {
         case null => NULL
@@ -82,7 +79,7 @@ object ScalaConsoleInfo {
     }
   }
 
-  private def get(file: PsiFile) = {
+  private def get(file: PsiFile): (ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler) = {
     synchronized {
       allConsoles.get(file.getProject) match {
         case null => NULL
