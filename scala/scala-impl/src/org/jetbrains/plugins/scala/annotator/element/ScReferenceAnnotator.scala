@@ -58,7 +58,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  def annotateReference(reference: ScReference)
+  def annotateReference(reference: ScReference, inDesugaring: Boolean = false)
                        (implicit holder: AnnotationHolder): Unit = {
     val results = reference.multiResolveScala(false)
 
@@ -109,9 +109,11 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
                 if (missed.nonEmpty) {
-                  val range = call.argumentExpressions.lastOption
-                    .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
-                    .getOrElse(call.argsElement.getTextRange)
+                  val range = if (inDesugaring) call.argsElement.getTextRange else {
+                    call.argumentExpressions.lastOption
+                      .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
+                      .getOrElse(call.argsElement.getTextRange)
+                  }
 
                   registerCreateFromUsageFixesFor(reference,
                     holder.createErrorAnnotation(range,
@@ -127,13 +129,25 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
                 var typeMismatchShown = false
 
+                if (!inDesugaring) {
+                  val firstExcessiveArgument = problems.filterBy[ExcessArgument].map(_.argument).filter(inSameFile(_, holder)).firstBy(_.getTextOffset)
+                  firstExcessiveArgument.foreach { argument =>
+                    val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
+                    val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
+                    registerCreateFromUsageFixesFor(reference,
+                      holder.createErrorAnnotation(range, "Too many arguments for method " + nameOf(fun)))
+                  }
+                }
+
                 problems.foreach {
                   case DoesNotTakeParameters() =>
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters"))
                   case ExcessArgument(argument) if inSameFile(argument, holder) =>
-                    registerCreateFromUsageFixesFor(reference,
-                      holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
+                    if (inDesugaring) {
+                      registerCreateFromUsageFixesFor(reference,
+                        holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
+                    }
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
                     if (countMatches && !typeMismatchShown) {
                       expression.`type`().foreach {

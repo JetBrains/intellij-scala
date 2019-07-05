@@ -53,7 +53,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
       val sessionForExpr = new AnnotationSession(expr.getContainingFile)
       def mapPosInExprToElement(range: TextRange) = elementsMap.getOrElse(range.getStartOffset - shift, prefix)
 
-      ScReferenceAnnotator.annotateReference(ref) {
+      ScReferenceAnnotator.annotateReference(ref, inDesugaring = true) {
         new DelegateAnnotationHolder(sessionForExpr) {
           override protected def transformRange(range: TextRange): TextRange =
             mapPosInExprToElement(range).getTextRange

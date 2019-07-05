@@ -33,13 +33,20 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   }
 
   def testExcessArguments() {
+    assertMatches(messages("def f() {}; f(null)")) {
+      case Error("(n", "Too many arguments for method f") :: Nil =>
+    }
+
     assertMatches(messages("def f() {}; f(null, Unit)")) {
-      case Error("null", "Too many arguments for method f") ::
-              Error("Unit", "Too many arguments for method f") :: Nil =>
+      case Error("(n", "Too many arguments for method f") :: Nil =>
     }
 
     assertMatches(messages("def f(p: Any) {}; f(null, Unit)")) {
-      case Error("Unit", "Too many arguments for method f(Any)") :: Nil =>
+      case Error(", U", "Too many arguments for method f(Any)") :: Nil =>
+    }
+
+    assertMatches(messages("def f(p: Any) {}; f(null, Unit, 123)")) {
+      case Error(", U", "Too many arguments for method f(Any)") :: Nil =>
     }
   }
 
