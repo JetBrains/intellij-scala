@@ -1550,6 +1550,13 @@
         <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
         <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
       </action>
+      <action id="Scala.CollectShortTroubleshootingInfo"
+              internal="true"
+              description="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack"
+              class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
+      </action>
     </actions>
 
 </idea-plugin>
