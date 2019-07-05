@@ -93,7 +93,7 @@ object SbtAnnotator {
     }
   }
 
-  private def sbtVersionFor(file: SbtFileImpl) =
+  private def sbtVersionFor(file: SbtFileImpl): Version =
     findSbtVersion(file)(file.getProject).fold(Sbt.LatestVersion) {
       Version(_)
     }
@@ -105,9 +105,10 @@ object SbtAnnotator {
     }
 
   private[this] def findSbtVersion(file: SbtFileImpl)
-                                  (implicit project: Project) = for {
+                                  (implicit project: Project): Option[String] = for {
     virtualFile <- Option(file.getVirtualFile)
     module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
     projectSettings <- settings.SbtSettings.getInstance(project).getLinkedProjectSettings(module)
-  } yield projectSettings.sbtVersion
+    version <- Option(projectSettings.sbtVersion)
+  } yield version
 }
