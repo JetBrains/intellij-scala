@@ -14,13 +14,14 @@ import org.jetbrains.plugins.scala.project._
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
-/**
-  */
 abstract class BaseRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
+  extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
+
   private val defaultJavaOptions = "-Djline.terminal=NONE"
   private val useJavaCp = "-usejavacp"
-  protected def mainClass:String
+
+  protected def mainClass: String
+
   def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) useJavaCp else s
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)

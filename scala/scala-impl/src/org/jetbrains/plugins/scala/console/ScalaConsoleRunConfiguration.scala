@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.runner.BaseRunConfiguration
  */
 
 class ScalaConsoleRunConfiguration(project: Project, configurationFactory: ConfigurationFactory, name: String)
-        extends BaseRunConfiguration(project, configurationFactory, name) {
-  val mainClass = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
+  extends BaseRunConfiguration(project, configurationFactory, name) {
 
+  override val mainClass = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
 
   def apply(params: ScalaConsoleRunConfigurationForm) {
     javaOptions = params.getJavaOptions
@@ -27,7 +27,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     setModule(params.getModule)
   }
 
-  def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
+  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = createParams
@@ -39,9 +39,9 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     val consoleBuilder = new TextConsoleBuilderImpl(project) {
       override def getConsole: ConsoleView = ScalaLanguageConsoleBuilder.createConsole(project)
     }
-    state setConsoleBuilder consoleBuilder
+    state.setConsoleBuilder(consoleBuilder)
     state
   }
 
-  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
+  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
 }

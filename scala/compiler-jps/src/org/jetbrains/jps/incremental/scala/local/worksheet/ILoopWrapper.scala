@@ -7,10 +7,10 @@ import java.io.PrintWriter
   * Date: 27.01.17.
   */
 trait ILoopWrapper {
-  def init()
-  def shutdown()
+  def init(): Unit
+  def shutdown(): Unit
   
-  def reset()
+  def reset(): Unit
   def processChunk(input: String): Boolean
   
   def getOutputWriter: PrintWriter 
