@@ -1486,6 +1486,10 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
         </action>
+        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.ScalaConsoleCleanAction" text="Clean Console Content">
+            <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
+        </action>
         <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.ShowImplicitConversionsAction"
                 text="&amp;Implicit Conversions" description="Show Implicit Conversions">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
