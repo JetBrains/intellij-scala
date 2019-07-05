@@ -1,27 +1,16 @@
 package org.jetbrains.plugins.scala
 package console
 
-import javax.swing.JComponent
-
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.02.2009
- */
+import javax.swing.JComponent
 
 class ScalaConsoleRunConfigurationEditor(project: Project, configuration: ScalaConsoleRunConfiguration)
-        extends SettingsEditor[ScalaConsoleRunConfiguration] {
-  val form = new ScalaConsoleRunConfigurationForm(project, configuration)
+  extends SettingsEditor[ScalaConsoleRunConfiguration] {
 
-  def resetEditorFrom(s: ScalaConsoleRunConfiguration) {
-    form(s)
-  }
+  private val form = new ScalaConsoleRunConfigurationForm(project, configuration)
 
-  def applyEditorTo(s: ScalaConsoleRunConfiguration) {
-    s(form)
-  }
-
-  def createEditor: JComponent = form.getPanel
+  override def resetEditorFrom(s: ScalaConsoleRunConfiguration): Unit = form(s)
+  override def applyEditorTo(s: ScalaConsoleRunConfiguration) : Unit = s(form)
+  override def createEditor: JComponent = form.getPanel
 }

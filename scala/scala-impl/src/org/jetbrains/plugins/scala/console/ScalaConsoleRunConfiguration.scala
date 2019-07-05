@@ -1,30 +1,62 @@
 package org.jetbrains.plugins.scala
 package console
 
-import com.intellij.execution.Executor
-import com.intellij.execution.configurations._
+
+import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
 import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
+import com.intellij.execution.{CantRunException, ExecutionException, Executor}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.runner.BaseRunConfiguration
+import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.util.xmlb.XmlSerializer
+import org.jdom.Element
+import org.jetbrains.plugins.scala.project._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.02.2009
- */
+import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 class ScalaConsoleRunConfiguration(project: Project, configurationFactory: ConfigurationFactory, name: String)
-  extends BaseRunConfiguration(project, configurationFactory, name) {
+  extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
 
-  override val mainClass = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
+  private val MainClass = "scala.tools.nsc.MainGenericRunner"
+  private val DefaultJavaOptions = "-Djline.terminal=NONE"
+  private val UseJavaCp = "-usejavacp"
 
-  def apply(params: ScalaConsoleRunConfigurationForm) {
+  @BeanProperty var myConsoleArgs: String = ""
+  @BeanProperty var workingDirectory: String = Option(getProject.baseDir).map(_.getPath).getOrElse("")
+  @BeanProperty var javaOptions: String = DefaultJavaOptions
+
+  def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
+  def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
+  private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
+
+  private def getModule: Module = getConfigurationModule.getModule
+
+  override protected def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
+
+  def apply(params: ScalaConsoleRunConfigurationForm): Unit = {
     javaOptions = params.getJavaOptions
     consoleArgs = params.getConsoleArgs
     workingDirectory = params.getWorkingDirectory
     setModule(params.getModule)
+  }
+
+  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] =
+    new ScalaConsoleRunConfigurationEditor(project, this)
+
+  override def writeExternal(element: Element) {
+    super.writeExternal(element)
+    XmlSerializer.serializeInto(this, element)
+  }
+
+  override def readExternal(element: Element) {
+    super.readExternal(element)
+    readModule(element)
+    XmlSerializer.deserializeInto(this, element)
   }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -43,5 +75,25 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     state
   }
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
+  private def createParams: JavaParameters = {
+    val module = getModule
+    if (module == null) throw new ExecutionException("Module is not specified")
+
+    val rootManager = ModuleRootManager.getInstance(module)
+    val sdk = rootManager.getSdk
+    if (sdk == null || !sdk.getSdkType.isInstanceOf[JavaSdkType]) {
+      throw CantRunException.noJdkForModule(module)
+    }
+
+    new JavaParameters() {
+      getVMParametersList.addParametersString(javaOptions)
+      getClassPath.addScalaClassPath(module)
+      setUseDynamicClasspath(JdkUtil.useDynamicClasspath(getProject))
+      getClassPath.addRunners()
+      setWorkingDirectory(workingDirectory)
+      setMainClass(MainClass)
+      configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+    }
+  }
+
 }
