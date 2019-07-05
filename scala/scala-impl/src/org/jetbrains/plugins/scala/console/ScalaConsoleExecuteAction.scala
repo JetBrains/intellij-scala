@@ -8,69 +8,68 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction.LOG
 
-/**
- * @author Ksenia.Sautina
- * @since 9/18/12
- */
 class ScalaConsoleExecuteAction extends AnAction with DumbAware {
-  override def update(e: AnActionEvent) {
+
+  override def update(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor == null || !editor.isInstanceOf[EditorEx]) {
       e.getPresentation.setEnabled(false)
       return
     }
     val console = ScalaConsoleInfo.getConsole(editor)
-    if (console == null)  {
+    if (console == null) {
       e.getPresentation.setEnabled(false)
       return
     }
-    val isEnabled: Boolean = !editor.asInstanceOf[EditorEx].isRendererMode &&
-      !ScalaConsoleInfo.getProcessHandler(editor).isProcessTerminated
-
+    val terminated = ScalaConsoleInfo.getProcessHandler(editor).isProcessTerminated
+    val isEnabled: Boolean = !editor.asInstanceOf[EditorEx].isRendererMode && !terminated
     e.getPresentation.setEnabled(isEnabled)
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor == null) return
-    
+
     val console = ScalaConsoleInfo.getConsole(editor)
     val processHandler = ScalaConsoleInfo.getProcessHandler(editor)
     val model = ScalaConsoleInfo.getController(editor)
-    
-    if (editor != null && console != null && processHandler != null && model != null) {
-      val document = console.getEditorDocument
-      val text = document.getText
 
-      // Process input and add to history
-      extensions.inWriteAction {
-        val range: TextRange = new TextRange(0, document.getTextLength)
-        editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-        console.addToHistory(range, console.getConsoleEditor, true)
-        model.addToHistory(text)
+    if (editor == null || console == null || processHandler == null || model == null) {
+      LOG.info(new Throwable(s"Enter action in console failed: $editor, $console"))
+      return
+    }
 
-        editor.getCaretModel.moveToOffset(0)
-        editor.getDocument.setText("")
+    val document = console.getEditorDocument
+    val text = document.getText
+
+    // Process input and add to history
+    inWriteAction {
+      val range: TextRange = new TextRange(0, document.getTextLength)
+      editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+      console.addToHistory(range, console.getConsoleEditor, true)
+      model.addToHistory(text)
+
+      editor.getCaretModel.moveToOffset(0)
+      editor.getDocument.setText("")
+    }
+
+    val lines = text.split('\n')
+    lines.foreach { line =>
+      val lineWithNewLine = line + "\n"
+
+      try {
+        val outputStream: OutputStream = processHandler.getProcessInput
+        val bytes: Array[Byte] = lineWithNewLine.getBytes
+        outputStream.write(bytes)
+        outputStream.flush()
+      } catch {
+        case ex: IOException =>
+          val MaxLogStringLength = 1000
+          LOG.warn(s"Unexpected exception occurred during writing to process input:\n`${line.substring(MaxLogStringLength)}`", ex)
       }
-
-      text.split('\n').foreach(line => {
-        if (line != "") {
-          val outputStream: OutputStream = processHandler.getProcessInput
-          try {
-            val bytes: Array[Byte] = (line + "\n").getBytes
-            outputStream.write(bytes)
-            outputStream.flush()
-          }
-          catch {
-            case _: IOException => //ignore
-          }
-        }
-        console.textSent(line + "\n")
-      })
-    } else {
-      ScalaConsoleExecuteAction.LOG.info(new Throwable(s"Enter action in console failed: $editor, " +
-        s"$console"))
+      console.textSent(lineWithNewLine)
     }
   }
 }
