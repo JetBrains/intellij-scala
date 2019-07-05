@@ -57,11 +57,10 @@ class ScalaConsoleExecuteAction extends AnAction with DumbAware {
 
     val lines = text.split('\n')
     lines.foreach { line =>
-      val lineWithNewLine = line + "\n"
-
+      val lineWithFeed = line + "\n"
       try {
         val outputStream: OutputStream = processHandler.getProcessInput
-        val bytes: Array[Byte] = lineWithNewLine.getBytes
+        val bytes: Array[Byte] = lineWithFeed.getBytes
         outputStream.write(bytes)
         outputStream.flush()
       } catch {
@@ -69,7 +68,7 @@ class ScalaConsoleExecuteAction extends AnAction with DumbAware {
           val MaxLogStringLength = 1000
           LOG.warn(s"Unexpected exception occurred during writing to process input:\n`${line.substring(MaxLogStringLength)}`", ex)
       }
-      console.textSent(lineWithNewLine)
+      console.textSent(lineWithFeed)
     }
   }
 }

@@ -16,7 +16,7 @@ class ScalaStructureViewFactory extends PsiStructureViewFactory {
     case scalaFile: ScalaFile =>
       Stats.trigger(FeatureKey.structureView)
 
-      if (scalaFile.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
+      if (scalaFile.getName == ScalaLanguageConsoleView.ScalaConsole) {
         new ScalaStructureViewBuilder(scalaFile, Some(ScalaConsoleInfo.getConsole(scalaFile)))
       } else {
         new ScalaStructureViewBuilder(scalaFile)

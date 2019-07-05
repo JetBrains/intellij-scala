@@ -13,35 +13,31 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable
 
-/**
-  * User: Alefas
-  * Date: 18.10.11
-  */
-
 class ScalaLanguageConsole(project: Project, title: String)
   extends LanguageConsoleImpl(project, title, ScalaLanguage.INSTANCE) {
+
   private val textBuffer = new StringBuilder
   private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1")(project)
-  
+
   resetFileContext()
 
   def getHistory: String = textBuffer.toString()
 
   override def attachToProcess(processHandler: ProcessHandler): Unit = {
     super.attachToProcess(processHandler)
-    val controller = new ConsoleHistoryController(ScalaLanguageConsoleView.SCALA_CONSOLE_ROOT_TYPE, null, this)
+    val controller = new ConsoleHistoryController(ScalaLanguageConsoleView.ScalaConsoleRootType, null, this)
     controller.install()
 
     ScalaConsoleInfo.addConsole(this, controller, processHandler)
   }
-  
+
   private[console] def textSent(text: String) {
     textBuffer.append(text)
     resetFileTo(textBuffer.toString())
-    
+
     val types = new mutable.HashMap[String, TextRange]
     val values = new mutable.HashMap[String, (TextRange, Boolean)]
-    
+
     def addValue(name: String, range: TextRange, replaceWithPlaceholder: Boolean) {
       values.get(name) match {
         case Some((oldRange, r)) =>
@@ -49,10 +45,10 @@ class ScalaLanguageConsole(project: Project, title: String)
           textBuffer.replace(oldRange.getStartOffset, oldRange.getEndOffset, newText)
         case None =>
       }
-      
+
       values.put(name, (range, replaceWithPlaceholder))
     }
-    
+
     def addType(name: String, range: TextRange) {
       types.get(name) match {
         case Some(oldRange) =>
@@ -60,10 +56,10 @@ class ScalaLanguageConsole(project: Project, title: String)
           textBuffer.replace(oldRange.getStartOffset, oldRange.getEndOffset, newText)
         case None =>
       }
-      
+
       types.put(name, range)
     }
-    
+
     scalaFile.getChildren.foreach {
       case v: ScValue => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
       case v: ScVariable => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
@@ -74,13 +70,11 @@ class ScalaLanguageConsole(project: Project, title: String)
       case t: ScTypeAlias => addType(t.name, t.nameId.getTextRange)
       case _ => //do nothing
     }
-    
+
     resetFileTo(textBuffer.toString())
     resetFileContext()
   }
-  
-  
-  
+
   private def resetFileTo(text: String) {
     scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + ";\n1")(project)
   }
