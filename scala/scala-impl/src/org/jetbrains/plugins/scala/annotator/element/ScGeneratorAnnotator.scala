@@ -70,7 +70,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
             if (!foundMonadicError) {
               val errorHolder = delegateHolderFor(nextGen, session)
               // TODO decouple
-              desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_)(errorHolder))
+              desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_, inDesugaring = true)(errorHolder))
               foundMonadicError = errorHolder.hadError
             }
           }

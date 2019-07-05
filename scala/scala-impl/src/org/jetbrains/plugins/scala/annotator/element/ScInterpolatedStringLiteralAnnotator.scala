@@ -45,7 +45,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
                                 offsetToRange: Map[Int, TextRange],
                                 session: AnnotationSession)
                                (implicit holder: AnnotationHolder): Unit =
-    ScReferenceAnnotator.annotateReference(reference) {
+    ScReferenceAnnotator.annotateReference(reference, inDesugaring = true) {
 
       new annotationHolder.DelegateAnnotationHolder(session) {
 

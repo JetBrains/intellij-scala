@@ -4,6 +4,7 @@ package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -68,6 +69,13 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
     var typeMismatchShown = false
 
+    val firstExcessiveArgument = problems.filterBy[ExcessArgument].map(_.argument).firstBy(_.getTextOffset)
+    firstExcessiveArgument.foreach { argument =>
+      val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
+      val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
+      holder.createErrorAnnotation(range, "Too many arguments")
+    }
+
     //todo: better error explanation?
     //todo: duplicate
     problems.foreach {
@@ -81,8 +89,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
             annotation.registerFix(new CreateApplyQuickFix(td, c))
           case _ =>
         }
-      case ExcessArgument(argument) =>
-        holder.createErrorAnnotation(argument, "Too many arguments")
+      case ExcessArgument(_) => // simultaneously handled above
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
           expression.`type`().foreach {

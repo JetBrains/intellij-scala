@@ -4,6 +4,7 @@ package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
@@ -137,9 +138,15 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
     var typeMismatchShown = false
 
+    val firstExcessiveArgument = problems.filterBy[ExcessArgument].map(_.argument).firstBy(_.getTextOffset)
+    firstExcessiveArgument.foreach { argument =>
+      val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
+      val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
+      holder.createErrorAnnotation(range, s"Too many arguments for constructor$signature")
+    }
+
     problems.foreach {
-      case ExcessArgument(argument) =>
-        holder.createErrorAnnotation(argument, s"Too many arguments for constructor$signature")
+      case ExcessArgument(_) =>  // simultaneously handled above
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
           expression.`type`().foreach {

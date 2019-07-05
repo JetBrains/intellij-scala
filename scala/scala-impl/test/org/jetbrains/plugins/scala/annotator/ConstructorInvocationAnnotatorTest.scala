@@ -81,7 +81,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
   def testExcessArguments() {
     assertMatches(messages("new A(0, 1)")) {
-      case Error("1", "Too many arguments for constructor(Int)") :: Nil =>
+      case Error(", 1", "Too many arguments for constructor(Int)") :: Nil =>
     }
 
     assertMessagesSorted(messages("new D(0, 1)"))(
@@ -97,7 +97,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
 
     assertMessagesSorted(messages("new DDD(1)(2, 3)"))(
-      Error("3", "Too many arguments for constructor(Int)(Int)")
+      Error(", 3", "Too many arguments for constructor(Int)(Int)")
     )
   }
 

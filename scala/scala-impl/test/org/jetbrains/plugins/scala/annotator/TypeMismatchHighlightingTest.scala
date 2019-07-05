@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
    https://youtrack.jetbrains.net/issue/SCL-14042 Show missing arguments as inlay hints
    https://youtrack.jetbrains.net/issue/IDEA-195336 Show missing arguments as inlay hints
    https://youtrack.jetbrains.net/issue/SCL-15754 Don't highlight a term before a dot as a "type mismatch"
+   https://youtrack.jetbrains.com/issue/SCL-15773 Method / constructor invocation: highlight "space" before a closing paren on missing argument(s)
+   https://youtrack.jetbrains.com/issue/SCL-15783 Method / constructor invocation: highlight comma on excessive argument(s)
  */
 
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
@@ -146,12 +148,12 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testMethodInvocationMissingArgument(): Unit = {
     assertMessages(errorsFromScalaCode("def f(i: Int, b: Boolean): Unit = f(true)"))(
-      Error("e)", "Unspecified value parameters: b: Boolean"))
+      Error("e)", "Unspecified value parameters: b: Boolean")) // SCL-15773
   }
 
   def testMethodInvocationExcessiveArgument(): Unit = {
     assertMessages(errorsFromScalaCode("def f(i: Int): Unit = f(true, 1)"))(
-      Error("1", "Too many arguments for method f(Int)"))
+      Error(", 1", "Too many arguments for method f(Int)")) // SCL-15783
   }
 
   def testMethodInvocationMultipleTypeMismatches(): Unit = {
@@ -186,12 +188,12 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testConstructorInvocationMissingArgument(): Unit = {
     assertMessages(errorsFromScalaCode("class C(i: Int, b: Boolean); new C(true)"))(
-      Error("e)", "Unspecified value parameters: b: Boolean"))
+      Error("e)", "Unspecified value parameters: b: Boolean")) // SCL-15773
   }
 
   def testConstructorInvocationExcessiveArgument(): Unit = {
     assertMessages(errorsFromScalaCode("class C(i: Int); new C(true, 1)"))(
-      Error("1", "Too many arguments for constructor(Int)")) // TODO constructor name, whitespace?
+      Error(", 1", "Too many arguments for constructor(Int)")) // SCL-15783 // TODO constructor name, whitespace?
   }
 
   def testConstructorInvocationMultipleTypeMismatches(): Unit = {
