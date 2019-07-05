@@ -111,6 +111,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
   }
 
+  // TODO Don't separate the code from the expected messages (it's hard to understand such a test)
   def testMissedParameters() {
     assertMatches(messages("new A")) {
       case Error(_, "Unspecified value parameters: a: Int") :: Nil =>

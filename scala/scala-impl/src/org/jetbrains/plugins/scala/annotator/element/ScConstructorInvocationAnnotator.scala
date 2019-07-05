@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.extensions._
 
+// TODO unify with ScMethodInvocationAnnotator and ScReferenceAnnotator
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
 
   override def annotate(element: ScConstructorInvocation, typeAware: Boolean = true)
@@ -109,9 +110,15 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
     missedParamsPerArgList.foreach {
       case (param, missing) =>
-        val problematicClause = param.map(_.getTextRange).getOrElse(argsElements)
+        val range = param.map { argumentList =>
+          argumentList.exprs.lastOption
+            .map(e => new TextRange(e.getTextRange.getEndOffset - 1, argumentList.getTextRange.getEndOffset))
+            .getOrElse(argumentList.getTextRange)
+        } getOrElse {
+          argsElements
+        }
 
-        holder.createErrorAnnotation(problematicClause,
+        holder.createErrorAnnotation(range,
           "Unspecified value parameters: " + missing.map(p => p.name + ": " + p.paramType.presentableText).mkString(", "))
     }
 
