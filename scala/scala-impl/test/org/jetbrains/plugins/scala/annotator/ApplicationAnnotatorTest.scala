@@ -43,9 +43,46 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
 
+  // TODO "argument(s)" not "parameter(s)"
   def testMissedParameters() {
     assertMatches(messages("def f(a: Any, b: Any) {}; f()")) {
       case Error("()", "Unspecified value parameters: a: Any, b: Any") ::Nil =>
+    }
+  }
+
+  def testMissedParametersWhitespace() {
+    assertMatches(messages("def f(a: Any, b: Any) {}; f( )")) {
+      case Error("( )", "Unspecified value parameters: a: Any, b: Any") ::Nil =>
+    }
+  }
+
+  def testMissedOneParameter() {
+    assertMatches(messages("def f(a: Any, b: Any) {}; f(123)")) {
+      case Error("3)", "Unspecified value parameters: b: Any") ::Nil =>
+    }
+  }
+
+  def testMissedMoreParameters() {
+    assertMatches(messages("def f(a: Any, b: Any, c: Any) {}; f(123)")) {
+      case Error("3)", "Unspecified value parameters: b: Any, c: Any") ::Nil =>
+    }
+  }
+
+  def testMissedParameterWhitespace() {
+    assertMatches(messages("def f(a: Any, b: Any) {}; f(123 )")) {
+      case Error("3 )", "Unspecified value parameters: b: Any") ::Nil =>
+    }
+  }
+
+  def testMissedParameterComma() {
+    assertMatches(messages("def f(a: Any, b: Any) {}; f(123, )")) {
+      case Error("3, )", "Unspecified value parameters: b: Any") ::Nil =>
+    }
+  }
+
+  def testMissedParameterComment() {
+    assertMatches(messages("def f(a: Any, b: Any) {}; f(123 /* foo */ )")) {
+      case Error("3 /* foo */ )", "Unspecified value parameters: b: Any") ::Nil =>
     }
   }
 

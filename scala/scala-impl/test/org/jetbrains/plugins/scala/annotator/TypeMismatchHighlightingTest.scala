@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
    https://youtrack.jetbrains.net/issue/SCL-15588 Method / constructor invocation: highlight inapplicable methods as inapplicable
    https://youtrack.jetbrains.net/issue/SCL-14042 Show missing arguments as inlay hints
    https://youtrack.jetbrains.net/issue/IDEA-195336 Show missing arguments as inlay hints
+   https://youtrack.jetbrains.net/issue/SCL-15754 Don't highlight a term before a dot as a "type mismatch"
  */
 
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
@@ -145,7 +146,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testMethodInvocationMissingArgument(): Unit = {
     assertMessages(errorsFromScalaCode("def f(i: Int, b: Boolean): Unit = f(true)"))(
-      Error("(true)", "Unspecified value parameters: b: Boolean"))
+      Error("e)", "Unspecified value parameters: b: Boolean"))
   }
 
   def testMethodInvocationExcessiveArgument(): Unit = {
@@ -185,7 +186,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testConstructorInvocationMissingArgument(): Unit = {
     assertMessages(errorsFromScalaCode("class C(i: Int, b: Boolean); new C(true)"))(
-      Error("(true)", "Unspecified value parameters: b: Boolean"))
+      Error("e)", "Unspecified value parameters: b: Boolean"))
   }
 
   def testConstructorInvocationExcessiveArgument(): Unit = {
