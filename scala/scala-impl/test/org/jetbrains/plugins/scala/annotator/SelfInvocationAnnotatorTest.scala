@@ -71,7 +71,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def testMissedParameters(): Unit = {
     assertMessages(messagesForNonGeneric("this(0)"))(
-      Error("(0)", "Unspecified value parameters: b: Int")
+      Error("0)", "Unspecified value parameters: b: Int")
     )
     assertMessages(messagesForNonGeneric("this()"))(
       Error("()", "Unspecified value parameters: a: Int, b: Int")
@@ -135,7 +135,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def testMissingAndTypeMismatch() {
     assertMessagesSorted(messagesForGeneric("this(true)"))(
-      Error("(true)", "Unspecified value parameters: d: Boolean"),
+      Error("e)", "Unspecified value parameters: d: Boolean"),
       Error("true", "Type mismatch, expected: Int, actual: Boolean")
     )
   }

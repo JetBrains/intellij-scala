@@ -5,7 +5,7 @@ package element
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, HighlightSeverity}
-import com.intellij.openapi.util.Condition
+import com.intellij.openapi.util.{Condition, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeRef
 
 import scala.collection.Seq
 
+// TODO unify with ScMethodInvocationAnnotator and ScConstructorInvocationAnnotator
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   override def annotate(element: ScReference, typeAware: Boolean)
@@ -108,8 +109,12 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
                 if (missed.nonEmpty) {
+                  val range = call.argumentExpressions.lastOption
+                    .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
+                    .getOrElse(call.argsElement.getTextRange)
+
                   registerCreateFromUsageFixesFor(reference,
-                    holder.createErrorAnnotation(call.argsElement,
+                    holder.createErrorAnnotation(range,
                       "Unspecified value parameters: " + missed.mkString(", ")))
                 }
                 val (problems, fun) = call.applyOrUpdateElement match {

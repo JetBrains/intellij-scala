@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -14,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 
+// TODO unify with ScConstructorInvocationAnnotator and ScReferenceAnnotator
 // TODO Why it's only used for ScMethodCall and ScInfixExp, but not for ScPrefixExp or ScPostfixExpr?
 object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
@@ -45,8 +47,13 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     val problems = call.applyOrUpdateElement.map(_.problems).getOrElse(call.applicationProblems)
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
-    if(missed.nonEmpty)
-      holder.createErrorAnnotation(call.argsElement, "Unspecified value parameters: " + missed.mkString(", "))
+    if(missed.nonEmpty) {
+      val range = call.argumentExpressions.lastOption
+        .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
+        .getOrElse(call.argsElement.getTextRange)
+
+      holder.createErrorAnnotation(range, "Unspecified value parameters: " + missed.mkString(", "))
+    }
 
     if (problems.isEmpty) {
       return
