@@ -98,10 +98,10 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Foo) match {
-         |  case Foo(_)$CARET
+         |  case Foo(foo)$CARET
          |}
          """.stripMargin,
-    itemText = "Foo(_)"
+    itemText = "Foo(foo)"
   )
 
   def testBeforeCase(): Unit = checkNoCompletion(
