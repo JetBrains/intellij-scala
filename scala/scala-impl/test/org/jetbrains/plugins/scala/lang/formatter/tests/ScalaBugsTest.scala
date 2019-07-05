@@ -3850,4 +3850,35 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       |}
       |""".stripMargin
   )
+
+  def test_SCL15432(): Unit = doTextTest(
+    """42
+      |
+      |{
+      |}
+      |""".stripMargin
+  )
+
+  def test_SCL15432_1(): Unit = doTextTest(
+    """trait X {
+      |  42
+      |
+      |  {
+      |  }
+      |}""".stripMargin
+  )
+
+  def test_SCL15432_2(): Unit = doTextTest(
+    """42 {
+      |}
+      |""".stripMargin
+  )
+
+  def test_SCL15432_3(): Unit = doTextTest(
+    """trait X {
+      |  42 {
+      |  }
+      |}""".stripMargin
+  )
+
 }

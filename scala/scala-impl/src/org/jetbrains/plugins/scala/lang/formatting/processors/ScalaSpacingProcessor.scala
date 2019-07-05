@@ -462,7 +462,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               ON_NEW_LINE
           }
         } else rightPsiParent match {
-          case _: ScBlock | _: ScEarlyDefinitions | _: ScTemplateBody => ON_NEW_LINE
+          case _: ScBlock | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScalaFile => ON_NEW_LINE
           case _: ScArgumentExprList if rightPsi.isInstanceOf[ScBlock] => WITH_SPACING //don't add/remove newlines for partial function arguments
           case parent =>
             val (needSpace, braceStyle, startElement) =

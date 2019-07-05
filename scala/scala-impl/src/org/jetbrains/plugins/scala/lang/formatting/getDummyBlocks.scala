@@ -685,6 +685,9 @@ class getDummyBlocks(private val block: ScalaBlock) {
     ): Unit = {
       if (node.getPsi.isInstanceOf[ScLiteral]) {
         result.add(subBlock(node, null))
+        for (child <- delegatedChildren.filter(isCorrectBlock)) {
+          result.add(subBlock(child, null))
+        }
         return
       }
 
