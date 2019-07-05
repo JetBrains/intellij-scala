@@ -60,6 +60,22 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def testSCL2477_1(): Unit = doTextTest(
+    """class Foo {
+      |  private val i = 0; //some comment
+      |  private val j = 0;
+      |
+      |  /**
+      |   * @param p blah-blah-blah
+      |   */
+      |  def doSmth(p: Int) {}
+      |
+      |  //comment
+      |  def foo = 1
+      |}
+      |""".stripMargin
+  )
+
   def testSCL1875() {
     val before =
       """
@@ -3783,4 +3799,86 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(sameLine, nextLine)
     doTextTest(sameLineIndented, nextLine)
   }
+
+  def testSCL15746(): Unit = doTextTest(
+    """trait T {
+      |  {
+      |    val value3 = 555 //one-line comment
+      |    val value4 = 666
+      |  }
+      |
+      |  def foo = {
+      |    val value3 = 555 //one-line comment
+      |    val value4 = 666
+      |  }
+      |
+      |  42 match {
+      |    case 23 => {
+      |      val value3 = 555 //one-line comment
+      |      val value4 = 666
+      |    }
+      |    case _ =>
+      |      val value3 = 555 //one-line comment
+      |      lazy val value4 = 666
+      |  }
+      |
+      |  Option(42).map { _ =>
+      |    val value3 = 555 //one-line comment
+      |    var value4 = 666
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testShouldRemoveSpaceBeforeSemicolon(): Unit = doTextTest(
+    """class X {
+      |  private val x = 0  ; //some comment
+      |  private val y = 0 ;
+      |  //some comment
+      |  private val z = 0   ;
+      |
+      |  private val w = 0   ;
+      |}
+      |""".stripMargin,
+    """class X {
+      |  private val x = 0; //some comment
+      |  private val y = 0;
+      |  //some comment
+      |  private val z = 0;
+      |
+      |  private val w = 0;
+      |}
+      |""".stripMargin
+  )
+
+  def test_SCL15432(): Unit = doTextTest(
+    """42
+      |
+      |{
+      |}
+      |""".stripMargin
+  )
+
+  def test_SCL15432_1(): Unit = doTextTest(
+    """trait X {
+      |  42
+      |
+      |  {
+      |  }
+      |}""".stripMargin
+  )
+
+  def test_SCL15432_2(): Unit = doTextTest(
+    """42 {
+      |}
+      |""".stripMargin
+  )
+
+  def test_SCL15432_3(): Unit = doTextTest(
+    """trait X {
+      |  42 {
+      |  }
+      |}""".stripMargin
+  )
+
 }
