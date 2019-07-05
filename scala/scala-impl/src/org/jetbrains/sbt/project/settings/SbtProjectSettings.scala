@@ -56,7 +56,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
   @Nullable
   @BeanProperty
-  var sbtVersion: String = null
+  var sbtVersion: String = _
 
   def buildWithShell: Boolean = useSbtShellForBuild || useSbtShell
 
