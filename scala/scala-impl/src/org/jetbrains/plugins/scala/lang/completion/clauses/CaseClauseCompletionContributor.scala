@@ -71,7 +71,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         }
 
       override protected def createLookupElement(patternText: String,
-                                                 components: ClassPatternComponents[_])
+                                                 components: ClassPatternComponents)
                                                 (implicit place: PsiElement): LookupElement =
         buildLookupElement(
           patternText,
@@ -131,7 +131,7 @@ object CaseClauseCompletionContributor {
       }
 
     protected def createLookupElement(patternText: String,
-                                      components: ClassPatternComponents[_])
+                                      components: ClassPatternComponents)
                                      (implicit place: PsiElement): LookupElement =
       buildLookupElement(
         ScalaKeyword.CASE + patternText,
@@ -146,7 +146,7 @@ object CaseClauseCompletionContributor {
       }
 
     private def createComponents(`type`: ScType, typeDefinition: ScTypeDefinition)
-                                (implicit place: PsiElement): List[ClassPatternComponents[_]] =
+                                (implicit place: PsiElement): List[ClassPatternComponents] =
       (`type`, typeDefinition) match {
         case (TupleType(types), tupleClass: ScClass) =>
           new TuplePatternComponents(tupleClass, types) :: Nil
@@ -171,7 +171,7 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private final class CaseClauseInsertHandler(components: ClassPatternComponents[_])
+  private final class CaseClauseInsertHandler(components: ClassPatternComponents)
                                              (implicit place: PsiElement)
     extends ClauseInsertHandler[ScCaseClause] {
 
@@ -195,7 +195,7 @@ object CaseClauseCompletionContributor {
   }
 
   private final class PatternInsertHandler(patternText: String,
-                                           components: ClassPatternComponents[_])
+                                           components: ClassPatternComponents)
     extends ClauseInsertHandler[ScConstructorPattern] {
 
     override def handleInsert(implicit context: InsertionContext): Unit = {

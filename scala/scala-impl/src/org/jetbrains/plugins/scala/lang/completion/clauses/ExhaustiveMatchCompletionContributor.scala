@@ -168,7 +168,7 @@ object ExhaustiveMatchCompletionContributor {
       )
 
       for {
-        (element, components: ClassPatternComponents[_]) <- pairs
+        (element, components: ClassPatternComponents) <- pairs
         (pattern, ScSimpleTypeElement.unwrapped(codeReference)) <- findTypeElement(element)
 
         replacement = createPatternFromTextWithContext(
