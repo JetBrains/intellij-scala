@@ -26,8 +26,6 @@ public class ScalaConsoleRunConfigurationForm {
   private RawCommandLineEditor consoleArgsEditor;
   private TextFieldWithBrowseButton workingDirectoryField;
   private JComboBox moduleComboBox;
-  private Project myProject;
-  private ScalaConsoleRunConfiguration myConfiguration;
 
   private ConfigurationModuleSelector myModuleSelector;
 
@@ -36,8 +34,6 @@ public class ScalaConsoleRunConfigurationForm {
     myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
     myModuleSelector.reset(configuration);
     moduleComboBox.setEnabled(true);
-    myProject = project;
-    myConfiguration = configuration;
     javaOptionsEditor.setName("VM options");
     javaOptionsEditor.setDialogCaption("VM options editor");
     javaOptionsEditor.setText("-Djline.terminal=NONE");
@@ -90,9 +86,10 @@ public class ScalaConsoleRunConfigurationForm {
     return myModuleSelector.getModule();
   }
 
-  private FileChooserDescriptor addFileChooser(final String title,
-                                               final TextFieldWithBrowseButton textField,
-                                               final Project project) {
+  @SuppressWarnings("SameParameterValue")
+  private void addFileChooser(final String title,
+                              final TextFieldWithBrowseButton textField,
+                              final Project project) {
     final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
       @Override
       public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
@@ -101,7 +98,6 @@ public class ScalaConsoleRunConfigurationForm {
     };
     fileChooserDescriptor.setTitle(title);
     textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
-    return fileChooserDescriptor;
   }
 
   {
