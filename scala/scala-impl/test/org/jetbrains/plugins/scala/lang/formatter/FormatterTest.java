@@ -44,9 +44,9 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
 
   public FormatterTest() throws IOException {
     super(
-      System.getProperty("path") != null ?
-      System.getProperty("path") :
-      (new File(TestUtils.getTestDataPath() + DATA_PATH)).getCanonicalPath()
+        System.getProperty("path") != null
+            ? System.getProperty("path")
+            : (new File(TestUtils.getTestDataPath() + DATA_PATH)).getCanonicalPath()
     );
   }
 
@@ -65,22 +65,19 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     CodeStyleManager.getInstance(project).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
   }
 
-  public String transform(String testName, String[] data) throws Exception {
+  @Override
+  public String transform(String testName, String[] data) {
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-    CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            try {
-              performFormatting(getProject(), psiFile);
-            } catch (IncorrectOperationException e) {
-              e.printStackTrace();
-            }
+    Runnable runnable = () -> ApplicationManager.getApplication().runWriteAction(() -> {
+          try {
+            performFormatting(getProject(), psiFile);
+          } catch (IncorrectOperationException e) {
+            e.printStackTrace();
           }
-        });
-      }
-    }, null, null);
+        }
+    );
+    CommandProcessor.getInstance().executeCommand(getProject(), runnable, null, null);
     return psiFile.getText();
   }
 

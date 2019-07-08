@@ -303,43 +303,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else WITHOUT_SPACING
     }
 
-    //for interpolated strings
-    if (rightElementType == tINTERPOLATED_STRING_ESCAPE)
-      return Spacing.getReadOnlySpacing
-    if (rightElementType == tINTERPOLATED_STRING) {
-      return if (leftBlockString == MultilineStringUtil.getMarginChar(leftPsi).toString) Spacing.getReadOnlySpacing
-      else WITHOUT_SPACING
-    }
-    if (leftElementType == ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE) {
-      return WITHOUT_SPACING
-    }
-    if (rightElementType == tINTERPOLATED_STRING_END) {
-      leftElementType match {
-        case `tINTERPOLATED_STRING`  | `tINTERPOLATED_STRING_ESCAPE` | ScalaElementType.`REFERENCE_EXPRESSION` | _: ScCodeBlockElementType  =>
-          return Spacing.getReadOnlySpacing
-        case _ =>
-      }
-    }
-    if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION))
-      return Spacing.getReadOnlySpacing
-    if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID))
-      return Spacing.getReadOnlySpacing
-
-    @tailrec
-    def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
-      psiElem match {
-        case ml: ScLiteral if ml.isMultiLineString =>
-          val nodeOffset = rightNode.getTextRange.getStartOffset
-          val magicCondition = right.getTextRange.contains(new TextRange(nodeOffset, nodeOffset + 3))
-          val actuallyMultiline = rightBlockString.contains("\n")
-          magicCondition && actuallyMultiline
-
-        case _: ScInfixExpr | _: ScReferenceExpression | _: ScMethodCall =>
-          isMultiLineStringCase(psiElem.getFirstChild)
-        case _ => false
-      }
-    }
-
     //multiline strings
     if (scalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE && isMultiLineStringCase(rightPsi)) {
       return ON_NEW_LINE
@@ -361,6 +324,39 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         NO_SPACING_WITH_NEWLINE
       } else {
         Spacing.getReadOnlySpacing
+      }
+    }
+
+    //for interpolated strings
+    if (rightElementType == tINTERPOLATED_STRING_ESCAPE)
+      return Spacing.getReadOnlySpacing
+    if (rightElementType == tINTERPOLATED_STRING || rightElementType == tINTERPOLATED_MULTILINE_STRING) {
+      return if (leftBlockString == MultilineStringUtil.getMarginChar(leftPsi).toString) Spacing.getReadOnlySpacing
+      else WITHOUT_SPACING
+    }
+    if (leftElementType == ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE)
+      return WITHOUT_SPACING
+    if (rightElementType == tINTERPOLATED_STRING_END)
+      return Spacing.getReadOnlySpacing
+    if (leftElementType == tINTERPOLATED_STRING_INJECTION || rightElementType == tINTERPOLATED_STRING_INJECTION)
+      return Spacing.getReadOnlySpacing
+    if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID))
+      return Spacing.getReadOnlySpacing
+    if (leftElementType == tWRONG_STRING || rightElementType == tWRONG_STRING)
+      return Spacing.getReadOnlySpacing
+
+    @tailrec
+    def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
+      psiElem match {
+        case ml: ScLiteral if ml.isMultiLineString =>
+          val nodeOffset = rightNode.getTextRange.getStartOffset
+          val magicCondition = right.getTextRange.contains(new TextRange(nodeOffset, nodeOffset + 3))
+          val actuallyMultiline = rightBlockString.contains("\n")
+          magicCondition && actuallyMultiline
+
+        case _: ScInfixExpr | _: ScReferenceExpression | _: ScMethodCall =>
+          isMultiLineStringCase(psiElem.getFirstChild)
+        case _ => false
       }
     }
 

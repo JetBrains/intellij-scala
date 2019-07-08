@@ -40,31 +40,39 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
 
   public abstract String transform(String testName, String[] data) throws Exception;
 
-  protected void runTest(final File myTestFile) throws Throwable {
+  private static final String BEFORE_AND_AFTER_SEPARATOR = "-----";
+  private static final String UNCHANGED_TAG = "<unchanged>";
 
+  protected void runTest(final File myTestFile) throws Throwable {
     String content = new String(FileUtil.loadFileText(myTestFile, "UTF-8"));
     Assert.assertNotNull(content);
 
-    List<String> input = new ArrayList<String>();
+    List<String> input = new ArrayList<>();
 
     int separatorIndex;
     content = StringUtil.replace(content, "\r", ""); // for MACs
 
     // Adding input  before -----
-    while ((separatorIndex = content.indexOf("-----")) >= 0) {
-      input.add(content.substring(0, separatorIndex-1));
+    while ((separatorIndex = content.indexOf(BEFORE_AND_AFTER_SEPARATOR)) >= 0) {
+      input.add(content.substring(0, separatorIndex - 1));
       content = content.substring(separatorIndex);
       while (StringUtil.startsWithChar(content, '-') ||
-              StringUtil.startsWithChar(content, '\n')) {
+          StringUtil.startsWithChar(content, '\n')) {
         content = content.substring(1);
       }
     }
+
     // Result - after -----
     String result = content;
     while (StringUtil.startsWithChar(result, '-') ||
-            StringUtil.startsWithChar(result, '\n') ||
-            StringUtil.startsWithChar(result, '\r')) {
+        StringUtil.startsWithChar(result, '\n') ||
+        StringUtil.startsWithChar(result, '\r')) {
       result = result.substring(1);
+    }
+
+    if (result.trim().toLowerCase().equals("UNCHANGED_TAG")) {
+      Assert.assertEquals("Unchenged expected result expects only 1 input enty", 1, input.size());
+      result = input.get(0);
     }
 
     Assert.assertTrue("No data found in source file", input.size() > 0);
@@ -80,13 +88,13 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     }
 
     String temp = transform(testName, input.toArray(new String[0]));
-    transformed = StringUtil.replace(temp ,"\r", "");
+    transformed = StringUtil.replace(temp, "\r", "");
 
     if (shouldPass()) {
       Assert.assertEquals(result.trim(), transformed.trim());
     } else {
       Assert.assertNotEquals(result.trim(), transformed.trim());
-    };
+    }
 
     //fixTestData(..., input, transformed)
   }
