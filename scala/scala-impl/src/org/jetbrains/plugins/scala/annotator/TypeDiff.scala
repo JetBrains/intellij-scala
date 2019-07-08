@@ -4,7 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialType, ScLiteralType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialType, ScLiteralType, ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -53,21 +53,25 @@ object TypeDiff {
   }
 
   // To display a type hint
-  def parse(tpe: ScType): TypeDiff = diff(tpe, tpe)((_, _) => true)
+  def parse(tpe: ScType)(implicit context: TypePresentationContext): TypeDiff =
+    diff(tpe, tpe)((_, _) => true, context)
 
   // To highlight a type ascription
-  def forExpected(expected: ScType, actual: ScType): TypeDiff = diff(actual, expected)(_.conforms(_))
+  def forExpected(expected: ScType, actual: ScType)(implicit context: TypePresentationContext): TypeDiff =
+    diff(actual, expected)(_.conforms(_), context)
 
   // To display a type mismatch hint
-  def forActual(expected: ScType, actual: ScType): TypeDiff = diff(expected, actual)(reversed(_.conforms(_)))
+  def forActual(expected: ScType, actual: ScType)(implicit context: TypePresentationContext): TypeDiff =
+    diff(expected, actual)(reversed(_.conforms(_)), context)
 
   // To display a type mismatch tooltip
-  def forBoth(expected: ScType, actual: ScType): (TypeDiff, TypeDiff) = (forExpected(expected, actual), forActual(expected, actual))
+  def forBoth(expected: ScType, actual: ScType)(implicit context: TypePresentationContext): (TypeDiff, TypeDiff) =
+    (forExpected(expected, actual), forActual(expected, actual))
 
   private type Conformance = (ScType, ScType) => Boolean
 
   // TODO refactor (decompose, unify, etc.)
-  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance): TypeDiff = {
+  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance, context: TypePresentationContext): TypeDiff = {
     def conformanceFor(variance: Variance): Conformance = variance match {
       case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
       case Variance.Covariant => conformance
@@ -94,7 +98,7 @@ object TypeDiff {
       case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>
         val wildcards = ws2.map { wildcard =>
           Group(Match("_") +:
-            ((if (wildcard.lower.isNothing) Seq.empty else Seq(Match(" >: "), diff(wildcard.lower, wildcard.lower)(reversed(conformance)))) ++
+            ((if (wildcard.lower.isNothing) Seq.empty else Seq(Match(" >: "), diff(wildcard.lower, wildcard.lower)(reversed(conformance), context))) ++
               (if (wildcard.upper.isAny) Seq.empty else Seq(Match(" <: "), diff(wildcard.upper, wildcard.upper)))): _*)
         }
         Group(diff(q2.designator, q2.designator), Match("["), Group(wildcards.intersperse(Match(", ")): _*), Match("]"))
@@ -107,7 +111,7 @@ object TypeDiff {
           }
           case _ => (Variance.Invariant, Variance.Invariant)
         }
-        Group(diff(l1, l2)(conformanceFor(v1)), Match(" "), diff(d1, d2), Match(" "), diff(r1, r2)(conformanceFor(v2)))
+        Group(diff(l1, l2)(conformanceFor(v1), context), Match(" "), diff(d1, d2), Match(" "), diff(r1, r2)(conformanceFor(v2), context))
 
       case (TupleType(ts1), TupleType(ts2)) =>
         if (ts1.length == ts2.length) Group(Match("("), Group((ts1, ts2).zipped.map(diff).intersperse(Match(", ")): _*), Match(")"))
@@ -116,7 +120,7 @@ object TypeDiff {
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val left = {
           if (p1.length == p2.length) {
-            val parameters = (p1, p2).zipped.map(diff(_, _)(reversed)).intersperse(Match(", "))
+            val parameters = (p1, p2).zipped.map(diff(_, _)(reversed, context)).intersperse(Match(", "))
             if (p2.length > 1 || p2.exists(FunctionType.isFunctionType)) Seq(Match("("), Group(parameters: _*), Match(")")) else parameters
           } else {
             Seq(Mismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
@@ -131,7 +135,7 @@ object TypeDiff {
           case _ => Seq.fill(args2.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
         val inner = if (args1.length == args2.length)
-          (args1, args2, conformances).zipped.map(diff(_, _)(_)).intersperse(Match(", "))
+          (args1, args2, conformances).zipped.map(diff(_, _)(_, context)).intersperse(Match(", "))
         else
           Seq(Mismatch(args2.map(_.presentableText).mkString(", ")))
 

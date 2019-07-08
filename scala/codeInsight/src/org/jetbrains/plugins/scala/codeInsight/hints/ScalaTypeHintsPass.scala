@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
 
@@ -27,7 +27,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
         val definition = Definition(element)
         (tpe, body) <- typeAndBodyOf(definition)
         if showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
-        info <- inlayInfoFor(definition, tpe)(editor.getColorsScheme)
+        info <- inlayInfoFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element))
       } yield info
     }.toSeq
   }
@@ -51,7 +51,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     if (showFunctionReturnType) member.returnType.toOption else None
 
 
-  private def inlayInfoFor(definition: Definition, returnType: ScType)(implicit scheme: EditorColorsScheme): Option[Hint] = for {
+  private def inlayInfoFor(definition: Definition, returnType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Option[Hint] = for {
     anchor <- definition.parameterList
     suffix = definition match {
       case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => Seq(Text(" ="))
@@ -60,7 +60,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     text = Text(": ") +: (partsOf(returnType) ++ suffix)
   } yield Hint(text, anchor, suffix = true, menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
 
-  private def partsOf(tpe: ScType)(implicit scheme: EditorColorsScheme): Seq[Text] = {
+  private def partsOf(tpe: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
     def toText(diff: TypeDiff): Text = diff match {
       case Group(diffs @_*) =>
         Text(foldedString,

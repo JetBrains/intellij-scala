@@ -14,11 +14,11 @@ import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 // TODO experimental feature (SCL-15250)
 private object TypeMismatchHints {
-  def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme): AnnotatorHints = {
+  def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): AnnotatorHints = {
     val needsParentheses = element.is[ScInfixExpr, ScPostfixExpr]
 
     val prefix =
@@ -47,7 +47,7 @@ private object TypeMismatchHints {
     EditorFactory.getInstance().getAllEditors.headOption
       .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).charWidth(char))
 
-  private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme): Seq[Text] = {
+  private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
     def toText(diff: TypeDiff): Text = diff match {
       case Group(diffs @_*) =>
         Text(foldedString,
@@ -69,7 +69,7 @@ private object TypeMismatchHints {
       .map(_.copy(errorTooltip = Some(message)))
   }
 
-  def tooltipFor(expectedType: ScType, actualType: ScType): String = {
+  def tooltipFor(expectedType: ScType, actualType: ScType)(implicit context: TypePresentationContext): String = {
     def format(diff: TypeDiff, f: String => String) = {
       val parts = diff.flatten.map {
         case Match(text, _) => text

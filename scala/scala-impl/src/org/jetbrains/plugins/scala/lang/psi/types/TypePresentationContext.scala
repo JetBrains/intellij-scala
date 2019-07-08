@@ -13,6 +13,8 @@ trait TypePresentationContext {
 object TypePresentationContext {
   import scala.language.implicitConversions
 
+  def apply(place: PsiElement) = psiElementPresentationContext(place)
+
   implicit def psiElementPresentationContext(place: PsiElement): TypePresentationContext = (text, target) => {
     if (place.isValid) {
       ScalaPsiElementFactory.createTypeElementFromText(text, place.getContext, place) match {

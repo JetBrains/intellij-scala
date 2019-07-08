@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -44,6 +44,8 @@ private object TypeMismatchError {
       adjustTextAttributesOf(annotation)
       annotation
     }
+
+    implicit val context = TypePresentationContext(annotatedElement)
 
     annotation.setTooltip(if (highlightExpression) TypeMismatchHints.tooltipFor(expectedType, actualType) else null)
     annotation.registerFix(ReportHighlightingErrorQuickFix)
