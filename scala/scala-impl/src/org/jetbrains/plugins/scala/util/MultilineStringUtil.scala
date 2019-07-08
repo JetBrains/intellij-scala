@@ -72,9 +72,12 @@ object MultilineStringUtil {
     findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element, marginChar)
   }
 
-  /** @return true <br>
-   *          1) if multiline string literal has stripMargin on the call site and at least one line with margin<br>
-   *          2) all non-empty lines start with a margin<br><br>
+  /** @return true<br>
+   *          1) if multiline string literal has stripMargin on the call site and one of these is true:<br>
+   *          1.1) it is one-line multiline string<br>
+   *          1.2) at least one non-empty-line has margin<br>
+   *          2) if multiline string literal does not have stripMargin and all non-empty lines start with a margin<br>
+   *          <br>
    *          false  otherwise
    */
   def looksLikeUsesMargins(literal: ScLiteral): Boolean = {
@@ -85,8 +88,8 @@ object MultilineStringUtil {
 
     literal match {
       case WithStrippedMargin(_, marginChar) =>
-        // TODO: test
-        !lines.hasNext || lines.exists(_.startsWith(marginChar))
+        val isOneLine = !literal.textContains('\n')
+        isOneLine || lines.isEmpty || lines.exists(_.startsWith(marginChar))
       case _ =>
         val withoutFirst = lines.drop(1)
         withoutFirst.hasNext && withoutFirst.forall(_.startsWith("|"))
