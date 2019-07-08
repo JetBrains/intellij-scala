@@ -20,7 +20,7 @@ abstract class AbstractNotificationProvider(kitTitle: String,
 
   import AbstractNotificationProvider._
 
-  override final def getKey: Key[EditorNotificationPanel] = Key.create(kitTitle)
+  override final val getKey: Key[EditorNotificationPanel] = Key.create(kitTitle)
 
   project.subscribeToModuleRootChanged() { _ =>
     notifications.updateAllNotifications()
