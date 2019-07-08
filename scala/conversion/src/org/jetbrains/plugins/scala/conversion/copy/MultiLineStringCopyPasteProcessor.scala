@@ -8,7 +8,8 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.text.StringUtil.startsWithChar
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPasteProcessor._
-import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.extensions.{childOf, inWriteAction}
+import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -34,22 +35,36 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
                                  editor: Editor,
                                  text: String,
                                  rawText: RawText): String = {
-    val result = for {
+    val result: Option[String] = for {
       f <- Option(file)
       if requiresMarginProcess(f)
       if !editor.getSelectionModel.hasSelection
       offset = editor.getCaretModel.getOffset
       element = file.findElementAt(offset)
       literal <- findMultilineStringParent(element)
-    } yield if (MultilineStringUtil.looksLikeUsesMargins(literal)) {
-      val marginChar = getMarginChar(element)
-      val marginIsMissing = !startsWithChar(text.trim, marginChar)
-      val startsFromNewLine = StringUtil.isEmptyOrSpaces(linePrefix(editor.getDocument, offset))
-      val needMargin = marginIsMissing && startsFromNewLine
-      val marginPrefix = if (needMargin) marginChar else ""
-      marginPrefix + text.replace("\n", "\n " + marginChar)
-    } else {
-      text
+    } yield {
+      val isOneLine = !literal.textContains('\n')
+      if (isOneLine && settings(file).MULTILINE_STRING_INSERT_MARGIN_ON_ENTER) {
+        val marginChar = getMarginChar(element)
+        literal match {
+          case WithStrippedMargin(_, _) =>
+          case _ =>
+            inWriteAction {
+              val stripMarginParams = if (marginChar == '|') "" else "('$marginChar')"
+              editor.getDocument.insertString(literal.getTextRange.getEndOffset, s".stripMargin$stripMarginParams")
+            }
+        }
+        text.replace("\n", "\n " + marginChar)
+      } else if (MultilineStringUtil.looksLikeUsesMargins(literal)) {
+        val marginChar = getMarginChar(element)
+        val marginIsMissing = !startsWithChar(text.trim, marginChar)
+        val startsFromNewLine = StringUtil.isEmptyOrSpaces(linePrefix(editor.getDocument, offset))
+        val needMargin = marginIsMissing && startsFromNewLine
+        val marginPrefix = if (needMargin) marginChar else ""
+        marginPrefix + text.replace("\n", "\n " + marginChar)
+      } else {
+        text
+      }
     }
     result
       .map(_.replace("\"\"\"", """\"\"\""""))
@@ -59,13 +74,11 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
 
 object MultiLineStringCopyPasteProcessor {
   private object requiresMarginProcess {
-    def apply(file: PsiFile): Boolean = {
-      val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-      settings.MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE
-    }
-
+    def apply(file: PsiFile): Boolean = settings(file).MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE
     def unapply(file: ScalaFile): Boolean = apply(file)
   }
+
+  private def settings(file: PsiFile): ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(file.getProject)
 
   private def findMultilineStringParent(element: PsiElement): Option[ScLiteral] = (element match {
     case literal: ScInterpolatedStringLiteral => Some(literal)

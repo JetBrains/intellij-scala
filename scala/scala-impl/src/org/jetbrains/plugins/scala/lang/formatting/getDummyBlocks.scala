@@ -261,8 +261,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
         node.getPsi match {
           case params: ScParameters =>
             val firstParameterStartsFromNewLine =
-              params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine()) ||
-                commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE
+              commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
+                params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine())
             if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
             else alignment
           case _: ScParameterClause =>
