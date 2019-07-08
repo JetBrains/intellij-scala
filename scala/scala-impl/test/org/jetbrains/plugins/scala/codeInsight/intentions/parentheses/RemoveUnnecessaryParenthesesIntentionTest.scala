@@ -1,39 +1,37 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intentions.parentheses
+package codeInsight
+package intentions
+package parentheses
 
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
+ * test only removing clarifying paretheses here
+ *
  * Nikolay.Tropin
  * 6/27/13
  */
-
-//test only removing clarifying paretheses here
 class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
-  def familyName: String = RemoveUnnecessaryParenthesesIntention.familyName
 
-  def test_1(): Unit = {
-    val text = "1 + (1 * 2<caret>)"
-    val result = "1 + 1 * 2"
-    doTest(text, result)
-  }
+  override def familyName: String = InspectionBundle.message("remove.unnecessary.parentheses.fix", "")
 
-  def test_2(): Unit = {
-    val text = "1 :: (<caret>2 :: Nil)"
-    val result = "1 :: 2 :: Nil"
-    doTest(text, result)
-  }
+  def test_1(): Unit = doTest(
+    s"1 + (1 * 2$caretTag)",
+    "1 + 1 * 2"
+  )
 
-  def test_3(): Unit = {
-    val text = "(- 1<caret>) + 1"
-    val result = "-1 + 1"
-    doTest(text, result)
-  }
+  def test_2(): Unit = doTest(
+    s"1 :: (${caretTag}2 :: Nil)",
+    "1 :: 2 :: Nil"
+  )
 
-  def test_4(): Unit = {
-    val text = "(None<caret> filter (_ => true)) headoption"
-    val result = "None filter (_ => true) headoption"
-    doTest(text, result)
-  }
+  def test_3(): Unit = doTest(
+    s"(- 1$caretTag) + 1",
+    "-1 + 1"
+  )
+
+  def test_4(): Unit = doTest(
+    s"(None$caretTag filter (_ => true)) headoption",
+    "None filter (_ => true) headoption"
+  )
 }
