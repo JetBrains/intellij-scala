@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.TypeDiff.Mismatch
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTypedExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.extensions._
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
@@ -16,13 +16,14 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   override def annotate(element: ScTypedExpression, typeAware: Boolean = true)
                        (implicit holder: AnnotationHolder): Unit = {
     if (typeAware) {
+      implicit val context = TypePresentationContext(element)
       element.typeElement.foreach(checkUpcasting(element.expr, _))
     }
   }
 
   // SCL-15544
   private def checkUpcasting(expression: ScExpression, typeElement: ScTypeElement)
-                            (implicit holder: AnnotationHolder): Unit = {
+                            (implicit holder: AnnotationHolder, context: TypePresentationContext): Unit = {
     expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
       val expected = typeElement.calcType
 
@@ -45,7 +46,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   }
 
   // SCL-15481
-  def mismatchRangesIn(expected: ScTypeElement, actual: ScType): Seq[TextRange] = {
+  def mismatchRangesIn(expected: ScTypeElement, actual: ScType)(implicit context: TypePresentationContext): Seq[TextRange] = {
     val diff = TypeDiff.forExpected(expected.calcType, actual)
 
     if (diff.text == expected.getText) { // make sure that presentations match
