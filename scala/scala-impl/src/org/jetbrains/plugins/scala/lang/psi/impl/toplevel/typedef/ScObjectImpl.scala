@@ -125,10 +125,13 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 
   @Cached(ModCount.getBlockModificationCount, this)
   private def getModuleField: Option[PsiField] = {
-    if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))) None
-    else {
+    def hasJavaKeywords(qName: String) =
+      qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
+    
+    if (Option(getQualifiedName).forall(hasJavaKeywords))
+      None
+    else
       Some(ScLightField(moduleFieldName, ScDesignatorType(this), this, PUBLIC, FINAL, STATIC))
-    }
   }
 
   override def psiFields: Array[PsiField] = {
