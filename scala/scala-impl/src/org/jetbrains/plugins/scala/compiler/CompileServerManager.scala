@@ -33,8 +33,6 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
 
    private val timer = new Timer(1000, TimerListener)
 
-  project.subscribeToModuleRootChanged()(_ => configureWidget())
-
    override def projectOpened() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
 
@@ -159,9 +157,11 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
      def actionPerformed(e: ActionEvent) {
        val nowRunning = running
 
+       configureWidget()
+
        if (installed || nowRunning) updateWidget()
 
-       wasRunning -> nowRunning match {
+       (wasRunning, nowRunning) match {
          case (Some(false), true) =>
 //           val message = "Started" + launcher.port.map(_.formatted(" on TCP %d")).getOrElse("") + "."
 //           Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION), project)
