@@ -5,7 +5,7 @@ package uast
 
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
 import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
-import org.jetbrains.uast.{UElement, UExpression, UastLanguagePlugin}
+import org.jetbrains.uast.{UElement, UExpression, UastEmptyExpression, UastLanguagePlugin}
 
 final class ScalaUastPlugin extends UastLanguagePlugin {
 
@@ -26,7 +26,8 @@ final class ScalaUastPlugin extends UastLanguagePlugin {
   override def getConstructorCallExpression(element: PsiElement,
                                             fqName: String): ResolvedConstructor = null
 
-  override def getInitializerBody(classInitializer: PsiClassInitializer): UExpression = null
+  override def getInitializerBody(classInitializer: PsiClassInitializer): UExpression =
+    new UastEmptyExpression(null)
 
   override def getInitializerBody(variable: PsiVariable): UExpression = null
 
@@ -36,7 +37,7 @@ final class ScalaUastPlugin extends UastLanguagePlugin {
                                        containingClassFqName: String,
                                        methodName: String): ResolvedMethod = null
 
-  override def isExpressionValueUsed(expression: UExpression): Boolean = ???
+  override def isExpressionValueUsed(expression: UExpression): Boolean = false
 
   override def isFileSupported(fileName: String): Boolean =
     fileNameMatcher.acceptsCharSequence(fileName)
