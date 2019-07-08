@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType, TermSignature, TypeAliasSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialType, ScLiteralType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -56,10 +56,10 @@ object TypeDiff {
   def parse(tpe: ScType): TypeDiff = diff(tpe, tpe)((_, _) => true)
 
   // To highlight a type ascription
-  def forExpected(expected: ScType, actual: ScType): TypeDiff = diff(actual, expected)((t1, t2) => t1.conforms(t2))
+  def forExpected(expected: ScType, actual: ScType): TypeDiff = diff(actual, expected)(_.conforms(_))
 
   // To display a type mismatch hint
-  def forActual(expected: ScType, actual: ScType): TypeDiff = diff(expected, actual)((t1, t2) => t2.conforms(t1))
+  def forActual(expected: ScType, actual: ScType): TypeDiff = diff(expected, actual)(reversed(_.conforms(_)))
 
   // To display a type mismatch tooltip
   def forBoth(expected: ScType, actual: ScType): (TypeDiff, TypeDiff) = (forExpected(expected, actual), forActual(expected, actual))
@@ -89,6 +89,15 @@ object TypeDiff {
       // TODO More flexible comparison, unify with the clause above
       case (ScCompoundType(cs1, EmptyMap(), EmptyMap()), ScCompoundType(cs2, EmptyMap(), EmptyMap())) if cs1.length == cs2.length =>
         Group((cs1, cs2).zipped.map(diff).intersperse(Match(" with ")): _*)
+
+      // TODO Comparison (now, it's just "parsing" for the type annotation hints)
+      case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>
+        val wildcards = ws2.map { wildcard =>
+          Group(Match("_") +:
+            ((if (wildcard.lower.isNothing) Seq.empty else Seq(Match(" >: "), diff(wildcard.lower, wildcard.lower)(reversed(conformance)))) ++
+              (if (wildcard.upper.isAny) Seq.empty else Seq(Match(" <: "), diff(wildcard.upper, wildcard.upper)))): _*)
+        }
+        Group(diff(q2.designator, q2.designator), Match("["), Group(wildcards.intersperse(Match(", ")): _*), Match("]"))
 
       case (InfixType(l1, d1, r1), InfixType(l2, d2, r2)) =>
         val (v1, v2) = d1.extractDesignated(expandAliases = false) match {

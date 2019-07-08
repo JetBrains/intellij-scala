@@ -20,9 +20,9 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   override implicit val version: ScalaVersion = Scala_2_13
 
   /* TODO:
-      compound types
-      structural types
-      existential types
+      compound types (comparison)
+      structural types (comparison)
+      existential types (comparison)
       java array types
     */
 
@@ -226,6 +226,25 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "~A~", "~Foo[B]~"
     )
   }
+
+  def testWildcardParsing(): Unit = {
+    assertParsedAs(
+      "class A; class Foo[T]",
+      "Foo[_ <: A]", "<<Foo>[<<_ <: <A>>>]>")
+    assertParsedAs(
+      "class A; class Foo[T]",
+      "Foo[_ >: A]", "<<Foo>[<<_ >: <A>>>]>")
+    assertParsedAs(
+      "class A; class B; class Foo[T]",
+      "Foo[_ >: A <: B]", "<<Foo>[<<_ >: <A> <: <B>>>]>")
+
+    // Multiple
+    assertParsedAs(
+      "class A; class B; class Foo[T1, T2]",
+      "Foo[_ <: A, _ <: B]", "<<Foo>[<<_ <: <A>>, <_ <: <B>>>]>")
+  }
+
+// TODO def testWildcard(): Unit = {
 
   def testTupleParsing(): Unit = {
     assertParsedAs(
@@ -513,7 +532,10 @@ class TypeDiffTest extends ScalaFixtureTestCase {
 
   private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
     // Make sure that the expected diffs are coherent
-    assertEquals(expectedDiff1.contains("~"), expectedDiff2.contains("~"))
+    assertTrue(s"""The number of mismatches must match:
+                  |$expectedDiff1
+                  |$expectedDiff2""".stripMargin,
+      expectedDiff1.count(_ == '~') == expectedDiff2.count(_ == '~'))
 
     val Seq(tpe1, tpe2) = typesIn(context, clean(expectedDiff1), clean(expectedDiff2))
     val (actualDiffData1, actualDiffData2) = TypeDiff.forBoth(tpe1, tpe2)
@@ -538,7 +560,10 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     // Also make sure that the number of diff elements match (needed to keep alignment in a table)
     val flattenDiff1 = actualDiffData1.flatten
     val flattenDiff2 = actualDiffData2.flatten
-    assertEquals(flattenDiff1.mkString("|") + "\n" + flattenDiff1.mkString("|"), flattenDiff1.length, flattenDiff2.length)
+    assertEquals(s"""The number of elements must match:
+                    |${flattenDiff1.mkString("|")}
+                    |${flattenDiff1.mkString("|")}""".stripMargin,
+      flattenDiff1.length, flattenDiff2.length)
   }
 
   private def clean(diff: String) = diff.replaceAll("~", "")
