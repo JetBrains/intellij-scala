@@ -45,7 +45,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING = false;
 
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
-  private boolean DISABLE_LANGUAGE_INJECTION = true;
+  private boolean DISABLE_LANGUAGE_INJECTION = false;
   private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
