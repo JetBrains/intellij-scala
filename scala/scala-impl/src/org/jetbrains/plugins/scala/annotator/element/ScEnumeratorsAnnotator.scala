@@ -45,7 +45,7 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
     val errSemiBuilder = Seq.newBuilder[PsiElement]
     var canHaveSemicolon = false
     allChildren.foreach {
-      case Whitespace(_) => canHaveSemicolon
+      case Whitespace(_) =>
       case semi@ElementType(ScalaTokenTypes.tSEMICOLON) =>
         if (canHaveSemicolon) lastInitialSemicolon = Some(semi)
         else errSemiBuilder += semi
