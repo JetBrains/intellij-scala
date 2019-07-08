@@ -1,16 +1,13 @@
 package org.jetbrains.plugins.scala
 package conversion
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection._
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
-import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
-import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
-import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
-import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -18,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.refactoring._
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -28,6 +25,9 @@ import scala.collection.mutable
   * on 12/8/15
   */
 object ConverterUtil {
+
+  import ast.CommentsCollector
+
   def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
 
     def buildTextPart(offset1: Int, offset2: Int, dropElements: mutable.HashSet[PsiElement]): TextPart = {
@@ -162,32 +162,36 @@ object ConverterUtil {
     Remove type annotations & apply inspections
   */
   def cleanCode(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
-    runInspections(file, project, offset, endOffset, editor)
+    runInspections(file, offset, endOffset, editor)(project)
 
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
+    removeAllTypeAnnotationsIfNeeded(
       ConverterUtil.collectTopElements(offset, endOffset, file)
     )
   }
 
-  def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
-    def handleOneProblem(problem: ProblemDescriptor): Unit = {
-      val fixes = problem.getFixes.collect { case f: LocalQuickFixOnPsiElement => f }
-      fixes.foreach(_.applyFix)
-    }
+  def runInspections(file: PsiFile, offset: Int, endOffset: Int, editor: Editor = null)
+                    (implicit project: Project): Unit = {
+    def handleOneProblem(problem: ProblemDescriptor): Unit = for {
+      fix <- problem.getFixes
+
+      if fix.isInstanceOf[LocalQuickFixOnPsiElement]
+      localQuickFix = fix.asInstanceOf[LocalQuickFixOnPsiElement]
+    } localQuickFix.applyFix()
 
     val intention = new RemoveBracesIntention
-    val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, false)
+    val holder = new ProblemsHolder(
+      InspectionManager.getInstance(project),
+      file,
+      false
+    )
 
-    val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
-    val parenthesisedExpr = (new ScalaUnnecessaryParenthesesInspection).buildVisitor(holder, isOnTheFly = false)
-    val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
-    val addPrefix = (new ReferenceMustBePrefixedInspection).buildVisitor(holder, isOnTheFly = false)
+    val removeReturnVisitor :: parenthesisedExpr :: removeSemicolon :: addPrefix :: Nil = createInspections(holder)
 
     collectTopElements(offset, endOffset, file).foreach(_.depthFirst().foreach {
       case el: ScFunctionDefinition =>
         removeReturnVisitor.visitElement(el)
-      case parentized: ScParenthesisedExpr =>
-        parenthesisedExpr.visitElement(parentized)
+      case parenthesised: ScParenthesisedExpr =>
+        parenthesisedExpr.visitElement(parenthesised)
       case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
         removeSemicolon.visitElement(semicolon)
       case ref: ScReference if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
@@ -271,5 +275,22 @@ object ConverterUtil {
     if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
       document.replaceString(start - 1, end + 1, text)
     else document.replaceString(start, end, text)
+  }
+
+  private def createInspections(holder: ProblemsHolder)
+                               (implicit project: Project) = {
+    val profile = InspectionProfileManager.getInstance(project).getCurrentProfile
+    for {
+      shortName <- "RemoveRedundantReturn" ::
+        "ScalaUnnecessaryParentheses" ::
+        "ScalaUnnecessarySemicolon" ::
+        "ReferenceMustBePrefixed" ::
+        Nil
+
+      tool = profile.getInspectionTool(shortName, project)
+        .getTool
+        .asInstanceOf[LocalInspectionTool]
+      visitor = tool.buildVisitor(holder, false)
+    } yield visitor
   }
 }

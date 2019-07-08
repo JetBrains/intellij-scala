@@ -8,8 +8,10 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.testFramework.LightPlatformTestCase.getProject
+import com.intellij.testFramework.propertyBased.MadTestingUtil.enableAllInspections
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings._
 
 import scala.collection.mutable
 
@@ -18,18 +20,21 @@ import scala.collection.mutable
  */
 abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  import TypeAnnotationSettings._
-
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
   def folderPath: String = baseRootPath() + "conversion/"
 
-  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
-    import org.junit.Assert._
-    val oldSettings: Any = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone
+  override protected def setUp(): Unit = {
+    super.setUp()
+    enableAllInspections(getProject, getTestRootDisposable)
+  }
 
-    set(getProjectAdapter, typeAnnotationSettings)
+  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))) {
+    import org.junit.Assert._
+    val oldSettings: Any = ScalaCodeStyleSettings.getInstance(getProject).clone
+
+    set(getProject, typeAnnotationSettings)
 
     val filePath = folderPath + getTestName(false) + ".java"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -47,12 +52,12 @@ abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCode
 
     val buf = ConverterUtil.collectTopElements(startOffset, endOffset, javaFile)
     var res = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
-    val newFile = PsiFileFactory.getInstance(getProjectAdapter)
+    val newFile = PsiFileFactory.getInstance(getProject)
       .createFileFromText("dummyForJavaToScala.scala", ScalaLanguage.INSTANCE, res)
 
     res = inWriteAction {
-      ConverterUtil.cleanCode(newFile, getProjectAdapter, 0, newFile.getText.length)
-      CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
+      ConverterUtil.cleanCode(newFile, getProject, 0, newFile.getText.length)
+      CodeStyleManager.getInstance(getProject).reformat(newFile).getText
     }
 
     val text = lastPsi.getText
@@ -63,7 +68,7 @@ abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCode
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
 
-    set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
+    set(getProject, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res.trim)
   }
 
