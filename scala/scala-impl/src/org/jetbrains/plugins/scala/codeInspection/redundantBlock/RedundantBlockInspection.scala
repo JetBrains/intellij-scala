@@ -5,7 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.parentheses.RedundantBracketsInspectionLike
+import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
  * Pavel Fatin
  */
 
-class RedundantBlockInspection extends AbstractInspection with RedundantBracketsInspectionLike {
+class RedundantBlockInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
