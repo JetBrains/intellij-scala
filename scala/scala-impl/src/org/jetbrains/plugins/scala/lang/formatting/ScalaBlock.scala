@@ -300,7 +300,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
           s"""Spacing:
              |    child1: ${c1.debugText}
              |    child2: ${c2.debugText}
-             |    result: $s (${s.isReadOnly})
+             |    result: $s (${if(s.isReadOnly) "readonly" else ""})
              |""".stripMargin
         )
       case _ =>
