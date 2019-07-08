@@ -184,10 +184,10 @@ package object extensions {
     }
 
     def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
-      if (value.isEmpty) None else Some(value.zip(value.map(f)).minBy(_._2)._1)
+      if (value.isEmpty) None else Some(value.minBy(f))
 
     def lastBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
-      if (value.isEmpty) None else Some(value.zip(value.map(f)).maxBy(_._2)._1)
+      if (value.isEmpty) None else Some(value.maxBy(f))
 
     def mapWithIndex[B](f: (A, Int) => B): Seq[B] = {
       val buffer = new ArrayBuffer[B](value.size)
