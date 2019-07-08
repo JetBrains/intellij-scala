@@ -522,6 +522,64 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
+  //
+  // paste to empty multiline string
+  //
+
+  private def doTestMultilineForAnyInsertMarginSetting(from: String, to: String, after: String): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    doTestMultiline(from, to, after)
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyOneLineMultilineString(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''$Caret'''
+         |""".stripMargin
+    val after =
+      s"""'''first line
+         |    second line$Caret'''
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyOneLineMultilineString_1(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''$Caret'''
+         |""".stripMargin
+    val after =
+      s"""'''first line
+         |  |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyOneLineMultilineStringWithMargin(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''$Caret'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""'''first line
+         |  |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
+  }
+
   def testToEmptyMultilineString(): Unit = {
     val from =
       s"""${Start}first line
@@ -536,7 +594,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |    second line$Caret
          |'''
          |""".stripMargin
-    doTestMultiline(from, to, after)
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
   }
 
   def testToEmptyMultilineStringWithMargin(): Unit = {
@@ -553,7 +611,54 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |  |    second line$Caret
          |'''.stripMargin
          |""".stripMargin
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
+  }
+
+  def testToEmptyInterpOneLineMultilineString(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''$Caret'''
+         |""".stripMargin
+    val after =
+      s"""s'''first line
+         |    second line$Caret'''
+         |""".stripMargin
     doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyInterpOneLineMultilineString_1(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''$Caret'''
+         |""".stripMargin
+    val after =
+      s"""s'''first line
+         |   |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToEmptyInterpOneLineMultilineStringWithMargin(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''$Caret'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""s'''first line
+         |   |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
   }
 
   def testToEmptyInterpMultilineString(): Unit = {
@@ -570,7 +675,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |    second line$Caret
          | '''
          |""".stripMargin
-    doTestMultiline(from, to, after)
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
   }
 
   def testToEmptyInterpMultilineStringWithMargin(): Unit = {
@@ -587,6 +692,102 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |   |    second line$Caret
          | '''.stripMargin
          |""".stripMargin
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
+  }
+
+  // paste to non-empty multiline string
+  def testToNonEmptyOneLineMultilineString(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''abc $Caret'''
+         |""".stripMargin
+    val after =
+      s"""'''abc first line
+         |    second line$Caret'''
+         |""".stripMargin
     doTestMultiline(from, to, after)
   }
+
+  def testToNonEmptyOneLineMultilineString_1(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''abc $Caret'''
+         |""".stripMargin
+    val after =
+      s"""'''abc first line
+         |  |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToNonEmptyOneLineMultilineStringWithMargin(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""'''abc $Caret'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""'''abc first line
+         |  |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
+  }
+
+  def testToNonEmptyInterpOneLineMultilineString(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''abc $Caret'''
+         |""".stripMargin
+    val after =
+      s"""s'''abc first line
+         |    second line$Caret'''
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToNonEmptyInterpOneLineMultilineString_1(): Unit = {
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''abc $Caret'''
+         |""".stripMargin
+    val after =
+      s"""s'''abc first line
+         |   |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testToNonEmptyInterpOneLineMultilineStringWithMargin(): Unit = {
+    val from =
+      s"""${Start}first line
+         |    second line$End
+         |""".stripMargin
+    val to =
+      s"""s'''abc $Caret'''.stripMargin
+         |""".stripMargin
+    val after =
+      s"""s'''abc first line
+         |   |    second line$Caret'''.stripMargin
+         |""".stripMargin
+    doTestMultilineForAnyInsertMarginSetting(from, to, after)
+  }
+
 }
