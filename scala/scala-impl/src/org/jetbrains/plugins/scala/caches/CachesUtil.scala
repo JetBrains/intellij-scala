@@ -104,7 +104,7 @@ object CachesUtil {
     private val topLevel = scalaTopLevelModTracker(element.getProject)
 
     def getModificationCount: Long = {
-      contextsWithExplicitType(element.getContext)
+      contextsWithExplicitType(element)
         .foldLeft(topLevel.getModificationCount)(_ + _.modificationCount)
     }
   }
