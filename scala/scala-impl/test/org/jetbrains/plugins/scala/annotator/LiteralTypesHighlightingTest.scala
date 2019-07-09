@@ -1,6 +1,10 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+
 
   def testSip23Null(): Unit = doTest (
     Error("null", "Type mismatch, found: Null, required: x.type") ::
