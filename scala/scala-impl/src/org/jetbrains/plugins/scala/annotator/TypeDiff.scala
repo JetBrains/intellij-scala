@@ -4,7 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialType, ScLiteralType, ScParameterizedType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -96,10 +96,10 @@ object TypeDiff {
 
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>
-        val wildcards = ws2.map { wildcard =>
+        val wildcards = ws2.map { case ScExistentialArgument(_, _, lower, upper) =>
           Group(Match("_") +:
-            ((if (wildcard.lower.isNothing) Seq.empty else Seq(Match(" >: "), diff(wildcard.lower, wildcard.lower)(reversed(conformance), context))) ++
-              (if (wildcard.upper.isAny) Seq.empty else Seq(Match(" <: "), diff(wildcard.upper, wildcard.upper)))): _*)
+            ((if (lower.isNothing) Seq.empty else Seq(Match(" >: "), diff(lower, lower)(reversed(conformance), context))) ++
+              (if (upper.isAny) Seq.empty else Seq(Match(" <: "), diff(upper, upper)))): _*)
         }
         Group(diff(q2.designator, q2.designator), Match("["), Group(wildcards.intersperse(Match(", ")): _*), Match("]"))
 
