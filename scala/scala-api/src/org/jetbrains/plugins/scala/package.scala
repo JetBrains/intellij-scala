@@ -1,23 +1,25 @@
 package org.jetbrains.plugins
 
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ApplicationManager.{getApplication => application}
 import com.intellij.openapi.util.Computable
 import com.intellij.util.SystemProperties
 
 package object scala {
 
-  def applicationInternalModeEnabled: Boolean = ApplicationManager.getApplication match {
+  def applicationInternalModeEnabled: Boolean = application match {
     case null => SystemProperties.is(PluginManagerCore.IDEA_IS_INTERNAL_PROPERTY)
     case application => application.isInternal
   }
 
-  def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
+  def applicationUnitTestModeEnabled: Boolean = application.isUnitTestMode
+
+  def inWriteAction[T](body: => T): T = application match {
     case application if application.isWriteAccessAllowed => body
     case application => application.runWriteAction(body)
   }
 
-  def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {
+  def inReadAction[T](body: => T): T = application match {
     case application if application.isReadAccessAllowed => body
     case application => application.runReadAction(body)
   }

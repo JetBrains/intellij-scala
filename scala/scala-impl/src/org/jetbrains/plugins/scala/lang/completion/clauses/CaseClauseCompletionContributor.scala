@@ -8,8 +8,8 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -64,7 +64,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
       override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
         pattern.expectedType
 
-      override protected def findTargetDefinitions(definition: ScTypeDefinition): List[ScTypeDefinition] =
+      override protected def findTargetDefinitions(definition: ScTypeDefinition): List[PsiClass] =
         super.findTargetDefinitions(definition) match {
           case Nil => definition :: Nil
           case list => list
@@ -124,7 +124,7 @@ object CaseClauseCompletionContributor {
 
     protected def targetType(typeable: T): Option[ScType]
 
-    protected def findTargetDefinitions(definition: ScTypeDefinition): List[ScTypeDefinition] =
+    protected def findTargetDefinitions(definition: ScTypeDefinition): List[PsiClass] =
       definition match {
         case DirectInheritors(Inheritors(namedInheritors, _)) => namedInheritors
         case _ => Nil
@@ -155,7 +155,7 @@ object CaseClauseCompletionContributor {
             case scalaObject: ScObject => new StablePatternComponents(scalaObject)
             case CaseClassPatternComponents(components) => components
             case PhysicalExtractorPatternComponents(components) => components
-            case definition => new TypedPatternComponents(definition)
+            case psiClass => new TypedPatternComponents(psiClass)
           }
       }
   }

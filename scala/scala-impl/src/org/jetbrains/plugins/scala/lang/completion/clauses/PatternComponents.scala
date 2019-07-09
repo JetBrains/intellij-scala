@@ -38,10 +38,10 @@ sealed abstract class ClassPatternComponents(`class`: PsiClass,
                                              canonicalSuffix: String)
   extends PatternComponents {
 
-  def this(`class`: ScTypeDefinition) = this(
+  def this(`class`: PsiClass) = this(
     `class`,
     `class`.qualifiedName,
-    `class`.typeParameters.length match {
+    `class`.getTypeParameters.length match {
       case 0 => ""
       case length => Seq.fill(length)(Placeholder).commaSeparated(Model.SquareBrackets)
     }
@@ -84,7 +84,7 @@ sealed abstract class SequenceBasedPatternComponents[T](`class`: ScTypeDefinitio
     super.presentablePatternText(reference) + presentableSuffix
 }
 
-final class TypedPatternComponents(`class`: ScTypeDefinition) extends ClassPatternComponents(`class`) {
+final class TypedPatternComponents(`class`: PsiClass) extends ClassPatternComponents(`class`) {
 
   override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
     namedPatternText(reference)
