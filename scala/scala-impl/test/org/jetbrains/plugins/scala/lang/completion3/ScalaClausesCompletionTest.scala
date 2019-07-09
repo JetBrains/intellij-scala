@@ -493,6 +493,29 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, str1)"
   )
 
+  //  def testCompleteJavaInheritorClause(): Unit = {
+  //    this.configureJavaFile(
+  //      "public class Bar implements Foo",
+  //      "Bar"
+  //    )
+  //
+  //    doClauseCompletionTest(
+  //      fileText =
+  //        s"""trait Foo
+  //           |
+  //           |(_: Foo) match {
+  //           |  ca$CARET
+  //           |}""".stripMargin,
+  //      resultText =
+  //        s"""trait Foo
+  //           |
+  //           |(_: Foo) match {
+  //           |  case bar: Bar => $CARET
+  //           |}""".stripMargin,
+  //      itemText = "_: Bar"
+  //    )
+  //  }
+
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
       s"""List.empty[String]
@@ -558,7 +581,11 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testEmptyJavaEnum(): Unit = {
-    this.configureJavaFile("public enum EmptyEnum {}", "EmptyEnum")
+    this.configureJavaFile(
+      "public enum EmptyEnum {}",
+      "EmptyEnum"
+    )
+
     checkNoCompletion(
       fileText = s"(_: EmptyEnum) m$CARET"
     )(isExhaustiveMatch)
@@ -933,6 +960,32 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
            |}""".stripMargin
     )
   }
+
+  //  def testJavaInheritors(): Unit = {
+  //    this.configureJavaFile(
+  //      fileText =
+  //        """public class Bar implements Foo {
+  //          |    public static Foo createFoo() {
+  //          |        return new Foo() {};
+  //          |    }
+  //          |}""".stripMargin,
+  //      className = "Bar"
+  //    )
+  //
+  //    doMatchCompletionTest(
+  //      fileText =
+  //        s"""trait Foo
+  //           |
+  //           |(_: Foo) ma$CARET""".stripMargin,
+  //      resultText =
+  //        s"""trait Foo
+  //           |
+  //           |(_: Foo) match {
+  //           |  case bar: Bar => $CARET
+  //           |  case _ =>
+  //           |}""".stripMargin
+  //    )
+  //  }
 
   def testCase(): Unit = doCompletionTest(
     fileText =

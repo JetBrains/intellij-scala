@@ -3,11 +3,14 @@ package lang
 package completion
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
+import com.intellij.openapi.project.Project
 import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
-import com.intellij.psi.PsiElement
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, ProjectScope}
+import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
@@ -27,7 +30,7 @@ package object clauses {
       .withInsertHandler(insertHandler)
       .withRenderer(presentation)
 
-  private[clauses] case class Inheritors(namedInheritors: List[ScTypeDefinition],
+  private[clauses] case class Inheritors(namedInheritors: List[PsiClass],
                                          isExhaustive: Boolean) {
 
     if (namedInheritors.isEmpty) throw new IllegalArgumentException("Class contract violation")
@@ -35,31 +38,39 @@ package object clauses {
 
   private[clauses] object DirectInheritors {
 
-    def unapply(definition: ScTypeDefinition): Option[Inheritors] =
-      directInheritors(definition).partition(_.isInstanceOf[ScTypeDefinition]) match {
-        case (Seq(), _) => None
-        case (namedInheritors, anonymousInheritors) =>
-          val isSealed = definition.isSealed
-          val inheritors = if (isSealed)
-            namedInheritors.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
-          else
-            namedInheritors
+    def unapply(`class`: ScTypeDefinition): Option[Inheritors] = {
+      val isSealed = `class`.isSealed
+      val scope = if (isSealed) `class`.getContainingFile.getResolveScope
+      else projectScope(`class`.getProject)
 
-          val isNotConcrete = definition match {
+      val (namedInheritors, anonymousInheritors) = directInheritors(`class`, scope).partition {
+        case _: ScNewTemplateDefinition |
+             _: PsiAnonymousClass => false
+        case _ => true
+      }
+
+      implicit val ordered: Ordering[PsiClass] =
+        if (isSealed) Ordering.by(_.getNavigationElement.getTextRange.getStartOffset)
+        else Ordering.by(_.getName)
+
+      namedInheritors.sorted.toList match {
+        case Nil => None
+        case inheritors =>
+          val isNotConcrete = `class` match {
             case scalaClass: ScClass => scalaClass.hasAbstractModifier
             case _ => true
           }
 
-          Some(Inheritors(
-            inheritors.toList.asInstanceOf[List[ScTypeDefinition]],
-            isSealed && isNotConcrete && anonymousInheritors.isEmpty
-          ))
+          val isExhaustive = isSealed && isNotConcrete && anonymousInheritors.isEmpty
+          Some(Inheritors(inheritors, isExhaustive))
       }
+    }
 
-    private def directInheritors(definition: ScTypeDefinition) = {
+    private def directInheritors(`class`: ScTypeDefinition,
+                                 scope: GlobalSearchScope) = {
       import collection.JavaConverters._
       DirectClassInheritorsSearch
-        .search(definition)
+        .search(`class`, scope)
         .findAll()
         .asScala
         .toIndexedSeq
@@ -73,4 +84,9 @@ package object clauses {
     }
   }
 
+  private[this] def projectScope(implicit project: Project): GlobalSearchScope = {
+    import ProjectScope._
+    if (applicationUnitTestModeEnabled) getEverythingScope(project)
+    else getProjectScope(project)
+  }
 }
