@@ -67,27 +67,36 @@ class ScalaMalformedStringInspectionTest extends ScalaLightCodeInsightFixtureTes
       .filter(_.contains(" cannot be used for a"))
   }
 
-  def test_all(): Unit = {
+  def build_test(): (String, Seq[String]) = {
+    val codeBuilder = StringBuilder.newBuilder
+    val testBuilder = Seq.newBuilder[String]
+
     for (specifier <- formatSpecifiers; (arg, repr) <- arguments) {
+      codeBuilder ++= s"""String.format("$specifier", $arg)\n"""
+
       val shouldHaveInspection = Try(specifier.format(repr)).isFailure
-
-      val inspections = findInspections(
-        s"""String.format("$specifier", $arg)"""
-      )
-      val inspectionsList = inspections.mkString(", ")
-
       if (shouldHaveInspection) {
-        val ty = repr.getClass.getSimpleName
-
         val hintForSpecifier = s"Format specifier $specifier cannot be used for an argument $arg (---)"
-        val inspectionsWithoutTypes = inspections.map(" \\(.*\\)".r.replaceFirstIn(_, " (---)"))
-        assert(inspectionsWithoutTypes.contains(hintForSpecifier), s"Expected to find hint: $hintForSpecifier (found: $inspectionsList)")
-
         val hintForArg = s"Argument $arg (---) cannot be used for a format specifier $specifier"
-        assert(inspectionsWithoutTypes.contains(hintForArg), s"Expected to find hint: $hintForArg (found: $inspectionsList)")
-      } else {
-        assert(inspections.isEmpty, s"Found: $inspectionsList")
+
+        testBuilder += hintForSpecifier
+        testBuilder += hintForArg
       }
+    }
+
+    (codeBuilder.result(), testBuilder.result())
+  }
+
+  def test_all(): Unit = {
+    val (code, expectedHints) = build_test()
+    assert(expectedHints.length >= 100, "There must be something wrong with the test building...")
+    assert(expectedHints.distinct.length == expectedHints.length)
+
+    val inspectionHints = findInspections(code)
+    val inspectionHintsWithoutTypes = inspectionHints.map(" \\(.*\\)".r.replaceFirstIn(_, " (---)"))
+
+    for(expected <- expectedHints) {
+      assert(inspectionHintsWithoutTypes.contains(expected), s"Couldn't find: $expected")
     }
   }
 }
