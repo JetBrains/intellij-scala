@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.codeInspection.format
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 import scala.collection.JavaConverters
 import scala.util.Try
 
-class ScalaMalformedStringInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
 
-  protected override def setUp(): Unit = {
-    super.setUp()
-    getFixture.enableInspections(classOf[ScalaMalformedFormatStringInspection])
-  }
+  override protected val description = null // not used... better to throw a NPE
+  override protected val classOfInspection: Class[ScalaMalformedFormatStringInspection] =
+    classOf[ScalaMalformedFormatStringInspection]
 
   val formatSpecifiers = Seq(
     "%b",
