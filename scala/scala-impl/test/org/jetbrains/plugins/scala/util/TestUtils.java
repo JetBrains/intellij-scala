@@ -48,7 +48,7 @@ public class TestUtils {
   public static final String END_MARKER = "<end>";
 
   public static PsiFile createPseudoPhysicalScalaFile(final Project project, final String text) throws IncorrectOperationException {
-    String TEMP_FILE = project.getBaseDir() + "temp.scala";
+    String TEMP_FILE = project.getBasePath() + "/temp.scala";
     return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
         FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),

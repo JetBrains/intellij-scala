@@ -32,7 +32,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
       dir.findChild(file).toOption.getOrElse(dir.createChildData(this, file))
 
     WriteAction.runAndWait { () =>
-      val baseDir = getProject.getBaseDir
+      val baseDir = VfsUtil.createDirectoryIfMissing(getProject.getBasePath)
       val file = getOrCreateFile(baseDir, "scalastyle-config.xml")
       VfsUtil.saveText(file, configString)
     }
