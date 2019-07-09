@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 
 abstract class Scalatest2_13_3_0_8_Base extends ScalaTestTestCase {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+
   override protected def additionalLibraries: Seq[LibraryLoader] = IvyManagedLoader(
     "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
     "org.scalatest" %% "scalatest" % "3.0.8-RC5",

@@ -1,14 +1,19 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_11.scalatest2_2_1
+package org.jetbrains.plugins.scala
+package testingSupport
+package scalatest
+package scala2_11
+package scalatest2_2_1
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
  * @author Roman.Shein
  * @since 22.01.2015
  */
 abstract class Scalatest2_11_2_2_1_Base extends ScalaTestTestCase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
 
   override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader(
