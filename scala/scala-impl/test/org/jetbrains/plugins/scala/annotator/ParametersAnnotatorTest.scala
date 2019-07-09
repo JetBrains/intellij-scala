@@ -5,10 +5,9 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 
-abstract class ParametersAnnotatorTestBase_(override val version: ScalaVersion) extends ScalaHighlightingTestBase {
+abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
   final val Header = "class A; class B; class C;\n"
 
   protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
@@ -26,7 +25,9 @@ abstract class ParametersAnnotatorTestBase_(override val version: ScalaVersion) 
       case _ =>
     }
   }
+}
 
+class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
   def testFine1(): Unit = assertNothing(messages("def f(a: A) {}"))
   def testFine2(): Unit = assertNothing(messages("def f(a: A*) {}"))
   def testFine3(): Unit = assertNothing(messages("def f(a: A, b: B) {}"))
@@ -71,12 +72,6 @@ abstract class ParametersAnnotatorTestBase_(override val version: ScalaVersion) 
     }
   }
 
-  def testByName_ImplicitParam(): Unit = {
-    assertMatches(messages("def f(a: A)(implicit b: => B) {}")) {
-      case Error("b: => B", "implicit parameters may not be call-by-name") :: Nil =>
-    }
-  }
-
   def testByName_CaseClassParam(): Unit = {
     assertMatches(messages("case class D(a: A, b: => B)")) {
       case Error("b: => B", "case class parameters may not be call-by-name") :: Nil =>
@@ -102,12 +97,21 @@ abstract class ParametersAnnotatorTestBase_(override val version: ScalaVersion) 
   }
 }
 
-class ParametersAnnotatorTest_2_11 extends ParametersAnnotatorTestBase_(Scala_2_11)
+class ParametersAnnotatorTest_without_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < Scala_2_13
 
-class ParametersAnnotatorTest_2_12 extends ParametersAnnotatorTestBase_(Scala_2_12)
+  def testByName_ImplicitParam(): Unit = {
+    assertMatches(messages("def f(a: A)(implicit b: => B) {}")) {
+      case Error("b: => B", "implicit parameters may not be call-by-name") :: Nil =>
+    }
+  }
+}
 
-class ParametersAnnotatorTest_2_13 extends ParametersAnnotatorTestBase_(Scala_2_13) {
-  override def testByName_ImplicitParam(): Unit = {
+
+class ParametersAnnotatorTest_with_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+
+  def testByName_ImplicitParam(): Unit = {
     assertNothing(messages("def f(a: A)(implicit b: => B) {}"))
   }
 }
