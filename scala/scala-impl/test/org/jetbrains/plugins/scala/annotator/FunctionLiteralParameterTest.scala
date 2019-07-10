@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.annotator
-
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
+package org.jetbrains.plugins.scala
+package annotator
 
 class FunctionLiteralParameterTest extends ScalaHighlightingTestBase {
-  override implicit val version: ScalaVersion = Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
 
   def testFunctionLiteralParameterTypeMismath(): Unit = {
     val code =
