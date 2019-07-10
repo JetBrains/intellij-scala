@@ -18,14 +18,6 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   protected def getProject: Project = config.getProject
   protected def checkModule(): Unit = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
 
-  private def provideDefaultWorkingDir = {
-    val module = getModule
-    TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
-      case Some(provider) => provider.getWorkingDirectory(module)
-      case _ => Option(getProject.baseDir).map(_.getPath).getOrElse("")
-    }
-  }
-
   def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
     if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
     else GlobalSearchScope.moduleScope(module)
@@ -54,12 +46,21 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
     setShowProgressMessages(form.getShowProgressMessages)
     setUseSbt(form.getUseSbt)
     setUseUiWithSbt(form.getUseUiWithSbt)
+    setWorkingDirectory(form.getWorkingDirectory)
     envs = form.getEnvironmentVariables
   }
 
   def initWorkingDir(): Unit =
     if (workingDirectory == null || workingDirectory.trim.isEmpty)
       setWorkingDirectory(provideDefaultWorkingDir)
+
+  private def provideDefaultWorkingDir: String = {
+    val module = getModule
+    TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
+      case Some(provider) => provider.getWorkingDirectory(module)
+      case _ => Option(getProject.baseDir).map(_.getPath).getOrElse("")
+    }
+  }
 
   def readExternal(element: Element): Unit  = XmlSerializer.deserializeInto(this, element)
   def writeExternal(element: Element): Unit = XmlSerializer.serializeInto(this, element)
@@ -72,7 +73,6 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
 
   // Bean settings:
 
-  /*@BeanProperty*/ var workingDirectory: String  = ""
   @BeanProperty var searchTest: SearchForTest     = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
   @BeanProperty var showProgressMessages: Boolean = true
   @BeanProperty var useSbt: Boolean               = false
@@ -84,8 +84,9 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   @BeanProperty var testClassPath: String         = ""
   @BeanProperty var envs: java.util.Map[String, String] = new java.util.HashMap[String, String]()
 
-  def setWorkingDirectory(s: String): Unit      = workingDirectory = ExternalizablePath.urlValue(s)
-  def getWorkingDirectory: String               = ExternalizablePath.localPathValue(workingDirectory)
+  private var workingDirectory: String     = ""
+  def setWorkingDirectory(s: String): Unit = workingDirectory = ExternalizablePath.urlValue(s)
+  def getWorkingDirectory: String          = ExternalizablePath.localPathValue(workingDirectory)
 }
 
 object TestConfigurationData {
