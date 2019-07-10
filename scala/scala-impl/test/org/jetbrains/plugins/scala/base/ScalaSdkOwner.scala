@@ -14,7 +14,7 @@ trait ScalaSdkOwner extends Test {
 
   implicit final def version: ScalaVersion = {
     val allSupportedVersions = allTestVersions.filter(supportedIn)
-    selectVersion(defaultSdkVersion, allSupportedVersions)
+    selectVersion(configuredScalaVersion.getOrElse(defaultSdkVersion), allSupportedVersions)
   }
 
   protected def supportedIn(version: ScalaVersion): Boolean = true
