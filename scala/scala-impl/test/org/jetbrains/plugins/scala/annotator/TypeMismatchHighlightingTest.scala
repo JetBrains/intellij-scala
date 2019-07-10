@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
    https://youtrack.jetbrains.com/issue/SCL-15783 Method / constructor invocation: highlight comma on excessive argument(s)
  */
 
-class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
+abstract class TypeMismatchHighlightingTestBase extends ScalaHighlightingTestBase {
   override protected def withHints = true
 
   // TODO Remove when / if type mismatch hints will be enabled by default, SCL-15250
@@ -37,6 +38,10 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     ScalaProjectSettings.in(getProject).setTypeMismatchHints(savedIsTypeMismatchHints)
     super.tearDown()
   }
+}
+
+
+class TypeMismatchHighlightingTest extends TypeMismatchHighlightingTestBase {
 
   // Type ascription, SCL-15544
 
@@ -55,11 +60,6 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     assertMessages(errorsFromScalaCode("true: Int"))(Error("Int", "Cannot upcast Boolean to Int"))
   }
 
-  // Don't widen literal type when literal type is ascribed (handled in ScTypedExpressionAnnotator), SCL-15571
-  def testTypeAscriptionErrorNotWiden(): Unit = {
-    assertMessages(errorsFromScalaCode("1: 2"))(Error("2", "Cannot upcast 1 to 2"))
-  }
-
   // Fine-grained type ascription diff, SCL-15544, SCL-15481
   def testTypeAscriptionErrorDiff(): Unit = {
     assertMessages(errorsFromScalaCode("Some(1): Option[String]"))(Error("String", "Cannot upcast Some[Int] to Option[String]"))
@@ -76,24 +76,6 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchAndTypeAscriptionError(): Unit = {
     // TODO unify the message in tests
     assertMessages(errorsFromScalaCode("val v: Int = \"foo\": String"))(Error("String", "Expression of type String doesn't conform to expected type Int"))
-  }
-
-  // Widen type when non-literal type is expected, SCL-15571
-  def testTypeMismatchAndTypeAscriptionErrorWiden(): Unit = {
-    // TODO unify the message in tests
-    assertMessages(errorsFromScalaCode("val v: Int = true: true"))(Error("true", "Expression of type Boolean doesn't conform to expected type Int"))
-  }
-
-  // Don't widen type when literal type is expected, SCL-15571
-  def testTypeMismatchAndTypeAscriptionErrorNotWiden(): Unit = {
-    // TODO unify the message in tests
-    assertMessages(errorsFromScalaCode("val v: 1 = 2: 2"))(Error("2", "Expression of type 2 doesn't conform to expected type 1"))
-  }
-
-  // Don't narrow type when non-literal type is ascribed but literal type is expected, SCL-15571
-  def testTypeMismatchAndTypeAscriptionErrorNotNarrow(): Unit = {
-    // TODO unify the message in tests
-    assertMessages(errorsFromScalaCode("val v: 1 = 2: Int"))(Error("Int", "Expression of type Int doesn't conform to expected type 1"))
   }
 
   // TODO (ScExpressionAnnotator)
@@ -119,12 +101,6 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchHintWiden(): Unit = {
     assertMessages(errorsFromScalaCode("val v: String = 1"))(Hint("1", ": Int"),
       Error("1", "Expression of type Int doesn't conform to expected type String"))
-  }
-
-  // Don't widen literal type when literal type is expected, SCL-15571
-  def testTypeMismatchHintNotWiden(): Unit = {
-    assertMessages(errorsFromScalaCode("val v: 1 = 2"))(Hint("2", ": 2"),
-      Error("2", "Expression of type 2 doesn't conform to expected type 1"))
   }
 
   // Add parentheses when needed
@@ -241,4 +217,37 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   }
 
   // TODO val v = method, SCL-15663
+}
+
+class TypeMismatchHighlightingTest_with_LiteralTypes extends TypeMismatchHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+
+  // Don't widen literal type when literal type is expected, SCL-15571
+  def testTypeMismatchHintNotWiden(): Unit = {
+    assertMessages(errorsFromScalaCode("val v: 1 = 2"))(Hint("2", ": 2"),
+      Error("2", "Expression of type 2 doesn't conform to expected type 1"))
+  }
+
+  // Don't narrow type when non-literal type is ascribed but literal type is expected, SCL-15571
+  def testTypeMismatchAndTypeAscriptionErrorNotNarrow(): Unit = {
+    // TODO unify the message in tests
+    assertMessages(errorsFromScalaCode("val v: 1 = 2: Int"))(Error("Int", "Expression of type Int doesn't conform to expected type 1"))
+  }
+
+  // Widen type when non-literal type is expected, SCL-15571
+  def testTypeMismatchAndTypeAscriptionErrorWiden(): Unit = {
+    // TODO unify the message in tests
+    assertMessages(errorsFromScalaCode("val v: Int = true: true"))(Error("true", "Expression of type Boolean doesn't conform to expected type Int"))
+  }
+
+  // Don't widen literal type when literal type is ascribed (handled in ScTypedExpressionAnnotator), SCL-15571
+  def testTypeAscriptionErrorNotWiden(): Unit = {
+    assertMessages(errorsFromScalaCode("1: 2"))(Error("2", "Cannot upcast 1 to 2"))
+  }
+
+  // Don't widen type when literal type is expected, SCL-15571
+  def testTypeMismatchAndTypeAscriptionErrorNotWiden(): Unit = {
+    // TODO unify the message in tests
+    assertMessages(errorsFromScalaCode("val v: 1 = 2: 2"))(Error("2", "Expression of type 2 doesn't conform to expected type 1"))
+  }
 }
