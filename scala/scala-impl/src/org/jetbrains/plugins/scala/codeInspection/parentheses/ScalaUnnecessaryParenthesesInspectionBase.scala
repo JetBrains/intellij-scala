@@ -23,8 +23,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
  * Nikolay.Tropin
  * 4/25/13
  */
-abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspectionTool
-  with RedundantBracketsInspectionLike {
+abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspectionTool {
 
   import ScalaUnnecessaryParenthesesInspectionBase._
 
@@ -46,8 +45,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspection
 
     private def registerRedundantParensProblem[E <: ScalaPsiElement](element: E,
                                                                      quickFix: UnnecessaryParenthesesQuickFix[E]): Unit =
-      ScalaUnnecessaryParenthesesInspectionBase.this
-        .registerRedundantParensProblem(getDisplayName, element, quickFix)(holder, isOnTheFly)
+      parentheses.registerRedundantParensProblem(getDisplayName, element, quickFix)(holder, isOnTheFly)
   }
 
   def currentSettings: UnnecessaryParenthesesSettings
