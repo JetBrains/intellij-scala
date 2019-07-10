@@ -1,28 +1,33 @@
-package org.jetbrains.plugins.scala.finder
+package org.jetbrains.plugins.scala
+package finder
 
-import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.fileTypes.{FileType, FileTypeManager, StdFileTypes}
+import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
+import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 17.02.2010
   */
-abstract class FilterScope protected(elementScope: ElementScope) extends GlobalSearchScope(elementScope.project) {
+sealed abstract class FilterScope protected(elementScope: ElementScope) extends GlobalSearchScope(elementScope.project) {
   def this(scope: GlobalSearchScope, project: Project) =
     this(ElementScope(project, scope))
 
   private val myDelegate = elementScope.scope
 
-  protected val myIndex: ProjectFileIndex = ProjectRootManager.getInstance(elementScope.project).getFileIndex
+  private val myIndex = ProjectRootManager.getInstance(elementScope.project).getFileIndex
+
+  protected final def isInSourceContent(file: VirtualFile): Boolean =
+    myIndex.isInSourceContent(file)
+
+  protected final def isInLibraryClasses(file: VirtualFile): Boolean =
+    myIndex.isInLibraryClasses(file)
 
   protected def isValid(file: VirtualFile): Boolean
 
@@ -39,18 +44,13 @@ abstract class FilterScope protected(elementScope: ElementScope) extends GlobalS
     myDelegate == null || myDelegate.isSearchInLibraries
 }
 
-class ScalaFilterScope(scope: GlobalSearchScope, project: Project) extends FilterScope(scope, project) {
-  override protected def isValid(file: VirtualFile): Boolean = {
-    val isScalaSource = myIndex.isInSourceContent(file) &&
-      (FileTypeManager.getInstance().isFileOfType(file, ScalaFileType.INSTANCE) ||
-        ScalaLanguageDerivative.hasDerivativeForFileType(file))
+final class ScalaFilterScope(scope: GlobalSearchScope, project: Project) extends FilterScope(scope, project) {
 
-    val isCompiled =
-      StdFileTypes.CLASS.getDefaultExtension == file.getExtension &&
-        myIndex.isInLibraryClasses(file)
+  import ScalaFilterScope._
 
-    isScalaSource || isCompiled
-  }
+  override protected def isValid(file: VirtualFile): Boolean =
+    isInSourceContent(file) && hasScalaPsi(file) ||
+      isClassFile(file) && isInLibraryClasses(file)
 }
 
 object ScalaFilterScope {
@@ -73,10 +73,23 @@ object ScalaFilterScope {
       new LocalSearchScope(filtered, displayName, local.isIgnoreInjectedPsi)
     case scope => scope
   }
+
+  private def hasScalaPsi(file: VirtualFile) =
+    FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
+      case fileType: LanguageFileType if fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) => true
+      case fileType => ScalaLanguageDerivative.existsFor(fileType)
+    }
+
+  /** performance critical
+   * finding [[JavaClassFileType]] by [[VirtualFile]] should be avoided
+   */
+  private def isClassFile(file: VirtualFile) =
+    JavaClassFileType.INSTANCE.getDefaultExtension == file.getExtension
 }
 
-class SourceFilterScope protected(elementScope: ElementScope) extends FilterScope(elementScope) {
-  protected def isValid(file: VirtualFile): Boolean = myIndex.isInSourceContent(file)
+final class SourceFilterScope protected(elementScope: ElementScope) extends FilterScope(elementScope) {
+
+  override protected def isValid(file: VirtualFile): Boolean = isInSourceContent(file)
 }
 
 object SourceFilterScope {
