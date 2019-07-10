@@ -323,15 +323,6 @@ object ScalaImportOptimizer {
   val NO_IMPORT_USED: Set[ImportUsed] = Set.empty
   val _root_prefix = "_root_"
 
-  /**
-    * We can't just select ScalaImportOptimizer because of Play2 templates
-    *
-    * @param file Any parallel psi file
-    */
-  def runOptimizerUnsafe(file: ScalaFile) {
-    findOptimizerFor(file).foreach(_.processFile(file).run)
-  }
-
   def findOptimizerFor(file: ScalaFile): Option[ImportOptimizer] = {
     val topLevelFile = file.getViewProvider.getPsi(file.getViewProvider.getBaseLanguage)
     val optimizers = LanguageImportStatements.INSTANCE.forFile(topLevelFile)

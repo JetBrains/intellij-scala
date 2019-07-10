@@ -120,7 +120,13 @@ package object extensions {
       if (file.isValid) viewProvider.getContents
       else file.getText
 
-    def hasScalaPsi: Boolean = viewProvider.hasScalaPsi
+    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE)
+
+    def findScalaPsi[F <: ScalaFile : ClassTag]: Option[F] =
+      viewProvider.getPsi(ScalaLanguage.INSTANCE).asOptionOf[F]
+
+    def findAnyScalaPsi: Option[ScalaFile] =
+      findScalaPsi[ScalaFile]
 
     private def viewProvider = file.getViewProvider
   }
@@ -129,15 +135,6 @@ package object extensions {
     private val AccessorNamePattern = Pattern.compile(
       """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*"""
     )
-  }
-
-  implicit class FileViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
-
-    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE)
-
-    def findScalaPsi: Option[PsiFile] =
-      if (hasScalaPsi) Option(viewProvider.getPsi(ScalaLanguage.INSTANCE))
-      else None
   }
 
   implicit class TraversableExt[CC[X] <: Traversable[X], A](private val value: CC[A]) extends AnyVal {

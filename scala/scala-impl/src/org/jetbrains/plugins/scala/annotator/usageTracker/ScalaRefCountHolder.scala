@@ -115,18 +115,12 @@ object ScalaRefCountHolder {
   def apply(element: PsiNamedElement): ScalaRefCountHolder =
     getInstance(element.getContainingFile)
 
-  def getInstance(file: PsiFile): ScalaRefCountHolder = {
-    import extensions.FileViewProviderExt
-    file.getViewProvider
-      .findScalaPsi
-      .getOrElse(file)
-      .getProject
-      .getComponent(classOf[ScalaRefCountHolderComponent])
-      .getOrCreate(
-        file.getName + file.hashCode,
-        new ScalaRefCountHolder(file)
-      )
-  }
+  def getInstance(file: PsiFile): ScalaRefCountHolder = file.getProject
+    .getComponent(classOf[ScalaRefCountHolderComponent])
+    .getOrCreate(
+      file.getName + file.hashCode,
+      new ScalaRefCountHolder(file)
+    )
 
   def findDirtyScope(file: PsiFile): Option[Option[TextRange]] = {
     val project = file.getProject
