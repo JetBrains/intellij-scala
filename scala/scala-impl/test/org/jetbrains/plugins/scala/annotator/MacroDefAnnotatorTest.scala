@@ -7,10 +7,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 class MacroDefAnnotatorTest extends ScalaHighlightingTestBase {
   override implicit val version: ScalaVersion = Scala_2_13
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    IvyManagedLoader("org.scala-lang" % "scala-reflect" % "2.13.0") +:
-      super.librariesLoaders
-
+  override protected val includeReflectLibrary: Boolean = true
 
   private def doTest(text: String)(expectedErrors: Message*): Unit = {
     val errors = errorsFromScalaCode(text)
