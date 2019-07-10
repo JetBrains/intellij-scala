@@ -5,6 +5,7 @@ import java.io.File
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
@@ -58,6 +59,7 @@ object ResolverIndex {
     val ROOT = "root"
     val UPDATE_TIMESTAMP = "update-timestamp"
     val KIND = "kind"
+    val IVY_MODE = "ivy-index-mode"
   }
 
 }

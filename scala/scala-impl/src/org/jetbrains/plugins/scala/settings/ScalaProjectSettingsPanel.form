@@ -265,7 +265,7 @@
               </component>
             </children>
           </grid>
-          <grid id="d23f" layout-manager="GridLayoutManager" row-count="9" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="d23f" layout-manager="GridLayoutManager" row-count="10" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="9" left="9" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Performance"/>
@@ -275,7 +275,7 @@
             <children>
               <vspacer id="c9804">
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="2e626" class="javax.swing.JLabel">
@@ -296,7 +296,7 @@
               </component>
               <component id="74373" class="javax.swing.JCheckBox" binding="myResolveToAllClassesCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Resolve to all classes, even in wrong directories (this may cause performance problems)"/>
@@ -304,7 +304,7 @@
               </component>
               <component id="cdb42" class="javax.swing.JCheckBox" binding="treatDocCommentAsBlockComment">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)"/>
@@ -312,7 +312,7 @@
               </component>
               <component id="73696" class="javax.swing.JCheckBox" binding="myDisableLanguageInjection">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)"/>
@@ -320,7 +320,7 @@
               </component>
               <component id="6926b" class="javax.swing.JCheckBox" binding="myDontCacheCompound">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Don't cache compound types (use it in case of big pauses in GC)"/>
@@ -328,7 +328,7 @@
               </component>
               <component id="3075b" class="javax.swing.JCheckBox" binding="searchAllSymbolsIncludeCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Search all symbols (include locals)"/>
@@ -358,11 +358,33 @@
               </component>
               <component id="1a591" class="javax.swing.JCheckBox" binding="metaTrimBodies">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.trimBodiesCap"/>
                   <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.meta.settings.trimBodiesTooltip"/>
+                </properties>
+              </component>
+              <component id="4b2ad" class="javax.swing.JComboBox" binding="ivy2IndexingModeCBB">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="Disabled"/>
+                    <item value="Metadata"/>
+                    <item value="Classes"/>
+                  </model>
+                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="project.settings.sbt.index.ivy2.mode.hint"/>
+                </properties>
+              </component>
+              <component id="b7dc6" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="project.settings.sbt.index.ivy2.mode"/>
+                  <toolTipText resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="project.settings.sbt.index.ivy2.mode.hint"/>
                 </properties>
               </component>
             </children>

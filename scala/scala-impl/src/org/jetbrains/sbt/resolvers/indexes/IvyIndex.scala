@@ -8,6 +8,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMode
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers._
 
@@ -28,14 +30,14 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
   private var groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
   private var groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
   private var fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
-  private var (_, _, innerTimestamp, currentVersion) = loadProps()
+  private var (_, _, innerTimestamp, currentVersion, mode) = loadProps()
 
   private def checkStorage(): Unit = {
     if (artifactToGroupMap.isCorrupted ||
         groupToArtifactMap.isCorrupted ||
         groupArtifactToVersionMap.isCorrupted ||
         fqNameToGroupArtifactVersionMap.isCorrupted ||
-        currentVersion.toInt < CURRENT_INDEX_VERSION.toInt)
+        currentVersion.toInt < CURRENT_INDEX_VERSION.toInt || hasIndexModeChanged)
     {
       close()
       deleteIndex()
@@ -43,12 +45,15 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
       groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
       fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
-      val (_, _, a, b) = loadProps()
+      val (_, _, a, b, newMode) = loadProps()
       innerTimestamp = a
       currentVersion = b
+      mode = newMode
       SbtIndexesManager.getInstance(project).get.doUpdateResolverIndexWithProgress("Local Ivy cache", this)
     }
   }
+
+  private def hasIndexModeChanged = Ivy2IndexingMode.valueOf(mode).compareTo(ScalaProjectSettings.getInstance(project.project).getIvy2IndexingMode) < 0
 
   private def withStorageCheck[T](f: => Set[T]): Set[T] = {
     try     { f }
@@ -176,7 +181,8 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       props.getProperty(Keys.KIND, "ivy"),
       props.getProperty(Keys.ROOT, root),
       props.getProperty(Keys.UPDATE_TIMESTAMP, "-1").toLong,
-      props.getProperty(Keys.VERSION, CURRENT_INDEX_VERSION)
+      props.getProperty(Keys.VERSION, CURRENT_INDEX_VERSION),
+      props.getProperty(Keys.IVY_MODE, ScalaProjectSettings.getInstance(project.project).getIvy2IndexingMode.toString)
     )
   }
 
@@ -184,10 +190,13 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     ensureIndexDir()
 
     val props = new Properties()
+    val newMode = ScalaProjectSettings.getInstance(project.project).getIvy2IndexingMode.toString
     props.setProperty(Keys.VERSION, CURRENT_INDEX_VERSION)
     props.setProperty(Keys.ROOT, root)
     props.setProperty(Keys.UPDATE_TIMESTAMP, innerTimestamp.toString)
     props.setProperty(Keys.KIND, "ivy")
+    props.setProperty(Keys.IVY_MODE, newMode)
+    mode = newMode
 
     val propFile = indexDir / Paths.PROPERTIES_FILE
     using(new FileOutputStream(propFile)) { outputStream =>
@@ -225,6 +234,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
   private[indexes] class SbtIvyCacheEnumerator(val cacheDir: File, progressIndicator: Option[ProgressIndicator]) {
 
     val fqNameToArtifacts: mutable.Map[String, mutable.Set[ArtifactInfo]] = mutable.Map.empty
+    private val enableFQNameIndex = ScalaProjectSettings.getInstance(project.project).getIvy2IndexingMode == Ivy2IndexingMode.Classes
 
     private val ivyFileFilter = new FileFilter {
       override def accept(file: File): Boolean = file.name.endsWith(".xml")
@@ -281,7 +291,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
           .filterNot(artifact => searchVersion(artifact.groupId, artifact.artifactId).contains(artifact.version))
           .toStream
 
-      if (artifactsHere.nonEmpty) {
+      if (artifactsHere.nonEmpty && enableFQNameIndex) {
         val artifactToFqNames = listFqNames(dir, artifactsHere)
         for {
           (artifact, fqNames) <- artifactToFqNames

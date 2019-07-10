@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMode
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.{IvyIndex, ResolverIndex}
@@ -57,7 +58,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
               } catch {
                 case pce: ProcessCanceledException => throw pce
                 case e: Exception =>
-                  ScalaProjectSettings.getInstance(project).setEnableLocalDependencyIndexing(false)
+                  ScalaProjectSettings.getInstance(project).setIvy2IndexingMode(Ivy2IndexingMode.Disabled)
                   e.addSuppressed(original)
                   LOG.error("Can't rebuild index after force cleaning, disabling artifact indexing", e)
               }
@@ -92,7 +93,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 
   private var updateScheduled = false
   def scheduleLocalIvyIndexUpdate(resolver: SbtResolver): Unit = {
-    if (!ScalaProjectSettings.getInstance(project).isEnableLocalDependencyIndexing)
+    if (ScalaProjectSettings.getInstance(project).getIvy2IndexingMode == Ivy2IndexingMode.Disabled)
       return
     if (!updateScheduled) {
       updateScheduled = true
