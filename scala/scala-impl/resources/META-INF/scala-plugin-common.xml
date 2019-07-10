@@ -295,7 +295,6 @@
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order = "first" id="scalaIntroduceParamterProcessor"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureRefactoringHelper"/>
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
-        <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala" />

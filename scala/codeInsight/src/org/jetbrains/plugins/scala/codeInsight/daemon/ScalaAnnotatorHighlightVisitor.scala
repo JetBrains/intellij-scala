@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala
-package annotator
+package codeInsight
+package daemon
 
-import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightingLevelManager}
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, HighlightInfo, HighlightVisitor}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
+import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
 final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
-
-  import extensions.PsiFileExt
-  import usageTracker.ScalaRefCountHolder
 
   override def order: Int = 0
 
@@ -39,7 +38,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
       highlighter.AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
     }
 
-    if (ApplicationManager.getApplication.isUnitTestMode || manager.shouldInspect(file)) {
+    if (applicationUnitTestModeEnabled || manager.shouldInspect(file)) {
       ScalaAnnotator(project).annotate(element, myAnnotationHolder)
     }
 
