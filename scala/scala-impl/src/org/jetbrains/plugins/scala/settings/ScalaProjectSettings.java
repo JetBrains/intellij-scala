@@ -91,8 +91,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean LEXT_SHOW_ALL_PROJECTS = false;
 
   //INDEXING
-  private boolean ENABLE_LOCAL_DEPENDENCY_INDEXING = true;
-
+  public enum Ivy2IndexingMode {Disabled, Metadata, Classes};
+  private Ivy2IndexingMode IVY2_INDEXING_MODE = Ivy2IndexingMode.Metadata;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -517,12 +517,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.metaTrimMethodBodies = metaTrimMethodBodies;
   }
 
-  public boolean isEnableLocalDependencyIndexing() {
-    return ENABLE_LOCAL_DEPENDENCY_INDEXING;
+  public Ivy2IndexingMode getIvy2IndexingMode() {
+    return IVY2_INDEXING_MODE;
   }
 
-  public void setEnableLocalDependencyIndexing(boolean ENABLE_LOCAL_DEPENDENCY_INDEXING) {
-    this.ENABLE_LOCAL_DEPENDENCY_INDEXING = ENABLE_LOCAL_DEPENDENCY_INDEXING;
+  public void setIvy2IndexingMode(Ivy2IndexingMode IVY2_INDEXING_MODE) {
+    this.IVY2_INDEXING_MODE = IVY2_INDEXING_MODE;
   }
 
 }

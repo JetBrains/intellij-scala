@@ -90,6 +90,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox collapseWorksheetFoldByCheckBox;
   private JCheckBox showNotFoundImplicitArgumentsCheckBox;
   private JCheckBox myGroupPackageObjectWithPackage;
+  private JComboBox ivy2IndexingModeCBB;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
 
@@ -99,6 +100,7 @@ public class ScalaProjectSettingsPanel {
     outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
     updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
     scalaMetaMode.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScalaMetaMode.class));
+    ivy2IndexingModeCBB.setModel(new EnumComboBoxModel(ScalaProjectSettings.Ivy2IndexingMode.class));
     updateNowButton.addActionListener(e -> {
       try {
         ScalaPluginUpdater.doUpdatePluginHosts((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
@@ -234,6 +236,8 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setScalaMetaMode((ScalaProjectSettings.ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
     scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
+    scalaProjectSettings.setIvy2IndexingMode((ScalaProjectSettings.Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
+
     scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(scTypeSelectionCombobox.getSelectedItem().toString()));
     scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingCommasComboBox.getSelectedItem().toString()));
 
@@ -331,7 +335,8 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.isTypeMismatchHints() !=
-            (typeMismatchHighlightingMode.getSelectedItem() == TypeMismatchHighlightingMode.HIGHLIGHT_TYPE_HINT)) return true;
+            (typeMismatchHighlightingMode.getSelectedItem() == TypeMismatchHighlightingMode.HIGHLIGHT_TYPE_HINT))
+      return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
             collectionHighlightingChooser.getSelectedIndex()) return true;
@@ -351,6 +356,9 @@ public class ScalaProjectSettingsPanel {
 
     if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
     if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
+
+    if (!scalaProjectSettings.getIvy2IndexingMode().equals(ivy2IndexingModeCBB.getModel().getSelectedItem()))
+      return true;
 
     if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
     if (scalaProjectSettings.getTrailingCommasMode() != trailingCommasComboBox.getSelectedItem()) return true;
@@ -426,6 +434,8 @@ public class ScalaProjectSettingsPanel {
 
     scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
     setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());
+
+    ivy2IndexingModeCBB.getModel().setSelectedItem(scalaProjectSettings.getIvy2IndexingMode());
 
     setValue(extensionsPanel.enabledCB(), scalaProjectSettings.isEnableLibraryExtensions());
   }
@@ -577,10 +587,10 @@ public class ScalaProjectSettingsPanel {
     myGroupPackageObjectWithPackage.setDisplayedMnemonicIndex(0);
     panel5.add(myGroupPackageObjectWithPackage, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel6 = new JPanel();
-    panel6.setLayout(new GridLayoutManager(9, 2, new Insets(9, 9, 0, 0), -1, -1));
+    panel6.setLayout(new GridLayoutManager(10, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Performance", panel6);
     final Spacer spacer3 = new Spacer();
-    panel6.add(spacer3, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel6.add(spacer3, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label3 = new JLabel();
     label3.setText("Implicit parameters search depth (-1 for none):");
     panel6.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -588,19 +598,19 @@ public class ScalaProjectSettingsPanel {
     panel6.add(implicitParametersSearchDepthSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(50, -1), null, null, 0, false));
     myResolveToAllClassesCheckBox = new JCheckBox();
     myResolveToAllClassesCheckBox.setText("Resolve to all classes, even in wrong directories (this may cause performance problems)");
-    panel6.add(myResolveToAllClassesCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel6.add(myResolveToAllClassesCheckBox, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     treatDocCommentAsBlockComment = new JCheckBox();
     treatDocCommentAsBlockComment.setText("Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)");
-    panel6.add(treatDocCommentAsBlockComment, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel6.add(treatDocCommentAsBlockComment, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myDisableLanguageInjection = new JCheckBox();
     myDisableLanguageInjection.setText("Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)");
-    panel6.add(myDisableLanguageInjection, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel6.add(myDisableLanguageInjection, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myDontCacheCompound = new JCheckBox();
     myDontCacheCompound.setText("Don't cache compound types (use it in case of big pauses in GC)");
-    panel6.add(myDontCacheCompound, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel6.add(myDontCacheCompound, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     searchAllSymbolsIncludeCheckBox = new JCheckBox();
     searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
-    panel6.add(searchAllSymbolsIncludeCheckBox, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel6.add(searchAllSymbolsIncludeCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label4 = new JLabel();
     this.$$$loadLabelText$$$(label4, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.annot212"));
     label4.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.annot212Tooltip"));
@@ -616,7 +626,19 @@ public class ScalaProjectSettingsPanel {
     metaTrimBodies = new JCheckBox();
     this.$$$loadButtonText$$$(metaTrimBodies, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.trimBodiesCap"));
     metaTrimBodies.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.trimBodiesTooltip"));
-    panel6.add(metaTrimBodies, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel6.add(metaTrimBodies, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    ivy2IndexingModeCBB = new JComboBox();
+    final DefaultComboBoxModel defaultComboBoxModel4 = new DefaultComboBoxModel();
+    defaultComboBoxModel4.addElement("Disabled");
+    defaultComboBoxModel4.addElement("Metadata");
+    defaultComboBoxModel4.addElement("Classes");
+    ivy2IndexingModeCBB.setModel(defaultComboBoxModel4);
+    ivy2IndexingModeCBB.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("project.settings.sbt.index.ivy2.mode.hint"));
+    panel6.add(ivy2IndexingModeCBB, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label5 = new JLabel();
+    this.$$$loadLabelText$$$(label5, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("project.settings.sbt.index.ivy2.mode"));
+    label5.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("project.settings.sbt.index.ivy2.mode.hint"));
+    panel6.add(label5, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel7 = new JPanel();
     panel7.setLayout(new GridLayoutManager(8, 6, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Worksheet", panel7);
@@ -626,18 +648,18 @@ public class ScalaProjectSettingsPanel {
     runWorksheetInTheCheckBox.setSelected(true);
     runWorksheetInTheCheckBox.setText("Run worksheet in the compiler process");
     panel7.add(runWorksheetInTheCheckBox, new GridConstraints(2, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JLabel label5 = new JLabel();
-    label5.setText("Output cutoff limit, lines: ");
-    panel7.add(label5, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label6 = new JLabel();
+    label6.setText("Output cutoff limit, lines: ");
+    panel7.add(label6, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     useEclipseCompatibilityModeCheckBox = new JCheckBox();
     useEclipseCompatibilityModeCheckBox.setText("Use \"eclipse compatibility\" mode");
     panel7.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(3, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     treatScalaScratchFilesCheckBox = new JCheckBox();
     treatScalaScratchFilesCheckBox.setText("Treat Scala scratch files as worksheet files");
     panel7.add(treatScalaScratchFilesCheckBox, new GridConstraints(4, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JLabel label6 = new JLabel();
-    label6.setText("Delay before auto-run");
-    panel7.add(label6, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label7 = new JLabel();
+    label7.setText("Delay before auto-run");
+    panel7.add(label7, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     autoRunDelaySlider = new JSlider();
     autoRunDelaySlider.setExtent(0);
     autoRunDelaySlider.setMaximum(3000);
@@ -646,9 +668,9 @@ public class ScalaProjectSettingsPanel {
     panel7.add(autoRunDelaySlider, new GridConstraints(6, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     scTypeSelectionCombobox = new JComboBox();
     panel7.add(scTypeSelectionCombobox, new GridConstraints(0, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JLabel label7 = new JLabel();
-    label7.setText("Treat .sc files as:");
-    panel7.add(label7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label8 = new JLabel();
+    label8.setText("Treat .sc files as:");
+    panel7.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     collapseWorksheetFoldByCheckBox = new JCheckBox();
     collapseWorksheetFoldByCheckBox.setText("Collapse long output by default");
     panel7.add(collapseWorksheetFoldByCheckBox, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -673,17 +695,17 @@ public class ScalaProjectSettingsPanel {
     panel9.setLayout(new GridLayoutManager(4, 3, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Misc", panel9);
     panel9.add(injectionJPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final JLabel label8 = new JLabel();
-    label8.setText("ScalaTest default super class:");
-    panel9.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label9 = new JLabel();
+    label9.setText("ScalaTest default super class:");
+    panel9.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer8 = new Spacer();
     panel9.add(spacer8, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     scalaTestDefaultSuperClass = new JTextField();
     scalaTestDefaultSuperClass.setColumns(25);
     panel9.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-    final JLabel label9 = new JLabel();
-    label9.setText("Trailing commas:");
-    panel9.add(label9, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label10 = new JLabel();
+    label10.setText("Trailing commas:");
+    panel9.add(label10, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     trailingCommasComboBox = new JComboBox();
     panel9.add(trailingCommasComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer9 = new Spacer();
@@ -693,16 +715,16 @@ public class ScalaProjectSettingsPanel {
     tabbedPane1.addTab("Updates", panel10);
     final Spacer spacer10 = new Spacer();
     panel10.add(spacer10, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    final JLabel label10 = new JLabel();
-    label10.setText("Plugin update channel:");
-    panel10.add(label10, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label11 = new JLabel();
+    label11.setText("Plugin update channel:");
+    panel10.add(label11, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     updateChannel = new JComboBox();
     updateChannel.setEditable(false);
-    final DefaultComboBoxModel defaultComboBoxModel4 = new DefaultComboBoxModel();
-    defaultComboBoxModel4.addElement("Release");
-    defaultComboBoxModel4.addElement("EAP");
-    defaultComboBoxModel4.addElement("Nightly");
-    updateChannel.setModel(defaultComboBoxModel4);
+    final DefaultComboBoxModel defaultComboBoxModel5 = new DefaultComboBoxModel();
+    defaultComboBoxModel5.addElement("Release");
+    defaultComboBoxModel5.addElement("EAP");
+    defaultComboBoxModel5.addElement("Nightly");
+    updateChannel.setModel(defaultComboBoxModel5);
     panel10.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     updateNowButton = new JButton();
     updateNowButton.setText("Check For Updates");
