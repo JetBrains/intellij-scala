@@ -14,7 +14,7 @@ import java.util.Arrays;
  */
 public class MyJavaConverters {
 
-  public static <T> java.util.List<T> asJava(scala.collection.immutable.Seq<T> seq) {
+  public static <T> java.util.List<T> toJava(scala.collection.immutable.Seq<T> seq) {
     ArrayList<T> list = new ArrayList<>(seq.size());
     Iterator<T> iterator = seq.iterator();
     while (iterator.hasNext()) {
@@ -39,15 +39,11 @@ public class MyJavaConverters {
    * This breaks JVM virtual method dispatch in runtime.
    */
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static <T> scala.collection.immutable.List<T> asScala(java.util.List<T> list) {
+  public static <T> scala.collection.immutable.List<T> toScala(java.util.List<T> list) {
     scala.collection.immutable.List head = Nil$.MODULE$;
     for (int idx = list.size() - 1; idx >= 0; idx--) {
       head = new $colon$colon(list.get(idx), head);
     }
     return (scala.collection.immutable.List<T>) head;
-  }
-
-  public static <T> scala.collection.immutable.List<T> asScala(T[] array) {
-    return asScala(Arrays.asList(array));
   }
 }
