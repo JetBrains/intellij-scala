@@ -33,7 +33,7 @@ sealed abstract class ScalaOptimizeImportsFixBase extends IntentionAction {
    * @param file Any parallel psi file
    */
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = for {
-    scalaFile <- file.findAnyScalaPsi
+    scalaFile <- file.findAnyScalaFile
     if FileModificationService.getInstance.prepareFileForWrite(scalaFile)
 
     optimizer <- findOptimizerFor(scalaFile)
