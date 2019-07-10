@@ -109,7 +109,7 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
         TestRunner.runAsync(
             resolveResult,
             reportFunction,
-            MyJavaConverters.asScala(treeList),
+            MyJavaConverters.toScala(treeList),
             (Executor) testObject,
             ExecutionContext.RunNow$.MODULE$
         );
@@ -140,7 +140,7 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
     for (String walkup : walkupNodes) {
       List<Tree<String>> dummyList = new LinkedList<Tree<String>>();
       dummyList.add(current);
-      current = new Tree<>(walkup, MyJavaConverters.asScala(dummyList));
+      current = new Tree<>(walkup, MyJavaConverters.toScala(dummyList));
     }
     return current;
   }

@@ -19,7 +19,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
  */
 public class ParallelTreeBuilder implements TreeBuilder {
   static List<Integer> getOrdinalList(Ordinal ordinal) {
-    List newOrdinalList = MyJavaConverters.asJava(ordinal.toList());
+    List newOrdinalList = MyJavaConverters.toJava(ordinal.toList());
     ArrayList<Integer> result = new ArrayList<>(newOrdinalList.size());
     for (Object o : newOrdinalList) {
       result.add((Integer) o);
