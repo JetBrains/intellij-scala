@@ -3,10 +3,8 @@ package lang
 package completion
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
-import com.intellij.openapi.project.Project
 import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.psi.search.{GlobalSearchScope, ProjectScope}
 import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -38,12 +36,9 @@ package object clauses {
 
   private[clauses] object DirectInheritors {
 
-    def unapply(`class`: ScTypeDefinition): Option[Inheritors] = {
+    def unapply(`class`: PsiClass): Option[Inheritors] = {
       val isSealed = `class`.isSealed
-      val scope = if (isSealed) `class`.getContainingFile.getResolveScope
-      else projectScope(`class`.getProject)
-
-      val (namedInheritors, anonymousInheritors) = directInheritors(`class`, scope).partition {
+      val (namedInheritors, anonymousInheritors) = directInheritors(`class`).partition {
         case _: ScNewTemplateDefinition |
              _: PsiAnonymousClass => false
         case _ => true
@@ -66,12 +61,12 @@ package object clauses {
       }
     }
 
-    private def directInheritors(`class`: ScTypeDefinition,
-                                 scope: GlobalSearchScope) = {
+    private def directInheritors(`class`: PsiClass) = {
       import collection.JavaConverters._
-      DirectClassInheritorsSearch
-        .search(`class`, scope)
-        .findAll()
+      DirectClassInheritorsSearch.search(
+        `class`,
+        `class`.getContainingFile.getResolveScope
+      ).findAll()
         .asScala
         .toIndexedSeq
     }
@@ -82,11 +77,5 @@ package object clauses {
     def unapply(`object`: ScObject): Option[ScFunctionDefinition] = `object`.membersWithSynthetic.collectFirst {
       case function: ScFunctionDefinition if function.isUnapplyMethod => function
     }
-  }
-
-  private[this] def projectScope(implicit project: Project): GlobalSearchScope = {
-    import ProjectScope._
-    if (applicationUnitTestModeEnabled) getEverythingScope(project)
-    else getProjectScope(project)
   }
 }

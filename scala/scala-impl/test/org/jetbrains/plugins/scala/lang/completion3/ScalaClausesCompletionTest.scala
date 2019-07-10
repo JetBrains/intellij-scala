@@ -493,28 +493,28 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, str1)"
   )
 
-  //  def testCompleteJavaInheritorClause(): Unit = {
-  //    this.configureJavaFile(
-  //      "public class Bar implements Foo",
-  //      "Bar"
-  //    )
-  //
-  //    doClauseCompletionTest(
-  //      fileText =
-  //        s"""trait Foo
-  //           |
-  //           |(_: Foo) match {
-  //           |  ca$CARET
-  //           |}""".stripMargin,
-  //      resultText =
-  //        s"""trait Foo
-  //           |
-  //           |(_: Foo) match {
-  //           |  case bar: Bar => $CARET
-  //           |}""".stripMargin,
-  //      itemText = "_: Bar"
-  //    )
-  //  }
+  def testCompleteJavaTypeClause(): Unit = {
+    this.configureJavaFile(
+      "public interface Foo",
+      "Foo"
+    )
+
+    doClauseCompletionTest(
+      fileText =
+        s"""class Bar extends Foo
+           |
+           |(_: Foo) match {
+           |  ca$CARET
+           |}""".stripMargin,
+      resultText =
+        s"""class Bar extends Foo
+           |
+           |(_: Foo) match {
+           |  case bar: Bar => $CARET
+           |}""".stripMargin,
+      itemText = "_: Bar"
+    )
+  }
 
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
@@ -961,31 +961,31 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
-  //  def testJavaInheritors(): Unit = {
-  //    this.configureJavaFile(
-  //      fileText =
-  //        """public class Bar implements Foo {
-  //          |    public static Foo createFoo() {
-  //          |        return new Foo() {};
-  //          |    }
-  //          |}""".stripMargin,
-  //      className = "Bar"
-  //    )
-  //
-  //    doMatchCompletionTest(
-  //      fileText =
-  //        s"""trait Foo
-  //           |
-  //           |(_: Foo) ma$CARET""".stripMargin,
-  //      resultText =
-  //        s"""trait Foo
-  //           |
-  //           |(_: Foo) match {
-  //           |  case bar: Bar => $CARET
-  //           |  case _ =>
-  //           |}""".stripMargin
-  //    )
-  //  }
+  def testJavaType(): Unit = {
+    this.configureJavaFile(
+      fileText =
+        """public interface Foo {
+          |    public static Foo createFoo() {
+          |        return new Foo() {};
+          |    }
+          |}""".stripMargin,
+      className = "Foo"
+    )
+
+    doMatchCompletionTest(
+      fileText =
+        s"""class Bar() extends Foo
+           |
+           |(_: Foo) ma$CARET""".stripMargin,
+      resultText =
+        s"""class Bar() extends Foo
+           |
+           |(_: Foo) match {
+           |  case bar: Bar => $CARET
+           |  case _ =>
+           |}""".stripMargin
+    )
+  }
 
   def testCase(): Unit = doCompletionTest(
     fileText =
