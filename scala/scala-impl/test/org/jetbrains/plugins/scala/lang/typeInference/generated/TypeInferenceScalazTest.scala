@@ -5,15 +5,13 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author Alefas
-  * @since 11.12.12
-  */
 class TypeInferenceScalazTest extends TypeInferenceTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 
   override def folderPath: String = super.folderPath + "scalaz/"
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
+  override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0") :: Nil
 
   def testSCL3819(): Unit = doTest()
