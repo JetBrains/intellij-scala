@@ -49,7 +49,6 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       innerTimestamp = a
       currentVersion = b
       mode = newMode
-      SbtIndexesManager.getInstance(project).get.doUpdateResolverIndexWithProgress("Local Ivy cache", this)
     }
   }
 
