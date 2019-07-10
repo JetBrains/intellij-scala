@@ -18,6 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.AnActionButtonRunnable;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -60,7 +61,8 @@ public class TestRunConfigurationForm {
     final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
     model.addColumn("Class pattern");
     model.addColumn("Test pattern");
-    regexpPanel = ToolbarDecorator.createDecorator(regexpTable).setAddAction(anActionButton -> {
+
+    AnActionButtonRunnable addAction = anActionButton -> {
       CellEditor editor = regexpTable.getCellEditor();
       int rowAdd = regexpTable.getSelectedRow() + 1;
       if (editor != null) editor.stopCellEditing();
@@ -68,7 +70,9 @@ public class TestRunConfigurationForm {
       if (rowAdd == 0) regexpTable.requestFocus();
       regexpTable.setRowSelectionInterval(rowAdd, rowAdd);
       regexpTable.setColumnSelectionInterval(0, 0);
-    }).setRemoveAction(anActionButton -> {
+    };
+
+    AnActionButtonRunnable removeAction = anActionButton -> {
       int row = regexpTable.getSelectedRow();
       if (row != -1) {
         CellEditor editor = regexpTable.getCellEditor();
@@ -79,7 +83,12 @@ public class TestRunConfigurationForm {
           regexpTable.setColumnSelectionInterval(0, 0);
         }
       }
-    }).createPanel();
+    };
+
+    regexpPanel = ToolbarDecorator.createDecorator(regexpTable)
+        .setAddAction(addAction)
+        .setRemoveAction(removeAction)
+        .createPanel();
   }
 
   public enum SearchForTest {
@@ -150,9 +159,9 @@ public class TestRunConfigurationForm {
     moduleComboBox.setEnabled(true);
     addClassChooser("Choose test class", testClassTextField, project);
     addFileChooser("Choose Working Directory", workingDirectoryField, project);
-    VirtualFile baseDir = project.getBaseDir();
-    String path = baseDir != null ? baseDir.getPath() : "";
-    workingDirectoryField.setText(path);
+    final TestConfigurationData testConfigurationData = configuration.testConfigurationData();
+    workingDirectoryField.setText(testConfigurationData.getWorkingDirectory());
+
     addPackageChooser(testPackageTextField, project);
     VMParamsTextField.setDialogCaption("VM parameters editor");
     testOptionsTextField.setDialogCaption("Additional options editor");
@@ -161,17 +170,17 @@ public class TestRunConfigurationForm {
       searchForTestsComboBox.addItem(searchForTest);
     }
 
-    searchForTestsComboBox.setSelectedItem(configuration.testConfigurationData().getSearchTest());
+    searchForTestsComboBox.setSelectedItem(testConfigurationData.getSearchTest());
 
     searchForTestsComboBox.addItemListener(e -> setupModuleComboBox());
 
-    myShowProgressMessagesCheckBox.setSelected(configuration.testConfigurationData().getShowProgressMessages());
+    myShowProgressMessagesCheckBox.setSelected(testConfigurationData.getShowProgressMessages());
 
     for (TestKind testKind : TestKind.values()) {
       kindComboBox.addItem(testKind);
     }
 
-    switch (configuration.testConfigurationData().getKind()) {
+    switch (testConfigurationData.getKind()) {
       case ALL_IN_PACKAGE:
         setPackageEnabled();
         break;
@@ -185,7 +194,7 @@ public class TestRunConfigurationForm {
         setRegexpEnabled();
     }
     useSbtCheckBox.addItemListener(e -> {
-      configuration.testConfigurationData().setUseSbt(useSbtCheckBox.isSelected());
+      testConfigurationData.setUseSbt(useSbtCheckBox.isSelected());
       useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
     });
     boolean hasSbt = hasSbt(configuration.getProject());
@@ -212,7 +221,7 @@ public class TestRunConfigurationForm {
     });
 
     suitePaths = configuration.javaSuitePaths();
-    environmentVariables.setEnvs(configuration.testConfigurationData().envs());
+    environmentVariables.setEnvs(testConfigurationData.envs());
   }
 
   private void setupModuleComboBox() {
