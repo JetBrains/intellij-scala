@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
  */
 trait Specs2_2_10_2_4_6_Base extends Specs2TestCase {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == Scala_2_10
+
   override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader(
       "org.specs2" %% "specs2" % "2.4.6",

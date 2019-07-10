@@ -11,6 +11,10 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
   * @since 11.01.2015.
   */
 trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == Scala_2_11
+
   private val specsVersion: String = "3.0.1"
   private val scalazVersion = "7.1.0"
 
