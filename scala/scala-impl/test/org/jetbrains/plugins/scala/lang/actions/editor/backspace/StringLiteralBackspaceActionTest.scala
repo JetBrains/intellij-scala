@@ -4,8 +4,8 @@ package lang.actions.editor.backspace
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 class StringLiteralBackspaceActionTest extends ScalaBackspaceHandlerBaseTest {
-  private val DoubleQuotes = "\"\""
-  private val TripleQuotes = "\"\"\""
+  private val qq = "\"\""
+  private val qqq = "\"\"\""
 
   // Single line
   def testRemovePairQuotesForInterpolatedString_EmptyFile(): Unit = doTest(
@@ -15,23 +15,23 @@ class StringLiteralBackspaceActionTest extends ScalaBackspaceHandlerBaseTest {
 
   // Multiline Remove
   def testRemovePairQuotesForMultilineString(): Unit = doTest(
-    s"""val x = $TripleQuotes$CARET$TripleQuotes""",
-    s"""val x = $DoubleQuotes$CARET"""
+    s"""val x = $qqq$CARET$qqq""",
+    s"""val x = $qq$CARET"""
   )
 
   def testRemovePairQuotesForInterpolatedMultilineString(): Unit = doTest(
-    s"""val x = s$TripleQuotes$CARET$TripleQuotes""",
-    s"""val x = s$DoubleQuotes$CARET"""
+    s"""val x = s$qqq$CARET$qqq""",
+    s"""val x = s$qq$CARET"""
   )
 
   def testRemovePairQuotesForMultilineString_EmptyFile(): Unit = doTest(
-    s"""$TripleQuotes$CARET$TripleQuotes""",
-    s"""$DoubleQuotes$CARET"""
+    s"""$qqq$CARET$qqq""",
+    s"""$qq$CARET"""
   )
 
   def testRemovePairQuotesForInterpolatedMultilineString_EmptyFile(): Unit = doTest(
-    s"""s$TripleQuotes$CARET$TripleQuotes""",
-    s"""s$DoubleQuotes$CARET"""
+    s"""s$qqq$CARET$qqq""",
+    s"""s$qq$CARET"""
   )
 
   // Multiline Not Remove if setting is disabled
@@ -46,46 +46,46 @@ class StringLiteralBackspaceActionTest extends ScalaBackspaceHandlerBaseTest {
   }
 
   def testNotRemovePairQuotesForMultilineString(): Unit = doTestWithSettingDisabled(
-    s"""val x = $TripleQuotes$CARET$TripleQuotes""",
-    s"""val x = $DoubleQuotes$CARET$TripleQuotes"""
+    s"""val x = $qqq$CARET$qqq""",
+    s"""val x = $qq$CARET$qqq"""
   )
 
   def testNotRemovePairQuotesForInterpolatedMultilineString(): Unit = doTestWithSettingDisabled(
-    s"""val x = s$TripleQuotes$CARET$TripleQuotes""",
-    s"""val x = s$DoubleQuotes$CARET$TripleQuotes"""
+    s"""val x = s$qqq$CARET$qqq""",
+    s"""val x = s$qq$CARET$qqq"""
   )
 
   def testNotRemovePairQuotesForMultilineString_EmptyFile(): Unit = doTestWithSettingDisabled(
-    s"""$TripleQuotes$CARET$TripleQuotes""",
-    s"""$DoubleQuotes$CARET$TripleQuotes"""
+    s"""$qqq$CARET$qqq""",
+    s"""$qq$CARET$qqq"""
   )
 
   def testNotRemovePairQuotesForInterpolatedMultilineString_EmptyFile(): Unit = doTestWithSettingDisabled(
-    s"""s$TripleQuotes$CARET$TripleQuotes""",
-    s"""s$DoubleQuotes$CARET$TripleQuotes"""
+    s"""s$qqq$CARET$qqq""",
+    s"""s$qq$CARET$qqq"""
   )
 
   // Multiline Not Remove if string is not empty
   private val testData: Seq[(String, String)] = Seq((
-    s"""$TripleQuotes${CARET}some content$TripleQuotes""",
-    s"""$DoubleQuotes${CARET}some content$TripleQuotes"""
+    s"""$qqq${CARET}some content$qqq""",
+    s"""$qq${CARET}some content$qqq"""
   ), (
-    s"""$TripleQuotes$CARET"some content with 1 quote$TripleQuotes""",
-    s"""$DoubleQuotes$CARET"some content with 1 quote$TripleQuotes"""
+    s"""$qqq$CARET"some content with 1 quote$qqq""",
+    s"""$qq$CARET"some content with 1 quote$qqq"""
   ), (
-    s"""$TripleQuotes$CARET""some content with 2 quotes$TripleQuotes""",
-    s"""$DoubleQuotes$CARET""some content with 2 quotes$TripleQuotes"""
+    s"""$qqq$CARET""some content with 2 quotes$qqq""",
+    s"""$qq$CARET""some content with 2 quotes$qqq"""
   ), (
-    s"""$TripleQuotes$CARET$TripleQuotes$TripleQuotes""",
-    s"""$DoubleQuotes$CARET$TripleQuotes$TripleQuotes"""
+    s"""$qqq$CARET$qqq$qqq""",
+    s"""$qq$CARET$qqq$qqq"""
   ), (
-    s"""${TripleQuotes}some content$TripleQuotes$CARET$TripleQuotes""",
-    s"""${TripleQuotes}some content$DoubleQuotes$CARET$TripleQuotes"""
+    s"""${qqq}some content$qqq$CARET$qqq""",
+    s"""${qqq}some content$qq$CARET$qqq"""
   ), (
-    s"""$TripleQuotes$CARET
-       |$TripleQuotes""".stripMargin,
-    s"""$DoubleQuotes$CARET
-       |$TripleQuotes""".stripMargin
+    s"""$qqq$CARET
+       |$qqq""".stripMargin,
+    s"""$qq$CARET
+       |$qqq""".stripMargin
   ))
 
   def testNotRemoveForNonEmptyMultilineString(): Unit = testData.foreach { case (before, after) =>
