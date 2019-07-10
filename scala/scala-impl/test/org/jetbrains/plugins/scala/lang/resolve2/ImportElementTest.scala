@@ -1,25 +1,35 @@
-package org.jetbrains.plugins.scala.lang.resolve2
+package org.jetbrains.plugins.scala
+package lang
+package resolve2
 
 
 /**
  * Pavel.Fatin, 02.02.2010
  */
 
-class ImportElementTest extends ResolveTestBase {
+abstract class ImportElementTestBase extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "import/element/"
   }
+}
 
-  def testCaseClass() {doTest()}
-  def testCompanion() {doTest()}
-  def testObject() {doTest()}
-  def testPackage() {doTest()}
-  def testTrait() {doTest()}
-  def testFunctionParameter() {doTest()}
-  def testInherited() {doTest()}
-  def testValue() {doTest()}
-  def testVariable() {doTest()}
-  def testTypeAlias() {doTest()}
+class ImportElementTest extends ImportElementTestBase {
+
+  def testCaseClass(): Unit = doTest()
+  def testCompanion(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testPackage(): Unit = doTest()
+  def testFunctionParameter(): Unit = doTest()
+  def testInherited(): Unit = doTest()
+  def testValue(): Unit = doTest()
+  def testVariable(): Unit = doTest()
+  def testTypeAlias(): Unit = doTest()
   //TODO classparameter
 //  def testCaseClassParameter = doTest
+}
+
+class ImportElementTest_without_AbstractMap extends ImportElementTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+
+  def testTrait(): Unit = doTest()
 }
