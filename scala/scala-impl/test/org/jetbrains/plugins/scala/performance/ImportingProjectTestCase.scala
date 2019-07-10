@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.performance
+package org.jetbrains.plugins.scala
+package performance
 
 import java.io.File
 import java.util
@@ -104,7 +105,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   def findFile(filename: String): VirtualFile = {
 
-    val searchScope = SourceFilterScope(myProject, GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))
+    val searchScope = SourceFilterScope(GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))(myProject)
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
     val file = files.asScala.filter(_.getName == filename).toList match {

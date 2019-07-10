@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.highlighting
+package org.jetbrains.plugins.scala
+package lang
+package highlighting
 
 import java.io.File
 import java.util
@@ -13,7 +15,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
@@ -21,7 +23,6 @@ import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
@@ -85,7 +86,10 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   def doRunHighlighting(): Unit = {
 
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(myProject))
+    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(
+      ScalaFileType.INSTANCE,
+      SourceFilterScope(GlobalSearchScope.projectScope(myProject))(myProject)
+    )
 
     LocalFileSystem.getInstance().refreshFiles(files)
 

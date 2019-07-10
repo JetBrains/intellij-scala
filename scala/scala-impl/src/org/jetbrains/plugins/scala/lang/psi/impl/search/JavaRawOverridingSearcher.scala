@@ -34,7 +34,7 @@ class JavaRawOverridingSearcher extends QueryExecutor[PsiMethod, OverridingMetho
         if (cClass == null) return true
 
         val wrapper = rawMethodWrapper(m, cClass)
-        val scalaScope = ScalaFilterScope(wrapper.getProject, qParams.getScope)
+        val scalaScope = ScalaFilterScope(qParams.getScope)(wrapper.getProject)
 
         val newParams = new OverridingMethodsSearch.SearchParameters(wrapper, scalaScope, qParams.isCheckDeep)
         val newProcessor = new Processor[PsiMethod] {
@@ -64,7 +64,7 @@ class JavaRawAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, PsiMeth
     for (superMethod <- potentials) {
       inReadAction {
         val wrapper = rawMethodWrapper(superMethod, clazz)
-        val scalaScope = ScalaFilterScope(wrapper.getProject, qParams.getScope)
+        val scalaScope = ScalaFilterScope(qParams.getScope)(wrapper.getProject)
 
         val params = new OverridingMethodsSearch.SearchParameters(wrapper, scalaScope, /*checkDeep*/ true)
         val processor = new Processor[PsiMethod] {

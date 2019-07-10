@@ -1,8 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi
+package org.jetbrains.plugins.scala
+package lang
+package psi
 package stubs
 package index
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -15,6 +17,6 @@ import org.jetbrains.plugins.scala.finder.ScalaFilterScope
   */
 abstract class ScStringStubIndexExtension[E <: PsiElement] extends StringStubIndexExtension[E] {
 
-  override final def get(key: String, project: Project, scope: GlobalSearchScope): util.Collection[E] =
-    super.get(key, project, new ScalaFilterScope(scope, project))
+  override final def get(key: String, project: Project, scope: GlobalSearchScope): ju.Collection[E] =
+    super.get(key, project, ScalaFilterScope(scope)(project))
 }

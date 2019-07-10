@@ -6,7 +6,6 @@ import com.intellij.openapi.components.{PersistentStateComponent, ProjectCompone
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.psi.search.ProjectScope
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
@@ -48,10 +47,7 @@ class CodeStyleSettingsInferComponent(project: Project) extends ProjectComponent
     val fileIndex = FileBasedIndex.getInstance()
     val indexId = ScalaDocAsteriskAlignStyleIndexer.Id
 
-    val sourcesScope = {
-      val projectScope = ProjectScope.getProjectScope(project)
-      SourceFilterScope.apply(project, projectScope, Seq(ScalaFileType.INSTANCE))
-    }
+    val sourcesScope = SourceFilterScope(Seq(ScalaFileType.INSTANCE))(project)
 
     val alignTypeCounts: Map[AsteriskAlignStyle, Int] =
       fileIndex.getAllKeys(indexId, project).asScala.map { alignType =>

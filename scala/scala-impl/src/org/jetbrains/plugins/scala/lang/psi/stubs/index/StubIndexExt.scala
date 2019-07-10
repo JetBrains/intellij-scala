@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.index
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package index
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -6,8 +10,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex.occurrence
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters._
 
@@ -17,11 +19,12 @@ trait StubIndexExt[Key, Psi <: PsiElement] extends Any {
 
   def elements(key: Key, scope: GlobalSearchScope,
                requiredClass: Class[Psi])
-              (implicit context: ProjectContext): Iterable[Psi] =
-    StubIndex.getElements(indexKey,
+              (implicit project: Project): Iterable[Psi] =
+    StubIndex.getElements(
+      indexKey,
       key,
-      context,
-      ScalaFilterScope(context, scope),
+      project,
+      ScalaFilterScope(scope),
       requiredClass
     ).asScala
 

@@ -94,7 +94,7 @@ object ScalaInheritors {
         }
       }
       processClass(clazz)
-      ClassInheritorsSearch.search(clazz, ScalaFilterScope(project, resolveScope), true).forEach(new Processor[PsiClass] {
+      ClassInheritorsSearch.search(clazz, ScalaFilterScope(resolveScope), true).forEach(new Processor[PsiClass] {
         def process(t: PsiClass): Boolean = {
           processClass(t)
           true
