@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.lang.typeInference
+package org.jetbrains.plugins.scala
+package lang
+package typeInference
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.FailableTest
+import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -12,7 +14,7 @@ import org.junit.Assert._
 /**
   * Created by Svyatoslav Ilinskiy on 01.07.16.
   */
-trait TypeInferenceDoTest extends FailableTest {
+trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
   protected val START = "/*start*/"
   protected val END = "/*end*/"
   private val fewVariantsMarker = "Few variants:"
@@ -38,7 +40,8 @@ trait TypeInferenceDoTest extends FailableTest {
         val output = lastPsi.getNode.getElementType match {
           case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
           case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-            val resText = text.substring(2, text.length - 2).trim
+            val resText = extractTextForCurrentVersion(text.substring(2, text.length - 2).trim, version)
+
             if (resText.startsWith(fewVariantsMarker)) {
               val results = resText.substring(fewVariantsMarker.length).trim.split('\n')
               if (!results.contains(res)) assertEqualsFailable(results(0), res)
@@ -72,5 +75,35 @@ trait TypeInferenceDoTest extends FailableTest {
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
     expr
+  }
+
+  private def extractTextForCurrentVersion(text: String, version: ScalaVersion): String = {
+    val ((lastVer, lastText), resultListWithoutLast) = text
+      .split('\n')
+      .foldLeft(((Option.empty[ScalaVersion], ""), Seq.empty[(Option[ScalaVersion], String)])) {
+        case (((curver, curtext), result), line) =>
+          ScalaSdkOwner.allTestVersions.find(v => line.startsWith(s"[$v]")) match {
+            case Some(v) =>(Some(v), line.substring(v.toString.length + 2)) -> (result :+ (curver -> curtext))
+            case None => (curver, if (curtext.isEmpty) line else curtext + "\n" + line) -> result
+          }
+      }
+    val resultList = resultListWithoutLast :+ (lastVer -> lastText)
+
+    if (resultList.length == 1) {
+      resultList.head._2
+    } else {
+      val resultsWithVersions = resultList
+        .flatMap {
+          case (Some(v), text) => Some(v -> text)
+          case (None, text) => Some(ScalaSdkOwner.allTestVersions.head -> text)
+        }
+
+      assert(resultsWithVersions.map(_._1).sliding(2).forall { case Seq(a, b) => a < b})
+
+      resultsWithVersions.zip(resultsWithVersions.tail)
+        .find { case ((v1, _), (v2, _)) => v1 <= version && version < v2 }
+        .map(_._1._2)
+        .getOrElse(resultsWithVersions.last._2)
+    }
   }
 }

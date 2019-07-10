@@ -5,8 +5,11 @@ object SCL4150 {
   trait Z[T]
   trait C[T] extends Z[Int]
   class A[T, K] extends B[T] with C[T]
-  def foo[T[_], H](t: T[H]): T[H] = exit()
+  def foo[T[_], H](t: T[H]): T[H] = ???
 
   /*start*/foo(new A[Int, String])/*end*/
 }
-//SCL4150.B[Int]
+/*
+SCL4150.B[Int]
+[Scala_2_13]SCL4150.A[Int, String]
+*/

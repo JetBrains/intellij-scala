@@ -3,4 +3,7 @@ object Test {
   val n : Array[String] = null
   /*start*/a.copyToArray(n)/*end*/
 }
-//Unit
+/*
+Unit
+[Scala_2_13]Int
+*/

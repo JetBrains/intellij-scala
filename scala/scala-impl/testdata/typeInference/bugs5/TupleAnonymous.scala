@@ -3,4 +3,7 @@ object TupleAnonymous {
     (_, "AAA")
   }/*end*/
 }
-//Option[(String, String)]
+/*
+Option[(String, String)]
+[Scala_2_13]Option[(String, "AAA")]
+*/
