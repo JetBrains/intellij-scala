@@ -5,8 +5,8 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class ScalaDeprecatedIdentifierTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecatedIdentifierInspection]
+class DeprecatedKindProjectorSyntaxInspectionTest extends ScalaInspectionTestBase {
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DeprecatedKindProjectorSyntaxInspection]
   override protected val description: String = "Usage of `?` placeholder is going to be deprecated. Consider using `*` instead."
 
   protected override def setUp(): Unit = {
@@ -54,12 +54,12 @@ class ScalaDeprecatedIdentifierTest extends ScalaInspectionTestBase {
         |  trait F[A[_]]
         |  val a: F[Either[String, +*]] = ???
         |}
-        |""".stripMargin, ScalaDeprecatedIdentifierInspection.quickFixId)
+        |""".stripMargin, DeprecatedKindProjectorSyntaxInspection.quickFixId)
   }
 }
 
-class ScalaDeprecatedIdentifierOutdatedKindProjectorTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecatedIdentifierInspection]
+class DeprecatedKindProjectorSyntaxInspectionOutdatedKindProjectorTest extends ScalaInspectionTestBase {
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DeprecatedKindProjectorSyntaxInspection]
   override protected val description: String =
     "Usage of `?` placeholder is going to be deprecated. Consider updating kind-projector plugin and using `*` instead."
 
@@ -102,6 +102,6 @@ class ScalaDeprecatedIdentifierOutdatedKindProjectorTest extends ScalaInspection
          |}
        """.stripMargin
 
-    checkNotFixable(code, ScalaDeprecatedIdentifierInspection.quickFixId)
+    checkNotFixable(code, DeprecatedKindProjectorSyntaxInspection.quickFixId)
   }
 }

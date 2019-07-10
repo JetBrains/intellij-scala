@@ -664,6 +664,9 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecatedIdentifierInspection"
                          displayName="Deprecated identifier" groupPath="Scala" groupName="General" shortName="ScalaDeprecatedIdentifier"
                          id="ScalaDeprecatedIdentifier" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.DeprecatedKindProjectorSyntaxInspection"
+                         displayName="Deprecated kind-projector syntax" groupPath="Scala" groupName="General" shortName="DeprecatedKindProjectorSyntax"
+                         id="DeprecatedKindProjectorSyntax" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
