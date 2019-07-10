@@ -9,23 +9,22 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor, fixtures}
+import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
+import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * User: Dmitry Naydanov
  * Date: 3/5/12
  */
-
-abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner with FailableTest {
+abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightJavaCodeInsightFixtureTestCase with DefaultScalaSdkOwner with FailableTest {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._
 
   val CARET = EditorTestUtil.CARET_TAG
 
-  override final def getFixture: fixtures.JavaCodeInsightTestFixture = myFixture
+  override final def getFixture: JavaCodeInsightTestFixture = myFixture
 
   override def getTestDataPath: String = util.TestUtils.getTestDataPath + "/"
 
