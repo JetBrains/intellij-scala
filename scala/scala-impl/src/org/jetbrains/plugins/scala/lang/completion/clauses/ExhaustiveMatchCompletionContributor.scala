@@ -5,6 +5,7 @@ package clauses
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementPresentation
+import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -13,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
-  import CompletionType.BASIC
   import ExhaustiveMatchCompletionContributor._
+  import PlatformPatterns.psiElement
 
   extend(
-    BASIC,
-    inside[ScSugarCallExpr],
+    referenceWithParent(psiElement(classOf[ScPostfixExpr]), psiElement(classOf[ScInfixExpr]))
+  ) {
     new ExhaustiveClauseCompletionProvider[ScSugarCallExpr](ScalaKeyword.MATCH) {
 
       override protected def targetType(call: ScSugarCallExpr)
@@ -32,12 +33,27 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
                                                 (implicit place: PsiElement) =
         new ExhaustiveClauseInsertHandler[ScMatch](strategy, None, None)
     }
-  )
+  }
 
   extend(
-    BASIC,
-    inside[ScArgumentExprList],
-    new ExhaustiveClauseCompletionProvider[ScBlockExpr](ScalaKeyword.CASE) {
+    leaf.withParent(classOf[ScMatch])
+  ) {
+    new ExhaustiveClauseCompletionProvider[ScMatch]() {
+
+      override protected def targetType(`match`: ScMatch)
+                                       (implicit place: PsiElement): Option[ScType] =
+        expectedMatchType(`match`)
+
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy)
+                                                (implicit place: PsiElement) =
+        new ExhaustiveClauseInsertHandler[ScMatch](strategy)
+    }
+  }
+
+  extend(
+    leaf.withParents(classOf[ScReferenceExpression], classOf[ScBlock], classOf[ScArgumentExprList], classOf[ScMethodCall])
+  ) {
+    new ExhaustiveClauseCompletionProvider[ScBlockExpr]() {
 
       override protected def targetType(block: ScBlockExpr)
                                        (implicit place: PsiElement): Option[ScType] =
@@ -45,9 +61,13 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
 
       override protected def createInsertHandler(strategy: PatternGenerationStrategy)
                                                 (implicit place: PsiElement) =
-        new ExhaustiveClauseInsertHandler[ScBlockExpr](strategy, Some(""), Some(""))
+        new ExhaustiveClauseInsertHandler[ScBlockExpr](strategy)
     }
-  )
+  }
+
+  private def extend(place: ElementPattern[_ <: PsiElement])
+                    (provider: ExhaustiveClauseCompletionProvider[_]): Unit =
+    extend(CompletionType.BASIC, place, provider)
 }
 
 object ExhaustiveMatchCompletionContributor {
@@ -58,7 +78,7 @@ object ExhaustiveMatchCompletionContributor {
 
   private abstract class ExhaustiveClauseCompletionProvider[
     E <: ScExpression : reflect.ClassTag,
-  ](keywordLookupString: String) extends ClauseCompletionProvider[E] {
+  ](keywordLookupString: String = ScalaKeyword.CASE) extends ClauseCompletionProvider[E] {
 
     override final protected def addCompletions(expression: E, result: CompletionResultSet)
                                                (implicit place: PsiElement): Unit = for {
@@ -87,8 +107,8 @@ object ExhaustiveMatchCompletionContributor {
   private final class ExhaustiveClauseInsertHandler[
     E <: ScExpression : reflect.ClassTag
   ](strategy: PatternGenerationStrategy,
-    prefix: Option[String],
-    suffix: Option[String])
+    prefix: Option[String] = Some(""),
+    suffix: Option[String] = Some(""))
    (implicit place: PsiElement) extends ClauseInsertHandler[E] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
@@ -105,5 +125,4 @@ object ExhaustiveMatchCompletionContributor {
       }
     }
   }
-
 }

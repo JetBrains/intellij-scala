@@ -6,9 +6,7 @@ package clauses
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
 import com.intellij.openapi.util.TextRange
-import com.intellij.patterns.ElementPattern
-import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
@@ -24,29 +22,26 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   import CaseClauseCompletionContributor._
+  import PlatformPatterns.psiElement
 
   extend(
-    psiElement(classOf[LeafPsiElement])
-      .withParent(
-        psiElement(classOf[ScMatch]) ||
-          psiElement(classOf[ScReferenceExpression]).withParents(classOf[ScBlock], classOf[ScCaseClause], classOf[ScCaseClauses], classOf[ScMatch])
-      )
+    leaf.withParent(
+      psiElement(classOf[ScMatch]) ||
+        psiElement(classOf[ScReferenceExpression]).withParents(classOf[ScBlock], classOf[ScCaseClause], classOf[ScCaseClauses], classOf[ScMatch])
+    )
   ) {
     new SingleClauseCompletionProvider[ScMatch] {
 
       override protected def targetType(`match`: ScMatch): Option[ScType] =
-        `match`.expression.flatMap(_.`type`().toOption)
+        expectedMatchType(`match`)
     }
   }
 
   extend(
-    psiElement(classOf[LeafPsiElement])
-      .withParent(classOf[ScReferenceExpression])
-      .withSuperParent(
-        2,
-        psiElement(classOf[ScBlockExpr]).withParent(psiElement(classOf[ScArgumentExprList]) || psiElement(classOf[ScInfixExpr])) ||
-          psiElement(classOf[ScBlock]).withParent(classOf[ScCaseClause])
-      )
+    referenceWithParent(
+      psiElement(classOf[ScBlockExpr]).withParent(psiElement(classOf[ScArgumentExprList]) || psiElement(classOf[ScInfixExpr])),
+      psiElement(classOf[ScBlock]).withParent(classOf[ScCaseClause])
+    )
   ) {
     new SingleClauseCompletionProvider[ScBlockExpr] {
 
@@ -55,7 +50,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     }
   }
 
-  extend() {
+  extend(insideCaseClause) {
     new SingleClauseCompletionProvider[ScStableReferencePattern] {
 
       override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
@@ -81,7 +76,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     }
   }
 
-  extend() {
+  extend(insideCaseClause) {
     new CompletionProvider[CompletionParameters] {
 
       override def addCompletions(parameters: CompletionParameters,
@@ -94,7 +89,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     }
   }
 
-  private def extend(place: ElementPattern[_ <: PsiElement] = inside[ScCaseClause])
+  private def extend(place: ElementPattern[_ <: PsiElement])
                     (provider: CompletionProvider[CompletionParameters]): Unit =
     extend(CompletionType.BASIC, place, provider)
 
