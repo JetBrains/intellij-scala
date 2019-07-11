@@ -55,6 +55,8 @@ class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
 class OptionNotEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
 
@@ -75,7 +77,7 @@ class OptionNotEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
   }
 }
 
-class OptionEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTest {
+class OptionEqualsSomeTest_without_OptionContains extends OptionEqualsSomeToContainsInspectionTest {
 
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
@@ -87,7 +89,7 @@ class OptionEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTes
   }
 }
 
-class OptionNotEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTest {
+class OptionNotEqualsSome_without_OptionContains extends OptionEqualsSomeToContainsInspectionTest {
 
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint

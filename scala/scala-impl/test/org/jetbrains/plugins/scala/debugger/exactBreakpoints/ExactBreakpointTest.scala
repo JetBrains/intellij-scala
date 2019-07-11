@@ -18,6 +18,7 @@ import scala.collection.JavaConverters._
  */
 @Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest extends ScalaDebuggerTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   case class Breakpoint(line: Int, ordinal: Integer) {
     override def toString: String = s"line = $line, ordinal=$ordinal"

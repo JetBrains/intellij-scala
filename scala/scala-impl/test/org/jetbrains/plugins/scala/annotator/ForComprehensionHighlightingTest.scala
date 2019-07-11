@@ -247,27 +247,6 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
     assertNothing(errorsFromScalaCode(code))
   }
 
-  def test_filterOnly(): Unit = {
-    val code =
-      """
-        |class S[X] {
-        |  def filter(f: X => Boolean): S[X] = ???
-        |  def foreach(f: X => Unit): Unit = ???
-        |}
-        |
-        |val s = new S[Int]
-        |for {
-        |  x <- s
-        |  if x > 0
-        |} ()
-      """.stripMargin
-
-    assertMessagesSorted(errorsFromScalaCode(code))(
-      Error("if", "Cannot resolve symbol withFilter"),
-      Error(">", "Cannot resolve symbol >")
-    )
-  }
-
   def test_implicitWithFilter_before_filter(): Unit = {
     val code =
       """
@@ -318,7 +297,33 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
   }
 }
 
-class ForComprehensionHighlightingTest_with_filter_allowed extends ForComprehensionHighlightingTestBase {
+class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_11
+
+  def test_filterOnly(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): S[X] = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+      """.stripMargin
+
+    assertMessagesSorted(errorsFromScalaCode(code))(
+      Error("if", "Cannot resolve symbol withFilter"),
+      Error(">", "Cannot resolve symbol >")
+    )
+  }
+}
+
+class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 

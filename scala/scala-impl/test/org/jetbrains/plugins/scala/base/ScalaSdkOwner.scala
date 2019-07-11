@@ -47,7 +47,9 @@ trait ScalaSdkOwner extends Test {
 }
 
 object ScalaSdkOwner {
-  val defaultSdkVersion: ScalaVersion = ScalaVersion.default
+  // todo: eventually move to version Scala_2_13
+  //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
+  val defaultSdkVersion: ScalaVersion = Scala_2_10 // ScalaVersion.default
   val allTestVersions: SortedSet[ScalaVersion] = SortedSet(ScalaVersion.allScalaVersions: _*)
 
   def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =

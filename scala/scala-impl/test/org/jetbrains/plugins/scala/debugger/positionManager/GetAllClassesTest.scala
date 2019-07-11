@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger
 package positionManager
 
-import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 /**
@@ -51,7 +49,7 @@ abstract class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class GetAllClassesTest_until_2_11 extends GetAllClassesTestBase {
+class GetAllClassesTest_2_11 extends GetAllClassesTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
 }
 
