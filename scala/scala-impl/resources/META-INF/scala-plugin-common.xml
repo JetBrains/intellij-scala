@@ -1482,8 +1482,8 @@
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">
-            <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
+            <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
         <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.ScalaConsoleCleanAction" text="Clean Console Content">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
