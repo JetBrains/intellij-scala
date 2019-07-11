@@ -7,10 +7,15 @@ import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
 
 package object clauses {
 
@@ -20,6 +25,42 @@ package object clauses {
     PlatformPatterns.psiElement.inside {
       reflect.classTag[Capture].runtimeClass.asInstanceOf[Class[Capture]]
     }
+
+  private[clauses] def adjustTypesOnClauses(addImports: Boolean,
+                                            pairs: (ScCaseClause, PatternComponents)*): Unit =
+    adjustTypes(addImports, pairs: _*) {
+      case ScCaseClause(Some(pattern@ScTypedPattern(typeElement)), _, _) => pattern -> typeElement
+    }
+
+  private[clauses] def adjustTypes[E <: ScalaPsiElement](addImports: Boolean,
+                                                         pairs: (E, PatternComponents)*)
+                                                        (collector: PartialFunction[E, (ScPattern, ScTypeElement)]): Unit = {
+    val findTypeElement = collector.lift
+    adjustFor(
+      for {
+        (element, _) <- pairs
+        (_, typeElement) <- findTypeElement(element)
+      } yield typeElement,
+      addImports = addImports,
+      useTypeAliases = false
+    )
+
+    for {
+      (element, components: ClassPatternComponents) <- pairs
+      (pattern, ScSimpleTypeElement.unwrapped(codeReference)) <- findTypeElement(element)
+
+      replacement = createPatternFromTextWithContext(
+        components.presentablePatternText(Right(codeReference)),
+        pattern.getContext,
+        pattern
+      )
+    } pattern.replace(replacement)
+  }
+
+  private[clauses] def expectedFunctionalType(block: ScBlockExpr) = block.expectedType().collect {
+    case PartialFunctionType(_, targetType) => targetType
+    case FunctionType(_, Seq(targetType)) => targetType
+  }
 
   private[clauses] def buildLookupElement(lookupString: String,
                                           insertHandler: ClauseInsertHandler[_])
