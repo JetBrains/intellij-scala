@@ -37,7 +37,7 @@ object StripMarginParser extends StringParser {
 object WithStrippedMargin {
 
   def unapply(literal: ScLiteral): Option[(ScExpression, Char)] = literal.getParent match {
-    case StripMarginCall(reference: ScReferenceExpression, _, Nil) => Some(reference, '|')
+    case StripMarginCall(reference: ScReferenceExpression, _, Seq()) => Some(reference, '|')
     case Parent(StripMarginCall(mc: ScMethodCall, _, Seq(ScCharLiteral(value)))) =>Some(mc, value)
     case _ => None
   }
