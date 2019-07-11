@@ -985,7 +985,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
-  def testCase(): Unit = doCompletionTest(
+  def testCaseInFunction(): Unit = doCaseCompletionTest(
     fileText =
       s"""sealed trait Foo
          |
@@ -1004,18 +1004,87 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Bar() => $CARET
          |}
        """.stripMargin
-  )(isExhaustiveCase)
+  )
 
-  def testMatchCase(): Unit = checkNoCompletion(
+  def testCaseInPartialFunction(): Unit = doCaseCompletionTest(
     fileText =
       s"""sealed trait Foo
          |
          |case class Bar() extends Foo
          |
-         |(_: Option[Foo]) match {
+         |(_: Option[Foo]).collect {
          |  ca$CARET
          |}
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Option[Foo]).collect {
+         |  case Bar() => $CARET
+         |}
        """.stripMargin
+  )
+
+  def testCaseInMatch(): Unit = doCaseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  ca$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case Bar() => $CARET
+         |}
+       """.stripMargin
+  )
+
+  def testNoCaseInFunction(): Unit = checkNoCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Option[Foo]).map {
+         |  case _ =>
+         |  ca$CARET
+         |}
+       """.stripMargin,
+  )(isExhaustiveCase)
+
+  def testNoCaseInPartialFunction(): Unit = checkNoCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Option[Foo]).collect {
+         |  case _ =>
+         |  ca$CARET
+         |}
+       """.stripMargin,
+  )(isExhaustiveCase)
+
+  def testNoCaseInMatch(): Unit = checkNoCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case _ =>
+         |  ca$CARET
+         |}
+       """.stripMargin,
   )(isExhaustiveCase)
 
   private def withCaseAlignment(doTest: => Unit): Unit = {
@@ -1063,6 +1132,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       tailText = " " + completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,
       grayed = true
     )
+
+  private def doCaseCompletionTest(fileText: String, resultText: String): Unit =
+    doCompletionTest(fileText, resultText)(isExhaustiveCase)
 
   private def isExhaustiveCase(lookup: LookupElement) =
     isExhaustive(lookup, CASE)
