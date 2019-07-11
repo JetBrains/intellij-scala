@@ -7,6 +7,7 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR

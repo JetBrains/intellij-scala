@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.highlighting.decompiler
+package org.jetbrains.plugins.scala
+package lang
+package highlighting
+package decompiler
 
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
@@ -11,12 +14,13 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
   * @since 31.05.2016.
   */
 abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with DecompilerTestBase with AssertMatches {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   override protected val includeReflectLibrary: Boolean = true
 
   override def basePath = s"${super.basePath}/highlighting/"
 
-  override def doTest(fileName: String) = {
+  override def doTest(fileName: String): Unit = {
     assertNothing(getMessages(fileName, decompile(getClassFilePath(fileName))))
   }
 

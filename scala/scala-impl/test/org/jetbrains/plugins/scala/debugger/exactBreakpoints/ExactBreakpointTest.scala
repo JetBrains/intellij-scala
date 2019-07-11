@@ -13,13 +13,7 @@ import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
 
-/**
- * @author Nikolay.Tropin
- */
-@Category(Array(classOf[DebuggerTests]))
-class ExactBreakpointTest extends ScalaDebuggerTestCase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
-
+abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
   case class Breakpoint(line: Int, ordinal: Integer) {
     override def toString: String = s"line = $line, ordinal=$ordinal"
   }
@@ -73,7 +67,11 @@ class ExactBreakpointTest extends ScalaDebuggerTestCase {
       Assert.assertTrue(s"Stopped at breakpoint: $breakpoint", processTerminatedNoBreakpoints())
     }
   }
+}
 
+@Category(Array(classOf[DebuggerTests]))
+class ExactBreakpointTest extends ExactBreakpointTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   addSourceFile("OneLine.scala",
     """object OneLine {
@@ -319,6 +317,11 @@ class ExactBreakpointTest extends ScalaDebuggerTestCase {
       "3"
     )
   }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ExactBreakpointTest_with_SAM_abstraction extends ExactBreakpointTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   addSourceFile("SamAbstractClass.scala",
     """object SamAbstractClass  {

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   override def familyName: String             = ToggleTypeAnnotation.FamilyName
 

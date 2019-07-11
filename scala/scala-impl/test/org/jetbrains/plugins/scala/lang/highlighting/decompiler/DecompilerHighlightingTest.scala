@@ -6,23 +6,23 @@ package org.jetbrains.plugins.scala.lang.highlighting.decompiler
   */
 class DecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
-  def testSettings() = doTest("Settings.class")
+  def testSettings(): Unit = doTest("Settings.class")
 
-  def testCommandLine() = doTest("CommandLine.class")
+  def testCommandLine(): Unit = doTest("CommandLine.class")
 
-  def testDirectoryFileLookup() = doTest("DirectoryFileLookup.class")
+  def testDirectoryFileLookup(): Unit = doTest("DirectoryFileLookup.class")
 
-  def testDefaultMacroCompiler() = doTest("DefaultMacroCompiler.class")
+  def testDefaultMacroCompiler(): Unit = doTest("DefaultMacroCompiler.class")
 
-  def testFormatInterpolator() = doTest("FormatInterpolator.class")
+  def testFormatInterpolator(): Unit = doTest("FormatInterpolator.class")
 
-  def testJavaParsers() = doTest("JavaParsers.class")
+  def testJavaParsers(): Unit = doTest("JavaParsers.class")
 
-  def testContext() = doTest("Context.class")
+  def testContext(): Unit = doTest("Context.class")
 
-  def testSymbolicXmlBuilder() = doTest("SymbolicXMLBuilder.class")
+  def testSymbolicXmlBuilder(): Unit = doTest("SymbolicXMLBuilder.class")
 
-  def testSocketServer() = doTest("SocketServer.class")
+  def testSocketServer(): Unit = doTest("SocketServer.class")
 
-  def testStdTags() = doTest("StdTags.class")
+  def testStdTags(): Unit = doTest("StdTags.class")
 }

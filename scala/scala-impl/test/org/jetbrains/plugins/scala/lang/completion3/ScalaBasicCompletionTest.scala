@@ -6,11 +6,9 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert.assertTrue
 
-/**
-  * @author Alefas
-  * @since 06.10.11
-  */
-class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
+abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase
+
+class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 
   import ScalaCodeInsightTestBase._
 
@@ -1066,6 +1064,10 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     resultText = s"1.toBinaryString$CARET",
     item = "toBinaryString"
   )
+}
+
+class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
 
   def test2_13_extensionMethod1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",
@@ -1078,5 +1080,4 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     resultText = s"Nil.lengthIs$CARET",
     item = "lengthIs"
   )
-
 }

@@ -8,7 +8,7 @@ import org.junit.experimental.categories.Category
  * @author Nikolay.Tropin
  */
 @Category(Array(classOf[DebuggerTests]))
-abstract class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
+class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
   override def testForStmt(): Unit = {
@@ -35,7 +35,7 @@ abstract class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
     checkGetAllClasses("Test")
   }
 
-  override def testAnonfunsInPackageObject() = {
+  override def testAnonfunsInPackageObject(): Unit = {
     checkGetAllClassesInFile("packageObject/package.scala") (
       "packageObject.package$",
       "packageObject.package$",
@@ -50,7 +50,7 @@ abstract class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_2_11 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {

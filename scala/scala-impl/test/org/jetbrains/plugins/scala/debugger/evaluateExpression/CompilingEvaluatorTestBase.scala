@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   * @author Nikolay.Tropin
   */
 @Category(Array(classOf[DebuggerTests]))
-class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
+class CompilingEvaluatorTest extends ScalaDebuggerTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   override def setUp(): Unit = {
