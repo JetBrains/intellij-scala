@@ -2,6 +2,7 @@ package org.jetbrains.sbt.resolvers
 
 import java.io.File
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMode
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex.FORCE_UPDATE_KEY
 import org.jetbrains.sbt.resolvers.indexes.{IvyIndex, ResolverIndex}
 
 import scala.collection.mutable
@@ -34,6 +36,9 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
   def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode && sys.props.get(FORCE_UPDATE_KEY).isEmpty)
+      return
+
     if (!project.isDisposed) {
       ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating Indices") {
         override def run(indicator: ProgressIndicator): Unit = {
@@ -93,7 +98,8 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 
   private var updateScheduled = false
   def scheduleLocalIvyIndexUpdate(resolver: SbtResolver): Unit = {
-    if (ScalaProjectSettings.getInstance(project).getIvy2IndexingMode == Ivy2IndexingMode.Disabled)
+    if (ScalaProjectSettings.getInstance(project).getIvy2IndexingMode == Ivy2IndexingMode.Disabled ||
+        (ApplicationManager.getApplication.isUnitTestMode && sys.props.get(FORCE_UPDATE_KEY).isEmpty))
       return
     if (!updateScheduled) {
       updateScheduled = true
