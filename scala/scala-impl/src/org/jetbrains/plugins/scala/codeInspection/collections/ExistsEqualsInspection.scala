@@ -1,21 +1,19 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
- * Nikolay.Tropin
- * 2014-05-06
- */
 class ExistsEqualsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
     Array(ExistsEquals, ForallNotEquals)
 }
 
+//noinspection ScalaUnnecessaryParentheses
 object ExistsEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
@@ -30,7 +28,7 @@ object ExistsEquals extends SimplificationType {
   def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression): Boolean = {
     if (qual == null) return false
 
-    implicit val ctx = qual.projectContext
+    implicit val ctx: ProjectContext = qual.projectContext
 
     val exprText = s"(${qual.getText}).contains(${arg.getText})"
     ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, qual.getContext, qual) match {
@@ -43,6 +41,7 @@ object ExistsEquals extends SimplificationType {
   }
 }
 
+//noinspection ScalaUnnecessaryParentheses
 object ForallNotEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

@@ -4,20 +4,18 @@ package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-/**
-  * Nikolay.Tropin
-  * 2014-05-06
-  */
-abstract class ExistsEqualsTest extends OperationsOnCollectionInspectionTest {
+abstract class ExistsEqualsTestBase extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ExistsEqualsInspection]
 }
 
-class ReplaceWithContainsTest extends ExistsEqualsTest {
-
+abstract class ReplaceWithContainsTestBase extends ExistsEqualsTestBase {
   override protected val hint: String =
     InspectionBundle.message("exists.equals.hint")
+}
+
+class ReplaceWithContainsTest extends ReplaceWithContainsTestBase {
 
   def test_1() {
     val selected = s"List(0).${START}exists(x => x == 1)$END"
@@ -56,18 +54,37 @@ class ReplaceWithContainsTest extends ExistsEqualsTest {
     checkTextHasNoErrors(text)
   }
 
-  def test_6() {
-    val text = "Some(1).exists(_ == 1)"
-    checkTextHasNoErrors(text)
-  }
-
   def test_7() {
     val text = "Map(1 -> \"1\").exists(_ == (1, \"1\"))"
     checkTextHasNoErrors(text)
   }
 }
 
-class ReplaceWithNotContainsTest extends ExistsEqualsTest {
+class ReplaceWithContainsTest_with_OptionContains extends ReplaceWithContainsTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+
+  def test_6() {
+    val selected = s"Some(0).${START}exists(_ == 1)$END"
+    checkTextHasError(selected)
+    val text = "Some(0).exists(_ == 1)"
+    val result = "Some(0).contains(1)"
+    testQuickFix(text, result, hint)
+  }
+}
+
+class ReplaceWithContainsTest_without_OptionContains extends ReplaceWithContainsTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_10
+
+  def test_6() {
+    val text = "Some(1).exists(_ == 1)"
+    checkTextHasNoErrors(text)
+  }
+}
+
+
+class ReplaceWithNotContainsTest extends ExistsEqualsTestBase {
 
   override protected val hint: String =
     InspectionBundle.message("forall.notEquals.hint")
