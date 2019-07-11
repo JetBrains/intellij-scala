@@ -1,20 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
-import com.intellij.codeInspection.{
-  InspectionManager,
-  LocalQuickFix,
-  ProblemDescriptor,
-  ProblemHighlightType
-}
+import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.deprecation.DeprecatedKindProjectorSyntaxInspection._
-import org.jetbrains.plugins.scala.codeInspection.{
-  AbstractFixOnPsiElement,
-  AbstractRegisteredInspection
-}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.KindProjectorUtil
@@ -47,18 +40,16 @@ object DeprecatedKindProjectorSyntaxInspection {
   }
 
   object DeprecatedIdentifier {
-    def unapply(e: PsiElement): Option[(PsiElement, Option[LocalQuickFix], String)] = {
+    def unapply(e: PsiElement): Option[(PsiElement, Option[LocalQuickFix], String)] =
       if (!e.kindProjectorPluginEnabled) None
-      else e match {
-        case ref: ScReference if kindProjectorDeprecatedNames.contains(ref.refName) =>
-          val (msg, quickFix) = deprecationMessageAndQuickFix(ref, ref.refName)
-          Option((ref.nameId, quickFix, msg))
-        case named: ScNamedElement if kindProjectorDeprecatedNames.contains(named.name) =>
-          val (msg, quickFix) = deprecationMessageAndQuickFix(named, named.name)
-          Option((named.nameId, quickFix, msg))
-        case _ => None
-      }
-    }
+      else
+        e match {
+          case (ref: ScReference) && Parent(_: ScSimpleTypeElement)
+              if kindProjectorDeprecatedNames.contains(ref.refName) =>
+            val (msg, quickFix) = deprecationMessageAndQuickFix(ref, ref.refName)
+            Option((ref.nameId, quickFix, msg))
+          case _ => None
+        }
   }
 
   private[this] val kindProjectorDeprecatedNames = Set("?", "+?", "-?")
