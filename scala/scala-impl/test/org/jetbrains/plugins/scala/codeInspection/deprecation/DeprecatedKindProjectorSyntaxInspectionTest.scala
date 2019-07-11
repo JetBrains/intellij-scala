@@ -39,9 +39,18 @@ class DeprecatedKindProjectorSyntaxInspectionTest extends ScalaInspectionTestBas
     checkTextHasError(code)
   }
 
+  def testNonTypePosition(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  val ? = 123
+      |  println(?)
+      |}
+      |""".stripMargin
+  )
+
   def testQuickFix(): Unit = {
     val code =
-      s"""
+      """
          |object Test {
          |  trait F[A[_]]
          |  val a: F[Either[String, +?]] = ???
