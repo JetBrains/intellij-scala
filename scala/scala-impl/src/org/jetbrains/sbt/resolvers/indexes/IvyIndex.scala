@@ -99,10 +99,6 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
 
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit = {
-
-    if (ApplicationManager.getApplication.isUnitTestMode && sys.props.get(FORCE_UPDATE_KEY).isEmpty)
-      return
-
     checkStorage()
     val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
