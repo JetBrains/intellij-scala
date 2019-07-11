@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
-import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
+
+import org.jetbrains.plugins.scala.extensions.{Model, PsiModifierListOwnerExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -11,15 +13,14 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
     source match {
-      case ObjectWithCaseClassCompanion(_, c: ScClass) =>
-
-        val className            = c.name
-        val typeArgs             = typeArgsFromTypeParams(c)
-        val typeParamsDefinition = typeParamsString(c.typeParameters)
+      case ObjectWithCaseClassCompanion(_, cls: ScClass) =>
+        val className            = cls.name
+        val typeArgs             = typeArgsFromTypeParams(cls)
+        val typeParamsDefinition = typeParamsString(cls.typeParameters)
 
         val unapply: Option[String] =
-          if (c.tooBigForUnapply) None
-          else c.constructor match {
+          if (cls.tooBigForUnapply) None
+          else cls.constructor match {
             case Some(x: ScPrimaryConstructor) =>
               val clauses = x.parameterList.clauses
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
@@ -42,8 +43,8 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
             case None => None
           }
 
-        val apply: Option[String] = if (c.hasModifierProperty("abstract")) None else {
-          c.constructor match {
+        val apply: Option[String] = if (cls.hasAbstractModifier) None else {
+          cls.constructor match {
             case Some(x: ScPrimaryConstructor) =>
 
               val paramString = asFunctionParameters(x.effectiveParameterClauses, defaultExpressionString)
@@ -55,16 +56,23 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
         apply.toList ::: unapply.toList
 
-      case c: ScClass if c.isCase && !c.hasModifierProperty("abstract") && c.parameters.nonEmpty =>
-        c.constructor match {
-          case Some(x: ScPrimaryConstructor) if !x.parameterList.clauses.exists(_.hasRepeatedParam) =>
-            copyMethodText(c).toList
-          case _ => Seq.empty
-        }
-
-      case _ => Seq.empty
+      case cls: ScClass if shouldGenerateCopyMethod(cls) => copyMethodText(cls).toList
+      case _                                             => Seq.empty
     }
   }
+
+  private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
+    cls.isCase && !cls.hasAbstractModifier && cls.parameters.nonEmpty && (cls.constructor match {
+      case Some(cons: ScPrimaryConstructor) =>
+        val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
+
+        // That may not look entirely reasonable, but that's how it's done in scalac
+        lazy val hasUserDefinedCopyMethod =
+          cls.functions.exists(_.name == CommonNames.Copy) ||
+            cls.supers.exists(_.findMethodsByName(CommonNames.Copy).nonEmpty)
+        !hasRepeatedParam && !hasUserDefinedCopyMethod
+      case _ => false
+    })
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] = source match {
     case ObjectWithCaseClassCompanion(obj, cc) if obj.isSyntheticObject =>
