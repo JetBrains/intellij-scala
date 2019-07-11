@@ -4,7 +4,7 @@ package refactoring
 
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager, StandardProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, Segment, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
@@ -137,14 +137,17 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     result
   }
 
-  private class ProgressIndicator extends AbstractProgressIndicatorBase {
+  private class ProgressIndicator extends AbstractProgressIndicatorBase with StandardProgressIndicator {
 
     import System.currentTimeMillis
 
     private val timeBound = currentTimeMillis + ProgressIndicator.Timeout
 
-    override def isCanceled: Boolean = currentTimeMillis > timeBound ||
-      super.isCanceled
+    override final def isCanceled: Boolean = currentTimeMillis > timeBound || super.isCanceled
+
+    override final def cancel(): Unit = super.cancel()
+
+    override final def checkCanceled(): Unit = super.checkCanceled()
   }
 
   private object ProgressIndicator {
