@@ -88,7 +88,7 @@ object ScalaMacroEvaluator {
   private def isMacroExpansion(expr: ScExpression): Boolean = expr.getUserData(isMacroExpansionKey) != null
   private def markMacroExpansion(expr: ScExpression): Unit  = expr.putUserData(isMacroExpansionKey, this)
 
-  val defaultTypeProviders = Seq(
+  val defaultTypeProviders: Seq[ScalaMacroTypeable] = Seq(
     ShapelessForProduct,
     ShapelessMaterializeGeneric,
     ShapelessDefaultSymbolicLabelling,
@@ -96,7 +96,7 @@ object ScalaMacroEvaluator {
     ShapelessWitnessSelectDynamic
   )
 
-  val defaultExprProviders = Seq(
+  val defaultExprProviders: Seq[ScalaMacroExpandable] = Seq(
     ShapelessProductArgs
   )
 }
