@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor
+import org.jetbrains.plugins.scala.lang.completion.clauses.{ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
@@ -38,10 +38,9 @@ final class ScalaExhaustiveMatchPostfixTemplate(alias: String = ScalaExhaustiveM
 
 object ScalaExhaustiveMatchPostfixTemplate {
 
-  import ExhaustiveMatchCompletionContributor._
-
   private[postfix] def alias = ScalaKeyword.MATCH
-  private[postfix] def exhaustiveAlias = Exhaustive
+
+  private[postfix] def exhaustiveAlias = ExhaustiveMatchCompletionContributor.Exhaustive
 
   private def topMostStrategy(context: PsiElement): Option[(ScExpression, PatternGenerationStrategy)] =
     PsiTreeUtil.getNonStrictParentOfType(context, classOf[ScExpression]) match {

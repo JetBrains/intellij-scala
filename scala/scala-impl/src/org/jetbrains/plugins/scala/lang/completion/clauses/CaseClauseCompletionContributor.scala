@@ -51,10 +51,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     new SingleClauseCompletionProvider[ScBlockExpr] {
 
       override protected def targetType(block: ScBlockExpr): Option[ScType] =
-        block.expectedType().collect {
-          case PartialFunctionType(_, targetType) => targetType
-          case FunctionType(_, Seq(targetType)) => targetType
-        }
+        expectedFunctionalType(block)
     }
   }
 
@@ -104,8 +101,6 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 }
 
 object CaseClauseCompletionContributor {
-
-  import ExhaustiveMatchCompletionContributor.PatternGenerationStrategy._
 
   private abstract class SingleClauseCompletionProvider[
     T <: ScalaPsiElement with Typeable : reflect.ClassTag
