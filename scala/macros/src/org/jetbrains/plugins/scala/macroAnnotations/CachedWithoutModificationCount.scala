@@ -19,7 +19,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy
   * Date: 10/20/15.
   */
-class CachedWithoutModificationCount(synchronized: Boolean,
+class CachedWithoutModificationCount(defaultValue: Any,
                                      valueWrapper: ValueWrapper,
                                      addToBuffer: ArrayBuffer[_ <: java.util.Map[_ <: Any , _ <: Any]]*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
@@ -33,7 +33,7 @@ object CachedWithoutModificationCount {
 
     val analyzeCaches = analyzeCachesEnabled(c)
 
-    def parameters: (Boolean, ValueWrapper, List[Tree]) = {
+    def parameters: (Tree, ValueWrapper, List[Tree]) = {
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
         case q"valueWrapper = $v" => valueWrapperParam(v)
@@ -43,19 +43,16 @@ object CachedWithoutModificationCount {
 
       c.prefix.tree match {
         case q"new CachedWithoutModificationCount(..$params)" if params.length >= 2 =>
-          val synch: Boolean = params.head match {
-            case q"synchronized = $v" => c.eval[Boolean](c.Expr(v))
-            case q"$v" => c.eval[Boolean](c.Expr(v))
-          }
+          val defaultValue = params.head
           val valueWrapper = valueWrapperParam(params(1))
           val buffers: List[Tree] = params.drop(2)
-          (synch, valueWrapper, buffers)
+          (defaultValue, valueWrapper, buffers)
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (synchronized, valueWrapper, buffersToAddTo) = parameters
+    val (defaultValue, valueWrapper, buffersToAddTo) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -137,38 +134,20 @@ object CachedWithoutModificationCount {
               $cacheVarName = $wrappedResult
               ..${if (hasParameters) putValuesIntoMap else EmptyTree}
             }
-            ${if (valueWrapper == ValueWrapper.None) q"$cacheVarName" else q"$cacheVarName.get"}
-          """
-        val getValuesIfHasParams =
-          if (hasParameters) {
-            q"""
-              ..$getValuesFromMap
-            """
-          } else q""
+            val _result =
+              ${if (valueWrapper == ValueWrapper.None) q"$cacheVarName" else q"$cacheVarName.get"}
 
-        val functionContentsInSynchronizedBlock =
-          if (synchronized) {
-            q"""
-              ..$getValuesIfHasParams
-              if ($hasCacheExpired) {
-                return $cacheVarName.get
-              }
-              synchronized {
-                $functionContents
-              }
-            """
-          } else {
-            q"""
-              $functionContents
-            """
-          }
+            if (_result == null) $defaultValue
+            else _result
+          """
+
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
         val updatedRhs =
           q"""
           def $cachedFunName(): $retTp = {
             $actualCalculation
           }
-          $functionContentsInSynchronizedBlock
+          $functionContents
         """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res =
