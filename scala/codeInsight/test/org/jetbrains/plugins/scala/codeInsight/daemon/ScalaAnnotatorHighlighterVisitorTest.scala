@@ -18,7 +18,7 @@ class ScalaAnnotatorHighlighterVisitorTest extends base.ScalaLightCodeInsightFix
          |
          |version := "0.1"
          |
-         |scalaVersion := "${debugger.Scala_2_13.minor}"
+         |scalaVersion := "${Scala_2_13.minor}"
          |""".stripMargin,
     fileName = "build.sbt"
   )
