@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroInvocationContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
@@ -141,7 +141,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                                maybeResolveResult: Option[ScalaResolveResult])
                               (implicit useExpectedType: Boolean): Option[RegularCase] = {
     val fromMacroExpansion = maybeResolveResult
-      .flatMap(this.checkMacroExpansion)
+      .flatMap(res => this.checkMacro(res).orElse(this.checkMacroExpansion(res)))
       .map(RegularCase(_))
     if (fromMacroExpansion.isDefined) return fromMacroExpansion
 
@@ -251,6 +251,12 @@ object MethodInvocationImpl {
         .expandMacro(result.element, MacroInvocationContext(invocation, result))
         .flatMap(_.getNonValueType().toOption)
 
+    def checkMacro(result: ScalaResolveResult): Option[ScType] =
+      ScalaMacroEvaluator
+        .getInstance(invocation.getProject)
+        .checkMacro(
+          result.element,
+          MacroContext(invocation.getContext, invocation.expectedType()))
 
     def findPossibleApplyOrUpdateCandidates(`type`: ScType): Option[Array[ScalaResolveResult]] = {
       def findApplyOrUpdate(isDynamic: Boolean) =
