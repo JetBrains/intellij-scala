@@ -19,8 +19,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy
   * Date: 10/20/15.
   */
-class CachedWithoutModificationCount(defaultValue: Any,
-                                     valueWrapper: ValueWrapper,
+class CachedWithoutModificationCount(valueWrapper: ValueWrapper,
                                      addToBuffer: ArrayBuffer[_ <: java.util.Map[_ <: Any , _ <: Any]]*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
 }
@@ -33,7 +32,7 @@ object CachedWithoutModificationCount {
 
     val analyzeCaches = analyzeCachesEnabled(c)
 
-    def parameters: (Tree, ValueWrapper, List[Tree]) = {
+    def parameters: (ValueWrapper, List[Tree]) = {
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
         case q"valueWrapper = $v" => valueWrapperParam(v)
@@ -42,17 +41,16 @@ object CachedWithoutModificationCount {
       }
 
       c.prefix.tree match {
-        case q"new CachedWithoutModificationCount(..$params)" if params.length >= 2 =>
-          val defaultValue = params.head
-          val valueWrapper = valueWrapperParam(params(1))
-          val buffers: List[Tree] = params.drop(2)
-          (defaultValue, valueWrapper, buffers)
+        case q"new CachedWithoutModificationCount(..$params)" if params.nonEmpty =>
+          val valueWrapper = valueWrapperParam(params.head)
+          val buffers: List[Tree] = params.drop(1)
+          (valueWrapper, buffers)
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (defaultValue, valueWrapper, buffersToAddTo) = parameters
+    val (valueWrapper, buffersToAddTo) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -63,6 +61,7 @@ object CachedWithoutModificationCount {
         val cacheVarName = c.freshName(name)
         val mapName = generateTermName(name.toString, "map")
         val cachedFunName = generateTermName(name.toString, "$cachedFun")
+        val computedValue = generateTermName(name.toString, "computedValue")
         val cacheStatsName = generateTermName(name.toString, "cacheStats")
         val keyId = c.freshName(name.toString + "cacheKey")
         val defdefFQN = thisFunctionFQN(name.toString)
@@ -107,38 +106,43 @@ object CachedWithoutModificationCount {
               else null.asInstanceOf[$wrappedRetTp]
             }
             """
-        def putValuesIntoMap: c.universe.Tree = q"$mapName.put((..$paramNames), $cacheVarName)"
 
-        val hasCacheExpired =
-          if (valueWrapper == ValueWrapper.None) q"$cacheVarName == null"
-          else {
-            q"""
-              $cacheVarName == null || $cacheVarName.get() == null
-            """
+        def storeValue: c.universe.Tree = {
+          val wrappedResult = valueWrapper match {
+            case ValueWrapper.None => q"$computedValue"
+            case ValueWrapper.WeakReference => q"new _root_.java.lang.ref.WeakReference($computedValue)"
+            case ValueWrapper.SoftReference => q"new _root_.java.lang.ref.SoftReference($computedValue)"
+            case ValueWrapper.SofterReference => q"new _root_.com.intellij.util.SofterReference($computedValue)"
           }
 
-        val wrappedResult = valueWrapper match {
-          case ValueWrapper.None => q"cacheFunResult"
-          case ValueWrapper.WeakReference => q"new _root_.java.lang.ref.WeakReference(cacheFunResult)"
-          case ValueWrapper.SoftReference => q"new _root_.java.lang.ref.SoftReference(cacheFunResult)"
-          case ValueWrapper.SofterReference => q"new _root_.com.intellij.util.SofterReference(cacheFunResult)"
+          if (hasParameters) q"$mapName.put((..$paramNames), $wrappedResult)"
+          else q"$cacheVarName = $wrappedResult"
         }
+
+        val getFromCache =
+          if (valueWrapper == ValueWrapper.None) q"$cacheVarName"
+          else {
+            q"""
+                if ($cacheVarName == null) null
+                else $cacheVarName.get()
+              """
+          }
 
         val functionContents =
           q"""
             ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
-            val cacheHasExpired = $hasCacheExpired
-            if (cacheHasExpired) {
-              val cacheFunResult = $cachedFunName()
-              $cacheVarName = $wrappedResult
-              ..${if (hasParameters) putValuesIntoMap else EmptyTree}
-            }
-            val _result =
-              ${if (valueWrapper == ValueWrapper.None) q"$cacheVarName" else q"$cacheVarName.get"}
 
-            if (_result == null) $defaultValue
-            else _result
+            val resultFromCache = $getFromCache
+            if (resultFromCache == null) {
+              val $computedValue = $cachedFunName()
+
+              assert($computedValue != null, "Cached function should never return null")
+
+              $storeValue
+              $computedValue
+            }
+            else resultFromCache
           """
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
