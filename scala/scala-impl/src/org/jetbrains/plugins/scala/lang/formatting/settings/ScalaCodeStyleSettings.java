@@ -155,7 +155,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   /** @deprecated Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER} */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  public int MULTILINE_STRING_SUPPORT = MULTILINE_STRING_ALL;
+  public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL; // !! do not fix this typo in supPort, let legacy settings t be migrated properly
   /** @deprecated Use Use {@link #MULTILINE_STRING_MARGIN_CHAR} */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
@@ -175,25 +175,16 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  private static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
+  public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  private static final int MULTILINE_STRING_INSERT_MARGIN_CHAR = 2;
+  public static final int MULTILINE_STRING_INSERT_MARGIN_CHAR = 2;
   @Deprecated
   private static final int MULTILINE_STRING_ALL = 2;
 
   @Override
   protected void afterLoaded() {
-    if (MULTILINE_STRING_SUPPORT != -1) {
-      MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = MULTILINE_STRING_SUPPORT >= MULTILINE_STRING_QUOTES_AND_INDENT;
-      MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = MULTILINE_STRING_SUPPORT >= MULTILINE_STRING_INSERT_MARGIN_CHAR;
-      MULTILINE_STRING_MARGIN_CHAR = MARGIN_CHAR;
-      MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = MULTI_LINE_QUOTES_ON_NEW_LINE;
-      MULTILINE_STRING_MARGIN_INDENT = MULTI_LINE_STRING_MARGIN_INDENT;
-      MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = PROCESS_MARGIN_ON_COPY_PASTE;
-
-      MULTILINE_STRING_SUPPORT = -1;
-    }
+    super.afterLoaded();
   }
 
   //type annotations

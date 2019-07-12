@@ -120,6 +120,7 @@
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
@@ -1431,6 +1432,9 @@
       </component>
       <component>
         <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent</implementation-class>
+      </component>
+      <component>
+        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationComponent</implementation-class>
       </component>
       <component>
         <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager</implementation-class>
