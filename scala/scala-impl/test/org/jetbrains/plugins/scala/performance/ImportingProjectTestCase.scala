@@ -18,9 +18,9 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixt
 import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
-import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
@@ -51,6 +51,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
   override protected def getExternalSystemConfigFileName: String = "build.sbt"
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
+    val sbtSettings = SbtSettings.getInstance(myProject)
+    sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=${rootDirPath}/.ivy_cache")
     val settings = new SbtProjectSettings
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
