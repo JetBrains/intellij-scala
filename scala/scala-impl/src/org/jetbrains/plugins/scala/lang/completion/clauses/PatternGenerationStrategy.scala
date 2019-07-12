@@ -46,13 +46,13 @@ object PatternGenerationStrategy {
   }
 
   def unapply(`type`: ScType)
-             (implicit place: PsiElement): Option[PatternGenerationStrategy] = {
+             (implicit parameters: ClauseCompletionParameters): Option[PatternGenerationStrategy] = {
     val valueType = `type`.extractDesignatorSingleton.getOrElse(`type`)
     val strategy = valueType match {
       case ScProjectionType(DesignatorOwner(enumClass@ScalaEnumeration(values)), _) =>
         val membersNames = for {
           value <- values
-          if isAccessible(value, place, forCompletion = true)
+          if isAccessible(value, parameters.place, forCompletion = true)
           if value.`type`().exists(_.conforms(valueType))
 
           declaredName <- value.declaredNames

@@ -111,11 +111,11 @@ sealed abstract class PhysicalExtractorPatternComponents protected(`class`: ScTy
 object PhysicalExtractorPatternComponents {
 
   def unapply(`class`: ScTypeDefinition)
-             (implicit place: PsiElement): Option[PhysicalExtractorPatternComponents] =
+             (implicit parameters: ClauseCompletionParameters): Option[PhysicalExtractorPatternComponents] =
     for {
       Extractor(method) <- `class`.baseCompanionModule
       returnType <- method.returnType.toOption
-      types = ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
+      types = ScPattern.extractorParameters(returnType, parameters.place, isOneArgCaseClass = false)
     } yield new PhysicalExtractorPatternComponents(`class`, types) {}
 }
 

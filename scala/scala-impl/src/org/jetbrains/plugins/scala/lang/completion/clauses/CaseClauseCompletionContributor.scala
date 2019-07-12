@@ -56,7 +56,8 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
       override protected def targetType(pattern: ScStableReferencePattern): Option[ScType] =
         pattern.expectedType
 
-      override protected def findTargetDefinitions(`class`: PsiClass): List[PsiClass] =
+      override protected def findTargetDefinitions(`class`: PsiClass)
+                                                  (implicit parameters: ClauseCompletionParameters): List[PsiClass] =
         super.findTargetDefinitions(`class`) match {
           case Nil => `class` :: Nil
           case list => list
@@ -102,7 +103,7 @@ object CaseClauseCompletionContributor {
   ] extends ClauseCompletionProvider[T] {
 
     override final protected def addCompletions(typeable: T, result: CompletionResultSet)
-                                               (implicit place: PsiElement): Unit = for {
+                                               (implicit parameters: ClauseCompletionParameters): Unit = for {
       scType <- targetType(typeable).toList
       targetClass <- scType.extractClass
 
@@ -111,12 +112,13 @@ object CaseClauseCompletionContributor {
       lookupElement = createLookupElement(
         components.presentablePatternText(),
         components
-      )
+      )(parameters.place)
     } result.addElement(lookupElement)
 
     protected def targetType(typeable: T): Option[ScType]
 
-    protected def findTargetDefinitions(`class`: PsiClass): List[PsiClass] =
+    protected def findTargetDefinitions(`class`: PsiClass)
+                                       (implicit parameters: ClauseCompletionParameters): List[PsiClass] =
       `class` match {
         case DirectInheritors(Inheritors(namedInheritors, _)) => namedInheritors
         case _ => Nil
@@ -138,7 +140,7 @@ object CaseClauseCompletionContributor {
       }
 
     private def createComponents(`type`: ScType, `class`: PsiClass)
-                                (implicit place: PsiElement): List[ClassPatternComponents] =
+                                (implicit parameters: ClauseCompletionParameters): List[ClassPatternComponents] =
       (`type`, `class`) match {
         case (TupleType(types), tupleClass: ScClass) =>
           new TuplePatternComponents(tupleClass, types) :: Nil

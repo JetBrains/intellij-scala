@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.completion.clauses.{ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
+import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
@@ -46,7 +46,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
     PsiTreeUtil.getNonStrictParentOfType(context, classOf[ScExpression]) match {
       case null => None
       case expression =>
-        implicit val place: PsiElement = expression
+        implicit val parameters: ClauseCompletionParameters = ClauseCompletionParameters(expression, expression.getContainingFile.getResolveScope)
         expression match {
           case Typeable(PatternGenerationStrategy(strategy)) => Some(expression, strategy)
           case _ => None

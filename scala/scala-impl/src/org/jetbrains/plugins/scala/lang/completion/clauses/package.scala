@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, PsiElementPattern, StandardPatterns}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
@@ -19,6 +21,19 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPa
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
 
 package object clauses {
+
+  /**
+   * [[ClauseCompletionParameters]] is supposed to be used in places
+   * where an actual [[CompletionParameters]] cannot be instantiated.
+   *
+   * It encapsulates information on:
+   * 1) completion position;
+   * 2) original file resolve scope;
+   *
+   * Either invocation count or completion type information might be used eventually.
+   */
+  case class ClauseCompletionParameters(place: PsiElement,
+                                        scope: GlobalSearchScope)
 
   import PlatformPatterns.psiElement
   import PsiElementPattern.Capture
@@ -87,7 +102,8 @@ package object clauses {
 
   private[clauses] object DirectInheritors {
 
-    def unapply(`class`: PsiClass): Option[Inheritors] = {
+    def unapply(`class`: PsiClass)
+               (implicit parameters: ClauseCompletionParameters): Option[Inheritors] = {
       val isSealed = `class`.isSealed
       val (namedInheritors, anonymousInheritors) = directInheritors(`class`).partition {
         case _: ScNewTemplateDefinition |
@@ -112,12 +128,12 @@ package object clauses {
       }
     }
 
-    private def directInheritors(`class`: PsiClass) = {
+    private def directInheritors(`class`: PsiClass)
+                                (implicit parameters: ClauseCompletionParameters) = {
       import collection.JavaConverters._
-      DirectClassInheritorsSearch.search(
-        `class`,
-        `class`.getContainingFile.getResolveScope
-      ).findAll()
+      DirectClassInheritorsSearch
+        .search(`class`, parameters.scope)
+        .findAll()
         .asScala
         .toIndexedSeq
     }
