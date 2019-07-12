@@ -81,12 +81,12 @@ object ExhaustiveMatchCompletionContributor {
   ](keywordLookupString: String = ScalaKeyword.CASE) extends ClauseCompletionProvider[E] {
 
     override final protected def addCompletions(expression: E, result: CompletionResultSet)
-                                               (implicit place: PsiElement): Unit = for {
-      PatternGenerationStrategy(strategy) <- targetType(expression)
+                                               (implicit parameters: ClauseCompletionParameters): Unit = for {
+      PatternGenerationStrategy(strategy) <- targetType(expression)(parameters.place)
 
       lookupElement = buildLookupElement(
         keywordLookupString,
-        createInsertHandler(strategy)
+        createInsertHandler(strategy)(parameters.place)
       ) {
         case (_, presentation: LookupElementPresentation) =>
           presentation.setItemText(keywordLookupString)
