@@ -1,17 +1,37 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.plugins.scala
+package util
+
+import com.intellij.psi.CommonClassNames
 
 object CommonQualifiedNames {
-  private final val rootScala = "_root_.scala."
 
-  final val JavaObject   = "_root_.java.lang.Object"
+  private final val Root = "_root_."
+  private final val Scala = "scala."
 
-  final val ProductFqn      = rootScala + "Product"
-  final val SerializableFqn = rootScala + "Serializable"
-  final val AnyRefFqn       = rootScala + "AnyRef"
-  final val BooleanFqn      = rootScala + "Boolean"
-  final val SeqFqn          = rootScala + "Seq"
-  final val AnyFqn          = rootScala + "Any"
-  final val NothingFqn      = rootScala + "Nothing"
-  final val OptionFqn       = rootScala + "Option"
+  final val JavaObjectCanonical = Root + CommonClassNames.JAVA_LANG_OBJECT
+
+  final val ProductFqn = Scala + "Product"
+  final val ProductCanonical = Root + ProductFqn
+
+  final val SerializableFqn = Scala + "Serializable"
+  final val SerializableCanonical = Root + SerializableFqn
+
+  final val AnyRefFqn = Scala + "AnyRef"
+  final val AnyRefCanonical = Root + AnyRefFqn
+
+  final val BooleanFqn = Scala + "Boolean"
+  final val BooleanCanonical = Root + BooleanFqn
+
+  final val SeqFqn = Scala + "Seq"
+  final val SeqCanonical = Root + SeqFqn
+
+  final val AnyFqn = Scala + "Any"
+  final val AnyCanonical = Root + AnyFqn
+
+  final val NothingFqn = Scala + "Nothing"
+  final val NothingCanonical = Root + NothingFqn
+
+  final val OptionFqn = Scala + "Option"
+  final val OptionCanonical = Root + OptionFqn
 
 }
