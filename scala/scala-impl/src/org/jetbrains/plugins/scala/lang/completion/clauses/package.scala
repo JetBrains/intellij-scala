@@ -8,7 +8,7 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, PsiElementPatter
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
+import com.intellij.psi.{CommonClassNames, PsiAnonymousClass, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -103,31 +103,43 @@ package object clauses {
 
   private[clauses] object DirectInheritors {
 
+    import CommonClassNames._
+    import util.CommonQualifiedNames._
+
     def unapply(`class`: PsiClass)
-               (implicit parameters: ClauseCompletionParameters): Option[Inheritors] = {
-      val isSealed = `class`.isSealed
-      val (namedInheritors, anonymousInheritors) = directInheritors(`class`).partition {
-        case _: ScNewTemplateDefinition |
-             _: PsiAnonymousClass => false
-        case _ => true
-      }
-
-      implicit val ordered: Ordering[PsiClass] =
-        if (isSealed) Ordering.by(_.getNavigationElement.getTextRange.getStartOffset)
-        else Ordering.by(_.getName)
-
-      namedInheritors.sorted.toList match {
-        case Nil => None
-        case inheritors =>
-          val isNotConcrete = `class` match {
-            case scalaClass: ScClass => scalaClass.hasAbstractModifier
+               (implicit parameters: ClauseCompletionParameters): Option[Inheritors] =
+      `class`.qualifiedName match {
+        case JAVA_LANG_OBJECT |
+             JAVA_LANG_THROWABLE |
+             JAVA_LANG_EXCEPTION |
+             JAVA_LANG_ERROR |
+             AnyRefFqn |
+             AnyFqn |
+             NothingFqn => None
+        case _ =>
+          val isSealed = `class`.isSealed
+          val (namedInheritors, anonymousInheritors) = directInheritors(`class`).partition {
+            case _: ScNewTemplateDefinition |
+                 _: PsiAnonymousClass => false
             case _ => true
           }
 
-          val isExhaustive = isSealed && isNotConcrete && anonymousInheritors.isEmpty
-          Some(Inheritors(inheritors, isSealed, isExhaustive))
+          implicit val ordered: Ordering[PsiClass] =
+            if (isSealed) Ordering.by(_.getNavigationElement.getTextRange.getStartOffset)
+            else Ordering.by(_.getName)
+
+          namedInheritors.sorted.toList match {
+            case Nil => None
+            case inheritors =>
+              val isNotConcrete = `class` match {
+                case scalaClass: ScClass => scalaClass.hasAbstractModifier
+                case _ => true
+              }
+
+              val isExhaustive = isSealed && isNotConcrete && anonymousInheritors.isEmpty
+              Some(Inheritors(inheritors, isSealed, isExhaustive))
+          }
       }
-    }
 
     private def directInheritors(`class`: PsiClass)
                                 (implicit parameters: ClauseCompletionParameters) = {

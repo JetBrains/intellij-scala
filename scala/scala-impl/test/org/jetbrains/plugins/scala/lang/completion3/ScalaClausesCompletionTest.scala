@@ -5,6 +5,7 @@ package completion3
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
+import com.intellij.psi.CommonClassNames
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
@@ -1098,6 +1099,22 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin,
   )(isExhaustiveCase)
+
+  def testBlackList(): Unit = {
+    import CommonClassNames._
+    import util.CommonQualifiedNames._
+
+    for {
+      fqn <- JAVA_LANG_OBJECT ::
+        JAVA_LANG_THROWABLE ::
+        JAVA_LANG_EXCEPTION ::
+        JAVA_LANG_ERROR ::
+        AnyRefFqn ::
+        AnyFqn ::
+        NothingFqn ::
+        Nil
+    } checkNoCompletion(s"(_: $fqn) m$CARET")(isExhaustiveMatch)
+  }
 
   private def withCaseAlignment(doTest: => Unit): Unit = {
     val settings = CodeStyle.getSettings(getProject)
