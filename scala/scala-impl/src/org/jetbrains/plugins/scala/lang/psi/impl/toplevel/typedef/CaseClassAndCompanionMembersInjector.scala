@@ -1,6 +1,11 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package typedef
+
 import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
@@ -23,17 +28,17 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
             case Some(x: ScPrimaryConstructor) =>
               val clauses = x.parameterList.clauses
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
-              val returnTypeText = if (params.isEmpty) BooleanFqn
+              val returnTypeText = if (params.isEmpty) BooleanCanonical
               else {
                 val params = clauses.head.parameters
-                if (params.isEmpty) BooleanFqn
+                if (params.isEmpty) BooleanCanonical
                 else {
-                  val caseClassParamTypes = params.map(p => paramTypeText(p, defaultTypeText = AnyFqn))
+                  val caseClassParamTypes = params.map(p => paramTypeText(p, defaultTypeText = AnyCanonical))
                   val optionTypeArg = caseClassParamTypes match {
                     case Seq(text) => text
                     case seq       => seq.commaSeparated(Model.Parentheses)
                   }
-                  s"$OptionFqn[$optionTypeArg]"
+                  s"$OptionCanonical[$optionTypeArg]"
                 }
               }
               val unapplyName = if (params.lastOption.exists(_.isRepeatedParameter)) UnapplySeq else Unapply
@@ -75,7 +80,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
           for {
             clause <- effectiveParamClauses
             param  <- clause.parameters
-          } yield paramTypeText(param, defaultTypeText = NothingFqn)
+          } yield paramTypeText(param, defaultTypeText = NothingCanonical)
 
         val functionClassName = s"_root_.scala.Function${paramTypes.length}"
         val typeParameters = (paramTypes :+ cc.name).commaSeparated(Model.SquareBrackets)
@@ -90,7 +95,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
   private def paramTypeText(param: ScParameter, defaultTypeText: String) = {
     val typeText = param.typeElement.fold(defaultTypeText)(_.getText)
-    if (param.isRepeatedParameter) s"$SeqFqn[$typeText]"
+    if (param.isRepeatedParameter) s"$SeqCanonical[$typeText]"
     else typeText
   }
 
