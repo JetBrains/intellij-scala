@@ -120,7 +120,7 @@ object CaseClauseCompletionContributor {
     protected def findTargetDefinitions(`class`: PsiClass)
                                        (implicit parameters: ClauseCompletionParameters): List[PsiClass] =
       `class` match {
-        case DirectInheritors(Inheritors(namedInheritors, _)) => namedInheritors
+        case DirectInheritors(Inheritors(namedInheritors, _, _)) => namedInheritors
         case _ => Nil
       }
 

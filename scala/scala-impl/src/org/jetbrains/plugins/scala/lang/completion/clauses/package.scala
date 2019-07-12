@@ -95,6 +95,7 @@ package object clauses {
       .withRenderer(presentation)
 
   private[clauses] case class Inheritors(namedInheritors: List[PsiClass],
+                                         isSealed: Boolean,
                                          isExhaustive: Boolean) {
 
     if (namedInheritors.isEmpty) throw new IllegalArgumentException("Class contract violation")
@@ -124,7 +125,7 @@ package object clauses {
           }
 
           val isExhaustive = isSealed && isNotConcrete && anonymousInheritors.isEmpty
-          Some(Inheritors(inheritors, isExhaustive))
+          Some(Inheritors(inheritors, isSealed, isExhaustive))
       }
     }
 

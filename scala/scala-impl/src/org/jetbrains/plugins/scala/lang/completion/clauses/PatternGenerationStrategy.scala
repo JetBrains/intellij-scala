@@ -81,6 +81,18 @@ object PatternGenerationStrategy {
     Option(strategy)
   }
 
+  object LimitedSizeStrategy {
+
+    private[this] val NonSealedInheritorsThreshold = 5
+
+    def unapply(strategy: PatternGenerationStrategy): Boolean = strategy match {
+      case strategy: DirectInheritorsGenerationStrategy =>
+        val Inheritors(namedInheritors, isSealed, _) = strategy.inheritors
+        isSealed || namedInheritors.length < NonSealedInheritorsThreshold
+      case _ => true
+    }
+  }
+
   private[this] object ScalaEnumeration {
 
     private[this] val EnumerationFQN = "scala.Enumeration"
@@ -101,10 +113,10 @@ object PatternGenerationStrategy {
         None
   }
 
-  private final class DirectInheritorsGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
+  private final class DirectInheritorsGenerationStrategy(private[PatternGenerationStrategy] val inheritors: Inheritors) extends PatternGenerationStrategy {
 
     override def patterns: Seq[PatternComponents] = {
-      val Inheritors(namedInheritors, isExhaustive) = inheritors
+      val Inheritors(namedInheritors, _, isExhaustive) = inheritors
 
       namedInheritors.map {
         case scalaObject: ScObject => new StablePatternComponents(scalaObject)
