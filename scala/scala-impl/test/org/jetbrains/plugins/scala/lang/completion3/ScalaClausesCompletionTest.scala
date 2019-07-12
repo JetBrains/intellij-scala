@@ -987,6 +987,18 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testNonSealedInheritorsThreshold(): Unit = checkNoCompletion(
+    fileText =
+      s"""trait Foo
+         |class Bar1 extends Foo
+         |class Bar2 extends Foo
+         |class Bar3 extends Foo
+         |class Bar4 extends Foo
+         |class Bar5 extends Foo
+         |
+         |(_: Foo) ma$CARET""".stripMargin,
+  )(isExhaustiveMatch)
+
   def testCaseInFunction(): Unit = doCaseCompletionTest(
     fileText =
       s"""sealed trait Foo

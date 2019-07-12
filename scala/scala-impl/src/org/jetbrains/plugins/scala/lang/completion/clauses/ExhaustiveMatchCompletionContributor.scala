@@ -82,7 +82,7 @@ object ExhaustiveMatchCompletionContributor {
 
     override final protected def addCompletions(expression: E, result: CompletionResultSet)
                                                (implicit parameters: ClauseCompletionParameters): Unit = for {
-      PatternGenerationStrategy(strategy) <- targetType(expression)(parameters.place)
+      PatternGenerationStrategy(strategy@PatternGenerationStrategy.LimitedSizeStrategy()) <- targetType(expression)(parameters.place)
 
       lookupElement = buildLookupElement(
         keywordLookupString,
