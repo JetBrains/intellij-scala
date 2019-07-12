@@ -9,7 +9,15 @@ import org.junit.experimental.categories.Category
  * 8/5/13
  */
 @Category(Array(classOf[DebuggerTests]))
-abstract class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
+class VariablesFromPatternsEvaluationTest_211 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
+}
+@Category(Array(classOf[DebuggerTests]))
+class VariablesFromPatternsEvaluationTest_212 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+
+abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
   addFileWithBreakpoints("Match.scala",
     s"""
        |object Match {

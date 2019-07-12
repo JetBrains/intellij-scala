@@ -9,7 +9,10 @@ import org.junit.experimental.categories.Category
  * 8/2/13
  */
 @Category(Array(classOf[DebuggerTests]))
-abstract class InAnonFunEvaluationTest_212_Base extends InAnonFunEvaluationTestBase {
+class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
+
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
     runDebugger() {
@@ -22,6 +25,10 @@ abstract class InAnonFunEvaluationTest_212_Base extends InAnonFunEvaluationTestB
       evalEquals("args", "[]")
     }
   }
+}
+
+class InAnonFunEvaluationTest_211 extends InAnonFunEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
 }
 
 abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{

@@ -9,7 +9,21 @@ import org.junit.experimental.categories.Category
  * Date: 19.10.11
  */
 @Category(Array(classOf[DebuggerTests]))
-abstract class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
+class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase {
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+}
+
+abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrefixUnary.scala",
     s"""
       |object PrefixUnary {
