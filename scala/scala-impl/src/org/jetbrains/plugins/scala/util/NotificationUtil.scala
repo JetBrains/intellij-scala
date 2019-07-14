@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package util
 
 import java.net.URL
-import javax.swing.event.HyperlinkEvent
 
+import javax.swing.event.HyperlinkEvent
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
+
+import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -14,32 +16,39 @@ import com.intellij.openapi.project.Project
 // TODO Why do we need a mutable builder when we have named / default arguments?
 object NotificationUtil  {
   def builder(project: Project, message: String) = new NotificationBuilder(project, message)
-  
+
   class NotificationBuilder protected[NotificationUtil] (project: Project, message: String) {
     private var group: String = "scala"
     private var title: String = "Warning" // TODO Should be "null"
     private var notificationType: NotificationType = NotificationType.WARNING
     private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON // TODO Why it's present but not applied?
     private var handler: Handler = IdHandler
-    
+    private val actions: mutable.Buffer[NotificationAction] = mutable.Buffer()
+
     def setGroup(group: String): NotificationBuilder = {this.group = group; this}
     def setTitle(title: String): NotificationBuilder = {this.title = title; this}
     def setNotificationType(notificationType: NotificationType): NotificationBuilder = {this.notificationType = notificationType; this}
     @deprecated
     def setDisplayType(displayType: NotificationDisplayType): NotificationBuilder = {this.displayType = displayType; this}
     def setHandler(handler: Handler): NotificationBuilder = {this.handler = handler; this}
-    
-    def notification = new Notification(group, title, message, notificationType, new HyperlinkListener(handler))
+    def addAction(action: NotificationAction): NotificationBuilder = {actions += action; this}
+
+    def notification: Notification = {
+      //note that only this Notification constructor accepts null title
+      val notification = new Notification(group, null, title, null, message, notificationType, new HyperlinkListener(handler))
+      actions.foreach(notification.addAction)
+      notification
+    }
     def show(): Unit = Notifications.Bus.notify(notification, project)
   }
 
-  def showMessage(project: Project, message: String, 
-             group: String = "scala", 
-             title: String = "Warning", 
+  def showMessage(project: Project, message: String,
+             group: String = "scala",
+             title: String = "Warning",
              notificationType: NotificationType = NotificationType.WARNING,
              displayType: NotificationDisplayType = NotificationDisplayType.BALLOON,
              handler: Handler = IdHandler) {
-    
+
     builder(project, message).
       setGroup(group).
       setTitle(title).
@@ -47,16 +56,16 @@ object NotificationUtil  {
       setDisplayType(displayType).
       setHandler(handler).show()
   }
-  
+
   type Handler = (String) => (Unit)
-  
+
   private val IdHandler: Handler = { (_: String) => {} }
-  
+
   private class HyperlinkListener(handler: Handler) extends NotificationListener {
     def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
       event match {
         case Link(url) => DesktopUtils browse url
-        case Action(command) => 
+        case Action(command) =>
           notification.expire()
           handler(command)
         case _ =>
