@@ -7,7 +7,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile}
-import com.typesafe.config.{ConfigException, ConfigFactory}
+import com.typesafe.config._
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager._
@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDyn
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
-
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectComponent {
@@ -40,7 +40,8 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     val isScalafmtEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     if (isScalafmtEnabled) {
       val configFile = scalafmtProjectConfigFile(project, scalaSettings.SCALAFMT_CONFIG_PATH)
-      val version = configFile.flatMap(readVersion(_).toOption.flatten).getOrElse(DefaultVersion)
+      val version = configFile.flatMap(readVersion(project, _).toOption.flatten)
+        .getOrElse(DefaultVersion)
       ScalafmtDynamicService.instance.resolveAsync(version, project)
     }
   }
@@ -145,7 +146,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
       _ <- Option(configFile).filter(_.exists).toRight {
         ConfigResolveError.ConfigFileNotFound(configPath)
       }
-      version <- readVersion(configFile) match {
+      version <- readVersion(project, configFile) match {
         case Right(Some(value)) =>
           Right(value)
         case Right(None) =>
@@ -161,8 +162,7 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
   }
 
   private def parseConfig(configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult = {
-    val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
-    val configText = document.getText()
+    val configText = parseHoconFile(project, configFile).root.render()
     Try(fmtReflect.parseConfigFromString(configText)).toEither.left.map {
       case e: ScalafmtConfigException =>
         ConfigResolveError.ConfigParseError(configFile.getPath, e)
@@ -224,10 +224,35 @@ object ScalafmtDynamicConfigManager {
   def isIncludedInProject(file: PsiFile): Boolean =
     instanceIn(file.getProject).isIncludedInProject(file)
 
-  def readVersion(configFile: VirtualFile): Either[Throwable, Option[String]] = {
+  private def parseHoconFile(project: Project, configFile: VirtualFile): Config = {
+    val fileDocumentManager = FileDocumentManager.getInstance
+    val emptyObj = ConfigValueFactory.fromMap(Map.empty[String, Any].asJava)
+    lazy val parseOpts: ConfigParseOptions = ConfigParseOptions.defaults
+      .setIncluder(new ConfigIncluder {
+        var fallbackOpt: Option[ConfigIncluder] = None
+        override def withFallback(fallback: ConfigIncluder): ConfigIncluder = {
+          fallbackOpt = Some(fallback)
+          this
+        }
+        override def include(context: ConfigIncludeContext,
+                             what: String): ConfigObject =
+          resolveScalafmtConfigFile(project, what)
+            .flatMap(file => fileDocumentManager.getDocument(file).toOption)
+            .map(_.getText)
+            .map(ConfigFactory.parseString(_, parseOpts))
+            .map(_.root)
+            .orElse(fallbackOpt.map(_.include(context, what)))
+            .getOrElse(emptyObj)
+      })
+    val document = inReadAction(fileDocumentManager.getDocument(configFile))
+    val s = ConfigFactory.parseString(document.getText, parseOpts)
+    s
+  }
+
+
+  def readVersion(project: Project, configFile: VirtualFile): Either[Throwable, Option[String]] = {
     Try {
-      val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
-      val config = ConfigFactory.parseString(document.getText)
+      val config = parseHoconFile(project, configFile)
       Option(config.getString("version").trim)
     }.toEither.left.flatMap {
       case _: ConfigException.Missing => Right(None)
@@ -260,10 +285,15 @@ object ScalafmtDynamicConfigManager {
     if (configPath.isEmpty) {
       defaultConfigurationFile(project)
     } else {
-      absolutePathFromConfigPath(project, configPath).flatMap { path =>
-        StandardFileSystems.local.findFileByPath(path).toOption
-      }
+      resolveScalafmtConfigFile(project, configPath)
     }
+
+  private def resolveScalafmtConfigFile(project: Project,
+                                        configPath: String) = {
+    absolutePathFromConfigPath(project, configPath).flatMap { path =>
+      StandardFileSystems.local.findFileByPath(path).toOption
+    }
+  }
 
   private def defaultConfigurationFile(project: Project): Option[VirtualFile] = {
     if (project.isDefault) {

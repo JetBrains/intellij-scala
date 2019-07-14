@@ -116,7 +116,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       case None => return
     }
 
-    val versionOpt = ScalafmtDynamicConfigManager.readVersion(configFile) match {
+    val versionOpt = ScalafmtDynamicConfigManager.readVersion(project, configFile) match {
       case Right(v) => v
       case Left(ex) =>
         reportConfigParseError(ex.getMessage)
