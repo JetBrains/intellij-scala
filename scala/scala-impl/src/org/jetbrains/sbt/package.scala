@@ -21,8 +21,8 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 /**
-  * @author Pavel Fatin
-  */
+ * @author Pavel Fatin
+ */
 package object sbt {
   implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = new IdeaFunction[A, B] {
     def fun(a: A): B = f(a)
@@ -40,9 +40,9 @@ package object sbt {
 
     def /(path: String): File = new File(file, path)
 
-    def `<<`: File = << (1)
+    def `<<`: File = <<(1)
 
-    def `<<`(level: Int): File = RichFile.parent(file, level)
+    def `<<`(level: Int): File = RichFile.parent(file, level).orNull
 
     def name: String = file.getName
 
@@ -55,6 +55,12 @@ package object sbt {
     def canonicalFile: File = new File(canonicalPath)
 
     def parent: Option[File] = Option(file.getParentFile)
+
+    def parent(level: Int): Option[File] = RichFile.parent(file, level)
+
+    def asFile: Option[File] = Option(file).filter(f => f.exists && f.isFile)
+
+    def asDir: Option[File] = Option(file).filter(f => f.exists && f.isDirectory)
 
     def endsWith(parts: String*): Boolean = endsWith0(file, parts.reverse)
 
@@ -82,8 +88,9 @@ package object sbt {
 
   private object RichFile {
     @tailrec
-    def parent(file: File, level: Int): File =
-      if (level > 0) parent(file.getParentFile, level - 1) else file
+    def parent(file: File, level: Int): Option[File] =
+      if (level > 0 && file != null) parent(file.getParentFile, level - 1)
+      else Option(file)
   }
 
   implicit class RichVirtualFile(private val entry: VirtualFile) extends AnyVal {
@@ -105,7 +112,7 @@ package object sbt {
   }
 
   implicit class RichBoolean(private val b: Boolean) extends AnyVal {
-    def option[A](a: => A): Option[A] = if(b) Some(a) else None
+    def option[A](a: => A): Option[A] = if (b) Some(a) else None
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
@@ -139,7 +146,7 @@ package object sbt {
     def asScala: Option[T] = if (opt.isPresent) Some(opt.get) else None
   }
 
-  def jarWith[T : ClassTag]: File = {
+  def jarWith[T: ClassTag]: File = {
     val tClass = implicitly[ClassTag[T]].runtimeClass
 
     Option(PathUtil.getJarPathForClass(tClass)).map(new File(_)).getOrElse {
