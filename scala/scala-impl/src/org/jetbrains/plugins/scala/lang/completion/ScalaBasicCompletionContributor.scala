@@ -294,8 +294,8 @@ object ScalaBasicCompletionContributor {
         val startOffset = interpolated.getTextRange.getStartOffset
         val pointPosition = rangeEndOffset - startOffset
 
-        tokenizeLiteral(stringText.substring(pointPosition), interpolated.isMultiLineString).flatMap { tokenEnd =>
-          tokenEnd + pointPosition + 1 match {
+        tokenizeLiteral(stringText.substring(pointPosition), interpolated.quote.length).flatMap { tokenEnd =>
+          tokenEnd + pointPosition match {
             case endPoint if endPoint >= startOffset - context.getTextRange.getStartOffset =>
               Some(rangeStartOffset - startOffset, endPoint)
             case _ => None
@@ -303,10 +303,10 @@ object ScalaBasicCompletionContributor {
         }
     }
 
-  private def tokenizeLiteral(text: String, isMultiLineString: Boolean) = text.charAt(0) match {
+  private def tokenizeLiteral(text: String, quoteLength: Int) = text.charAt(0) match {
     case '.' =>
       val lexer = new ScalaLexer()
-      lexer.start(text, 1, text.length - 1 - (if (isMultiLineString) 3 else 1))
+      lexer.start(text, 1, text.length - quoteLength)
       lexer.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => Some(lexer.getTokenEnd)
         case _ => None

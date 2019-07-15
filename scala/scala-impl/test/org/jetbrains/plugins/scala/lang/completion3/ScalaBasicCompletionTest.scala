@@ -931,6 +931,30 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "substring"
   )
 
+  def testInterpolatedStringDotCompletion2(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  def f = 42
+         |}
+         |
+         |object Foo {
+         |  val foo = new Foo
+         |
+         |  s"foo$$foo.$CARET"
+         |}""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  def f = 42
+         |}
+         |
+         |object Foo {
+         |  val foo = new Foo
+         |
+         |  s"foo$${foo.f$CARET}"
+         |}""".stripMargin,
+    item = "f"
+  )
+
   def testCaseClassParamInValuePattern(): Unit = doCompletionTest(
     fileText =
       s"""

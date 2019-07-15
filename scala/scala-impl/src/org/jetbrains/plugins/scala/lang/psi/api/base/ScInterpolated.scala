@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
  */
 trait ScInterpolated extends ScalaPsiElement {
 
-  import QuotedLiteralImplBase._
   import lexer.ScalaTokenTypes._
 
   def isMultiLineString: Boolean
@@ -34,7 +33,7 @@ trait ScInterpolated extends ScalaPsiElement {
     case null => None
     case _ if !isString => None
     case context =>
-      val quote = if (isMultiLineString) MultiLineQuote else SingleLineQuote
+      val quote = this.quote
 
       val constructorParameters = getStringParts.map(quote + _ + quote)
         .commaSeparated(Model.Parentheses)
@@ -77,4 +76,12 @@ trait ScInterpolated extends ScalaPsiElement {
     }
     if part != null
   } yield part
+}
+
+object ScInterpolated {
+
+  implicit class InterpolatedExt(private val interpolated: ScInterpolated) extends AnyVal {
+
+    def quote: String = if (interpolated.isMultiLineString) MultiLineQuote else SingleLineQuote
+  }
 }
