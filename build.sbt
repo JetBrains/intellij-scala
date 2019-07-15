@@ -57,7 +57,7 @@ lazy val conversion = newProject(
   "conversion",
   file("scala/conversion")
 ).dependsOn(
-  scalaImpl % "test->test;compile->compile"
+  codeInsight % "test->test;compile->compile"
 )
 
 lazy val uast = newProject(

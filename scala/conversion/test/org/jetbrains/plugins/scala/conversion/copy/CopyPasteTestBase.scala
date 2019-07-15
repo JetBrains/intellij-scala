@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package conversion
-package copy
+package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.propertyBased.MadTestingUtil.enableAllInspections
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
@@ -24,8 +21,6 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
     val project = getProject
     oldSettings = ScalaCodeStyleSettings.getInstance(project)
     TypeAnnotationSettings.set(project, TypeAnnotationSettings.alwaysAddType(oldSettings))
-
-    enableAllInspections(project, getTestRootDisposable)
   }
 
   override def tearDown(): Unit = {
