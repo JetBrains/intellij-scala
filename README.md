@@ -24,32 +24,33 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
 
 ## Setting up the project
 
-In order to take part in Scala plugin development, you need to:
+### Prerequisites
+In order to take part in Scala plugin development, you need:
 
-1. Install IntelliJ IDEA 2017.1 or higher with a compatible version of Scala plugin
+1. IntelliJ IDEA 2019.1 or higher with a compatible version of Scala plugin
+2. JDK 11 (recommended: [JetBrains JDK](https://bintray.com/jetbrains/intellij-jdk))
 
-2. Fork this repository and clone it to your computer
+### Setup
+
+1. Clone this repository to your computer
 
   ```
   $ git clone https://github.com/JetBrains/intellij-scala.git
   ```
 
-3. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
+2. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
 the directory where Scala plugin repository is and then import it as sbt project.
 
-4. When importing is finished, in order to get artifacts and run configurations for IDEA project,
-go to the Scala plugin repo directory and run
+3. In the next step, select JDK 11 as project JDK (create it from an installed JDK if necessary).
 
+4. After importing is completed, to create artifacts and run configurations for IDEA project,
+   run these commands in the *sbt shell*:
+   
   ```
-  $ git checkout .idea
+  > ;createIDEAArtifactXml ;idea-runner/createIDEARunConfiguration
   ```
 
-
-5. Open "sbt shell" tool window
-
-  - run `createIDEAArtifactXml` task
-
-6. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
+5. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
 of IDEA with the Scala plugin.
 
 ## Browsing IntelliJ platform sources
