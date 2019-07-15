@@ -2,12 +2,10 @@ package org.jetbrains.bsp.protocol.session
 
 import java.io.File
 
-import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
+import ch.epfl.scala.bsp4j.BspConnectionDetails
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
-import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
-import scala.collection.JavaConverters._
 
 class GenericConnector(base: File, capabilities: BspCapabilities) extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
 
@@ -32,9 +30,7 @@ class GenericConnector(base: File, capabilities: BspCapabilities) extends BspSer
       process.destroy()
     }
 
-    val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava)
-    val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.map(_.presentation).getOrElse("N/A")
-    val initializeBuildParams = new InitializeBuildParams("IntelliJ-BSP", pluginVersion, "2.0", rootUri.toString, buildClientCapabilities)
+    val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, capabilities)
 
     BspSession.builder(process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
   }
