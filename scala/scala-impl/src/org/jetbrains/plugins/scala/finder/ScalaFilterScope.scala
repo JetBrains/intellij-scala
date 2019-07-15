@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.finder
 
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.fileTypes.{FileType, FileTypeManager, StdFileTypes}
+import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType, StdFileTypes}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -42,8 +42,7 @@ abstract class FilterScope protected(elementScope: ElementScope) extends GlobalS
 class ScalaFilterScope(scope: GlobalSearchScope, project: Project) extends FilterScope(scope, project) {
   override protected def isValid(file: VirtualFile): Boolean = {
     val isScalaSource = myIndex.isInSourceContent(file) &&
-      (FileTypeManager.getInstance().isFileOfType(file, ScalaFileType.INSTANCE) ||
-        ScalaLanguageDerivative.hasDerivativeForFileType(file))
+      ScalaFilterScope.hasScalaPsi(file)
 
     val isCompiled =
       StdFileTypes.CLASS.getDefaultExtension == file.getExtension &&
@@ -73,6 +72,12 @@ object ScalaFilterScope {
       new LocalSearchScope(filtered, displayName, local.isIgnoreInjectedPsi)
     case scope => scope
   }
+
+  private def hasScalaPsi(file: VirtualFile) =
+    FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
+      case fileType: LanguageFileType if fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) => true
+      case fileType => ScalaLanguageDerivative.existsFor(fileType)
+    }
 }
 
 class SourceFilterScope protected(elementScope: ElementScope) extends FilterScope(elementScope) {
