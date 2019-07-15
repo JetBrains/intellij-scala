@@ -6,8 +6,12 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
+import com.intellij.serialization.MutableAccessor;
+import com.intellij.util.xmlb.Serializer;
 import com.intellij.util.xmlb.SkipDefaultValuesSerializationFilters;
 import com.intellij.util.xmlb.XmlSerializer;
+import com.intellij.util.xmlb.annotations.OptionTag;
+import com.intellij.util.xmlb.annotations.Property;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,14 +47,14 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int ON_FIRST_ANCESTOR = 2;
   public static final int ALIGN_TO_EXTENDS = 3;
   public static final int[] EXTENDS_ALIGN_VALUES = new int[]{
-          DO_NOT_ALIGN,
-          ON_FIRST_TOKEN,
-          ALIGN_TO_EXTENDS
+      DO_NOT_ALIGN,
+      ON_FIRST_TOKEN,
+      ALIGN_TO_EXTENDS
   };
   public static final String[] EXTENDS_ALIGN_STRING = new String[]{
-          "Do not align",
-          "On first token",
-          "Align to 'extends'"
+      "Do not align",
+      "On first token",
+      "Align to 'extends'"
   };
   public int ALIGN_EXTENDS_WITH = DO_NOT_ALIGN;
 
@@ -140,39 +144,33 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean KEEP_XML_FORMATTING = false;
 
   //multiline strings support
-  public boolean MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = true;
-  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
   public boolean MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
-  public boolean MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = true;
   public boolean MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES = false;
+  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
+
+  /**
+   * @deprecated This field is left for migration only. Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER}
+   * @see org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase
+   */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL; // !! do not fix this typo in supPort, let legacy settings t be migrated properly
+
+  @OptionTag("MARGIN_CHAR")
   public String MULTILINE_STRING_MARGIN_CHAR = "|";
+  @OptionTag("MULTI_LINE_QUOTES_ON_NEW_LINE")
+  public boolean MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = true;
+  @OptionTag("MULTI_LINE_STRING_MARGIN_INDENT")
   public int MULTILINE_STRING_MARGIN_INDENT = 2;
+  @OptionTag("PROCESS_MARGIN_ON_COPY_PASTE")
+  public boolean MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE = true;
 
   public boolean supportMultilineString() {
     return MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE | MULTILINE_STRING_INSERT_MARGIN_ON_ENTER;
   }
 
-  /** @deprecated Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER} */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL; // !! do not fix this typo in supPort, let legacy settings t be migrated properly
-  /** @deprecated Use Use {@link #MULTILINE_STRING_MARGIN_CHAR} */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public String MARGIN_CHAR = "|";
-  /** @deprecated Use Use {@link #MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE} */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
-  /** @deprecated Use Use {@link #MULTILINE_STRING_MARGIN_INDENT} */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public int MULTI_LINE_STRING_MARGIN_INDENT = 2;
-  /** @deprecated Use Use {@link #MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE} */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public boolean PROCESS_MARGIN_ON_COPY_PASTE = true;
-
+  public static final int MULTILINE_STRING_NONE = 0;
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
@@ -240,7 +238,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean TRAILING_COMMA_ARG_LIST_ENABLED = true;
   public boolean TRAILING_COMMA_PARAMS_ENABLED = true;
   public boolean TRAILING_COMMA_TUPLE_ENABLED = false;
-  public boolean TRAILING_COMMA_TUPLE_TYPE_ENABLED= false;
+  public boolean TRAILING_COMMA_TUPLE_TYPE_ENABLED = false;
   public boolean TRAILING_COMMA_PATTERN_ARG_LIST_ENABLED = false;
   public boolean TRAILING_COMMA_TYPE_PARAMS_ENABLED = false;
   public boolean TRAILING_COMMA_IMPORT_SELECTOR_ENABLED = false;
@@ -248,9 +246,13 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //global
   public boolean REFORMAT_ON_COMPILE = false;
 
+  /**
+   * If you reimplement ead/write logic, do not forget to replace OptionTag annotations with something appropriate
+   * @see com.intellij.util.xmlb.BeanBinding#createBinding(MutableAccessor, Serializer, Property.Style)
+   */
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
-    Element scalaCodeStyleSettings = parentElement.getChild("ScalaCodeStyleSettings");
+    Element scalaCodeStyleSettings = parentElement.getChild(getTagName());
     if (scalaCodeStyleSettings != null) {
       XmlSerializer.deserializeInto(this, scalaCodeStyleSettings);
     }
@@ -258,11 +260,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   @Override
   public void writeExternal(Element parentElement, @NotNull CustomCodeStyleSettings parentSettings) throws WriteExternalException {
-    Element scalaCodeStyleSettings = new Element("ScalaCodeStyleSettings");
+    Element scalaCodeStyleSettings = new Element(getTagName());
     parentElement.addContent(scalaCodeStyleSettings);
     XmlSerializer.serializeInto(this, scalaCodeStyleSettings, new SkipDefaultValuesSerializationFilters());
     if (scalaCodeStyleSettings.getChildren().isEmpty()) {
-      parentElement.removeChild("ScalaCodeStyleSettings");
+      parentElement.removeChild(getTagName());
     }
   }
 
@@ -283,7 +285,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   private String[] ALWAYS_USED_IMPORTS = new String[0];
 
-  private String[] IMPORTS_WITH_PREFIX = new String[] {
+  private String[] IMPORTS_WITH_PREFIX = new String[]{
       "exclude:scala.collection.mutable.ArrayBuffer",
       "exclude:scala.collection.mutable.ListBuffer",
       "java.util.AbstractCollection",
@@ -331,7 +333,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       "scala.reflect.macros.whitebox.Context"
   };
 
-  private String[] IMPORT_LAYOUT = new String[] {
+  private String[] IMPORT_LAYOUT = new String[]{
       "java",
       BLANK_LINE,
       ALL_OTHER_IMPORTS,

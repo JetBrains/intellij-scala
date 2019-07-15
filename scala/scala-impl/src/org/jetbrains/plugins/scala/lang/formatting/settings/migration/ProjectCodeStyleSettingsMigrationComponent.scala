@@ -30,9 +30,7 @@ class ProjectCodeStyleSettingsMigrationComponent(private val project: Project)
     val projectScheme: CodeStyleScheme = codeStyleSchemesModel.getProjectScheme
     val scalaSettings = projectScheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
-    for {
-      migration <- migrations
-    } migration.migrate(scalaSettings)
+    migrations.foreach(_.migrate(scalaSettings))
 
     Log.info(s"Migrated project-level scala code style settings from version $currentVersion to $latestVersion")
 
