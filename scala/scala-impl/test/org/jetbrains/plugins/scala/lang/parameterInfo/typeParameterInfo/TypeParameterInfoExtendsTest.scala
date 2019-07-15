@@ -5,13 +5,13 @@ class TypeParameterInfoExtendsTest extends TypeParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}Extends/"
 
-  def testAllBounds() = doTest()
+  def testAllBounds(): Unit = doTest()
 
-  def testJavaGeneric() = doTest()
+  def testJavaGeneric(): Unit = doTest()
 
-  def testScalaGenericExtends() = doTest()
+  def testScalaGenericExtends(): Unit = doTest()
 
-  def testScalaLowerBound() = doTest()
+  def testScalaLowerBound(): Unit = doTest()
 
-  def testScalaViewBound() = doTest()
+  def testScalaViewBound(): Unit = doTest()
 }

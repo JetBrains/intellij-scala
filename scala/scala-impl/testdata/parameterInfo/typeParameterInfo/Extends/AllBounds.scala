@@ -1,4 +1,4 @@
-class AllBounds[T1 >: Function1[Int, Int] <: ScalaObject <% Int]
+class AllBounds[T1 >: Function1[Int, Int] <: AnyRef <% Int]
 
 new AllBounds[<caret>]
-//T1 >: Int => Int <: ScalaObject <% Int
+//T1 >: Int => Int <: AnyRef <% Int
