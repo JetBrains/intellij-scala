@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.protocol.session
 
-import java.io.{InputStream, OutputStream}
+import java.io.{File, FileWriter, InputStream, OutputStream, PrintWriter}
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 
 import ch.epfl.scala.bsp4j
@@ -88,6 +88,10 @@ class BspSession private(bspIn: InputStream,
     }
   }
 
+  private def rpcLogger: Option[PrintWriter] = sys.env.get("BSP_PROTOCOL_TRACE")
+    .map(_ => new PrintWriter(new FileWriter(new File("bsp-protocol-trace.log"), true)))
+
+
   private def startServerConnection: ServerConnection = {
 
     val localClient = new BspSessionClient
@@ -98,6 +102,7 @@ class BspSession private(bspIn: InputStream,
       .setInput(bspIn)
       .setOutput(bspOut)
       .setLocalService(localClient)
+      .traceMessages(rpcLogger.orNull)
       .create()
     val listening = launcher.startListening()
     val bspServer = launcher.getRemoteProxy
