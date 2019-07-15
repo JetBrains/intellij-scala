@@ -785,12 +785,9 @@
                          shortName="SimplifyBooleanMatch" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
-                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
-                         key="unnecessary.parentheses.name"
-                         groupPath="Scala" groupName="General"
-                         shortName="ScalaUnnecessaryParentheses"
-                         language="Scala" level="WARNING"
-                         enabledByDefault="true"/>
+                         displayName="Unnecessary parentheses" groupPath="Scala" groupName="General"
+                         shortName="ScalaUnnecessaryParentheses" id="ScalaUnnecessaryParentheses" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
                          displayName="Type check can be pattern matching" groupPath="Scala" groupName="General"
                          shortName="TypeCheckCanBeMatch" level="WARNING"

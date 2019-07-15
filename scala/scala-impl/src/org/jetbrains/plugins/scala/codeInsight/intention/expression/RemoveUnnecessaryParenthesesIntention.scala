@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala
-package codeInsight
-package intention
-package expression
+package codeInsight.intention.expression
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
@@ -10,8 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
 
@@ -19,13 +17,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
  * Nikolay.Tropin
  * 4/29/13
  */
-final class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionAction {
+object RemoveUnnecessaryParenthesesIntention {
+  def familyName = "Remove unnecessary parentheses"
+}
 
-  import ParenthesizedElement.Ops
+class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionAction {
+  def getFamilyName: String = RemoveUnnecessaryParenthesesIntention.familyName
 
-  override def getText: String = InspectionBundle.message("remove.unnecessary.parentheses.fix", "")
-
-  override def getFamilyName: String = getText
+  override def getText = "Remove unnecessary parentheses"
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     !isInspectionEnabledIn(project, "ScalaUnnecessaryParentheses") &&

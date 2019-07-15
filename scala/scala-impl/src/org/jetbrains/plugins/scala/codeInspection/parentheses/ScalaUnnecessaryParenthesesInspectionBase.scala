@@ -95,7 +95,7 @@ object ScalaUnnecessaryParenthesesInspectionBase {
   import ScalaTokenTypes._
 
   private sealed abstract class UnnecessaryParenthesesQuickFix[E <: ScalaPsiElement](element: E) extends AbstractFixOnPsiElement(
-    InspectionBundle.message("remove.unnecessary.parentheses.fix", ScalaRefactoringUtil.getShortText(element)),
+    "Remove unnecessary parentheses " + ScalaRefactoringUtil.getShortText(element),
     element
   )
 

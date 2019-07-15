@@ -1,79 +1,93 @@
 package org.jetbrains.plugins.scala
-package codeInsight
-package intentions
-package expression
+package codeInsight.intentions.expression
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * Nikolay.Tropin
  * 4/29/13
  */
 class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
+  def familyName: String = RemoveUnnecessaryParenthesesIntention.familyName
 
-  override def familyName: String = InspectionBundle.message("remove.unnecessary.parentheses.fix", "")
+  def test_1() {
+    val text = "(<caret>1 + 1)"
+    val result = "1 + 1"
+    doTest(text, result)
+  }
 
-  def test_1(): Unit = doTest(
-    s"(${caretTag}1 + 1)",
-    "1 + 1"
-  )
+  def test_2() {
+    val text = "1 + (1 * 2<caret>)"
+    val result = "1 + 1 * 2"
+    doTest(text, result)
+  }
 
-  def test_2(): Unit = doTest(
-    s"1 + (1 * 2$caretTag)",
-    "1 + 1 * 2"
-  )
+  def test_3() {
+    val text =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (<caret>even % 2 == 0) => (even + 1)
+        |  case odd =>  1 + (odd * 3)
+        |}
+      """
+    val result =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if even % 2 == 0 => (even + 1)
+        |  case odd => 1 + (odd * 3)
+        |}
+      """
+    doTest(text, result)
+  }
 
-  def test_3(): Unit = doTest(
-    s"""
-       |def f(n: Int): Int = n match {
-       |  case even if (${caretTag}even % 2 == 0) => (even + 1)
-       |  case odd =>  1 + (odd * 3)
-       |}""",
-    """
-      |def f(n: Int): Int = n match {
-      |  case even if even % 2 == 0 => (even + 1)
-      |  case odd => 1 + (odd * 3)
-      |}"""
-  )
-
-  def test_4(): Unit = doTest(
-    text =
-      s"""
-         |def f(n: Int): Int = n match {
-         |  case even if (even % 2 == 0) => (even + 1$caretTag)
-         |  case odd => 1 + (odd * 3)
-         |}""",
-    resultText =
+  def test_4() {
+    val text =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (even % 2 == 0) => (even + 1<caret>)
+        |  case odd => 1 + (odd * 3)
+        |}
+      """
+    val result =
       """
         |def f(n: Int): Int = n match {
         |  case even if (even % 2 == 0) => even + 1
         |  case odd => 1 + (odd * 3)
-        |}"""
-  )
+        |}
+      """
+    doTest(text, result)
+  }
 
-  def test_5(): Unit = doTest(
-    text =
-      s"""
-         |def f(n: Int): Int = n match {
-         |  case even if (even % 2 == 0) => (even + 1)
-         |  case odd =>  1 + (odd * 3${caretTag})
-         |}""",
-    resultText =
+  def test_5() {
+    val text =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (even % 2 == 0) => (even + 1)
+        |  case odd =>  1 + (odd * 3<caret>)
+        |}
+      """
+    val result =
       """
         |def f(n: Int): Int = n match {
         |  case even if (even % 2 == 0) => (even + 1)
         |  case odd => 1 + odd * 3
-        |}"""
-  )
+        |}
+      """
+    doTest(text, result)
+  }
 
-  def test_6(): Unit = doTest(
-    s"val a = (($caretTag(1)))",
-    "val a = 1"
-  )
+  def test_6() {
+    val text = "val a = ((<caret>(1)))"
+    val result = "val a = 1"
+    doTest(text, result)
+  }
 
-  def test_7(): Unit = checkIntentionIsNotAvailable(
-    s"""1 match {
-       |    case i if (${caretTag}i match {case 1 => true}) =>
-       |  }"""
-  )
+  def test_7() {
+    val text =
+      """1 match {
+        |    case i if (<caret>i match {case 1 => true}) =>
+        |  }"""
+    checkIntentionIsNotAvailable(text)
+  }
 }
