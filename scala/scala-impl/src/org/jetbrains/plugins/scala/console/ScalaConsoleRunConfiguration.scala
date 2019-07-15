@@ -46,6 +46,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
+
   private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
 
   private def getModule: Module = getConfigurationModule.getModule
@@ -126,20 +127,24 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
   }
 
   private def showJLineMissingNotification(): Unit = {
-    import JLineFinder.JLineJarName
-    import ScalaLanguageConsoleView.ScalaConsole
-    val message =
+    val message = {
+      import JLineFinder.JLineJarName
+      import ScalaLanguageConsoleView.ScalaConsole
+      val sdkName = getModule.scalaSdk.map(_.getName).getOrElse("")
       s"""$ScalaConsole requires $JLineJarName to run
-         |Please add it to the project classpath""".stripMargin.replaceAll("\n", "<br>")
+         |Please add it to `$sdkName` compiler classpath
+         |""".stripMargin.trim.replaceAll("\n", "<br>")
+    }
 
-    val action = new NotificationAction("&Configure project classpath") {
+    val action = new NotificationAction("&Configure Scala SDK classpath") {
       override def startInTransaction: Boolean = true
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        notification.expire()
         val configurable = ProjectStructureConfigurable.getInstance(project)
         new SingleConfigurableEditor(project, configurable, SettingsDialog.DIMENSION_KEY) {
           override protected def getStyle = DialogStyle.COMPACT
         }.show()
-        notification.expire()
+        configurable.selectGlobalLibraries(true)
       }
     }
 
