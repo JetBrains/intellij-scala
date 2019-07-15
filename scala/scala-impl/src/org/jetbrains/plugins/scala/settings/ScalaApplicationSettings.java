@@ -11,9 +11,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 
 @State(
         name = "ScalaApplicationSettings",
-        storages = {@Storage("scala_config.xml")}
+        storages = {@Storage(ScalaApplicationSettings.STORAGE_FILE_NAME)}
 )
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
+  public static final String STORAGE_FILE_NAME = "scala_config.xml";
 
   // TODO Don't save these values as we now rely on the code style instead
   public boolean INTRODUCE_VARIABLE_EXPLICIT_TYPE = true;
