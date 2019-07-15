@@ -53,10 +53,9 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
 
     socketAndCleanupEither.map { socketAndCleanup =>
       val (socket, cleanup) = socketAndCleanup
-      val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava)
-      val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.map(_.presentation).getOrElse("N/A")
-      val initializeBuildParams = new InitializeBuildParams("IntelliJ-BSP", pluginVersion, "2.0", rootUri.toString, buildClientCapabilities)
+      val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, capabilities)
       val dummyInputStream = new ByteArrayInputStream(Array.emptyByteArray)
+
       BspSession.builder(socket.getInputStream, dummyInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
     }
   }
@@ -106,9 +105,5 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
     val command = s"${bloopExecutable.getCanonicalPath} $params"
     Process(command, base).run(proclog)
   }
-
-}
-
-object BloopConnector {
 
 }
