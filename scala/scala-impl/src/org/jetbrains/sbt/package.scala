@@ -5,6 +5,7 @@ import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
 import _root_.java.util.Optional
 import _root_.java.util.{ArrayList => JArrayList, List => JList}
+import _root_.org.jetbrains.annotations.Nullable
 
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.application.ApplicationManager
@@ -42,7 +43,7 @@ package object sbt {
 
     def `<<`: File = <<(1)
 
-    def `<<`(level: Int): File = RichFile.parent(file, level).orNull
+    def `<<`(level: Int): File = RichFile.parent(file, level)
 
     def name: String = file.getName
 
@@ -56,11 +57,11 @@ package object sbt {
 
     def parent: Option[File] = Option(file.getParentFile)
 
-    def parent(level: Int): Option[File] = RichFile.parent(file, level)
+    def parent(level: Int): Option[File] = Option(RichFile.parent(file, level))
 
-    def asFile: Option[File] = Option(file).filter(f => f.exists && f.isFile)
+    def maybeFile: Option[File] = Option(file).filter(_.isFile)
 
-    def asDir: Option[File] = Option(file).filter(f => f.exists && f.isDirectory)
+    def maybeDir: Option[File] = Option(file).filter(_.isDirectory)
 
     def endsWith(parts: String*): Boolean = endsWith0(file, parts.reverse)
 
@@ -87,10 +88,11 @@ package object sbt {
   }
 
   private object RichFile {
+    @Nullable
     @tailrec
-    def parent(file: File, level: Int): Option[File] =
+    def parent(@Nullable file: File, level: Int): File =
       if (level > 0 && file != null) parent(file.getParentFile, level - 1)
-      else Option(file)
+      else file
   }
 
   implicit class RichVirtualFile(private val entry: VirtualFile) extends AnyVal {
