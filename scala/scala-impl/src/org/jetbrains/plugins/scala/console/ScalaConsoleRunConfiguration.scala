@@ -141,13 +141,14 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
         val configurable = ProjectStructureConfigurable.getInstance(project)
+        val editor = new SingleConfigurableEditor(project, configurable, SettingsDialog.DIMENSION_KEY) {
+          override protected def getStyle = DialogStyle.COMPACT
+        }
         getModule.scalaSdk match {
           case Some(sdk) => configurable.selectProjectOrGlobalLibrary(sdk, true)
           case None => configurable.selectGlobalLibraries(true)
         }
-        new SingleConfigurableEditor(project, configurable, SettingsDialog.DIMENSION_KEY) {
-          override protected def getStyle = DialogStyle.COMPACT
-        }.show()
+        editor.show()
       }
     }
 
