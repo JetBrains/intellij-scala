@@ -395,7 +395,7 @@
         <configurationType
                 implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
-        <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ExecuteInConsoleActionPromoter"/>
+        <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.ReplRunActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsActionPromoter"/>
 
@@ -1490,8 +1490,14 @@
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction" text="Execute Console Statement">
-            <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control ENTER"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
+        </action>
+        <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift ENTER"/>
         </action>
         <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction" text="Clean Console Content">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
