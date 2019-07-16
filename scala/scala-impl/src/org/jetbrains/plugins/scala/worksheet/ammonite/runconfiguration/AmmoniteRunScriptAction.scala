@@ -4,7 +4,7 @@ import com.intellij.execution.RunManagerEx
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.plugins.scala.console.RunConsoleAction
+import org.jetbrains.plugins.scala.console.actions.RunConsoleAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 

@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
-import org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType
+import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.ScaladocRunConfiguration
 
 

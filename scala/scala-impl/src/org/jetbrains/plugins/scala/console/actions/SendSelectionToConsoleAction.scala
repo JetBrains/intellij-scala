@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.console
+package org.jetbrains.plugins.scala.console.actions
 
 import java.io.{IOException, OutputStream}
 
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

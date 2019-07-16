@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.console;
+package org.jetbrains.plugins.scala.console.configuration;
 
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;

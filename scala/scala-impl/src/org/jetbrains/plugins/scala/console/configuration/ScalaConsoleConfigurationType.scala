@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package console
+package org.jetbrains.plugins.scala.console.configuration
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.DumbAware

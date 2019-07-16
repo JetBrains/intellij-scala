@@ -1,9 +1,5 @@
-package org.jetbrains.plugins.scala
-package console
+package org.jetbrains.plugins.scala.console.configuration
 
-import java.io.File
-
-import org.jetbrains.sbt.RichFile
 import java.io.File
 
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
@@ -25,10 +21,12 @@ import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
-import org.jetbrains.plugins.scala.console.ScalaConsoleRunConfiguration.JlineResolveResult.{NotRequired, RequiredFound, RequiredNotFound}
-import org.jetbrains.plugins.scala.console.ScalaConsoleRunConfiguration._
+import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
+import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
+import org.jetbrains.plugins.scala.console.{ScalaLanguageConsoleBuilder, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.sbt.RichFile
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._

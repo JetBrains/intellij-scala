@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package console
+package org.jetbrains.plugins.scala.console.actions
 
 import java.io.{IOException, OutputStream}
 
@@ -8,7 +7,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction.LOG
+import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
+import org.jetbrains.plugins.scala.inWriteAction
+import ScalaConsoleExecuteAction.LOG
 
 class ScalaConsoleExecuteAction extends AnAction with DumbAware {
 

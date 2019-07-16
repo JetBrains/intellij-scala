@@ -394,8 +394,8 @@
 
         <configurationType
                 implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
-        <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
-        <actionPromoter implementation="org.jetbrains.plugins.scala.console.ExecuteInConsoleActionPromoter"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
+        <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ExecuteInConsoleActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.ReplRunActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsActionPromoter"/>
 
@@ -1466,7 +1466,7 @@
                 text="Scala Worksheet" description="Create new Scala Worksheet">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
-        <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.RunConsoleAction"
+        <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction"
                 text="Run Scala Console" description="Run Scala console">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
@@ -1477,7 +1477,7 @@
             <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
         </action>
-        <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.SendSelectionToConsoleAction"
+        <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction"
                 text="Send Selection To Scala Console" description="Send selection to Scala console">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift X" keymap="$default"/>
@@ -1489,11 +1489,11 @@
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
-        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">
+        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction" text="Execute Console Statement">
             <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
-        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.ScalaConsoleCleanAction" text="Clean Console Content">
+        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction" text="Clean Console Content">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
         </action>
