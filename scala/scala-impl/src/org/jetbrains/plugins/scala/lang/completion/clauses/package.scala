@@ -101,21 +101,26 @@ package object clauses {
     if (namedInheritors.isEmpty) throw new IllegalArgumentException("Class contract violation")
   }
 
-  private[clauses] object DirectInheritors {
+  object DirectInheritors {
 
     import CommonClassNames._
     import util.CommonQualifiedNames._
 
+    //noinspection TypeAnnotation
+    val BlackListedNames = Set(
+      JAVA_LANG_OBJECT,
+      JAVA_LANG_THROWABLE,
+      JAVA_LANG_EXCEPTION,
+      JAVA_LANG_ERROR,
+      AnyRefFqn,
+      AnyFqn,
+      NothingFqn
+    )
+
     def unapply(`class`: PsiClass)
                (implicit parameters: ClauseCompletionParameters): Option[Inheritors] =
       `class`.qualifiedName match {
-        case JAVA_LANG_OBJECT |
-             JAVA_LANG_THROWABLE |
-             JAVA_LANG_EXCEPTION |
-             JAVA_LANG_ERROR |
-             AnyRefFqn |
-             AnyFqn |
-             NothingFqn => None
+        case fqn if BlackListedNames(fqn) => None
         case _ =>
           val isSealed = `class`.isSealed
           val (namedInheritors, anonymousInheritors) = directInheritors(`class`).partition {

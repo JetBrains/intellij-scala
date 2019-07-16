@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 
 sealed trait PatternGenerationStrategy {
+  def canBeExhaustive: Boolean
+
   def patterns: Seq[PatternComponents]
 }
 
@@ -81,18 +83,6 @@ object PatternGenerationStrategy {
     Option(strategy)
   }
 
-  object LimitedSizeStrategy {
-
-    private[this] val NonSealedInheritorsThreshold = 5
-
-    def unapply(strategy: PatternGenerationStrategy): Boolean = strategy match {
-      case strategy: DirectInheritorsGenerationStrategy =>
-        val Inheritors(namedInheritors, isSealed, _) = strategy.inheritors
-        isSealed || namedInheritors.length < NonSealedInheritorsThreshold
-      case _ => true
-    }
-  }
-
   private[this] object ScalaEnumeration {
 
     private[this] val EnumerationFQN = "scala.Enumeration"
@@ -113,21 +103,28 @@ object PatternGenerationStrategy {
         None
   }
 
-  private final class DirectInheritorsGenerationStrategy(private[PatternGenerationStrategy] val inheritors: Inheritors) extends PatternGenerationStrategy {
+  private final class DirectInheritorsGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
 
-    override def patterns: Seq[PatternComponents] = {
-      val Inheritors(namedInheritors, _, isExhaustive) = inheritors
+    private val Inheritors(namedInheritors, isSealed, isExhaustive) = inheritors
 
-      namedInheritors.map {
-        case scalaObject: ScObject => new StablePatternComponents(scalaObject)
-        case CaseClassPatternComponents(components) => components
-        case psiClass => new TypedPatternComponents(psiClass)
-      } ++ (if (isExhaustive) None else Some(WildcardPatternComponents))
-    }
+    override def canBeExhaustive: Boolean = isSealed ||
+      namedInheritors.length < DirectInheritorsGenerationStrategy.NonSealedInheritorsThreshold
+
+    override def patterns: Seq[PatternComponents] = namedInheritors.map {
+      case scalaObject: ScObject => new StablePatternComponents(scalaObject)
+      case CaseClassPatternComponents(components) => components
+      case psiClass => new TypedPatternComponents(psiClass)
+    } ++ (if (isExhaustive) None else Some(WildcardPatternComponents))
+  }
+
+  private object DirectInheritorsGenerationStrategy {
+    private val NonSealedInheritorsThreshold = 5
   }
 
   private final class EnumGenerationStrategy(enumClass: PsiClass, qualifiedName: String,
                                              membersNames: Seq[String]) extends PatternGenerationStrategy {
+
+    override def canBeExhaustive = true
 
     override def patterns: Seq[StablePatternComponents] = membersNames.map { name =>
       new StablePatternComponents(enumClass, qualifiedName + "." + name)
