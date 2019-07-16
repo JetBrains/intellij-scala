@@ -1,6 +1,9 @@
 package org.jetbrains.bsp.protocol.session
 
 import java.io._
+import java.nio.file.{Files, Paths}
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 
 import ch.epfl.scala.bsp4j
@@ -90,12 +93,29 @@ class BspSession private(bspIn: InputStream,
     }
   }
 
+  private def lazyFileCreateWriter(file: File): Writer = new Writer() {
+    lazy val writer: FileWriter = new FileWriter(file, true)
+
+    override def write(cbuf: Array[Char], off: Int, len: Int): Unit = {
+      writer.write(cbuf, off, len)
+    }
+
+    override def flush(): Unit = {
+      writer.flush()
+    }
+
+    override def close(): Unit = {
+      writer.flush()
+    }
+  }
+
 
   private def bspTraceLogger: PrintWriter = {
-    val logdir = new File(PathManager.getLogPath)
-    logdir.mkdirs()
-    val logfile = new File(logdir, "bsp-protocol-trace.log")
-    new PrintWriter(new FileWriter(logfile, true)) {
+    val dirs = Paths.get(PathManager.getLogPath, "bsp")
+    Files.createDirectories(dirs)
+    val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").format(LocalDateTime.now())
+    val logfile = new File(dirs.toFile, s"bsp-protocol-trace-$stamp.log")
+    new PrintWriter(lazyFileCreateWriter(logfile)) {
 
       override def println(x: Any): Unit =
         if (traceLogPredicate())
