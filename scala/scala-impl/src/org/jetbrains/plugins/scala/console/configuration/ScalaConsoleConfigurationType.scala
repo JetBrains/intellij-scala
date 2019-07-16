@@ -10,9 +10,9 @@ class ScalaConsoleConfigurationType extends ConfigurationType with DumbAware {
 
   def getIcon: Icon = Icons.SCALA_CONSOLE
 
-  def getDisplayName: String = "Scala Console"
+  def getDisplayName: String = "Scala REPL"
 
-  def getConfigurationTypeDescription: String = "Scala console run configurations"
+  def getConfigurationTypeDescription: String = "Scala REPL run configurations"
 
   def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 

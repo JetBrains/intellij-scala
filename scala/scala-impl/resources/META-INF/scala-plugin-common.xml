@@ -1467,7 +1467,7 @@
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
         <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction"
-                text="Run Scala Console" description="Run Scala console">
+                text="Scala REPL..." description="Run Scala REPL">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
@@ -1478,7 +1478,7 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
         </action>
         <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction"
-                text="Send Selection To Scala Console" description="Send selection to Scala console">
+                text="Send Selection To Scala REPL" description="Send selection to Scala REPL">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift X" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift X"/>

@@ -8,33 +8,24 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 06.03.2009
- */
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
-  override def update(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit =
     e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
-    ScalaActionUtil.enableAndShowIfInScalaFile(e)
-  }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit =
     doRunAction(e)
-  }
 
   override protected def getMyConfigurationType: ScalaConsoleConfigurationType = 
     ConfigurationTypeUtil.findConfigurationType(classOf[ScalaConsoleConfigurationType])
 
-  override protected def getNewSettingName: String = "Scala Console"
-
-  override protected def checkFile(psiFile: PsiFile): Boolean = psiFile.isInstanceOf[ScalaFile]
+  override protected def getNewSettingName: String = "Scala REPL"
 }
 
 object RunConsoleAction {
@@ -56,21 +47,19 @@ object RunConsoleAction {
     }
   }
   
-  def runExisting(setting: RunnerAndConfigurationSettings, runManagerEx: RunManagerEx, project: Project) {
-    extensions.inReadAction {
+  def runExisting(setting: RunnerAndConfigurationSettings, runManagerEx: RunManagerEx, project: Project): Unit =
+    inReadAction {
       runFromSetting(setting, runManagerEx, project)
     }
-  }
   
   def createAndRun(configurationType: ConfigurationType, runManagerEx: RunManagerEx, 
-                   project: Project, name: String, handler: RunConfiguration => Unit) {
-    extensions.inReadAction {
+                   project: Project, name: String, handler: RunConfiguration => Unit): Unit =
+    inReadAction {
       val factory  = configurationType.getConfigurationFactories.apply(0)
       val setting = RunManager.getInstance(project).createConfiguration(name, factory)
       handler(setting.getConfiguration)
       runFromSetting(setting, runManagerEx, project)
     }
-  }
   
   trait RunActionBase[T <: ConfigurationType] {
     protected def getMyConfigurationType: T
@@ -79,26 +68,25 @@ object RunConsoleAction {
 
     protected def getRunConfigurationHandler: RunConfiguration => Unit = (_: RunConfiguration) => {}
 
-    protected def checkFile(psiFile: PsiFile): Boolean
-    
-    def doRunAction(e: AnActionEvent) {
+    protected def checkFile(@Nullable psiFile: PsiFile): Boolean = true
+
+    protected final def doRunAction(e: AnActionEvent): Unit = {
       val dataContext = e.getDataContext
       val file = CommonDataKeys.PSI_FILE.getData(dataContext)
       val project = CommonDataKeys.PROJECT.getData(dataContext)
       
-      if (file == null || project == null || !checkFile(file)) return
+      if (project == null || !checkFile(file)) return
 
       val runManagerEx = RunManagerEx.getInstanceEx(project)
       val configurationType = getMyConfigurationType
-      val settings = runManagerEx.getConfigurationSettingsList(configurationType)
+      val settings = runManagerEx.getConfigurationSettingsList(configurationType).asScala
 
-      settings.forEach {
-        setting =>
+      settings.headOption match {
+        case Some(setting) =>
           RunConsoleAction.runExisting(setting, runManagerEx, project)
-          return
+        case _ =>
+          RunConsoleAction.createAndRun(configurationType, runManagerEx, project, getNewSettingName, getRunConfigurationHandler)
       }
-
-      RunConsoleAction.createAndRun(configurationType, runManagerEx, project, getNewSettingName, getRunConfigurationHandler)
     }
   }
 }

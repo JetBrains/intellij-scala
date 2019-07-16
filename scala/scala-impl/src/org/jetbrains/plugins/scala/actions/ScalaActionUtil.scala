@@ -23,7 +23,7 @@ object ScalaActionUtil {
     presentation setVisible false
   }
   
-  def enableAndShowIfInScalaFile(e: AnActionEvent) {
+  def enableAndShowIfInScalaFile(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
     
     @inline def enable(): Unit = enablePresentation(presentation)
