@@ -9,15 +9,15 @@ import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import com.intellij.execution.testframework.{AbstractTestProxy, TestConsoleProperties}
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestCommandLinePatcher}
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +26,7 @@ import scala.collection.JavaConverters._
 
 class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
   extends AbstractRerunFailedTestsActionAdapter(consoleView) {
-  copyFrom(ActionManager.getInstance.getAction("RerunFailedTests"))
+  ActionUtil.copyFrom(this, "RerunFailedTests")
   registerCustomShortcutSet(getShortcutSet, consoleView.getComponent)
 
   override def getRunProfile: MyRunProfileAdapter = {
