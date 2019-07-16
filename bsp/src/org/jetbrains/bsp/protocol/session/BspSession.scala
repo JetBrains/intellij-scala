@@ -1,10 +1,11 @@
 package org.jetbrains.bsp.protocol.session
 
-import java.io.{File, FileWriter, InputStream, OutputStream, PrintWriter}
+import java.io._
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 
 import ch.epfl.scala.bsp4j
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
@@ -27,7 +28,8 @@ class BspSession private(bspIn: InputStream,
                          initializeBuildParams: bsp4j.InitializeBuildParams,
                          cleanup: ()=>Unit,
                          notificationCallbacks: List[NotificationCallback],
-                         initialJob: BspSessionJob[_,_]
+                         initialJob: BspSessionJob[_, _],
+                         traceLogPredicate: () => Boolean
                         ) {
 
   private val logger = Logger.getInstance(classOf[BspCommunication])
@@ -88,8 +90,23 @@ class BspSession private(bspIn: InputStream,
     }
   }
 
-  private def rpcLogger: Option[PrintWriter] = sys.env.get("BSP_PROTOCOL_TRACE")
-    .map(_ => new PrintWriter(new FileWriter(new File("bsp-protocol-trace.log"), true)))
+
+  private def bspTraceLogger: PrintWriter = {
+    val logdir = new File(PathManager.getLogPath)
+    logdir.mkdirs()
+    val logfile = new File(logdir, "bsp-protocol-trace.log")
+    new PrintWriter(new FileWriter(logfile, true)) {
+
+      override def println(x: Any): Unit =
+        if (traceLogPredicate())
+          super.println(x)
+
+      override def flush(): Unit =
+        if (traceLogPredicate())
+          super.flush()
+
+    }
+  }
 
 
   private def startServerConnection: ServerConnection = {
@@ -102,7 +119,7 @@ class BspSession private(bspIn: InputStream,
       .setInput(bspIn)
       .setOutput(bspOut)
       .setLocalService(localClient)
-      .traceMessages(rpcLogger.orNull)
+      .traceMessages(bspTraceLogger)
       .create()
     val listening = launcher.startListening()
     val bspServer = launcher.getRemoteProxy
@@ -300,6 +317,7 @@ object BspSession {
 
     private var notificationCallbacks: List[NotificationCallback] = Nil
     private var initialJob: BspSessionJob[_,_] = DummyJob
+    private var traceLogPredicate: () => Boolean = () => false
 
     def addNotificationCallback(callback: NotificationCallback): Builder = {
       notificationCallbacks ::= callback
@@ -311,6 +329,11 @@ object BspSession {
       this
     }
 
+    def withTraceLogPredicate(pred: () => Boolean): Builder = {
+      traceLogPredicate = pred
+      this
+    }
+
     def create = new BspSession(
       bspIn,
       bspErr,
@@ -318,7 +341,8 @@ object BspSession {
       initializeBuildParams,
       cleanup,
       notificationCallbacks,
-      initialJob
+      initialJob,
+      traceLogPredicate
     )
   }
 

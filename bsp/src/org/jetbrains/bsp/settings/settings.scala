@@ -23,10 +23,14 @@ class BspProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var buildOnSave = false
 
+  @BeanProperty
+  var traceBsp = false
+
   override def clone(): BspProjectSettings = {
     val result = new BspProjectSettings
     copyTo(result)
     result.buildOnSave = buildOnSave
+    result.traceBsp = traceBsp
     result
   }
 }
@@ -38,24 +42,29 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
   var buildOnSave = false
 
   private val buildOnSaveCheckBox = new JCheckBox("build automatically on file save")
+  private val traceBspCheckBox = new JCheckBox("enable BSP trace log")
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(1)
     content.add(buildOnSaveCheckBox, fillLineConstraints)
+    content.add(traceBspCheckBox, fillLineConstraints)
   }
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
-    buildOnSaveCheckBox.isSelected != initial.buildOnSave
+    buildOnSaveCheckBox.isSelected != initial.buildOnSave ||
+      traceBspCheckBox.isSelected != initial.traceBsp
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val initial = getInitialSettings
     buildOnSaveCheckBox.setSelected(initial.buildOnSave)
+    traceBspCheckBox.setSelected(initial.traceBsp)
   }
 
   override def applyExtraSettings(settings: BspProjectSettings): Unit = {
     settings.buildOnSave = buildOnSaveCheckBox.isSelected
+    settings.traceBsp = traceBspCheckBox.isSelected
   }
 
   override def validate(settings: BspProjectSettings): Boolean = true
