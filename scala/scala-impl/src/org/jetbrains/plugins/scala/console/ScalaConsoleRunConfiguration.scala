@@ -188,7 +188,7 @@ private object ScalaConsoleRunConfiguration {
     module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13)
 
   def isJLinePresentIn(classPath: PathsList): Boolean =
-    classPath.getPathList.asScala.contains(JLineFinder.JLineJarName)
+    classPath.getPathList.asScala.exists(new File(_).getName == JLineFinder.JLineJarName)
 
   def jLineFor(classPath: PathsList): Option[File] = {
     val jars = classPath.getPathList.asScala.map(new File(_))
