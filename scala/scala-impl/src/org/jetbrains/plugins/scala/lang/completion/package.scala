@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -15,13 +15,13 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 package object completion {
@@ -40,6 +40,11 @@ package object completion {
   private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
     JavaCompletionUtil.isInExcludedPackage(clazz, false)
   }
+
+  // TODO to be reused
+  def isAccessible(member: PsiMember)
+                  (implicit place: PsiElement): Boolean =
+    ResolveUtils.isAccessible(member, place, forCompletion = true)
 
   implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
 

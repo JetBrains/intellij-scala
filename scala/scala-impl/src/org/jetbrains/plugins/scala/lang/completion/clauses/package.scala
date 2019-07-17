@@ -8,7 +8,7 @@ import com.intellij.patterns.{ElementPattern, PatternCondition, PlatformPatterns
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.psi.{CommonClassNames, PsiAnonymousClass, PsiClass, PsiElement}
+import com.intellij.psi.{util => _, _}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
@@ -30,11 +30,17 @@ package object clauses {
    * It encapsulates information on:
    * 1) completion position;
    * 2) original file resolve scope;
-   *
-   * Either invocation count or completion type information might be used eventually.
+   * 3) invocation count.
    */
   case class ClauseCompletionParameters(place: PsiElement,
-                                        scope: GlobalSearchScope)
+                                        scope: GlobalSearchScope,
+                                        invocationCount: Int = 1)
+
+  def isAccessible(member: PsiMember)
+                  (implicit parameters: ClauseCompletionParameters): Boolean = {
+    val ClauseCompletionParameters(place, _, invocationCount) = parameters
+    invocationCount >= 2 || completion.isAccessible(member)(place)
+  }
 
   import PlatformPatterns.psiElement
   import PsiElementPattern.Capture
@@ -127,34 +133,33 @@ package object clauses {
              NothingFqn => None
         case _ =>
           val isSealed = `class`.isSealed
-          val (namedInheritors, anonymousInheritors) = directInheritors(`class`).partition {
+          val (accessibleNamedInheritors, inheritors) = directInheritors(`class`, parameters.scope).partition {
             case _: ScNewTemplateDefinition |
                  _: PsiAnonymousClass => false
-            case _ => true
+            case inheritor => isAccessible(inheritor)
           }
 
           implicit val ordered: Ordering[PsiClass] =
             if (isSealed) Ordering.by(_.getNavigationElement.getTextRange.getStartOffset)
             else Ordering.by(_.getName)
 
-          namedInheritors.sorted.toList match {
+          accessibleNamedInheritors.sorted.toList match {
             case Nil => None
-            case inheritors =>
+            case namedInheritors =>
               val isNotConcrete = `class` match {
                 case scalaClass: ScClass => scalaClass.hasAbstractModifier
                 case _ => true
               }
 
-              val isExhaustive = isSealed && isNotConcrete && anonymousInheritors.isEmpty
-              Some(Inheritors(inheritors, isSealed, isExhaustive))
+              val isExhaustive = isSealed && isNotConcrete && inheritors.isEmpty
+              Some(Inheritors(namedInheritors, isSealed, isExhaustive))
           }
       }
 
-    private def directInheritors(`class`: PsiClass)
-                                (implicit parameters: ClauseCompletionParameters) = {
+    private def directInheritors(`class`: PsiClass, scope: GlobalSearchScope) = {
       import collection.JavaConverters._
       DirectClassInheritorsSearch
-        .search(`class`, parameters.scope)
+        .search(`class`, scope)
         .findAll()
         .asScala
         .toIndexedSeq

@@ -12,6 +12,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR
+  import ScalaClausesCompletionTest._
   import ScalaCodeInsightTestBase._
   import completion.ScalaKeyword.{CASE, MATCH}
 
@@ -517,6 +518,60 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testCompleteWithImportsClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""import javax.swing.JComponent
+         |
+         |(_: JComponent) match {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""import javax.swing.{JComponent, JTree}
+         |
+         |(_: JComponent) match {
+         |  case tree: JTree => $CARET
+         |}""".stripMargin,
+    itemText = "_: JTree"
+  )
+
+  def testCompleteInaccessibleClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  private case object Bar extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  ca$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  private case object Bar extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.Bar => $CARET
+         |}""".stripMargin,
+    itemText = "Bar",
+    time = 2
+  )
+
+  def testNoCompleteInaccessibleClause(): Unit = checkNoCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  private case object Bar extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  ca$CARET
+         |}""".stripMargin
+  )(isCaseClause(_, "Bar"))
+
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
       s"""List.empty[String]
@@ -667,6 +722,30 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |(_: Margin.Margin) m$CARET
        """.stripMargin
   )(isExhaustiveMatch)
+
+  def testEmptyScalaEnum2(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""object Margin extends Enumeration {
+         |  type Margin = Value
+         |
+         |  private val NULL = Value
+         |}
+         |
+         |(_: Margin.Margin) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""object Margin extends Enumeration {
+         |  type Margin = Value
+         |
+         |  private val NULL = Value
+         |}
+         |
+         |(_: Margin.Margin) match {
+         |  case Margin.NULL => $CARET
+         |}
+       """.stripMargin,
+    time = 2
+  )
 
   def testVarargs(): Unit = doMatchCompletionTest(
     fileText =
@@ -990,6 +1069,55 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testInaccessibleInheritors(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  private case object Baz extends Foo
+         |}
+         |
+         |(_: Foo) m$CARET""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  private case object Baz extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.Bar() => $CARET
+         |  case _ =>
+         |}""".stripMargin
+  )
+
+  def testInaccessibleInheritors2(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  private case object Baz extends Foo
+         |}
+         |
+         |(_: Foo) m$CARET""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  private case object Baz extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.Bar() => $CARET
+         |  case Foo.Baz =>
+         |}""".stripMargin,
+    time = 2
+  )
+
   def testNonSealedInheritorsThreshold(): Unit = checkNoCompletion(
     fileText =
       s"""trait Foo
@@ -1063,22 +1191,6 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Bar() => $CARET
          |}
        """.stripMargin
-  )
-
-  def testImports(): Unit = doClauseCompletionTest(
-    fileText =
-      s"""import javax.swing.JComponent
-         |
-         |(_: JComponent) match {
-         |  c$CARET
-         |}""".stripMargin,
-    resultText =
-      s"""import javax.swing.{JComponent, JTree}
-         |
-         |(_: JComponent) match {
-         |  case tree: JTree => $CARET
-         |}""".stripMargin,
-    itemText = "_: JTree"
   )
 
   def testNoCaseInFunction(): Unit = checkNoCompletion(
@@ -1164,17 +1276,14 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
-    doCompletionTest(fileText, resultText) {
-      hasItemText(_, itemText)(itemTextItalic = true)
+    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) {
+      isPattern(_, itemText)
     }
 
-  private def doClauseCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
-    doCompletionTest(fileText, resultText) {
-      hasItemText(_, CASE + itemText)(
-        itemText = CASE,
-        itemTextBold = true,
-        tailText = " " + itemText
-      )
+  private def doClauseCompletionTest(fileText: String, resultText: String,
+                                     itemText: String, time: Int = DEFAULT_TIME): Unit =
+    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, time, BASIC) {
+      isCaseClause(_, itemText)
     }
 
   //  private def doMultipleCompletionTest(fileText: String,
@@ -1183,30 +1292,43 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //      items.contains(lookup.getLookupString)
   //    }
 
-  private def doMatchCompletionTest(fileText: String, resultText: String): Unit =
-    doCompletionTest(fileText, resultText)(isExhaustiveMatch)
+  private def doMatchCompletionTest(fileText: String, resultText: String,
+                                    time: Int = DEFAULT_TIME): Unit =
+    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, time, BASIC)(isExhaustiveMatch)
+
+  private def doCaseCompletionTest(fileText: String, resultText: String): Unit =
+    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveCase)
+
+  private def checkNoCompletion(fileText: String)
+                               (predicate: LookupElement => Boolean): Unit =
+    checkNoCompletion(fileText, BASIC, DEFAULT_TIME)(predicate)
+}
+
+object ScalaClausesCompletionTest {
+
+  import ScalaCodeInsightTestBase.hasItemText
+  import completion.ScalaKeyword.{CASE, MATCH}
+
+  private def isPattern(lookup: LookupElement, itemText: String) =
+    hasItemText(lookup, itemText)(itemTextItalic = true)
+
+  private def isCaseClause(lookup: LookupElement, itemText: String) =
+    hasItemText(lookup, CASE + itemText)(
+      itemText = CASE,
+      itemTextBold = true,
+      tailText = " " + itemText
+    )
 
   private def isExhaustiveMatch(lookup: LookupElement) =
     isExhaustive(lookup, MATCH)
 
-  private def isExhaustive(lookup: LookupElement, lookupString: String) =
+  private def isExhaustiveCase(lookup: LookupElement) =
+    isExhaustive(lookup, CASE)
+
+  private[this] def isExhaustive(lookup: LookupElement, lookupString: String) =
     hasItemText(lookup, lookupString)(
       itemTextBold = true,
       tailText = " " + completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,
       grayed = true
     )
-
-  private def doCaseCompletionTest(fileText: String, resultText: String): Unit =
-    doCompletionTest(fileText, resultText)(isExhaustiveCase)
-
-  private def isExhaustiveCase(lookup: LookupElement) =
-    isExhaustive(lookup, CASE)
-
-  private def doCompletionTest(fileText: String, resultText: String)
-                              (predicate: LookupElement => Boolean): Unit =
-    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(predicate)
-
-  private def checkNoCompletion(fileText: String)
-                               (predicate: LookupElement => Boolean): Unit =
-    checkNoCompletion(fileText, BASIC, DEFAULT_TIME)(predicate)
 }
