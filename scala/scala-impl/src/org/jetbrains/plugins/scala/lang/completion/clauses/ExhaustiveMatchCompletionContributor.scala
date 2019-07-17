@@ -18,7 +18,11 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
   import PlatformPatterns.psiElement
 
   extend(
-    referenceWithParent(psiElement(classOf[ScPostfixExpr]), psiElement(classOf[ScInfixExpr]))
+    leafWithParent {
+      nonQualifiedReference.withParent {
+        psiElement(classOf[ScPostfixExpr]) || psiElement(classOf[ScInfixExpr])
+      }
+    }
   ) {
     new ExhaustiveClauseCompletionProvider[ScSugarCallExpr](ScalaKeyword.MATCH) {
 
@@ -35,9 +39,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
     }
   }
 
-  extend(
-    leaf.withParent(classOf[ScMatch])
-  ) {
+  extend(leafWithParent(`match`)) {
     new ExhaustiveClauseCompletionProvider[ScMatch]() {
 
       override protected def targetType(`match`: ScMatch)
@@ -51,7 +53,9 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
   }
 
   extend(
-    leaf.withParents(classOf[ScReferenceExpression], classOf[ScBlock], classOf[ScArgumentExprList], classOf[ScMethodCall])
+    leafWithParent {
+      nonQualifiedReference.withParents(classOf[ScBlock], classOf[ScArgumentExprList], classOf[ScMethodCall])
+    }
   ) {
     new ExhaustiveClauseCompletionProvider[ScBlockExpr]() {
 

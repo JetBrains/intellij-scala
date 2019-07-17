@@ -122,6 +122,11 @@ object ScalaCodeInsightTestBase {
 
   val DEFAULT_TIME: Int = 1
 
+  object LookupString {
+
+    def unapply(lookup: LookupElement) = Some(lookup.getLookupString)
+  }
+
   def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
     lookup.getLookupString == lookupString
 
@@ -131,8 +136,8 @@ object ScalaCodeInsightTestBase {
                   itemTextItalic: Boolean = false,
                   itemTextBold: Boolean = false,
                   tailText: String = null,
-                  grayed: Boolean = false): Boolean =
-    hasLookupString(lookup, lookupString) && {
+                  grayed: Boolean = false): Boolean = lookup match {
+    case LookupString(`lookupString`) =>
       val presentation = new LookupElementPresentation
       lookup.renderElement(presentation)
       presentation.getItemText == itemText &&
@@ -140,7 +145,8 @@ object ScalaCodeInsightTestBase {
         presentation.isItemTextBold == itemTextBold &&
         presentation.getTailText == tailText &&
         presentation.isTailGrayed == grayed
-    }
+    case _ => false
+  }
 
   private def lookupItems(lookup: LookupImpl) = {
     import JavaConverters._

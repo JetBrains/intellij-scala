@@ -524,7 +524,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |.foreach {
          |  case _ | $CARET
          |}""".stripMargin
-  )(_.getLookupString.startsWith(CASE))
+  ) {
+    case LookupString(string) => string.startsWith(CASE)
+  }
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
@@ -1116,6 +1118,20 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
         NothingFqn ::
         Nil
     } checkNoCompletion(s"(_: $fqn) m$CARET")(isExhaustiveMatch)
+  }
+
+  def testQualifiedReference(): Unit = checkNoCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |final case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case bar: Bar =>
+         |    bar.$CARET
+         |}""".stripMargin
+  ) {
+    case LookupString(string) =>
+      string.startsWith(MATCH) || string.startsWith(CASE)
   }
 
   private def withCaseAlignment(doTest: => Unit): Unit = {
