@@ -1,45 +1,65 @@
 package org.jetbrains.plugins.scala
-package codeInspection.forwardReferenceInspection
+package codeInspection
+package forwardReferenceInspection
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
-/**
-  * Alefas
-  */
-class ForwardReferenceInspection extends AbstractInspection {
 
-  import ForwardReferenceInspection.asValueOrVariable
+class ForwardReferenceInspection extends AbstractRegisteredInspection {
 
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
-    case ref: ScReferenceExpression =>
-      val maybeMember = ref.parentOfType(classOf[ScMember])
-        .collect(asValueOrVariable)
-        .filter(_.getContext.isInstanceOf[ScTemplateBody])
+  import ForwardReferenceInspection._
 
-      val maybeResolved = ref.bind()
-        .map(_.getActualElement)
-        .map(nameContext)
-        .collect(asValueOrVariable)
+  override protected def problemDescriptor(element: PsiElement,
+                                           maybeQuickFix: Option[LocalQuickFix],
+                                           descriptionTemplate: String,
+                                           highlightType: ProblemHighlightType)
+                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
+    element match {
+      case ref: ScReferenceExpression if isDirectContextRef(ref) =>
+        val maybeResolved = ref.bind()
+          .map(_.getActualElement)
+          .map(nameContext)
+          .collect(asValueOrVariable)
 
-      val flag = maybeMember.zip(maybeResolved).exists {
-        case (member, resolved) => resolved.getParent == member.getContext && resolved.getTextOffset > member.getTextOffset
-      }
+        val isSuspicious = maybeResolved.exists(resolved =>
+          ref.getTextOffset < resolved.getTextOffset &&
+            ref.parents.takeWhile(propagatesControlFlowToChildren).contains(resolved.getParent)
+        )
 
-      if (flag) {
-        holder.registerProblem(ref, ScalaBundle.message("suspicicious.forward.reference.template.body"))
-      }
+        if (isSuspicious) {
+          val description = ScalaBundle.message("suspicicious.forward.reference.template.body")
+          Some(manager.createProblemDescriptor(ref, description, isOnTheFly, Array.empty[LocalQuickFix], highlightType))
+        } else None
+
+      case _ => None
+    }
   }
 }
 
 object ForwardReferenceInspection {
+  private def isDirectContextRef(ref: ScReferenceExpression): Boolean =
+    ref.smartQualifier.forall(isThisQualifier)
+
+  private def isThisQualifier(expr: ScExpression): Boolean = expr match {
+    case _: ScThisReference => true
+    case _ => false
+  }
+
+  private def propagatesControlFlowToChildren(e: PsiElement): Boolean =
+    !breaksControlFlowToChildren(e)
+
+  private def breaksControlFlowToChildren(e: PsiElement): Boolean = e match {
+    case v: ScValueOrVariable if v.hasModifierProperty("lazy") => true
+    case _: ScClass | _: ScObject | _: ScFunction | _: ScFunctionExpr => true
+    case e: ScBlockExpr if e.hasCaseClauses => true
+    case _ => false
+  }
 
   private def asValueOrVariable: PartialFunction[PsiElement, ScValueOrVariable] = {
     case v: ScValueOrVariable if !v.hasModifierProperty("lazy") => v
