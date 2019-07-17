@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 
 sealed trait PatternGenerationStrategy {
   def canBeExhaustive: Boolean
@@ -54,7 +53,7 @@ object PatternGenerationStrategy {
       case ScProjectionType(DesignatorOwner(enumClass@ScalaEnumeration(values)), _) =>
         val membersNames = for {
           value <- values
-          if isAccessible(value, parameters.place, forCompletion = true)
+          if isAccessible(value)
           if value.`type`().exists(_.conforms(valueType))
 
           declaredName <- value.declaredNames
