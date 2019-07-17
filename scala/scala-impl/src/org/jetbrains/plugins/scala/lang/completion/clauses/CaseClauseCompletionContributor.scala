@@ -175,7 +175,7 @@ object CaseClauseCompletionContributor {
       replaceText(components.canonicalClauseText)
 
       onTargetElement { clause =>
-        adjustTypesOnClauses(addImports = false, (clause, components))
+        adjustTypesOnClauses(addImports = true, (clause, components))
 
         clause.getParent match {
           case clauses: ScCaseClauses =>
