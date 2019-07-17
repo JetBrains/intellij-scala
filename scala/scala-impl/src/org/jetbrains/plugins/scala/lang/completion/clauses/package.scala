@@ -4,11 +4,12 @@ package completion
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
-import com.intellij.patterns.{ElementPattern, PlatformPatterns, PsiElementPattern, StandardPatterns}
+import com.intellij.patterns.{ElementPattern, PatternCondition, PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.{CommonClassNames, PsiAnonymousClass, PsiClass, PsiElement}
+import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -38,15 +39,23 @@ package object clauses {
   import PlatformPatterns.psiElement
   import PsiElementPattern.Capture
 
-  private[clauses] def insideCaseClause: Capture[PsiElement] =
+  private[clauses] def insideCaseClause =
     psiElement.inside(classOf[ScCaseClause])
 
-  private[clauses] def leaf: Capture[LeafPsiElement] =
-    psiElement(classOf[LeafPsiElement])
+  private[clauses] def `match`: Capture[ScMatch] =
+    psiElement(classOf[ScMatch])
 
-  private[clauses] def referenceWithParent(patterns: ElementPattern[_ <: PsiElement]*): Capture[LeafPsiElement] =
-    leaf.withParent(classOf[ScReferenceExpression])
-      .withSuperParent(2, StandardPatterns.or(patterns: _*))
+  private[clauses] def leafWithParent(pattern: ElementPattern[_ <: PsiElement]) =
+    psiElement(classOf[LeafPsiElement]).withParent(pattern)
+
+  private[clauses] def nonQualifiedReference =
+    psiElement(classOf[ScReferenceExpression])
+      .`with`(new PatternCondition[ScReferenceExpression]("isNonQualified") {
+
+        override def accepts(reference: ScReferenceExpression,
+                             processingContext: ProcessingContext): Boolean =
+          !reference.isQualified
+      })
 
   private[clauses] def adjustTypesOnClauses(addImports: Boolean,
                                             pairs: (ScCaseClause, PatternComponents)*): Unit =

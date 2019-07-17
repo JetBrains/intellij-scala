@@ -25,10 +25,10 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
   import PlatformPatterns.psiElement
 
   extend(
-    leaf.withParent(
-      psiElement(classOf[ScMatch]) ||
-        psiElement(classOf[ScReferenceExpression]).withParents(classOf[ScBlock], classOf[ScCaseClause], classOf[ScCaseClauses], classOf[ScMatch])
-    )
+    leafWithParent {
+      `match` ||
+        nonQualifiedReference.withParents(classOf[ScBlock], classOf[ScCaseClause], classOf[ScCaseClauses], classOf[ScMatch])
+    }
   ) {
     new SingleClauseCompletionProvider[ScMatch] {
 
@@ -38,10 +38,12 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
   }
 
   extend(
-    referenceWithParent(
-      psiElement(classOf[ScBlockExpr]).withParent(psiElement(classOf[ScArgumentExprList]) || psiElement(classOf[ScInfixExpr])),
-      psiElement(classOf[ScBlock]).withParent(classOf[ScCaseClause])
-    )
+    leafWithParent {
+      nonQualifiedReference.withParent {
+        psiElement(classOf[ScBlockExpr]).withParent(psiElement(classOf[ScArgumentExprList]) || psiElement(classOf[ScInfixExpr])) ||
+          psiElement(classOf[ScBlock]).withParent(classOf[ScCaseClause])
+      }
+    }
   ) {
     new SingleClauseCompletionProvider[ScBlockExpr] {
 
