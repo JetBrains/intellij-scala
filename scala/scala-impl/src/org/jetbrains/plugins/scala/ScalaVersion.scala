@@ -29,12 +29,8 @@ object ScalaVersion {
   def default: ScalaVersion =
     allScalaVersions.find(_.languageLevel == ScalaLanguageLevel.getDefault).get
 
-  def fromString(versionString: String): ScalaVersion = {
-    ScalaVersion.allScalaVersions.find(_.toString == versionString).getOrElse(
-      throw new AssertionError("SDK Version specified in environment variable SCALA_SDK_TEST_VERSION is not one of " +
-        ScalaVersion.allScalaVersions.mkString(", "))
-    )
-  }
+  def fromString(versionString: String): Option[ScalaVersion] =
+    ScalaVersion.allScalaVersions.find(_.toString == versionString)
 }
 
 case object Scala_2_9 extends ScalaVersion(
