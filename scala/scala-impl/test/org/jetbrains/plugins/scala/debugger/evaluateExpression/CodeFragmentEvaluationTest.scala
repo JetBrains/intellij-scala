@@ -5,11 +5,18 @@ package evaluateExpression
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.junit.experimental.categories.Category
 
-/**
- * @author Nikolay.Tropin
- */
 @Category(Array(classOf[DebuggerTests]))
-class CodeFragmentEvaluationTest extends ScalaDebuggerTestCase with ScalaSdkOwner {
+class CodeFragmentEvaluationTest_2_11 extends CodeFragmentEvaluationTestBase with ScalaSdkOwner {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with ScalaSdkOwner {
 
   addFileWithBreakpoints ( "CodeFragments.scala",
     s"""

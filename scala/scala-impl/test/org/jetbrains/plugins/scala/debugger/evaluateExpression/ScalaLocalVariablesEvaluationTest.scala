@@ -4,12 +4,18 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-/**
- * User: Alefas
- * Date: 13.10.11
- */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaLocalVariablesEvaluationTest_2_11 extends ScalaLocalVariablesEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaLocalVariablesEvaluationTest_2_12 extends ScalaLocalVariablesEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Local.scala",
     s"""
        |object Local {
@@ -20,7 +26,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocal() {
+  def testLocal(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -47,7 +53,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalClassParam() {
+  def testLocalClassParam(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -67,7 +73,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalFromForStatement() {
+  def testLocalFromForStatement(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -87,7 +93,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalFromForStmtFromOut() {
+  def testLocalFromForStmtFromOut(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -108,7 +114,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testParam() {
+  def testParam(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -127,7 +133,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalParam() {
+  def testLocalParam(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -150,7 +156,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalOuter() {
+  def testLocalOuter(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -179,7 +185,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalOuterOuter() {
+  def testLocalOuterOuter(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -208,7 +214,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalObjectOuter() {
+  def testLocalObjectOuter(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("x", "LocalObjectOuter$x")
@@ -240,7 +246,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalFromClosureAndClass() {
+  def testLocalFromClosureAndClass(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -263,7 +269,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalMethodLocal() {
+  def testLocalMethodLocal(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -285,7 +291,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalMethodLocalObject() {
+  def testLocalMethodLocalObject(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("x", "LocalMethodLocalObject$x")
@@ -310,7 +316,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalMethodLocalMethodLocal() {
+  def testLocalMethodLocalMethodLocal(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -341,7 +347,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalMethodLocalMethodLocalClass() {
+  def testLocalMethodLocalMethodLocalClass(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -379,7 +385,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocMethLocMethLocClassLocMeth() {
+  def testLocMethLocMethLocClassLocMeth(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -402,7 +408,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalObjectInside() {
+  def testLocalObjectInside(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
@@ -431,7 +437,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testLocalObjectInsideClassLevel() {
+  def testLocalObjectInsideClassLevel(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")

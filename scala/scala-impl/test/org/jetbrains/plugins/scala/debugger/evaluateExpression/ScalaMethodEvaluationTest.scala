@@ -4,12 +4,19 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-/**
- * User: Alefas
- * Date: 17.10.11
- */
+
 @Category(Array(classOf[DebuggerTests]))
-class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   
   addFileWithBreakpoints("SmartBoxing.scala",
    s"""

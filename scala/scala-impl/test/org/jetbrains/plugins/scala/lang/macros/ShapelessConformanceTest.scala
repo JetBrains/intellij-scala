@@ -6,14 +6,17 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
-/**
-  * Nikolay.Tropin
-  * 29-Jan-18
-  */
+class ShapelessConformanceTest_2_12 extends ShapelessConformanceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    Scala_2_10 <= version && version <= Scala_2_12
+}
+class ShapelessConformanceTest_2_13 extends ShapelessConformanceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+}
 
-abstract class ShapelessConformanceTest extends TypeConformanceTestBase {
+abstract class ShapelessConformanceTestBase extends TypeConformanceTestBase {
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
+  override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3") :: Nil
 
   def testWitnessSelectDynamic(): Unit = doTest(

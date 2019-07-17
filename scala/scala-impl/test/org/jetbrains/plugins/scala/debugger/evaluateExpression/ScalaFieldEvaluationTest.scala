@@ -4,12 +4,17 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-/**
- * User: Alefas
- * Date: 17.10.11
- */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaFieldEvaluationTest_2_11 extends ScalaFieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaFieldEvaluationTest_2_12 extends ScalaFieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+@Category(Array(classOf[DebuggerTests]))
+abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
 
   addFileWithBreakpoints("Static.scala",
    s"""

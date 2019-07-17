@@ -17,6 +17,7 @@ class VariablesFromPatternsEvaluationTest_212 extends VariablesFromPatternsEvalu
   override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
 }
 
+@Category(Array(classOf[DebuggerTests]))
 abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
   addFileWithBreakpoints("Match.scala",
     s"""

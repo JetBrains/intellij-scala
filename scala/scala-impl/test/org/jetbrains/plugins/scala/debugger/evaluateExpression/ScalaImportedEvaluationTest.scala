@@ -4,12 +4,18 @@ package debugger.evaluateExpression
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
-/**
-  * Nikolay.Tropin
-  * 12/9/13
-  */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaImportedEvaluationTest_2_11 extends ScalaImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaImportedEvaluationTest_2_12 extends ScalaImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportFromObject.scala",
     s"""
        |object ImportFromObject {

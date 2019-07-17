@@ -8,7 +8,16 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class SbtIncrementalTest extends ScalaDebuggerTestBase with ScalaSdkOwner {
+class SbtIncrementalTestBase_2_11 extends SbtIncrementalTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+@Category(Array(classOf[DebuggerTests]))
+class SbtIncrementalTestBase_2_12 extends SbtIncrementalTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class SbtIncrementalTestBase extends ScalaDebuggerTestBase with ScalaSdkOwner {
   protected def addOtherLibraries(): Unit = {}
 
   override def setUp(): Unit = {

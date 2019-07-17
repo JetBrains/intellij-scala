@@ -1,9 +1,16 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
-/**
-  * @author Nikolay.Tropin
-  */
-class ApplicationTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
+
+class ApplicationTestBase_2_11 extends ApplicationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+}
+
+class ApplicationTestBase_2_12 extends ApplicationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+}
+
+abstract class ApplicationTestBase extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL9931(): Unit = {
     checkTextHasNoErrors(
       """
@@ -78,9 +85,6 @@ class ApplicationTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
         |""".stripMargin
     )
   }
-}
-
-class ApplicationTest212 extends AnnotatorLightCodeInsightFixtureTestAdapter {
 
   //adapted from `better-files` project
   def testImplicitArgNotSAM(): Unit = {
@@ -150,5 +154,4 @@ class ApplicationTest212 extends AnnotatorLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
-
 }

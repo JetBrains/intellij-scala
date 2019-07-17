@@ -5,12 +5,18 @@ package evaluateExpression
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Nikolay.Tropin
-  */
 @Category(Array(classOf[DebuggerTests]))
-class CompilingEvaluatorTest extends ScalaDebuggerTestCase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+class CompilingEvaluatorTest_2_11 extends CompilingEvaluatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CompilingEvaluatorTest_2_12 extends CompilingEvaluatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
 
   override def setUp(): Unit = {
     super.setUp()

@@ -4,10 +4,6 @@ package debugger.evaluateExpression
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
-/**
- * Nikolay.Tropin
- * 8/2/13
- */
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
@@ -27,10 +23,12 @@ class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
   }
 }
 
+@Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_211 extends InAnonFunEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
 }
 
+@Category(Array(classOf[DebuggerTests]))
 abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
 
   addFileWithBreakpoints("FunctionValue.scala",

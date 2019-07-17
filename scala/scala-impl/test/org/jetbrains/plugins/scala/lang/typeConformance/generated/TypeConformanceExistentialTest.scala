@@ -72,7 +72,7 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
   def testSCL13326_1(): Unit = {doTest()}
 
   def testSCL7602(): Unit = {
-    doApplicatonConformanceTest(
+    doApplicationConformanceTest(
       s"""
          |class A[P[T]]{
          |  def use[T](p: P[T]) = ()

@@ -4,12 +4,18 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-/**
- * User: Alefas
- * Date: 15.10.11
- */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaObjectEvaluationTest_2_11 extends ScalaObjectEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaObjectEvaluationTest_2_12 extends ScalaObjectEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("SimpleObject.scala",
     s"""
        |object EvaluateObjects {

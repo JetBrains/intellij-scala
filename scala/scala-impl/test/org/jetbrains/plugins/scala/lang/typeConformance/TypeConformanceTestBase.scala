@@ -31,7 +31,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
 
   def folderPath: String = baseRootPath + "typeConformance/"
 
-  protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false) {
+  protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false): Unit = {
     configureFromFileTextAdapter(fileName, fileText.trim)
     doTestInner(checkEquivalence)
   }
@@ -72,16 +72,16 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     if (!shouldPass) fail(failingPassed)
   }
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     doTest(false)
   }
 
-  protected def doTest(checkEquivalence: Boolean) {
+  protected def doTest(checkEquivalence: Boolean): Unit = {
     configureFromFile()
     doTestInner(checkEquivalence)
   }
 
-  protected def configureFromFile(fileName: String = getTestName(false) + ".scala") = {
+  protected def configureFromFile(fileName: String = getTestName(false) + ".scala"): Unit = {
     val filePath = folderPath + fileName
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -122,7 +122,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     expectedResult
   }
 
-  def doApplicatonConformanceTest(fileText: String, fileName: String = "dummy.scala") = {
+  def doApplicationConformanceTest(fileText: String, fileName: String = "dummy.scala"): Unit = {
     import org.junit.Assert._
     configureFromFileTextAdapter(fileName, fileText.trim)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
