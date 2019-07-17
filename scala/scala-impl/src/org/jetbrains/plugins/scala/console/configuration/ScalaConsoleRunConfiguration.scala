@@ -76,9 +76,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     new ScalaCommandLineState(env)
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
-    setConsoleBuilder(new TextConsoleBuilderImpl(project) {
-      override def getConsole: ConsoleView = ScalaLanguageConsoleBuilder.createConsole(project)
-    })
+    setConsoleBuilder(new ScalaLanguageConsoleBuilder(project))
 
     protected override def createJavaParameters: JavaParameters = {
       val params = createParams
@@ -162,7 +160,7 @@ private object ScalaConsoleRunConfiguration {
   object JlineResolveResult {
     case object NotRequired extends JlineResolveResult
     case object RequiredNotFound extends JlineResolveResult
-    case class  RequiredFound(file: File) extends JlineResolveResult
+    case class RequiredFound(file: File) extends JlineResolveResult
   }
 
   //TODO: Fix Scala SDK setup in order that it includes jline jar as a dependency of scala-compiler

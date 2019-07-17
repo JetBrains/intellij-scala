@@ -1,10 +1,16 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.execution.console.LanguageConsoleImpl
-import com.intellij.openapi.project.Project
+import java.awt.Color
 
-object ScalaLanguageConsoleBuilder {
-  def createConsole(project: Project): LanguageConsoleImpl = {
+import com.intellij.execution.console.LanguageConsoleImpl
+import com.intellij.execution.filters.TextConsoleBuilderImpl
+import com.intellij.openapi.project.Project
+import com.intellij.ui.SideBorder
+
+class ScalaLanguageConsoleBuilder(project: Project)
+  extends TextConsoleBuilderImpl(project) {
+
+  override def createConsole: LanguageConsoleImpl = {
     val consoleView = new ScalaLanguageConsole(project, ScalaLanguageConsoleView.ScalaConsole)
 
     ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
