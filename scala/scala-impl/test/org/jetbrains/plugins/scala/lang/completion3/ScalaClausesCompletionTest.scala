@@ -1065,6 +1065,22 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
+  def testImports(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""import javax.swing.JComponent
+         |
+         |(_: JComponent) match {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""import javax.swing.{JComponent, JTree}
+         |
+         |(_: JComponent) match {
+         |  case tree: JTree => $CARET
+         |}""".stripMargin,
+    itemText = "_: JTree"
+  )
+
   def testNoCaseInFunction(): Unit = checkNoCompletion(
     fileText =
       s"""sealed trait Foo
