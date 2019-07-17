@@ -451,4 +451,34 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " (A)"
     testQuickFix(text, result, hint)
   }
+
+  def testLiteralType(): Unit = {
+    val code =
+      s"""
+         |object Test {
+         |  trait **[A, B]
+         |  val a: $START(123123)$END ** (123) = ()
+         |}
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val text =
+      s"""
+         |object Test {
+         |  trait **[A, B]
+         |  val a: $CARET_MARKER(123123) ** (123) = ()
+         |}
+         |""".stripMargin
+
+    val result =
+      s"""
+         |object Test {
+         |  trait **[A, B]
+         |  val a: 123123 ** (123) = ()
+         |}
+         |""".stripMargin
+
+    val hint = hintBeginning + " (123123)"
+    testQuickFix(text, result, hint)
+  }
 }
