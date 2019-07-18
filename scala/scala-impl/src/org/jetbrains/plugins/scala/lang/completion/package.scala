@@ -9,7 +9,7 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
@@ -80,7 +80,7 @@ package object completion {
   def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
     val positionInCompletionFile = parameters.getPosition
 
-    CachesUtil.setOriginalPosition(positionInCompletionFile, parameters.getOriginalPosition)
+    BlockModificationTracker.setOriginalPosition(positionInCompletionFile, parameters.getOriginalPosition)
 
     positionInCompletionFile
   }

@@ -24,6 +24,11 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
   }
 
+  def blockModificationTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.caches.BlockModificationTracker"
+  }
+
   def timestampedFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
@@ -166,7 +171,7 @@ object CachedMacroUtil {
       case q"$v" =>
         ModCount.values.find(_.toString == v.toString) match {
           case Some(ModCount.getBlockModificationCount) =>
-            q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
+            q"$blockModificationTrackerFQN($psiElement)"
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.SERVICE.getInstance($psiElement.getProject)"
           case Some(ModCount.`anyScalaPsiModificationCount`) =>
             q"$scalaPsiManagerFQN.AnyScalaPsiModificationTracker"
