@@ -376,6 +376,9 @@ class TypeDiffTest extends ScalaFixtureTestCase {
 
   def testFunctionParsing(): Unit = {
     assertParsedAs(
+      "class R",
+      "() => R", "<() => <R>>")
+    assertParsedAs(
       "class P; class R",
       "P => R", "<<P> => <R>>")
     assertParsedAs(
@@ -445,6 +448,14 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     )
 
     // Different parameter count // TODO parse nested types? (create matching placeholders?)
+    assertDiffsAre(
+      "class P; class R",
+      "~()~ => R", "~P~ => R"
+    )
+    assertDiffsAre(
+      "class P; class R",
+      "~P~ => R", "~()~ => R"
+    )
     assertDiffsAre(
       "class P1; class P2; class R",
       "~P1~ => R", "~(P1, P2)~ => R"
