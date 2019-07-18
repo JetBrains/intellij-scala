@@ -138,9 +138,9 @@ package object clauses {
         case fqn if BlackListedNames(fqn) => None
         case _ =>
           val isSealed = `class`.isSealed
-          val (accessibleNamedInheritors, inheritors) = directInheritors(`class`, parameters.scope).partition {
-            case _: ScNewTemplateDefinition |
-                 _: PsiAnonymousClass => false
+          val (accessibleNamedInheritors, restInheritors) = directInheritors(`class`, parameters.scope).partition {
+            case _: ScNewTemplateDefinition | _: PsiAnonymousClass => false
+            case inheritor if inheritor.qualifiedName == null => false // it's a hack to avoid sources-less class files processing
             case inheritor => isAccessible(inheritor)
           }
 
@@ -156,7 +156,7 @@ package object clauses {
                 case _ => true
               }
 
-              val isExhaustive = isSealed && isNotConcrete && inheritors.isEmpty
+              val isExhaustive = isSealed && isNotConcrete && restInheritors.isEmpty
               Some(Inheritors(namedInheritors, isSealed, isExhaustive))
           }
       }
