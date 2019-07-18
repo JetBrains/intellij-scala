@@ -147,7 +147,7 @@ class ScalaLanguageConsole(project: Project, module: Module)
 
 private object ScalaLanguageConsole {
   private val ScalaPromtIdleText           = "scala>"
-  private val ScalaPromtEditInProgressText = "    |"
+  private val ScalaPromtEditInProgressText = "     |"
 
   private class Helper(project: Project, title: String, language: Language)
     extends LanguageConsoleImpl.Helper(project, new LightVirtualFile(title, language, "")) {
