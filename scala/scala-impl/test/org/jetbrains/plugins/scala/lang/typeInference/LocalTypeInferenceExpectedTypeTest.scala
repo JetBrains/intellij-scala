@@ -46,7 +46,7 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
 
   def testSCL14862(): Unit = checkTextHasNoErrors(
     """
-      |case class SadType {
+      |case class SadType() {
       |   val one: Option[SadType] = None
       |   val two: Option[SadType] = None
       |}
