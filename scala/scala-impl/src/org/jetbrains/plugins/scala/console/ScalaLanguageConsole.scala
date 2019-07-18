@@ -62,7 +62,7 @@ class ScalaLanguageConsole(project: Project, module: Module)
     val textTrimmed = text.trim
     state = if (textTrimmed == ScalaLanguageConsole.ScalaPromptIdleText) {
       Ready
-    } else if (textTrimmed == ScalaLanguageConsole.ScalaPromptIdleText.trim) {
+    } else if (textTrimmed == ScalaLanguageConsole.ScalaPromptInputInProgressText.trim) {
       InputIsInProgress
     } else {
       // expecting only first line to be args
