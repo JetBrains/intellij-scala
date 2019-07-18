@@ -121,7 +121,9 @@ object TypeDiff {
         val left = {
           if (p1.length == p2.length) {
             val parameters = (p1, p2).zipped.map(diff(_, _)(reversed, context)).intersperse(Match(", "))
-            if (p2.length > 1 || p2.exists(FunctionType.isFunctionType)) Seq(Match("("), Group(parameters: _*), Match(")")) else parameters
+            if (p2.isEmpty) Seq(Match("()"))
+            else if (p2.length > 1 || p2.exists(FunctionType.isFunctionType)) Seq(Match("("), Group(parameters: _*), Match(")"))
+            else parameters
           } else {
             Seq(Mismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
           }
