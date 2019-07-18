@@ -83,7 +83,7 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   private def modificationCount(element: PsiElement): Long =
-    CachesUtil.enclosingModificationOwner(element).getModificationCount
+    BlockModificationTracker(element).getModificationCount
 
   private def maxElementWithStartAt(offset: Int): PsiElement = {
     val leaf = getFile.findElementAt(offset)

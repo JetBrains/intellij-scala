@@ -10,7 +10,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -52,7 +52,7 @@ object ScalaInheritors {
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
-    @CachedInUserData(clazz, CachesUtil.enclosingModificationOwner(clazz))
+    @CachedInUserData(clazz, BlockModificationTracker(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
       if (clazz.name == null) {
         return Seq.empty

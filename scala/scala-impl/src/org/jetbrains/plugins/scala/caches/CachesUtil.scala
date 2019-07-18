@@ -14,12 +14,10 @@ import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 
-import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
 
 /**
@@ -71,41 +69,7 @@ object CachesUtil {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled && rootManager.getFileIndex.isInLibrary(file.getVirtualFile) => rootManager
       case _: ClsFileImpl => rootManager
-      case _ => enclosingModificationOwner(element)
-    }
-  }
-
-  def enclosingModificationOwner(element: PsiElement): ModificationTracker = {
-
-    if (!element.isValid) {
-      return ModificationTracker.NEVER_CHANGED
-    }
-
-    new BlockModificationTracker(element)
-  }
-
-  @tailrec
-  private def contextsWithExplicitType(element: PsiElement, result: List[ScExpression] = Nil): List[ScExpression] =
-    contextWithExplicitType(originalPosition(element)) match {
-      case Some(expr) => contextsWithExplicitType(expr.getContext, expr :: result)
-      case None       => result
-    }
-
-  @tailrec
-  private def contextWithExplicitType(element: PsiElement): Option[ScExpression] =
-    element match {
-      case null | _: ScalaFile => None
-      case owner: ScExpression if owner.shouldntChangeModificationCount => Some(owner)
-      case owner => contextWithExplicitType(owner.getContext)
-    }
-
-
-  private class BlockModificationTracker(element: PsiElement) extends ModificationTracker {
-    private val topLevel = scalaTopLevelModTracker(element.getProject)
-
-    def getModificationCount: Long = {
-      contextsWithExplicitType(element)
-        .foldLeft(topLevel.getModificationCount)(_ + _.modificationCount)
+      case _ => BlockModificationTracker(element)
     }
   }
 
@@ -178,22 +142,4 @@ object CachesUtil {
   def scalaTopLevelModTracker(project: Project): ModificationTracker =
     ScalaPsiManager.instance(project).TopLevelModificationTracker
 
-  private val originalPositionKey: Key[PsiElement] = Key.create("original.position.completion.key")
-
-  def setOriginalPosition(element: PsiElement, original: PsiElement): Unit = {
-    if (original != null) {
-      for {
-        elementContext  <- contextWithExplicitType(element)
-        originalContext <- contextWithExplicitType(original)
-      } {
-        elementContext.putUserDataIfAbsent(originalPositionKey, originalContext)
-      }
-//      assert(enclosingModificationOwner(element).getModificationCount == enclosingModificationOwner(original).getModificationCount)
-    }
-  }
-
-  private def originalPosition(element: PsiElement): PsiElement =
-    Option(element)
-      .flatMap(e => Option(e.getUserData(originalPositionKey)))
-      .getOrElse(element)
 }
