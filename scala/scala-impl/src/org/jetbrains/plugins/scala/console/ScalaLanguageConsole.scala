@@ -1,11 +1,20 @@
 package org.jetbrains.plugins.scala.console
 
+import java.awt.Color
+
 import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleImpl}
+import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.lang.Language
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.testFramework.LightVirtualFile
+import com.intellij.ui.SideBorder
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -14,10 +23,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import scala.collection.mutable
 
 class ScalaLanguageConsole(project: Project, title: String)
-  extends LanguageConsoleImpl(project, title, ScalaLanguage.INSTANCE) {
+  extends LanguageConsoleImpl(
+    new ScalaLanguageConsole.Helper(project, title, ScalaLanguage.INSTANCE)
+  ) {
 
   private val textBuffer = new StringBuilder
-  private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1")(project)
+  private var scalaFile  = ScalaPsiElementFactory.createScalaFileFromText("1")(project)
 
   resetFileContext()
 
@@ -31,14 +42,49 @@ class ScalaLanguageConsole(project: Project, title: String)
     ScalaConsoleInfo.addConsole(this, controller, processHandler)
   }
 
-  private[console] def textSent(text: String) {
+  @volatile
+  private var inputIsInProgress: Boolean = false
+
+  override def print(text: String, contentType: ConsoleViewContentType): Unit = {
+    super.print(text, contentType)
+    inputIsInProgress = text.trim == "|"
+    updatePrompt()
+  }
+
+  private def updatePrompt(): Unit = {
+    val prompt = if (inputIsInProgress) ScalaPromtEditInProgressText else ScalaPromtIdleText
+    if (prompt != getPrompt) {
+      super.setPrompt(prompt)
+      updateUI() // note that some blinking can still take place when sending multiline content to the REPL process
+    }
+  }
+
+  /** HACK: We do not want console editor prompt to be added to the view editor not to duplicate the real one.
+   * Real prompt from process output is added to console view editor.
+   * It is hidden when it is in the last line, but it is shown right after Enter press.
+   * The edge case is when console content is cleaned, due to real promt is cleaned as well.
+   *
+   * @see [[ScalaLanguageConsole.Helper.setupEditor]]
+   */
+  override def doAddPromptToHistory(): Unit = {
+    val afterConsoleCleanAction = getEditor.getDocument.getTextLength == 0
+    if (afterConsoleCleanAction) {
+      getPrompt match {
+        case null =>
+        case prompt =>
+          print(prompt, ConsoleViewContentType.NORMAL_OUTPUT)
+      }
+    }
+  }
+
+  private[console] def textSent(text: String): Unit = {
     textBuffer.append(text)
     resetFileTo(textBuffer.toString())
 
-    val types = new mutable.HashMap[String, TextRange]
+    val types  = new mutable.HashMap[String, TextRange]
     val values = new mutable.HashMap[String, (TextRange, Boolean)]
 
-    def addValue(name: String, range: TextRange, replaceWithPlaceholder: Boolean) {
+    def addValue(name: String, range: TextRange, replaceWithPlaceholder: Boolean): Unit = {
       values.get(name) match {
         case Some((oldRange, r)) =>
           val newText = if (r) "_" + StringUtil.repeatSymbol(' ', oldRange.getLength - 1) else StringUtil.repeatSymbol(' ', oldRange.getLength)
@@ -49,7 +95,7 @@ class ScalaLanguageConsole(project: Project, title: String)
       values.put(name, (range, replaceWithPlaceholder))
     }
 
-    def addType(name: String, range: TextRange) {
+    def addType(name: String, range: TextRange): Unit = {
       types.get(name) match {
         case Some(oldRange) =>
           val newText = StringUtil.repeatSymbol(' ', oldRange.getLength)
@@ -84,5 +130,54 @@ class ScalaLanguageConsole(project: Project, title: String)
       scala.context = scalaFile
       scala.child = scalaFile.getLastChild
     case _ =>
+  }
+}
+
+private object ScalaLanguageConsole {
+  private val ScalaPromtIdleText           = "scala>"
+  private val ScalaPromtEditInProgressText = "    |"
+
+  private class Helper(project: Project, title: String, language: Language)
+    extends LanguageConsoleImpl.Helper(project, new LightVirtualFile(title, language, "")) {
+
+    /** HACK: we want the caret to be right after `scala>` prompt, but we actually have two separate editors:<br>
+     * 1) view editor which we can't edit, it is in view-mode (this.getEditor)<br>
+     * 2) console editor in which actually write code (this.getConsoleEditor)<br>
+     * So we hide the real prompt from Scala REPL process from view editor (hide last line) and pretend
+     * that console editor prompt is the real one.
+     */
+    override def setupEditor(editor: EditorEx): Unit = {
+      super.setupEditor(editor)
+      editor.getSettings.setAdditionalLinesCount(-1)
+    }
+  }
+
+  class Builder(project: Project) extends TextConsoleBuilderImpl(project) {
+
+    override def createConsole: LanguageConsoleImpl = {
+      val consoleView = new ScalaLanguageConsole(project, ScalaLanguageConsoleView.ScalaConsole)
+      ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
+
+      //pretend that we are a promt from Scala REPL process
+      consoleView.setPrompt(ScalaPromtIdleText)
+      consoleView.setPromptAttributes(ConsoleViewContentType.NORMAL_OUTPUT)
+
+      //drawDebugBorders(consoleView)
+      consoleView
+    }
+
+    private def drawDebugBorders(consoleView: ScalaLanguageConsole): Unit = {
+      val mask      = SideBorder.ALL
+      val thickness = 2
+
+      consoleView.getComponent.setBorder(new SideBorder(Color.RED, mask, thickness))
+
+      val viewEditor = consoleView.getEditor
+      viewEditor.getComponent.setBorder(new SideBorder(Color.GREEN, mask, thickness))
+      viewEditor.getContentComponent.setBorder(new SideBorder(Color.ORANGE, mask, thickness))
+
+      val consoleEditor = consoleView.getConsoleEditor
+      consoleEditor.getComponent.setBorder(new SideBorder(Color.BLUE, mask, 2 * thickness))
+    }
   }
 }

@@ -3,9 +3,7 @@ package org.jetbrains.plugins.scala.console.configuration
 import java.io.File
 
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
-import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{CantRunException, ExecutionException, ExecutionResult, Executor}
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -21,9 +19,9 @@ import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
+import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
-import org.jetbrains.plugins.scala.console.{ScalaLanguageConsoleBuilder, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.RichFile
@@ -76,7 +74,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     new ScalaCommandLineState(env)
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
-    setConsoleBuilder(new ScalaLanguageConsoleBuilder(project))
+    setConsoleBuilder(new ScalaLanguageConsole.Builder(project))
 
     protected override def createJavaParameters: JavaParameters = {
       val params = createParams
