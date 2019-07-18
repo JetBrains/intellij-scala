@@ -138,11 +138,7 @@ package object clauses {
         case fqn if BlackListedNames(fqn) => None
         case _ =>
           val isSealed = `class`.isSealed
-          val (accessibleNamedInheritors, restInheritors) = directInheritors(`class`, parameters.scope).partition {
-            case _: ScNewTemplateDefinition | _: PsiAnonymousClass => false
-            case inheritor if inheritor.qualifiedName == null => false // it's a hack to avoid sources-less class files processing
-            case inheritor => isAccessible(inheritor)
-          }
+          val (accessibleNamedInheritors, restInheritors) = directInheritors(`class`)
 
           implicit val ordered: Ordering[PsiClass] =
             if (isSealed) Ordering.by(_.getNavigationElement.getTextRange.getStartOffset)
@@ -161,13 +157,17 @@ package object clauses {
           }
       }
 
-    private def directInheritors(`class`: PsiClass, scope: GlobalSearchScope) = {
+    private def directInheritors(`class`: PsiClass)
+                                (implicit parameters: ClauseCompletionParameters) = {
       import collection.JavaConverters._
       DirectClassInheritorsSearch
-        .search(`class`, scope)
+        .search(`class`, parameters.scope)
         .findAll()
         .asScala
         .toIndexedSeq
+        .partition { inheritor =>
+          inheritor.qualifiedName != null && isAccessible(inheritor)
+        }
     }
   }
 
