@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.console
 
-import java.awt.Color
+import java.awt.{Color, Font}
 
 import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleImpl}
 import com.intellij.execution.filters.TextConsoleBuilderImpl
@@ -8,6 +8,7 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -45,17 +46,43 @@ class ScalaLanguageConsole(project: Project, module: Module)
     ScalaConsoleInfo.addConsole(this, controller, processHandler)
   }
 
-  @volatile
-  private var inputIsInProgress: Boolean = false
+  import ConsoleState.ConsoleState
+
+  private var state: ConsoleState = ConsoleState.PrintingCommandLineArgs
 
   override def print(text: String, contentType: ConsoleViewContentType): Unit = {
-    super.print(text, contentType)
-    inputIsInProgress = text.trim == "|"
+    updateState(text)
+    val contentTypeToUse = contentTypeForState(state, contentType)
+    super.print(text, contentTypeToUse)
     updatePrompt()
   }
 
+  private def updateState(text: String): Unit = {
+    import ConsoleState._
+    val textTrimmed = text.trim
+    state = if (textTrimmed == ScalaLanguageConsole.ScalaPromptIdleText) {
+      Ready
+    } else if (textTrimmed == ScalaLanguageConsole.ScalaPromptIdleText.trim) {
+      InputIsInProgress
+    } else {
+      // expecting only first line to be args
+      // welcome text is considered to be everything between first line and first prompt occurrence
+      state match {
+        case Init => PrintingCommandLineArgs
+        case PrintingCommandLineArgs => ConsoleState.PrintingWelcomeMessage
+        case state => state
+      }
+    }
+  }
+
+  private def contentTypeForState(state: ConsoleState, default: ConsoleViewContentType): ConsoleViewContentType =
+    state match {
+      case ConsoleState.PrintingWelcomeMessage => WelcomeTextContentType
+      case _ => default
+    }
+
   private def updatePrompt(): Unit = {
-    val prompt = if (inputIsInProgress) ScalaPromtEditInProgressText else ScalaPromtIdleText
+    val prompt = if (state == ConsoleState.InputIsInProgress) ScalaPromptInputInProgressText else ScalaPromptIdleText
     if (prompt != getPrompt) {
       super.setPrompt(prompt)
       updateUI() // note that some blinking can still take place when sending multiline content to the REPL process
@@ -146,8 +173,19 @@ class ScalaLanguageConsole(project: Project, module: Module)
 }
 
 private object ScalaLanguageConsole {
-  private val ScalaPromtIdleText           = "scala>"
-  private val ScalaPromtEditInProgressText = "     |"
+  private val ScalaPromptIdleText            = "scala>"
+  private val ScalaPromptInputInProgressText = "     |"
+
+  private val WelcomeTextContentType: ConsoleViewContentType = {
+    val attributes = new TextAttributes()
+    attributes.setFontType(Font.BOLD)
+    new ConsoleViewContentType("SCALA_CONSOLE_WELCOME_TEXT", attributes)
+  }
+
+  private object ConsoleState extends Enumeration {
+    type ConsoleState = Value
+    val Init, PrintingCommandLineArgs, PrintingWelcomeMessage, Ready, InputIsInProgress = Value
+  }
 
   private class Helper(project: Project, title: String, language: Language)
     extends LanguageConsoleImpl.Helper(project, new LightVirtualFile(title, language, "")) {
@@ -171,8 +209,8 @@ private object ScalaLanguageConsole {
       val consoleView = new ScalaLanguageConsole(project, module)
       ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
 
-      //pretend that we are a promt from Scala REPL process
-      consoleView.setPrompt(ScalaPromtIdleText)
+      //pretend that we are a prompt from Scala REPL process
+      consoleView.setPrompt(ScalaPromptIdleText)
       consoleView.setPromptAttributes(ConsoleViewContentType.NORMAL_OUTPUT)
 
       //drawDebugBorders(consoleView)
