@@ -9,6 +9,7 @@ import com.intellij.util.containers.ContainerUtil
 
 object ScalaConsoleInfo {
   private val SCALA_LANGUAGE_CONSOLE_KEY = new com.intellij.openapi.util.Key[String]("ScalaLanguageConsoleKey")
+  private val CONSOLE = "console"
   private val NULL = (null, null, null)
   private val allConsoles =
     ContainerUtil.createWeakMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)]]()
@@ -23,11 +24,11 @@ object ScalaConsoleInfo {
   def getProcessHandler(project: Project): ProcessHandler = get(project)._3
   def getProcessHandler(editor: Editor): ProcessHandler = get(editor)._3
 
-  def setIsConsole(file: PsiFile, flag: Boolean): Unit =
-    file.putCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY, if (flag) "console" else null)
+  def setIsConsole(file: PsiFile, flag: Boolean): Unit = file.putCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY, if (flag) CONSOLE else null)
+  def isConsole(file: PsiFile): Boolean = file.getCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY) != null
 
-  def isConsole(file: PsiFile): Boolean =
-    file.getCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY) != null
+  def setIsConsole(editor: Editor, flag: Boolean): Unit = editor.putUserData(SCALA_LANGUAGE_CONSOLE_KEY, if (flag) CONSOLE else null)
+  def isConsole(editor: Editor): Boolean = editor.getUserData(SCALA_LANGUAGE_CONSOLE_KEY) != null
 
   def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryController, processHandler: ProcessHandler): Unit = {
     val project = console.getProject

@@ -160,6 +160,7 @@ private object ScalaLanguageConsole {
      */
     override def setupEditor(editor: EditorEx): Unit = {
       super.setupEditor(editor)
+      ScalaConsoleInfo.setIsConsole(editor, flag = true)
       editor.getSettings.setAdditionalLinesCount(-1)
     }
   }
