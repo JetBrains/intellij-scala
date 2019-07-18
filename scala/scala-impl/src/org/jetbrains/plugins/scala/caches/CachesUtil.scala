@@ -86,14 +86,14 @@ object CachesUtil {
 
   @tailrec
   private def contextsWithExplicitType(element: PsiElement, result: List[ScExpression] = Nil): List[ScExpression] =
-    contextWithExplicitType(element) match {
+    contextWithExplicitType(originalPosition(element)) match {
       case Some(expr) => contextsWithExplicitType(expr.getContext, expr :: result)
       case None       => result
     }
 
   @tailrec
   private def contextWithExplicitType(element: PsiElement): Option[ScExpression] =
-    originalPosition(element) match {
+    element match {
       case null | _: ScalaFile => None
       case owner: ScExpression if owner.shouldntChangeModificationCount => Some(owner)
       case owner => contextWithExplicitType(owner.getContext)
