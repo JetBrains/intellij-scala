@@ -8,6 +8,7 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
@@ -22,13 +23,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable
 
-class ScalaLanguageConsole(project: Project, title: String)
-  extends LanguageConsoleImpl(
-    new ScalaLanguageConsole.Helper(project, title, ScalaLanguage.INSTANCE)
-  ) {
+class ScalaLanguageConsole(project: Project, module: Module)
+  extends LanguageConsoleImpl(new ScalaLanguageConsole.Helper(
+    project,
+    ScalaLanguageConsoleView.ScalaConsole,
+    ScalaLanguage.INSTANCE
+  )) {
 
   private val textBuffer = new StringBuilder
-  private var scalaFile  = ScalaPsiElementFactory.createScalaFileFromText("1")(project)
+  private var scalaFile  = createContextFile("")
 
   resetFileContext()
 
@@ -117,12 +120,21 @@ class ScalaLanguageConsole(project: Project, title: String)
       case _ => //do nothing
     }
 
-    resetFileTo(textBuffer.toString())
+    scalaFile = createContextFile(textBuffer.toString())
     resetFileContext()
   }
 
-  private def resetFileTo(text: String) {
-    scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + ";\n1")(project)
+  private def resetFileTo(text: String): Unit = {
+    scalaFile = createContextFile(text)
+  }
+
+  private def createContextFile(text: String): ScalaFile = {
+    val content      = if (text.isEmpty) s"$text;\n" else ""
+    val dummyContent = "1"
+    val textFinal    = content + dummyContent
+    val file         = ScalaPsiElementFactory.createScalaFileFromText(textFinal)(project)
+    file.putUserData(ModuleUtilCore.KEY_MODULE, module)
+    file
   }
 
   private def resetFileContext(): Unit = getFile match {
@@ -152,10 +164,10 @@ private object ScalaLanguageConsole {
     }
   }
 
-  class Builder(project: Project) extends TextConsoleBuilderImpl(project) {
+  class Builder(project: Project, module: Module) extends TextConsoleBuilderImpl(project) {
 
     override def createConsole: LanguageConsoleImpl = {
-      val consoleView = new ScalaLanguageConsole(project, ScalaLanguageConsoleView.ScalaConsole)
+      val consoleView = new ScalaLanguageConsole(project, module)
       ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
 
       //pretend that we are a promt from Scala REPL process
