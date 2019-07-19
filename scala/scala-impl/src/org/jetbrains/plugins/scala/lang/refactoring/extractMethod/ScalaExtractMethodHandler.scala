@@ -112,7 +112,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       val targetScope = targetOffset flatMap smallestScopeEnclosingTarget(siblings) getOrElse siblings(0)
       invokeDialog(array, hasReturn, lastReturn, targetScope, siblings.length == 1, lastExprType)
     } else if (siblings.length > 1) {
-      showChooser(editor, siblings, { (selectedValue: PsiElement) =>
+      showChooser(editor, siblings, { selectedValue: PsiElement =>
         invokeDialog(array, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, lastExprType)
       }, "Choose level for Extract Method", getTextForElement, (e: PsiElement) => e.getParent)
@@ -138,6 +138,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       }
     }
   }
+
   private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Array[PsiElement] = {
     def isParentOk(parent: PsiElement): Boolean = {
       if (parent == null) return false

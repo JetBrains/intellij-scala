@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -312,7 +313,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         case _ =>
       }
       forStmt.body match {
-        case Some(e) => 
+        case Some(e) =>
           e.accept(this)
           advancePendingEdges(e, forStmt)
         case _ =>
@@ -422,7 +423,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         if (ref.qualifier.nonEmpty) return
 
         ref.resolve() match {
-          case p: ScParameter if parameters.contains(p) =>
+          case p: ScParameter if parameters.contains(p) || ref.getContext.is[ScAssignment] => ()
           case named: PsiNamedElement if !PsiTreeUtil.isAncestor(paramOwner, named, false) =>
             collectedRefs += ref
           case _ =>
