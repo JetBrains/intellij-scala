@@ -120,7 +120,7 @@ final class ScProjectionType private(val projected: ScType,
           return Some(element, ScSubstitutor(projected).followed(p.substitutor))
         case p: ScProjectionType =>
           p.actualElement match {
-            case `element` => //rare case of recursive projection, see SCL-15345
+            case `element` if element.is[ScTypeAlias] => //rare case of recursive projection, see SCL-15345
               return Some(element, p.actualSubst)
             case clazz: PsiClass
               if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
@@ -139,7 +139,7 @@ final class ScProjectionType private(val projected: ScType,
           }
         case _ => //continue with processor :(
       }
-      
+
 
       val processor = new ResolveProcessor(kinds, resolvePlace, element.name) {
         override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {

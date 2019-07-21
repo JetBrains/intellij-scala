@@ -297,4 +297,22 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testSCL15614(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Main extends App {
+       |  val plot = ((1, 1), 0)
+       |  val coef = 1
+       |  plot._1._1 * coef
+       |}
+       |""".stripMargin
+  )
+
+  def testSCL15812(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Test {
+       | Seq(("foo" -> ("bar" -> "baz"))).map(_._2._2.length)
+       |}
+       |""".stripMargin
+  )
 }
