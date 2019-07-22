@@ -92,6 +92,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     false,
     virtualFile
   )
+
+  protected def removeCarets(documentText: String): String = documentText.replace(CARET, "")
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

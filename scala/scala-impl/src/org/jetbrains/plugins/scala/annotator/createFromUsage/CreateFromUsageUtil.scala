@@ -7,11 +7,11 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -19,11 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
-/**
- * Nikolay.Tropin
- * 2014-07-31
- */
+
 object CreateFromUsageUtil {
 
   def uniqueNames(names: Seq[String]): List[String] = {
@@ -34,19 +32,26 @@ object CreateFromUsageUtil {
 
   def nameByType(tp: ScType): String = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
 
-  def nameAndTypeForArg(arg: PsiElement): (String, ScType) = {
-    implicit val project = arg.projectContext
+  private def nameAndTypeForArg(arg: PsiElement): (String, ScType) = {
+    implicit val project: ProjectContext = arg.projectContext
 
     arg match {
-      case ref: ScReferenceExpression => (ref.refName, ref.`type`().getOrAny)
+      case ref: ScReferenceExpression =>
+        (ref.refName, ref.`type`().getOrAny)
+      case ScAssignment(ref: ScReferenceExpression, value) =>
+        val name = ref.getText
+        val tp   = value.flatMap(_.`type`().toOption).asTypeResult.getOrAny
+        (name, tp)
       case expr: ScExpression =>
         val tp = expr.`type`().getOrAny
         (nameByType(tp), tp)
-      case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.`type`().getOrAny)
+      case bp: ScBindingPattern if !bp.isWildcard =>
+        (bp.name, bp.`type`().getOrAny)
       case p: ScPattern =>
         val tp: ScType = p.`type`().getOrAny
         (nameByType(tp), tp)
-      case _ => ("value", Any)
+      case _ =>
+        ("value", Any)
     }
   }
 

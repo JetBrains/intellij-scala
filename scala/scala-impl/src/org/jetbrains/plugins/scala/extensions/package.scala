@@ -477,7 +477,7 @@ package object extensions {
     def getTextRange: TextRange = TextRange.create(marker.getStartOffset, marker.getEndOffset)
   }
 
-  implicit class PsiElementExt[E <: PsiElement](val element: E) extends AnyVal {
+  implicit class PsiElementExt[E <: PsiElement](private val element: E) extends AnyVal {
     @inline def startOffset: Int = element.getTextRange.getStartOffset
 
     @inline def endOffset: Int = element.getTextRange.getEndOffset
