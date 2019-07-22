@@ -67,7 +67,7 @@ object ScalaUseScope {
         for {
           qName <- Option(td.qualifiedName)
           parentPackage <- ScalaPsiUtil.parentPackage(qName, td.getProject)
-        } yield new PackageScope(parentPackage, false, true)
+        } yield new PackageScope(parentPackage, /*includeSubpackages*/ true, /*includeLibraries*/ true)
       case _ => None
     }
 
