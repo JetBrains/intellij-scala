@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, s
   */
 class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET, SELECTION_END_TAG => E, SELECTION_START_TAG => S}
+  import EditorTestUtil.{SELECTION_END_TAG => E, SELECTION_START_TAG => S}
 
   def testAfterPlaceholder(): Unit = doCompletionTest(
     fileText =
@@ -150,7 +150,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
          |  val s: String = new Test().bar$CARET
          |}
       """.stripMargin,
-    time = 1,
+    invocationCount = 1,
     completionType = SMART
   ) {
     _ => true

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.completion.CompletionType.BASIC
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -144,8 +144,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  imposToR$CARET
          |}
        """.stripMargin,
-    time = 2,
-    completionType = CompletionType.BASIC
+    invocationCount = 2,
+    completionType = BASIC
   ) {
     _ => true
   }
@@ -182,11 +182,11 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin,
     item = "doSmthPrivate",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember9(): Unit = {
-    configureTest(
+    configureFromFileText(
       fileText =
         s"""
            |object BlahBlahBlahContainer {
@@ -198,19 +198,16 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
            |  def test() {
            |    dsp$CARET
            |  }
-           |}
-       """.stripMargin,
-      time = 3
+           |}""".stripMargin
     )
 
-    val condition = lookupItems.exists {
-      hasLookupString(_, "doSmthPrivate")
-    }
-    assertTrue(condition)
+    val lookups = getFixture.complete(BASIC, 3)
+    assertNotNull(lookups)
+    assertTrue(lookups.exists(hasLookupString(_, "doSmthPrivate")))
   }
 
   def testGlobalMemberInherited(): Unit = {
-    configureTest(
+    configureFromFileText(
       fileText =
         s"""
            |class Base {
@@ -229,15 +226,17 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
            |  def test() {
            |    zeeGlobal$CARET
            |  }
-           |}
-       """.stripMargin,
-      time = 3
+           |}""".stripMargin
     )
 
-    val actual = lookupItems.filterBy[ScalaLookupItem]
+    val lookups = getFixture.complete(BASIC, 3)
+    assertNotNull(lookups)
+
+    val actual = lookups.toSet
+      .filterBy[ScalaLookupItem]
       .map { lookup =>
         s"${lookup.containingClass.name}.${lookup.getLookupString}"
-      }.toSet
+      }
 
     val expected = Set(
       "D1.zeeGlobalDef",

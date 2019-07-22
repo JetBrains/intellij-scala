@@ -405,7 +405,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
       """.stripMargin,
     count = 2,
-    time = 0,
+    invocationCount = 0,
     completionType = CompletionType.BASIC
   ) {
     _ => true
@@ -656,7 +656,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
        |}
        """.stripMargin,
     CompletionType.BASIC,
-    time = DEFAULT_TIME,
+    invocationCount = DEFAULT_TIME,
     count = 4
   ) {
     _.getLookupString match {

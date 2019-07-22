@@ -3,15 +3,12 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
-import com.intellij.testFramework.EditorTestUtil
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 04.01.12
   */
 class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testPrivateVal(): Unit = doCompletionTest(
     fileText =
@@ -181,7 +178,7 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
          |  def fina$CARET
          |}
       """.stripMargin,
-    time = 1,
+    invocationCount = 1,
     completionType = SMART
   ) {
     _ => true
@@ -193,7 +190,7 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
          |def foo(p: (Int => Int)) {}
          |foo((impl$CARET: Int) => 0)
       """.stripMargin,
-    time = 1,
+    invocationCount = 1,
     completionType = SMART
   ) {
     _ => true

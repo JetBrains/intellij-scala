@@ -9,7 +9,7 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.junit.Assert.{assertEquals, assertFalse, fail}
+import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, fail}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,11 +39,6 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
       case _ =>
         throw new AssertionError("Lookups not found")
     }
-
-  protected final def lookupItems = {
-    val (_, items) = activeLookupWithItems()
-    items
-  }
 
   protected def doCompletionTest(fileText: String,
                                  resultText: String,
@@ -83,29 +78,31 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
 
   protected final def doMultipleCompletionTest(fileText: String,
                                                completionType: CompletionType,
-                                               time: Int,
+                                               invocationCount: Int,
                                                count: Int)
                                               (predicate: LookupElement => Boolean): Unit = {
-    configureTest(fileText, completionType, time)
+    configureFromFileText(fileText)
 
-    assertEquals(count, lookupItems.count(predicate))
+    val lookups = getFixture.complete(completionType, invocationCount)
+    assertNotNull(lookups)
+    assertEquals(count, lookups.count(predicate))
   }
 
   protected def checkNoCompletion(fileText: String,
                                   item: String,
                                   completionType: CompletionType = BASIC,
-                                  time: Int = DEFAULT_TIME): Unit =
-    checkNoCompletion(fileText, completionType, time) {
+                                  invocationCount: Int = DEFAULT_TIME): Unit =
+    checkNoCompletion(fileText, completionType, invocationCount) {
       hasLookupString(_, item)
     }
 
   protected final def checkNoCompletion(fileText: String,
                                         completionType: CompletionType,
-                                        time: Int)
+                                        invocationCount: Int)
                                        (predicate: LookupElement => Boolean): Unit = {
     configureFromFileText(fileText)
 
-    val lookups = getFixture.complete(completionType, time)
+    val lookups = getFixture.complete(completionType, invocationCount)
     assertFalse(lookups != null && lookups.exists(predicate))
   }
 
