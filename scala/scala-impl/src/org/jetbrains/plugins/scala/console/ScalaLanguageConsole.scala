@@ -48,7 +48,7 @@ class ScalaLanguageConsole(project: Project, module: Module)
 
   import ConsoleState.ConsoleState
 
-  private var state: ConsoleState = ConsoleState.PrintingCommandLineArgs
+  private var state: ConsoleState = ConsoleState.Init
 
   override def print(text: String, contentType: ConsoleViewContentType): Unit = {
     updateState(text)
