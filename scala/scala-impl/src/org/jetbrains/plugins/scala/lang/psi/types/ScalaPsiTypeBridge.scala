@@ -219,8 +219,9 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           else PsiWildcardType.createExtends(manager, psi)
         }
 
-      case std: StdType => stdToPsiType(std, noPrimitives)
-      case _ => javaObject
+      case std: StdType       => stdToPsiType(std, noPrimitives)
+      case lit: ScLiteralType => toPsiTypeInner(lit.wideType)
+      case _                  => javaObject
     }
   }
 
