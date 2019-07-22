@@ -92,7 +92,7 @@ trait ScalaInplaceRenameHandler {
     }.orNull
 
     elementToRename match {
-      case `selected` && (fun: ScFunction) if Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
+      case fun: ScFunction if selected.contains(fun) && isSpecial(fun) =>
         specialMethodPopup(fun)
         null
       case _ =>
@@ -104,5 +104,13 @@ trait ScalaInplaceRenameHandler {
         }
         inplaceRename(ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
+  }
+
+  private def isSpecial(f: ScFunction): Boolean = {
+    val hasSpecialName = f.name match {
+      case "apply" | "unapply" | "unapplySeq" => true
+      case _ => false
+    }
+    hasSpecialName || f.isConstructor
   }
 }

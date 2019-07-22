@@ -1,28 +1,20 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
-import org.junit.experimental.categories.Category
-
 /**
  * User: Alefas
  * Date: 04.10.11
  */
 class ScalaRenameTest extends ScalaRenameTestBase {
-  def testRenameBeanProperty() {
-    val fileText =
-      """
-      |import reflect.BeanProperty
+  def testRenameBeanProperty(): Unit = doRenameTest("y",
+    """import reflect.BeanProperty
       |object X {
       |  @BeanProperty
       |  val x<caret> = 1
       |
       |  getX()
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("y")
-
-    val resultText =
-      """
+      |""",
+    """
       |import reflect.BeanProperty
       |object X {
       |  @BeanProperty
@@ -30,42 +22,30 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |
       |  getY()
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
-  }
-
-  def testRenameBooleanBeanProperty() {
-    val fileText =
       """
+  )
+
+  def testRenameBooleanBeanProperty(): Unit = doRenameTest("y",
+    """
       |import reflect.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
       |  val x<caret> = 1
       |
       |  isX()
-      |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("y")
-
-    val resultText =
-      """
+      |}""",
+    """
       |import reflect.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
       |  val y<caret> = 1
       |
       |  isY()
-      |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+      |}"""
+  )
 
-    myFixture.checkResult(resultText)
-  }
-
-  def testRenameBeanVarProperty() {
-    val fileText =
-      """
+  def testRenameBeanVarProperty(): Unit = doRenameTest("y",
+    """
       |import reflect.BeanProperty
       |object X {
       |  @BeanProperty
@@ -73,13 +53,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |
       |  getX()
       |  setX(2)
-      |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("y")
-
-    val resultText =
-      """
+      |}""",
+    """
       |import reflect.BeanProperty
       |object X {
       |  @BeanProperty
@@ -88,14 +63,11 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  getY()
       |  setY(2)
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
-  }
-
-  def testRenameBooleanBeanVarProperty() {
-    val fileText =
       """
+  )
+
+  def testRenameBooleanBeanVarProperty(): Unit = doRenameTest("y",
+    """
       |import reflect.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
@@ -104,12 +76,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  isX()
       |  setX(2)
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("y")
-
-    val resultText =
-      """
+      """,
+    """
       |import reflect.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
@@ -118,40 +86,30 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  isY()
       |  setY(2)
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
-  }
-  
-  def testRenameNamingParameter() {
-    val fileText =
       """
+  )
+
+  def testRenameNamingParameter(): Unit = doRenameTest("y",
+    """
       |class Check {
       |  def method(<caret>attrib: String) = {
       |    CaseClass2(attrib = attrib)
       |  }
       |}
       |case class CaseClass2(attrib: String) {}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("y")
-
-    val resultText =
-      """
+      """,
+    """
       |class Check {
       |  def method(y: String) = {
       |    CaseClass2(attrib = y)
       |  }
       |}
       |case class CaseClass2(attrib: String) {}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
-  }
-
-  def testRenameCaseClass() {
-    val fileText =
       """
+  )
+
+  def testRenameCaseClass(): Unit = doRenameTest("Inde",
+    """
       |class A {
       |
       |  case class Index()
@@ -169,12 +127,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case <caret>Index() =>
       |  }
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("Inde")
-
-    val resultText =
-      """
+      """,
+    """
       |class A {
       |
       |  case class Index()
@@ -192,46 +146,36 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case Inde() =>
       |  }
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+      """
+  )
 
-    myFixture.checkResult(resultText)
-  }
-  
-  def testRenameInterpolatedStringPrefix() {
-    val fileText =
-      """
-        |object AAA {
-        |
-        |  class BBB {
-        |    def aa<caret>a(a: Any*) = a.length
-        |  }
-        |
-        |  implicit def ctxToB(ctx: StringContext) = new BBB
-        |
-        |  val a = aaa"blah blah"
-        |}""".replace("\r", "").stripMargin
-    
-    val resultText =
-      """
-        |object AAA {
-        |
-        |  class BBB {
-        |    def bb<caret>b(a: Any*) = a.length
-        |  }
-        |
-        |  implicit def ctxToB(ctx: StringContext) = new BBB
-        |
-        |  val a = bbb"blah blah"
-        |}""".replace("\r", "").stripMargin
-    
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("bbb")
-    myFixture.checkResult(resultText)
-  }
+  def testRenameInterpolatedStringPrefix(): Unit = doRenameTest("bbb",
+    """
+      |object AAA {
+      |
+      |  class BBB {
+      |    def aa<caret>a(a: Any*) = a.length
+      |  }
+      |
+      |  implicit def ctxToB(ctx: StringContext) = new BBB
+      |
+      |  val a = aaa"blah blah"
+      |}""",
+    """
+      |object AAA {
+      |
+      |  class BBB {
+      |    def bb<caret>b(a: Any*) = a.length
+      |  }
+      |
+      |  implicit def ctxToB(ctx: StringContext) = new BBB
+      |
+      |  val a = bbb"blah blah"
+      |}"""
+  )
 
-  def testObjectToCaseClass() {
-    val fileText =
-      """
+  def testObjectToCaseClass(): Unit = doRenameTest("I",
+    """
       |object ObjectToCaseClass {
       |
       |  case class Test1(a: Int)
@@ -239,12 +183,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  Test1(2)
       |  <caret>Test1.apply(1)
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("I")
-
-    val resultText =
-      """
+      """,
+    """
       |object ObjectToCaseClass {
       |
       |  case class I(a: Int)
@@ -252,227 +192,207 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  I(2)
       |  <caret>I.apply(1)
       |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
-  }
-
-  def testCaseClassConstructor() {
-    val fileText =
       """
-        |object CaseClassConstructor {
-        |
-        |  case class Test1(a: Int)
-        |
-        |  new <caret>Test1(2)
-        |  Test1.apply(1)
-        |  Test1(1) match {
-        |    case Test1(1) =>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("I")
+  )
 
-    val resultText =
+  def testCaseClassConstructor(): Unit = doRenameTest("I",
+    """
+      |object CaseClassConstructor {
+      |
+      |  case class Test1(a: Int)
+      |
+      |  new <caret>Test1(2)
+      |  Test1.apply(1)
+      |  Test1(1) match {
+      |    case Test1(1) =>
+      |  }
+      |}
+      """,
+    """
+      |object CaseClassConstructor {
+      |
+      |  case class I(a: Int)
+      |
+      |  new <caret>I(2)
+      |  I.apply(1)
+      |  I(1) match {
+      |    case I(1) =>
+      |  }
+      |}
       """
-        |object CaseClassConstructor {
-        |
-        |  case class I(a: Int)
-        |
-        |  new <caret>I(2)
-        |  I.apply(1)
-        |  I(1) match {
-        |    case I(1) =>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  )
 
-    myFixture.checkResult(resultText)
-  }
-
-  def testCaseClassApply() {
-    val fileText =
+  def testCaseClassApply(): Unit = doRenameTest("I",
+    """
+      |object CaseClassApply {
+      |
+      |  case class Test1(a: Int)
+      |
+      |  new Test1(2)
+      |  Test1.apply(1)
+      |  <caret>Test1(1) match {
+      |    case Test1(1) =>
+      |  }
+      |}
+      """,
+    """
+      |object CaseClassApply {
+      |
+      |  case class I(a: Int)
+      |
+      |  new I(2)
+      |  I.apply(1)
+      |  I(1) match {
+      |    case I(1) =>
+      |  }
+      |}
       """
-        |object CaseClassApply {
-        |
-        |  case class Test1(a: Int)
-        |
-        |  new Test1(2)
-        |  Test1.apply(1)
-        |  <caret>Test1(1) match {
-        |    case Test1(1) =>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("I")
+  )
 
-    val resultText =
+  def testCaseClassUnapply(): Unit = doRenameTest("I",
+    """
+      |object CaseClassUnapply {
+      |
+      |  case class Test1(a: Int)
+      |
+      |  new Test1(2)
+      |  Test1.apply(1)
+      |  Test1(1) match {
+      |    case <caret>Test1(1) =>
+      |  }
+      |}
+      """,
+    """
+      |object CaseClassUnapply {
+      |
+      |  case class I(a: Int)
+      |
+      |  new I(2)
+      |  I.apply(1)
+      |  I(1) match {
+      |    case I(1) =>
+      |  }
+      |}
       """
-        |object CaseClassApply {
-        |
-        |  case class I(a: Int)
-        |
-        |  new I(2)
-        |  I.apply(1)
-        |  I(1) match {
-        |    case I(1) =>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  )
 
-    myFixture.checkResult(resultText)
-  }
-
-  def testCaseClassUnapply() {
-    val fileText =
+  def testSameNameObjectsApply(): Unit = doRenameTest("newName",
+    """
+      |trait HasApply {
+      |  def apply(str:String) = ""
+      |
+      |  def unapply(s: String): Option[String] = Some(s)
+      |}
+      |
+      |class CustomerContact1 {
+      |  object circus extends HasApply
+      |}
+      |
+      |
+      |object CustomerContact2 {
+      |  object c<caret>ircus extends HasApply
+      |}
+      |
+      |object FindUsagesBug {
+      |  def main(args: Array[String]): Unit = {
+      |    CustomerContact2.circus("hello")
+      |
+      |    val CustomerContact2.circus(s) = "hello"
+      |  }
+      |}
+      """,
+    """
+      |trait HasApply {
+      |  def apply(str:String) = ""
+      |
+      |  def unapply(s: String): Option[String] = Some(s)
+      |}
+      |
+      |class CustomerContact1 {
+      |  object circus extends HasApply
+      |}
+      |
+      |
+      |object CustomerContact2 {
+      |  object newName extends HasApply
+      |}
+      |
+      |object FindUsagesBug {
+      |  def main(args: Array[String]): Unit = {
+      |    CustomerContact2.newName("hello")
+      |
+      |    val CustomerContact2.newName(s) = "hello"
+      |  }
+      |}
       """
-        |object CaseClassUnapply {
-        |
-        |  case class Test1(a: Int)
-        |
-        |  new Test1(2)
-        |  Test1.apply(1)
-        |  Test1(1) match {
-        |    case <caret>Test1(1) =>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("I")
+  )
 
-    val resultText =
+  def testSameNameObjectsApply2(): Unit = doRenameTest("newName",
+    """
+      |trait HasApply {
+      |  def apply(str:String) = ""
+      |
+      |  def unapply(s: String): Option[String] = Some(s)
+      |}
+      |
+      |class CustomerContact1 {
+      |  object c<caret>ircus extends HasApply
+      |}
+      |
+      |
+      |object CustomerContact2 {
+      |  object circus extends HasApply
+      |}
+      |
+      |object FindUsagesBug {
+      |  def main(args: Array[String]): Unit = {
+      |    CustomerContact2.circus("hello")
+      |
+      |    val CustomerContact2.circus(s) = "hello"
+      |  }
+      |}
+      """,
+    """
+      |trait HasApply {
+      |  def apply(str:String) = ""
+      |
+      |  def unapply(s: String): Option[String] = Some(s)
+      |}
+      |
+      |class CustomerContact1 {
+      |  object newName extends HasApply
+      |}
+      |
+      |
+      |object CustomerContact2 {
+      |  object circus extends HasApply
+      |}
+      |
+      |object FindUsagesBug {
+      |  def main(args: Array[String]): Unit = {
+      |    CustomerContact2.circus("hello")
+      |
+      |    val CustomerContact2.circus(s) = "hello"
+      |  }
+      |}
       """
-        |object CaseClassUnapply {
-        |
-        |  case class I(a: Int)
-        |
-        |  new I(2)
-        |  I.apply(1)
-        |  I(1) match {
-        |    case I(1) =>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  )
 
-    myFixture.checkResult(resultText)
-  }
-
-  def testSameNameObjectsApply(): Unit = {
-    val fileText =
-      """
-        |trait HasApply {
-        |  def apply(str:String) = ""
-        |
-        |  def unapply(s: String): Option[String] = Some(s)
-        |}
-        |
-        |class CustomerContact1 {
-        |  object circus extends HasApply
-        |}
-        |
-        |
-        |object CustomerContact2 {
-        |  object c<caret>ircus extends HasApply
-        |}
-        |
-        |object FindUsagesBug {
-        |  def main(args: Array[String]): Unit = {
-        |    CustomerContact2.circus("hello")
-        |
-        |    val CustomerContact2.circus(s) = "hello"
-        |  }
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("newName")
-
-    val resultText =
-      """
-        |trait HasApply {
-        |  def apply(str:String) = ""
-        |
-        |  def unapply(s: String): Option[String] = Some(s)
-        |}
-        |
-        |class CustomerContact1 {
-        |  object circus extends HasApply
-        |}
-        |
-        |
-        |object CustomerContact2 {
-        |  object newName extends HasApply
-        |}
-        |
-        |object FindUsagesBug {
-        |  def main(args: Array[String]): Unit = {
-        |    CustomerContact2.newName("hello")
-        |
-        |    val CustomerContact2.newName(s) = "hello"
-        |  }
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    myFixture.checkResult(resultText)
-  }
-
-  def testSameNameObjectsApply2(): Unit = {
-    val fileText =
-      """
-        |trait HasApply {
-        |  def apply(str:String) = ""
-        |
-        |  def unapply(s: String): Option[String] = Some(s)
-        |}
-        |
-        |class CustomerContact1 {
-        |  object c<caret>ircus extends HasApply
-        |}
-        |
-        |
-        |object CustomerContact2 {
-        |  object circus extends HasApply
-        |}
-        |
-        |object FindUsagesBug {
-        |  def main(args: Array[String]): Unit = {
-        |    CustomerContact2.circus("hello")
-        |
-        |    val CustomerContact2.circus(s) = "hello"
-        |  }
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.renameElementAtCaret("newName")
-
-    val resultText =
-      """
-        |trait HasApply {
-        |  def apply(str:String) = ""
-        |
-        |  def unapply(s: String): Option[String] = Some(s)
-        |}
-        |
-        |class CustomerContact1 {
-        |  object newName extends HasApply
-        |}
-        |
-        |
-        |object CustomerContact2 {
-        |  object circus extends HasApply
-        |}
-        |
-        |object FindUsagesBug {
-        |  def main(args: Array[String]): Unit = {
-        |    CustomerContact2.circus("hello")
-        |
-        |    val CustomerContact2.circus(s) = "hello"
-        |  }
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    myFixture.checkResult(resultText)
-  }
+  def testApplyDefinition(): Unit = doRenameTest("BBB",
+    """object AAA {
+      |  def <caret>apply(i: Int): Int = 123
+      |}
+      |object B {
+      |  val a = AAA(123)
+      |}
+      |""",
+    """object BBB {
+      |  def apply(i: Int): Int = 123
+      |}
+      |object B {
+      |  val a = BBB(123)
+      |}
+      |"""
+  )
 
 }
