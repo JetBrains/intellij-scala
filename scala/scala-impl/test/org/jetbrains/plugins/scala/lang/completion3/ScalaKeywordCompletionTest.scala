@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType.SMART
-
 /**
   * User: Alexander Podkhalyuzin
   * Date: 04.01.12
@@ -170,29 +168,4 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "while",
     char = '('
   )
-
-  def testFilterFinal(): Unit = checkNoCompletion(
-    fileText =
-      s"""
-         |class Test {
-         |  def fina$CARET
-         |}
-      """.stripMargin,
-    invocationCount = 1,
-    completionType = SMART
-  ) {
-    _ => true
-  }
-
-  def testFilterImplicit(): Unit = checkNoCompletion(
-    fileText =
-      s"""
-         |def foo(p: (Int => Int)) {}
-         |foo((impl$CARET: Int) => 0)
-      """.stripMargin,
-    invocationCount = 1,
-    completionType = SMART
-  ) {
-    _ => true
-  }
 }

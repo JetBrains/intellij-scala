@@ -144,11 +144,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  imposToR$CARET
          |}
        """.stripMargin,
-    invocationCount = 2,
-    completionType = BASIC
-  ) {
-    _ => true
-  }
+    invocationCount = 2
+  )()
 
   def testGlobalMemberJava(): Unit = doCompletionTest(
     fileText =
@@ -181,9 +178,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  }
          |}
        """.stripMargin,
-    item = "doSmthPrivate",
     invocationCount = 2
-  )
+  )(hasLookupString(_, "doSmthPrivate"))
 
   def testGlobalMember9(): Unit = {
     configureFromFileText(

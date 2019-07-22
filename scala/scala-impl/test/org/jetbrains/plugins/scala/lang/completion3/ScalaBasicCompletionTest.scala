@@ -62,7 +62,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "xxxxx"
   )
 
-  def testVarNoCompletion(): Unit = checkNoCompletion(
+  def testVarNoCompletion(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
          |class A {
@@ -514,7 +514,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "foo"
   )
 
-  def testNoPrefixedThis(): Unit = checkNoCompletion(
+  def testNoPrefixedThis(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
          |class aaa {
@@ -524,7 +524,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "aaa.this"
   )
 
-  def testNoPrefixedSuper(): Unit = checkNoCompletion(
+  def testNoPrefixedSuper(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
          |class aaa {
@@ -593,7 +593,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "aaa"
   )
 
-  def testNoBeanCompletion(): Unit = checkNoCompletion(
+  def testNoBeanCompletion(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
          |class Foo {
@@ -665,7 +665,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     }
   }
 
-  def testBasicTypeCompletionNoMethods(): Unit = checkNoCompletion(
+  def testBasicTypeCompletionNoMethods(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
          |class Foo {

@@ -145,7 +145,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "foo: Foo"
   )
 
-  def testBeforeCase(): Unit = checkNoCompletion(
+  def testBeforeCase(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
          |
@@ -156,7 +156,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo: Foo"
   )
 
-  def testAfterArrow(): Unit = checkNoCompletion(
+  def testAfterArrow(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
          |
@@ -167,7 +167,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo: Foo"
   )
 
-  def testWildcard(): Unit = checkNoCompletion(
+  def testWildcard(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
          |
@@ -178,7 +178,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo: Foo"
   )
 
-  def testNamedPattern(): Unit = checkNoCompletion(
+  def testNamedPattern(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
          |

@@ -3,17 +3,19 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 28.10.11
-  */
+ * User: Alexander Podkhalyuzin
+ * Date: 28.10.11
+ */
 class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => E, SELECTION_START_TAG => S}
+  import ScalaCodeInsightTestBase._
 
   def testAfterPlaceholder(): Unit = doCompletionTest(
     fileText =
@@ -123,49 +125,50 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     completionType = SMART
   )
 
-  def testAfterNewNoObject(): Unit = checkNoCompletion(
+  def testAfterNewNoObject(): Unit = checkNoSmartCompletion(
     fileText =
-      s"""
-         |class testAfterNewNoObject {
+      s"""class testAfterNewNoObject {
          |  val atest: Atest = new $CARET
          |}
          |
          |class Atest
          |
          |object OTest extends Atest
-      """.stripMargin,
-    item = "OTest",
-    completionType = SMART
-  )
+         |""".stripMargin
+  )(hasLookupString(_, "OTest"))
 
-  def testFilterPrivates(): Unit = checkNoCompletion(
+  def testFilterPrivates(): Unit = checkNoSmartCompletion(
     fileText =
-      s"""
-         |class Test {
+      s"""class Test {
          |  def foo(): String = ""
          |  private def bar(): String = ""
          |}
          |
          |object O extends App {
          |  val s: String = new Test().bar$CARET
-         |}
-      """.stripMargin,
-    invocationCount = 1,
-    completionType = SMART
-  ) {
-    _ => true
-  }
+         |}""".stripMargin
+  )()
 
-  def testFilterObjectDouble(): Unit = checkNoCompletion(
+  def testFilterObjectDouble(): Unit = checkNoSmartCompletion(
     fileText =
-      s"""
-         |class Test {
+      s"""class Test {
          |  val x: Double = $CARET
-         |}
-      """.stripMargin,
-    item = "Double",
-    completionType = SMART
-  )
+         |}""".stripMargin,
+  )(hasLookupString(_, "Double"))
+
+  def testFilterFinal(): Unit = checkNoSmartCompletion(
+    fileText =
+      s"""class Test {
+         |  def fina$CARET
+         |}""".stripMargin
+  )()
+
+  def testFilterImplicit(): Unit = checkNoSmartCompletion(
+    fileText =
+      s"""def foo(p: (Int => Int)) {}
+         |foo((impl$CARET: Int) => 0)
+         |""".stripMargin
+  )()
 
   def testFalse(): Unit = doCompletionTest(
     fileText =
@@ -505,4 +508,8 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     time = 2,
     completionType = SMART
   )
+
+  private def checkNoSmartCompletion(fileText: String)
+                                    (predicate: LookupElement => Boolean = Function.const(true)): Unit =
+    checkNoCompletion(fileText, SMART)(predicate)
 }

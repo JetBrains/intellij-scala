@@ -104,7 +104,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "Foo(foo)"
   )
 
-  def testBeforeCase(): Unit = checkNoCompletion(
+  def testBeforeCase(): Unit = checkNoBasicCompletion(
     fileText =
       s"""case class Foo()
          |
@@ -115,7 +115,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo()"
   )
 
-  def testAfterArrow(): Unit = checkNoCompletion(
+  def testAfterArrow(): Unit = checkNoBasicCompletion(
     fileText =
       s"""case class Foo()
          |
@@ -1284,10 +1284,6 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   private def doCaseCompletionTest(fileText: String, resultText: String): Unit =
     doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveCase)
-
-  private def checkNoCompletion(fileText: String)
-                               (predicate: LookupElement => Boolean): Unit =
-    checkNoCompletion(fileText, BASIC, DEFAULT_TIME)(predicate)
 }
 
 object ScalaClausesCompletionTest {

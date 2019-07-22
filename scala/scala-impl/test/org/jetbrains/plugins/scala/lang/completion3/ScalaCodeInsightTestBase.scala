@@ -9,14 +9,14 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, fail}
+import org.junit.Assert._
 
 /**
  * @author Alexander Podkhalyuzin
  */
 abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import CompletionType.BASIC
+  import CompletionType._
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
 
@@ -88,21 +88,18 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     assertEquals(count, lookups.count(predicate))
   }
 
-  protected def checkNoCompletion(fileText: String,
-                                  item: String,
-                                  completionType: CompletionType = BASIC,
-                                  invocationCount: Int = DEFAULT_TIME): Unit =
-    checkNoCompletion(fileText, completionType, invocationCount) {
+  protected final def checkNoBasicCompletion(fileText: String, item: String): Unit =
+    checkNoCompletion(fileText) {
       hasLookupString(_, item)
     }
 
   protected final def checkNoCompletion(fileText: String,
-                                        completionType: CompletionType,
-                                        invocationCount: Int)
-                                       (predicate: LookupElement => Boolean): Unit = {
+                                        `type`: CompletionType = BASIC,
+                                        invocationCount: Int = DEFAULT_TIME)
+                                       (predicate: LookupElement => Boolean = Function.const(true)): Unit = {
     configureFromFileText(fileText)
 
-    val lookups = getFixture.complete(completionType, invocationCount)
+    val lookups = getFixture.complete(`type`, invocationCount)
     assertFalse(lookups != null && lookups.exists(predicate))
   }
 

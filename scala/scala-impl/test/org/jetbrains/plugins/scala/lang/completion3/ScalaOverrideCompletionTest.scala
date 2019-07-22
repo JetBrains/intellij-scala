@@ -1,9 +1,11 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala
+package lang
+package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.psi.PsiFile
-import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
@@ -13,6 +15,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
   */
 class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
+  import CompletionType.BASIC
   import ScalaCodeInsightTestBase._
 
   protected override def setUp(): Unit = {
@@ -40,7 +43,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       """,
     char = Lookup.REPLACE_SELECT_CHAR,
     time = DEFAULT_TIME,
-    completionType = CompletionType.BASIC
+    completionType = BASIC
   ) {
     _ => true
   }
@@ -173,24 +176,24 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     item = "intVariable"
   )
 
-  def testNoMethodCompletionInClassParameter(): Unit = checkNoCompletion(
+  def testNoMethodCompletionInClassParameter(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
          |class Inheritor extends Base {
          |   class A(ab$CARET)
          |}
       """,
-    item = "abstractFoo"
+    lookupString = "abstractFoo"
   )
 
-  def testNoCompletionAfterDot(): Unit = checkNoCompletion(
+  def testNoCompletionAfterDot(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
          |class Inheritor extends Base {
          |   var i = 12.ab$CARET
          |}
       """,
-    item = "abstractFoo"
+    lookupString = "abstractFoo"
   )
 
   //Like in java, don't save annotations here
@@ -210,7 +213,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     item = "override annotFoo"
   )
 
-  def testNoCompletionInFunction(): Unit = checkNoCompletion(
+  def testNoCompletionInFunction(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
          |class Inheritor extends Base {
@@ -219,27 +222,27 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
          |   }
          |}
       """,
-    item = "abstractFoo"
+    lookupString = "abstractFoo"
   )
 
-  def testNoCompletionInModifier(): Unit = checkNoCompletion(
+  def testNoCompletionInModifier(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
          |class Inheritor extends Base {
          |   private[intV$CARET] val test = 123
          |}
       """,
-    item = "intValue"
+    lookupString = "intValue"
   )
 
-  def testNoCompletionAfterColon(): Unit = checkNoCompletion(
+  def testNoCompletionAfterColon(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
          |class Inheritor extends Base {
          |   val test: intV$CARET = 123
          |}
       """,
-    item = "intValue"
+    lookupString = "intValue"
   )
 
   def testParamsFromTrait(): Unit = doCompletionTest(
@@ -248,13 +251,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     item = "override intVariable"
   )
 
-  override protected def checkNoCompletion(fileText: String,
-                                           item: String,
-                                           completionType: CompletionType,
-                                           time: Int): Unit =
-    super.checkNoCompletion(fileText, completionType, time) { lookup =>
-      lookup.getLookupString.contains("override") &&
-        lookup.getAllLookupStrings.contains(item)
+  private def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =
+    super.checkNoCompletion(fileText) { lookup =>
+      lookup.getLookupString.contains(ScalaKeyword.OVERRIDE) &&
+        lookup.getAllLookupStrings.contains(lookupString)
     }
 
   override protected def doCompletionTest(fileText: String,
