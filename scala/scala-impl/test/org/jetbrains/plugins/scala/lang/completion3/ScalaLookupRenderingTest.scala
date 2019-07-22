@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 
 /**
   * @author Alefas
@@ -36,12 +36,9 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
         """.stripMargin
     )
 
-    val lookups = this.lookups {
-      hasItemText(_, "foo")(
-        itemTextBold = true,
-        tailText = "(x: Int*)"
-      )
+    val condition = lookupItems.exists {
+      hasItemText(_, "foo")(itemTextBold = true, tailText = "(x: Int*)")
     }
-    assertFalse(lookups.isEmpty)
+    assertTrue(condition)
   }
 }

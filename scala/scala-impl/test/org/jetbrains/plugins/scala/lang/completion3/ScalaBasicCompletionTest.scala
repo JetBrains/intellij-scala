@@ -817,9 +817,14 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
       """.stripMargin
     )
 
-    assertTrue(activeLookup.exists { lookup =>
-      hasLookupString(lookup.getCurrentItem, "type")
-    })
+    val (_, items) = activeLookupWithItems { lookup =>
+      Option(lookup.getCurrentItem) // getCurrentItem is nullable
+    }
+    val condition = items.exists {
+      hasLookupString(_, "type")
+    }
+
+    assertTrue(condition)
   }
 
   def testBackticks(): Unit = doCompletionTest(

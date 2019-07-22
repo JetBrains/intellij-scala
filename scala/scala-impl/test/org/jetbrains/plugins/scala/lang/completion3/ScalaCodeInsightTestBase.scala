@@ -9,9 +9,7 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.junit.Assert.{assertEquals, fail}
-
-import scala.collection.JavaConverters
+import org.junit.Assert.{assertEquals, assertFalse, fail}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -21,6 +19,8 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
+
+  import collection.JavaConverters._
 
   protected override def setUp(): Unit = {
     super.setUp()
@@ -32,17 +32,18 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   override def getTestDataPath: String =
     s"${super.getTestDataPath}completion3/"
 
-  protected final def activeLookup: Option[LookupImpl] =
+  protected final def activeLookupWithItems(items: LookupImpl => Iterable[LookupElement] = _.getItems.asScala) =
     LookupManager.getActiveLookup(getEditor) match {
-      case impl: LookupImpl => Some(impl)
-      case _ => None
+      case impl: LookupImpl =>
+        (impl, items(impl))
+      case _ =>
+        throw new AssertionError("Lookups not found")
     }
 
-  protected final def lookups(predicate: LookupElement => Boolean): Seq[LookupElement] =
-    activeLookup match {
-      case Some(lookup) => lookupItems(lookup).filter(predicate)
-      case _ => Seq.empty
-    }
+  protected final def lookupItems = {
+    val (_, items) = activeLookupWithItems()
+    items
+  }
 
   protected def doCompletionTest(fileText: String,
                                  resultText: String,
@@ -62,16 +63,12 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                       (predicate: LookupElement => Boolean): Unit = {
     configureTest(fileText, completionType, time)
 
-    val maybePair = for {
-      lookup <- activeLookup
-      item <- lookupItems(lookup).find(predicate)
-    } yield (lookup, item)
-
-    maybePair match {
-      case Some((lookup, item)) =>
+    val (lookup, items) = activeLookupWithItems()
+    items.find(predicate) match {
+      case Some(item) =>
         lookup.finishLookup(char, item)
         checkResultByText(resultText)
-      case _ => fail("Lookups not found")
+      case _ => fail()
     }
   }
 
@@ -90,20 +87,27 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                                count: Int)
                                               (predicate: LookupElement => Boolean): Unit = {
     configureTest(fileText, completionType, time)
-    assertEquals(count, lookups(predicate).size)
+
+    assertEquals(count, lookupItems.count(predicate))
   }
 
   protected def checkNoCompletion(fileText: String,
                                   item: String,
                                   completionType: CompletionType = BASIC,
                                   time: Int = DEFAULT_TIME): Unit =
-    doMultipleCompletionTest(fileText, 0, item, completionType, time)
+    checkNoCompletion(fileText, completionType, time) {
+      hasLookupString(_, item)
+    }
 
   protected final def checkNoCompletion(fileText: String,
                                         completionType: CompletionType,
                                         time: Int)
-                                       (predicate: LookupElement => Boolean): Unit =
-    doMultipleCompletionTest(fileText, completionType, time, 0)(predicate)
+                                       (predicate: LookupElement => Boolean): Unit = {
+    configureFromFileText(fileText)
+
+    val lookups = getFixture.complete(completionType, time)
+    assertFalse(lookups != null && lookups.exists(predicate))
+  }
 
   protected final def configureTest(fileText: String,
                                     completionType: CompletionType = BASIC,
@@ -146,10 +150,5 @@ object ScalaCodeInsightTestBase {
         presentation.getTailText == tailText &&
         presentation.isTailGrayed == grayed
     case _ => false
-  }
-
-  private def lookupItems(lookup: LookupImpl) = {
-    import JavaConverters._
-    lookup.getItems.asScala
   }
 }

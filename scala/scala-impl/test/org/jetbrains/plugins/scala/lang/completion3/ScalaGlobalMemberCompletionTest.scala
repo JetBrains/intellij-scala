@@ -3,18 +3,16 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert.{assertEquals, assertFalse}
+import org.junit.Assert.{assertEquals, assertTrue}
 
 /**
   * @author Alexander Podkhalyuzin
   */
 class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaCodeInsightTestBase._
 
   override def getTestDataPath: String =
@@ -205,10 +203,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       time = 3
     )
 
-    val lookups = this.lookups {
+    val condition = lookupItems.exists {
       hasLookupString(_, "doSmthPrivate")
     }
-    assertFalse(lookups.isEmpty)
+    assertTrue(condition)
   }
 
   def testGlobalMemberInherited(): Unit = {
@@ -236,11 +234,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       time = 3
     )
 
-    val actual = lookups {
-      _.isInstanceOf[ScalaLookupItem]
-    }.map {
-      case lookup: ScalaLookupItem => s"${lookup.containingClass.name}.${lookup.getLookupString}"
-    }.toSet
+    val actual = lookupItems.filterBy[ScalaLookupItem]
+      .map { lookup =>
+        s"${lookup.containingClass.name}.${lookup.getLookupString}"
+      }.toSet
 
     val expected = Set(
       "D1.zeeGlobalDef",
