@@ -71,27 +71,6 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     }
   }
 
-  protected final def doMultipleCompletionTest(fileText: String,
-                                               count: Int,
-                                               item: String,
-                                               completionType: CompletionType = BASIC,
-                                               time: Int = DEFAULT_TIME): Unit =
-    doMultipleCompletionTest(fileText, completionType, time, count) {
-      hasLookupString(_, item)
-    }
-
-  protected final def doMultipleCompletionTest(fileText: String,
-                                               completionType: CompletionType,
-                                               invocationCount: Int,
-                                               count: Int)
-                                              (predicate: LookupElement => Boolean): Unit = {
-    configureFromFileText(fileText)
-
-    val lookups = getFixture.complete(completionType, invocationCount)
-    assertNotNull(lookups)
-    assertEquals(count, lookups.count(predicate))
-  }
-
   protected final def checkNoBasicCompletion(fileText: String, item: String): Unit =
     checkNoCompletion(fileText) {
       hasLookupString(_, item)
@@ -105,6 +84,14 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
 
     val lookups = getFixture.complete(`type`, invocationCount)
     assertFalse(lookups != null && lookups.exists(predicate))
+  }
+
+  protected final def completeBasic(invocationCount: Int) = {
+    assertNotEquals("Please use `completeBasic`", 1, invocationCount)
+
+    val lookups = getFixture.complete(BASIC, invocationCount)
+    assertNotNull(lookups)
+    lookups
   }
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =

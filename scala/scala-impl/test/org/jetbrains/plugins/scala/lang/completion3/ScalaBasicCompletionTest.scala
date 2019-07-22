@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.junit.Assert.assertTrue
+import org.junit.Assert.{assertEquals, assertTrue}
 
 abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase
 
@@ -116,10 +115,9 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "BBBBB"
   )
 
-  def testBeanProperty(): Unit = doMultipleCompletionTest(
+  def testBeanProperty(): Unit = doCompletionTest(
     fileText =
-      s"""
-         |import scala.beans.BeanProperty
+      s"""import scala.beans.BeanProperty
          |abstract class Foo {
          |  def setGoo(foo : String) {}
          |}
@@ -128,8 +126,18 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |  @BeanProperty var goo = "foo"
          |}
          |new Bar().$CARET
-      """.stripMargin,
-    count = 1,
+         |""".stripMargin,
+    resultText =
+      s"""import scala.beans.BeanProperty
+         |abstract class Foo {
+         |  def setGoo(foo : String) {}
+         |}
+         |
+         |class Bar() extends Foo {
+         |  @BeanProperty var goo = "foo"
+         |}
+         |new Bar().getGoo$CARET
+         |""".stripMargin,
     item = "getGoo"
   )
 
@@ -395,26 +403,22 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "length"
   )
 
-  def testNamedParametersCompletion(): Unit = doMultipleCompletionTest(
-    fileText =
-      s"""
-         |class A {
-         |  def foo(xxxx: Int) {
-         |    foo(xxx$CARET)
-         |  }
-         |}
-      """.stripMargin,
-    count = 2,
-    invocationCount = 0,
-    completionType = CompletionType.BASIC
-  ) {
-    _ => true
+  def testNamedParametersCompletion(): Unit = {
+    configureFromFileText(
+      fileText =
+        s"""class A {
+           |  def foo(xxxx: Int) {
+           |    foo(xxx$CARET)
+           |  }
+           |}""".stripMargin
+    )
+
+    assertEquals(2, completeBasic(0).length)
   }
 
-  def testHiding1(): Unit = doMultipleCompletionTest(
+  def testHiding1(): Unit = doCompletionTest(
     fileText =
-      s"""
-         |class SmartValueInitializerCompletion {
+      s"""class SmartValueInitializerCompletion {
          |  def foo(x: Int) {}
          |  def foo(x: Boolean) {}
          |  def goo() {
@@ -422,42 +426,54 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |    val x = 123
          |    f$CARET
          |  }
-         |}
-      """.stripMargin,
-    count = 1,
-    item = "foo",
-    time = 0
-  )
-
-  def testHiding2(): Unit = doMultipleCompletionTest(
-    fileText =
-      s"""
-         |class SmartValueInitializerCompletion {
+         |}""".stripMargin,
+    resultText =
+      s"""class SmartValueInitializerCompletion {
          |  def foo(x: Int) {}
          |  def foo(x: Boolean) {}
-         |  f$CARET
          |  def goo() {
          |    def foo(x: Int, y: Int) {}
          |    val x = 123
+         |    foo($CARET)
          |  }
-         |}
-      """.stripMargin,
-    count = 2,
+         |}""".stripMargin,
     item = "foo",
     time = 0
   )
 
-  def testHiding3(): Unit = doMultipleCompletionTest(
+  def testHiding2(): Unit = {
+    configureFromFileText(
+      fileText =
+        s"""class SmartValueInitializerCompletion {
+           |  def foo(x: Int) {}
+           |  def foo(x: Boolean) {}
+           |  f$CARET
+           |  def goo() {
+           |    def foo(x: Int, y: Int) {}
+           |    val x = 123
+           |  }
+           |}""".stripMargin
+    )
+
+    val lookups = completeBasic(0)
+    assertEquals(2, lookups.count(hasLookupString(_, "foo")))
+  }
+
+  def testHiding3(): Unit = doCompletionTest(
     fileText =
-      s"""
-         |class SmartValueInitializerCompletion {
+      s"""class SmartValueInitializerCompletion {
          |  val foo: Int = 1
          |  def goo(foo: Int) {
          |    f$CARET
          |  }
-         |}
-      """.stripMargin,
-    count = 1,
+         |}""".stripMargin,
+    resultText =
+      s"""class SmartValueInitializerCompletion {
+         |  val foo: Int = 1
+         |  def goo(foo: Int) {
+         |    foo$CARET
+         |  }
+         |}""".stripMargin,
     item = "foo",
     time = 0
   )
@@ -605,14 +621,15 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "getBar"
   )
 
-  def testBasicTypeCompletion(): Unit = doMultipleCompletionTest(
+  def testBasicTypeCompletion(): Unit = doCompletionTest(
     fileText =
-      s"""
-         |class Foo {
+      s"""class Foo {
          |  val bar: Int$CARET
-         |}
-      """.stripMargin,
-    count = 1,
+         |}""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  val bar: Int$CARET
+         |}""".stripMargin,
     item = "Int"
   )
 
@@ -638,31 +655,31 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "Foo"
   )
 
-  def testObjectsCompletion(): Unit = doMultipleCompletionTest(
-    s"""object Main {
-       |  case class Foo()
-       |
-       |  trait Bar
-       |  object Bar
-       |  trait Bar2
-       |
-       |  class Baz
-       |  object Baz
-       |  class Baz2
-       |
-       |  object BarBaz
-       |
-       |  Main.$CARET
-       |}
-       """.stripMargin,
-    CompletionType.BASIC,
-    invocationCount = DEFAULT_TIME,
-    count = 4
-  ) {
-    _.getLookupString match {
-      case "Foo" | "Bar" | "Baz" | "BarBaz" => true
-      case _ => false
-    }
+  def testObjectsCompletion(): Unit = {
+    configureFromFileText(
+      s"""object Main {
+         |  case class Foo()
+         |
+         |  trait Bar
+         |  object Bar
+         |  trait Bar2
+         |
+         |  class Baz
+         |  object Baz
+         |  class Baz2
+         |
+         |  object BarBaz
+         |
+         |  Main.$CARET
+         |}
+       """.stripMargin
+    )
+
+    val lookups = getFixture.completeBasic()
+    for {
+      lookupString <- "Foo" :: "Bar" :: "Baz" :: "BarBaz" :: Nil
+      actual = lookups.count(hasLookupString(_, lookupString))
+    } assertEquals(1, actual)
   }
 
   def testBasicTypeCompletionNoMethods(): Unit = checkNoBasicCompletion(
@@ -808,12 +825,11 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
   def testTypeIsFirst(): Unit = {
     val (_, items) = activeLookupWithItems(
       fileText =
-      s"""
-         |class A {
-         |  def typeSomething = 1
-         |
-         |  type$CARET
-         |""".stripMargin
+        s"""class A {
+           |  def typeSomething = 1
+           |
+           |  type$CARET
+           |""".stripMargin
     ) { lookup =>
       Option(lookup.getCurrentItem) // getCurrentItem is nullable
     }

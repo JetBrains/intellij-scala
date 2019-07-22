@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType.BASIC
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.junit.Assert.{assertEquals, assertTrue}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -197,8 +196,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
            |}""".stripMargin
     )
 
-    val lookups = getFixture.complete(BASIC, 3)
-    assertNotNull(lookups)
+    val lookups = completeBasic(3)
     assertTrue(lookups.exists(hasLookupString(_, "doSmthPrivate")))
   }
 
@@ -225,10 +223,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
            |}""".stripMargin
     )
 
-    val lookups = getFixture.complete(BASIC, 3)
-    assertNotNull(lookups)
-
-    val actual = lookups.toSet
+    val actual = completeBasic(3).toSet
       .filterBy[ScalaLookupItem]
       .map { lookup =>
         s"${lookup.containingClass.name}.${lookup.getLookupString}"
