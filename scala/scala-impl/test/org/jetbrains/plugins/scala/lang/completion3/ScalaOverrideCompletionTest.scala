@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
 
 /**
   * Created by kate
@@ -15,20 +12,15 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
   */
 class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
-  import CompletionType.BASIC
-  import ScalaCodeInsightTestBase._
+  import ScalaKeyword._
+  import ScalaOverrideCompletionTest._
 
   protected override def setUp(): Unit = {
     super.setUp()
-
-    val project = getProject
-    val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
-
-    import TypeAnnotationSettings.{alwaysAddType, set}
-    set(project, alwaysAddType(codeStyleSettings))
+    set(getProject, alwaysAddType(getScalaSettings))
   }
 
-  def testFunction(): Unit = doCompletionTest(
+  def testFunction(): Unit = doRawCompletionTest(
     fileText =
       s"""
          |class Inheritor extends Base {
@@ -40,13 +32,8 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |class Inheritor extends Base {
         |  override def foo(int: Int): Int = super.foo(int)
         |}
-      """,
-    char = Lookup.REPLACE_SELECT_CHAR,
-    time = DEFAULT_TIME,
-    completionType = BASIC
-  ) {
-    _ => true
-  }
+      """
+  )()
 
   def testValue(): Unit = doCompletionTest(
     fileText =
@@ -61,7 +48,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override val intValue: Int = _
         |}
       """,
-    item = "intValue"
+    items = "intValue"
   )
 
   def testVariable(): Unit = doCompletionTest(
@@ -77,7 +64,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override var intVariable: Int = _
         |}
       """,
-    item = "intVariable"
+    items = "intVariable"
   )
 
   def testJavaObjectMethod(): Unit = doCompletionTest(
@@ -93,7 +80,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override def hashCode(): Int = super.hashCode()
         |}
       """,
-    item = "hashCode"
+    items = "hashCode"
   )
 
   def testOverrideKeyword(): Unit = doCompletionTest(
@@ -109,7 +96,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override protected def foo(int: Int): Int = super.foo(int)
         |}
       """,
-    item = "override def foo"
+    items = OVERRIDE, DEF, "foo"
   )
 
   def testAbstractType(): Unit = doCompletionTest(
@@ -125,7 +112,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override type A = this.type
         |}
       """,
-    item = "A"
+    items = "A"
   )
 
   def testAbstractFunction(): Unit = doCompletionTest(
@@ -141,7 +128,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override protected def abstractFoo: Unit = ???
         |}
       """,
-    item = "abstractFoo"
+    items = "abstractFoo"
   )
 
   def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = doCompletionTest(
@@ -157,7 +144,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override protected def abstractFoo: Unit = ???
         |}
       """,
-    item = "abstractFoo"
+    items = "abstractFoo"
   )
 
   def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = doCompletionTest(
@@ -173,7 +160,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override var intVariable: Int = _
         |}
       """,
-    item = "intVariable"
+    items = "intVariable"
   )
 
   def testNoMethodCompletionInClassParameter(): Unit = checkNoOverrideCompletion(
@@ -210,7 +197,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override def annotFoo(int: Int): Int = super.annotFoo(int)
         |}
       """,
-    item = "override annotFoo"
+    items = OVERRIDE, "annotFoo"
   )
 
   def testNoCompletionInFunction(): Unit = checkNoOverrideCompletion(
@@ -248,27 +235,23 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
   def testParamsFromTrait(): Unit = doCompletionTest(
     fileText = s"class Test(ov$CARET) extends Base",
     resultText = "class Test(override var intVariable: Int) extends Base",
-    item = "override intVariable"
+    items = OVERRIDE, "intVariable"
   )
 
   private def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =
     super.checkNoCompletion(fileText) { lookup =>
-      lookup.getLookupString.contains(ScalaKeyword.OVERRIDE) &&
+      lookup.getLookupString.contains(OVERRIDE) &&
         lookup.getAllLookupStrings.contains(lookupString)
     }
 
-  override protected def doCompletionTest(fileText: String,
-                                          resultText: String,
-                                          item: String,
-                                          char: Char,
-                                          time: Int,
-                                          completionType: CompletionType): Unit =
-    super.doCompletionTest(fileText, resultText, char, time, completionType) { lookup =>
+  private def doCompletionTest(fileText: String,
+                               resultText: String,
+                               items: String*): Unit = {
+    super.doRawCompletionTest(fileText, resultText) { lookup =>
       val lookupString = lookup.getLookupString
-      item.split(" ").forall(lookupString.contains)
+      items.forall(lookupString.contains)
     }
-
-  import ScalaOverrideCompletionTest._
+  }
 
   override protected def configureFromFileText(fileText: String): PsiFile =
     super.configureFromFileText(testText(fileText))
@@ -302,9 +285,7 @@ object ScalaOverrideCompletionTest {
 
 class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
 
-  import ScalaCodeInsightTestBase._
-
-  def testParamsFromClass(): Unit = doCompletionTest(
+  def testParamsFromClass(): Unit = doRawCompletionTest(
     fileText =
       s"""
          |class Person(val name: String) {
@@ -324,11 +305,6 @@ class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
         |
         |case class ExamplePerson(override val name: String, override val age: Int, override val gender: Boolean) extends Person("") {
         |}
-      """,
-    char = Lookup.REPLACE_SELECT_CHAR,
-    time = DEFAULT_TIME,
-    completionType = CompletionType.BASIC
-  ) {
-    _ => true
-  }
+      """
+  )()
 }

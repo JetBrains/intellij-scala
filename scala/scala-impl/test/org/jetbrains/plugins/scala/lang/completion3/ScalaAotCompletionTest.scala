@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.Lookup
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
@@ -211,7 +210,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     val grayed = tailText != null
     val fullTailText = if (grayed) " " + tailText else null
 
-    doCompletionTest(fileText, resultText, char, DEFAULT_TIME, CompletionType.BASIC) {
+    doRawCompletionTest(fileText, resultText, char) {
       hasItemText(_, lookupString)(
         itemText = itemText,
         tailText = fullTailText,

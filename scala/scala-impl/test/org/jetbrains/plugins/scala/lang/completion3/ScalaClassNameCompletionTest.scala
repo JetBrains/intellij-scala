@@ -2,10 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType.BASIC
-import com.intellij.codeInsight.lookup.Lookup.REPLACE_SELECT_CHAR
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -50,7 +47,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     item = "BLLLL"
   )
 
-  def testExpressionSameName(): Unit = doCompletionTest(
+  def testExpressionSameName(): Unit = doRawCompletionTest(
     fileText =
       s"""
          |import collection.immutable.HashSet
@@ -70,14 +67,12 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
          |  mutable.HashSet$CARET
          |}
       """.stripMargin,
-    char = REPLACE_SELECT_CHAR,
-    time = 2,
-    completionType = BASIC
+    invocationCount = 2
   ) {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
-  def testClassSameName(): Unit = doCompletionTest(
+  def testClassSameName(): Unit = doRawCompletionTest(
     fileText =
       s"""
          |import collection.immutable.HashSet
@@ -97,14 +92,12 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
          |  val y: mutable.HashSet$CARET
          |}
       """.stripMargin,
-    char = REPLACE_SELECT_CHAR,
-    time = 2,
-    completionType = BASIC
+    invocationCount = 2
   ) {
     predicate(_, "scala.collection.mutable.HashSet")
   }
 
-  def testImportsMess(): Unit = doCompletionTest(
+  def testImportsMess(): Unit = doRawCompletionTest(
     fileText =
       s"""
          |import scala.collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
@@ -125,9 +118,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
         |  val z: ListSet = null
         |}
       """.stripMargin,
-    char = REPLACE_SELECT_CHAR,
-    time = 2,
-    completionType = BASIC
+    invocationCount = 2
   ) {
     predicate(_, "scala.collection.immutable.ListSet")
   }
@@ -204,7 +195,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
     super.tearDown()
   }
 
-  def testSmartJoining(): Unit = doCompletionTest(
+  def testSmartJoining(): Unit = doRawCompletionTest(
     fileText =
       s"""
          |import collection.mutable.{Builder, Queue}
@@ -224,9 +215,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
         |  val m: ListMap
         |}
       """.stripMargin,
-    char = REPLACE_SELECT_CHAR,
-    time = 2,
-    completionType = BASIC
+    invocationCount = 2
   ) {
     predicate(_, "scala.collection.mutable.ListMap")
   }

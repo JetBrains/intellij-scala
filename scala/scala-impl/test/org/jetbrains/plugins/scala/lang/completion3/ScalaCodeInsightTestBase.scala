@@ -16,11 +16,9 @@ import org.junit.Assert._
  */
 abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import CompletionType._
+  import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
-
-  import collection.JavaConverters._
 
   protected override def setUp(): Unit = {
     super.setUp()
@@ -32,33 +30,39 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   override def getTestDataPath: String =
     s"${super.getTestDataPath}completion3/"
 
-  protected final def activeLookupWithItems(items: LookupImpl => Iterable[LookupElement] = _.getItems.asScala) =
-    LookupManager.getActiveLookup(getEditor) match {
-      case impl: LookupImpl =>
-        (impl, items(impl))
-      case _ =>
-        throw new AssertionError("Lookups not found")
-    }
+  protected final def activeLookupWithItems(fileText: String,
+                                            completionType: CompletionType = BASIC,
+                                            invocationCount: Int = DEFAULT_TIME)
+                                           (items: LookupImpl => Iterable[LookupElement] = allItems) = {
+    configureFromFileText(fileText)
 
-  protected def doCompletionTest(fileText: String,
-                                 resultText: String,
-                                 item: String,
-                                 char: Char = REPLACE_SELECT_CHAR,
-                                 time: Int = DEFAULT_TIME,
-                                 completionType: CompletionType = BASIC): Unit =
-    doCompletionTest(fileText, resultText, char, time, completionType) {
-      hasLookupString(_, item)
+    new CodeCompletionHandlerBase(completionType, false, false, true)
+      .invokeCompletion(getProject, getEditor, invocationCount)
+
+    LookupManager.getActiveLookup(getEditor) match {
+      case impl: LookupImpl => (impl, items(impl))
+      case _ => throw new AssertionError("Lookups not found")
     }
+  }
 
   protected final def doCompletionTest(fileText: String,
                                        resultText: String,
-                                       char: Char,
-                                       time: Int,
-                                       completionType: CompletionType)
-                                      (predicate: LookupElement => Boolean): Unit = {
-    configureTest(fileText, completionType, time)
+                                       item: String,
+                                       char: Char = REPLACE_SELECT_CHAR,
+                                       time: Int = DEFAULT_TIME,
+                                       completionType: CompletionType = BASIC): Unit =
+    doRawCompletionTest(fileText, resultText, char, time, completionType) {
+      hasLookupString(_, item)
+    }
 
-    val (lookup, items) = activeLookupWithItems()
+  protected final def doRawCompletionTest(fileText: String,
+                                          resultText: String,
+                                          char: Char = REPLACE_SELECT_CHAR,
+                                          invocationCount: Int = DEFAULT_TIME,
+                                          completionType: CompletionType = BASIC)
+                                         (predicate: LookupElement => Boolean = Function.const(true)): Unit = {
+    val (lookup, items) = activeLookupWithItems(fileText, completionType, invocationCount)()
+
     items.find(predicate) match {
       case Some(item) =>
         lookup.finishLookup(char, item)
@@ -67,11 +71,11 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     }
   }
 
-  protected def doMultipleCompletionTest(fileText: String,
-                                         count: Int,
-                                         item: String,
-                                         completionType: CompletionType = BASIC,
-                                         time: Int = DEFAULT_TIME): Unit =
+  protected final def doMultipleCompletionTest(fileText: String,
+                                               count: Int,
+                                               item: String,
+                                               completionType: CompletionType = BASIC,
+                                               time: Int = DEFAULT_TIME): Unit =
     doMultipleCompletionTest(fileText, completionType, time, count) {
       hasLookupString(_, item)
     }
@@ -101,15 +105,6 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
 
     val lookups = getFixture.complete(`type`, invocationCount)
     assertFalse(lookups != null && lookups.exists(predicate))
-  }
-
-  protected final def configureTest(fileText: String,
-                                    completionType: CompletionType = BASIC,
-                                    time: Int = DEFAULT_TIME): Unit = {
-    configureFromFileText(fileText)
-
-    new CodeCompletionHandlerBase(completionType, false, false, true)
-      .invokeCompletion(getProject, getEditor, time, false)
   }
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =
@@ -144,5 +139,10 @@ object ScalaCodeInsightTestBase {
         presentation.getTailText == tailText &&
         presentation.isTailGrayed == grayed
     case _ => false
+  }
+
+  private def allItems(impl: LookupImpl) = {
+    import collection.JavaConverters._
+    impl.getItems.asScala
   }
 }

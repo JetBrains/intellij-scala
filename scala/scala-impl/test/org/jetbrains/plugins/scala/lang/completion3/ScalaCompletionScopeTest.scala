@@ -30,15 +30,14 @@ class ScalaCompletionScopeTest extends ScalaCodeInsightTestBase {
   private def checkCompletionsAreInScopeAndAccessible(prefix: String, invocationCount: Int): Unit = {
     val scope = getModule.getModuleWithDependenciesAndLibrariesScope(true)
 
-    configureTest(
+    val (lookup, items) = activeLookupWithItems(
       fileText =
         s"""object A {
            |  $prefix$CARET
            |}""".stripMargin,
-      time = invocationCount
-    )
+      invocationCount = invocationCount
+    )()
 
-    val (lookup, items) = activeLookupWithItems()
     val namedElements = for {
       item <- items
       itemElement = item.getPsiElement

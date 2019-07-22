@@ -3,14 +3,11 @@ package lang
 package completion3
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
+import com.intellij.codeInsight.lookup.LookupElement
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
 
-  import CompletionType.BASIC
-  import Lookup.REPLACE_SELECT_CHAR
   import ScalaClausesCompletionTest._
   import ScalaCodeInsightTestBase._
   import completion.ScalaKeyword.{CASE, MATCH}
@@ -554,7 +551,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Foo.Bar => $CARET
          |}""".stripMargin,
     itemText = "Bar",
-    time = 2
+    invocationCount = 2
   )
 
   def testNoCompleteInaccessibleClause(): Unit = checkNoCompletion(
@@ -742,7 +739,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Margin.NULL => $CARET
          |}
        """.stripMargin,
-    time = 2
+    invocationCount = 2
   )
 
   def testVarargs(): Unit = doMatchCompletionTest(
@@ -1113,7 +1110,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Foo.Bar() => $CARET
          |  case Foo.Baz =>
          |}""".stripMargin,
-    time = 2
+    invocationCount = 2
   )
 
   def testNonSealedInheritorsThreshold(): Unit = checkNoCompletion(
@@ -1262,13 +1259,14 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
-    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) {
+    doRawCompletionTest(fileText, resultText) {
       isPattern(_, itemText)
     }
 
   private def doClauseCompletionTest(fileText: String, resultText: String,
-                                     itemText: String, time: Int = DEFAULT_TIME): Unit =
-    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, time, BASIC) {
+                                     itemText: String,
+                                     invocationCount: Int = DEFAULT_TIME): Unit =
+    doRawCompletionTest(fileText, resultText, invocationCount = invocationCount) {
       isCaseClause(_, itemText)
     }
 
@@ -1279,11 +1277,11 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //    }
 
   private def doMatchCompletionTest(fileText: String, resultText: String,
-                                    time: Int = DEFAULT_TIME): Unit =
-    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, time, BASIC)(isExhaustiveMatch)
+                                    invocationCount: Int = DEFAULT_TIME): Unit =
+    doRawCompletionTest(fileText, resultText, invocationCount = invocationCount)(isExhaustiveMatch)
 
   private def doCaseCompletionTest(fileText: String, resultText: String): Unit =
-    doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveCase)
+    doRawCompletionTest(fileText, resultText)(isExhaustiveCase)
 }
 
 object ScalaClausesCompletionTest {

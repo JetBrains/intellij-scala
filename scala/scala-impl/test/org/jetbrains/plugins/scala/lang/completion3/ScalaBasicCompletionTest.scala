@@ -776,12 +776,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "classOf"
   )
 
-  def testBracketsExistsForType(): Unit = doCompletionTest(
+  def testBracketsExistsForType(): Unit = doRawCompletionTest(
     fileText = s"val x: Opti$CARET[]",
     resultText = s"val x: Option[$CARET]",
-    char = '[',
-    time = DEFAULT_TIME,
-    completionType = CompletionType.BASIC
+    char = '['
   ) { lookup =>
     hasLookupString(lookup, "Option") && lookup.getPsiElement.isInstanceOf[ScClass]
   }
@@ -808,23 +806,19 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
   )
 
   def testTypeIsFirst(): Unit = {
-    configureTest(fileText =
+    val (_, items) = activeLookupWithItems(
+      fileText =
       s"""
          |class A {
          |  def typeSomething = 1
          |
          |  type$CARET
-      """.stripMargin
-    )
-
-    val (_, items) = activeLookupWithItems { lookup =>
+         |""".stripMargin
+    ) { lookup =>
       Option(lookup.getCurrentItem) // getCurrentItem is nullable
     }
-    val condition = items.exists {
-      hasLookupString(_, "type")
-    }
 
-    assertTrue(condition)
+    assertTrue(items.exists(hasLookupString(_, "type")))
   }
 
   def testBackticks(): Unit = doCompletionTest(

@@ -24,15 +24,14 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
       packageName = "a"
     )
 
-    configureTest(
+    val (_, items) = activeLookupWithItems(
       fileText =
         s"""import a.Java
            |class A {
            |  Java.fo$CARET
            |}""".stripMargin
-    )
+    )()
 
-    val (_, items) = activeLookupWithItems()
     val condition = items.exists(hasItemText(_, "foo")(itemTextBold = true, tailText = "(x: Int*)"))
     assertTrue(condition)
   }

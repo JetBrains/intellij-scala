@@ -2,10 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.psi.PsiClass
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.extensions._
 
 /**
@@ -14,7 +11,6 @@ import org.jetbrains.plugins.scala.extensions._
   */
 class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaDocCompletionTest.DEFAULT_TIME
 
   def testTagNameCompletion(): Unit = doCompletionTest(
@@ -55,7 +51,7 @@ class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
     time = DEFAULT_TIME
   )
 
-  def testLinkCodeCompletion(): Unit = doCompletionTest(
+  def testLinkCodeCompletion(): Unit = doRawCompletionTest(
     fileText =
       s"""
          | /**
@@ -70,9 +66,7 @@ class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
         |  * [[java.util.HashMap
         |  */
       """.stripMargin,
-    char = Lookup.REPLACE_SELECT_CHAR,
-    time = DEFAULT_TIME,
-    completionType = CompletionType.BASIC
+    invocationCount = DEFAULT_TIME,
   ) { lookup =>
     lookup.getObject match {
       case clazz: PsiClass => clazz.qualifiedName == "java.util.HashMap"
