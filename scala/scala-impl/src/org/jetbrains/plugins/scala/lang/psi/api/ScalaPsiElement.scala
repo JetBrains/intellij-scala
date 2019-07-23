@@ -93,29 +93,6 @@ trait ScalaPsiElement extends PsiElement
     if (child == null) None else Some(child.asInstanceOf[T])
   }
 
-  abstract override def getUseScope: search.SearchScope = {
-    import ScalaUseScope._
-
-    val scriptScope = getContainingFile match {
-      case file: ScalaFile if file.isWorksheetFile || file.isScriptFile =>
-        Some(safeLocalScope(file))
-      case _ => None
-    }
-
-    val mostNarrow = (this match {
-      case parameter: statements.params.ScParameter => Option(parameterScope(parameter))
-      case named: toplevel.ScNamedElement => namedScope(named)
-      case member: toplevel.typedef.ScMember => memberScope(member)
-      case _ => None
-    }).map {
-      intersect(_, scriptScope)
-    }.orElse {
-      scriptScope
-    }
-
-    intersect(super.getUseScope, mostNarrow)
-  }
-
   abstract override def accept(visitor: PsiElementVisitor): Unit = visitor match {
     case visitor: ScalaElementVisitor => acceptScala(visitor)
     case _ => super.accept(visitor)

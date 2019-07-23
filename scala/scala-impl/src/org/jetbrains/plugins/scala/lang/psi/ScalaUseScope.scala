@@ -5,6 +5,8 @@ package psi
 import com.intellij.psi.search._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -17,11 +19,28 @@ import scala.annotation.tailrec
 
 object ScalaUseScope {
 
-  import extensions._
-
   def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope = {
     scopeOption.map(_.intersectWith(scope))
       .getOrElse(scope)
+  }
+
+  def apply(element: ScalaPsiElement): Option[SearchScope] = {
+
+    val narrowScope = element match {
+      case p: ScParameter    => Option(parameterScope(p))
+      case n: ScNamedElement => namedScope(n)
+      case m: ScMember       => memberScope(m)
+      case _                 => None
+    }
+
+    val scriptScope =
+      element.containingScalaFile
+        .filter(f => f.isWorksheetFile || f.isScriptFile)
+        .map(safeLocalScope(_))
+
+    narrowScope
+      .map(intersect(_, scriptScope))
+      .orElse(scriptScope)
   }
 
   private[psi] def parameterScope(parameter: ScParameter): SearchScope = parameter.getDeclarationScope match {
