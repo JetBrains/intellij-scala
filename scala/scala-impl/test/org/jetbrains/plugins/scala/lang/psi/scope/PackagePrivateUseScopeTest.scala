@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.scope
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.junit.Assert.{assertFalse, assertTrue}
@@ -21,6 +22,14 @@ class PackagePrivateUseScopeTest extends ScalaLightCodeInsightFixtureTestAdapter
     val definition = findByName[Named](currentFile, elementName)
     assertScopeContains(definition, currentFile, samePackage, innerPackage)
     assertScopeNotContain(definition, otherPackage)
+  }
+
+  private def checkEscapePackagePrivateScope[Named <: PsiNamedElement : ClassTag](elementName: String): Unit = {
+    val currentFile  = getFixture.configureByFile("foo/Definitions.scala")
+    val otherPackage = getFixture.configureByFile("baz/OtherPackage.scala")
+
+    val definition = findByName[Named](currentFile, elementName)
+    assertScopeContains(definition, currentFile, otherPackage)
   }
 
   def testPrivateTopLevelClass(): Unit =
@@ -44,9 +53,27 @@ class PackagePrivateUseScopeTest extends ScalaLightCodeInsightFixtureTestAdapter
   def testPackagePrivateTypeAlias(): Unit =
     doTestPackagePrivateDefinition[ScTypeAlias]("PackagePrivateTypeAlias")
 
-//  todo: fix for constructor parameters
-//  def testPackagePrivateConstructorParameter(): Unit =
-//    doTestPackagePrivateDefinition[ScClassParameter]("packagePrivateCtorParameter")
+  def testPrivateClassParameter(): Unit =
+    doTestPackagePrivateDefinition[ScClassParameter]("privateClassParam")
+
+  def testInnerClassParameter(): Unit =
+    doTestPackagePrivateDefinition[ScClassParameter]("innerClassParam")
+
+  //may escape via inheritors
+  def testPackagePrivateConstructorParameter(): Unit =
+    checkEscapePackagePrivateScope[ScClassParameter]("packagePrivateCtorParameter")
+
+  //may escape via inheritors
+  def testPublicMemberOfPackagePrivateClass(): Unit =
+    checkEscapePackagePrivateScope[ScFunctionDefinition]("publicMember")
+
+  //may escape via inheritors
+  def testPackagePrivateClassParameter(): Unit =
+    checkEscapePackagePrivateScope[ScClassParameter]("packagePrivateClassParam")
+
+  //escapes as names argument
+  def testCtorPackagePrivateParameter(): Unit =
+    checkEscapePackagePrivateScope[ScClassParameter]("ctorPrivateParameter")
 
   private def findByName[Named <: PsiNamedElement : ClassTag](file: PsiFile, name: String): Named = {
     file.depthFirst().collectFirst {
