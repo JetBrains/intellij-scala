@@ -1495,10 +1495,10 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control ENTER"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
-<!--        <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">-->
-<!--            <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>-->
-<!--            <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift ENTER"/>-->
-<!--        </action>-->
+        <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift ENTER"/>
+        </action>
         <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction" text="Clean Console Content">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
