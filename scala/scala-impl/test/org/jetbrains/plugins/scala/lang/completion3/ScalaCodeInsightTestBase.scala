@@ -36,6 +36,8 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                            (items: LookupImpl => Iterable[LookupElement] = allItems) = {
     configureFromFileText(fileText)
 
+    changePsiAt(getEditor.getCaretModel.getOffset)
+
     new CodeCompletionHandlerBase(completionType, false, false, true)
       .invokeCompletion(getProject, getEditor, invocationCount)
 

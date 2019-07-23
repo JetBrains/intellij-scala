@@ -4,7 +4,6 @@ import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker._
 import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
-import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
@@ -26,7 +25,7 @@ object BlockModificationTracker {
     if (!element.isValid) ModificationTracker.NEVER_CHANGED
     else new BlockModificationTracker(element)
 
-  private val originalPositionKey: Key[PsiElement] = Key.create("original.position.completion.key")
+  private val originalPositionKey: Key[ScExpression] = Key.create("original.position.completion.key")
 
   //in completion we need to compute modification count of elements in "completion file"
   //we need to use original file for that to have up-to-date completion results
@@ -36,20 +35,23 @@ object BlockModificationTracker {
         elementContext  <- contextWithStableType(element)
         originalContext <- contextWithStableType(original)
       } {
-        elementContext.putUserDataIfAbsent(originalPositionKey, originalContext)
+        elementContext.putUserData(originalPositionKey, originalContext)
+
+        assert(modificationCount(element) == modificationCount(original))
       }
-      //      assert(enclosingModificationOwner(element).getModificationCount == enclosingModificationOwner(original).getModificationCount)
     }
   }
 
-  private def originalPosition(element: PsiElement): PsiElement =
+  private def modificationCount(element: PsiElement) = BlockModificationTracker(element).getModificationCount
+
+  private def originalPosition(element: ScExpression): ScExpression =
     Option(element)
       .flatMap(e => Option(e.getUserData(originalPositionKey)))
       .getOrElse(element)
 
   @tailrec
   private def originalContextsWithStableType(element: PsiElement, result: List[ScExpression] = Nil): List[ScExpression] =
-    contextWithStableType(originalPosition(element)) match {
+    contextWithStableType(element).map(originalPosition) match {
       case Some(expr) => originalContextsWithStableType(expr.getContext, expr :: result)
       case None       => result
     }
