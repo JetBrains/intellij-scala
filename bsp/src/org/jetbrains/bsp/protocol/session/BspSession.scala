@@ -94,7 +94,13 @@ class BspSession private(bspIn: InputStream,
   }
 
   private def lazyFileCreateWriter(file: File): Writer = new Writer() {
-    lazy val writer: FileWriter = new FileWriter(file, true)
+
+    class MFileWriter(f: File, b: Boolean) extends FileWriter(file, b) {
+      logger.debug(s"Writting BSP trace log to file ${file.getName}")
+    }
+
+    lazy val writer: FileWriter = new MFileWriter(file, true)
+
 
     override def write(cbuf: Array[Char], off: Int, len: Int): Unit = {
       writer.write(cbuf, off, len)
@@ -105,16 +111,20 @@ class BspSession private(bspIn: InputStream,
     }
 
     override def close(): Unit = {
-      writer.flush()
+      writer.close()
     }
   }
 
 
   private def bspTraceLogger: PrintWriter = {
-    val dirs = Paths.get(PathManager.getLogPath, "bsp")
-    Files.createDirectories(dirs)
-    val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").format(LocalDateTime.now())
-    val logfile = new File(dirs.toFile, s"bsp-protocol-trace-$stamp.log")
+    val logfile = sys.env.get("BSP_TRACE_PATH")
+      .map(new File(_))
+      .getOrElse({
+        val dirs = Paths.get(PathManager.getLogPath, "bsp")
+        Files.createDirectories(dirs)
+        val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").format(LocalDateTime.now())
+        new File(dirs.toFile, s"bsp-protocol-trace-$stamp.log")
+      })
     new PrintWriter(lazyFileCreateWriter(logfile)) {
 
       override def println(x: Any): Unit =
