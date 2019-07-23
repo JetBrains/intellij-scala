@@ -79,8 +79,14 @@ class GetUseScopeTest extends SimpleTestCase {
     """
   )
 
-  def testPrivateClassParameter(): Unit = assertIsLocal(
-    s"class ABC(private val ${CARET_TAG}a: Int)"
+  //may be used in named arguments
+  def testPrivateClassParameter(): Unit = assertIsNotLocal(
+    s"class ABC(private val ${CARET_TAG}classParam: Int)"
+  )
+
+  //may be used in named arguments
+  def testPrivateThisClassParameter(): Unit = assertIsNotLocal(
+    s"class ABC(private[this] val ${CARET_TAG}classParam: Int)"
   )
 
   def testPattern(): Unit = assertIsLocal(
@@ -105,6 +111,10 @@ class GetUseScopeTest extends SimpleTestCase {
 
   def testClassParameter(): Unit = assertIsNotLocal(
     s"class ABC(val ${CARET_TAG}a: Int)"
+  )
+
+  def testClassParameterNotMember(): Unit = assertIsNotLocal(
+    s"class ABC(${CARET_TAG}classParam: Int)"
   )
 
   def testInnerPrivateClassMember(): Unit = {
