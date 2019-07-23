@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TupleType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, ScTypePresentation, TupleType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -147,7 +147,8 @@ object TypeDiff {
       case (t1, t2: ScLiteralType) if !t1.is[ScLiteralType] => diff(t1, t2.wideType)
 
       case (t1, t2) =>
-        Group(if (conformance(t1, t2)) Match(tpe2.presentableText, Some(tpe2)) else Mismatch(tpe2.presentableText, Some(tpe2)))
+        val text2 = if (t1.eq(t2)) t2.presentableText else ScTypePresentation.different(t1, t2)._2
+        Group(if (conformance(t1, t2)) Match(text2, Some(t2)) else Mismatch(text2, Some(t2)))
     }
   }
 

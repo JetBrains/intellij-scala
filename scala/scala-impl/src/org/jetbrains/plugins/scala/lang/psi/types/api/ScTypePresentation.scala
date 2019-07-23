@@ -76,6 +76,8 @@ trait TypePresentation {
 object ScTypePresentation {
   val ABSTRACT_TYPE_POSTFIX = "_"
 
+  // TODO Why the presentable text for java.lang.Long is "Long" in Scala? (see SCL-15899)
+  // TODO (and why the canonical text for scala.Long is "Long", for that matter)
   def different(t1: ScType, t2: ScType)
                (implicit context: TypePresentationContext): (String, String) = {
     val (p1, p2) = (t1.presentableText, t2.presentableText)
