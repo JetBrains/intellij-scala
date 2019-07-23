@@ -110,6 +110,8 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                     time: Int = DEFAULT_TIME): Unit = {
     configureFromFileText(fileText)
 
+    changePsiAt(getEditor.getCaretModel.getOffset)
+
     new CodeCompletionHandlerBase(completionType, false, false, true)
       .invokeCompletion(getProject, getEditor, time, false)
   }

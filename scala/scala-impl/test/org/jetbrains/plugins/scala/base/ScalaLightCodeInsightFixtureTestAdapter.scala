@@ -3,14 +3,16 @@ package base
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.folding.CodeFoldingManager
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
@@ -93,6 +95,18 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightJavaCodeInsi
   )
 
   protected def removeCarets(documentText: String): String = documentText.replace(CARET, "")
+
+  protected def changePsiAt(offset: Int): Unit = {
+    invokeAndWait {
+      getEditor.getCaretModel.moveToOffset(offset)
+      myFixture.`type`('a')
+      commitDocument()
+      myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
+      commitDocument()
+    }
+  }
+
+  private def commitDocument(): Unit = PsiDocumentManager.getInstance(getProject).commitDocument(getEditor.getDocument)
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

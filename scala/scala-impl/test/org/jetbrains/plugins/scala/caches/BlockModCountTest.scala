@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.junit.Assert
 
 class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
@@ -63,18 +59,6 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
       case _: AssertionError => //expected
     }
   }
-
-  private def changePsiAt(offset: Int): Unit = {
-    invokeAndWait {
-      getEditor.getCaretModel.moveToOffset(offset)
-      myFixture.`type`('a')
-      commitDocument()
-      myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
-      commitDocument()
-    }
-  }
-
-  private def commitDocument(): Unit = PsiDocumentManager.getInstance(getProject).commitDocument(getEditor.getDocument)
 
   private def message(description: String, caretOffset: Int, psiOffset: Int) = {
     val elementAtCaret = getFile.findElementAt(caretOffset)
