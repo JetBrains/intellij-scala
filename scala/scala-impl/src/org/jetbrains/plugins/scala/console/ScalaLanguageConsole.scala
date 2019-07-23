@@ -156,7 +156,7 @@ class ScalaLanguageConsole(project: Project, module: Module)
   }
 
   private def createContextFile(text: String): ScalaFile = {
-    val content      = if (text.isEmpty) s"$text;\n" else ""
+    val content      = if (text.nonEmpty) s"$text;\n" else ""
     val dummyContent = "1"
     val textFinal    = content + dummyContent
     val file         = ScalaPsiElementFactory.createScalaFileFromText(textFinal)(project)
