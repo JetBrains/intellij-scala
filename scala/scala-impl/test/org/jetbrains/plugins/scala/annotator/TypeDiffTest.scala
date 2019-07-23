@@ -43,6 +43,19 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     )
   }
 
+  def testQualifier(): Unit = {
+    assertDiffsAre(
+      "",
+      "String", "String"
+    )
+
+    assertDiffsAre(
+      "",
+      "~Long~", "~java.lang.Long~",
+      verifyPresentation = false
+    )
+  }
+
   def testLiteralParsing(): Unit = {
     assertParsedAs(
       "",
@@ -541,7 +554,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     assertEquals(structure, asString(TypeDiff.parse(typesIn(context, tpe).head)))
   }
 
-  private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String): Unit = {
+  private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String, verifyPresentation: Boolean = true): Unit = {
     // Make sure that the expected diffs are coherent
     assertTrue(s"""The number of mismatches must match:
                   |$expectedDiff1
@@ -565,8 +578,11 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     }
 
     // Also make sure that the diff matches the standard presentation
-    assertEquals("Incorrect presentation (1)", tpe1.presentableText, clean(actualDiff1))
-    assertEquals("Incorrect presentation (2)", tpe2.presentableText, clean(actualDiff2))
+    // TODO Remove the condition after implementing SCL-15899 ("java.lang.Long" is not "Long" in Scala)
+    if (verifyPresentation) {
+      assertEquals("Incorrect presentation (1)", tpe1.presentableText, clean(actualDiff1))
+      assertEquals("Incorrect presentation (2)", tpe2.presentableText, clean(actualDiff2))
+    }
 
     // Also make sure that the number of diff elements match (needed to keep alignment in a table)
     val flattenDiff1 = actualDiffData1.flatten
