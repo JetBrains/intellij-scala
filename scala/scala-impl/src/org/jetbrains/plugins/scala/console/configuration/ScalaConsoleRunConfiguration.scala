@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution.{CantRunException, ExecutionException, ExecutionResult, Executor}
+import com.intellij.execution._
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.module.Module
@@ -12,19 +12,19 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
+import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
-import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
+import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import org.jetbrains.sbt.RichFile
+import org.jetbrains.sbt.{RichFile, RichOption}
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
@@ -109,16 +109,30 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       throw CantRunException.noJdkForModule(module)
     }
 
-    new JavaParameters() {
+    new JavaParameters {
       getVMParametersList.addParametersString(javaOptions)
       getClassPath.addScalaClassPath(module)
-      setUseDynamicClasspath(JdkUtil.useDynamicClasspath(getProject))
+      setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
       getClassPath.addRunners()
       setWorkingDirectory(workingDirectory)
       setMainClass(MainClass)
       configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
     }
   }
+
+  /** ShortenCommandLine.ARGS_FILE is intentionally not used even if JdkUtil.useClasspathJar is true
+   * Scala REPL does not work in JDK 8 with manifest classpath
+   *
+   * @see [[com.intellij.execution.ShortenCommandLine.getDefaultMethod]]
+   */
+  private def getShortenCommandLineMethod(jdk: Option[Sdk]): ShortenCommandLine =
+    if(!JdkUtil.useDynamicClasspath(getProject)){
+      ShortenCommandLine.NONE
+    } else if(jdk.safeMap(_.getHomePath).exists(JdkUtil.isModularRuntime)) {
+      ShortenCommandLine.ARGS_FILE
+    } else {
+      ShortenCommandLine.CLASSPATH_FILE
+    }
 
   private def showJLineMissingNotification(): Unit = {
     val message = {
