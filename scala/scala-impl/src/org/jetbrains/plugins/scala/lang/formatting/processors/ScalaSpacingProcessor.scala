@@ -292,10 +292,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    def isParenthesisParent(psi: PsiElement): Boolean =
-      psi.is[ScParenthesisedExpr, ScParameterizedTypeElement, ScParenthesisedPattern]
+    def isParenthesis(psi: PsiElement): Boolean = psi.is[ScParenthesizedElement]
 
-    if (leftElementType == tLPARENTHESIS && isParenthesisParent(leftPsiParent)) {
+    if (leftElementType == tLPARENTHESIS && isParenthesis(leftPsiParent)) {
       return if (settings.PARENTHESES_EXPRESSION_LPAREN_WRAP)
         if (settings.SPACE_WITHIN_PARENTHESES) WITH_SPACING_DEPENDENT(leftPsiParent.getTextRange)
         else WITHOUT_SPACING_DEPENDENT(leftPsiParent.getTextRange)
@@ -370,7 +369,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return COMMON_SPACING
     }
 
-    if (rightElementType == tRPARENTHESIS && isParenthesisParent(rightPsiParent)) {
+    if (rightElementType == tRPARENTHESIS && isParenthesis(rightPsiParent)) {
       return if (settings.PARENTHESES_EXPRESSION_RPAREN_WRAP)
         if (settings.SPACE_WITHIN_PARENTHESES) WITH_SPACING_DEPENDENT(rightPsiParent.getTextRange)
         else WITHOUT_SPACING_DEPENDENT(rightPsiParent.getTextRange)
