@@ -790,4 +790,36 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultilineForAnyInsertMarginSetting(from, to, after)
   }
 
+  // paste one-line content
+  def testOneLineTextToEmptyOneLineMultilineString(): Unit = {
+    val from =
+      s"""${Start}first line$End
+         |""".stripMargin
+    val to =
+      s"""'''$Caret'''
+         |""".stripMargin
+    val after =
+      s"""'''first line$Caret'''
+         |""".stripMargin
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    doTestMultiline(from, to, after)
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    doTestMultiline(from, to, after)
+  }
+
+  def testOneLineTextToNonEmptyOneLineMultilineString(): Unit = {
+    val from =
+      s"""${Start}first line$End
+         |""".stripMargin
+    val to =
+      s"""'''abc $Caret def'''
+         |""".stripMargin
+    val after =
+      s"""'''abc first line$Caret def'''
+         |""".stripMargin
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    doTestMultiline(from, to, after)
+    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    doTestMultiline(from, to, after)
+  }
 }
