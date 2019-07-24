@@ -139,7 +139,9 @@ class ScalaLanguageConsole(project: Project, module: Module)
     def addValue(name: String, range: TextRange, replaceWithPlaceholder: Boolean): Unit = {
       values.get(name) match {
         case Some((oldRange, r)) =>
-          val newText = if (r) "_" + StringUtil.repeatSymbol(' ', oldRange.getLength - 1) else StringUtil.repeatSymbol(' ', oldRange.getLength)
+          val newText =
+            if (r) "_" + StringUtil.repeatSymbol(' ', oldRange.getLength - 1)
+            else StringUtil.repeatSymbol(' ', oldRange.getLength)
           textBuffer.replace(oldRange.getStartOffset, oldRange.getEndOffset, newText)
         case None =>
       }
@@ -159,14 +161,14 @@ class ScalaLanguageConsole(project: Project, module: Module)
     }
 
     scalaFile.getChildren.foreach {
-      case v: ScValue => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
-      case v: ScVariable => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
-      case f: ScFunction => addValue(f.name, f.getTextRange, replaceWithPlaceholder = false)
-      case o: ScObject => addValue(o.name, o.getTextRange, replaceWithPlaceholder = false)
-      case c: ScClass => addType(c.name, c.nameId.getTextRange)
-      case c: ScTrait => addType(c.name, c.nameId.getTextRange)
+      case v: ScValue     => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
+      case v: ScVariable  => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
+      case f: ScFunction  => addValue(f.name, f.getTextRange, replaceWithPlaceholder = false)
+      case o: ScObject    => addValue(o.name, o.getTextRange, replaceWithPlaceholder = false)
+      case c: ScClass     => addType(c.name, c.nameId.getTextRange)
+      case c: ScTrait     => addType(c.name, c.nameId.getTextRange)
       case t: ScTypeAlias => addType(t.name, t.nameId.getTextRange)
-      case _ => //do nothing
+      case _              => //do nothing
     }
 
     scalaFile = createContextFile(textBuffer.toString())
