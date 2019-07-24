@@ -25,9 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable
 
-class ScalaLanguageConsole(project: Project, module: Module)
+class ScalaLanguageConsole(module: Module)
   extends LanguageConsoleImpl(new ScalaLanguageConsole.Helper(
-    project,
+    module.getProject,
     ScalaLanguageConsoleView.ScalaConsole,
     ScalaLanguage.INSTANCE
   )) {
@@ -179,10 +179,13 @@ class ScalaLanguageConsole(project: Project, module: Module)
   }
 
   private def createContextFile(text: String): ScalaFile = {
-    val content      = if (text.nonEmpty) s"$text;\n" else ""
-    val dummyContent = "1"
-    val textFinal    = content + dummyContent
-    val file         = ScalaPsiElementFactory.createScalaFileFromText(textFinal)(project)
+    val textFinal = {
+      val content = if (text.nonEmpty) s"$text;\n" else ""
+      val dummyContent = "1"
+      content + dummyContent
+    }
+
+    val file = ScalaPsiElementFactory.createScalaFileFromText(textFinal)(getProject)
     file.putUserData(ModuleUtilCore.KEY_MODULE, module)
     file
   }
@@ -230,12 +233,12 @@ private object ScalaLanguageConsole {
     }
   }
 
-  def builderFor(project: Project, module: Module): TextConsoleBuilderImpl = new Builder(project, module)
+  def builderFor(module: Module): TextConsoleBuilderImpl = new Builder(module)
 
-  private class Builder(project: Project, module: Module) extends TextConsoleBuilderImpl(project) {
+  private class Builder(module: Module) extends TextConsoleBuilderImpl(module.getProject) {
 
     override def createConsole: LanguageConsoleImpl = {
-      val consoleView = new ScalaLanguageConsole(project, module)
+      val consoleView = new ScalaLanguageConsole(module)
       ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
 
       //pretend that we are a prompt from Scala REPL process
