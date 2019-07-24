@@ -175,7 +175,6 @@ object ConverterUtil {
       fixes.foreach(_.applyFix)
     }
 
-    val intention = new RemoveBracesIntention
     val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, false)
 
     val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
@@ -183,17 +182,22 @@ object ConverterUtil {
     val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
     val addPrefix = (new ReferenceMustBePrefixedInspection).buildVisitor(holder, isOnTheFly = false)
 
-    collectTopElements(offset, endOffset, file).foreach(_.depthFirst().foreach {
-      case el: ScFunctionDefinition =>
-        removeReturnVisitor.visitElement(el)
-      case parentized: ScParenthesisedExpr =>
-        parenthesisedExpr.visitElement(parentized)
-      case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
-        removeSemicolon.visitElement(semicolon)
-      case ref: ScReference if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
-        addPrefix.visitElement(ref)
-      case el => intention.invoke(project, editor, el)
-    })
+    for {
+      topElement <- collectTopElements(offset, endOffset, file).iterator
+      element <- topElement.depthFirst()
+    } {
+      element match {
+        case el: ScFunctionDefinition =>
+          removeReturnVisitor.visitElement(el)
+        case parentized: ScParenthesisedExpr =>
+          parenthesisedExpr.visitElement(parentized)
+        case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
+          removeSemicolon.visitElement(semicolon)
+        case ref: ScReference if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
+          addPrefix.visitElement(ref)
+        case el => RemoveBracesIntention.removeBracesIn(topElement, el)
+      }
+    }
 
     holder.getResults.forEach(handleOneProblem)
   }

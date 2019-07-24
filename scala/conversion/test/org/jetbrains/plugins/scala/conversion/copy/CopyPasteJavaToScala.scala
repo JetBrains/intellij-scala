@@ -127,4 +127,37 @@ class CopyPasteJavaToScala extends CopyPasteTestBase {
 
     doTestToEmptyFile(fromText, expected)
   }
+
+  def testSCL15869(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   public static int number = 42;
+         |
+         |   public static int number2 = ${Start}Test.number$End;
+         |}
+         |""".stripMargin
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |   if (true) {
+         |   $Caret
+         |   } else {
+         |
+         |   }
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |   if (true) {
+         |     Test.number
+         |   } else {
+         |
+         |   }
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
 }

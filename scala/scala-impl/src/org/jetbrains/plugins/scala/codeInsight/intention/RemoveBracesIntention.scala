@@ -28,16 +28,22 @@ final class RemoveBracesIntention extends PsiElementBaseIntentionAction {
   override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    check(project, editor, element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
+    check(element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (element == null || !element.isValid) return
-    check(project, editor, element).foreach(_.apply())
+    check(element).foreach(_.apply())
   }
 
 }
 
 object RemoveBracesIntention {
+
+  def removeBracesIn(maxScope: PsiElement, startElement: PsiElement): Unit = {
+    if (startElement != null && startElement.isValid) {
+      check(startElement, Option(maxScope)).foreach(_.apply())
+    }
+  }
 
   case class CommentsAroundElement(before: Seq[PsiElement], after: Seq[PsiElement])
 
@@ -74,11 +80,13 @@ object RemoveBracesIntention {
     before.foreach(c => parent.getNode.addChild(c.getNode, anchor.getNode))
   }
 
-  private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
+  private def check(element: PsiElement, maxScope: Option[PsiElement] = None): Option[() => Unit] = {
     val classes = Seq(classOf[ScPatternDefinition], classOf[ScIf], classOf[ScFunctionDefinition], classOf[ScTry],
       classOf[ScFinallyBlock], classOf[ScWhile], classOf[ScDo], classOf[ScCaseClause])
 
     def isAncestorOfElement(ancestor: PsiElement) = PsiTreeUtil.isContextAncestor(ancestor, element, false)
+
+    def isInsideMaxScope(elem: PsiElement) = maxScope.forall(PsiTreeUtil.isAncestor(_, elem, /*strict = */ false))
 
     val expr: Option[ScExpression] = element.parentOfType(classes).flatMap {
       case ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
@@ -96,7 +104,7 @@ object RemoveBracesIntention {
         doStmt.body.filter(isAncestorOfElement)
       case caseClause: ScCaseClause =>
         caseClause.expr match {
-          case Some(x: ScBlockExpr) if isAncestorOfElement(x) =>
+          case Some(x: ScBlockExpr) if isAncestorOfElement(x) && isInsideMaxScope(x) =>
             // special handling for case clauses, which never _need_ braces.
             val action = () => {
               val Regex = """(?ms)\{(.+)\}""".r
@@ -124,7 +132,7 @@ object RemoveBracesIntention {
         blk.statements match {
           case Seq(x: ScExpression) =>
             val comments = collectComments(x, onElementLine = true)
-            if (!hasOtherComments(blk, comments)) Some((blk, x, comments))
+            if (!hasOtherComments(blk, comments) && isInsideMaxScope(blk)) Some((blk, x, comments))
             else None
           case _ => None
         }
