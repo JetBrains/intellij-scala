@@ -189,4 +189,58 @@ class CopyPasteTextToScala extends CopyPasteTestBase {
   def testNoConversion2(): Unit = {
     doTestToEmptyFile(s"${Start}class Test extends Any$End", "class Test extends Any")
   }
+
+
+  def testPasteToString(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;$End
+         |
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  "$Caret"
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  "public static int number = 42;"
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
+  def testPasteToMultilineString(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;
+         |$End
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val qqq = "\"\"\""
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  $qqq$Caret$qqq
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  ${qqq}public static int number = 42;
+         |    |$qqq.stripMargin
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
+
 }

@@ -10,6 +10,8 @@ import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.extensions.ElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -47,8 +49,12 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
                                              ref: Ref[JBoolean], values: ju.List[T]): Unit =
     PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
       case scalaFile: ScalaFile =>
-        values.forEach {
-          processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
+        Option(scalaFile.findElementAt(caretOffset)) match {
+          case Some(ElementType(ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING)) => //do nothing
+          case _ =>
+            values.forEach {
+              processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
+            }
         }
       case _ =>
     }
