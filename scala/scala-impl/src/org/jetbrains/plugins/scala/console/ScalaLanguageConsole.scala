@@ -7,6 +7,7 @@ import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.lang.Language
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
@@ -51,34 +52,40 @@ class ScalaLanguageConsole(project: Project, module: Module)
   private var state: ConsoleState = ConsoleState.Init
 
   override def print(text: String, contentType: ConsoleViewContentType): Unit = {
-    updateState(text)
-    val contentTypeToUse = contentTypeForState(state, contentType)
-    super.print(text, contentTypeToUse)
+    updateState(text, contentType)
+    val contentTypeAdjusted = adjustContentType(state, contentType)
+    super.print(text, contentTypeAdjusted)
     updatePrompt()
   }
 
-  private def updateState(text: String): Unit = {
+  private def updateState(text: String, contentType: ConsoleViewContentType): Unit = {
     import ConsoleState._
-    val textTrimmed = text.trim
-    state = if (textTrimmed == ScalaLanguageConsole.ScalaPromptIdleText) {
-      Ready
-    } else if (textTrimmed == ScalaLanguageConsole.ScalaPromptInputInProgressText.trim) {
-      InputIsInProgress
-    } else {
-      // expecting only first line to be args
-      // welcome text is considered to be everything between first line and first prompt occurrence
-      state match {
-        case Init => PrintingCommandLineArgs
-        case PrintingCommandLineArgs => ConsoleState.PrintingWelcomeMessage
-        case state => state
-      }
+    import ScalaLanguageConsole._
+    import ConsoleViewContentType._
+
+    // expecting only first process output line to be args
+    // welcome text is considered to be everything between first line and first prompt occurrence
+    def stateFromNormalOutput: ConsoleState = text.trim match {
+      case ScalaPromptIdleText                   => Ready
+      case ScalaPromptInputInProgressTextTrimmed => InputIsInProgress
+      case _                                     =>
+        state match {
+          case Init | PrintingSystemOutput => PrintingWelcomeMessage
+          case state                       => state
+        }
+    }
+
+    state = contentType match {
+      case NORMAL_OUTPUT => stateFromNormalOutput
+      case SYSTEM_OUTPUT => PrintingSystemOutput
+      case _             => state
     }
   }
 
-  private def contentTypeForState(state: ConsoleState, default: ConsoleViewContentType): ConsoleViewContentType =
+  private def adjustContentType(state: ConsoleState, contentType: ConsoleViewContentType): ConsoleViewContentType =
     state match {
       case ConsoleState.PrintingWelcomeMessage => WelcomeTextContentType
-      case _ => default
+      case _ => contentType
     }
 
   private def updatePrompt(): Unit = {
@@ -92,7 +99,7 @@ class ScalaLanguageConsole(project: Project, module: Module)
   /** HACK: We do not want console editor prompt to be added to the view editor not to duplicate the real one.
    * Real prompt from process output is added to console view editor.
    * It is hidden when it is in the last line, but it is shown right after Enter press.
-   * The edge case is when console content is cleaned, due to real promt is cleaned as well.
+   * The edge case is when console content is cleaned, due to real prompt is cleaned as well.
    *
    * @see [[ScalaLanguageConsole.Helper.setupEditor]]
    */
@@ -173,8 +180,10 @@ class ScalaLanguageConsole(project: Project, module: Module)
 }
 
 private object ScalaLanguageConsole {
-  private val ScalaPromptIdleText            = "scala>"
-  private val ScalaPromptInputInProgressText = "     |"
+  private val ScalaPromptIdleText                   = "scala>"
+  private val ScalaPromptInputInProgressText        = "     |"
+  private val ScalaPromptInputInProgressTextTrimmed = ScalaPromptInputInProgressText.trim
+
 
   private val WelcomeTextContentType: ConsoleViewContentType = {
     val attributes = new TextAttributes()
@@ -184,7 +193,7 @@ private object ScalaLanguageConsole {
 
   private object ConsoleState extends Enumeration {
     type ConsoleState = Value
-    val Init, PrintingCommandLineArgs, PrintingWelcomeMessage, Ready, InputIsInProgress = Value
+    val Init, PrintingSystemOutput, PrintingWelcomeMessage, Ready, InputIsInProgress = Value
   }
 
   private class Helper(project: Project, title: String, language: Language)
@@ -217,6 +226,7 @@ private object ScalaLanguageConsole {
       consoleView
     }
 
+    //noinspection ScalaUnusedSymbol
     private def drawDebugBorders(consoleView: ScalaLanguageConsole): Unit = {
       val mask      = SideBorder.ALL
       val thickness = 2
