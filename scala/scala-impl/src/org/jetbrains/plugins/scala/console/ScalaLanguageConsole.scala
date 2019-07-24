@@ -56,6 +56,7 @@ class ScalaLanguageConsole(project: Project, module: Module)
     val contentTypeAdjusted = adjustContentType(state, contentType)
     super.print(text, contentTypeAdjusted)
     updatePrompt()
+    updateTempResultValueDefinitions(text, contentType)
   }
 
   private def updateState(text: String, contentType: ConsoleViewContentType): Unit = {
@@ -96,6 +97,18 @@ class ScalaLanguageConsole(project: Project, module: Module)
     }
   }
 
+  private def updateTempResultValueDefinitions(output: String, contentType: ConsoleViewContentType): Unit =
+    if (contentType == ConsoleViewContentType.NORMAL_OUTPUT) {
+      output match {
+        case tempValRegex(resWithType) =>
+          //adding dummy declaration just to make res values visible in completion list, real value is known by underlying REPL
+          ApplicationManager.getApplication.invokeLater { () =>
+            processDeclarations(s"""val $resWithType = null""")
+          }
+        case _ =>
+      }
+    }
+
   /** HACK: We do not want console editor prompt to be added to the view editor not to duplicate the real one.
    * Real prompt from process output is added to console view editor.
    * It is hidden when it is in the last line, but it is shown right after Enter press.
@@ -114,9 +127,11 @@ class ScalaLanguageConsole(project: Project, module: Module)
     }
   }
 
-  private[console] def textSent(text: String): Unit = {
+  private[console] def textSent(text: String): Unit = processDeclarations(text)
+
+  private[console] def processDeclarations(text: String): Unit = {
     textBuffer.append(text)
-    resetFileTo(textBuffer.toString())
+    scalaFile = createContextFile(textBuffer.toString())
 
     val types  = new mutable.HashMap[String, TextRange]
     val values = new mutable.HashMap[String, (TextRange, Boolean)]
@@ -158,10 +173,6 @@ class ScalaLanguageConsole(project: Project, module: Module)
     resetFileContext()
   }
 
-  private def resetFileTo(text: String): Unit = {
-    scalaFile = createContextFile(text)
-  }
-
   private def createContextFile(text: String): ScalaFile = {
     val content      = if (text.nonEmpty) s"$text;\n" else ""
     val dummyContent = "1"
@@ -184,6 +195,8 @@ private object ScalaLanguageConsole {
   private val ScalaPromptInputInProgressText        = "     |"
   private val ScalaPromptInputInProgressTextTrimmed = ScalaPromptInputInProgressText.trim
 
+  //example: res5: Long = 42
+  private val tempValRegex = """^(res\d+: .*?)=.*\n?""".r
 
   private val WelcomeTextContentType: ConsoleViewContentType = {
     val attributes = new TextAttributes()
