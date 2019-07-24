@@ -14,8 +14,7 @@ class BlockModificationTracker private (element: PsiElement) extends Modificatio
   private val topLevel = scalaTopLevelModTracker(element.getProject)
 
   def getModificationCount: Long = {
-    originalContextsWithStableType(element)
-      .foldLeft(topLevel.getModificationCount)(_ + _.modificationCount)
+    topLevel.getModificationCount + originalModCount(element, 0L)
   }
 }
 
@@ -49,11 +48,13 @@ object BlockModificationTracker {
       .flatMap(e => Option(e.getUserData(originalPositionKey)))
       .getOrElse(element)
 
+  //goes from completion file to original file,
+  //walks up the tree and sums modification counts of expressions with stable types
   @tailrec
-  private def originalContextsWithStableType(element: PsiElement, result: List[ScExpression] = Nil): List[ScExpression] =
+  private def originalModCount(element: PsiElement, acc: Long): Long =
     contextWithStableType(element).map(originalPosition) match {
-      case Some(expr) => originalContextsWithStableType(expr.getContext, expr :: result)
-      case None       => result
+      case Some(expr) => originalModCount(expr.getContext, acc + expr.modificationCount)
+      case None       => acc
     }
 
   @tailrec
