@@ -33,11 +33,11 @@ class ScalaConsoleExecuteAction extends AnAction with DumbAware {
     val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor == null) return
 
-    val console = ScalaConsoleInfo.getConsole(editor)
-    val processHandler = ScalaConsoleInfo.getProcessHandler(editor)
-    val consoleHistoryController = ScalaConsoleInfo.getController(editor)
+    val console           = ScalaConsoleInfo.getConsole(editor)
+    val processHandler    = ScalaConsoleInfo.getProcessHandler(editor)
+    val historyController = ScalaConsoleInfo.getController(editor)
 
-    if (editor == null || console == null || processHandler == null || consoleHistoryController == null) {
+    if (editor == null || console == null || processHandler == null || historyController == null) {
       LOG.info(new Throwable(s"Enter action in console failed: $editor, $console"))
       return
     }
@@ -50,7 +50,7 @@ class ScalaConsoleExecuteAction extends AnAction with DumbAware {
       val range: TextRange = new TextRange(0, document.getTextLength)
       editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
       console.addToHistory(range, console.getConsoleEditor, true)
-      consoleHistoryController.addToHistory(text)
+      historyController.addToHistory(text)
 
       editor.getCaretModel.moveToOffset(0)
       editor.getDocument.setText("")

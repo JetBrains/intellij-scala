@@ -74,7 +74,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     new ScalaCommandLineState(env)
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
-    setConsoleBuilder(new ScalaLanguageConsole.Builder(project, getModule))
+    setConsoleBuilder(ScalaLanguageConsole.builderFor(project, getModule))
 
     protected override def createJavaParameters: JavaParameters = {
       val params = createParams

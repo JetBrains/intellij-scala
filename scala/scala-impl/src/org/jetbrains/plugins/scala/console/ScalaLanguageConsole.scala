@@ -59,14 +59,17 @@ class ScalaLanguageConsole(project: Project, module: Module)
     updateTempResultValueDefinitions(text, contentType)
   }
 
-  private def updateState(text: String, contentType: ConsoleViewContentType): Unit = {
+  private def updateState(text: String, contentType: ConsoleViewContentType): Unit =
+    state = stateFor(text, contentType)
+
+  private def stateFor(text: String, contentType: ConsoleViewContentType): ConsoleState = {
     import ConsoleState._
-    import ScalaLanguageConsole._
     import ConsoleViewContentType._
+    import ScalaLanguageConsole._
 
     // expecting only first process output line to be args
     // welcome text is considered to be everything between first line and first prompt occurrence
-    def stateFromNormalOutput: ConsoleState = text.trim match {
+    def stateForNormalOutput: ConsoleState = text.trim match {
       case ScalaPromptIdleText                   => Ready
       case ScalaPromptInputInProgressTextTrimmed => InputIsInProgress
       case _                                     =>
@@ -76,8 +79,8 @@ class ScalaLanguageConsole(project: Project, module: Module)
         }
     }
 
-    state = contentType match {
-      case NORMAL_OUTPUT => stateFromNormalOutput
+    contentType match {
+      case NORMAL_OUTPUT => stateForNormalOutput
       case SYSTEM_OUTPUT => PrintingSystemOutput
       case _             => state
     }
@@ -227,7 +230,9 @@ private object ScalaLanguageConsole {
     }
   }
 
-  class Builder(project: Project, module: Module) extends TextConsoleBuilderImpl(project) {
+  def builderFor(project: Project, module: Module): TextConsoleBuilderImpl = new Builder(project, module)
+
+  private class Builder(project: Project, module: Module) extends TextConsoleBuilderImpl(project) {
 
     override def createConsole: LanguageConsoleImpl = {
       val consoleView = new ScalaLanguageConsole(project, module)
