@@ -8,7 +8,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.text.StringUtil.startsWithChar
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPasteProcessor._
-import org.jetbrains.plugins.scala.extensions.{childOf, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, inWriteAction}
 import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -46,22 +46,20 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
       val isOneLine = !literal.textContains('\n')
       if (isOneLine && settings(file).MULTILINE_STRING_INSERT_MARGIN_ON_ENTER) {
         val marginChar = getMarginChar(element)
-        literal match {
-          case WithStrippedMargin(_, _) =>
-          case _ =>
-            inWriteAction {
-              val stripMarginParams = if (marginChar == '|') "" else "('$marginChar')"
-              editor.getDocument.insertString(literal.getTextRange.getEndOffset, s".stripMargin$stripMarginParams")
-            }
+        val isPastedTextMultiline = text.indexOf('\n') >= 0
+        if(isPastedTextMultiline){
+          ensureLiteralHasStripMargin(editor, literal, marginChar)
+          addMargins(text, marginChar)
+        } else {
+          text
         }
-        text.replace("\n", "\n " + marginChar)
       } else if (MultilineStringUtil.looksLikeUsesMargins(literal)) {
         val marginChar = getMarginChar(element)
         val marginIsMissing = !startsWithChar(text.trim, marginChar)
         val startsFromNewLine = StringUtil.isEmptyOrSpaces(linePrefix(editor.getDocument, offset))
         val needMargin = marginIsMissing && startsFromNewLine
         val marginPrefix = if (needMargin) marginChar else ""
-        marginPrefix + text.replace("\n", "\n " + marginChar)
+        marginPrefix + addMargins(text, marginChar)
       } else {
         text
       }
@@ -70,6 +68,19 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
       .map(_.replace("\"\"\"", """\"\"\""""))
       .getOrElse(text)
   }
+
+  private def addMargins(text: String, marginChar: Char) =
+    text.replace("\n", "\n " + marginChar)
+
+  private def ensureLiteralHasStripMargin(editor: Editor, literal: ScLiteral, marginChar: Char): Unit =
+    literal match {
+      case WithStrippedMargin(_, _) =>
+      case _ =>
+        inWriteAction {
+          val stripMarginParams = if (marginChar == '|') "" else s"('$marginChar')"
+          editor.getDocument.insertString(literal.endOffset, s".stripMargin$stripMarginParams")
+        }
+    }
 }
 
 object MultiLineStringCopyPasteProcessor {
