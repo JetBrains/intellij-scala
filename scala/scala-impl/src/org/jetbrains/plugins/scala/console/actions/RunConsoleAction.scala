@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.icons.Icons
@@ -16,8 +17,13 @@ import org.jetbrains.plugins.scala.icons.Icons
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
-  override def update(e: AnActionEvent): Unit =
+  override def update(e: AnActionEvent): Unit = {
     e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
+
+    if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP) {
+      ScalaActionUtil.enableAndShowIfInScalaFile(e)
+    }
+  }
 
   override def actionPerformed(e: AnActionEvent): Unit =
     doRunAction(e)
