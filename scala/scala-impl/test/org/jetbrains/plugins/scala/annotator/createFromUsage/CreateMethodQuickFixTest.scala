@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
-;
-
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
@@ -21,23 +19,36 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   }
 
   private def doTestInObject(methodUsageText: String, methodDefinitionText: String): Unit = {
-    val definitionBefore = s"object Bar {\n}"
-    val definitionAfter  = s"object Bar {\n  $methodDefinitionText\n}"
-    val usage            = s"object Usage {\n  Bar.$Caret$methodUsageText\n}"
-
-    val before = s"$definitionBefore\n$usage"
-    val after  = s"$definitionAfter\n${removeCarets(usage)}"
-
+    val before =
+      s"""object Bar {
+         |}
+         |object Usage {
+         |  Bar.$Caret$methodUsageText
+         |}""".stripMargin
+    val after  =
+      s"""object Bar {
+         |  $methodDefinitionText
+         |}
+         |object Usage {
+         |  Bar.$methodUsageText
+         |}""".stripMargin
     testQuickFix(before, after, hint)
   }
 
   private def doTestInClass(methodUsageText: String, methodDefinitionText: String): Unit = {
-    val definitionBefore = s"class Bar {\n}"
-    val definitionAfter  = s"class Bar {\n  $methodDefinitionText\n}"
-    val usage            = s"object Usage {\n  new Bar().$Caret$methodUsageText\n}"
-
-    val before = s"$definitionBefore\n$usage"
-    val after  = s"$definitionAfter\n${removeCarets(usage)}"
+    val before =
+      s"""class Bar {
+         |}
+         |object Usage {
+         |  new Bar().$Caret$methodUsageText
+         |}""".stripMargin
+    val after  =
+      s"""class Bar {
+         |  $methodDefinitionText
+         |}
+         |object Usage {
+         |  new Bar().$methodUsageText
+         |}""".stripMargin
 
     testQuickFix(before, after, hint)
   }

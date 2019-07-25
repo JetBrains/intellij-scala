@@ -95,8 +95,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     virtualFile
   )
 
-  protected def removeCarets(documentText: String): String = documentText.replace(CARET, "")
-
   protected def changePsiAt(offset: Int): Unit = {
     invokeAndWait {
       getEditor.getCaretModel.moveToOffset(offset)
