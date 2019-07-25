@@ -56,6 +56,8 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Asser
       checkConformance(expr, element, holder)
   }
 
+  // TODO Why do we have this custom _implementation_ in a _test_?
+  // TODO Use TypeMismatchError.register
   private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
