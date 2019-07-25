@@ -61,8 +61,9 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     fixture.configureByText("dummy.scala", normalizedText)
 
     import JavaConverters._
-    fixture.doHighlighting().asScala
+    val highlightInfos = fixture.doHighlighting().asScala
       .filter(it => descriptionMatches(it.getDescription))
+    highlightInfos
       .map(info => (info, highlightedRange(info)))
       .filter(checkOffset(_, offset))
   }
@@ -79,7 +80,7 @@ object ScalaHighlightsTestBase {
 
   private def checkOffset(pair: (HighlightInfo, TextRange), offset: Int): Boolean = pair match {
     case _ if offset == -1 => true
-    case (_, range) => range.contains(offset)
+    case (_, range) => range.containsOffset(offset)
   }
 }
 
