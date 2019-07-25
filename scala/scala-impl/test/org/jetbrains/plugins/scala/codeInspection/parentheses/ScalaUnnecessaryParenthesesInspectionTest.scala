@@ -3,15 +3,13 @@ package codeInspection
 package parentheses
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
-/**
- * Nikolay.Tropin
- * 4/29/13
- */
-class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
+class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
@@ -49,15 +47,27 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
-  private def checkTextHasError(text: String): Unit = {
-    super.checkTextHasError(text, allowAdditionalHighlights = true)
+  private def checkTextHasErrors(text: String): Unit = {
+    val actualRanges  : Seq[TextRange] = findRanges(text)
+    val expectedRanges: Seq[TextRange] = {
+      val range = selectedRange(getEditor.getSelectionModel)
+      val left  = TextRange.from(range.getStartOffset, 1)
+      val right = TextRange.from(range.getEndOffset - 1, 1)
+      if (range.getLength >= 4) {
+        val middle = range.shrink(2)
+        Seq(left, middle, right)
+      } else {
+        Seq(left, right)
+      }
+    }
+    super.checkTextHasError(expectedRanges, actualRanges, allowAdditionalHighlights = true)
   }
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
   def test_1(): Unit = {
     val selected = s"$START(1 + 1)$END"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"(${CARET_MARKER}1 + 1)"
     val result = "1 + 1"
@@ -78,7 +88,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
          |  case odd => 1 + (odd * 3)
          |}
        """
-    checkTextHasError(selected, allowAdditionalHighlights = true)
+    checkTextHasErrors(selected)
 
     val text =
       s"""
@@ -106,7 +116,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
          |  case odd => 1 + (odd * 3)
          |}
        """
-    checkTextHasError(selected, allowAdditionalHighlights = true)
+    checkTextHasErrors(selected)
 
     val text =
       s"""
@@ -133,7 +143,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_6(): Unit = {
     val selected = s"val a = $START(((1)))$END"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"val a = (($CARET_MARKER(1)))"
     val result = "val a = 1"
@@ -150,7 +160,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_8(): Unit = {
     val selected = s"1 to $START((1, 2))$END"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = "1 to ((1, 2))"
     val result = "1 to (1, 2)"
@@ -169,7 +179,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_10(): Unit = {
     val selected = s"$START(/*b*/ 1 + /*a*/ 1 /*comment*/)$END"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"($CARET_MARKER/*b*/ 1 + /*a*/ 1 /*comment*/)"
     val result = "/*b*/ 1 + /*a*/ 1 /*comment*/"
@@ -179,7 +189,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_11(): Unit = {
     val selected = s"$START(/*1*/ 6 /*2*/ /*3*/)$END"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"($CARET_MARKER/*1*/ 6 /*2*/ /*3*/)"
     val result = "/*1*/ 6 /*2*/\n\r/*3*/"
@@ -190,7 +200,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_simpleType(): Unit = {
     val selected = s"val i: $START(Int)$END = 3"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"val i: ($CARET_MARKER Int) = 3"
     val result = "val i: Int = 3"
@@ -201,7 +211,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_simpleTypeMultipleParen(): Unit = {
     val selected = s"val i: $START(((Int)))$END = 3"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = "val i: (((Int))) = 3"
     val result = "val i: Int = 3"
@@ -211,7 +221,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_nestedFunctionType(): Unit = {
     val selected = s"val i: Int => $START(Int => String)$END = _"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = "val i: Int => (Int => String) = _"
 
@@ -226,7 +236,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_functionType(): Unit = {
     val selected = s"val i: $START(Int => String)$END = _"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = "val i: (Int => String) = _"
 
@@ -241,7 +251,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_functionTypeSingleParam(): Unit = {
     val selected = s"val i: $START(Int)$END => String = _"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = "val i: (Int) => String = _"
     withSettings(ignoreAroundFunctionTypeParam) {
@@ -264,7 +274,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_infixType_rightAssoc(): Unit = {
     val selected = s"val f: Int <<: $START(Unit <<: Unit)$END = _"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"val f: Int <<: ($CARET_MARKER Unit <<: Unit) = _"
     val result = "val f: Int <<: Unit <<: Unit = _"
@@ -278,7 +288,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_infixType_leftAssoc(): Unit = {
     val selected = s"val f: $START(Int op Unit)$END op Unit = _"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"val f: ($CARET_MARKER Int op Unit) op Unit = _"
     val result = "val f: Int op Unit op Unit = _"
@@ -306,7 +316,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
     withSettings(considerClarifying) {
       val selected = prefix + s"type Foo = $START(X + X)$END == (X + X)"
-      checkTextHasError(selected)
+      checkTextHasErrors(selected)
 
       val text = prefix + s"type Foo = $CARET_MARKER(X + X) == (X + X)"
       val result = prefix + "type Foo = X + X == (X + X)"
@@ -324,7 +334,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   def test_tupleType(): Unit = {
     val selected = s"val f: $START((Int, String))$END = _"
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"val f: ($CARET_MARKER(Int, Unit)) = _"
     val result = "val f: (Int, Unit) = _"
@@ -333,9 +343,9 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   }
 
 
-  def test_infxPatternPrecedence(): Unit = {
+  def test_infixPatternPrecedence(): Unit = {
     val selected = s"val a +: $START(b +: c)$END = _ "
-    checkTextHasError(selected)
+    checkTextHasErrors(selected)
 
     val text = s"val a +: ($CARET_MARKER b +: c) = _ "
     val result = "val a +: b +: c = _ "
@@ -351,11 +361,12 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val required = "Seq(1) map ((i: Int) => i + 1)"
 
     checkTextHasNoErrors(required)
-    checkTextHasError(r1)
-    checkTextHasError(r2)
-    checkTextHasError(r3)
+    checkTextHasErrors(r1)
+    checkTextHasErrors(r2)
+    checkTextHasErrors(r3)
 
     withSettings(ignoreAroundFunctionExprParam) {
+      checkTextHasNoErrors(required)
       checkTextHasNoErrors(r1)
       checkTextHasNoErrors(r2)
       checkTextHasNoErrors(r3)
@@ -367,10 +378,10 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_infxPatternClarifying(): Unit = {
+  def test_infixPatternClarifying(): Unit = {
     withSettings(considerClarifying) {
       val selected = s"val a +: $START(b *: c)$END = _ "
-      checkTextHasError(selected)
+      checkTextHasErrors(selected)
 
       val text = s"val a +: ($CARET_MARKER b *: c) = _ "
       val result = "val a +: b *: c = _ "
@@ -460,7 +471,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
          |  val a: $START(123123)$END ** (123) = ()
          |}
          |""".stripMargin
-    checkTextHasError(code)
+    checkTextHasErrors(code)
 
     val text =
       s"""
