@@ -30,12 +30,22 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   }
 
   protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
-    val foundRanges = findRanges(text)
-    val expectedHighlightRange = selectedRange(getEditor.getSelectionModel)
+    val actualRanges = findRanges(text)
+    val expectedRange = selectedRange(getEditor.getSelectionModel)
+    checkTextHasError(Seq(expectedRange), actualRanges, allowAdditionalHighlights)
+  }
+
+  protected def checkTextHasError(expectedHighlightRanges: Seq[TextRange],
+                                  actualHighlightRanges: Seq[TextRange],
+                                  allowAdditionalHighlights: Boolean): Unit = {
+    val expectedRangesNotFound = expectedHighlightRanges.filterNot(actualHighlightRanges.contains)
     if (shouldPass) {
-      assertTrue(s"Highlights not found: $description", foundRanges.nonEmpty)
-      assertTrue(s"Highlights found at: ${foundRanges.mkString(", ")}, not found: $expectedHighlightRange", foundRanges.contains(expectedHighlightRange))
-      val duplicatedHighlights = foundRanges
+      assertTrue(s"Highlights not found: $description", actualHighlightRanges.nonEmpty)
+      assertTrue(
+        s"Highlights found at: ${actualHighlightRanges.mkString(", ")}, " +
+          s"not found: ${expectedRangesNotFound.mkString(", ")}",
+        expectedRangesNotFound.isEmpty)
+      val duplicatedHighlights = actualHighlightRanges
         .groupBy(identity)
         .mapValues(_.length)
         .toSeq
@@ -43,15 +53,19 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
       assertTrue(s"Some highlights were duplicated: ${duplicatedHighlights.mkString(", ")}", duplicatedHighlights.isEmpty)
       if (!allowAdditionalHighlights) {
-        assertTrue(s"Found too many highlights: ${foundRanges.mkString(", ")}", foundRanges.length == 1)
+        assertTrue(
+          s"Found too many highlights: ${actualHighlightRanges.mkString(", ")}, " +
+            s"expected: ${expectedHighlightRanges.mkString(", ")}",
+          actualHighlightRanges.length == expectedHighlightRanges.length
+        )
       }
     } else {
-      assertTrue(failingPassed, foundRanges.isEmpty)
-      assertFalse(failingPassed, foundRanges.contains(expectedHighlightRange))
+      assertTrue(failingPassed, actualHighlightRanges.isEmpty)
+      assertFalse(failingPassed, expectedRangesNotFound.isEmpty)
     }
   }
 
-  private def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
+  protected def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
 
   protected def configureByText(text: String): Seq[(HighlightInfo, TextRange)] = {
     val fileText = createTestText(text)
@@ -69,14 +83,14 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   }
 
   protected def createTestText(text: String): String = text
+
+  protected def selectedRange(model: SelectionModel): TextRange =
+    new TextRange(model.getSelectionStart, model.getSelectionEnd)
 }
 
 object ScalaHighlightsTestBase {
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
-
-  private def selectedRange(model: SelectionModel): TextRange =
-    new TextRange(model.getSelectionStart, model.getSelectionEnd)
 
   private def checkOffset(pair: (HighlightInfo, TextRange), offset: Int): Boolean = pair match {
     case _ if offset == -1 => true
