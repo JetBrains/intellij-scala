@@ -476,6 +476,11 @@ package object extensions {
     val SquareBrackets = new Val("[", "]")
   }
 
+  implicit class TextRangeExt(private val target: TextRange) extends AnyVal {
+    def expand(delta: Int): TextRange = TextRange.create(target.getStartOffset - delta, target.getEndOffset + delta)
+    def shrink(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset - delta)
+  }
+
   implicit class RangeMarkerExt(private val marker: RangeMarker) extends AnyVal {
     def getTextRange: TextRange = TextRange.create(marker.getStartOffset, marker.getEndOffset)
   }
