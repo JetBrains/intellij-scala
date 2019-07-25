@@ -167,10 +167,11 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
+                  // TODO What's even that? Why don't we reuse TypeMismatch?
                   case ElementApplicabilityProblem(element, actual, expected) if inSameFile(element, holder) =>
-                    val (actualType, expectedType) = ScTypePresentation.different(actual, expected)
-                    holder.createErrorAnnotation(element, ScalaBundle.message("type.mismatch.found.required",
-                      actualType, expectedType))
+                    TypeMismatchError.register(element, expected, actual) { (expected, actual) =>
+                      ScalaBundle.message("type.mismatch.found.required", actual, expected)
+                    }
                   case _ =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }

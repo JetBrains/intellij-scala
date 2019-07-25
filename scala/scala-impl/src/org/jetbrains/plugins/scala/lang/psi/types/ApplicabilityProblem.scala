@@ -29,7 +29,8 @@ case class ParameterSpecifiedMultipleTimes(assignment: ScAssignment) extends App
 case class UnresolvedParameter(assignment: ScAssignment) extends ApplicabilityProblem
 //TODO , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
-case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem("42") //todo 
+// TODO Why don't we reuse TypeMismatch?
+case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem("42")
 
 // applicability problem
 case class DoesNotTakeParameters() extends ApplicabilityProblem

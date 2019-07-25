@@ -331,6 +331,7 @@ object Compatibility {
         for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1) {
           val conforms = exprType.weakConforms(paramType)
           if (!conforms) {
+            // TODO Why don't we reuse TypeMismatch?
             return ConformanceExtResult(Seq(ElementApplicabilityProblem(exprs(k).expr, exprType, paramType)),
               constraintAccumulator, defaultParameterUsed, matched)
           } else {

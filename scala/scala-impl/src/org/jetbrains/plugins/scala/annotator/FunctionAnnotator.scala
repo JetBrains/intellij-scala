@@ -119,15 +119,11 @@ trait FunctionAnnotator {
 
       def typeMismatch() {
         if (typeAware) {
-          val (usageTypeText, functionTypeText) = ScTypePresentation.different(usageType, functionType)
-          val message = ScalaBundle.message("type.mismatch.found.required", usageTypeText, functionTypeText)
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturn].expr else None
-          val expr = returnExpression.getOrElse(usage) match {
-            case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
-            case e => e
+          val expression = returnExpression.getOrElse(usage)
+          TypeMismatchError.register(expression, functionType, usageType, blockLevel = 1) { (expected, actual) =>
+            ScalaBundle.message("type.mismatch.found.required", actual, expected)
           }
-          val annotation = holder.createErrorAnnotation(expr, message)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
         }
       }
     }
