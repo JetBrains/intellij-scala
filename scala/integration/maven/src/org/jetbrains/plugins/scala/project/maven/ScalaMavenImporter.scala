@@ -55,7 +55,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
         val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id).getPath)
         configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path)
       }
-      
+
       module.configureScalaCompilerSettingsFrom("Maven", compilerOptions)
 
       val Some(version) = configuration.compilerVersion
@@ -148,11 +148,18 @@ private object ScalaMavenImporter {
     def compilerVersion: Option[String] = compilerVersionProperty
       .orElse(standardLibrary.map(_.getVersion))
 
-    private def compilerVersionProperty: Option[String] = element("scalaVersion").map(_.getTextTrim)
+    private def compilerVersionProperty: Option[String] = resolvePluginConfig(configElementName = "scalaVersion", userPropertyName = "scala.version")
 
     def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 
-    def compilerOptions: Seq[String] = elements("args", "arg").map(_.getTextTrim)
+    def compilerOptions: Seq[String] = {
+      val args: Seq[String] = elements("args", "arg").map(_.getTextTrim)
+      val addScalacArgs: Option[String] = resolvePluginConfig(configElementName = "addScalacArgs", userPropertyName = "addScalacArgs")
+      val addScalacArgsSplit: Seq[String] = addScalacArgs.toSeq.flatMap(_.split("\\|"))
+
+      // NB scala-maven-plugin puts addScalacArgs after args
+      args ++ addScalacArgsSplit
+    }
 
     def plugins: Seq[MavenId] = {
       elements("compilerPlugins", "compilerPlugin").flatMap { plugin =>
@@ -177,6 +184,12 @@ private object ScalaMavenImporter {
 
     private def element(name: String): Option[Element] =
       compilerConfigurations.flatMap(_.getChild(name).toOption.toSeq).headOption
+
+    // looks up a plugin parameter, via the plugin configuration if set directly, otherwise via its user property
+    private def resolvePluginConfig(configElementName: String, userPropertyName: String): Option[String] =
+      element(configElementName).map(_.getTextTrim)
+        .orElse(Option(project.getProperties.getProperty(userPropertyName)).map(_.trim))
+        .filter(_.nonEmpty)
 
     def valid: Boolean = compilerPlugin.isDefined && compilerVersion.isDefined
   }
