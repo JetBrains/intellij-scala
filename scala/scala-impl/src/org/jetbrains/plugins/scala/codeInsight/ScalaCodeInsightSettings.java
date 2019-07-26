@@ -26,6 +26,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showFunctionReturnType = true;
     public boolean showPropertyType = false;
     public boolean showLocalVariableType = false;
+    public boolean showExpressionChainType = true;
 
     public int presentationLength = 45;
 
@@ -53,6 +54,14 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Boolean> showLocalVariableTypeSetter() {
         return value -> showLocalVariableType = value;
+    }
+
+    public Getter<Boolean> showExpressionChainTypeGetter() {
+        return () -> showExpressionChainType;
+    }
+
+    public Setter<Boolean> showExpressionChainTypeSetter() {
+        return value -> showExpressionChainType = value;
     }
 
     public Getter<Integer> presentationLengthGetter() {

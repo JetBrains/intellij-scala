@@ -289,6 +289,9 @@
             <action id="ToogleForObviousType"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleObviousTypeAction"
                     text="Obvious types hints"/>
+            <action id="ToogleForExpressionChainType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleExpressionChainTypeAction"
+                    text="Expression chain type hints"/>
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"
@@ -342,5 +345,9 @@
                 description="Expand implicit conversions / arguments inlay hints in editor">
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
         </action>
+
+        <action id="Scala.ToggleExpressionChainType"
+                class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleExpressionChainTypeAction"
+                text="Expression Chain Type Hints" />
     </actions>
 </idea-plugin>

@@ -32,6 +32,12 @@ final class ScalaTypeHintsConfigurable
       settings.showLocalVariableTypeSetter
     )
 
+    checkBox(
+      "Show expression chain type hints (Scala)",
+      settings.showExpressionChainTypeGetter,
+      settings.showExpressionChainTypeSetter
+    )
+
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
       settingsPanel.getPanel,
@@ -87,10 +93,13 @@ object ScalaTypeHintsConfigurable {
     ScalaCodeInsightSettings.showLocalVariableTypeGetter,
     ScalaCodeInsightSettings.showLocalVariableTypeSetter
   )
-
   class ToogleObviousTypeAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showObviousTypeGetter,
     ScalaCodeInsightSettings.showObviousTypeSetter
   )
 
+  class ToggleExpressionChainTypeAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.showExpressionChainTypeGetter,
+    ScalaCodeInsightSettings.showExpressionChainTypeSetter
+  )
 }
