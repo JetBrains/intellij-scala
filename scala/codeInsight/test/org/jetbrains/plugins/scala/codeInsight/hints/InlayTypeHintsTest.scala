@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.codeInsight.daemon.impl.HintRenderer
-import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.util.Setter
 
 class InlayTypeHintsTest extends InlayHintsTestBase {
@@ -80,10 +78,4 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
       setOptions(false)
     }
   }
-
-  private val inlayText = (_: Inlay[_]).getRenderer match {
-    case renderer: HintRenderer => Some(renderer.getText)
-    case _ => None
-  }
-
 }

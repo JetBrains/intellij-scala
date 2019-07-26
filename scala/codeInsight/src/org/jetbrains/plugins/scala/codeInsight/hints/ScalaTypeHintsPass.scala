@@ -23,7 +23,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     else {
       for {
         element <- root.elements
-        val definition = Definition(element)
+        definition = Definition(element)
         (tpe, body) <- typeAndBodyOf(definition)
         if showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- inlayInfoFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element))
