@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala
+package codeInsight
+package hints
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.TypeDiff
-import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match}
-import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text, foldedAttributes, foldedString}
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
+import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -57,24 +56,8 @@ private[codeInsight] trait ScalaTypeHintsPass {
       case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => Seq(Text(" ="))
       case _ => Seq.empty
     }
-    text = Text(": ") +: (partsOf(returnType) ++ suffix)
+    text = Text(": ") +: (textPartsOf(returnType, presentationLength) ++ suffix)
   } yield Hint(text, anchor, suffix = true, menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
-
-  private def partsOf(tpe: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
-    def toText(diff: TypeDiff): Text = diff match {
-      case Group(diffs @_*) =>
-        Text(foldedString,
-          foldedAttributes(error = false),
-          expansion = Some(() => diffs.map(toText)))
-      case Match(text, tpe) =>
-        Text(text,
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
-          navigatable = tpe.flatMap(_.extractClass))
-    }
-    TypeDiff.parse(tpe)
-      .flattenTo(maxChars = presentationLength, groupLength = foldedString.length)
-      .map(toText)
-  }
 }
 
 private object ScalaTypeHintsPass {
