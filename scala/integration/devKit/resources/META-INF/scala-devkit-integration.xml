@@ -2,9 +2,15 @@
 
 <idea-plugin>
 
+    <actions>
+        <action class="org.jetbrains.idea.devkit.build.AttachIntellijSourcesAction" text="Attach IntelliJ Sources">
+            <add-to-group group-id="MaintenanceGroup"/>
+        </action>
+    </actions>
+
     <extensions defaultExtensionNs="com.intellij">
         <externalSystemTaskNotificationListener
-                implementation="org.jetbrains.idea.devkit.build.IntelliJSourcesAttachListener"/>
+                implementation="org.jetbrains.idea.devkit.build.IntellijSourcesAttachListener"/>
     </extensions>
 
 </idea-plugin>
