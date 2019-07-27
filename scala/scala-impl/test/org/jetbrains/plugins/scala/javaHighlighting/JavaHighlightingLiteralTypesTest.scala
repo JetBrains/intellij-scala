@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.javaHighlighting
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 
 class JavaHighlightingLiteralTypesTest extends JavaHighlightingTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+
+  override implicit val version: ScalaVersion = Scala_2_13
 
   def testSCL15897(): Unit = {
     val scala =
