@@ -158,4 +158,13 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
       |}
       |""".stripMargin
   )
+
+  def test_NoAstLoadingOtherFile(): Unit = checkTextHasNoErrors(
+    """
+      |class Test {
+      |  val right: Either[String, Int] = Right(1)
+      |}
+      |""".stripMargin
+  )
+
 }

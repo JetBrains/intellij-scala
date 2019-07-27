@@ -28,8 +28,8 @@ class ForwardReferenceInspection extends AbstractRegisteredInspection {
           .collect(asValueOrVariable)
 
         val isSuspicious = maybeResolved.exists(resolved =>
-          ref.getTextOffset < resolved.getTextOffset &&
-            ref.parents.takeWhile(propagatesControlFlowToChildren).contains(resolved.getParent)
+          ref.parents.takeWhile(propagatesControlFlowToChildren).contains(resolved.getParent) &&
+            ref.getTextOffset < resolved.getTextOffset
         )
 
         if (isSuspicious) {
