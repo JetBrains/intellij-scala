@@ -581,7 +581,6 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "aaa.super"
   )
 
-
   def testCompanionObjectName(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1092,6 +1091,37 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     fileText = s"1.toBin$CARET",
     resultText = s"1.toBinaryString$CARET",
     item = "toBinaryString"
+  )
+
+  def testParameterName(): Unit = checkNoCompletion(
+    fileText = s"def foo(bar: b$CARET)",
+    item = "bar"
+  )
+
+  def testLocalValueName(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |val foo = new f$CARET
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValueName2(): Unit = checkNoCompletion(
+    fileText = s"val (foo, bar) = f$CARET",
+    item = "foo"
+  )
+
+  def testConstructorPatternValueName(): Unit = doCompletionTest(
+    fileText =
+      s"""Array.emptyObjectArray match {
+         |  case Array(head) => h$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""Array.emptyObjectArray match {
+         |  case Array(head) => head$CARET
+         |}""".stripMargin,
+    item = "head"
   )
 
   def test2_13_extensionMethod1(): Unit = doCompletionTest(

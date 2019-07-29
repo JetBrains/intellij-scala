@@ -6,14 +6,13 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
@@ -96,7 +96,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
             object ValidItem {
 
-              private val isInTypeElement = PsiTreeUtil.getContextOfType(position, classOf[ScTypeElement]) != null
+              private val isInTypeElement = getContextOfType(position, classOf[ScTypeElement]) != null
               private val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
 
               def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
@@ -117,17 +117,16 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     }.orElse(Some(item))
                   case _ if lookingForAnnotations => None
                   case _: ScFun | _: ScClassParameter => Some(item)
-                  case _: ScParameter if !item.isNamedParameter =>
-                    item.isLocalVariable = true
-                    Some(item)
+                  case parameter: ScParameter if !item.isNamedParameter =>
+                    validLocalDefinitionItem(item, parameter)
                   case pattern: ScBindingPattern =>
                     ScalaPsiUtil.nameContext(pattern) match {
                       case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
-                        item.isLocalVariable = true
-                        Some(item)
-                      case _: ScCaseClause | _: ScForBinding | _: ScGenerator =>
-                        item.isLocalVariable = true
-                        Some(item)
+                        validLocalDefinitionItem(item, valueOrVariable)
+                      case ScCaseClause(Some(pattern), _, _) =>
+                        validLocalDefinitionItem(item, pattern)
+                      case patterned: ScPatterned =>
+                        validLocalDefinitionItem(item, patterned)
                       case _ => Some(item)
                     }
                   case _ => Some(item)
@@ -155,6 +154,14 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   }
                 else false
               }
+
+              private def validLocalDefinitionItem(item: ScalaLookupItem, ancestor: ScalaPsiElement) =
+                if (isAncestor(ancestor, position, true)) {
+                  None
+                } else {
+                  item.isLocalVariable = true
+                  Some(item)
+                }
             }
 
             val defaultLookupElements = (ref match {
@@ -232,8 +239,8 @@ object ScalaBasicCompletionContributor {
 
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
 
-    private val containingClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
-    private val isInImport = PsiTreeUtil.getContextOfType(getPlace, classOf[ScImportStmt]) != null
+    private val containingClass = Option(getContextOfType(position, classOf[PsiClass]))
+    private val isInImport = getContextOfType(getPlace, classOf[ScImportStmt]) != null
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
 
     protected val qualifierType: Option[ScType] = None
@@ -344,7 +351,7 @@ object ScalaBasicCompletionContributor {
       context.commitDocument()
 
       val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
-      PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReference], false) match {
+      findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReference], false) match {
         case null =>
         case ScReference.qualifier(qualifier) =>
           document.insertString(qualifier.getTextRange.getEndOffset, text)
