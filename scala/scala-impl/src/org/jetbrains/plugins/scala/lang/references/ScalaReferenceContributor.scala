@@ -98,11 +98,8 @@ private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed
           val offset = element.getTextRange.getStartOffset - start
           getReferencesByElement(interpolatedString, element.getText, offset, true)
         }
-      case literal: ScLiteral =>
-        literal.getValue match {
-          case text: String => getReferencesByElement(element, text, 1, true)
-          case _ => PsiReference.EMPTY_ARRAY
-        }
+      case ScLiteral(text) =>
+        getReferencesByElement(element, text, 1, true)
       case _ => PsiReference.EMPTY_ARRAY
     }
   }

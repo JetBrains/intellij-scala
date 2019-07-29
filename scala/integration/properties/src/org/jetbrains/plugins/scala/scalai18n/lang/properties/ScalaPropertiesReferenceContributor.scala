@@ -72,11 +72,8 @@ object ScalaPropertiesReferenceContributor {
     def unapply(literal: ScLiteral): Option[PropertyReference] = literal match {
       case _: ScInterpolatedStringLiteral => None
       case _ if !literal.isString || literal.isMultiLineString => None
-      case _ =>
-        literal.getValue match {
-          case text: String if !text.contains(" ") => Some(new PropertyReference(text, literal, null, true))
-          case _ => None
-        }
+      case ScLiteral(text) if !text.contains(" ") => Some(new PropertyReference(text, literal, null, true))
+      case _ => None
     }
   }
 
