@@ -1411,4 +1411,30 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testScalaVarargs(): Unit = {
+    val java =
+      """
+        |package foo;
+        |import static foo.Foo.a;
+        |
+        |public class Test {
+        |  public static void main(String[] args) {
+        |    a(1, 2, 3, 4, 5);
+        |  }
+        |}
+        |""".stripMargin
+
+    val scala =
+      """
+        |package foo;
+        |
+        |object Foo {
+        |  @scala.annotation.varargs
+        |  def a(is: Int*): Unit = ???
+        |}
+        |""".stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "Test"))
+  }
 }

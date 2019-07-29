@@ -91,14 +91,14 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   @Cached(ModCount.getBlockModificationCount, this)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val buffer = mutable.ArrayBuffer.empty[ScPrimaryConstructorWrapper]
-    buffer += new ScPrimaryConstructorWrapper(this)
+
     for {
       first <- parameterList.clauses.headOption
       if first.hasRepeatedParam
       if hasAnnotation("scala.annotation.varargs")
-    } {
-      buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
-    }
+    } buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
+
+    buffer += new ScPrimaryConstructorWrapper(this)
     buffer
   }
 }
