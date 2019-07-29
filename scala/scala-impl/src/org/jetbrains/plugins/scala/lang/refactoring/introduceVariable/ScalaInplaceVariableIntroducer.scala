@@ -7,8 +7,7 @@ import java.awt._
 import java.awt.event.{ActionEvent, ItemEvent}
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
-import com.intellij.openapi.application.{ApplicationManager, Result}
-import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.writeCommandAction
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.command.undo.UndoManager
@@ -29,14 +28,14 @@ import javax.swing._
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForBinding}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -44,11 +43,6 @@ import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 
 import scala.collection.mutable
-
-/**
-  * Nikolay.Tropin
-  * 6/3/13
-  */
 
 class ScalaInplaceVariableIntroducer(expr: ScExpression,
                                      maybeSelectedType: Option[ScType],
@@ -134,7 +128,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
   override def getInitialName: String = initialName
 
-  protected override def getComponent: JComponent = {
+  override protected def getComponent: JComponent = {
     if (!isForBinding) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
       myVarCheckbox.setMnemonic('v')
@@ -162,87 +156,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
         mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
         mySpecifyTypeChb.setSelected(needTypeDefault)
         mySpecifyTypeChb.setMnemonic('t')
-        mySpecifyTypeChb.addItemListener((e: ItemEvent) => {
-          val greedyToRight = mutable.WeakHashMap[RangeHighlighter, Boolean]()
-
-          def setGreedyToRightToFalse(): Unit = {
-            val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
-            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
-              greedyToRight += (highlighter -> highlighter.isGreedyToRight)
-          }
-
-          def resetGreedyToRightBack(): Unit = {
-            val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
-            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
-              highlighter.setGreedyToRight(greedyToRight(highlighter))
-          }
-
-          def checkRange(start: Int, end: Int): Boolean = {
-            val named: Option[ScNamedElement] = namedElement(getDeclaration)
-            if (named.isDefined) {
-              val nameRange = named.get.getNameIdentifier.getTextRange
-              nameRange.getStartOffset == start && nameRange.getEndOffset <= end
-            } else false
-          }
-
-          def addTypeAnnotation(selectedType: ScType): Unit = {
-            getDeclaration.foreach {
-              case declaration@(_: ScDeclaredElementsHolder | _: ScForBinding) =>
-                val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-                val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
-                val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                declarationCopy.addRangeAfter(first, last, assign)
-                assign.delete()
-
-                val replaced = declaration.replace(declarationCopy)
-                ScalaPsiUtil.adjustTypes(replaced)
-                setDeclaration(replaced)
-                commitDocument()
-              case _ =>
-            }
-          }
-
-          def removeTypeAnnotation(): Unit = {
-            getDeclaration.foreach {
-              case holder: ScDeclaredElementsHolder =>
-                val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                implicit val manager: PsiManager = myFile.getManager
-                val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
-                val newWhiteSpace = holder.addBefore(whiteSpace, assign)
-                holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
-                setDeclaration(holder)
-                commitDocument()
-              case forBinding: ScForBinding if forBinding.pattern.isInstanceOf[ScTypedPattern] =>
-                val colon = forBinding.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                forBinding.pattern.getNode.removeRange(colon.getNode, null)
-                setDeclaration(forBinding)
-                commitDocument()
-              case _ =>
-            }
-          }
-          writeCommandAction(myProject)
-            .withName(getCommandName)
-            .withGroupId(getCommandName)
-            .run (() => {
-              commitDocument()
-              setGreedyToRightToFalse()
-              if (needInferType) {
-                addTypeAnnotation(selectedType)
-              } else {
-                removeTypeAnnotation()
-              }
-            })
-
-          ApplicationManager.getApplication.runReadAction(new Runnable {
-            def run(): Unit = {
-              if (needTypeDefault) resetGreedyToRightBack()
-            }
-          })
-        })
-    }
+        mySpecifyTypeChb.addItemListener(_ => handleSpecifyTypeCheckboxChange(selectedType))
+      }
 
     myCheckIdentifierListener = Some(checkIdentifierListener())
     myCheckIdentifierListener.foreach {
@@ -251,6 +166,89 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
     setBalloonPanel(nameIsValid = true)
     myBalloonPanel
+  }
+
+  private def handleSpecifyTypeCheckboxChange(selectedType: ScType): Unit = {
+    val greedyToRight = mutable.WeakHashMap[RangeHighlighter, Boolean]()
+
+    def setGreedyToRightToFalse(): Unit = {
+      val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
+      for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
+        greedyToRight += (highlighter -> highlighter.isGreedyToRight)
+    }
+
+    def resetGreedyToRightBack(): Unit = {
+      val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
+      for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
+        highlighter.setGreedyToRight(greedyToRight(highlighter))
+    }
+
+    def checkRange(start: Int, end: Int): Boolean = {
+      val named: Option[ScNamedElement] = namedElement(getDeclaration)
+      if (named.isDefined) {
+        val nameRange = named.get.getNameIdentifier.getTextRange
+        nameRange.getStartOffset == start && nameRange.getEndOffset <= end
+      } else false
+    }
+
+    def addTypeAnnotation(selectedType: ScType): Unit = {
+      getDeclaration.foreach {
+        case declaration@(_: ScDeclaredElementsHolder | _: ScForBinding) =>
+          val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
+          val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
+
+          val first  = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
+          val last   = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+          val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+          declarationCopy.addRangeAfter(first, last, assign)
+          assign.delete()
+
+          val replaced = declaration.replace(declarationCopy)
+          ScalaPsiUtil.adjustTypes(replaced)
+          setDeclaration(replaced)
+          commitDocument()
+        case _ =>
+      }
+    }
+
+    def removeTypeAnnotation(): Unit = {
+      getDeclaration.foreach {
+        case holder: ScDeclaredElementsHolder =>
+          val colon  = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
+          val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+          implicit val manager: PsiManager = myFile.getManager
+          val whiteSpace    = createExpressionFromText("1 + 1").findElementAt(1)
+          val newWhiteSpace = holder.addBefore(whiteSpace, assign)
+          holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
+          setDeclaration(holder)
+          commitDocument()
+        case forBinding: ScForBinding if forBinding.pattern.isInstanceOf[ScTypedPattern] =>
+          val colon = forBinding.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
+          forBinding.pattern.getNode.removeRange(colon.getNode, null)
+          setDeclaration(forBinding)
+          commitDocument()
+        case _ =>
+      }
+    }
+
+    writeCommandAction(myProject)
+      .withName(getCommandName)
+      .withGroupId(getCommandName)
+      .run(() => {
+        commitDocument()
+        setGreedyToRightToFalse()
+        if (needInferType) {
+          addTypeAnnotation(selectedType)
+        } else {
+          removeTypeAnnotation()
+        }
+      })
+
+    ApplicationManager.getApplication.runReadAction(new Runnable {
+      def run(): Unit = {
+        if (needTypeDefault) resetGreedyToRightBack()
+      }
+    })
   }
 
   private def setUpTypePanel(): JPanel = {
