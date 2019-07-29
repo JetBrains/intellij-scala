@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package references
+package org.jetbrains.plugins.scala.lang.references
 
 import java.util
 import java.util.Collections
@@ -10,8 +8,10 @@ import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.{Condition, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.PsiJavaElementPattern
+import com.intellij.patterns.PsiJavaPatterns.psiElement
 import com.intellij.psi._
+import com.intellij.psi.impl.source.resolve.reference.ArbitraryPlaceUrlReferenceProvider
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
 import com.intellij.util.ProcessingContext
 import com.intellij.util.containers.ContainerUtil
@@ -27,9 +27,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartRe
 import scala.collection.mutable.ListBuffer
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
-  def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
-    registrar.registerReferenceProvider(PlatformPatterns.psiElement(classOf[ScLiteral]), new FilePathReferenceProvider())
-    registrar.registerReferenceProvider(PlatformPatterns.psiElement(classOf[ScLiteral]), new InterpolatedStringReferenceProvider())
+
+  override def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
+
+    def literalCapture: PsiJavaElementPattern.Capture[ScLiteral] = psiElement(classOf[ScLiteral])
+
+    registrar.registerReferenceProvider(literalCapture, new FilePathReferenceProvider())
+    registrar.registerReferenceProvider(literalCapture, new InterpolatedStringReferenceProvider())
+    registrar.registerReferenceProvider(literalCapture, new ArbitraryPlaceUrlReferenceProvider())
   }
 }
 
@@ -75,7 +80,7 @@ class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
 }
 
 // todo: Copy of the corresponding class from IDEA, changed to use ScLiteral rather than PsiLiteralExpr
-class FilePathReferenceProvider extends PsiReferenceProvider {
+private class FilePathReferenceProvider extends PsiReferenceProvider {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.references.FilePathReferenceProvider")
 
   @NotNull def getRoots(thisModule: Module, includingClasses: Boolean): java.util.Collection[PsiFileSystemItem] = {
