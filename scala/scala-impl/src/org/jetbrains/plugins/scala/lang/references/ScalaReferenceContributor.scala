@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 
@@ -37,39 +37,39 @@ private class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
       case _: ScInterpolatedStringLiteral => PsiReference.EMPTY_ARRAY
       case l: ScLiteral if (l.isString || l.isMultiLineString) && l.getText.contains("$") =>
         val interpolated = ScalaPsiElementFactory.createExpressionFromText("s" + l.getText, l.getContext)
-        interpolated.getChildren.filter {
+        val references = interpolated.getChildren.filter {
           case _: ScInterpolatedStringPartReference => false
-          case _: ScReferenceExpression => true
-          case _ => false
-        }.map {
-          case ref: ScReferenceExpression =>
-            new PsiReference {
-              override def getCanonicalText: String = ref.getCanonicalText
-
-              override def getElement: PsiElement = l
-
-              override def isReferenceTo(element: PsiElement): Boolean = ref.isReferenceTo(element)
-
-              override def bindToElement(element: PsiElement): PsiElement = ref
-
-              override def handleElementRename(newElementName: String): PsiElement = ref
-
-              override def isSoft: Boolean = true
-
-              override def getRangeInElement: TextRange = {
-                val range = ref.getTextRange
-                val startOffset = interpolated.getTextRange.getStartOffset + 1
-                new TextRange(range.getStartOffset - startOffset, range.getEndOffset - startOffset)
-              }
-
-              override def resolve(): PsiElement = null
-            }
+          case _: ScReferenceExpression             => true
+          case _                                    => false
+        }
+        references.map { ref =>
+          new InterpolatedStringPsiReference(ref.asInstanceOf[ScReferenceExpression], l, interpolated)
         }
       case _ => PsiReference.EMPTY_ARRAY
     }
   }
 }
 
+private class InterpolatedStringPsiReference(ref: ScReferenceExpression, literal: ScLiteral, interpolated: ScExpression) extends PsiReference {
+  override def getCanonicalText: String = ref.getCanonicalText
+
+  override def getElement: PsiElement = literal
+
+  override def isReferenceTo(element: PsiElement): Boolean = ref.isReferenceTo(element)
+
+  override def bindToElement(element: PsiElement): PsiElement = ref
+
+  override def handleElementRename(newElementName: String): PsiElement = ref
+
+  override def isSoft: Boolean = true
+
+  override def getRangeInElement: TextRange = {
+    val startOffset = interpolated.getTextRange.getStartOffset + 1
+    ref.getTextRange.shiftLeft(startOffset)
+  }
+
+  override def resolve(): PsiElement = null
+}
 
 private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed: Boolean) extends FilePathReferenceProvider {
   import ScalaFilePathReferenceProvider._
