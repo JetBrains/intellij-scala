@@ -1112,6 +1112,11 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
+  def testLocalValueName3(): Unit = checkNoCompletion(
+    fileText = s"val foo: f$CARET",
+    item = "foo"
+  )
+
   def testConstructorPatternValueName(): Unit = doCompletionTest(
     fileText =
       s"""Array.emptyObjectArray match {
