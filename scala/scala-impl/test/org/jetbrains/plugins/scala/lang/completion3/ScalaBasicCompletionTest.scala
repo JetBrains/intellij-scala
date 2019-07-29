@@ -1103,6 +1103,37 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     resultText = s"1.toBinaryString$CARET",
     item = "toBinaryString"
   )
+
+  def testParameterName(): Unit = checkNoBasicCompletion(
+    fileText = s"def foo(bar: b$CARET)",
+    item = "bar"
+  )
+
+  def testLocalValueName(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |val foo = new f$CARET
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValueName2(): Unit = checkNoBasicCompletion(
+    fileText = s"val (foo, bar) = f$CARET",
+    item = "foo"
+  )
+
+  def testConstructorPatternValueName(): Unit = doCompletionTest(
+    fileText =
+      s"""Array.emptyObjectArray match {
+         |  case Array(head) => h$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""Array.emptyObjectArray match {
+         |  case Array(head) => head$CARET
+         |}""".stripMargin,
+    item = "head"
+  )
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
