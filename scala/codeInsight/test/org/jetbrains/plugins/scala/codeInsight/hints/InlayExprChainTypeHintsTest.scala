@@ -15,7 +15,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -25,7 +25,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -45,7 +45,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet)$S: Set[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -55,7 +55,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
-       |  .toString)$S: String$E
+       |  .toString)
      """.stripMargin
   )
 

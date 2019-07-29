@@ -21,11 +21,12 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
     if (editor.isOneLineMode || !showExpressionChainType) Seq.empty
     else (
       for {
-        ExprChain(exprChain) <- root.elements
-        if exprChain.length >= 3
+        ExprChain(exprChainWithLast) <- root.elements
+        if exprChainWithLast.length >= 4
+        exprChain = exprChainWithLast.init
 
         exprsAtLineEnd = exprChain.filter(isFollowedByLineEnd)
-        if exprsAtLineEnd.length >= 3
+        if exprsAtLineEnd.length >= 2
 
         types = exprsAtLineEnd
           .map(e => e.`type`())
