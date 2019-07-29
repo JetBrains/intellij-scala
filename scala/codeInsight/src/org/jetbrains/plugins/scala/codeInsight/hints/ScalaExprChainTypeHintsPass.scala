@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsPass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.settings.annotations.Expression
 
 import scala.annotation.tailrec
 
@@ -28,7 +29,11 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
         exprsAtLineEnd = exprChain.filter(isFollowedByLineEnd)
         if exprsAtLineEnd.length >= 2
 
-        types = exprsAtLineEnd
+        exprs =
+          if (Expression(exprsAtLineEnd.head).hasStableType) exprsAtLineEnd.tail
+          else exprsAtLineEnd
+
+        types = exprs
           .map(e => e.`type`())
           .takeWhile {
             _.isRight
@@ -36,7 +41,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           .map(_.right.get)
         if types.toSet.size >= 2
 
-        (expr, ty) <- removeConsecutiveDuplicates(exprsAtLineEnd.zip(types))
+        (expr, ty) <- removeConsecutiveDuplicates(exprs.zip(types))
 
       } yield inlayInfoFor(expr, ty)(editor.getColorsScheme, TypePresentationContext(expr))
       ).toSeq

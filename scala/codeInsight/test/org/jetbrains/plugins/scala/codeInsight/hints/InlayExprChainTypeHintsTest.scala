@@ -11,7 +11,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
 
   def testChain(): Unit = doTest(
     s"""
-       |List(1, 2, 3)$S: List[Int]$E
+       |List(1, 2, 3)
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
@@ -21,7 +21,18 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
 
   def testChainInValDef(): Unit = doTest(
     s"""
-       |val x = List(1, 2, 3)$S: List[Int]$E
+       |val x = List(1, 2, 3)
+       |  .toSeq$S: Seq[Int]$E
+       |  .filter(_ > 2)
+       |  .toSet$S: Set[Int]$E
+       |  .toString
+     """.stripMargin
+  )
+
+  def testNonFactoryCall(): Unit = doTest(
+    s"""
+       |def getList(): List[Int] = ???
+       |val x = getList()$S: List[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
@@ -31,7 +42,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
 
   def testChainWithInfixCall(): Unit = doTest(
     s"""
-       |val x = List(1, 2, 3)$S: List[Int]$E
+       |val x = List(1, 2, 3)
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
@@ -41,7 +52,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
 
   def testChainInParenthesis_1(): Unit = doTest(
     s"""
-       |(List(1, 2, 3)$S: List[Int]$E
+       |(List(1, 2, 3)
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet)$S: Set[Int]$E
@@ -51,7 +62,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
 
   def testChainInParenthesis_3(): Unit = doTest(
     s"""
-       |(List(1, 2, 3)$S: List[Int]$E
+       |(List(1, 2, 3)
        |  .toSeq$S: Seq[Int]$E
        |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
@@ -61,7 +72,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
 
   def testChainInParenthesis_2(): Unit = doTest(
     s"""
-       |(List(1, 2, 3)$S: List[Int]$E
+       |(List(1, 2, 3)
        |  .map(_ + "")$S: List[String]$E
        |  .toSet)$S: Set[String]$E
        |  .toSet
