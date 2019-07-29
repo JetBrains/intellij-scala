@@ -5,7 +5,8 @@ import com.intellij.patterns.PsiJavaElementPattern
 import com.intellij.patterns.PsiJavaPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.ArbitraryPlaceUrlReferenceProvider
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.{FilePathReferenceProvider, FileReference, FileReferenceSet}
+import com.intellij.psi.impl.source.resolve.reference.impl.providers.FilePathReferenceProvider
+import com.intellij.psi.tree.TokenSet
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -73,6 +74,7 @@ private class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
 
 
 private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed: Boolean) extends FilePathReferenceProvider {
+  import ScalaFilePathReferenceProvider._
 
   override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] =
     element match {
@@ -94,17 +96,24 @@ private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed
   // comment from revision f4f57ef:
   // these references have nothing to do with ScInterpolatedStringPartReference
   private def getStringParts(interpolated: ScInterpolated): Array[PsiElement] = {
-    val accepted = List(ScalaTokenTypes.tINTERPOLATED_STRING, ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING)
     val res = ListBuffer[PsiElement]()
     val children: Array[PsiElement] = interpolated match {
       case ip: ScInterpolationPattern => ip.args.children.toArray
       case sl: ScInterpolatedStringLiteral => Option(sl.getFirstChild.getNextSibling).toArray
     }
     for (child <- children) {
-      if (accepted.contains(child.getNode.getElementType))
+      if (acceptedInterpolatedTokens.contains(child.getNode.getElementType))
         res += child
     }
     res.toArray
   }
+}
+
+private object ScalaFilePathReferenceProvider {
+
+  private val acceptedInterpolatedTokens = TokenSet.create(
+    ScalaTokenTypes.tINTERPOLATED_STRING,
+    ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
+  )
 }
 
