@@ -1,20 +1,12 @@
 package org.jetbrains.plugins.scala.lang.references
 
-import java.util
-import java.util.Collections
-
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.{Module, ModuleUtilCore}
-import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.util.{Condition, TextRange}
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PsiJavaElementPattern
 import com.intellij.patterns.PsiJavaPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.ArbitraryPlaceUrlReferenceProvider
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.{FilePathReferenceProvider, FileReference, FileReferenceSet}
 import com.intellij.util.ProcessingContext
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
@@ -82,28 +74,25 @@ private class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
 
 private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed: Boolean) extends FilePathReferenceProvider {
 
-  override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
+  override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] =
     element match {
-      case interpolated: ScInterpolationPattern =>
-        val parts = getStringParts(interpolated)
-        val start: Int = interpolated.getTextRange.getStartOffset
-        parts.flatMap { element =>
-          val offset = element.getTextRange.getStartOffset - start
-          getReferencesByElement(interpolated, element.getText, offset, true)
-        }
-      case interpolatedString: ScInterpolatedStringLiteral =>
-        val parts = getStringParts(interpolatedString)
-        val start: Int = interpolatedString.getTextRange.getStartOffset
-        parts.flatMap { element =>
-          val offset = element.getTextRange.getStartOffset - start
-          getReferencesByElement(interpolatedString, element.getText, offset, true)
-        }
-      case ScLiteral(text) =>
-        getReferencesByElement(element, text, 1, true)
-      case _ => PsiReference.EMPTY_ARRAY
+      case interp: ScInterpolated => getReferencesForInterpolated(interp)
+      case ScLiteral(text)        => getReferencesByElement(element, text, 1, true)
+      case _                      => PsiReference.EMPTY_ARRAY
+    }
+
+  private def getReferencesForInterpolated(interpolated: ScInterpolated): Array[PsiReference] = {
+    val parts = getStringParts(interpolated)
+    val start = interpolated.startOffset
+    parts.flatMap { element =>
+      val offset = element.startOffset - start
+      getReferencesByElement(interpolated, element.getText, offset, true)
     }
   }
 
+  // do not replace with interpolated.getStringParts
+  // comment from revision f4f57ef:
+  // these references have nothing to do with ScInterpolatedStringPartReference
   private def getStringParts(interpolated: ScInterpolated): Array[PsiElement] = {
     val accepted = List(ScalaTokenTypes.tINTERPOLATED_STRING, ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING)
     val res = ListBuffer[PsiElement]()
