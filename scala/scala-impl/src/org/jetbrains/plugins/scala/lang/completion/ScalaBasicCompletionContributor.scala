@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValueOrVariable}
@@ -119,7 +119,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   case _: ScFun | _: ScClassParameter => Some(item)
                   case parameter: ScParameter if !item.isNamedParameter =>
                     validLocalDefinitionItem(item, parameter)
-                  case pattern: ScBindingPattern =>
+                  case pattern@(_: ScBindingPattern |
+                                _: ScFieldId) =>
                     ScalaPsiUtil.nameContext(pattern) match {
                       case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
                         validLocalDefinitionItem(item, valueOrVariable)
