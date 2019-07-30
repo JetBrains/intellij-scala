@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatting.processors
+package org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
@@ -19,7 +19,7 @@ import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor._
+import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtNotifications}
@@ -47,6 +47,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
+
   override def process(element: ASTNode, range: TextRange): TextRange = {
     val psiFile = Option(element.getPsi).flatMap(_.getContainingFile.toOption)
 

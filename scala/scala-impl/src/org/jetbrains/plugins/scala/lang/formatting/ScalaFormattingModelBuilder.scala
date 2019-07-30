@@ -21,7 +21,7 @@ final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
     if (styleSettings.getCustomSettings(classOf[settings.ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
       //preprocessing is done by this point, use this little side-effect to clean-up ranges synchronization
-      processors.ScalaFmtPreFormatProcessor.clearRangesCache()
+      processors.scalafmt.ScalaFmtPreFormatProcessor.clearRangesCache()
     }
 
     val file = element.getContainingFile
