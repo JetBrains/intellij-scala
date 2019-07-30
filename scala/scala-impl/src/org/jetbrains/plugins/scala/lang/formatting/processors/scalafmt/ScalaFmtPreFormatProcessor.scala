@@ -8,23 +8,24 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PreFormatProcessor}
-import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
+import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange.EmptyPsiWhitespace
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
@@ -36,7 +37,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
@@ -582,101 +582,6 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private sealed trait PsiChange {
-    private var myIsValid = true
-    def isValid: Boolean = myIsValid
-    final def applyAndGetDelta(): Int = {
-      myIsValid = false
-      doApply()
-    }
-    def doApply(): Int
-    def isInRange(range: TextRange): Boolean
-    def getStartOffset: Int
-  }
-
-  private val generatedVisitor: PsiRecursiveElementVisitor = new PsiRecursiveElementVisitor() {
-    override def visitElement(element: PsiElement): Unit = {
-      CodeEditUtil.setNodeGenerated(element.getNode, false)
-      super.visitElement(element)
-    }
-  }
-
-  private def setNotGenerated(text: String, offset: Int, parent: PsiElement): Unit = {
-    val children = parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == text)
-    children.foreach { child =>
-      child.accept(generatedVisitor)
-      //sometimes when an element is inserted, its neighbours also get the 'isGenerated' flag set, fix this
-      Option(child.getPrevSibling).foreach(_.accept(generatedVisitor))
-      Option(child.getNextSibling).foreach(_.accept(generatedVisitor))
-    }
-  }
-
-  private case class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
-    override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
-    override def doApply(): Int = {
-      if (!formatted.isValid || !original.isValid) {
-        return 0
-      }
-      val commonPrefixLength = StringUtil.commonPrefix(original.getText, formatted.getText).length
-      val delta = addDelta(
-        original.getTextRange.getStartOffset + commonPrefixLength,
-        original.getContainingFile,
-        formatted.getTextLength - original.getTextLength
-      )
-      val parent = original.getParent
-      val offset = original.getTextOffset
-      formatted.accept(generatedVisitor)
-
-      if (formatted == EmptyPsiWhitespace) {
-        inWriteAction(original.delete())
-      } else {
-        inWriteAction(original.replace(formatted))
-      }
-
-      setNotGenerated(formatted.getText, offset, parent)
-      delta
-    }
-    override def isInRange(range: TextRange): Boolean = original.getTextRange.intersectsStrict(range)
-    override def getStartOffset: Int = original.getTextRange.getStartOffset
-  }
-
-  private case class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
-    override def doApply(): Int = {
-      if (!formatted.isValid) {
-        return 0
-      }
-
-      val originalMarkedForAdjustment = TypeAdjuster.isMarkedForAdjustment(before)
-      val parent = before.getParent
-      val offset = before.getTextRange.getStartOffset
-      formatted.accept(generatedVisitor)
-
-      val inserted =
-        if (parent != null) {
-          Option(inWriteAction(parent.addBefore(formatted, before)))
-        } else None
-
-      setNotGenerated(formatted.getText, offset, parent)
-
-      if (originalMarkedForAdjustment)
-        inserted.foreach(TypeAdjuster.markToAdjust)
-
-      addDelta(formatted, formatted.getTextLength)
-    }
-    override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)
-    override def getStartOffset: Int = before.getTextRange.getStartOffset
-  }
-
-  private case class Remove(remove: PsiElement) extends PsiChange {
-    override def doApply(): Int = {
-      val res = addDelta(remove, -remove.getTextLength)
-      inWriteAction(remove.delete())
-      res
-    }
-    override def isInRange(range: TextRange): Boolean = remove.getTextRange.intersectsStrict(range)
-    override def getStartOffset: Int = remove.getTextRange.getStartOffset
-  }
-
   private def processElementToElementReplace(original: PsiElement,
                                              formatted: PsiElement,
                                              rewriteElement: Option[Seq[PsiElement]],
@@ -902,13 +807,13 @@ object ScalaFmtPreFormatProcessor {
 
   private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.WeakHashMap[PsiFile, mutable.TreeSet[(Int, Int)]]()
 
-  private def addDelta(offset: Int, containingFile: PsiFile, delta: Int): Int = {
+  private[scalafmt] def addDelta(offset: Int, containingFile: PsiFile, delta: Int): Int = {
     val cache = rangesDeltaCache.getOrElseUpdate(containingFile, mutable.TreeSet[(Int, Int)]())
     cache.add(offset, delta)
     delta
   }
 
-  private def addDelta(element: PsiElement, delta: Int): Int =
+  private[scalafmt] def addDelta(element: PsiElement, delta: Int): Int =
     addDelta(element.getTextRange.getStartOffset, element.getContainingFile, delta)
 
   def clearRangesCache(): Unit = {
@@ -980,14 +885,6 @@ object ScalaFmtPreFormatProcessor {
    */
   private class WrappedCode(val text: String, val wrapped: Boolean, val wrappedInHelperClass: Boolean) {
     def withText(newText: String): WrappedCode = new WrappedCode(newText, wrapped, wrappedInHelperClass)
-  }
-
-  /** Marker whitespace implementation that indicates absence of whitespace.
-   * It is more convenient to use Replace psi change instead of Remove, but there is no way
-   * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
-   */
-  private object EmptyPsiWhitespace extends PsiWhiteSpaceImpl("") {
-    override def isValid: Boolean = true
   }
 
   private implicit class ScalafmtReflectExt(private val scalafmt: ScalafmtReflect) extends AnyVal {
