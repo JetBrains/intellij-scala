@@ -1042,4 +1042,19 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
       """.stripMargin
     )
   }
+
+  def testRemoveWhitespaces(): Unit = doTextTest(
+    s"""val x$startMarker : Int = 123$endMarker""",
+    s"""val x: Int = 123"""
+  )
+
+  def testRemoveWhitespaces_1(): Unit = doTextTest(
+    s"""val$startMarker   x   :   Int   =   123   +   42  $endMarker""",
+    s"""val x: Int = 123 + 42"""
+  )
+
+  def testRemoveWhitespaces_2(): Unit = doTextTest(
+    s"""val   x   :$startMarker   Int   =   123   +   42  $endMarker""",
+    s"""val   x   : Int = 123 + 42"""
+  )
 }
