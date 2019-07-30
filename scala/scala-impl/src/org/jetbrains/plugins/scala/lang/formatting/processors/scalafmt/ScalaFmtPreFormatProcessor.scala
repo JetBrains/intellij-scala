@@ -711,16 +711,17 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def applyChanges(changes: Seq[PsiChange], range: TextRange): Int = {
-    // changes order: Inserts, Replaces, Removes
+    // changes order: Inserts first, then Replaces and Removes ordered by offset
     val changesFinal = changes.filter(_.isInRange(range)).filter(_.isValid).sorted(Ordering.fromLessThan[PsiChange] {
       case (_: Insert, _) => true
       case (_, _: Insert) => false
-      case (_: Replace, _: Remove) => true
-      case (_: Remove, _: Replace) => false
-      case (left: PsiChange, right: PsiChange) => left.getStartOffset < right.getStartOffset
+      case (left, right)  => left.getStartOffset < right.getStartOffset
     })
-    changesFinal.foldLeft(0) { case (delta, change) =>
-      delta + change.applyAndGetDelta()
+
+    val changesWithNext = changesFinal.zipAll(changesFinal.drop(1), null, null)
+    changesWithNext.foldLeft(0) { case (deltaAcc, (change, nextChange)) =>
+      val delta = change.applyAndGetDelta(nextChange)
+      deltaAcc + delta
     }
   }
 

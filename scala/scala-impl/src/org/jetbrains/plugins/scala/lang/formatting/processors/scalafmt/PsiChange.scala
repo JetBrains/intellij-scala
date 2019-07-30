@@ -14,11 +14,11 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 private sealed trait PsiChange {
   private var myIsValid = true
   def isValid: Boolean = myIsValid
-  final def applyAndGetDelta(): Int = {
+  final def applyAndGetDelta(nextChange: PsiChange): Int = {
     myIsValid = false
-    doApply()
+    doApply(nextChange)
   }
-  def doApply(): Int
+  def doApply(nextChange: PsiChange): Int
   def isInRange(range: TextRange): Boolean
   def getStartOffset: Int
 }
@@ -52,7 +52,7 @@ private object PsiChange {
     parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == formatted.getText)
 
   final class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
-    override def doApply(): Int = {
+    override def doApply(nextChange: PsiChange): Int = {
       if (!formatted.isValid) {
         return 0
       }
@@ -79,9 +79,9 @@ private object PsiChange {
     override def getStartOffset: Int = before.getTextRange.getStartOffset
   }
 
-  final class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
+  final class Replace(private[PsiChange] var original: PsiElement, formatted: PsiElement) extends PsiChange {
     override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
-    override def doApply(): Int = {
+    override def doApply(nextChange: PsiChange): Int = {
       if (!formatted.isValid || !original.isValid) {
         return 0
       }
@@ -95,14 +95,20 @@ private object PsiChange {
       val offset = original.getTextOffset
       formatted.accept(generatedVisitor)
 
+      import Replace._
+      val nextChangeIsSibling: Boolean = isNextChangeSibling(nextChange, original)
       if (formatted == EmptyPsiWhitespace) {
         inWriteAction(original.delete())
       } else {
         inWriteAction(original.replace(formatted))
       }
 
-      findReplacedElement(parent, formatted, offset)
-        .foreach(replaced => setNotGenerated(replaced))
+      findReplacedElement(parent, formatted, offset).foreach { replaced =>
+        setNotGenerated(replaced)
+        if (nextChangeIsSibling) {
+          fixNextChange(nextChange, replaced)
+        }
+      }
 
       delta
     }
@@ -110,8 +116,33 @@ private object PsiChange {
     override def getStartOffset: Int = original.getTextRange.getStartOffset
   }
 
-  final class Remove(remove: PsiElement) extends PsiChange {
-    override def doApply(): Int = {
+  object Replace {
+
+    private def isNextChangeSibling(nextChange: PsiChange, original: PsiElement): Boolean = {
+      val nextSibling = original.getNextSibling
+      nextChange match {
+        case r: Remove  => r.remove == nextSibling
+        case r: Replace => r.original == nextSibling
+        case _          => false
+      }
+    }
+
+    // After replaces sibling elements can become invalid  (their context become JavaDummyHolder)
+    // If subsequent change refer to this sibling element the change becomes invalid too.
+    // So we have to fix the referred element
+    // NOTE: Insert is not handled due to I didn't find a case when it will be applicable yet
+    private def fixNextChange(nextChange: PsiChange, replaced: PsiElement): Unit = {
+      val nextSibling = replaced.getNextSibling
+      nextChange match {
+        case r: Remove  => r.remove = nextSibling
+        case r: Replace => r.original = nextSibling
+        case _          =>
+      }
+    }
+  }
+
+  final class Remove(private[PsiChange] var remove: PsiElement) extends PsiChange {
+    override def doApply(nextChange: PsiChange): Int = {
       if (!remove.isValid) {
         return 0
       }
