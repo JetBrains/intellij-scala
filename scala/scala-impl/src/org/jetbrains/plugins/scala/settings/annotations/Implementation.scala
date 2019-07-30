@@ -10,6 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Pavel Fatin
@@ -62,7 +65,7 @@ object Definition {
 
   case class ValueDefinition(value: ScPatternDefinition) extends Definition {
 
-    override def name = if (value.isSimple) value.names.headOption else None
+    override def name: Option[String] = if (value.isSimple) value.names.headOption else None
 
     override def bodyCandidate: Option[ScExpression] =
       if (value.isSimple) value.expr
@@ -75,7 +78,7 @@ object Definition {
 
   case class VariableDefinition(variable: ScVariableDefinition) extends Definition {
 
-    override def name = if (variable.isSimple) variable.names.headOption else None
+    override def name: Option[String] = if (variable.isSimple) variable.names.headOption else None
 
     override def bodyCandidate: Option[ScExpression] =
       if (variable.isSimple) variable.expr
@@ -114,14 +117,19 @@ case class Expression(expression: ScExpression) extends Implementation {
 object Implementation {
 
   private object StableApplyCall {
-
     def unapply(reference: ScReferenceExpression): Boolean =
-      reference.bind().map { result =>
-        result.innerResolveResult.getOrElse(result).element
-      }.exists {
-        case (f: ScFunction) && ContainingClass(o: ScObject) => f.isApplyMethod
-        case _ => false
-      }
+      reference.bind()
+        .filter(referencesObject)
+        .flatMap(_.innerResolveResult)
+        .map(_.element)
+        .flatMap(_.asOptionOf[ScFunction])
+        .exists(_.isApplyMethod)
+
+    private def referencesObject(rr: ScalaResolveResult): Boolean =
+      rr.element.asOptionOf[Typeable]
+        .flatMap(_.`type`().toOption)
+        .flatMap(_.asOptionOf[DesignatorOwner])
+        .exists(_.element.is[ScObject])
   }
 
   object EmptyCollectionFactoryCall {

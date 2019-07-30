@@ -12,9 +12,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
   def testChain(): Unit = doTest(
     s"""
        |List(1, 2, 3)
-       |  .toSeq$S: Seq[Int]$E
-       |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
+       |  .filter(_ > 2)
+       |  .toSeq$S: Seq[Int]$E
        |  .toString
      """.stripMargin
   )
@@ -22,9 +22,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
   def testChainInValDef(): Unit = doTest(
     s"""
        |val x = List(1, 2, 3)
-       |  .toSeq$S: Seq[Int]$E
-       |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
+       |  .filter(_ > 2)
+       |  .toSeq$S: Seq[Int]$E
        |  .toString
      """.stripMargin
   )
@@ -33,9 +33,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     s"""
        |def getList(): List[Int] = ???
        |val x = getList()$S: List[Int]$E
-       |  .toSeq$S: Seq[Int]$E
-       |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
+       |  .filter(_ > 2)
+       |  .toSeq$S: Seq[Int]$E
        |  .toString
      """.stripMargin
   )
@@ -43,9 +43,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
   def testChainWithInfixCall(): Unit = doTest(
     s"""
        |val x = List(1, 2, 3)
-       |  .toSeq$S: Seq[Int]$E
-       |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
+       |  .filter(_ > 2)
+       |  .toSeq$S: Seq[Int]$E
        |  .toString + ""
      """.stripMargin
   )
@@ -53,9 +53,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
   def testChainInParenthesis_1(): Unit = doTest(
     s"""
        |(List(1, 2, 3)
-       |  .toSeq$S: Seq[Int]$E
-       |  .filter(_ > 2)
        |  .toSet)$S: Set[Int]$E
+       |  .filter(_ > 2)
+       |  .toSeq$S: Seq[Int]$E
        |  .toString
      """.stripMargin
   )
@@ -63,9 +63,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
   def testChainInParenthesis_3(): Unit = doTest(
     s"""
        |(List(1, 2, 3)
-       |  .toSeq$S: Seq[Int]$E
-       |  .filter(_ > 2)
        |  .toSet$S: Set[Int]$E
+       |  .filter(_ > 2)
+       |  .toSeq$S: Seq[Int]$E
        |  .toString)
      """.stripMargin
   )
