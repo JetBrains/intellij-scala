@@ -592,7 +592,7 @@ object ScalaFmtPreFormatProcessor {
                                             )(implicit project: Project, fileText: String): Unit = {
     (original, formatted) match {
       case (ws1: PsiWhiteSpace, ws2: PsiWhiteSpace) =>
-        res += Replace(ws1, ws2.withAdditionalIndent(additionalIndent))
+        res += new Replace(ws1, ws2.withAdditionalIndent(additionalIndent))
         return
       case _ =>
     }
@@ -618,7 +618,7 @@ object ScalaFmtPreFormatProcessor {
           res ++= replace(original, replacement, additionalIndent = 0)
         case _ =>
           formatted.accept(new AdjustIndentsVisitor(additionalIndent, project))
-          res += Replace(original, formatted)
+          res += new Replace(original, formatted)
       }
     } else if (isSameElementType(original, formatted)) {
       var formattedIndex = 0
@@ -635,14 +635,14 @@ object ScalaFmtPreFormatProcessor {
         val isInRange = originalElement.getTextRange.intersectsStrict(range)
         (originalElement, formattedElement) match {
           case (originalWs: PsiWhiteSpace, formattedWs: PsiWhiteSpace) => //replace whitespace
-            if (originalWs.getText != formattedWs.getText) res += Replace(originalWs, formattedWs.withAdditionalIndent(additionalIndent))
+            if (originalWs.getText != formattedWs.getText) res += new Replace(originalWs, formattedWs.withAdditionalIndent(additionalIndent))
             originalIndex += 1
             formattedIndex += 1
           case (_, formattedWs: PsiWhiteSpace) => //a whitespace has been added
-            res += Insert(originalElement, formattedWs.withAdditionalIndent(additionalIndent))
+            res += new Insert(originalElement, formattedWs.withAdditionalIndent(additionalIndent))
             formattedIndex += 1
           case (originalWs: PsiWhiteSpace, _) => //a whitespace has been removed
-            res += Remove(originalWs)
+            res += new Remove(originalWs)
             originalIndex += 1
           case _ =>
             if (isInRange) {
@@ -662,9 +662,9 @@ object ScalaFmtPreFormatProcessor {
     } else {
       formattedElements.foreach(_.accept(new AdjustIndentsVisitor(additionalIndent, element.getProject)))
       if (isOneToOneReplacement) {
-        Seq(Replace(element, formattedElements.head))
+        Seq(new Replace(element, formattedElements.head))
       } else {
-        formattedElements.map(Insert(element, _)) :+ Remove(element)
+        formattedElements.map(new Insert(element, _)) :+ new Remove(element)
       }
     }
   }
@@ -700,7 +700,7 @@ object ScalaFmtPreFormatProcessor {
       val prevWsOriginalFixed = prevWsOriginal
         .withIndent(indentFormatted + additionalIndent)
         .getOrElse(EmptyPsiWhitespace)
-      changes += Replace(prevWsOriginal, prevWsOriginalFixed)
+      changes += new Replace(prevWsOriginal, prevWsOriginalFixed)
     }
   }
 

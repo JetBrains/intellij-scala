@@ -52,7 +52,7 @@ private object PsiChange {
     parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == formatted.getText)
 }
 
-private case class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
+private final class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
   override def doApply(): Int = {
     if (!formatted.isValid) {
       return 0
@@ -80,7 +80,7 @@ private case class Insert(before: PsiElement, formatted: PsiElement) extends Psi
   override def getStartOffset: Int = before.getTextRange.getStartOffset
 }
 
-private case class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
+private final class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
   override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
   override def doApply(): Int = {
     if (!formatted.isValid || !original.isValid) {
@@ -110,7 +110,7 @@ private case class Replace(original: PsiElement, formatted: PsiElement) extends 
   override def getStartOffset: Int = original.getTextRange.getStartOffset
 }
 
-private case class Remove(remove: PsiElement) extends PsiChange {
+private final class Remove(remove: PsiElement) extends PsiChange {
   override def doApply(): Int = {
     val res = addDelta(remove, -remove.getTextLength)
     inWriteAction(remove.delete())
