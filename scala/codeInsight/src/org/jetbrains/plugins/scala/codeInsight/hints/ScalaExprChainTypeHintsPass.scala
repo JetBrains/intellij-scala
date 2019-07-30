@@ -41,7 +41,9 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           .map(_.right.get)
         if types.toSet.size >= 2
 
-        (expr, ty) <- removeConsecutiveDuplicates(exprs.zip(types))
+        (expr, ty) <-
+          if (showIdenticalTypeInExpressionChain) exprs.zip(types)
+          else removeConsecutiveDuplicates(exprs.zip(types))
 
         if showObviousTypesInExpressionChain || !hasObviousType(expr, ty)
 

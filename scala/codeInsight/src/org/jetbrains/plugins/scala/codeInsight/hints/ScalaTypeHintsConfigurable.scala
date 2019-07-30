@@ -42,6 +42,11 @@ final class ScalaTypeHintsConfigurable
       settings.showObviousTypesInExpressionChainsGetter,
       settings.showObviousTypesInExpressionChainsSetter
     )
+    checkBox(
+      "Show identical types in expression chains (Scala)",
+      settings.showIdenticalTypeInExpressionChainGetter,
+      settings.showIdenticalTypeInExpressionChainSetter
+    )
 
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
@@ -111,5 +116,10 @@ object ScalaTypeHintsConfigurable {
   class ToggleObviousTypesInExpressionChainAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showObviousTypesInExpressionChainsGetter,
     ScalaCodeInsightSettings.showObviousTypesInExpressionChainsSetter
+  )
+
+  class ToggleIdenticalTypeInExpressionChainChainAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.showIdenticalTypeInExpressionChainGetter,
+    ScalaCodeInsightSettings.showIdenticalTypeInExpressionChainSetter
   )
 }

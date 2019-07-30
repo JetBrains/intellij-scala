@@ -295,6 +295,9 @@
             <action id="ToggleForObviousTypesInExpressionChains"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleObviousTypesInExpressionChainAction"
                     text="Obvious types in expression chains"/>
+            <action id="ToggleIdenticalTypesInExpressionChains"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleIdenticalTypeInExpressionChainChainAction"
+                    text="Identical types in expression chains"/>
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"
