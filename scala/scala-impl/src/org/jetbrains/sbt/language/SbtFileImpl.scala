@@ -25,8 +25,6 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
 
   import SbtFileImpl._
 
-  override def isScriptFileImpl: Boolean = false
-
   override def typeDefinitions: Seq[ScTypeDefinition] = Seq.empty
 
   override val allowsForwardReferences: Boolean = true

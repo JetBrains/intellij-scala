@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
@@ -61,28 +61,40 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override final def getName: String = super.getName
 
-  def isScriptFileImpl: Boolean = {
+  private def isScriptFileImpl: Boolean = {
     val empty = this.children.forall {
       case _: PsiWhiteSpace => true
       case _: PsiComment => true
       case _ => false
     }
     if (empty) return true // treat empty or commented files as scripts to avoid project recompilations
+
     val childrenIterator = getNode.getChildren(null).iterator
     while (childrenIterator.hasNext) {
-      val n = childrenIterator.next()
-      n.getPsi match {
-        case _: ScPackaging => return false
-        case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
-        case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+      val node = childrenIterator.next()
+      node.getElementType match {
+        case ScalaTokenTypes.tSH_COMMENT => return true
+        case _ =>
+          node.getPsi match {
+            case _: ScPackaging => return false
+            case _: ScValueOrVariable |
+                 _: ScFunction |
+                 _: ScTypeAlias |
+                 _: ScExpression => return true
+            case _ =>
+          }
       }
     }
+
     false
   }
 
   @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
-  override def isScriptFile: Boolean = !isCompiled &&
-    foldStub(isScriptFileImpl)(Function.const(super.isScriptFile))
+  override def isScriptFile: Boolean = getViewProvider match {
+    case _: ScFileViewProviderFactory.ScFileViewProvider =>
+      foldStub(isScriptFileImpl)(Function.const(super.isScriptFile))
+    case _ => false
+  }
 
   override def isWorksheetFile: Boolean = ScFile.VirtualFile.unapply(this).exists {
     worksheet.WorksheetFileType.isWorksheetFile(_)()(getProject)

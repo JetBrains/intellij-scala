@@ -84,8 +84,6 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
 
   override def getViewProvider: SingleRootFileViewProvider = viewProvider
 
-  override def isScriptFileImpl: Boolean = false
-
   override def addImportForPath(path: String, refsContainer: PsiElement): Unit = {
     imports += path
     myManager.beforeChange(false)

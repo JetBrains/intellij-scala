@@ -18,9 +18,7 @@ trait ScalaFile extends ScalaPsiElement
 
   def packagingRanges: Seq[TextRange]
 
-  def isScriptFile: Boolean = isScriptFileImpl
-
-  def isScriptFileImpl: Boolean
+  def isScriptFile: Boolean
 
   def isWorksheetFile: Boolean
 
