@@ -19,7 +19,7 @@ import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, 
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -404,7 +404,8 @@ class ScalaPsiManager(implicit val project: Project) {
         def updateModificationCount(element: PsiElement): Unit = element match {
           case null => TopLevelModificationTracker.incModificationCount()
           case _: ScalaCodeFragment | _: PsiComment => // do not update on changes in dummy file or comments
-          case owner: ScExpression if owner.shouldntChangeModificationCount => owner.incModificationCount()
+          case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
+            BlockModificationTracker.LocalCount.increment(owner)
           case _ => updateModificationCount(element.getContext)
         }
 

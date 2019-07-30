@@ -4,19 +4,16 @@ package psi
 package api
 package expr
 
-import java.util.concurrent.atomic.AtomicLong
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -25,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -37,35 +34,10 @@ import scala.annotation.tailrec
   */
 trait ScExpression extends ScBlockStatement
   with PsiAnnotationMemberValue
-  with PsiModifiableCodeBlock
   with ImplicitArgumentsOwner
   with Typeable {
 
   import ScExpression._
-
-  private[this] val blockModificationCount = new AtomicLong()
-
-  final def modificationCount: Long = blockModificationCount.get
-
-  final def incModificationCount(): Unit = blockModificationCount.incrementAndGet()
-
-  //element is always the child of this element because this function is called when going up the tree starting with elem
-  //if this is a valid modification tracker owner, no need to change modification count
-  override final def shouldChangeModificationCount(element: PsiElement): Boolean = getContext match {
-    case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
-    case v: ScValueOrVariable => v.typeElement.isEmpty
-    case _: ScWhile |
-         _: ScFinallyBlock |
-         _: ScTemplateBody |
-         _: ScDo => false
-    //expression is not last in a block and not assigned to anything, cannot affect type inference outside
-    case _: ScBlock =>
-      this.nextSiblings.forall {
-        case _: ScExpression => false
-        case _ => true
-      }
-    case _ => true
-  }
 
   override def `type`(): TypeResult =
     this.getTypeAfterImplicitConversion().tr
@@ -162,9 +134,6 @@ object ScExpression {
     private implicit def elementScope: ElementScope = expr.elementScope
 
     private def project = elementScope.projectContext
-
-    def shouldntChangeModificationCount: Boolean =
-      !expr.shouldChangeModificationCount(null)
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)

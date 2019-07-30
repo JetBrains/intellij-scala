@@ -9,7 +9,8 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker.contextWithStableType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
@@ -79,8 +80,31 @@ package object completion {
 
   def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
     val positionInCompletionFile = parameters.getPosition
+    val originalPosition = parameters.getOriginalPosition
 
-    BlockModificationTracker.setOriginalPosition(positionInCompletionFile, parameters.getOriginalPosition)
+    def blockModCount(element: PsiElement) = BlockModificationTracker(element).getModificationCount
+
+    if (originalPosition != null) {
+      for {
+        elementContext  <- contextWithStableType(positionInCompletionFile)
+        originalContext <- contextWithStableType(originalPosition)
+      } {
+
+        //consistent local modification count in completion file
+        BlockModificationTracker.LocalCount.redirect(elementContext, originalContext)
+
+        //resolve should go to original file outside of context with stable type
+        // + consistent block modification count
+        elementContext match {
+          case elementContext: ScalaPsiElement =>
+            elementContext.context = originalContext.getContext
+            elementContext.child = originalContext
+          case _ =>
+        }
+
+        assert(blockModCount(elementContext) == blockModCount(originalContext))
+      }
+    }
 
     positionInCompletionFile
   }
