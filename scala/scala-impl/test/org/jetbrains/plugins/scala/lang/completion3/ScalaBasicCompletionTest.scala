@@ -1139,6 +1139,98 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}""".stripMargin,
     item = "head"
   )
+
+  def testThisTypeDependentType(): Unit = doCompletionTest(
+    fileText =
+      s"""
+        |class Abc {
+        |  trait Type
+        |}
+        |
+        |class Foo(val abc: Abc) {
+        |  private def baz(): Int = {
+        |    val a: Foo.this.abc.T$CARET = ???
+        |  }
+        |}
+        |""".stripMargin,
+    resultText =
+      s"""
+        |class Abc {
+        |  trait Type
+        |}
+        |
+        |class Foo(val abc: Abc) {
+        |  private def baz(): Int = {
+        |    val a: Foo.this.abc.Type$CARET = ???
+        |  }
+        |}
+        |""".stripMargin,
+    item = "Type"
+  )
+
+  def testThisTypeDependentType2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Abc {
+         |  trait Type
+         |}
+         |
+         |class Foo(val abc: Abc) {
+         |  private def baz(): Int = {
+         |    val a: Foo.this.abc.Type = ???
+         |    a.toS$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Abc {
+         |  trait Type
+         |}
+         |
+         |class Foo(val abc: Abc) {
+         |  private def baz(): Int = {
+         |    val a: Foo.this.abc.Type = ???
+         |    a.toString
+         |  }
+         |}
+         |""".stripMargin,
+    item = "toString"
+  )
+
+  def testSuperTypeDependentType(): Unit = doCompletionTest(
+    fileText =
+      s"""
+        |trait Abc {
+        |  type Type
+        |}
+        |
+        |class Foo extends Abc {
+        |  type Type = Int
+        |
+        |  private def baz(): String = {
+        |    val a: Foo.super.Type = ???
+        |    a.toS$CARET
+        |  }
+        |}
+        |""".stripMargin,
+    resultText =
+      s"""
+        |trait Abc {
+        |  type Type
+        |}
+        |
+        |class Foo extends Abc {
+        |  type Type = Int
+        |
+        |  private def baz(): String = {
+        |    val a: Foo.super.Type = ???
+        |    a.toString$CARET
+        |  }
+        |}
+        |""".stripMargin,
+    item = "toString"
+  )
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
