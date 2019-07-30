@@ -18,7 +18,7 @@ import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange.EmptyPsiWhitespace
+import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.PsiChange.{EmptyPsiWhitespace, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.scalafmt.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}

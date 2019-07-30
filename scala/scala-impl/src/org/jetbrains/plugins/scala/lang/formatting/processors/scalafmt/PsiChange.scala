@@ -50,72 +50,76 @@ private object PsiChange {
   // NOTE: sometimes replaced element returned from `original.replace(formatted)` is invalid and is inside DummyHolder
   def findReplacedElement(parent: PsiElement, formatted: PsiElement, offset: Int): Option[PsiElement] =
     parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == formatted.getText)
-}
 
-private final class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
-  override def doApply(): Int = {
-    if (!formatted.isValid) {
-      return 0
+  final class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
+    override def doApply(): Int = {
+      if (!formatted.isValid) {
+        return 0
+      }
+
+      val originalMarkedForAdjustment = TypeAdjuster.isMarkedForAdjustment(before)
+      val parent = before.getParent
+      val offset = before.getTextRange.getStartOffset
+      formatted.accept(generatedVisitor)
+
+      val inserted =
+        if (parent != null) {
+          Option(inWriteAction(parent.addBefore(formatted, before)))
+        } else None
+
+      findReplacedElement(parent, formatted, offset)
+        .foreach(setNotGenerated)
+
+      if (originalMarkedForAdjustment)
+        inserted.foreach(TypeAdjuster.markToAdjust)
+
+      addDelta(formatted, formatted.getTextLength)
     }
-
-    val originalMarkedForAdjustment = TypeAdjuster.isMarkedForAdjustment(before)
-    val parent = before.getParent
-    val offset = before.getTextRange.getStartOffset
-    formatted.accept(generatedVisitor)
-
-    val inserted =
-      if (parent != null) {
-        Option(inWriteAction(parent.addBefore(formatted, before)))
-      } else None
-
-    findReplacedElement(parent, formatted, offset)
-      .foreach(setNotGenerated)
-
-    if (originalMarkedForAdjustment)
-      inserted.foreach(TypeAdjuster.markToAdjust)
-
-    addDelta(formatted, formatted.getTextLength)
+    override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)
+    override def getStartOffset: Int = before.getTextRange.getStartOffset
   }
-  override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)
-  override def getStartOffset: Int = before.getTextRange.getStartOffset
-}
 
-private final class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
-  override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
-  override def doApply(): Int = {
-    if (!formatted.isValid || !original.isValid) {
-      return 0
+  final class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
+    override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
+    override def doApply(): Int = {
+      if (!formatted.isValid || !original.isValid) {
+        return 0
+      }
+      val commonPrefixLength = StringUtil.commonPrefix(original.getText, formatted.getText).length
+      val delta = addDelta(
+        original.getTextRange.getStartOffset + commonPrefixLength,
+        original.getContainingFile,
+        formatted.getTextLength - original.getTextLength
+      )
+      val parent = original.getParent
+      val offset = original.getTextOffset
+      formatted.accept(generatedVisitor)
+
+      if (formatted == EmptyPsiWhitespace) {
+        inWriteAction(original.delete())
+      } else {
+        inWriteAction(original.replace(formatted))
+      }
+
+      findReplacedElement(parent, formatted, offset)
+        .foreach(replaced => setNotGenerated(replaced))
+
+      delta
     }
-    val commonPrefixLength = StringUtil.commonPrefix(original.getText, formatted.getText).length
-    val delta = addDelta(
-      original.getTextRange.getStartOffset + commonPrefixLength,
-      original.getContainingFile,
-      formatted.getTextLength - original.getTextLength
-    )
-    val parent = original.getParent
-    val offset = original.getTextOffset
-    formatted.accept(generatedVisitor)
+    override def isInRange(range: TextRange): Boolean = original.getTextRange.intersectsStrict(range)
+    override def getStartOffset: Int = original.getTextRange.getStartOffset
+  }
 
-    if (formatted == EmptyPsiWhitespace) {
-      inWriteAction(original.delete())
-    } else {
-      inWriteAction(original.replace(formatted))
+  final class Remove(remove: PsiElement) extends PsiChange {
+    override def doApply(): Int = {
+      if (!remove.isValid) {
+        return 0
+      }
+      val res = addDelta(remove, -remove.getTextLength)
+      inWriteAction(remove.delete())
+      res
     }
-
-    findReplacedElement(parent, formatted, offset).foreach(setNotGenerated)
-
-    delta
+    override def isInRange(range: TextRange): Boolean = remove.getTextRange.intersectsStrict(range)
+    override def getStartOffset: Int = remove.getTextRange.getStartOffset
   }
-  override def isInRange(range: TextRange): Boolean = original.getTextRange.intersectsStrict(range)
-  override def getStartOffset: Int = original.getTextRange.getStartOffset
-}
-
-private final class Remove(remove: PsiElement) extends PsiChange {
-  override def doApply(): Int = {
-    val res = addDelta(remove, -remove.getTextLength)
-    inWriteAction(remove.delete())
-    res
-  }
-  override def isInRange(range: TextRange): Boolean = remove.getTextRange.intersectsStrict(range)
-  override def getStartOffset: Int = remove.getTextRange.getStartOffset
 }
