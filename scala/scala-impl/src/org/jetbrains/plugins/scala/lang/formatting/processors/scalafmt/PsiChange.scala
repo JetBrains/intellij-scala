@@ -40,15 +40,16 @@ private object PsiChange {
     }
   }
 
-  def setNotGenerated(text: String, offset: Int, parent: PsiElement): Unit = {
-    val children = parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == text)
-    children.foreach { child =>
-      child.accept(generatedVisitor)
-      //sometimes when an element is inserted, its neighbours also get the 'isGenerated' flag set, fix this
-      Option(child.getPrevSibling).foreach(_.accept(generatedVisitor))
-      Option(child.getNextSibling).foreach(_.accept(generatedVisitor))
-    }
+  def setNotGenerated(element: PsiElement): Unit = {
+    element.accept(generatedVisitor)
+    //sometimes when an element is inserted, its neighbours also get the 'isGenerated' flag set, fix this
+    element.prevSibling.foreach(_.accept(generatedVisitor))
+    element.nextSibling.foreach(_.accept(generatedVisitor))
   }
+
+  // NOTE: sometimes replaced element returned from `original.replace(formatted)` is invalid and is inside DummyHolder
+  def findReplacedElement(parent: PsiElement, formatted: PsiElement, offset: Int): Option[PsiElement] =
+    parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == formatted.getText)
 }
 
 private case class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
@@ -67,7 +68,8 @@ private case class Insert(before: PsiElement, formatted: PsiElement) extends Psi
         Option(inWriteAction(parent.addBefore(formatted, before)))
       } else None
 
-    setNotGenerated(formatted.getText, offset, parent)
+    findReplacedElement(parent, formatted, offset)
+      .foreach(setNotGenerated)
 
     if (originalMarkedForAdjustment)
       inserted.foreach(TypeAdjuster.markToAdjust)
@@ -100,7 +102,8 @@ private case class Replace(original: PsiElement, formatted: PsiElement) extends 
       inWriteAction(original.replace(formatted))
     }
 
-    setNotGenerated(formatted.getText, offset, parent)
+    findReplacedElement(parent, formatted, offset).foreach(setNotGenerated)
+
     delta
   }
   override def isInRange(range: TextRange): Boolean = original.getTextRange.intersectsStrict(range)
