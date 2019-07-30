@@ -29,9 +29,6 @@ private object PsiChange {
    * It is more convenient to use Replace psi change instead of Remove, but there is no way
    * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
    */
-  object EmptyPsiWhitespace extends PsiWhiteSpaceImpl("") {
-    override def isValid: Boolean = true
-  }
 
   val generatedVisitor: PsiRecursiveElementVisitor = new PsiRecursiveElementVisitor() {
     override def visitElement(element: PsiElement): Unit = {
@@ -97,11 +94,7 @@ private object PsiChange {
 
       import Replace._
       val nextChangeIsSibling: Boolean = isNextChangeSibling(nextChange, original)
-      if (formatted == EmptyPsiWhitespace) {
-        inWriteAction(original.delete())
-      } else {
-        inWriteAction(original.replace(formatted))
-      }
+      inWriteAction(original.replace(formatted))
 
       findReplacedElement(parent, formatted, offset).foreach { replaced =>
         setNotGenerated(replaced)
