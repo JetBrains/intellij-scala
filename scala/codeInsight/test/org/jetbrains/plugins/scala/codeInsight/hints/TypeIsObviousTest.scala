@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala
+package codeInsight
+package hints
 
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass.isTypeObvious
 import org.junit.Assert._
 
 // SCL-14339

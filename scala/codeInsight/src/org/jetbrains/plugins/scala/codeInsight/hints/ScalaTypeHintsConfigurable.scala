@@ -37,6 +37,11 @@ final class ScalaTypeHintsConfigurable
       settings.showExpressionChainTypeGetter,
       settings.showExpressionChainTypeSetter
     )
+    checkBox(
+      "Show obvious types in expression chains (Scala)",
+      settings.showObviousTypesInExpressionChainsGetter,
+      settings.showObviousTypesInExpressionChainsSetter
+    )
 
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
@@ -101,5 +106,10 @@ object ScalaTypeHintsConfigurable {
   class ToggleExpressionChainTypeAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showExpressionChainTypeGetter,
     ScalaCodeInsightSettings.showExpressionChainTypeSetter
+  )
+
+  class ToggleObviousTypesInExpressionChainAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.showObviousTypesInExpressionChainsGetter,
+    ScalaCodeInsightSettings.showObviousTypesInExpressionChainsSetter
   )
 }
