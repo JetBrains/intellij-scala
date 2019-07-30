@@ -26,7 +26,7 @@ private object TypeMismatchHints {
       if (needsParentheses) Text(")") +: parts else parts
     }
 
-    val margin = if (needsParentheses) None else Hint.leftInsetLike(' ')
+    val margin = if (needsParentheses) None else Hint.leftInsetLikeChar(' ')
 
     val offsetDelta = Option(element.getContainingFile)
       .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))

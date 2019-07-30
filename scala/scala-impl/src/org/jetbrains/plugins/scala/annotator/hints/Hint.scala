@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.annotator.hints
 
 import java.awt.Insets
 
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorFontType}
+import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
@@ -20,12 +20,18 @@ case class Hint(parts: Seq[Text],
 }
 
 object Hint {
-  def leftInsetLike(char: Char)(implicit scheme: EditorColorsScheme): Option[Insets] =
-    widthOf(char).map(new Insets(0, _, 0, 0))
+  def leftInsetLikeChar(char: Char, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
+    widthOf(char, editor).map(new Insets(0, _, 0, 0))
 
+  def leftInsetLikeString(text: String, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
+    widthOf(text, editor).map(new Insets(0, _, 0, 0))
 
   // TODO Can we detect a "current" editor somehow?
-  private def widthOf(char: Char)(implicit scheme: EditorColorsScheme) =
-    EditorFactory.getInstance().getAllEditors.headOption
+  private def widthOf(char: Char, editor: Option[Editor])(implicit scheme: EditorColorsScheme) =
+    editor.orElse(EditorFactory.getInstance().getAllEditors.headOption)
       .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).charWidth(char))
+
+  private def widthOf(str: String, editor: Option[Editor])(implicit scheme: EditorColorsScheme) =
+    editor.orElse(EditorFactory.getInstance().getAllEditors.headOption)
+      .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).stringWidth(str))
 }

@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsPass._
@@ -41,19 +41,29 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           .map(_.right.get)
         if types.toSet.size >= 2
 
+        document = editor.getDocument
+        (longestExpr, maxLineWidth) = exprs.map(expr => expr -> getOffsetInLine(expr.getTextRange.getEndOffset, document)).maxBy(_._2)
+        longestExprEndOffset = longestExpr.getTextRange.getEndOffset
+        longestLine = " " + editor.getDocument.getCharsSequence.substring(longestExprEndOffset - maxLineWidth, longestExprEndOffset).reverse
+
         (expr, ty) <-
           if (showIdenticalTypeInExpressionChain) exprs.zip(types)
           else removeConsecutiveDuplicates(exprs.zip(types))
 
         if showObviousTypesInExpressionChain || !hasObviousType(expr, ty)
 
-      } yield inlayInfoFor(expr, ty)(editor.getColorsScheme, TypePresentationContext(expr))
+      } yield {
+        val exprEndOffsetInLine = getOffsetInLine(expr.getTextRange.getEndOffset, document)
+        val marginLike = longestLine.substring(0, longestLine.length - exprEndOffsetInLine)
+        inlayInfoFor(expr, ty, if (alignExpressionChain) marginLike else " ", editor, TypePresentationContext(expr))
+      }
     ).toSeq
   }
 
-  private def inlayInfoFor(expr: ScExpression, ty: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Hint = {
+  private def inlayInfoFor(expr: ScExpression, ty: ScType, marginLike: String, editor: Editor, context: TypePresentationContext): Hint = {
+    implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     val text = Text(": ") +: textPartsOf(ty, presentationLength)
-    Hint(text, expr, suffix = true, margin = Hint.leftInsetLike(' '), menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
+    Hint(text, expr, suffix = true, margin = Hint.leftInsetLikeString(marginLike), menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
   }
 }
 
@@ -128,4 +138,10 @@ private object ScalaExprChainTypeHintsPass {
 
     refName(expr).exists(isTypeObvious("", ty.presentableText, _))
   }
+
+  def getOffsetInLine(offset: Int, document: Document): Int =
+    offset - getLineOffset(offset, document)
+
+  def getLineOffset(offset: Int, document: Document): Int =
+    document.getLineStartOffset(document.getLineNumber(offset))
 }

@@ -47,6 +47,11 @@ final class ScalaTypeHintsConfigurable
       settings.showIdenticalTypeInExpressionChainGetter,
       settings.showIdenticalTypeInExpressionChainSetter
     )
+    checkBox(
+      "Align type hints in expression chains (Scala)",
+      settings.alignExpressionChainGetter,
+      settings.alignExpressionChainSetter
+    )
 
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
@@ -121,5 +126,10 @@ object ScalaTypeHintsConfigurable {
   class ToggleIdenticalTypeInExpressionChainChainAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showIdenticalTypeInExpressionChainGetter,
     ScalaCodeInsightSettings.showIdenticalTypeInExpressionChainSetter
+  )
+
+  class ToggleAlignExpressionChainAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.alignExpressionChainGetter,
+    ScalaCodeInsightSettings.alignExpressionChainSetter
   )
 }
