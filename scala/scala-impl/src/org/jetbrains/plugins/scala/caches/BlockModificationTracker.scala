@@ -4,7 +4,7 @@ import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker._
 import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.annotation.tailrec
@@ -35,7 +35,17 @@ object BlockModificationTracker {
         elementContext  <- contextWithStableType(element)
         originalContext <- contextWithStableType(original)
       } {
+
+        //consistent block modification count in completion file
         elementContext.putUserData(originalPositionKey, originalContext)
+
+        //resolve should go to original file outside of context with stable type
+        elementContext match {
+          case elementContext: ScalaPsiElement =>
+            elementContext.context = originalContext.getContext
+            elementContext.child = originalContext
+          case _ =>
+        }
 
         assert(modificationCount(element) == modificationCount(original))
       }
