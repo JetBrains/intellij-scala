@@ -44,12 +44,12 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
         (expr, ty) <- removeConsecutiveDuplicates(exprs.zip(types))
 
       } yield inlayInfoFor(expr, ty)(editor.getColorsScheme, TypePresentationContext(expr))
-      ).toSeq
+    ).toSeq
   }
 
   private def inlayInfoFor(expr: ScExpression, ty: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Hint = {
     val text = Text(": ") +: textPartsOf(ty, presentationLength)
-    Hint(text, expr, suffix = true, menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
+    Hint(text, expr, suffix = true, margin = Hint.leftInsetLike(' '), menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
   }
 }
 

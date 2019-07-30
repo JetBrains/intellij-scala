@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import java.awt.Insets
-
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme, EditorFontType}
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
@@ -29,7 +26,7 @@ private object TypeMismatchHints {
       if (needsParentheses) Text(")") +: parts else parts
     }
 
-    val margin = if (needsParentheses) None else Some(new Insets(0, widthOf(' ').getOrElse(0), 0, 0))
+    val margin = if (needsParentheses) None else Hint.leftInsetLike(' ')
 
     val offsetDelta = Option(element.getContainingFile)
       .flatMap(file => Option(file.findElementAt(element.getTextRange.getEndOffset)))
@@ -41,11 +38,6 @@ private object TypeMismatchHints {
 
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }
-
-  // TODO Can we detect a "current" editor somehow?
-  private def widthOf(char: Char)(implicit scheme: EditorColorsScheme) =
-    EditorFactory.getInstance().getAllEditors.headOption
-      .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).charWidth(char))
 
   private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
     def toText(diff: TypeDiff): Text = diff match {

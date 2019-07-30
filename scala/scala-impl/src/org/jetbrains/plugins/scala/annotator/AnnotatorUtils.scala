@@ -100,7 +100,7 @@ object AnnotatorUtils {
   // TODO encapsulate
   def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
                             elementToHighlight: PsiElement)
-                           (implicit holder: AnnotationHolder) {
+                           (implicit holder: AnnotationHolder): Unit = {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
       val range = elementToHighlight.getTextRange
       val annotation: Annotation = holder.createInfoAnnotation(range, null)

@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.annotator.hints
 
 import java.awt.Insets
 
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorFontType}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
@@ -15,4 +17,15 @@ case class Hint(parts: Seq[Text],
 
   // We want auto-generate apply() and copy() methods, but reference-based equality
   override def equals(obj: scala.Any): Boolean = obj.asOptionOf[AnyRef].exists(eq)
+}
+
+object Hint {
+  def leftInsetLike(char: Char)(implicit scheme: EditorColorsScheme): Option[Insets] =
+    widthOf(char).map(new Insets(0, _, 0, 0))
+
+
+  // TODO Can we detect a "current" editor somehow?
+  private def widthOf(char: Char)(implicit scheme: EditorColorsScheme) =
+    EditorFactory.getInstance().getAllEditors.headOption
+      .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).charWidth(char))
 }
