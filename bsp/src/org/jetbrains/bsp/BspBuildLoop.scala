@@ -44,7 +44,6 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
     private var changesSinceCompile = false
     private var lastChangeTimestamp: Long = 0
 
-
     /** Delays compilation just a little bit so that it's less likely that multiple builds are triggered for one
       * set of changes. */
     private var scheduledCompile: ScheduledFuture[_] =

@@ -6,21 +6,28 @@ import java.nio.file._
 
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.google.gson.Gson
+import com.intellij.conversion.ProjectSettings
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.project.ex.ProjectManagerEx
+import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
+import com.intellij.openapi.roots.CompilerProjectExtension
+import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
+import com.intellij.openapi.vcs.changes.ui.ChangesTreeImpl.VirtualFiles
+import com.intellij.openapi.vfs.{VirtualFileManager, VirtualFileSystem}
 import com.intellij.util.SystemProperties
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
-import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.BspSession._
+import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
@@ -178,9 +185,23 @@ object BspCommunication {
 
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
+    val vfm = VirtualFileManager.getInstance()
+
+    // FIXME getting this from config will only work when the config window has been opened before.
+    // this is probably not the right place to get it from.
+    val compilerOutputDirFromConfig = for {
+      projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is redered with :// separator which findFileByUrl needs
+      project <- Option(ProjectUtil.guessProjectForFile(projectDir))
+      cpe = CompilerProjectExtension.getInstance(project)
+      output <- Option(cpe.getCompilerOutputUrl)
+    } yield new File(new URI(output))
+
+    val compilerOutputDir = compilerOutputDirFromConfig
+      .getOrElse(new File(base, "out"))
+
     val connector =
-      if (connectionDetails.nonEmpty) new GenericConnector(base, capabilities)
-      else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
+      if (connectionDetails.nonEmpty) new GenericConnector(base, compilerOutputDir, capabilities)
+      else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, compilerOutputDir, capabilities)
       else new DummyConnector(base.toURI)
 
     // TODO user dialog when multiple valid connectors exist: https://youtrack.jetbrains.com/issue/SCL-14880
