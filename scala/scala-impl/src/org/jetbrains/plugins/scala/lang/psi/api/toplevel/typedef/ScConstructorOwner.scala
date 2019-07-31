@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}

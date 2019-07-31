@@ -35,6 +35,8 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
 
   override def isVar: Boolean = byStubOrPsi(_.isVar)(findChildByType(ScalaTokenTypes.kVAR) != null)
 
+  override def isImplicitParameter: Boolean = super.isImplicitParameter || getModifierList.isImplicit
+
   def isPrivateThis: Boolean = {
     if (!isClassMember) return true
     getModifierList.accessModifier match {

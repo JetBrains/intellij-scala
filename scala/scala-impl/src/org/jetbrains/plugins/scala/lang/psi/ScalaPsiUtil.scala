@@ -1392,7 +1392,7 @@ object ScalaPsiUtil {
 
   def isImplicit(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
     case p: ScParameter => p.isImplicitParameter
-    case _ => modifierListOwner.hasModifierProperty("implicit")
+    case _              => modifierListOwner.hasModifierProperty("implicit")
   }
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
