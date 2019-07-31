@@ -82,8 +82,8 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
         newSessionBuilder.withInitialJob(job)
           .addNotificationCallback(projectCallback)
           .withTraceLogPredicate(project
-            .map(p => () => BspSettings.getInstance(p).getLinkedProjectSettings(p.getBasePath).traceBsp)
-            .getOrElse(() => false))
+            .map(p => () => BspExecutionSettings.executionSettingsFor(p, base.getAbsolutePath).traceBsp)
+            .getOrElse(() => executionSettings.traceBsp))
         val newSession = newSessionBuilder.create
         session = Some(newSession)
         Right(newSession)
