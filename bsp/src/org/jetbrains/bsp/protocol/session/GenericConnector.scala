@@ -7,7 +7,7 @@ import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, B
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
 
-class GenericConnector(base: File, capabilities: BspCapabilities) extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
+class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabilities) extends BspServerConnector() {
 
   override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] = {
     methods.collectFirst {
@@ -30,7 +30,9 @@ class GenericConnector(base: File, capabilities: BspCapabilities) extends BspSer
       process.destroy()
     }
 
-    val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, capabilities)
+    val rootUri = base.getCanonicalFile.toURI
+    val compilerOutputUri = compilerOutput.getCanonicalFile.toURI
+    val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, compilerOutputUri, capabilities)
 
     BspSession.builder(process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
   }

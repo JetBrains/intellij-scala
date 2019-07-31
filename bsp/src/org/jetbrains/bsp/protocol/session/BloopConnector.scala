@@ -3,20 +3,17 @@ package org.jetbrains.bsp.protocol.session
 import java.io.{ByteArrayInputStream, File}
 import java.net.{Socket, URI}
 
-import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage, BspException}
-import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.scalasbt.ipcsocket.UnixDomainSocket
 
-import scala.collection.JavaConverters._
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabilities)
-  extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
+class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, capabilities: BspCapabilities)
+  extends BspServerConnector() {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
   private val verbose = false
@@ -44,16 +41,15 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
         socketResult.map { socket =>
           (socket, ()=>())
         }
-
-      // case WindowsLocalBsp(pipeName) => // TODO support windows pipes connection
-
     }
 
     val socketAndCleanupEither = socketAndCleanupOpt.getOrElse(Left(BspErrorMessage("could not find supported connection method for bloop")))
 
     socketAndCleanupEither.map { socketAndCleanup =>
       val (socket, cleanup) = socketAndCleanup
-      val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, capabilities)
+      val rootUri = base.getCanonicalFile.toURI
+      val compilerOutputUri = compilerOutput.getCanonicalFile.toURI
+      val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, compilerOutputUri, capabilities)
       val dummyInputStream = new ByteArrayInputStream(Array.emptyByteArray)
 
       BspSession.builder(socket.getInputStream, dummyInputStream, socket.getOutputStream, initializeBuildParams, cleanup)

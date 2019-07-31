@@ -22,15 +22,14 @@ object BspServerConnector {
 
   case class BspCapabilities(languageIds: List[String])
 
-  private[session] def createInitializeBuildParams(rootUri: URI, capabilities: BspCapabilities) = {
+  private[session] def createInitializeBuildParams(rootUri: URI, compilerOutput: URI, capabilities: BspCapabilities) = {
     val gson: Gson = new Gson()
 
     val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava)
     val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.map(_.presentation).getOrElse("N/A")
-    val clientClassesRoot = rootUri.resolve("out")
     val dataJson = new JsonObject()
-    dataJson.addProperty("clientClassesRootDir", clientClassesRoot.toString)
-    val data = gson.toJson()
+    dataJson.addProperty("clientClassesRootDir", compilerOutput.toString)
+    val data = gson.toJson(dataJson)
     val initializeBuildParams = new InitializeBuildParams("IntelliJ-BSP", pluginVersion, "2.0", rootUri.toString, buildClientCapabilities)
     initializeBuildParams.setData(data)
 
@@ -38,7 +37,7 @@ object BspServerConnector {
   }
 }
 
-abstract class BspServerConnector(val rootUri: URI, val capabilities: BspCapabilities) {
+abstract class BspServerConnector() {
   /**
     * Connect to a bsp server with one of the given methods.
     * @param methods methods supported by the bsp server, in order of preference
@@ -47,7 +46,7 @@ abstract class BspServerConnector(val rootUri: URI, val capabilities: BspCapabil
   def connect(methods: BspConnectionMethod*): Either[BspError, Builder]
 }
 
-class DummyConnector(rootUri: URI) extends BspServerConnector(rootUri, BspCapabilities(Nil)) {
+class DummyConnector(rootUri: URI) extends BspServerConnector() {
   override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
