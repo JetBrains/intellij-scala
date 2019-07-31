@@ -41,10 +41,6 @@ class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdap
     assertUrlReference("in multiline interpolated string literal")(s"""s$quotes$testUrl$quotes""")
   }
 
-  def testFilePathReference(): Unit = {
-
-  }
-
   private def extractReferences(file: PsiFile): Seq[PsiReference] = {
     val found: mutable.Buffer[PsiReference] = mutable.Buffer()
 
