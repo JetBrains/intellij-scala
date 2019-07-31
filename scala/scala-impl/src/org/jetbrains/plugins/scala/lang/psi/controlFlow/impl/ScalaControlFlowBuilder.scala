@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -422,11 +423,12 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         if (ref.qualifier.nonEmpty) return
 
-        ref.resolve() match {
-          case p: ScParameter if parameters.contains(p) || ref.getContext.is[ScAssignment] => ()
-          case named: PsiNamedElement if !PsiTreeUtil.isAncestor(paramOwner, named, false) =>
-            collectedRefs += ref
-          case _ =>
+        ref.bind() match {
+          case Some(srr @ ScalaResolveResult(p: ScParameter, _))
+              if parameters.contains(p) || srr.isNamedParameter => ()
+          case Some(ScalaResolveResult(named: PsiNamedElement, _))
+              if !PsiTreeUtil.isAncestor(paramOwner, named, false) => collectedRefs += ref
+          case _ => ()
         }
       }
     }
