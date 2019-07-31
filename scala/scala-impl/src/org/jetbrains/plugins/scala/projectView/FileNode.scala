@@ -5,6 +5,7 @@ import java.{util => ju}
 
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -12,10 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 /**
  * @author Pavel Fatin
  */
-private sealed abstract class FileNode(protected val file: ScalaFile,
-                                       protected val icon: Icon)
-                                      (implicit project: Project, settings: ViewSettings)
-  extends PsiFileNode(project, file, settings) {
+private[projectView] sealed abstract class FileNode(protected val file: ScalaFile)
+                                                   (implicit project: Project, settings: ViewSettings)
+  extends PsiFileNode(project, file, settings) with IconProviderNode {
 
   import collection.JavaConverters._
 
@@ -27,15 +27,17 @@ private sealed abstract class FileNode(protected val file: ScalaFile,
 
   override protected def updateImpl(data: PresentationData): Unit = {
     super.updateImpl(data)
-    data.setIcon(icon)
+    setIcon(data)
   }
 }
 
-private object FileNode {
+private[projectView] object FileNode {
 
   final class ScalaFileNode(override protected val file: ScalaFile)
                            (implicit project: Project, settings: ViewSettings)
-    extends FileNode(file, ScalaFileType.INSTANCE.getIcon) {
+    extends FileNode(file) {
+
+    override def icon(flags: Int): Icon = ScalaFileType.INSTANCE.getIcon
 
     override protected def updateImpl(data: PresentationData): Unit = {
       super.updateImpl(data)
@@ -46,13 +48,18 @@ private object FileNode {
   }
 
   final class DialectFileNode(override protected val file: ScalaFile,
-                              override protected val icon: Icon)
+                              fileType: FileType)
                              (implicit project: Project, settings: ViewSettings)
-    extends FileNode(file, icon)
+    extends FileNode(file) {
+
+    override def icon(flags: Int): Icon = fileType.getIcon
+  }
 
   final class ScriptFileNode(override protected val file: ScalaFile)
                             (implicit project: Project, settings: ViewSettings)
-    extends FileNode(file, icons.Icons.SCRIPT_FILE_LOGO) {
+    extends FileNode(file) {
+
+    override def icon(flags: Int): Icon = icons.Icons.SCRIPT_FILE_LOGO
 
     //noinspection TypeAnnotation
     override def getChildrenImpl = ju.Collections.emptyList[Node]()

@@ -1,13 +1,15 @@
-package org.jetbrains.plugins.scala.projectView
+package org.jetbrains.plugins.scala
+package projectView
 
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil.getNameWithoutExtension
 import com.intellij.ui.SimpleTextAttributes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private class PackageObjectNode(definition: ScTypeDefinition)(implicit project: ProjectContext, settings: ViewSettings)
+private[projectView] class PackageObjectNode(definition: ScTypeDefinition)
+                                            (implicit project: Project, settings: ViewSettings)
   extends TypeDefinitionNode(definition) {
 
   override def getTypeSortWeight(sortByType: Boolean): Int =

@@ -1,26 +1,25 @@
-package org.jetbrains.plugins.scala.projectView
+package org.jetbrains.plugins.scala
+package projectView
 
-import java.util
-import java.util.Collections
-import javax.swing.Icon
+import java.{util => ju}
 
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
-  * @author Pavel Fatin
-  */
-private class CustomDefinitionNode(definition: ScTypeDefinition, icon: Icon)
-                                  (implicit project: ProjectContext, settings: ViewSettings)
-  extends ClassTreeNode(project, definition, settings) {
+ * @author Pavel Fatin
+ */
+private[projectView] abstract class CustomDefinitionNode(definition: ScTypeDefinition)
+                                                        (implicit project: Project, settings: ViewSettings)
+  extends ClassTreeNode(project, definition, settings) with IconProviderNode {
 
   myName = definition.name
 
   override def isAlwaysLeaf: Boolean = true
 
-  override protected def getChildrenImpl: util.Collection[Node] = Collections.emptyList()
+  override protected def getChildrenImpl: ju.Collection[Node] = ju.Collections.emptyList()
 
   override protected def updateImpl(data: PresentationData): Unit = {
     getValue match {
@@ -28,6 +27,6 @@ private class CustomDefinitionNode(definition: ScTypeDefinition, icon: Icon)
       case _ => super.updateImpl(data)
     }
 
-    data.setIcon(icon)
+    setIcon(data)
   }
 }

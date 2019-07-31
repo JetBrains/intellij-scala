@@ -1,25 +1,30 @@
-package org.jetbrains.plugins.scala.projectView
+package org.jetbrains.plugins.scala
+package projectView
 
 import java.util
 
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters._
 
 /**
   * @author Pavel Fatin
   */
-private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project: ProjectContext, settings: ViewSettings)
-  extends ClassTreeNode(project, definition, settings) {
+private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
+                                             (implicit project: Project, settings: ViewSettings)
+  extends ClassTreeNode(project, definition, settings) with IconProviderNode {
 
   myName = definition.name
+
+  override def icon(flags: Int): Icon = definition.getIcon(flags)
 
   override def getTitle: String =
     value.map(_.qualifiedName).getOrElse(super.getTitle)

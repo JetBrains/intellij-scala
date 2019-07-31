@@ -44,7 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
+import org.jetbrains.plugins.scala.projectView.FileKind
 
 import scala.annotation.tailrec
 
@@ -361,10 +361,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     super[ScTypeDefinition].findFieldByName(name, checkBases)
 
   override def delete(): Unit = getContainingFile match {
-    case file @ (SingularDefinition(_) |
-                 ClassAndCompanionObject(_, _) |
-                 TraitAndCompanionObject(_, _)) if isTopLevel => file.delete()
-
+    case file@FileKind(_) if isTopLevel => file.delete()
     case _ => getParent.getNode.removeChild(getNode)
   }
 
