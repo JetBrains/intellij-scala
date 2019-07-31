@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package projectView
 
-import com.intellij.ide.projectView.ViewSettings
+import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
 import javax.swing.Icon
@@ -72,14 +72,26 @@ object FileKind {
     protected def icon(flags: Int): Icon
 
     override def node(implicit project: Project, settings: ViewSettings): Option[CustomDefinitionNode] =
-      if (settings != null && settings.isShowMembers)
+      if (settings != null && settings.isShowMembers) {
         None
-      else
-        Some {
-          new CustomDefinitionNode(definition) {
-            override def icon(flags: Int): Icon = PairedDefinition.this.icon(flags)
+      } else {
+        class LeafNode extends CustomDefinitionNode(definition) {
+
+          override def icon(flags: Int): Icon = PairedDefinition.this.icon(flags)
+
+          override def isAlwaysLeaf: Boolean = true
+
+          //noinspection TypeAnnotation
+          override protected def getChildrenImpl = emptyNodesList
+
+          override protected def updateImpl(data: PresentationData): Unit = {
+            super.updateImpl(data)
+            setIcon(data)
           }
         }
+
+        Some(new LeafNode)
+      }
   }
 
   private case class ClassAndCompanionObject(override protected val definition: ScClass,

@@ -3,63 +3,51 @@ package projectView
 
 import java.util
 
-import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
-import com.intellij.ide.projectView.{PresentationData, ViewSettings}
+import com.intellij.ide.projectView.ViewSettings
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
-import scala.collection.JavaConverters._
-
 /**
-  * @author Pavel Fatin
-  */
+ * @author Pavel Fatin
+ */
 private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
                                              (implicit project: Project, settings: ViewSettings)
-  extends ClassTreeNode(project, definition, settings) with IconProviderNode {
-
-  myName = definition.name
+  extends CustomDefinitionNode(definition) {
 
   override def icon(flags: Int): Icon = definition.getIcon(flags)
 
   override def getTitle: String =
-    value.map(_.qualifiedName).getOrElse(super.getTitle)
-
-  override def updateImpl(data: PresentationData): Unit = value match {
-    case Some(it) => data.setPresentableText(it.name)
-    case None => super.updateImpl(data)
-  }
+    validValue.fold(super.getTitle)(_.qualifiedName)
 
   override def getChildrenImpl: util.Collection[Node] =
-    if (getSettings.isShowMembers) value.map(childrenOf).getOrElse(Seq.empty).asJava
-    else super.getChildrenImpl
+    if (settings.isShowMembers)
+      validValue.fold(emptyNodesList)(childrenOf)
+    else
+      super.getChildrenImpl
 
-  private def childrenOf(parent: ScTypeDefinition): Seq[Node] = parent.membersWithSynthetic.flatMap {
-    case definition: ScTypeDefinition =>
-      Seq(new TypeDefinitionNode(definition))
+  private def childrenOf(value: ScTypeDefinition) = {
+    val result = value.membersWithSynthetic.flatMap {
+      case definition: ScTypeDefinition =>
+        Seq(new TypeDefinitionNode(definition))
+      case element: ScNamedElement =>
+        Seq(new NamedElementNode(element))
+      case value: ScValueOrVariable =>
+        value.declaredElements.map(new NamedElementNode(_))
+      case _ => Seq.empty
+    }.asInstanceOf[Seq[Node]]
 
-    case element: ScNamedElement =>
-      Seq(new NamedElementNode(element))
-
-    case value: ScValue =>
-      value.declaredElements.map(new NamedElementNode(_))
-
-    case variable: ScVariable =>
-      variable.declaredElements.map(new NamedElementNode(_))
-
-    case _ => Seq.empty
+    import collection.JavaConverters._
+    result.asJava
   }
 
   override def getPsiClass: PsiClass =
-    value.filter(_.isObject)
-      .map(it => new PsiClassWrapper(it, it.qualifiedName, it.name))
-      .getOrElse(super.getPsiClass)
-
-  private def value: Option[ScTypeDefinition] = Some(getValue) collect {
-    case value: ScTypeDefinition if value.isValid => value
-  }
+    validValue.filter(_.isObject)
+      .fold(super.getPsiClass) { definition =>
+        new PsiClassWrapper(definition, definition.qualifiedName, definition.name)
+      }
 }

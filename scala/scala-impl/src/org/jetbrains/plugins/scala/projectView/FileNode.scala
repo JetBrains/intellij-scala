@@ -23,7 +23,7 @@ private[projectView] sealed abstract class FileNode(protected val file: ScalaFil
     if (settings.isShowMembers)
       file.typeDefinitions.map(new TypeDefinitionNode(_): Node).asJava
     else
-      ju.Collections.emptyList()
+      emptyNodesList
 
   override protected def updateImpl(data: PresentationData): Unit = {
     super.updateImpl(data)
