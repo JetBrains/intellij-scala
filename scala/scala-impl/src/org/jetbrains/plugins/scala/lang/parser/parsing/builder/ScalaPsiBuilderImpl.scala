@@ -7,6 +7,7 @@ import com.intellij.lang.{PsiBuilder, impl}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.resolve.FileContextUtil
+import org.jetbrains.plugins.scala.util.ScalaUtil.areTrailingCommasAndIdBindingEnabled
 
 /**
   * @author Alexander Podkhalyuzin
@@ -25,13 +26,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     myDelegate.getUserData(FileContextUtil.CONTAINING_FILE_KEY)
   }
 
-  private lazy val (_isTrailingCommasEnabled, _isIdBindingEnabled) = {
-    import util.ScalaUtil.{isIdBindingEnabled => isIdBindingEnabledImpl, isTrailingCommasEnabled => isTrailingCommasEnabledImpl, _}
-
-    val actualVersion = containingFile.flatMap(findScalaVersion)
-    (isTrailingCommasEnabledImpl(containingFile)(actualVersion),
-      isIdBindingEnabledImpl(containingFile)(actualVersion))
-  }
+  private lazy val (_isTrailingCommasEnabled, _isIdBindingEnabled) =
+    areTrailingCommasAndIdBindingEnabled(containingFile)
 
   override def isTrailingComma: Boolean = getTokenType match {
     case T.tCOMMA => _isTrailingCommasEnabled

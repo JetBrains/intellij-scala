@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package util
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -15,9 +14,9 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 16.11.11
-  */
+ * User: Alexander Podkhalyuzin
+ * Date: 16.11.11
+ */
 
 object ScalaUtil {
 
@@ -38,38 +37,36 @@ object ScalaUtil {
     ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(file)
   }
 
-  def isTrailingCommasDisabled(file: PsiFile): Boolean = file match {
-    case null => true
-    case _ => !isTrailingCommasEnabled(Some(file)) {
-      findScalaVersion(file)
-    }(file.getProject)
+  def isTrailingCommasEnabled(file: PsiFile): Boolean = Option(file).exists { file =>
+    val (result, _) = areTrailingCommasAndIdBindingEnabled(Some(file))(file.getProject)
+    result
   }
 
-  def isTrailingCommasEnabled(file: Option[PsiFile])
-                             (actualVersion: => Option[Version])
-                             (implicit project: Project): Boolean = {
+  def areTrailingCommasAndIdBindingEnabled(file: Option[PsiFile])
+                                          (implicit project: Project): (Boolean, Boolean) = {
+    val enabledPredicate = isEnabledIn(file)
+
     import ScalaProjectSettings.TrailingCommasMode._
-    ScalaProjectSettings.getInstance(project).getTrailingCommasMode match {
+    val trailingCommas = ScalaProjectSettings.getInstance(project).getTrailingCommasMode match {
       case Enabled => true
       case Disabled => false
-      case Auto => isEnabledIn(file, "2.12.2")(actualVersion)
+      case Auto => enabledPredicate("2.12.2")
     }
+
+    (trailingCommas, enabledPredicate("2.12"))
   }
 
-  def isIdBindingEnabled(file: Option[PsiFile])
-                        (actualVersion: => Option[Version]): Boolean =
-    isEnabledIn(file, "2.12")(actualVersion)
+  private def isEnabledIn(maybeFile: Option[PsiFile]): String => Boolean =
+    maybeFile.flatMap {
+      case file if applicationUnitTestModeEnabled && file.getVirtualFile.isInstanceOf[LightVirtualFileBase] =>
+        Some(Function.const(true)(_: String))
+      case file =>
+        for {
+          module <- file.module
+          sdk <- module.scalaSdk
+          presentation <- sdk.compilerVersion
 
-  def findScalaVersion(file: PsiFile): Option[Version] = for {
-    module <- file.module
-    sdk <- module.scalaSdk
-    presentation <- sdk.compilerVersion
-
-  } yield Version(presentation)
-
-  private def isEnabledIn(file: Option[PsiFile], requiredVersion: String)
-                         (actualVersion: => Option[Version]): Boolean =
-    (ApplicationManager.getApplication.isUnitTestMode &&
-      file.exists(_.getVirtualFile.isInstanceOf[LightVirtualFileBase])) ||
-      actualVersion.exists(_ >= Version(requiredVersion))
+          version = Version(presentation)
+        } yield version >= Version(_: String)
+    }.getOrElse(Function.const(false)(_))
 }
