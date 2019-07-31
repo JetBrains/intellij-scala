@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
 import com.intellij.lang.jvm.JvmElementVisitor
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDecoratedIconOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
 * @author Alexander Podkhalyuzin
