@@ -85,19 +85,26 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val projectJob =
       communication.run(requests(_), notifications, processLogger)
 
-    statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
+    listener.onStart(id, projectRootPath)
+    statusUpdate("BSP import started") // TODO remove in favor of build toolwindow nodes
 
     importState = Active(communication)
     val result = waitForProjectCancelable(projectJob)
     communication.closeSession()
     importState = Inactive
 
-    statusUpdate("finished task") // TODO remove in favor of build toolwindow nodes
+    statusUpdate("BSP import completed") // TODO remove in favor of build toolwindow nodes
 
     result match {
-      case Left(BspTaskCancelled) => null
-      case Left(err) => throw err
-      case Right(data) => data
+      case Left(BspTaskCancelled) =>
+        listener.onCancel(id)
+        null
+      case Left(err) =>
+        listener.onFailure(id, err)
+        throw err
+      case Right(data) =>
+        listener.onSuccess(id)
+        data
     }
   }
 
