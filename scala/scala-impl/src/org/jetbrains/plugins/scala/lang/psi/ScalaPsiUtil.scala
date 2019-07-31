@@ -60,7 +60,7 @@ import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import scala.annotation.tailrec
 import scala.collection.{Seq, Set, mutable}
-import scala.reflect.NameTransformer
+import scala.reflect.{ClassTag, NameTransformer}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -413,6 +413,24 @@ object ScalaPsiUtil {
       child = child.getTreeNext
     }
     buffer
+  }
+
+
+  /**
+   * @return maximal element of specified type starting at startOffset exactly and ending not farther than endOffset
+   *         May return several elements if they have exactly same range.
+   */
+  def elementsAtRange[T <: PsiElement : ClassTag](file: PsiFile, startOffset: Int, endOffset: Int): Seq[T] = {
+    def fit(e: PsiElement): Boolean =
+      e.startOffset == startOffset && e.endOffset <= endOffset
+
+    val startElem = file.findElementAt(startOffset)
+    val allInRange = startElem.withParents.takeWhile(fit).toList.filterBy[T]
+    if (allInRange.isEmpty) Seq.empty
+    else {
+      val maxEndOffset = allInRange.map(_.endOffset).max
+      allInRange.filter(_.endOffset == maxEndOffset)
+    }
   }
 
   def strictlyOrderedByContext(before: PsiElement, after: PsiElement, topLevel: Option[PsiElement]): Boolean = {

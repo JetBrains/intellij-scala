@@ -42,7 +42,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
       }
 
       val realOffset = offset - diff
-      if (getExpressionsAtOffset(file, realOffset).isEmpty)
+      if (possibleExpressionsToExtract(file, realOffset).isEmpty)
         Option(findElementOfClassAtOffset(file, realOffset, classOf[ScTypeElement], false))
       else None
     }

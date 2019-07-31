@@ -78,7 +78,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
     try {
       executeWriteActionCommand("Test") {
         editor.getSelectionModel.setSelection(startOffset, endOffset)
-        afterExpressionChoosing(scalaFile, "Introduce Variable", filterExpressions = false) {
+        afterExpressionChoosing(scalaFile, "Introduce Variable") {
           trimSpacesAndComments(editor, scalaFile)
           PsiDocumentManager.getInstance(project).commitAllDocuments()
           val handler = new ScalaIntroduceParameterHandler()
