@@ -25,11 +25,6 @@ private sealed trait PsiChange {
 
 private object PsiChange {
 
-  /** Marker whitespace implementation that indicates absence of whitespace.
-   * It is more convenient to use Replace psi change instead of Remove, but there is no way
-   * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
-   */
-
   val generatedVisitor: PsiRecursiveElementVisitor = new PsiRecursiveElementVisitor() {
     override def visitElement(element: PsiElement): Unit = {
       CodeEditUtil.setNodeGenerated(element.getNode, false)
