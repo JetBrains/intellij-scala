@@ -94,17 +94,25 @@ public class TestRunConfigurationForm {
   public enum SearchForTest {
     IN_WHOLE_PROJECT, IN_SINGLE_MODULE, ACCROSS_MODULE_DEPENDENCIES;
 
+    public static final String ACROSS_MODULE_DEPENDENCIES_STR = "Across module dependencies";
+    public static final String IN_WHOLE_PROJECT_STR = "In whole project";
+    public static final String IN_SINGLE_MODULE_STR = "In single module";
+
+    public static SearchForTest parse(String str) {
+      switch (str) {
+        case IN_SINGLE_MODULE_STR: return IN_SINGLE_MODULE;
+        case IN_WHOLE_PROJECT_STR: return IN_WHOLE_PROJECT;
+        default: return ACCROSS_MODULE_DEPENDENCIES;
+      }
+    }
+
     @Override
     public String toString() {
       switch (this) {
-        case ACCROSS_MODULE_DEPENDENCIES:
-          return "Across module dependencies";
-        case IN_WHOLE_PROJECT:
-          return "In whole project";
-        case IN_SINGLE_MODULE:
-          return "In single module";
-        default:
-          return "";
+        case ACCROSS_MODULE_DEPENDENCIES: return ACROSS_MODULE_DEPENDENCIES_STR;
+        case IN_WHOLE_PROJECT: return IN_WHOLE_PROJECT_STR;
+        case IN_SINGLE_MODULE: return IN_SINGLE_MODULE_STR;
+        default: return "";
       }
     }
   }
