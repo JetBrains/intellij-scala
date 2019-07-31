@@ -124,7 +124,7 @@ class BspTask[T](project: Project, targets: Iterable[URI], callbackOpt: Option[P
     }
   }
 
-  private def compileRequest(implicit server: BspServer): CompletableFuture[CompileResult] = {
+  private def compileRequest(server: BspServer): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
     params.setOriginId(bspTaskId.id)
