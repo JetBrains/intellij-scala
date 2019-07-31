@@ -95,12 +95,8 @@ package object completion {
 
         //resolve should go to original file outside of context with stable type
         // + consistent block modification count
-        elementContext match {
-          case elementContext: ScalaPsiElement =>
-            elementContext.context = originalContext.getContext
-            elementContext.child = originalContext
-          case _ =>
-        }
+        elementContext.context = originalContext.getContext
+        elementContext.child = originalContext
 
         assert(blockModCount(elementContext) == blockModCount(originalContext))
       }
