@@ -23,14 +23,10 @@ class BspProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var buildOnSave = false
 
-  @BeanProperty
-  var traceBsp = false
-
   override def clone(): BspProjectSettings = {
     val result = new BspProjectSettings
     copyTo(result)
     result.buildOnSave = buildOnSave
-    result.traceBsp = traceBsp
     result
   }
 }
@@ -42,29 +38,24 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
   var buildOnSave = false
 
   private val buildOnSaveCheckBox = new JCheckBox("build automatically on file save")
-  private val traceBspCheckBox = new JCheckBox("enable BSP trace log")
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(1)
     content.add(buildOnSaveCheckBox, fillLineConstraints)
-    content.add(traceBspCheckBox, fillLineConstraints)
   }
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
-    buildOnSaveCheckBox.isSelected != initial.buildOnSave ||
-      traceBspCheckBox.isSelected != initial.traceBsp
+    buildOnSaveCheckBox.isSelected != initial.buildOnSave
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val initial = getInitialSettings
     buildOnSaveCheckBox.setSelected(initial.buildOnSave)
-    traceBspCheckBox.setSelected(initial.traceBsp)
   }
 
   override def applyExtraSettings(settings: BspProjectSettings): Unit = {
     settings.buildOnSave = buildOnSaveCheckBox.isSelected
-    settings.traceBsp = traceBspCheckBox.isSelected
   }
 
   override def validate(settings: BspProjectSettings): Boolean = true
@@ -151,6 +142,8 @@ object BspSystemSettings {
   class State {
     @BeanProperty
     var bloopPath: String = "bloop" // TODO can we autodetect bloop path for mac/windows?
+    @BeanProperty
+    var traceBsp: Boolean = false
   }
 }
 
@@ -173,7 +166,9 @@ object BspLocalSettings {
 
 class BspLocalSettingsState extends AbstractExternalSystemLocalSettings.State
 
-class BspExecutionSettings(val basePath: File, val bloopExecutable: File) extends ExternalSystemExecutionSettings
+class BspExecutionSettings(val basePath: File,
+                           val bloopExecutable: File,
+                           val traceBsp: Boolean) extends ExternalSystemExecutionSettings
 
 object BspExecutionSettings {
 
@@ -182,7 +177,7 @@ object BspExecutionSettings {
 
     val basePath = new File(path)
     val bloopExecutable = new File(systemSettings.getState.bloopPath)
-    new BspExecutionSettings(basePath, bloopExecutable)
+    new BspExecutionSettings(basePath, bloopExecutable, systemSettings.getState.traceBsp)
   }
 }
 
@@ -201,14 +196,17 @@ class BspSystemSettingsControl(settings: BspSettings) extends ExternalSystemSett
 
   override def reset(): Unit = {
     pane.bloopExecutablePath.setText(systemSettings.getState.bloopPath)
+    pane.bspTraceCheckbox.setSelected(systemSettings.getState.traceBsp)
     pane.setPathListeners()
   }
 
   override def isModified: Boolean =
-    pane.bloopExecutablePath.getText != systemSettings.getState.bloopPath
+    pane.bloopExecutablePath.getText != systemSettings.getState.bloopPath ||
+    pane.bspTraceCheckbox.isSelected != systemSettings.getState.traceBsp
 
   override def apply(settings: BspSettings): Unit = {
     systemSettings.getState.bloopPath = pane.bloopExecutablePath.getText
+    systemSettings.getState.traceBsp = pane.bspTraceCheckbox.isSelected
   }
   override def validate(settings: BspSettings): Boolean =
     true // TODO validate bloop path or something?
