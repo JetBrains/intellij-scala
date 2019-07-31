@@ -37,10 +37,6 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    if (isScriptFile &&
-      !isWorksheetFile &&
-      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
-
     if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     if (this.context != null) return true
@@ -196,27 +192,14 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     true
   }
 
-  def isScriptFile: Boolean = false
-
-  def isWorksheetFile: Boolean = false
-
-  import macroAnnotations.CachedInUserData
-
-  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  private def isScalaPredefinedClass: Boolean = this match {
-    case impl: ScalaFileImpl => impl.typeDefinitions match {
-      case Seq(head) => DefaultImplicitlyImportedObjects(head.qualifiedName)
-      case _ => false
-    }
-    case _ => false
-  }
+  protected def isScalaPredefinedClass: Boolean
 }
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  private val DefaultImplicitlyImportedPackages = Set("scala", "java.lang")
-  private val DefaultImplicitlyImportedObjects = Set("scala.Predef", "scala" /* package object*/)
+  private[psi] val DefaultImplicitlyImportedPackages = Set("scala", "java.lang")
+  private[psi] val DefaultImplicitlyImportedObjects = Set("scala.Predef", "scala" /* package object*/)
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)

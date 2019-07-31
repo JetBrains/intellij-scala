@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsHolder.DefaultImplicitlyImportedObjects
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
@@ -38,6 +40,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   extends PsiFileBase(viewProvider, getFileType.getLanguage)
     with ScalaFile
     with FileDeclarationsHolder
+    with ScDeclarationSequenceHolder
     with ScControlFlowOwner
     with FileResolveScopeProvider {
 
@@ -60,6 +63,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     findChildByClass[T](clazz)
 
   override final def getName: String = super.getName
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean =
+    if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place))
+      false
+    else
+      super.processDeclarations(processor, state, lastParent, place)
 
   private def isScriptFileImpl: Boolean = {
     val empty = this.children.forall {
@@ -92,7 +104,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
   override def isScriptFile: Boolean = getViewProvider match {
     case _: ScFileViewProviderFactory.ScFileViewProvider =>
-      foldStub(isScriptFileImpl)(Function.const(super.isScriptFile))
+      foldStub(isScriptFileImpl)(Function.const(false))
     case _ => false
   }
 
@@ -325,6 +337,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override final def getUseScope: SearchScope = super[PsiFileBase].getUseScope
 
   override val allowsForwardReferences: Boolean = false
+
+  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
+  protected final def isScalaPredefinedClass: Boolean = typeDefinitions match {
+    case Seq(head) => DefaultImplicitlyImportedObjects(head.qualifiedName)
+    case _ => false
+  }
 }
 
 object ScalaFileImpl {
