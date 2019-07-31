@@ -15,18 +15,6 @@ import scala.collection.Seq
 package object projectView {
   type Node = AbstractTreeNode[_]
 
-  object WorksheetFile {
-    def unapply(file: ScalaFile): Boolean = file.isWorksheetFile
-  }
-
-  object ScriptFile {
-    def unapply(file: ScalaFile): Boolean = file.isScriptFile
-  }
-
-  object ScalaDialectFile {
-    def unapply(file: ScalaFile): Boolean = file.getFileType != ScalaFileType.INSTANCE
-  }
-
   object SingularDefinition {
     def unapply(file: ScalaFile): Option[ScTypeDefinition] = Some(file.typeDefinitions) collect {
       case Seq(definition @ MatchesFileName()) => definition

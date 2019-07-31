@@ -30,6 +30,10 @@ final public class ScalaFileType extends LanguageFileTypeBase {
         super(ScalaLanguage.INSTANCE);
     }
 
+    public String getExtensionWithDot() {
+        return "." + getDefaultExtension();
+    }
+
     public Icon getIcon() {
         return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
     }
