@@ -22,9 +22,9 @@ import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
@@ -74,6 +74,12 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     super.readExternal(element)
     XmlSerializer.deserializeInto(this, element)
     EnvironmentVariablesComponent.readExternal(element, environmentVariables)
+    JdomExternalizerMigrationHelper(element) { helper =>
+      helper.migrateString("tasks")(tasks = _)
+      helper.migrateString("vmparams")(vmparams = _)
+      helper.migrateString("workingDir")(workingDir = _)
+      helper.migrateBool("useSbtShell")(useSbtShell = _)
+    }
   }
 
   def apply(params: SbtRunConfigurationForm): Unit = {

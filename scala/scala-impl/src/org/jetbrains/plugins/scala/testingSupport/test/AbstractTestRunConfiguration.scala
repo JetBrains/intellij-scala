@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLoca
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 
@@ -491,8 +492,16 @@ abstract class AbstractTestRunConfiguration(project: Project,
     JavaRunConfigurationExtensionManager.getInstance.readExternal(this, element)
     readModule(element)
     XmlSerializer.deserializeInto(this, element)
+    migrate(element)
     testConfigurationData = TestConfigurationData.createFromExternal(element, this)
   }
+
+  private def migrate(element: Element): Unit = {
+    JdomExternalizerMigrationHelper(element) { helper =>
+      helper.migrateString("testKind")(x => testKind = TestKind.fromString(x))
+    }
+  }
+
 }
 
 trait SuiteValidityChecker {

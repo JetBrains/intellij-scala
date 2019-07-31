@@ -10,6 +10,7 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
 
@@ -62,9 +63,21 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
     }
   }
 
-  def readExternal(element: Element): Unit  = XmlSerializer.deserializeInto(this, element)
   def writeExternal(element: Element): Unit = XmlSerializer.serializeInto(this, element)
 
+  def readExternal(element: Element): Unit  = {
+    XmlSerializer.deserializeInto(this, element)
+    JdomExternalizerMigrationHelper(element) { helper =>
+      helper.migrateBool("useUiWithSbt")(useUiWithSbt = _)
+      helper.migrateBool("showProgressMessages")(showProgressMessages = _)
+      helper.migrateBool("useSbt")(useSbt = _)
+      helper.migrateString("path")(testClassPath = _)
+      helper.migrateString("vmparams")(javaOptions = _)
+      helper.migrateString("params")(testArgs = _)
+      helper.migrateString("searchForTest")(x => searchTest = SearchForTest.parse(x))
+      helper.migrateMap("envs", "envVar", envs)
+    }
+  }
 
   def checkSuiteAndTestName(): Unit
   def getTestMap: Map[String, Set[String]]
