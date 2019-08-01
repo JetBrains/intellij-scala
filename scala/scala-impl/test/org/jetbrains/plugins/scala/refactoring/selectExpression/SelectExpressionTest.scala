@@ -35,11 +35,11 @@ class SelectExpressionTest extends SimpleTestCase {
 
   def testSelfInvocationArg(): Unit = checkNoExpressions(
     s"""
-      |class A(i: Int) {
-      |  def this(s: String) = {
-      |    this(${caret}s.length)
-      |  }
-      |}""".stripMargin)
+       |class A(i: Int) {
+       |  def this(s: String) = {
+       |    this(${caret}s.length)
+       |  }
+       |}""".stripMargin)
 
   def testInterpolatedString(): Unit = doTest(s"""${caret}s"foo"""", """s"foo"""")
 
@@ -49,5 +49,77 @@ class SelectExpressionTest extends SimpleTestCase {
     s"""1 match {
        |  case 1 => ${caret}"42"
        |}""".stripMargin, """"42"""")
+
+  def testLargeMethodCall(): Unit = doTest(
+    s"""foo(1)
+       |  ${caret}.bar(2)
+       |  .baz(3)
+       |""".stripMargin,
+
+    """foo(1)
+      |  .bar""".stripMargin,
+    """foo(1)
+      |  .bar(2)""".stripMargin,
+    """foo(1)
+      |  .bar(2)
+      |  .baz""".stripMargin,
+    """foo(1)
+      |  .bar(2)
+      |  .baz(3)""".stripMargin)
+
+  def testMatchStmt(): Unit = doTest(
+    s"""${caret}1 match {
+       |  case 0 => "zero"
+       |  case 1 => "one"
+       |}
+       |""".stripMargin,
+    "1",
+    """1 match {
+      |  case 0 => "zero"
+      |  case 1 => "one"
+      |}""".stripMargin
+  )
+
+  def testMatchStmtFromKeyword(): Unit = doTest (
+    s"""1 m${caret}atch {
+       |  case 0 => "zero"
+       |  case 1 => "one"
+       |}
+       |""".stripMargin,
+    """1 match {
+      |  case 0 => "zero"
+      |  case 1 => "one"
+      |}""".stripMargin
+  )
+
+  def testMatchStmtFromCase(): Unit = doTest(
+    s"""1 match {
+       |  ${caret}case 0 => "zero"
+       |  case 1 => "one"
+       |}
+       |""".stripMargin,
+    """1 match {
+      |  case 0 => "zero"
+      |  case 1 => "one"
+      |}""".stripMargin
+  )
+
+  def testNoMatchStmtFromCaseBlock(): Unit = doTest(
+    s"""1 match {
+       |  case 0 => ${caret}"zero"
+       |  case 1 => "one"
+       |}
+       |""".stripMargin,
+    """"zero""""
+  )
+
+  def testIfStmt(): Unit = doTest(
+    s"""if (${caret}true) false
+       |else true
+       |""".stripMargin,
+    "true",
+    """if (true) false
+      |else true""".stripMargin
+  )
 
 }

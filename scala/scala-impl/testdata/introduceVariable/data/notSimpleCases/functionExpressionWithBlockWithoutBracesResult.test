@@ -12,6 +12,5 @@ class a {
       val y = x * x
       y + 1
     }
-    value
   }
 }

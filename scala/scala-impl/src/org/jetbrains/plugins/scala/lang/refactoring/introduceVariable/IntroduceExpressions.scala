@@ -7,20 +7,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pass, TextRange}
 import com.intellij.psi.PsiModifier.PRIVATE
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring._
@@ -54,7 +55,7 @@ trait IntroduceExpressions {
         return
       }
 
-      checkCanBeIntroduced(expr).foreach { message =>
+      cannotBeIntroducedReason(expr).foreach { message =>
         showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME)
         return
       }
@@ -245,7 +246,7 @@ object IntroduceExpressions {
                                          forceType: Boolean)
                                         (typeTextIfNeeded: PsiElement => String)
                                         (implicit editor: Editor): SmartPsiElementPointer[PsiElement] = {
-    implicit val projectContext: ProjectContext = file
+    implicit val project: Project = file.getProject
 
     object inExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = {
@@ -262,39 +263,13 @@ object IntroduceExpressions {
       }
     }
 
-    def isOneLiner: Boolean = {
-      val lineText = getLineText(editor)
-      val model = editor.getSelectionModel
-      val document = editor.getDocument
-      val selectedText = model.getSelectedText
-
-      val oneLineSelected = selectedText != null && lineText != null && selectedText.trim == lineText.trim
-
-      val element = file.findElementAt(model.getSelectionStart)
-      var parent = element
-
-      def atSameLine(elem: PsiElement) = {
-        val textRange = elem.getTextRange
-        val lineNumbers = Seq(model.getSelectionStart, textRange.getStartOffset, textRange.getEndOffset)
-          .map(document.getLineNumber)
-
-        lineNumbers.distinct.size == 1
-      }
-
-      while (parent != null && !parent.isInstanceOf[PsiFile] && atSameLine(parent)) {
-        parent = parent.getParent
-      }
-      val insideExpression = parent match {
-        case null | _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile => false
-        case _ => true
-      }
-      oneLineSelected && !insideExpression
-    }
-
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    val fastDefinition = occurrences.length == 1 && isOneLiner
+    val fastDefinition = selectedExpression(file, editor) match {
+      case None       => false
+      case Some(expr) => occurrences.length == 1 && isBlockLike(expr.getParent)
+    }
 
     //changes document directly
     val replacedOccurrences = replaceOccurrences(occurrences, varName, file)
@@ -355,8 +330,16 @@ object IntroduceExpressions {
         replaceRangeByDeclaration(declaration.getText, firstRange)(declaration.getProject, editor)
 
         val start = firstRange.getStartOffset
-        Option(findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/ false))
-          .getOrElse(findElementOfClassAtOffset(file, start, classOf[ScForBinding], /*strictStart =*/ false))
+
+        val insertedDefinition =
+          Option(findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/ false))
+            .getOrElse(findElementOfClassAtOffset(file, start, classOf[ScForBinding], /*strictStart =*/ false))
+
+        addNewLineBeforeIfNeeded(insertedDefinition)
+        CodeStyleManager.getInstance(project).reformatRange(file, start, insertedDefinition.endOffset)
+
+        insertedDefinition
+
       } else {
         var needFormatting = false
         val parent = commonParent match {
@@ -432,4 +415,28 @@ object IntroduceExpressions {
   private[this] def isAfterFirstGenerator(enumerators: ScEnumerators, range: TextRange): Boolean =
     enumerators.generators.headOption
       .exists(_.getTextRange.getEndOffset < range.getStartOffset)
+
+
+  private def selectedExpression(file: PsiFile, editor: Editor): Option[ScExpression] = {
+    val model = editor.getSelectionModel
+
+    ScalaPsiUtil.elementsAtRange[ScExpression](file, model.getSelectionStart, model.getSelectionEnd)
+      .find(canBeIntroduced)
+  }
+
+  private def addNewLineBeforeIfNeeded(element: PsiElement): Unit = {
+
+    def needNewLine(previous: PsiElement) =
+      previous.isInstanceOf[PsiWhiteSpace] && !previous.textContains('\n')
+
+    for {
+      elem   <- element.toOption
+      file   <- elem.containingFile
+      prev   <- file.findElementAt(elem.startOffset - 1).toOption
+      if needNewLine(prev)
+      parent <- elem.getParent.toOption
+    } {
+      parent.addBefore(ScalaPsiElementFactory.createWhitespace("\n")(element.getProject), elem)
+    }
+  }
 }

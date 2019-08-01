@@ -44,7 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -250,7 +250,7 @@ object ScalaRefactoringUtil {
 
     val elementsAtRange = ScalaPsiUtil.elementsAtRange[ScExpression](file, startOffset, endOffset)
 
-    val expression = elementsAtRange.find(e => checkCanBeIntroduced(e).isEmpty).orNull
+    val expression = elementsAtRange.find(canBeIntroduced).orNull
 
     if (expression == null || expression.endOffset != endOffset) {
       return selectedInfixExpr() orElse partOfStringLiteral()
@@ -721,20 +721,18 @@ object ScalaRefactoringUtil {
         whiteSpace.getText.contains("\n") => file.findElementAt(offset - 1)
       case element => element
     }
-    getExpressions(selectedElement).filter(e => checkCanBeIntroduced(e).isEmpty)
+    getExpressions(selectedElement).filter(canBeIntroduced)
   }
 
-  private def getExpressions(selectedElement: PsiElement): Seq[ScExpression] = {
-    val result = mutable.ArrayBuffer[ScExpression]()
-    var parent = selectedElement
-    while (parent != null && !parent.getText.contains("\n")) {
-      parent match {
-        case expression: ScExpression => result += expression
-        case _ =>
-      }
-      parent = parent.getParent
-    }
-    result
+  private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] =
+    selectedElement.withParentsInFile
+      .takeWhile(e => !isBlockLike(e))
+      .toSeq
+      .filterBy[ScExpression]
+
+  def isBlockLike(e: PsiElement): Boolean = e match {
+    case null | _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile => true
+    case _ => false
   }
 
   def afterExpressionChoosing(file: PsiFile,refactoringName: String)
@@ -869,7 +867,9 @@ object ScalaRefactoringUtil {
       case _ => None
     }
 
-  def checkCanBeIntroduced(expr: ScExpression): Option[String] = {
+  def canBeIntroduced(expr: ScExpression): Boolean = cannotBeIntroducedReason(expr).isEmpty
+
+  def cannotBeIntroducedReason(expr: ScExpression): Option[String] = {
     val exists1 = expr.parentOfType(classOf[ScConstrBlock], strict = false)
       .flatMap(_.selfInvocation)
       .flatMap(_.args)

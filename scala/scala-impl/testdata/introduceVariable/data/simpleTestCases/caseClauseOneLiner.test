@@ -12,7 +12,6 @@ class a {
     1 match {
       case 1 =>
         val value: Int = 1
-        value
       case _ => 2
     }
   }

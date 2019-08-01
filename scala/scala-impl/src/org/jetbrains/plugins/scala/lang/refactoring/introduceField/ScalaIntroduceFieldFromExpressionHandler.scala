@@ -66,7 +66,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     implicit val project: Project = ifc.project
     implicit val editor: Editor = ifc.editor
 
-    checkCanBeIntroduced(ifc.element) match {
+    cannotBeIntroducedReason(ifc.element) match {
       case Some(message) => showErrorHint(message)
       case _ =>
         val settings = new IntroduceFieldSettings(ifc)
