@@ -154,7 +154,7 @@ object IntroduceExpressions {
 
   private class SuggestedNames(val expression: ScExpression, val types: Array[ScType], val validator: ScalaVariableValidator) {
 
-    def names: Array[String] = NameSuggester.suggestNames(expression, validator).toArray
+    def names: Array[String] = NameSuggester.suggestNames(expression, validator, types).toArray
   }
 
   private object SuggestedNames {

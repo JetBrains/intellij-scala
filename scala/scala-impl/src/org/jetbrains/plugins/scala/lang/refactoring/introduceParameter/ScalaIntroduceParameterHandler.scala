@@ -176,7 +176,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     val suggestedName = {
       val validator: ScalaVariableValidator = new ScalaVariableValidator(elems.head, false, methodLike, methodLike)
       val possibleNames = elems match {
-        case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr, validator)
+        case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr, validator, types)
         case _ => NameSuggester.suggestNamesByType(types(0))
       }
       possibleNames.head

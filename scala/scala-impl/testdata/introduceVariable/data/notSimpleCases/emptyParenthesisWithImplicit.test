@@ -1,0 +1,19 @@
+class a {
+  implicit val implicitInt: Int = 0
+  object tre {
+    def too(implicit i: Int) = 1
+  }
+  def bar(): Unit = {
+    <begin>tre.too<end>
+  }
+}
+------
+class a {
+  implicit val implicitInt: Int = 0
+  object tre {
+    def too(implicit i: Int) = 1
+  }
+  def bar(): Unit = {
+    val value: Int = tre.too
+  }
+}

@@ -42,12 +42,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext, api}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
@@ -104,36 +102,6 @@ object ScalaRefactoringUtil {
       case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
       case _ => e
     }
-  }
-
-  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
-    val stdTypes = expr.projectContext.stdTypes
-    import stdTypes._
-
-    val types = Option(scType).toSeq ++
-      expr.getTypeWithoutImplicits().toOption ++
-      expr.getTypeIgnoreBaseType.toOption ++
-      expr.expectedType()
-
-    val sorted =
-      types.map(_.removeAbstracts)
-        .distinct
-        .filterNot(_ == Nothing)
-        .sortWith {
-          case (Unit, _) => false //Unit goes to the very end
-          case (_, Unit) => true
-          case (t1, t2) => t1.conforms(t2)
-        }
-
-    if (sorted.isEmpty) {
-      if (scType == Nothing) Array(Nothing)
-      else Array(Any)
-    }
-    else sorted.toArray
-  }
-
-  def replaceSingletonTypes(scType: ScType): ScType = scType.updateRecursively {
-    case tp: DesignatorOwner => tp.tryExtractDesignatorSingleton
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {
@@ -219,7 +187,6 @@ object ScalaRefactoringUtil {
 
   def getExpressionWithTypes(file: PsiFile, startOffset: Int, endOffset: Int)
                             (implicit project: Project, editor: Editor): Option[(ScExpression, Array[ScType])] = {
-    implicit val ctx: ProjectContext = project
 
     val rangeText = file.charSequence.substring(startOffset, endOffset)
 
@@ -283,28 +250,15 @@ object ScalaRefactoringUtil {
 
     val elementsAtRange = ScalaPsiUtil.elementsAtRange[ScExpression](file, startOffset, endOffset)
 
-    val element = elementsAtRange.find(e => checkCanBeIntroduced(e).isEmpty).orNull
+    val expression = elementsAtRange.find(e => checkCanBeIntroduced(e).isEmpty).orNull
 
-    if (element == null || element.endOffset != endOffset) {
+    if (expression == null || expression.endOffset != endOffset) {
       return selectedInfixExpr() orElse partOfStringLiteral()
     }
 
-    val cachedType = element.`type`().getOrAny
+    val typeNoExpected = typeWithoutExpected(expression)
 
-    object ReferenceToFunction {
-      def unapply(refExpr: ScReferenceExpression): Option[ScFunction] = refExpr.bind() match {
-        case Some(ScalaResolveResult(f: ScFunction, _)) => Some(f)
-        case _ => None
-      }
-    }
-    // Handle omitted parentheses in calls to functions with empty parameter list.
-    // todo add a test for case with only implicit parameter list.
-    val exprType = (element, cachedType) match {
-      case (ReferenceToFunction(func), FunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
-      case _ => cachedType
-    }
-    val types = addPossibleTypes(exprType, element).map(replaceSingletonTypes)
-    Some((element, types))
+    Some((expression, Array(typeNoExpected)))
   }
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
@@ -322,7 +276,14 @@ object ScalaRefactoringUtil {
     }
   }
 
-  private[this] def ensureFileWritable(file: PsiFile)
+  private def typeWithoutExpected(expression: ScExpression)(implicit project: Project): ScType = {
+    val dummyFunctionText = s"def __dummyFunction__ = {\n ${expression.getText} \n}"
+    val definitionWithoutType =
+      createMethodWithContext(dummyFunctionText, expression.getContext, expression).asInstanceOf[ScFunctionDefinition]
+    definitionWithoutType.`type`().getOrAny
+  }
+
+  private def ensureFileWritable(file: PsiFile)
                                       (implicit project: Project): Boolean = {
     val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
@@ -394,7 +355,7 @@ object ScalaRefactoringUtil {
     }
   }
 
-  private[this] def getExprOccurrences(element: PsiElement, enclosingContainer: PsiElement): Seq[ScExpression] = {
+  private def getExprOccurrences(element: PsiElement, enclosingContainer: PsiElement): Seq[ScExpression] = {
     val occurrences = mutable.ArrayBuffer[ScExpression]()
     if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression]
     else
@@ -763,7 +724,7 @@ object ScalaRefactoringUtil {
     getExpressions(selectedElement).filter(e => checkCanBeIntroduced(e).isEmpty)
   }
 
-  private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] = {
+  private def getExpressions(selectedElement: PsiElement): Seq[ScExpression] = {
     val result = mutable.ArrayBuffer[ScExpression]()
     var parent = selectedElement
     while (parent != null && !parent.getText.contains("\n")) {
@@ -783,7 +744,7 @@ object ScalaRefactoringUtil {
       possibleExpressionsToExtract(file, editor.getCaretModel.getOffset).toArray
     }
 
-  private[this] def getTypeElements(selectedElement: ScTypeElement): Seq[ScTypeElement] = {
+  private def getTypeElements(selectedElement: ScTypeElement): Seq[ScTypeElement] = {
     val result = mutable.ArrayBuffer[ScTypeElement]()
     var parent = selectedElement
     while (parent != null) {
@@ -807,7 +768,7 @@ object ScalaRefactoringUtil {
       getTypeElements(selectedElement).toArray
     }
 
-  private[this] def invokeOnSelected[T <: ScalaPsiElement](messageKey: String,
+  private def invokeOnSelected[T <: ScalaPsiElement](messageKey: String,
                                                            refactoringName: String)
                                                           (default: => Unit, consumer: T => Unit)
                                                           (elements: => Array[T])
