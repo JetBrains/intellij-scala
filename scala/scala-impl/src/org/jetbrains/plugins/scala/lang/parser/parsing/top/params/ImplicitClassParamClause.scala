@@ -34,7 +34,7 @@ object ImplicitClassParamClause {
             //It's ok
             builder.advanceLexer() //Ate implicit
           case _ =>
-            builder error ErrMsg("wrong.parameter")
+            builder.error(ErrMsg("wrong.parameter"))
         }
         //ok, let's parse parameters
         if (!ClassParam.parse(builder)) {
@@ -45,9 +45,7 @@ object ImplicitClassParamClause {
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer() //Ate ,
           if (!ClassParam.parse(builder)) {
-            classParamMarker.rollbackTo()
-            builder.restoreNewlinesState()
-            return false
+            builder.error(ErrMsg("wrong.parameter"))
           }
         }
       case _ =>
@@ -58,13 +56,12 @@ object ImplicitClassParamClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
-        builder.restoreNewlinesState()
-        classParamMarker.done(ScalaElementType.PARAM_CLAUSE)
-        true
       case _ =>
-        builder.restoreNewlinesState()
-        classParamMarker.rollbackTo()
-        false
+        builder.error(ErrMsg("rparenthesis.expected"))
     }
+
+    builder.restoreNewlinesState()
+    classParamMarker.done(ScalaElementType.PARAM_CLAUSE)
+    true
   }
 }
