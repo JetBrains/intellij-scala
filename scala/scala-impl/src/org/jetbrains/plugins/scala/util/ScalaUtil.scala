@@ -60,8 +60,12 @@ object ScalaUtil {
                         (actualVersion: => Option[Version]): Boolean =
     isEnabledIn(file, "2.12")(actualVersion)
 
-  def findScalaVersion(file: PsiFile): Option[Version] =
-    getScalaVersion(file).map(Version(_))
+  def findScalaVersion(file: PsiFile): Option[Version] = for {
+    module <- file.module
+    sdk <- module.scalaSdk
+    presentation <- sdk.compilerVersion
+
+  } yield Version(presentation)
 
   private def isEnabledIn(file: Option[PsiFile], requiredVersion: String)
                          (actualVersion: => Option[Version]): Boolean =
