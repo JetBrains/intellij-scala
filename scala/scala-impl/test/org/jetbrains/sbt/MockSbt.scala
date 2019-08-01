@@ -15,7 +15,7 @@ trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
   implicit val sbtVersion: Version
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), IvyManagedLoader(
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), IvyManagedLoader(
     scalaCompilerDescription,
     scalaLibraryDescription,
     scalaReflectDescription,
@@ -25,7 +25,7 @@ trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
 trait MockSbt_0_12 extends MockSbtBase { this: Test =>
 
-  override protected def librariesLoaders: Seq[LibraryLoader] =Seq(HeavyJDKLoader(), IvyManagedLoader(
+  override def librariesLoaders: Seq[LibraryLoader] =Seq(HeavyJDKLoader(), IvyManagedLoader(
     scalaCompilerDescription,
     scalaLibraryDescription,
     "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
