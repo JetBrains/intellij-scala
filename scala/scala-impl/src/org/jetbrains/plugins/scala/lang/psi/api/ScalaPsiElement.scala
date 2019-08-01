@@ -6,6 +6,7 @@ package api
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.Valid
 
 trait ScalaPsiElement extends PsiElement
   with project.ProjectContextOwner {
@@ -138,20 +139,28 @@ object ScalaPsiElement {
 
   implicit class ScalaPsiElementExt(private val element: ScalaPsiElement) extends AnyVal {
 
-    def context: PsiElement = apply(ContextKey)
+    def context: PsiElement = getIfValid(ContextKey)
 
     def context_=(context: PsiElement): Unit = update(ContextKey, context)
 
-    def child: PsiElement = apply(ChildKey)
+    def child: PsiElement = getIfValid(ChildKey)
 
     def child_=(child: PsiElement): Unit = update(ChildKey, child)
 
-    private def apply[T](key: Key[T]) = element match {
-      case file: PsiFileBase => file.getCopyableUserData(key)
-      case _ => element.getUserData(key)
+    private def getIfValid(key: Key[PsiElement]): PsiElement = {
+      val fromUserData = element match {
+        case file: PsiFileBase => file.getCopyableUserData(key)
+        case _                 => element.getUserData(key)
+      }
+      fromUserData match {
+        case Valid(e) => e
+        case _ =>
+          update(key, null) //free reference to invalid element
+          null
+      }
     }
 
-    private def update[T](key: Key[T], value: T): Unit = element match {
+    private def update(key: Key[PsiElement], value: PsiElement): Unit = element match {
       case file: PsiFileBase => file.putCopyableUserData(key, value)
       case _ => element.putUserData(key, value)
     }
