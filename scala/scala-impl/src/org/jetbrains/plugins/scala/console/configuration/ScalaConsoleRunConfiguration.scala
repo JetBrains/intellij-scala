@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.console.configuration
 
 import java.io.File
 
+import com.intellij.execution._
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution._
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.module.Module
@@ -18,6 +18,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
+import com.sun.istack.Nullable
 import org.jdom.Element
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
@@ -45,6 +46,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
   private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
 
+  @Nullable
   private def getModule: Module = getConfigurationModule.getModule
 
   override protected def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
@@ -74,7 +76,10 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     new ScalaCommandLineState(env)
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
-    setConsoleBuilder(ScalaLanguageConsole.builderFor(getModule))
+    getModule match {
+      case null => null
+      case module => setConsoleBuilder(ScalaLanguageConsole.builderFor(module))
+    }
 
     protected override def createJavaParameters: JavaParameters = {
       val params = createParams
