@@ -88,6 +88,7 @@ package object completion {
       for {
         elementContext  <- contextWithStableType(positionInCompletionFile)
         originalContext <- contextWithStableType(originalPosition)
+        if elementContext != originalContext
       } {
 
         //consistent local modification count in completion file
