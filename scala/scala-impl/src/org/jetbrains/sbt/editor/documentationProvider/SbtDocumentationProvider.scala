@@ -1,92 +1,115 @@
-package org.jetbrains.sbt
-package editor.documentationProvider
+package org.jetbrains.sbt.editor.documentationProvider
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
+import org.jetbrains.sbt._
+import org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider._
+import org.jetbrains.sbt.language.SbtFileType
+
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 /**
- * @author Nikolay Obedin
- * @since 7/30/14.
+ * Generates documentation from sbt key description.<br>
+ * There are three types of key: SettingKey, TaskKey, InputKey<br>
+ * [[https://www.scala-sbt.org/1.x/docs/Basic-Def.html#Keys]]<br><br>
+ *
+ * For sbt '''0.13.18''' see sbt.Structure.scala: {{{
+ *   object SettingKey {
+ *     def apply[T: Manifest](label: String, description: String, ...): SettingKey[T] = ...
+ *     def apply[T](akey: AttributeKey[T]): SettingKey[T] = ...
+ *   }
+ * }}}
+ * example: {{{
+ *   val libraryDependencies = SettingKey[Seq[ModuleID]]("library-dependencies", "Declares managed dependencies.", APlusSetting)
+ * }}}
+ *
+ * For sbt '''1.2.8''' see sbt.BuildSyntax.scala:  {{{
+ *   def settingKey[T](description: String): SettingKey[T] = macro std.KeyMacro.settingKeyImpl[T]
+ * }}}
+ * example: {{{
+ *   val libraryDependencies = settingKey[Seq[ModuleID]]("Declares managed dependencies.").withRank(APlusSetting)
+ * }}}
  */
 class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
   private val scalaDocProvider = new ScalaDocumentationProvider
 
-  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
-    val scalaDoc = Option(scalaDocProvider.getQuickNavigateInfo(element, originalElement))
-    scalaDoc.map { doc => appendToScalaDoc(doc, extractDoc(element))}.orNull
-  }
+  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String =
+    if (!isInSbtFile(originalElement)) null
+    else generateSbtDoc(element, originalElement, scalaDocProvider.getQuickNavigateInfo).orNull
 
-  override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
-    val scalaDoc = Option(scalaDocProvider.generateDoc(element, originalElement))
-    scalaDoc.map { doc => appendToScalaDoc(doc, extractDoc(element))}.orNull
-  }
+  override def generateDoc(element: PsiElement, originalElement: PsiElement): String =
+    if (!isInSbtFile(originalElement)) null
+    else generateSbtDoc(element, originalElement, scalaDocProvider.generateDoc).orNull
 
+  private def generateSbtDoc(element: PsiElement, originalElement: PsiElement,
+                             generateScalaDoc: (PsiElement, PsiElement) => String): Option[String] = for {
+    sbtKey <- Option(element).filterByType[ScNamedElement]
+    sbtDoc <- generateSBtDocFromSbtKey(sbtKey)
+    scalaDoc <- Option(generateScalaDoc(element, originalElement))
+  } yield appendToScalaDoc(scalaDoc, sbtDoc)
 
-  private def appendToScalaDoc(scalaDoc: String, sbtDoc: String): String =
-    (scalaDoc.replace("</body></html>", "") + sbtDoc) + "</body></html>"
+  private def isInSbtFile(element: PsiElement): Boolean =
+    Option(element).safeMap(_.getContainingFile).exists(_.getFileType == SbtFileType)
 
-  private def extractDoc(element: PsiElement): String = element match {
-    case settingKey: ScNamedElement if isElementInSbtFile(element) =>
-      extractDocFromSettingKey(settingKey)
-    case _ =>
-      ""
-  }
+  private def generateSBtDocFromSbtKey(key: ScNamedElement): Option[String] =
+    for {
+      keyDefinition      <- keyDefinition(key)
+      applyMethodCall    <- keyApplyMethodCall(keyDefinition)
+      args                = applyMethodCall.argumentExpressions
+      descriptionElement <- descriptionArgument(args)
+      description        <- descriptionText(descriptionElement)
+      if description.nonEmpty
+    } yield wrapIntoHtml(description)
 
-  private def isElementInSbtFile(element: PsiElement): Boolean =
-    Option(element).safeMap(_.getContainingFile).fold(false)(_.getFileType.getName != Sbt.Name)
-
-  private def extractDocFromSettingKey(settingKey: ScNamedElement): String = {
-    val keyDefinition = findSettingKeyDefinition(settingKey)
-    val keyDefinitionArgs = keyDefinition.fold(Seq.empty[ScExpression])(getKeyDefinitionArgs)
-    val argStrings = keyDefinitionArgs.flatMap(argToString)
-
-    val doc = keyDefinitionArgs.headOption match {
-      case Some(_: ScLiteral) => getDocForNewKeyDefinition(argStrings)
-      case Some(_: ScReferenceExpressionImpl) => getDocForKeyReference(argStrings)
-      case _ => None
-    }
-
-    doc.getOrElse("")
-  }
-
-  private def findSettingKeyDefinition(settingKey: ScNamedElement): Option[ScPatternDefinition] =
-    Option(settingKey.getNavigationElement)
+  private def keyDefinition(key: ScNamedElement): Option[ScPatternDefinition] =
+    Option(key.getNavigationElement)
       .safeMap(_.getParent)
       .safeMap(_.getParent)
       .collect { case s: ScPatternDefinition => s }
 
-  private def getKeyDefinitionArgs(keyDefinition: ScPatternDefinition): Seq[ScExpression] =
-    keyDefinition.lastChild match {
-      case Some(call: ScMethodCall) => call.argumentExpressions
-      case _ => Seq.empty
-    }
-
-  private def argToString(arg: ScExpression): Option[String] = arg match {
-    case ScLiteral(str) =>
-      Some(str)
-    case ScInfixExpr(lOp, _, rOp) =>
-      val str = argToString(lOp).getOrElse("") ++
-        argToString(rOp).getOrElse("")
-      if (str.nonEmpty) Some(str) else None
-    case refExpr: ScReferenceExpression =>
-      Some(refExpr.getText)
-    case _ =>
-      None
+  private def keyApplyMethodCall(keyDefinition: ScPatternDefinition): Option[ScMethodCall] = {
+    // last found method child will be the left-most method call in chain
+    val methodCalls: Iterable[ScMethodCall] = PsiTreeUtil.findChildrenOfType(keyDefinition, classOf[ScMethodCall]).asScala
+    methodCalls.lastOption.filter(isSbtKeyApplyMethodCall)
   }
 
-  private def getDocForNewKeyDefinition(docs: Seq[String]): Option[String] =
-    // val someKey = SettingKey[Unit]("some-key", "Here are docs for some-key")
-    docs.lift(1).map("<br/><b>" + _ + "</b>")
+  private def isSbtKeyApplyMethodCall(call: ScMethodCall): Boolean =
+    Option(call.getInvokedExpr)
+      .filterByType[ScGenericCall]
+      .map(_.referencedExpr.getText.toLowerCase)
+      .exists(SbtKeyTypes.contains)
 
-  private def getDocForKeyReference(docs: Seq[String]): Option[String] =
-    // val someKey = SettingKey[Unit](someOtherKey)
-    docs.headOption.map("<br/><b><i>" + _ + "</i></b>")
+  private def descriptionArgument(args: Seq[ScExpression]): Option[ScExpression] =
+    Some(args.toList).collect {
+      case (label: ScLiteral) :: description :: _ => description //e.g. SettingKey[Unit]("some-key", "Here goes description for some-key", ...)
+      case (ref: ScReferenceExpression) :: _      => ref // e.g. SettingKey(BasicKeys.watch)
+      case description :: Nil                     => description //e.g. settingKey[Seq[ModuleID]]("Some description").withRank(BSetting)
+    }
+
+  private def descriptionText(element: ScExpression): Option[String] = Some(element).collect {
+    case ScInfixExpr(left, _, right) => Seq(left, right).map(descriptionText).mkString
+    case ScLiteral(string)           => string
+    case ref: ScReferenceExpression  => s"<i>${ref.getText}</i>"
+  }
+
+  private def wrapIntoHtml(description: String): String = s"<br/><b>$description</b>"
+
+  private def appendToScalaDoc(scalaDoc: String, sbtDoc: String): String = {
+    val closingTags = "</body></html>"
+    val withoutClosingTags = scalaDoc.replace(closingTags, "")
+    s"$withoutClosingTags$sbtDoc$closingTags"
+  }
+}
+
+private object SbtDocumentationProvider {
+
+  private val SbtKeyTypes = Set("SettingKey", "TaskKey", "InputKey", "AttributeKey").map(_.toLowerCase)
 }
