@@ -2,22 +2,19 @@ package org.jetbrains.bsp
 
 import java.io.File
 import java.util
-import java.util.{Collections, UUID}
 import java.util.concurrent.CompletableFuture
+import java.util.{Collections, UUID}
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.mock.{MockApplication, MockLocalFileSystem}
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
-import com.intellij.openapi.project.{ProjectLocator, ProjectLocatorImpl}
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import org.jetbrains.bsp.project.resolver.BspProjectResolver
 import org.jetbrains.bsp.protocol.BspCommunication
-import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 
@@ -63,15 +60,16 @@ object BSPCli extends App {
   class Opts(val bloopExec: String, val projectPath: String, val tracePath: Option[String])
 
   val opts = try {
+    System.setProperty("java.awt.headless", "true")
     val opts = parseOpts(args)
     opts.tracePath.fold({})(p => sys.props += ("BSP_TRACE_PATH" -> p))
     val application = new MockApplication(() => {}) {
-      override def getComponent[T](interfaceClass: Class[T]): T = interfaceClass match {
-        case q if q == classOf[VirtualFileManager] =>
+      override def getComponent[T](interfaceClass: Class[T]): T = {
+        if (interfaceClass == classOf[VirtualFileManager]) {
           new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())){
             override def findFileByUrl(url: String): VirtualFile = null
           }.asInstanceOf[T]
-        case _ => super.getComponent(interfaceClass)
+        } else super.getComponent(interfaceClass)
       }
     }
     ApplicationManager.setApplication(application, () => {})
