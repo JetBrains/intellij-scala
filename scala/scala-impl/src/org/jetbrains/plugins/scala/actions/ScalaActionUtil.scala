@@ -14,31 +14,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
   def enablePresentation(presentation: Presentation): Unit = {
-    presentation setEnabled true
+    presentation.setEnabled(true)
     presentation setVisible true
   }
   
   def disablePresentation(presentation: Presentation): Unit = {
-    presentation setEnabled false
-    presentation setVisible false
+    presentation.setEnabled(false)
+    presentation.setVisible(false)
   }
-  
-  def enableAndShowIfInScalaFile(e: AnActionEvent): Unit = {
-    val presentation = e.getPresentation
-    
-    @inline def enable(): Unit = enablePresentation(presentation)
-    
-    @inline def disable(): Unit = disablePresentation(presentation)
-    
-    try {
-      getFileFrom(e) match {
-        case Some(_: ScalaFile) => enable()
-        case _ => disable()
-      }
+
+  @inline def enablePresentation(e: AnActionEvent): Unit = enablePresentation(e.getPresentation)
+
+  @inline def disablePresentation(e: AnActionEvent): Unit = disablePresentation(e.getPresentation)
+
+  def enableAndShowIfInScalaFile(e: AnActionEvent): Unit = try {
+    getFileFrom(e) match {
+      case Some(_: ScalaFile) => enablePresentation(e)
+      case _ => disablePresentation(e)
     }
-    catch {
-      case _: Exception => disable()
-    }
+  } catch {
+    case _: Exception => disablePresentation(e)
   }
 
   def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))

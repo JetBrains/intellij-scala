@@ -13,22 +13,28 @@ import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 class RunConsoleAction extends AnAction with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
+
   override def update(e: AnActionEvent): Unit = {
     e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
 
-    if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP) {
+    if(!e.getProject.hasScala) {
+      ScalaActionUtil.disablePresentation(e)
+    } else if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP) {
       ScalaActionUtil.enableAndShowIfInScalaFile(e)
+    } else {
+      ScalaActionUtil.enablePresentation(e)
     }
   }
 
   override def actionPerformed(e: AnActionEvent): Unit =
     doRunAction(e)
 
-  override protected def getMyConfigurationType: ScalaConsoleConfigurationType = 
+  override protected def getMyConfigurationType: ScalaConsoleConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[ScalaConsoleConfigurationType])
 
   override protected def getNewSettingName: String = "Scala REPL"
@@ -52,13 +58,13 @@ object RunConsoleAction {
       }
     }
   }
-  
+
   def runExisting(setting: RunnerAndConfigurationSettings, runManagerEx: RunManagerEx, project: Project): Unit =
     inReadAction {
       runFromSetting(setting, runManagerEx, project)
     }
-  
-  def createAndRun(configurationType: ConfigurationType, runManagerEx: RunManagerEx, 
+
+  def createAndRun(configurationType: ConfigurationType, runManagerEx: RunManagerEx,
                    project: Project, name: String, handler: RunConfiguration => Unit): Unit =
     inReadAction {
       val factory  = configurationType.getConfigurationFactories.apply(0)
@@ -66,7 +72,7 @@ object RunConsoleAction {
       handler(setting.getConfiguration)
       runFromSetting(setting, runManagerEx, project)
     }
-  
+
   trait RunActionBase[T <: ConfigurationType] {
     protected def getMyConfigurationType: T
 
@@ -80,7 +86,7 @@ object RunConsoleAction {
       val dataContext = e.getDataContext
       val file = CommonDataKeys.PSI_FILE.getData(dataContext)
       val project = CommonDataKeys.PROJECT.getData(dataContext)
-      
+
       if (project == null || !checkFile(file)) return
 
       val runManagerEx = RunManagerEx.getInstanceEx(project)
