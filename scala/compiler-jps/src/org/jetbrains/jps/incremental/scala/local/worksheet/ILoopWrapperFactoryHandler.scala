@@ -44,20 +44,31 @@ class ILoopWrapperFactoryHandler {
       case (clazz, instance, _) =>
         WorksheetServer.patchSystemOut(out)
 
-        val m =
-          clazz.getDeclaredMethod(
-            "loadReplWrapperAndRun", 
-            classOf[java.util.List[String]], classOf[String], classOf[File], classOf[File], classOf[java.util.List[File]], 
-            classOf[java.util.List[File]], classOf[java.io.OutputStream], classOf[java.io.File], classOf[Comparable[String]])
-        
+        val parameterTypes = Array(
+          classOf[java.util.List[String]], classOf[String], classOf[File], classOf[File], classOf[java.util.List[File]],
+          classOf[java.util.List[File]], classOf[java.io.OutputStream], classOf[java.io.File], classOf[Comparable[String]]
+        )
+        val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
+
         withFilteredPath {
-          m.invoke(
-            instance, scalaToJava(commonArguments.worksheetFiles), commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
-            compilerJars.library, compilerJars.compiler, scalaToJava(compilerJars.extra), scalaToJava(commonArguments.compilationData.classpath),
-            out, iLoopFile, if (client.isEmpty) null else new Comparable[String] {
-              override def compareTo(o: String): Int = {client.get.progress(o) ; 0}
+          val clientProvider: Object = if (client.isEmpty) null else new Comparable[String] {
+            override def compareTo(o: String): Int = {
+              client.get.progress(o)
+              0
             }
+          }
+          val args: Array[Object] = Array(
+            scalaToJava(commonArguments.worksheetFiles),
+            commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
+            compilerJars.library,
+            compilerJars.compiler,
+            scalaToJava(compilerJars.extra),
+            scalaToJava(commonArguments.compilationData.classpath),
+            out,
+            iLoopFile,
+            clientProvider
           )
+          loadReplWrapperAndRunMethod.invoke(instance, args: _*)
         }
     }
   }
@@ -85,8 +96,8 @@ class ILoopWrapperFactoryHandler {
         thisJar =>
           client.foreach(_.progress("Compiling REPL runner..."))
 
-          val filter = (file: File) => is213 ^ !file.getName.endsWith("213Impl.scala") 
-          
+          val filter = (file: File) => is213 ^ !file.getName.endsWith("213Impl.scala")
+
           AnalyzingCompiler.compileSources(
             Seq(sourceJar), targetFile, Seq(interfaceJar, thisJar), replLabel,
             new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), log) {
