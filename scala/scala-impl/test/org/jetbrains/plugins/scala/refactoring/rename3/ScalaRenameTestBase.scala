@@ -108,11 +108,6 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     files.map(f => f -> createEditor(f)).toMap
   }
 
-  private def createEditor(file: VirtualFile) = {
-    LightPlatformCodeInsightTestCase.createEditor(file)
-  }
-
-
   protected override def tearDown() {
     super.tearDown()
     myEditors = null

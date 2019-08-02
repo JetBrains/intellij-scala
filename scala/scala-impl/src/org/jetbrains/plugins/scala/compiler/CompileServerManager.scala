@@ -92,7 +92,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
    private object Widget extends StatusBarWidget {
      def ID = "Compile server"
 
-     def getPresentation(platformType : PlatformType): Presentation.type = Presentation
+     override def getPresentation(platformType : PlatformType): Presentation.type = Presentation
 
      def install(statusBar: StatusBar) {}
 

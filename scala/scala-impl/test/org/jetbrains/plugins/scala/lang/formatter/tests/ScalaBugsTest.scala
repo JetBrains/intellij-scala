@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import com.intellij.testFramework.LightPlatformTestCase.getCurrentCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
