@@ -15,10 +15,6 @@ import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.io.Path
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 12.03.17.
-  */
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
   
@@ -33,9 +29,10 @@ class ILoopWrapperFactoryHandler {
     replFactory match {
       case Some((_, _, oldVersion)) if oldVersion == scalaVersion =>
       case _ =>
-        val loader = createIsolatingClassLoader(getBaseJars(compilerJars))
+        val loader = createIsolatingClassLoader(compilerJars)
         val clazz = loader.loadClass(REPL_FQN)
-        replFactory = Option((clazz, clazz.newInstance(), scalaVersion))
+        val javaILoopWrapper  = clazz.newInstance()
+        replFactory = Option((clazz, javaILoopWrapper, scalaVersion))
     }
 
     client.foreach(_ progress "Running REPL...")
@@ -45,8 +42,15 @@ class ILoopWrapperFactoryHandler {
         WorksheetServer.patchSystemOut(out)
 
         val parameterTypes = Array(
-          classOf[java.util.List[String]], classOf[String], classOf[File], classOf[File], classOf[java.util.List[File]],
-          classOf[java.util.List[File]], classOf[java.io.OutputStream], classOf[java.io.File], classOf[Comparable[String]]
+          classOf[java.util.List[String]],
+          classOf[String],
+          classOf[File],
+          classOf[File],
+          classOf[java.util.List[File]],
+          classOf[java.util.List[File]],
+          classOf[java.io.OutputStream],
+          classOf[java.io.File],
+          classOf[Comparable[String]]
         )
         val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
 
@@ -150,7 +154,7 @@ object ILoopWrapperFactoryHandler {
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
 
   private def findContainingJar(clazz: Class[_]): Option[File] = {
-    val resource = clazz.getResource('/' + clazz.getName.replace('.', '/') + ".class")
+    val resource = clazz.getResource(s"/${clazz.getName.replace('.', '/')}.class")
 
     if (resource == null) return None
 
@@ -158,26 +162,25 @@ object ILoopWrapperFactoryHandler {
     val idx = url.indexOf(".jar!")
     if (idx == -1) return None
 
-    Option(new File(url.substring(0, idx + 4))).filter(_.exists())
+    Some(new File(url.substring(0, idx + 4))).filter(_.exists())
   }
 
-  private def findContainingJars(classes: Seq[Class[_]]): Seq[File] = {
-    (Seq[File]() /: classes) {
-      case (cur, cl) => findContainingJar(cl).map(cur :+ _) getOrElse cur
-    }
+  private def findContainingJars(classes: Seq[Class[_]]): Seq[File] =
+    classes.flatMap(findContainingJar)
+
+  private def getBaseJars(compiler: CompilerJars): Seq[File] = {
+    val compilerJars = compiler.library +: compiler.compiler +: compiler.extra
+    val additionalJars = findContainingJars(Seq(
+      this.getClass,
+      classOf[FileUtil],
+      classOf[ThreadLocalPrintStream],
+      classOf[WorksheetOutputEvent]
+    ))
+    compilerJars ++ additionalJars
   }
 
-  private def getBaseJars(compilerJars: CompilerJars): Seq[File] = {
-    val jars =
-      compilerJars.library +: compilerJars.compiler +: compilerJars.extra
-    val additionalJars =
-      findContainingJars(Seq(this.getClass, classOf[FileUtil], classOf[ThreadLocalPrintStream], classOf[WorksheetOutputEvent]))
-    
-    jars ++ additionalJars
-  }
-
-  private def createIsolatingClassLoader(fromJars: Seq[File]): URLClassLoader = {
-    new URLClassLoader(Path.toURLs(fromJars), ClasspathUtilities.rootLoader)
+  private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
+    new URLClassLoader(Path.toURLs(getBaseJars(compilerJars)), ClasspathUtilities.rootLoader)
   }
 
   //We need this method as scala std lib converts scala collections to its own wrappers with asJava method
