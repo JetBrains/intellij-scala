@@ -49,7 +49,6 @@ class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   }
 
   private def runTest(name: String) = {
-    import LightPlatformCodeInsightTestCase.myFile
 
     var filePath = sourceRootPath + name
     val vFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -58,11 +57,11 @@ class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val fileName = vFile.getName
     val offset = text.indexOf(CARET_MARKER)
     text = removeMarker(text)
-    myFile = LightPlatformTestCase.createFile(fileName, text)
+    val file = createFile(fileName, text)
     filePath = filePath.replaceFirst("[.][s][c][a][l][a]", ".test")
     val answerFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull("file " + filePath + " not found", answerFile)
     val resText = StringUtil.convertLineSeparators(VfsUtilCore.loadText(answerFile), "\n")
-    assertEquals(resText, SuperMethodTestUtil.transform(myFile, offset))
+    assertEquals(resText, SuperMethodTestUtil.transform(file, offset))
   }
 }

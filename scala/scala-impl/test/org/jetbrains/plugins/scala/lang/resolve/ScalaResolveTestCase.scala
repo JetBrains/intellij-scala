@@ -57,7 +57,7 @@ abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCas
     val fileTextWithoutRef = fileText.replace("<ref>", "");
     configureFromFileTextAdapter(ioFile.getName, fileTextWithoutRef);
     if (offset != -1) {
-      LightPlatformCodeInsightTestCase.getEditor.getCaretModel.moveToOffset(offset);
+      getEditor.getCaretModel.moveToOffset(offset);
     }
   }
 }

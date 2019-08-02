@@ -3,7 +3,6 @@ package lang.scaladoc
 
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import com.intellij.testFramework.LightPlatformTestCase.getCurrentCodeStyleSettings
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings

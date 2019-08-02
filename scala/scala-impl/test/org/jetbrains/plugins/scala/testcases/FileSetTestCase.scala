@@ -54,8 +54,6 @@ abstract class FileSetTestCase(val path: String) extends TestSuite {
   private class ActualTest(var myTestFile: File) extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     override protected def getTestName(lowercaseFirstLetter: Boolean) = ""
 
-    private def getProject = LightPlatformTestCase.getProject
-
     @throws[Exception]
     override protected def setUp(): Unit = try {
       super.setUp()

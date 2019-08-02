@@ -336,7 +336,7 @@ public class MouseHoverHandler implements ProjectComponent {
                               @NotNull final DocumentationProvider provider,
                               @NotNull final PsiElement originalElement,
                               @NotNull final PsiElement anchorElement,
-                              @NotNull final Consumer<String> newTextConsumer,
+                              @NotNull final Consumer<? super String> newTextConsumer,
                               @NotNull final LightweightHint hint)
   {
     myDocAlarm.cancelAllRequests();
@@ -583,9 +583,9 @@ public class MouseHoverHandler implements ProjectComponent {
           }
         }
       };
-      Ref<Consumer<String>> newTextConsumerRef = new Ref<Consumer<String>>();
+      Ref<Consumer<String>> newTextConsumerRef = new Ref<>();
       JComponent label = HintUtil.createInformationLabel(docInfo.text, hyperlinkListener, mouseListener, newTextConsumerRef);
-      Consumer<String> newTextConsumer = newTextConsumerRef.get();
+      Consumer<? super String> newTextConsumer = newTextConsumerRef.get();
       QuickDocInfoPane quickDocPane = null;
       if (docInfo.documentationAnchor != null) {
         quickDocPane = new QuickDocInfoPane(docInfo.documentationAnchor, info.myElementAtPointer, label, docInfo.text);
@@ -658,7 +658,7 @@ public class MouseHoverHandler implements ProjectComponent {
       for (AbstractDocumentationTooltipAction action : ourTooltipActions) {
         Icon icon = action.getTemplatePresentation().getIcon();
         Dimension minSize = new Dimension(icon.getIconWidth(), icon.getIconHeight());
-        myButtons.add(new ActionButton(action, presentationFactory.getPresentation(action), IdeTooltipManager.IDE_TOOLTIP_PLACE, minSize));
+        myButtons.add(new ActionButton(action, presentationFactory.getPresentation(action), "ScalaQuickDocTooltip", minSize));
         action.setDocInfo(documentationAnchor, elementUnderMouse);
       }
       Collections.reverse(myButtons);

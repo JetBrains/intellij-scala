@@ -48,17 +48,17 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   static {
     ACTIONS.put(Action.REFORMAT, new TestFormatAction() {
       public void run(PsiFile psiFile, int startOffset, int endOffset) {
-        CodeStyleManager.getInstance(getProject()).reformatText(psiFile, startOffset, endOffset);
+        CodeStyleManager.getInstance(psiFile.getProject()).reformatText(psiFile, startOffset, endOffset);
       }
 
       @Override
       public void run(PsiFile psiFile, List<TextRange> formatRanges) {
-        CodeStyleManager.getInstance(getProject()).reformatText(psiFile, formatRanges);
+        CodeStyleManager.getInstance(psiFile.getProject()).reformatText(psiFile, formatRanges);
       }
     });
     ACTIONS.put(Action.INDENT, new TestFormatAction() {
       public void run(PsiFile psiFile, int startOffset, int endOffset) {
-        CodeStyleManager.getInstance(getProject()).adjustLineIndent(psiFile, startOffset);
+        CodeStyleManager.getInstance(psiFile.getProject()).adjustLineIndent(psiFile, startOffset);
       }
 
       @Override
@@ -159,7 +159,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   @NotNull
-  private static String prepareText(@NotNull String actual) {
+  private String prepareText(@NotNull String actual) {
     if (actual.startsWith("\n")) {
       actual = actual.substring(1);
     }
@@ -188,7 +188,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     TestUtils.disableTimerThread();
   }
 
-  private static void runCommandInWriteAction(final Runnable runnable,
+  private void runCommandInWriteAction(final Runnable runnable,
                                        final String name,
                                        final String groupId) {
     Runnable writableRunnable = () -> ApplicationManager.getApplication().runWriteAction(runnable);;

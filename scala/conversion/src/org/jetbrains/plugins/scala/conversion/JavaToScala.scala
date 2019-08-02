@@ -474,8 +474,8 @@ object JavaToScala {
         PolyadicExpression(p.getOperands.map(convertPsiToIntermediate(_, externalProperties)), tokenValue)
       case r: PsiReferenceParameterList => TypeParameters(r.getTypeParameterElements.map(convertPsiToIntermediate(_, externalProperties)))
       case b: PsiBreakStatement =>
-        if (b.getLabelExpression != null)
-          NotSupported(None, "break " + b.getLabelExpression.getText + "// todo: label break is not supported")
+        if (b.getLabelIdentifier != null)
+          NotSupported(None, "break " + b.getLabelIdentifier.getText + "// todo: label break is not supported")
         else NotSupported(None, "break //todo: break is not supported")
       case c: PsiContinueStatement =>
         if (c.getLabelIdentifier != null)
