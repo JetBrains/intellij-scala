@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[PerfCycleTests]))
@@ -18,6 +19,11 @@ class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightF
   override def setUp(): Unit = {
     super.setUp()
     getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings
+    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    defaultProfile.setSettings(newSettings)
   }
 
   def testEitherSequence(): Unit = checkTextHasNoErrors(
@@ -42,5 +48,38 @@ class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightF
       |  m.unorderedSequence
       |}
     """.stripMargin
+  )
+
+  def testSCL16007(): Unit = checkTextHasNoErrors(
+    """
+      |import cats.{~>, Functor}
+      |import cats.data.EitherK
+      |import cats.instances.option._
+      |
+      |trait HFunctor[H[_[_], _]] {
+      |  def map[F[_] : Functor, A, B](hfa: H[F, A])(f: A => B): H[F, B]
+      |  def hmap[F[_], G[_], A](hfa: H[F, A])(f: F ~> G): H[G, A]
+      |}
+      |object HFunctor {
+      |  def apply[H[_[_], _] : HFunctor]: HFunctor[H] = implicitly
+      |  object ops {
+      |    implicit class HFunctorSyntax[H[_[_], _], F[_], A](val hfa: H[F, A]) extends AnyVal {
+      |      def map[B](f: A => B)(implicit H: HFunctor[H], F: Functor[F]): H[F, B] = H.map(hfa)(f)
+      |      def hmap[G[_]](f: F ~> G)(implicit H: HFunctor[H]): H[G, A] = H.hmap(hfa)(f)
+      |    }
+      |  }
+      |}
+      |
+      |object Test {
+      |  import HFunctor.ops._
+      |  implicit def eitherKHFunctor[J[_] : Functor]: HFunctor[EitherK[J, *[_], *]] = new HFunctor[EitherK[J, *[_], *]] {
+      |    override def map[F[_] : Functor, A, B](hfa: EitherK[J, F, A])(f: A => B): EitherK[J, F, B] = hfa.map(f)
+      |    override def hmap[F[_], G[_], A](hfa: EitherK[J, F, A])(f: F ~> G): EitherK[J, G, A] = hfa.mapK(f)
+      |  }
+      |
+      |  val eitherK: EitherK[Option, List, Int] = EitherK.rightc(List(1, 2, 3))
+      |  eitherK.hmap(λ[List ~> Option](_.headOption))
+      |}
+      |""".stripMargin
   )
 }
