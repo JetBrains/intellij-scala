@@ -118,17 +118,11 @@ object ScalaPsiElement {
 
     def context: PsiElement = getIfValid(ContextKey)
 
-    def context_=(context: PsiElement): Unit = {
-      assert(context != element)
-      update(ContextKey, context)
-    }
+    def context_=(context: PsiElement): Unit = update(ContextKey, context)
 
     def child: PsiElement = getIfValid(ChildKey)
 
-    def child_=(child: PsiElement): Unit = {
-      assert(child != element)
-      update(ChildKey, child)
-    }
+    def child_=(child: PsiElement): Unit = update(ChildKey, child)
 
     private def getIfValid(key: Key[PsiElement]): PsiElement = {
       val fromUserData = element match {
@@ -143,9 +137,13 @@ object ScalaPsiElement {
       }
     }
 
-    private def update(key: Key[PsiElement], value: PsiElement): Unit = element match {
-      case file: PsiFileBase => file.putCopyableUserData(key, value)
-      case _ => element.putUserData(key, value)
+    private def update(key: Key[PsiElement], value: PsiElement): Unit = {
+      assert(value != element)
+
+      element match {
+        case file: PsiFileBase => file.putCopyableUserData(key, value)
+        case _                 => element.putUserData(key, value)
+      }
     }
   }
 
