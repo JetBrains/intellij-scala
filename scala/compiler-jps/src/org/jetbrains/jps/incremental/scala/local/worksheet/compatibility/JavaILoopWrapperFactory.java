@@ -27,14 +27,14 @@ public class JavaILoopWrapperFactory {
   private static final String REPL_START = "$$worksheet$$repl$$start$$";
   private static final String REPL_CHUNK_END = "$$worksheet$$repl$$chunk$$end$$";
   private static final String REPL_LAST_CHUNK_PROCESSED = "$$worksheet$$repl$$last$$chunk$$processed$$";
-  
+
   private static final String FALLBACK_CLASSNAME = "ILoopWrapperImpl";
 
   //maximum count of repl sessions handled at any time 
   private final static int REPL_SESSION_LIMIT = 5;
   private final static Map<String, Consumer<ILoopWrapper>> commands =
       Collections.singletonMap(":reset", ILoopWrapper::reset);
-  
+
   private final MySimpleCache cache = new MySimpleCache(REPL_SESSION_LIMIT);
 
   //used in ILoopWrapperFactoryHandler
@@ -47,41 +47,39 @@ public class JavaILoopWrapperFactory {
       final List<File> classpath,
       final OutputStream outStream,
       final File iLoopFile,
-      final Comparable<String> clientProvider
+      final JavaClientProvider clientProvider
   ) {
-    WorksheetArgsJava argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgs, nameForSt, library, compiler, extra, classpath);
-
-    Consumer<String> onProgress = clientProvider == null ? msg -> {} : clientProvider::compareTo;
-
-    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, onProgress);
+    final WorksheetArgsJava argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgs, nameForSt, library, compiler, extra, classpath);
+    final JavaClientProvider clientProviderNotNull = clientProvider != null ? clientProvider : JavaClientProvider.NO_OP_PROVIDER;
+    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, clientProviderNotNull);
   }
-  
+
   private void loadReplWrapperAndRun(final WorksheetArgsJava worksheetArgs,
                                      final OutputStream outStream,
                                      final File iLoopFile,
-                                     @NotNull final Consumer<String> onProgress) {
+                                     @NotNull final JavaClientProvider clientProvider) {
     ReplArgsJava replArgs = worksheetArgs.getReplArgs();
     if (replArgs == null) return;
 
-    onProgress.accept("Retrieving REPL instance...");
-   
+    clientProvider.onProgress("Retrieving REPL instance...");
+
     ILoopWrapper inst = cache.getOrCreate(
         replArgs.getSessionId(),
         () -> createILoopWrapper(worksheetArgs, iLoopFile, new WorksheetServer.MyUpdatePrintWriter(outStream)),
         ILoopWrapper::shutdown
     );
     if (inst == null) return;
-    
+
     PrintWriter out = inst.getOutputWriter();
     if (out instanceof WorksheetServer.MyUpdatePrintWriter) ((WorksheetServer.MyUpdatePrintWriter) out).updateOut(outStream);
 
-    onProgress.accept("Worksheet execution started");
+    clientProvider.onProgress("Worksheet execution started");
     printService(out, REPL_START);
     out.flush();
-    
+
     String code = new String(Base64.getDecoder().decode(replArgs.getCodeChunk()), StandardCharsets.UTF_8);
     String[] statements = code.split(Pattern.quote("\n$\n$\n"));
-    
+
     for (String statement : statements) {
       if (statement.startsWith(":")) {
         Consumer<ILoopWrapper> action = commands.get(statement);
@@ -90,34 +88,34 @@ public class JavaILoopWrapperFactory {
           continue;
         }
       }
-      
+
       boolean shouldContinue = statement.trim().length() == 0 || inst.processChunk(statement);
-      onProgress.accept("Executing worksheet...");
+      clientProvider.onProgress("Executing worksheet...");
       printService(out, REPL_CHUNK_END);
       if (!shouldContinue) return;
     }
 
     printService(out, REPL_LAST_CHUNK_PROCESSED);
   }
-  
+
   private void printService(final PrintWriter out, final String txt) {
     out.println();
     out.println(txt);
     out.flush();
   }
-  
+
   private ILoopWrapper createILoopWrapper(final WorksheetArgsJava worksheetArgs, final File iLoopFile, final PrintWriter out) {
     URLClassLoader loader;
     Class<?> clazz;
-    
+
     try {
       loader = new URLClassLoader(new URL[]{iLoopFile.toURI().toURL()}, getClass().getClassLoader());
-      
+
       int idxDot = iLoopFile.getName().lastIndexOf('.');
       int idxDash = iLoopFile.getName().lastIndexOf('-');
-      String name = idxDot == -1 || idxDash == -1 || idxDash >= idxDot ? 
+      String name = idxDot == -1 || idxDash == -1 || idxDash >= idxDot ?
           FALLBACK_CLASSNAME : iLoopFile.getName().substring(idxDash + 1, idxDot);
-      
+
       clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet." + name);
     } catch (MalformedURLException | ClassNotFoundException ignored) {
       return null;
@@ -133,7 +131,7 @@ public class JavaILoopWrapperFactory {
         return null;
       }
     }).filter(Objects::nonNull).map(File::new).collect(Collectors.toList()));
-    
+
     List<String> stringCp = classpath.stream().filter(File::exists).map(File::getAbsolutePath).collect(Collectors.toList());
 
     try {
@@ -144,38 +142,38 @@ public class JavaILoopWrapperFactory {
       return null;
     }
   }
-  
-  
+
+
   private static class MySimpleCache {
     private final int limit;
     private final ReplSessionComparator comparator;
     private final PriorityQueue<ReplSession> sessionsQueue;
-    
+
     MySimpleCache(final int limit) {
       this.limit = limit;
       this.comparator = new ReplSessionComparator();
       this.sessionsQueue = new PriorityQueue<>(limit);
     }
-    
+
     ILoopWrapper getOrCreate(final String id,
                              final Supplier<ILoopWrapper> onCreation,
                              final Consumer<ILoopWrapper> onDiscard) {
       ReplSession existing = findById(id);
-      
+
       if (existing != null) {
         comparator.inc(id);
         return existing.wrapper;
       }
-      
+
       if (sessionsQueue.size() >= limit) {
         ReplSession anOldSession = sessionsQueue.poll();
-        
+
         if (anOldSession != null) {
           onDiscard.accept(anOldSession.wrapper);
           comparator.remove(anOldSession.id);
         }
       }
-      
+
       ReplSession newSession = new ReplSession(id, onCreation.get());
 
       comparator.put(id);
@@ -183,16 +181,16 @@ public class JavaILoopWrapperFactory {
 
       return newSession.wrapper;
     }
-    
+
     private ReplSession findById(final String id) {
       if (id == null) return null;
       for (ReplSession s : sessionsQueue) {
         if (s != null && id.equals(s.id)) return s;
       }
-      
+
       return null;
     }
-    
+
     private class ReplSessionComparator implements Comparator<ReplSession> {
       private final HashMap<String, Integer> storage = new HashMap<>();
 
