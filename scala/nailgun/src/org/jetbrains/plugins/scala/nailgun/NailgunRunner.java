@@ -17,8 +17,10 @@ import java.util.UUID;
 import static java.util.Arrays.asList;
 
 /**
+ * used from {@link org.jetbrains.plugins.scala.compiler.CompileServerLauncher}
  * @author Pavel Fatin
  */
+@SuppressWarnings("JavadocReference")
 public class NailgunRunner {
   private static final String SERVER_ALIAS = "compile-server";
   private static final String SERVER_DESCRIPTION = "Scala compile server";
