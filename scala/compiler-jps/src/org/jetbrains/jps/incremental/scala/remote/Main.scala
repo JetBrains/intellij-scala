@@ -24,9 +24,11 @@ object Main {
   /**
    * This method is called by NGServer
    *
-   * @see [[com.martiansoftware.nailgun.NGContext]]<br>
-   *      [[http://www.martiansoftware.com/nailgun/quickstart.html]]<br>
+   * @see [[http://www.martiansoftware.com/nailgun/quickstart.html]]<br>
    *      [[http://www.martiansoftware.com/nailgun/doc/javadoc/com/martiansoftware/nailgun/NGContext.html]]<br>
+   *      [[com.martiansoftware.nailgun.NGContext]]<br>
+   *      [[com.martiansoftware.nailgun.NGSession:153]]<br>
+   *      [[com.martiansoftware.nailgun.NGServer:198]]<br>
    */
   def nailMain(context: NGContext): Unit = {
     cancelShutdown()
@@ -93,6 +95,7 @@ object Main {
       case e: Throwable =>
         client.trace(e)
     } finally {
+      client.close()
       System.setOut(oldOut)
     }
   }

@@ -10,8 +10,8 @@ class AsynchEventGenerator(writeEvent: Event => Unit) {
     override def run(): Unit = writeEvent(e)
   })
 
-  def complete(): Unit = {
+  def complete(timeout: Long, unit: TimeUnit): Unit = {
     executors.shutdown()
-    executors.awaitTermination(20, TimeUnit.MINUTES)
+    executors.awaitTermination(timeout, unit)
   }
 }
