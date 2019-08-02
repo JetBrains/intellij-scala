@@ -25,7 +25,7 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.text.CharArrayUtil
-import com.intellij.util.{ArrayFactory, Processor}
+import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -962,6 +962,11 @@ package object extensions {
           else newValue
       }
     }
+  }
+
+  implicit class ThrowableExt(private val ex: Throwable) extends AnyVal {
+
+    def stackTraceText: String = ExceptionUtil.getThrowableText(ex).replace("\r", "")
   }
 
   object LanguageExt {
