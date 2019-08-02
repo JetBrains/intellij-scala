@@ -74,7 +74,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
         )
       if (conformance.isRight) {
         val abstractedTypeParams = abstracted.indices.map(
-          idx => TypeParameter.light("p" + idx + "$$", Seq.empty, Nothing, Any)
+          idx => TypeParameter.light("p" + idx + "$$", tvTypeParameters(idx).typeParameters, Nothing, Any)
         )
 
         val typeConstructor =
@@ -150,7 +150,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
 }
 
 object TypeVariableUnification {
- @scala.annotation.tailrec
+  @scala.annotation.tailrec
   private final def extractTypeParameters(tpe: ScType): Seq[TypeParameter] = tpe match {
     case ParameterizedType(des, _)         => extractTypeParameters(des)
     case Aliased(AliasType(alias, _, _))   => alias.typeParameters.map(TypeParameter(_))
