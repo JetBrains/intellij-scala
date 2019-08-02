@@ -34,6 +34,7 @@ object BlockModificationTracker {
       for {
         elementContext  <- contextWithStableType(element)
         originalContext <- contextWithStableType(original)
+        if elementContext != originalContext
       } {
 
         //consistent block modification count in completion file

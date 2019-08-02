@@ -33,10 +33,10 @@ trait ScalaPsiElement extends PsiElement
   }
 
   def getDeepSameElementInContext: PsiElement = this.child match {
-    case null => this
-    case element if element == this.context => this
-    case element: ScalaPsiElement => element.getDeepSameElementInContext
-    case element => element
+    case null                                            => this
+    case child if child == this || child == this.context => this
+    case child: ScalaPsiElement                          => child.getDeepSameElementInContext
+    case child                                           => child
   }
 
   def startOffsetInParent: Int = this.child match {
@@ -141,11 +141,17 @@ object ScalaPsiElement {
 
     def context: PsiElement = getIfValid(ContextKey)
 
-    def context_=(context: PsiElement): Unit = update(ContextKey, context)
+    def context_=(context: PsiElement): Unit = {
+      assert(context != element)
+      update(ContextKey, context)
+    }
 
     def child: PsiElement = getIfValid(ChildKey)
 
-    def child_=(child: PsiElement): Unit = update(ChildKey, child)
+    def child_=(child: PsiElement): Unit = {
+      assert(child != element)
+      update(ChildKey, child)
+    }
 
     private def getIfValid(key: Key[PsiElement]): PsiElement = {
       val fromUserData = element match {
