@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import sbt.internal.inc.CompileFailed
@@ -15,6 +16,10 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   import eventGenerator.listener
 
   def isCanceled: Boolean = canceled
+
+  def close() {
+    eventGenerator.complete(5, TimeUnit.SECONDS)
+  }
 
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
     listener(MessageEvent(kind, text, source, line, column))
@@ -50,7 +55,7 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
 
   override def compilationEnd() {
     listener(CompilationEndEvent())
-    eventGenerator.complete()
+    eventGenerator.complete(20, TimeUnit.MINUTES)
   }
 
   override def worksheetOutput(text: String) {
