@@ -36,7 +36,7 @@
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
                                       implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
-        <fileType name="SBT" language="sbt" extensions="sbt"
+        <fileType name="sbt" language="sbt" extensions="sbt"
                   implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
         <fileType name="sbtShell" language="sbtShell" extensions="sbts"
                   implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
