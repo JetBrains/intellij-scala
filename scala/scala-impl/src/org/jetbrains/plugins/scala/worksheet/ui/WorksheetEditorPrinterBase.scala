@@ -30,7 +30,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   override def internalError(errorMessage: String): Unit = {
     invokeLater {
       inWriteAction {
-        simpleUpdate("Internal error: " + errorMessage, viewerDocument)
+        simpleUpdate(s"Internal error: $errorMessage", viewerDocument)
       }
     }
   }
