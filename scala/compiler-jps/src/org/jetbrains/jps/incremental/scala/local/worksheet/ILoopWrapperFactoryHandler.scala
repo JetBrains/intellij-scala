@@ -18,7 +18,7 @@ import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
   
-  private var replFactory: Option[(Class[_], Any, String)] = None
+  private var replFactory: (Class[_], Any, String) = _
 
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream, client: Option[Client]) {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull
@@ -27,48 +27,47 @@ class ILoopWrapperFactoryHandler {
     val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
     
     replFactory match {
-      case Some((_, _, oldVersion)) if oldVersion == scalaVersion =>
+      case (_, _, oldVersion) if oldVersion == scalaVersion =>
       case _ =>
         val loader = createIsolatingClassLoader(compilerJars)
         val clazz = loader.loadClass(REPL_FQN)
         val javaILoopWrapper  = clazz.newInstance()
-        replFactory = Option((clazz, javaILoopWrapper, scalaVersion))
+        replFactory = (clazz, javaILoopWrapper, scalaVersion)
     }
 
     client.foreach(_ progress "Running REPL...")
-    
-    replFactory foreach {
-      case (clazz, instance, _) =>
-        WorksheetServer.patchSystemOut(out)
 
-        val parameterTypes = Array(
-          classOf[java.util.List[String]],
-          classOf[String],
-          classOf[File],
-          classOf[File],
-          classOf[java.util.List[File]],
-          classOf[java.util.List[File]],
-          classOf[java.io.OutputStream],
-          classOf[java.io.File],
-          classOf[JavaClientProvider]
-        )
-        val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
+    val (clazz, instance, _) = replFactory
 
-        withFilteredPath {
-          val clientProvider: JavaClientProvider = if (client.isEmpty) null else (message: String) => client.get.progress(message)
-          val args: Array[Object] = Array(
-            scalaToJava(commonArguments.worksheetFiles),
-            commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
-            compilerJars.library,
-            compilerJars.compiler,
-            scalaToJava(compilerJars.extra),
-            scalaToJava(commonArguments.compilationData.classpath),
-            out,
-            iLoopFile,
-            clientProvider
-          )
-          loadReplWrapperAndRunMethod.invoke(instance, args: _*)
-        }
+    WorksheetServer.patchSystemOut(out)
+
+    val parameterTypes = Array(
+      classOf[java.util.List[String]],
+      classOf[String],
+      classOf[File],
+      classOf[File],
+      classOf[java.util.List[File]],
+      classOf[java.util.List[File]],
+      classOf[java.io.OutputStream],
+      classOf[java.io.File],
+      classOf[JavaClientProvider]
+    )
+    val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
+
+    withFilteredPath {
+      val clientProvider: JavaClientProvider = if (client.isEmpty) null else (message: String) => client.get.progress(message)
+      val args: Array[Object] = Array(
+        scalaToJava(commonArguments.worksheetFiles),
+        commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
+        compilerJars.library,
+        compilerJars.compiler,
+        scalaToJava(compilerJars.extra),
+        scalaToJava(commonArguments.compilationData.classpath),
+        out,
+        iLoopFile,
+        clientProvider
+      )
+      loadReplWrapperAndRunMethod.invoke(instance, args: _*)
     }
   }
   
