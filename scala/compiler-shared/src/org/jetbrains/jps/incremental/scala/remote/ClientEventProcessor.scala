@@ -1,12 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io.{PrintStream, PrintWriter}
-
 /**
  * @author Pavel Fatin
  */
 class ClientEventProcessor(client: Client) {
+
   def process(event: Event) {
     event match {
       case MessageEvent(kind, text, source, line, column) =>
@@ -18,8 +17,8 @@ class ClientEventProcessor(client: Client) {
       case DebugEvent(text) =>
         client.debug(text)
 
-      case TraceEvent(message, lines) =>
-        client.trace(new ServerException(message, lines))
+      case TraceEvent(exceptionClassName, message, stackTrace) =>
+        client.trace(new ServerException(exceptionClassName, message, stackTrace))
 
       case GeneratedEvent(source, module, name) =>
         client.generated(source, module, name)
@@ -33,7 +32,7 @@ class ClientEventProcessor(client: Client) {
       case CompilationEndEvent() =>
         client.compilationEnd()
 
-      case WorksheetOutputEvent(text) => 
+      case WorksheetOutputEvent(text) =>
         client.worksheetOutput(text)
 
       case CompilationStartedInSbt(file) =>
@@ -42,14 +41,16 @@ class ClientEventProcessor(client: Client) {
   }
 }
 
-class ServerException(message: String, lines: Array[String]) extends Exception {
-  override def getMessage: String = message
+// field is called `stackTraceElements` not to confuse with `Throwable.stackTrace`
+private class ServerException(exceptionClassName: String,
+                              message: String,
+                              stackTraceElements: Array[StackTraceElement]) extends Exception(message, null) {
 
-  override def printStackTrace(s: PrintWriter) {
-    lines.foreach(s.println)
-  }
+  setStackTrace(stackTraceElements)
 
-  override def printStackTrace(s: PrintStream) {
-    lines.foreach(s.println)
+  override def toString: String = {
+    val message = getLocalizedMessage
+    if (message != null) s"$exceptionClassName: $message"
+    else exceptionClassName
   }
 }

@@ -13,17 +13,14 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   private val eventGenerator = new AsynchEventGenerator(writeEvent)
   import eventGenerator.listener
 
+  def isCanceled: Boolean = canceled
+
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
     listener(MessageEvent(kind, text, source, line, column))
   }
 
   def trace(exception: Throwable) {
-    val lines = {
-      val writer = new StringWriter()
-      exception.printStackTrace(new PrintWriter(writer))
-      writer.toString.split("\\n")
-    }
-    listener(TraceEvent(exception.getMessage, lines))
+    listener(TraceEvent(exception.getClass.getName, exception.getMessage, exception.getStackTrace))
   }
 
   def progress(text: String, done: Option[Float]) {
@@ -42,8 +39,6 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
     listener(DeletedEvent(module))
   }
 
-  def isCanceled: Boolean = canceled
-
   def processed(source: File) {
     listener(SourceProcessedEvent(source))
   }
@@ -57,5 +52,7 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
     listener(WorksheetOutputEvent(text))
   }
 
-  override def sourceStarted(source: String): Unit = listener(CompilationStartedInSbt(source))
+  override def sourceStarted(source: String) {
+    listener(CompilationStartedInSbt(source))
+  }
 }
