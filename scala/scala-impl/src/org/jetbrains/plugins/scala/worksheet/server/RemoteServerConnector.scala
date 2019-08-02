@@ -20,6 +20,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.extensions.ThrowableExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
@@ -219,7 +220,8 @@ object RemoteServerConnector {
     }
 
     override def trace(thr: Throwable) {
-      worksheetPrinter.foreach(_ internalError s"${thr.getMessage}\n${thr.getStackTrace mkString "\n"}")
+      val message = "\n" + thr.stackTraceText // stacktrace already contains thr.toString which contains message
+      worksheetPrinter.foreach(_.internalError(message))
     }
   }
 }

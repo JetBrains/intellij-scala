@@ -50,7 +50,7 @@ private class ServerException(exceptionClassName: String,
 
   override def toString: String = {
     val message = getLocalizedMessage
-    if (message != null) s"$exceptionClassName: $message"
-    else exceptionClassName
+    val reason = if (message != null) s": $message" else ""
+    s"$exceptionClassName$reason"
   }
 }

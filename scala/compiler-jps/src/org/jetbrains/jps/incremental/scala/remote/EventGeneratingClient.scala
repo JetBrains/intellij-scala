@@ -1,9 +1,10 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io.{File, PrintWriter, StringWriter}
+import java.io.File
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import sbt.internal.inc.CompileFailed
 
 /**
  * @author Pavel Fatin
@@ -20,7 +21,11 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   }
 
   def trace(exception: Throwable) {
-    listener(TraceEvent(exception.getClass.getName, exception.getMessage, exception.getStackTrace))
+    val message = exception match {
+      case cf: CompileFailed => cf.toString // CompileFailed always has null message
+      case _ => exception.getMessage
+    }
+    listener(TraceEvent(exception.getClass.getName, message, exception.getStackTrace))
   }
 
   def progress(text: String, done: Option[Float]) {
