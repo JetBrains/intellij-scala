@@ -8,9 +8,9 @@ import com.intellij.openapi.util.io.FileUtil
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
+import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaClientProvider
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.remote.{Arguments, WorksheetOutputEvent}
-import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.io.Path
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
@@ -50,17 +50,12 @@ class ILoopWrapperFactoryHandler {
           classOf[java.util.List[File]],
           classOf[java.io.OutputStream],
           classOf[java.io.File],
-          classOf[Comparable[String]]
+          classOf[JavaClientProvider]
         )
         val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
 
         withFilteredPath {
-          val clientProvider: Object = if (client.isEmpty) null else new Comparable[String] {
-            override def compareTo(o: String): Int = {
-              client.get.progress(o)
-              0
-            }
-          }
+          val clientProvider: JavaClientProvider = if (client.isEmpty) null else (message: String) => client.get.progress(message)
           val args: Array[Object] = Array(
             scalaToJava(commonArguments.worksheetFiles),
             commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
@@ -171,7 +166,6 @@ object ILoopWrapperFactoryHandler {
   private def getBaseJars(compiler: CompilerJars): Seq[File] = {
     val compilerJars = compiler.library +: compiler.compiler +: compiler.extra
     val additionalJars = findContainingJars(Seq(
-      this.getClass,
       classOf[FileUtil],
       classOf[ThreadLocalPrintStream],
       classOf[WorksheetOutputEvent]
@@ -180,7 +174,9 @@ object ILoopWrapperFactoryHandler {
   }
 
   private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
-    new URLClassLoader(Path.toURLs(getBaseJars(compilerJars)), ClasspathUtilities.rootLoader)
+    val jars = getBaseJars(compilerJars)
+    val parent = this.getClass.getClassLoader
+    new URLClassLoader(Path.toURLs(jars), parent)
   }
 
   //We need this method as scala std lib converts scala collections to its own wrappers with asJava method
