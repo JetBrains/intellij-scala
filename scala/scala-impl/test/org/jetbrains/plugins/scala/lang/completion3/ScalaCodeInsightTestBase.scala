@@ -2,13 +2,18 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.junit.Assert._
 
 /**
@@ -30,11 +35,18 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   override def getTestDataPath: String =
     s"${super.getTestDataPath}completion3/"
 
+  //it make tests slower, so let's enable it only for ScalaBasicCompletionTest
+  protected def needRetypeLine: Boolean = false
+
   protected final def activeLookupWithItems(fileText: String,
                                             completionType: CompletionType = BASIC,
                                             invocationCount: Int = DEFAULT_TIME)
                                            (items: LookupImpl => Iterable[LookupElement] = allItems) = {
     configureFromFileText(fileText)
+
+    if (needRetypeLine) {
+      retypeLineBeforeCaret()
+    }
 
     changePsiAt(getEditor.getCaretModel.getOffset)
 
@@ -46,6 +58,51 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
       case _ => throw new AssertionError("Lookups not found")
     }
   }
+
+  //retype line with completion on every char
+  private def retypeLineBeforeCaret(): Unit = {
+    invokeAndWait {
+      val caretModel = getEditor.getCaretModel
+      val caretOffset = caretModel.getOffset
+
+      val document = getEditor.getDocument
+      val lineStart = document.getLineStartOffset(document.getLineNumber(caretOffset))
+
+      val beforeLineStart = document.getText(TextRange.create(0, lineStart))
+      val lineStartText   = document.getText(TextRange.create(lineStart, caretOffset))
+      val afterCaret      = document.getText(TextRange.create(caretOffset, document.getTextLength))
+
+      if (!hasOpeningBracesOrQuotes(lineStartText)) { //todo: disable typed handlers?
+        inWriteAction {
+          document.setText(beforeLineStart + afterCaret)
+        }
+
+        caretModel.moveToOffset(lineStart)
+
+        val completionHandler =
+          new CodeCompletionHandlerBase(CompletionType.BASIC,
+            /*invokedExplicitly*/ false,
+            /*autopopup*/ true,
+            /*synchronous*/ true)
+
+        for (char <- lineStartText) {
+          myFixture.`type`(char)
+          commit(document)
+
+          completionHandler.invokeCompletion(getProject, getEditor, 0)
+        }
+
+        caretModel.moveToOffset(caretOffset)
+
+        println("Start of the line was retyped")
+      }
+    }
+  }
+
+  private def hasOpeningBracesOrQuotes(text: String): Boolean = "{([<\"\'".exists(text.contains(_))
+
+  private def commit(document: Document): Unit =
+    PsiDocumentManager.getInstance(getProject).commitDocument(getEditor.getDocument)
 
   protected final def doCompletionTest(fileText: String,
                                        resultText: String,

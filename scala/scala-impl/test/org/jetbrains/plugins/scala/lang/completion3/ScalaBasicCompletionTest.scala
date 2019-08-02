@@ -5,7 +5,9 @@ package completion3
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert.{assertEquals, assertTrue}
 
-abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase
+abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
+  override def needRetypeLine: Boolean = true
+}
 
 class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 
