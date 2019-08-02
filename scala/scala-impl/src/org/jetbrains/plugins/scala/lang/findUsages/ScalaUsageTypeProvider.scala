@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.plugins.scala.util.SAMUtil._
@@ -145,7 +145,7 @@ object ScalaUsageTypeProvider {
       case parameter: ScParameter if isAppropriate(parameter) => CLASS_METHOD_PARAMETER_DECLARATION
       case pattern: ScPattern => patternUsageType(pattern)
       case typeElement: ScTypeElement => typeUsageType(typeElement)
-      case _: ScInterpolatedStringPartReference => PrefixInterpolatedString
+      case _: ScInterpolatedExpressionPrefix => PrefixInterpolatedString
       case expression: ScReferenceExpression => referenceExpressionUsageType(expression)
       case expression: ScAnnotationExpr if existsAppropriate(expression.constructorInvocation.reference) => ANNOTATION
       case reference: ScThisReference if existsAppropriate(reference.reference) => ThisReference

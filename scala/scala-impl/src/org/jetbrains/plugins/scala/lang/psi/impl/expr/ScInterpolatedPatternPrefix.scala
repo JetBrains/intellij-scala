@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
  * @author kfeodorov 
  * @since 09.03.14.
  */
-class ScInterpolatedPrefixReference(node: ASTNode) extends ScStableCodeReferenceImpl(node) {
+class ScInterpolatedPatternPrefix(node: ASTNode) extends ScStableCodeReferenceImpl(node) {
   override def nameId: PsiElement = this
 
   override def handleElementRename(newElementName: String): PsiElement =

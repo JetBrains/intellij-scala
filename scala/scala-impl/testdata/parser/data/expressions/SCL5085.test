@@ -2,7 +2,7 @@ s"$this"
 -----
 ScalaFile
   InterpolatedStringLiteral
-    InterpolatedStringPartReference: s
+    InterpolatedExpressionPrefix: s
       PsiElement(interpolated string id)('s')
     PsiElement(interpolated string)('"')
     PsiElement(interpolated string injection)('$')

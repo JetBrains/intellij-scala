@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPatternPrefix, ScInterpolatedExpressionPrefix}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation}
@@ -175,7 +175,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case _ =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
-              case _ if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
+              case _ if !reference.isInstanceOf[ScInterpolatedPatternPrefix] =>
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
                     registerCreateFromUsageFixesFor(reference,
@@ -219,7 +219,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   private def checkNotQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
                                                (implicit holder: AnnotationHolder): Unit = {
     refElement match {
-      case _: ScInterpolatedStringPartReference =>
+      case _: ScInterpolatedExpressionPrefix =>
         return //do not inspect interpolated literal, it will be highlighted in other place
       case _ =>
     }

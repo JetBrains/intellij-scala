@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPat
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
 import scala.collection.mutable.ListBuffer
 
@@ -38,7 +38,7 @@ private class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
       case l: ScLiteral if (l.isString || l.isMultiLineString) && l.textContains('$') =>
         val interpolated = ScalaPsiElementFactory.createExpressionFromText("s" + l.getText, l.getContext)
         val references = interpolated.getChildren.filter {
-          case _: ScInterpolatedStringPartReference => false
+          case _: ScInterpolatedExpressionPrefix => false
           case _: ScReferenceExpression             => true
           case _                                    => false
         }
@@ -92,7 +92,7 @@ private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed
 
   // do not replace with interpolated.getStringParts
   // comment from revision f4f57ef:
-  // these references have nothing to do with ScInterpolatedStringPartReference
+  // these references have nothing to do with ScInterpolatedExpressionPrefix
   private def getStringParts(interpolated: ScInterpolated): Array[PsiElement] = {
     val res = ListBuffer[PsiElement]()
     val children: Array[PsiElement] = interpolated match {

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPatternPrefix, ScInterpolatedExpressionPrefix}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 /**
@@ -51,8 +51,8 @@ trait ScInterpolated extends ScalaPsiElement {
   def getInjections: Seq[ScExpression] =
     getChildren.toSeq.filter {
       case _: ScBlockExpr => true
-      case _: ScInterpolatedStringPartReference |
-           _: ScInterpolatedPrefixReference => false
+      case _: ScInterpolatedExpressionPrefix |
+           _: ScInterpolatedPatternPrefix => false
       case _: ScReferenceExpression => true
       case _ => false
     }.asInstanceOf[Seq[ScExpression]]

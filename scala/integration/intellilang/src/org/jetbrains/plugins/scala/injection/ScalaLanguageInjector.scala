@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
@@ -95,7 +95,7 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
 
       val suitable = expressions.forall {
         case l: ScLiteral if l.isString => true
-        case _: ScInterpolatedPrefixReference |
+        case _: ScInterpolatedPatternPrefix |
              _: ScInfixExpr => true
         case r: ScReferenceExpression if r.getText == "+" => true
         case expression => expression.getParent.isInstanceOf[ScInterpolatedStringLiteral]

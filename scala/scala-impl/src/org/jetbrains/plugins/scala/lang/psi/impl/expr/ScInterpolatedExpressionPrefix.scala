@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * @author kfeodorov 
  * @since 15.03.14.
  */
-class ScInterpolatedStringPartReference(node: ASTNode) extends ScReferenceExpressionImpl(node) {
+class ScInterpolatedExpressionPrefix(node: ASTNode) extends ScReferenceExpressionImpl(node) {
   override def nameId: PsiElement = this
-  override def toString = s"InterpolatedStringPartReference: $getText"
+  override def toString = s"InterpolatedExpressionPrefix: $getText"
 
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult]  = {
     val parent = getParent match {

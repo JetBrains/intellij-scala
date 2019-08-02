@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, S
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 import scala.annotation.tailrec
@@ -271,7 +271,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
                   }
                 }
               //no braces for interpolated string id
-              case _: ScInterpolatedStringPartReference =>
+              case _: ScInterpolatedExpressionPrefix =>
 
               // for reference invocations
               case _ =>

@@ -262,7 +262,7 @@ object ScalaElementType {
   }
 
   val INTERPOLATED_PREFIX_LITERAL_REFERENCE: ScExpressionElementType = new ScExpressionElementType("Interpolated Prefix Literal Reference") {
-    override def createElement(node: ASTNode) = new ScInterpolatedStringPartReference(node)
+    override def createElement(node: ASTNode) = new ScInterpolatedExpressionPrefix(node)
   }
 
   /** ****************************** COMPOSITE EXPRESSIONS *****************************/
@@ -324,7 +324,7 @@ object ScalaElementType {
   }
   //Not only String, but quasiquote too
   val INTERPOLATED_PREFIX_PATTERN_REFERENCE: ScalaElementType = new ScalaElementType("Interpolated Prefix Pattern Reference") {
-    override def createElement(node: ASTNode) = new ScInterpolatedPrefixReference(node)
+    override def createElement(node: ASTNode) = new ScInterpolatedPatternPrefix(node)
   }
 
   /** ***********************************************************************************/

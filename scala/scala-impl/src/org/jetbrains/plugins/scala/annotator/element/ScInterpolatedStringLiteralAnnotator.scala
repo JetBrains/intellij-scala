@@ -8,13 +8,13 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScInterpolated}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
 object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpolatedStringLiteral] {
 
   override def annotate(literal: ScInterpolatedStringLiteral, typeAware: Boolean)
                        (implicit holder: AnnotationHolder): Unit = literal.reference match {
-    case Some(partReference: ScInterpolatedStringPartReference) =>
+    case Some(partReference: ScInterpolatedExpressionPrefix) =>
       partReference match {
         case Resolved(resolveResult) =>
           usageTracker.UsageTracker
