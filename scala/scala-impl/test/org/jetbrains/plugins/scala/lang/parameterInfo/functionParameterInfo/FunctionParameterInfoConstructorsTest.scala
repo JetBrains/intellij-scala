@@ -22,10 +22,12 @@ class FunctionParameterInfoConstructorsTest extends FunctionParameterInfoTestBas
   def testScalaConstructorA(): Unit = doTest()
 
   def testScalaConstructorB(): Unit = doTest()
-  
+
   def testScalaConstructorC(): Unit = doTest()
 
   def testScalaConstructorD(): Unit = doTest()
+
+  def testScalaConstructorE(): Unit = doTest()
 
   def testSelfInvocation(): Unit = doTest()
 
