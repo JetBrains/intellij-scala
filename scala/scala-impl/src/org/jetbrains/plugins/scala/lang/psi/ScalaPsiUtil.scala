@@ -121,7 +121,7 @@ object ScalaPsiUtil {
   }
 
   def functionArrow(implicit project: ProjectContext): String = {
-    val useUnicode = project != null && ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
+    val useUnicode = project.project != null && ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
     if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
   }
 
@@ -1040,14 +1040,11 @@ object ScalaPsiUtil {
     case _ => true
   }
 
-  def isByNameArgument(expr: ScExpression): Boolean = {
-    isCanonicalArg(expr) && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
-  }
+  def isByNameArgument(expr: ScExpression): Boolean =
+    isCanonicalArg(expr) && parameterOf(expr).exists(_.isByName)
 
-  def isArgumentOfFunctionType(expr: ScExpression): Boolean = {
-
+  def isArgumentOfFunctionType(expr: ScExpression): Boolean =
     isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
-  }
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
@@ -1124,20 +1121,29 @@ object ScalaPsiUtil {
   }
 
   @annotation.tailrec
-  private def simpleBoundName(bound: ScTypeElement): String = bound match {
-    case ScSimpleTypeElement(ref) => NameTransformer.encode(ref.refName)
-    case proj: ScTypeProjection             => NameTransformer.encode(proj.refName)
-    case ScInfixTypeElement(_, op, _)       => NameTransformer.encode(op.refName)
+  private def simpleBoundName(bound: ScTypeElement): Option[String] = bound match {
+    case ScSimpleTypeElement(ref)           => NameTransformer.encode(ref.refName).toOption
+    case proj: ScTypeProjection             => NameTransformer.encode(proj.refName).toOption
+    case ScInfixTypeElement(_, op, _)       => NameTransformer.encode(op.refName).toOption
     case ScParameterizedTypeElement(ref, _) => simpleBoundName(ref)
-    case other                              => s"`${other.getText.replaceAll("\\s+", "")}`"
+    case _                                  => None
   }
 
-  private def contextBoundParameterName(typeParameter: ScTypeParam,
-                                        typeElement: ScTypeElement,
-                                        index: Int): String = {
+  private def contextBoundParameterName(
+    typeParameter: ScTypeParam,
+    typeElement:   ScTypeElement,
+    index:         Int
+  ): String = {
     val boundName = simpleBoundName(typeElement)
     val tpName    = NameTransformer.encode(typeParameter.name)
-    StringUtil.decapitalize(boundName + "$" + tpName + "$" + index)
+
+    def addIdSuffix(name: String): String = name + "$" + tpName + "$" + index
+
+    lazy val fallbackName = "`" + addIdSuffix(typeElement.getText.replaceAll("\\s+", "")) + "`"
+
+    boundName.fold(fallbackName)(sname =>
+      StringUtil.decapitalize(sname + "$" + tpName + "$" + index)
+    )
   }
 
   def withOriginalContextBound[T](parameter: ScParameter)
@@ -1330,7 +1336,7 @@ object ScalaPsiUtil {
       case Some(a) => a
       case None =>
         val last = parent.getLastChild
-        if (ScalaPsiUtil.isLineTerminator(last.getPrevSibling)) last.getPrevSibling
+        if (isLineTerminator(last.getPrevSibling)) last.getPrevSibling
         else last
     }
 
@@ -1338,10 +1344,10 @@ object ScalaPsiUtil {
 
     def newLine: PsiElement = createNewLine()(element.getManager)
 
-    val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
+    val anchorEndsLine = isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
 
-    val anchorStartsLine = ScalaPsiUtil.isLineTerminator(anchor.getPrevSibling)
+    val anchorStartsLine = isLineTerminator(anchor.getPrevSibling)
     if (!anchorStartsLine) addBefore(newLine)
 
     val addedStmt = addBefore(element).asInstanceOf[T]
