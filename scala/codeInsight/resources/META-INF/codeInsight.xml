@@ -81,6 +81,11 @@
                 enabledByDefault="true"/>
 
         <intentionAction>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.declarations.ChangeAccessModifierIntention</className>
+            <category>Scala</category>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Argument Conversion</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention</className>
         </intentionAction>
