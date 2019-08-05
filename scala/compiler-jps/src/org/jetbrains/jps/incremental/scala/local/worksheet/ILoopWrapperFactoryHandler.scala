@@ -7,6 +7,7 @@ import java.util
 import com.intellij.openapi.util.io.FileUtil
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaClientProvider
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
@@ -20,7 +21,8 @@ class ILoopWrapperFactoryHandler {
   
   private var replFactory: (Class[_], Any, String) = _
 
-  def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream, client: Option[Client]) {
+  def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream,
+                            @NotNull client: Client) {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull
     val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
     val scalaVersion = findScalaVersionIn(scalaInstance)
@@ -35,7 +37,7 @@ class ILoopWrapperFactoryHandler {
         replFactory = (clazz, javaILoopWrapper, scalaVersion)
     }
 
-    client.foreach(_ progress "Running REPL...")
+    client.progress("Running REPL...")
 
     val (clazz, instance, _) = replFactory
 
@@ -55,7 +57,7 @@ class ILoopWrapperFactoryHandler {
     val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
 
     withFilteredPath {
-      val clientProvider: JavaClientProvider = if (client.isEmpty) null else (message: String) => client.get.progress(message)
+      val clientProvider: JavaClientProvider = message => client.progress(message)
       val args: Array[Object] = Array(
         scalaToJava(commonArguments.worksheetFiles),
         commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
@@ -70,8 +72,8 @@ class ILoopWrapperFactoryHandler {
       loadReplWrapperAndRunMethod.invoke(instance, args: _*)
     }
   }
-  
-  protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Option[Client]): File = {
+
+  protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Client): File = {
     val home = sbtData.interfacesHome
     val interfaceJar = sbtData.compilerInterfaceJar
 
@@ -92,7 +94,7 @@ class ILoopWrapperFactoryHandler {
 
       findContainingJar(this.getClass) foreach {
         thisJar =>
-          client.foreach(_.progress("Compiling REPL runner..."))
+          client.progress("Compiling REPL runner...")
 
           val filter = (file: File) => is213 ^ !file.getName.endsWith("213Impl.scala")
 

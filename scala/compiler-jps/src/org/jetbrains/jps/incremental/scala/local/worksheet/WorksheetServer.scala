@@ -4,6 +4,7 @@ import java.io._
 import java.net.URL
 import java.nio.ByteBuffer
 
+import org.jetbrains.annotations.NotNull
 import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import org.jetbrains.jps.incremental.scala.data.CompilerJars
@@ -23,13 +24,18 @@ class WorksheetServer {
   private val replFactory = new ILoopWrapperFactoryHandler
 
 
-  def loadAndRun(commonArguments: Arguments, out: PrintStream, client: EventGeneratingClient, standalone: Boolean) {
+  def loadAndRun(commonArguments: Arguments, out: PrintStream,
+                 @NotNull client: EventGeneratingClient,
+                 standalone: Boolean) {
     val printStream = new MyEncodingOutputStream(out, standalone)
     
-    if (isRepl(commonArguments)) replFactory.loadReplWrapperAndRun(commonArguments, printStream, Option(client)) else 
-      WorksheetServer.parseWorksheetArgsFrom(commonArguments) foreach {
-        args => plainFactory.getRunner(printStream, standalone).loadAndRun(args, client)
+    if (isRepl(commonArguments)) {
+      replFactory.loadReplWrapperAndRun(commonArguments, printStream, client)
+    } else {
+      WorksheetServer.parseWorksheetArgsFrom(commonArguments).foreach { args =>
+        plainFactory.getRunner(printStream, standalone).loadAndRun(args, client)
       }
+    }
   }
 
   def isRepl(commonArguments: Arguments): Boolean = 
