@@ -41,21 +41,19 @@ class ILoopWrapperFactoryHandler {
 
     WorksheetServer.patchSystemOut(out)
 
-    withFilteredPath {
-      val clientProvider: JavaClientProvider = message => client.progress(message)
-      iLoopWrapper.loadReplWrapperAndRun(
-        scalaToJava(commonArguments.worksheetFiles),
-        commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
-        compilerJars.library,
-        compilerJars.compiler,
-        scalaToJava(compilerJars.extra),
-        scalaToJava(commonArguments.compilationData.classpath),
-        out,
-        iLoopFile,
-        clientProvider,
-        classLoader
-      )
-    }
+    val clientProvider: JavaClientProvider = message => client.progress(message)
+    iLoopWrapper.loadReplWrapperAndRun(
+      scalaToJava(commonArguments.worksheetFiles),
+      commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
+      compilerJars.library,
+      compilerJars.compiler,
+      scalaToJava(compilerJars.extra),
+      scalaToJava(commonArguments.compilationData.classpath),
+      out,
+      iLoopFile,
+      clientProvider,
+      classLoader
+    )
   } catch {
     case e: InvocationTargetException =>
       throw e.getTargetException
@@ -104,41 +102,6 @@ class ILoopWrapperFactoryHandler {
 
 object ILoopWrapperFactoryHandler {
   private val WRAPPER_VERSION = 1
-
-  private val JAVA_USER_CP_KEY = "java.class.path"
-  private val STOP_WORDS = Set(
-    "scala-library.jar",
-    "scala-nailgun-runner.jar",
-    "nailgun.jar",
-    "compiler-shared.jar",
-    "incremental-compiler.jar",
-    "compiler-jps.jar",
-    "hydra-compiler-jps.jar"
-  )
-
-
-  private def withFilteredPath(action: => Unit) {
-    val oldCp = System.getProperty(JAVA_USER_CP_KEY)
-
-    if (oldCp == null) {
-      action
-      return
-    }
-
-    val newCp = oldCp.split(File.pathSeparatorChar).map(
-      new File(_).getAbsoluteFile
-    ).filter {
-      file => file.exists() && !STOP_WORDS.contains(file.getName)
-    }.map(_.getAbsolutePath).mkString(File.pathSeparator)
-
-    System.setProperty(JAVA_USER_CP_KEY, newCp)
-
-    try {
-      action
-    } finally {
-      System.setProperty(JAVA_USER_CP_KEY, oldCp)
-    }
-  }
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
