@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io.{File, OutputStream}
+import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
 import java.util
 
@@ -22,7 +23,7 @@ class ILoopWrapperFactoryHandler {
   private var replFactory: (Class[_], Any, String) = _
 
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream,
-                            @NotNull client: Client) {
+                            @NotNull client: Client): Unit =  try {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull
     val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
     val scalaVersion = findScalaVersionIn(scalaInstance)
@@ -71,6 +72,9 @@ class ILoopWrapperFactoryHandler {
       )
       loadReplWrapperAndRunMethod.invoke(instance, args: _*)
     }
+  } catch {
+    case e: InvocationTargetException =>
+      throw e.getTargetException
   }
 
   protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Client): File = {
