@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.util.Base64
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -97,45 +98,50 @@ object WorksheetSourceProcessor {
 
     val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
       .peakCompilationIteration(srcFile.getViewProvider.getVirtualFile.getCanonicalPath) + 1
-    
+
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
-    val project = srcFile.getProject
     val moduleOpt = Option(WorksheetCommonSettings(srcFile).getModuleFor)
-    
-    val packOpt: Option[String] = Option(srcFile.getContainingDirectory) flatMap (
-      dir => Option(JavaDirectoryService.getInstance().getPackage(dir))
-      ) collect {
-      case psiPackage: PsiPackage if !psiPackage.getQualifiedName.trim.isEmpty =>
-        psiPackage.getQualifiedName
-    }
 
-    val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
+    val packOpt: Option[String] = for {
+      dir <- srcFile.getContainingDirectory.toOption
+      psiPackage <- JavaDirectoryService.getInstance().getPackage(dir).toOption
+      packageName = psiPackage.getQualifiedName
+      if !packageName.trim.isEmpty
+    } yield packageName
 
-    @inline def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, dflt: => T) = moduleOpt.flatMap { module =>
-      module.scalaLanguageLevel.collect {
+    val packStmt = packOpt.map("package " + _ + " ; ").getOrElse("")
+
+    @inline
+    def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, default: => T) =
+      moduleOpt.flatMap(_.scalaLanguageLevel).collect {
         case ScalaLanguageLevel.Scala_2_10 => if210
         case ScalaLanguageLevel.Scala_2_11 => if211
         case ScalaLanguageLevel.Scala_2_13 => if213
-      }
-    }.getOrElse(dflt)
+      }.getOrElse(default)
 
     val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "MacroPrinter213", "MacroPrinter")
     val classPrologue = name
     val objectPrologue =
       s"""$packStmt import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName
          |
-         | object $name {
+         |object $name {
          |""".stripMargin
 
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
     val unitReturnType = " : Unit = "
-    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion(
-      "", unitReturnType, unitReturnType, unitReturnType)
-    } { \n val $instanceName = new $name \n")
 
-    val mySourceBuilder = new ScalaSourceBuilder(classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue)
+    val returnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType)
+    val objectRes = new StringBuilder(
+      s"""def main($runPrinterName: java.io.PrintStream) $returnType {
+         |  val $instanceName = new $name
+         |  """.stripMargin
+    )
+
+    val sourceBuilder = new ScalaSourceBuilder(
+      classRes, objectRes, iterNumber, srcFile,
+      moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue
+    )
 
     val preDeclarations = mutable.ListBuffer.empty[PsiElement]
     val postDeclarations = mutable.ListBuffer.empty[PsiElement]
@@ -143,7 +149,7 @@ object WorksheetSourceProcessor {
     val root  = if (!isForObject(srcFile)) srcFile else {
       ((null: PsiElement) /: srcFile.getChildren) {
         case (a, imp: ScImportStmt) =>
-          mySourceBuilder.processImport(imp)
+          sourceBuilder.processImport(imp)
           a
         case (null, obj: ScObject) =>
           obj.putCopyableUserData(WORKSHEET_PRE_CLASS_KEY, "+")
@@ -161,12 +167,11 @@ object WorksheetSourceProcessor {
 
     val rootChildren = root match {
       case file: PsiFile => file.getChildren
-      case null => srcFile.getChildren
-      case other => other.getNode.getChildren(null) map (_.getPsi)
+      case null          => srcFile.getChildren
+      case other         => other.getNode.getChildren(null) map (_.getPsi)
     }
 
-    
-    mySourceBuilder.process(rootChildren.toIterator, preDeclarations, postDeclarations)
+    sourceBuilder.process(rootChildren.toIterator, preDeclarations, postDeclarations)
   }
   
   private def isForObject(file: ScalaFile) = {
