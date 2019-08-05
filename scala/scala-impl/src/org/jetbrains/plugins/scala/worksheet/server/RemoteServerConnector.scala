@@ -139,7 +139,7 @@ object RemoteServerConnector {
     }
 
     override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
-      val lines = text split "\n"
+      val lines = (if(text == null) "" else "").split("\n")
       val linesLength = lines.length
 
       val differ = if (linesLength > 2) {
