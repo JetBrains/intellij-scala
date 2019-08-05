@@ -146,7 +146,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
       case null if addAfter =>
         val parentNode = getParent.getNode
         var nextSibling = getNextSibling
-        while (ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
+        while (nextSibling != null && ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
           val currentNode = nextSibling.getNode
           nextSibling = nextSibling.getNextSibling
 
@@ -155,7 +155,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
         }
 
         node.addChild(modifierNode)
-        parentNode.addChild(spaceNode, nextSibling.getNode)
+        if (nextSibling != null)
+          parentNode.addChild(spaceNode, nextSibling.getNode)
       case null =>
         node.addChild(modifierNode)
         node.addChild(spaceNode)
