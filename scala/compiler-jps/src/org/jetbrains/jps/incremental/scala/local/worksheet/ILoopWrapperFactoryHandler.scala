@@ -3,24 +3,22 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 import java.io.{File, OutputStream}
 import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
-import java.util
 
-import com.intellij.openapi.util.io.FileUtil
-import com.martiansoftware.nailgun.ThreadLocalPrintStream
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaClientProvider
+import org.jetbrains.jps.incremental.scala.local.worksheet.util.IsolatingClassLoader
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
-import org.jetbrains.jps.incremental.scala.remote.{Arguments, WorksheetOutputEvent}
+import org.jetbrains.jps.incremental.scala.remote.Arguments
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.io.Path
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
-  
-  private var replFactory: (Class[_], Any, String) = _
+
+  private var replFactory: (Class[_], ClassLoader, Any, String) = _
 
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream,
                             @NotNull client: Client): Unit =  try {
@@ -28,19 +26,19 @@ class ILoopWrapperFactoryHandler {
     val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
     val scalaVersion = findScalaVersionIn(scalaInstance)
     val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
-    
+
     replFactory match {
-      case (_, _, oldVersion) if oldVersion == scalaVersion =>
+      case (_, _, _, oldVersion) if oldVersion == scalaVersion =>
       case _ =>
         val loader = createIsolatingClassLoader(compilerJars)
         val clazz = loader.loadClass(REPL_FQN)
-        val javaILoopWrapper  = clazz.newInstance()
-        replFactory = (clazz, javaILoopWrapper, scalaVersion)
+        val javaILoopWrapper = clazz.newInstance()
+        replFactory = (clazz, loader, javaILoopWrapper, scalaVersion)
     }
 
     client.progress("Running REPL...")
 
-    val (clazz, instance, _) = replFactory
+    val (clazz, classLoader, instance, _) = replFactory
 
     WorksheetServer.patchSystemOut(out)
 
@@ -53,7 +51,8 @@ class ILoopWrapperFactoryHandler {
       classOf[java.util.List[File]],
       classOf[java.io.OutputStream],
       classOf[java.io.File],
-      classOf[JavaClientProvider]
+      classOf[JavaClientProvider],
+      classOf[ClassLoader]
     )
     val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
 
@@ -68,7 +67,8 @@ class ILoopWrapperFactoryHandler {
         scalaToJava(commonArguments.compilationData.classpath),
         out,
         iLoopFile,
-        clientProvider
+        clientProvider,
+        classLoader
       )
       loadReplWrapperAndRunMethod.invoke(instance, args: _*)
     }
@@ -123,8 +123,15 @@ object ILoopWrapperFactoryHandler {
   private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaILoopWrapperFactory"
 
   private val JAVA_USER_CP_KEY = "java.class.path"
-  private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "compiler-shared.jar",
-    "incremental-compiler.jar", "compiler-jps.jar", "hydra-compiler-jps.jar")
+  private val STOP_WORDS = Set(
+    "scala-library.jar",
+    "scala-nailgun-runner.jar",
+    "nailgun.jar",
+    "compiler-shared.jar",
+    "incremental-compiler.jar",
+    "compiler-jps.jar",
+    "hydra-compiler-jps.jar"
+  )
 
 
   private def withFilteredPath(action: => Unit) {
@@ -142,15 +149,15 @@ object ILoopWrapperFactoryHandler {
     }.map(_.getAbsolutePath).mkString(File.pathSeparator)
 
     System.setProperty(JAVA_USER_CP_KEY, newCp)
-    
+
     try {
       action
     } finally {
       System.setProperty(JAVA_USER_CP_KEY, oldCp)
     }
   }
-  
-  private def findScalaVersionIn(scalaInstance: ScalaInstance): String = 
+
+  private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
 
   private def findContainingJar(clazz: Class[_]): Option[File] = {
@@ -165,29 +172,16 @@ object ILoopWrapperFactoryHandler {
     Some(new File(url.substring(0, idx + 4))).filter(_.exists())
   }
 
-  private def findContainingJars(classes: Seq[Class[_]]): Seq[File] =
-    classes.flatMap(findContainingJar)
-
-  private def getBaseJars(compiler: CompilerJars): Seq[File] = {
-    val compilerJars = compiler.library +: compiler.compiler +: compiler.extra
-    val additionalJars = findContainingJars(Seq(
-      classOf[FileUtil],
-      classOf[ThreadLocalPrintStream],
-      classOf[WorksheetOutputEvent]
-    ))
-    compilerJars ++ additionalJars
-  }
-
   private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
-    val jars = getBaseJars(compilerJars)
-    val parent = this.getClass.getClassLoader
+    val jars = compilerJars.library +: compilerJars.compiler +: compilerJars.extra
+    val parent = IsolatingClassLoader.scalaStdLibIsolatingLoader(this.getClass.getClassLoader)
     new URLClassLoader(Path.toURLs(jars), parent)
   }
 
   //We need this method as scala std lib converts scala collections to its own wrappers with asJava method
-  private def scalaToJava[T](seq: Seq[T]): util.List[T] = {
-    val al = new util.ArrayList[T]()
-    seq.foreach(al.add)
-    al
+  private def scalaToJava[T](seq: Seq[T]): java.util.List[T] = {
+    val list = new java.util.ArrayList[T]()
+    seq.foreach(list.add)
+    list
   }
 }
