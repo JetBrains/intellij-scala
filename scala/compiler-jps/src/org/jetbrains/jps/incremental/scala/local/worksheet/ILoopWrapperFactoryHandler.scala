@@ -7,7 +7,7 @@ import java.net.{URLClassLoader, URLDecoder}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
-import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaClientProvider
+import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{JavaClientProvider, JavaILoopWrapperFactory}
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IsolatingClassLoader
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.remote.Arguments
@@ -18,7 +18,7 @@ import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
 
-  private var replFactory: (Class[_], ClassLoader, Any, String) = _
+  private var replFactory: (ClassLoader, JavaILoopWrapperFactory, String) = _
 
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream,
                             @NotNull client: Client): Unit =  try {
@@ -28,37 +28,22 @@ class ILoopWrapperFactoryHandler {
     val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
 
     replFactory match {
-      case (_, _, _, oldVersion) if oldVersion == scalaVersion =>
+      case (_, _, oldVersion) if oldVersion == scalaVersion =>
       case _ =>
         val loader = createIsolatingClassLoader(compilerJars)
-        val clazz = loader.loadClass(REPL_FQN)
-        val javaILoopWrapper = clazz.newInstance()
-        replFactory = (clazz, loader, javaILoopWrapper, scalaVersion)
+        val iLoopWrapper = new JavaILoopWrapperFactory
+        replFactory = (loader, iLoopWrapper, scalaVersion)
     }
 
     client.progress("Running REPL...")
 
-    val (clazz, classLoader, instance, _) = replFactory
+    val (classLoader, iLoopWrapper, _) = replFactory
 
     WorksheetServer.patchSystemOut(out)
 
-    val parameterTypes = Array(
-      classOf[java.util.List[String]],
-      classOf[String],
-      classOf[File],
-      classOf[File],
-      classOf[java.util.List[File]],
-      classOf[java.util.List[File]],
-      classOf[java.io.OutputStream],
-      classOf[java.io.File],
-      classOf[JavaClientProvider],
-      classOf[ClassLoader]
-    )
-    val loadReplWrapperAndRunMethod = clazz.getDeclaredMethod("loadReplWrapperAndRun", parameterTypes: _*)
-
     withFilteredPath {
       val clientProvider: JavaClientProvider = message => client.progress(message)
-      val args: Array[Object] = Array(
+      iLoopWrapper.loadReplWrapperAndRun(
         scalaToJava(commonArguments.worksheetFiles),
         commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
         compilerJars.library,
@@ -70,7 +55,6 @@ class ILoopWrapperFactoryHandler {
         clientProvider,
         classLoader
       )
-      loadReplWrapperAndRunMethod.invoke(instance, args: _*)
     }
   } catch {
     case e: InvocationTargetException =>
@@ -88,8 +72,8 @@ class ILoopWrapperFactoryHandler {
 
     val version = findScalaVersionIn(scalaInstance)
     val is213 = version.startsWith("2.13")
-    val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION-${
-      if (is213) "ILoopWrapper213Impl" else "ILoopWrapperImpl"}.jar"
+    val iLoopWrapperClass = if (is213) "ILoopWrapper213Impl" else "ILoopWrapperImpl"
+    val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION-$iLoopWrapperClass.jar"
     val targetFile = new File(home, replLabel)
 
     if (!targetFile.exists()) {
@@ -120,7 +104,6 @@ class ILoopWrapperFactoryHandler {
 
 object ILoopWrapperFactoryHandler {
   private val WRAPPER_VERSION = 1
-  private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaILoopWrapperFactory"
 
   private val JAVA_USER_CP_KEY = "java.class.path"
   private val STOP_WORDS = Set(

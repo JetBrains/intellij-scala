@@ -20,9 +20,11 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+//TODO: looks like we do not actually need this java wrapper any more, due to we use an isolated classLoader to instantiate ILoop
+// remove it after plating around with worksheet after SCL-15948, SCL-15949 refactorings
 /**
  * User: Dmitry.Naydanov
- * Date: 2018-10-30.
+ * Date: 2018-10-30
  */
 public class JavaILoopWrapperFactory {
   private static final String REPL_START = "$$worksheet$$repl$$start$$";
