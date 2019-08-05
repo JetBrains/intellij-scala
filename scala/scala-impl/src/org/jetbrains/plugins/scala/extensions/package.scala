@@ -538,6 +538,9 @@ package object extensions {
 
     import PsiTreeUtil._
 
+    def parentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
+      parentOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
+
     def parentOfType[Psi <: PsiElement](clazz: Class[Psi], strict: Boolean = true): Option[Psi] =
       Option(getParentOfType(element, clazz, strict))
 
