@@ -1,5 +1,7 @@
 package org.jetbrains.bsp.data
 
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.module.Module
 import org.jetbrains.sbt.project.data.service.DefaultDataService
 

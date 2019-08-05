@@ -48,6 +48,8 @@
         <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
         <applicationInitializedListener implementation="org.jetbrains.bsp.StartupRoutine"/>
 
+        <runLineMarkerContributor implementationClass="org.jetbrains.bsp.project.BspTestRunLineMarkerProvider" language="Scala"/>
+
     </extensions>
 
     <actions>

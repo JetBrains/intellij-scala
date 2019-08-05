@@ -17,7 +17,7 @@ class BspResolverLogicTest {
       new BuildTargetCapabilities(true,true,true)
     )
 
-    val descriptions = BspResolverLogic.calculateModuleDescriptions(List(target), List(), List(), List(), List())
+    val descriptions = BspResolverLogic.calculateModuleDescriptions(List(target), List(), List(), List(), List(), List())
 
     assert(descriptions.synthetic.isEmpty)
     assert(descriptions.modules.size == 1)

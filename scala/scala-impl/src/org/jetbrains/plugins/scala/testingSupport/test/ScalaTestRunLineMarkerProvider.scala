@@ -64,7 +64,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     case _ => false
   }
 
-  private def getInfo(url: String, project: Project, isClass: Boolean) = {
+  protected def getInfo(url: String, project: Project, isClass: Boolean) = {
     import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude._
 
     def defaultIcon =

@@ -71,7 +71,8 @@ private[resolver] object BspResolverLogic {
                                                     scalacOptionsItems: Seq[ScalacOptionsItem],
                                                     sourcesItems: Seq[SourcesItem],
                                                     resourcesItems: Seq[ResourcesItem],
-                                                    dependencySourcesItems: Seq[DependencySourcesItem]
+                                                    dependencySourcesItems: Seq[DependencySourcesItem],
+                                                    testClasses: Seq[ScalaTestClassesItem]
                                                    ): ProjectModules = {
 
 
@@ -101,6 +102,9 @@ private[resolver] object BspResolverLogic {
       .map(item => (item.getTarget, sourceDirectories(item)))
       .toMap
 
+    val idToTestClasses: Map[BuildTargetIdentifier, Seq[TestClassId]] = testClasses
+      .map(item => (item.getTarget, item.getClasses.asScala))
+      .toMap
 
     val sharedSources = sharedSourceDirs(idToSources)
 
@@ -115,7 +119,8 @@ private[resolver] object BspResolverLogic {
       val dependencyOutputs = transitiveDependencyOutputs(target)
 
       implicit val gson: Gson = new Gson()
-      moduleDescriptionForTarget(target, scalacOptions, depSources, sources, resources, dependencyOutputs)
+      moduleDescriptionForTarget(target, scalacOptions, depSources, sources, resources, dependencyOutputs,
+        idToTestClasses.getOrElse(target.getId, Seq.empty))
     }
 
     val idToModule = (for {
@@ -184,6 +189,7 @@ private[resolver] object BspResolverLogic {
                                                    sourceDirs: Seq[SourceDirectory],
                                                    resourceDirs: Seq[SourceDirectory],
                                                    dependencyOutputs: Seq[File],
+                                                   testClasses: Seq[TestClassId]
                                                   )(implicit gson: Gson): Option[ModuleDescription] = {
 
     // all subdirectories of a source dir are automatically source dirs
@@ -225,7 +231,7 @@ private[resolver] object BspResolverLogic {
 
     val moduleDescriptionData = createModuleDescriptionData(
       Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots,
-      classPathWithoutDependencyOutputs, dependencySourceDirs)
+      classPathWithoutDependencyOutputs, dependencySourceDirs, testClasses)
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
     else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(UnspecifiedModule())))
@@ -238,7 +244,8 @@ private[resolver] object BspResolverLogic {
                                                     sourceRoots: Seq[SourceDirectory],
                                                     resourceRoots: Seq[SourceDirectory],
                                                     classPath: Seq[File],
-                                                    dependencySources: Seq[File]
+                                                    dependencySources: Seq[File],
+                                                    testClasses: Seq[TestClassId]
                                                ): ModuleDescriptionData = {
     import BuildTargetTag._
 
@@ -261,8 +268,8 @@ private[resolver] object BspResolverLogic {
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty,
-      Seq.empty, Seq.empty
-    )
+      Seq.empty, Seq.empty,
+      Seq.empty)
 
     val targetDeps = targets.flatMap(_.getDependencies.asScala)
 
@@ -282,6 +289,7 @@ private[resolver] object BspResolverLogic {
         resourceDirs = resourceRoots,
         classpath = classPath,
         classpathSources = dependencySources,
+        testClasses = testClasses
       )
 
     data
@@ -337,6 +345,7 @@ private[resolver] object BspResolverLogic {
         val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
         val testClassPath = mergeFiles(dataCombined.testClasspath, dataNext.testClasspath)
         val testClassPathSources = mergeFiles(dataCombined.testClasspathSources, dataNext.testClasspathSources)
+        val testClasses = dataCombined.testClasses ++ dataNext.testClasses
 
         val newData = ModuleDescriptionData(
           dataCombined.id, dataCombined.name,
@@ -346,6 +355,7 @@ private[resolver] object BspResolverLogic {
           resourceDirs, testResourceDirs,
           classPath, classPathSources,
           testClassPath, testClassPathSources,
+          testClasses
         )
 
         combined.copy(data = newData)
@@ -484,9 +494,6 @@ private[resolver] object BspResolverLogic {
     val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
     libraryTestDependencyData.setScope(DependencyScope.TEST)
 
-    val targetIds = moduleDescriptionData.targets.map(_.getId.getUri.toURI)
-    val metadata = BspMetadata(targetIds.asJava)
-
     // data node wiring
 
     val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
@@ -505,6 +512,10 @@ private[resolver] object BspResolverLogic {
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
       moduleNode.addChild(contentRootDataNode)
     }
+
+    val targetIds = moduleDescriptionData.targets.map(_.getId.getUri.toURI)
+    val metadata = BspMetadata(targetIds.asJava, moduleDescriptionData.testClasses.asJava)
+
     val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
     moduleNode.addChild(metadataNode)
 
@@ -626,3 +637,4 @@ private[resolver] object BspResolverLogic {
   private[resolver] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, export: Boolean)
 
 }
+
