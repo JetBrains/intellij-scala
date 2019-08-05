@@ -165,7 +165,7 @@ object SimplePattern {
           return true
         case _ =>
           rb1.drop()
-          simplePatternMarker.done(ScalaElementType.STABLE_REFERENCE_PATTERN)
+          simplePatternMarker.done(ScalaElementType.StableReferencePattern)
           return true
       }
     }

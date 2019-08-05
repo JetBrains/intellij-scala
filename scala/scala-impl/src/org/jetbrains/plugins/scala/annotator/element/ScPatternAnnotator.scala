@@ -4,7 +4,7 @@ package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
@@ -66,15 +66,15 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     }
 
     object StableIdResolvesToVar {
-      def unapply(stable: ScStableReferencePattern): Boolean = {
-        stable.referenceExpression.orNull match {
-          case ResolvesTo(ScalaPsiUtil.inNameContext(nameCtx)) => nameCtx match {
+
+      def unapply(stable: ScStableReferencePattern): Boolean = stable match {
+        case ScStableReferencePattern(ResolvesTo(inNameContext(context))) =>
+          context match {
             case param: ScClassParameter => param.isVar
             case _: ScVariable => true
             case _ => false
           }
-          case _ => false
-        }
+        case _ => false
       }
     }
 

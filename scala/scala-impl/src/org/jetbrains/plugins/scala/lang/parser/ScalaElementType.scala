@@ -367,8 +367,8 @@ object ScalaElementType {
   val INTERPOLATION_PATTERN: ScalaElementType = new ScalaElementType("interpolation pattern") {
     override def createElement(node: ASTNode) = new ScInterpolationPatternImpl(node)
   }
-  val STABLE_REFERENCE_PATTERN: ScalaElementType = new ScalaElementType("stable reference pattern") {
-    override def createElement(node: ASTNode) = new ScStableReferencePatternImpl(node)
+  object StableReferencePattern extends ScalaElementType("StableElementPattern") {
+    override def createElement(node: ASTNode) = new ScStableReferencePatternImpl(node, toString)
   }
   val PATTERN_IN_PARENTHESIS: ScalaElementType = new ScalaElementType("pattern in parenthesis") {
     override def createElement(node: ASTNode) = new ScParenthesisedPatternImpl(node)
