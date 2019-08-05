@@ -60,47 +60,60 @@ class ILoopWrapperFactoryHandler {
   }
 
   protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Client): File = {
-    val home = sbtData.interfacesHome
-    val interfaceJar = sbtData.compilerInterfaceJar
-
-    val sourceJar = {
-      val f = sbtData.sourceJars._2_11
-      new File(f.getParent, "repl-interface-sources.jar")
-    }
-
     val version = findScalaVersionIn(scalaInstance)
     val is213 = version.startsWith("2.13")
     val iLoopWrapperClass = if (is213) "ILoopWrapper213Impl" else "ILoopWrapperImpl"
     val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION-$iLoopWrapperClass.jar"
-    val targetFile = new File(home, replLabel)
+    val targetFile = new File(sbtData.interfacesHome, replLabel)
 
     if (!targetFile.exists()) {
-      val log = NullLogger
-      home.mkdirs()
-
-      findContainingJar(this.getClass) foreach {
-        thisJar =>
-          client.progress("Compiling REPL runner...")
-
-          val filter = (file: File) => is213 ^ !file.getName.endsWith("213Impl.scala")
-
-          AnalyzingCompiler.compileSources(
-            Seq(sourceJar), targetFile, Seq(interfaceJar, thisJar), replLabel,
-            new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), log) {
-              override def apply(sources: Seq[File], classpath: Seq[File], outputDirectory: File, options: Seq[String]): Unit = {
-                super.apply(sources.filter(filter), classpath, outputDirectory, options)
-              }
-            }, log
-          )
-      }
+      compileReplLoopFile(scalaInstance, sbtData, is213, replLabel, targetFile, client)
     }
 
-
     targetFile
+  }
+
+  private def compileReplLoopFile(scalaInstance: ScalaInstance, sbtData: SbtData, is213: Boolean, replLabel: String, targetFile: File, client: Client): Unit = {
+    // sources containing ILoopWrapper213Impl.scala and ILoopWrapperImpl.scala
+    val sourceJar = {
+      val jpsJarsFolder = sbtData.sourceJars._2_11.getParent
+      new File(jpsJarsFolder, "repl-interface-sources.jar")
+    }
+    val interfaceJar = sbtData.compilerInterfaceJar
+    // compiler-jps.jar
+    val containingJar = findContainingJar(this.getClass) match {
+      case Some(jar) => jar
+      case None => return
+    }
+
+    client.progress("Compiling REPL runner...")
+
+    val logger = NullLogger
+    sbtData.interfacesHome.mkdirs()
+
+    def filter(file: File): Boolean = {
+      val is213Impl = file.getName.endsWith("213Impl.scala")
+      if (is213) is213Impl else !is213Impl
+    }
+
+    val rawCompiler = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), logger) {
+      override def apply(sources: Seq[File], classpath: Seq[File], outputDirectory: File, options: Seq[String]): Unit = {
+        super.apply(sources.filter(filter), classpath, outputDirectory, options)
+      }
+    }
+    AnalyzingCompiler.compileSources(
+      Seq(sourceJar),
+      targetFile,
+      xsbtiJars = Seq(interfaceJar, containingJar),
+      id = replLabel,
+      compiler = rawCompiler,
+      log = logger
+    )
   }
 }
 
 object ILoopWrapperFactoryHandler {
+  // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to encrease the version
   private val WRAPPER_VERSION = 1
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
