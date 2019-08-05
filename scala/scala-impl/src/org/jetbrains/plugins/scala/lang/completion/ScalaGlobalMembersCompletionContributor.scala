@@ -97,9 +97,9 @@ object ScalaGlobalMembersCompletionContributor {
   private def qualifier(refExpr: ScReferenceExpression) = refExpr.qualifier.orElse(desugaredQualifier(refExpr))
 
   private def stringContextQualifier(lit: ScInterpolatedStringLiteral): Option[ScExpression] =
-    lit.getStringContextExpression.flatMap {
-      case ScMethodCall(ref: ScReferenceExpression, _) => ref.qualifier
-      case _                                           => None
+    lit.desugaredExpression.flatMap {
+      case (reference: ScReferenceExpression, _) => reference.qualifier
+      case _ => None
     }
 
   private def desugaredQualifier(refExpr: ScReferenceExpression): Option[ScExpression] =

@@ -68,8 +68,7 @@ object InterpolatedStringParser extends StringParser {
 
     val withFixedLeadingQuote = parts match {
       case Text(s) :: tail =>
-        val edgeLength = if (literal.isMultiLineString) 3 else 1
-        Text(s.drop(edgeLength)) :: tail
+        Text(s.drop(literal.quoteLength)) :: tail
       case it => it
     }
     val withEscapedPercents = withFixedLeadingQuote flatMap {

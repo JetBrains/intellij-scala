@@ -56,7 +56,7 @@ class ScLiteralImpl(node: ASTNode,
   override def isValidHost: Boolean = getValue != null
 
   override def updateText(text: String): ScLiteralImpl = {
-    literalNode match {
+    firstNode match {
       case leaf: LeafElement => leaf.replaceWithText(text)
     }
     this
@@ -68,9 +68,9 @@ class ScLiteralImpl(node: ASTNode,
 
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)
 
-  private def literalNode: ASTNode = getNode.getFirstChildNode
+  protected final def firstNode: ASTNode = getNode.getFirstChildNode
 
-  private def literalElementType: IElementType = literalNode.getElementType
+  private def literalElementType: IElementType = firstNode.getElementType
 }
 
 object ScLiteralImpl {

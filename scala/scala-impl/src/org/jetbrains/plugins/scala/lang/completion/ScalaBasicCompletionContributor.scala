@@ -302,7 +302,7 @@ object ScalaBasicCompletionContributor {
         val startOffset = interpolated.getTextRange.getStartOffset
         val pointPosition = rangeEndOffset - startOffset
 
-        tokenizeLiteral(stringText.substring(pointPosition), interpolated.quote.length).flatMap { tokenEnd =>
+        tokenizeLiteral(stringText.substring(pointPosition), interpolated.quoteLength).flatMap { tokenEnd =>
           tokenEnd + pointPosition match {
             case endPoint if endPoint >= startOffset - context.getTextRange.getStartOffset =>
               Some(rangeStartOffset - startOffset, endPoint)

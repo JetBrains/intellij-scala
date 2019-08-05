@@ -17,7 +17,5 @@ final class ScInterpolationPatternImpl(node: ASTNode) extends ScConstructorPatte
 
   override def toString: String = "InterpolationPattern"
 
-  override def isString: Boolean = true
-
   override def isMultiLineString: Boolean = getText.endsWith(QuotedLiteralImplBase.MultiLineQuote)
 }

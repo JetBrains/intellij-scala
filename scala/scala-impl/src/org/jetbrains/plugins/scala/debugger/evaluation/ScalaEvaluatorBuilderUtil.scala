@@ -12,7 +12,6 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -1080,9 +1079,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def literalEvaluator(literal: ScLiteral): Evaluator = literal match {
     case interpolated: ScInterpolatedStringLiteral =>
-      interpolated.getStringContextExpression
+      interpolated.desugaredExpression
           .fold(ScalaLiteralEvaluator(literal, literal.getValue): Evaluator) {
-            evaluatorFor(_)
+            case (_, call) => evaluatorFor(call)
           }
     case _ =>
       literal.getValue match {

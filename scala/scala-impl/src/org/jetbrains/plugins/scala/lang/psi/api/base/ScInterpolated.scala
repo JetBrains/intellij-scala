@@ -4,13 +4,9 @@ package psi
 package api
 package base
 
-import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPatternPrefix, ScInterpolatedExpressionPrefix}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 
 /**
  * @author kfeodorov
@@ -21,32 +17,6 @@ trait ScInterpolated extends ScalaPsiElement {
   import lexer.ScalaTokenTypes._
 
   def isMultiLineString: Boolean
-
-  def isString: Boolean
-
-  protected final def referenceNode: ASTNode = getNode.getFirstChildNode
-
-  protected final def referenceText: String = referenceNode.getText
-
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def getStringContextExpression: Option[ScExpression] = getContext match {
-    case null => None
-    case _ if !isString => None
-    case context =>
-      val quote = this.quote
-
-      val constructorParameters = getStringParts.map(quote + _ + quote)
-        .commaSeparated(Model.Parentheses)
-      val methodParameters = getInjections.map(_.getText)
-        .commaSeparated(Model.Parentheses)
-
-      val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
-        s"_root_.scala.StringContext$constructorParameters.$referenceText$methodParameters",
-        context,
-        this
-      )
-      Some(expression)
-  }
 
   def getInjections: Seq[ScExpression] =
     getChildren.toSeq.filter {
@@ -82,6 +52,6 @@ object ScInterpolated {
 
   implicit class InterpolatedExt(private val interpolated: ScInterpolated) extends AnyVal {
 
-    def quote: String = if (interpolated.isMultiLineString) MultiLineQuote else SingleLineQuote
+    def quoteLength: Int = (if (interpolated.isMultiLineString) MultiLineQuote else SingleLineQuote).length
   }
 }

@@ -4,7 +4,7 @@ package psi
 package api
 package base
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 
 /**
   * User: Dmitry Naydanov
@@ -17,6 +17,8 @@ trait ScInterpolatedStringLiteral extends ScLiteral with ScInterpolated {
   def reference: Option[ScReferenceExpression]
 
   def referenceName: String
+
+  def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)]
 }
 
 object ScInterpolatedStringLiteral {
