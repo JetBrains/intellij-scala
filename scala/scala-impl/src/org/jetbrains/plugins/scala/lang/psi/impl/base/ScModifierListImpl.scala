@@ -68,6 +68,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
       if (value) {
         setModifierProperty(PsiModifier.PRIVATE, value = false)
         setModifierProperty(PsiModifier.PROTECTED, value = false)
+        return
       }
       else {
         //not supported
@@ -76,15 +77,15 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
     val mod = ScalaModifier.byText(name)
 
-    if (mod == null || value == modifiers.contains(mod)) {
+    if (mod == ScalaModifier.Private || mod == ScalaModifier.Protected) {
+      accessModifier.foreach(e => getNode.removeChild(e.getNode))
+    } else if (mod == null || value == modifiers.contains(mod)) {
       return
     }
 
     if (value) {
       addModifierProperty(name)
-    }
-
-    if (!value) {
+    } else {
       val elemToRemove: Option[PsiElement] = mod match {
         case ScalaModifier.Private if accessModifier.exists(_.isPrivate)     => accessModifier
         case ScalaModifier.Protected if accessModifier.exists(_.isProtected) => accessModifier
