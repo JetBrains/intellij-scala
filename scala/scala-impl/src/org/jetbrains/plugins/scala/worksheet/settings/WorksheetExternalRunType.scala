@@ -67,8 +67,8 @@ object RunTypes {
 
     override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest =
       WorksheetSourceProcessor.processDefault(srcFile, ifEditor.map(_.getDocument)) match {
-        case Left((code, className)) => RunCompile(code, className)
-        case Right(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
+        case Right((code, className)) => RunCompile(code, className)
+        case Left(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
       }
   }
 
@@ -84,8 +84,8 @@ object RunTypes {
 
     override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest =
       WorksheetSourceProcessor.processIncremental(srcFile, ifEditor) match {
-        case Left((code, _)) => RunRepl(code)
-        case Right(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
+        case Right((code, _)) => RunRepl(code)
+        case Left(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
       }
   }
 

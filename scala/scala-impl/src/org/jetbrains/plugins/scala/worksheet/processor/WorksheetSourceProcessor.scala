@@ -74,26 +74,26 @@ object WorksheetSourceProcessor {
   
   def processSimple(srcFile: ScalaFile, ifEditor: Option[Editor]): String = Base64.encode(srcFile.getText.getBytes)
   
-  def processIncremental(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[(String, String), PsiErrorElement] = {
+  def processIncremental(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[PsiErrorElement, (String, String)] = {
     val exprsPsi = mutable.ListBuffer[QueuedPsi]()
     val lastProcessed = ifEditor.flatMap(
       e => WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(e))
 
     val glue = new WorksheetPsiGlue(exprsPsi)
     new WorksheetInterpretExprsIterator(srcFile, ifEditor, lastProcessed).collectAll(
-      glue.processPsi, Some(e => return Right(e)))
+      glue.processPsi, Some(e => return Left(e)))
     
     val texts = exprsPsi.map(_.getText)
     val allExprs = if (lastProcessed.isEmpty) ":reset" +: texts else texts
     
-    Left((Base64.encode((allExprs mkString REPL_DELIMITER).getBytes), ""))
+    Right((Base64.encode((allExprs mkString REPL_DELIMITER).getBytes), ""))
   }
-  
+
   /**
    * @return (Code, Main class name)
    */
-  def processDefault(srcFile: ScalaFile, ifDoc: Option[Document]): Either[(String, String), PsiErrorElement] = {
-    if (!srcFile.isWorksheetFile) return Right(null)
+  def processDefault(srcFile: ScalaFile, ifDoc: Option[Document]): Either[PsiErrorElement, (String, String)] = {
+    if (!srcFile.isWorksheetFile) return Left(null)
 
     val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
       .peakCompilationIteration(srcFile.getViewProvider.getVirtualFile.getCanonicalPath) + 1
@@ -437,7 +437,7 @@ object WorksheetSourceProcessor {
 
     
     def process(elements: Iterator[PsiElement], preDeclarations: Iterable[PsiElement], 
-                postDeclarations: Iterable[PsiElement]): Either[(String, String), PsiErrorElement] = {
+                postDeclarations: Iterable[PsiElement]): Either[PsiErrorElement, (String, String)] = {
       insertUntouched(preDeclarations)
       
       for (e <- elements) e match {
@@ -454,7 +454,7 @@ object WorksheetSourceProcessor {
         case pack: ScPackaging => processWhiteSpace(pack)
         case otherExpr: ScExpression => processOtherExpr(otherExpr)
         case ws: PsiWhiteSpace => processWhiteSpace(ws)
-        case error: PsiErrorElement => return Right(error)
+        case error: PsiErrorElement => return Left(error)
         case null => logError(null)
         case unknown => processUnknownElement(unknown)
       }
@@ -465,7 +465,7 @@ object WorksheetSourceProcessor {
       objectBuilder append (getPrintMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append s"} \n $PRINT_ARRAY_TEXT \n }"
       
       val codeResult = getObjectPrologue + importStmts.mkString(";") + classBuilder.toString() + "\n\n\n" + objectBuilder.toString()
-      Left(
+      Right(
         (codeResult, packOpt.map(_ + ".").getOrElse("") + name)
       )
     }

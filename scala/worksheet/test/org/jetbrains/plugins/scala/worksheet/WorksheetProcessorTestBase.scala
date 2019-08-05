@@ -36,7 +36,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
     val doc = PsiDocumentManager.getInstance(myProject).getDocument(psiFile)
 
     processor.WorksheetSourceProcessor.processDefault(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
-      case Left((code, _)) =>
+      case Right((code, _)) =>
         val src = new File(getBaseDir.getCanonicalPath, "src")
         assertTrue("Cannot find src dir", src.exists())
 
@@ -53,7 +53,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
         val messages = make()
 
         assertTrue(messages.mkString(" , "), messages.isEmpty)
-      case Right(errorElement) => fail(s"Compile error: $errorElement , ${errorElement.getText}")
+      case Left(errorElement) => fail(s"Compile error: $errorElement , ${errorElement.getText}")
     }
 
   }
