@@ -7,7 +7,6 @@ package typedef
 
 import org.jetbrains.plugins.scala.extensions.{Model, PsiModifierListOwnerExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -38,12 +37,12 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
                     case Seq(text) => text
                     case seq       => seq.commaSeparated(Model.Parentheses)
                   }
-                  s"$OptionCanonical[$optionTypeArg]"
+                  OptionCanonical + "[" + optionTypeArg + "]"
                 }
               }
               val unapplyName = if (params.lastOption.exists(_.isRepeatedParameter)) UnapplySeq else Unapply
 
-              Some(s"def $unapplyName$typeParamsDefinition(x$$0: $className$typeArgs): $returnTypeText = throw new Error()")
+              Some("def " + unapplyName + typeParamsDefinition + "(x$0: " + className + typeArgs + "): " + returnTypeText + " = throw new Error()")
             case None => None
           }
 
@@ -53,7 +52,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
               val paramString = asFunctionParameters(x.effectiveParameterClauses, defaultExpressionString)
 
-              Some(s"def $Apply$typeParamsDefinition$paramString: $className$typeArgs = throw new Error()")
+              Some("def " + Apply + typeParamsDefinition + paramString + ": " + className + typeArgs + " = throw new Error()")
             case None => None
           }
         }
@@ -72,8 +71,8 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
         // That may not look entirely reasonable, but that's how it's done in scalac
         lazy val hasUserDefinedCopyMethod =
-          cls.functions.exists(_.name == CommonNames.Copy) ||
-            cls.supers.exists(_.findMethodsByName(CommonNames.Copy).nonEmpty)
+          cls.functions.exists(_.name == Copy) ||
+            cls.supers.exists(_.findMethodsByName(Copy).nonEmpty)
         !hasRepeatedParam && !hasUserDefinedCopyMethod
       case _ => false
     })
@@ -89,7 +88,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
             param  <- clause.parameters
           } yield paramTypeText(param, defaultTypeText = NothingCanonical)
 
-        val functionClassName = s"_root_.scala.Function${paramTypes.length}"
+        val functionClassName = FunctionCanonical + paramTypes.length
         val typeParameters = (paramTypes :+ cc.name).commaSeparated(Model.SquareBrackets)
         val functionTypeText = functionClassName + typeParameters
 
@@ -102,7 +101,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
   private def paramTypeText(param: ScParameter, defaultTypeText: String) = {
     val typeText = param.typeElement.fold(defaultTypeText)(_.getText)
-    if (param.isRepeatedParameter) s"$SeqCanonical[$typeText]"
+    if (param.isRepeatedParameter) SeqCanonical + "[" + typeText + "]"
     else typeText
   }
 
@@ -113,13 +112,12 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
       val paramType = p.typeElement.fold("Any")(_.getText)
       val defaultExpr = defaultParamString(p)
       val repeatedSuffix = if (p.isRepeatedParameter) "*" else ""
-      s"${p.name} : $paramType$repeatedSuffix$defaultExpr"
+      p.name + " : " + paramType + repeatedSuffix + defaultExpr
     }
 
     def clauseText(clause: ScParameterClause) = {
       val paramsText = clause.parameters.map(paramText).commaSeparated()
-
-      if (clause.isImplicit) s"(implicit $paramsText)" else s"($paramsText)"
+      "(" + (if (clause.isImplicit) "implicit " else "") + paramsText + ")"
     }
 
     effectiveClauses.map(clauseText).mkString("")
@@ -146,7 +144,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
           else                 clauses.splitAt(1)
 
         val paramString =
-          asFunctionParameters(clauseWithDefault, defaultParamString = p => s" = $className.this.${p.name}") +
+          asFunctionParameters(clauseWithDefault, defaultParamString = p => " = " + className + ".this." + p.name) +
             asFunctionParameters(restClauses, defaultExpressionString)
 
         val typeParamsDefinition = typeParamsString(caseClass.typeParameters)

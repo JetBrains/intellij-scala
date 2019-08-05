@@ -34,6 +34,9 @@ object CommonQualifiedNames {
   final val OptionFqn = Scala + "Option"
   final val OptionCanonical = Root + OptionFqn
 
+  final val FunctionFqn = Scala + "Function"
+  final val FunctionCanonical = Root + FunctionFqn
+
   final val StringContext = Scala + "StringContext"
   final val StringContextCanonical = Root + StringContext
 
