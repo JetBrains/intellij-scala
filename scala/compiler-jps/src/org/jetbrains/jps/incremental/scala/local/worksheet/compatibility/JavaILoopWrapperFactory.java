@@ -7,6 +7,7 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -47,17 +48,19 @@ public class JavaILoopWrapperFactory {
       final List<File> classpath,
       final OutputStream outStream,
       final File iLoopFile,
-      final JavaClientProvider clientProvider
+      final JavaClientProvider clientProvider,
+      final ClassLoader classLoader
   ) {
     final WorksheetArgsJava argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgs, nameForSt, library, compiler, extra, classpath);
     final JavaClientProvider clientProviderNotNull = clientProvider != null ? clientProvider : JavaClientProvider.NO_OP_PROVIDER;
-    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, clientProviderNotNull);
+    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, clientProviderNotNull, classLoader);
   }
 
   private void loadReplWrapperAndRun(final WorksheetArgsJava worksheetArgs,
                                      final OutputStream outStream,
                                      final File iLoopFile,
-                                     @NotNull final JavaClientProvider clientProvider) {
+                                     @NotNull final JavaClientProvider clientProvider,
+                                     final ClassLoader classLoader) {
     ReplArgsJava replArgs = worksheetArgs.getReplArgs();
     if (replArgs == null) return;
 
@@ -65,7 +68,7 @@ public class JavaILoopWrapperFactory {
 
     ILoopWrapper inst = cache.getOrCreate(
         replArgs.getSessionId(),
-        () -> createILoopWrapper(worksheetArgs, iLoopFile, new WorksheetServer.MyUpdatePrintWriter(outStream)),
+        () -> createILoopWrapper(worksheetArgs, iLoopFile, new WorksheetServer.MyUpdatePrintWriter(outStream), classLoader),
         ILoopWrapper::shutdown
     );
     if (inst == null) return;
@@ -104,12 +107,16 @@ public class JavaILoopWrapperFactory {
     out.flush();
   }
 
-  private ILoopWrapper createILoopWrapper(final WorksheetArgsJava worksheetArgs, final File iLoopFile, final PrintWriter out) {
-    URLClassLoader loader;
-    Class<?> clazz;
+  private ILoopWrapper createILoopWrapper(final WorksheetArgsJava worksheetArgs,
+                                          final File iLoopFile,
+                                          final PrintWriter out,
+                                          final ClassLoader classLoader) {
+    final URLClassLoader loader;
+    final Class<?> clazz;
 
     try {
-      loader = new URLClassLoader(new URL[]{iLoopFile.toURI().toURL()}, getClass().getClassLoader());
+      final URL iLoopWrapperJar = iLoopFile.toURI().toURL();
+      loader = new URLClassLoader(new URL[]{iLoopWrapperJar}, classLoader);
 
       int idxDot = iLoopFile.getName().lastIndexOf('.');
       int idxDash = iLoopFile.getName().lastIndexOf('-');
@@ -135,7 +142,8 @@ public class JavaILoopWrapperFactory {
     List<String> stringCp = classpath.stream().filter(File::exists).map(File::getAbsolutePath).collect(Collectors.toList());
 
     try {
-      ILoopWrapper inst = (ILoopWrapper) clazz.getConstructor(PrintWriter.class, List.class).newInstance(out, stringCp);
+      Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, List.class);
+      ILoopWrapper inst = (ILoopWrapper) constructor.newInstance(out, stringCp);
       inst.init();
       return inst;
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
