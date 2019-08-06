@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -88,7 +89,8 @@ package object completion {
       for {
         elementContext  <- contextWithStableType(positionInCompletionFile)
         originalContext <- contextWithStableType(originalPosition)
-        if elementContext != originalContext
+
+        if !isContextAncestor(elementContext, originalContext, /*strict*/ false)
       } {
 
         //consistent local modification count in completion file

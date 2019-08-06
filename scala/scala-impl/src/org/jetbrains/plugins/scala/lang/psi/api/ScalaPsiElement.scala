@@ -6,6 +6,7 @@ package api
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions.Valid
 
 trait ScalaPsiElement extends PsiElement
@@ -118,11 +119,19 @@ object ScalaPsiElement {
 
     def context: PsiElement = getIfValid(ContextKey)
 
-    def context_=(context: PsiElement): Unit = update(ContextKey, context)
+    def context_=(context: PsiElement): Unit = {
+      assert(context == null || !isContextAncestor(element, context, /*strict*/ false))
+
+      update(ContextKey, context)
+    }
 
     def child: PsiElement = getIfValid(ChildKey)
 
-    def child_=(child: PsiElement): Unit = update(ChildKey, child)
+    def child_=(child: PsiElement): Unit = {
+      assert(child != element)
+
+      update(ChildKey, child)
+    }
 
     private def getIfValid(key: Key[PsiElement]): PsiElement = {
       val fromUserData = element match {
@@ -138,8 +147,6 @@ object ScalaPsiElement {
     }
 
     private def update(key: Key[PsiElement], value: PsiElement): Unit = {
-      assert(value != element)
-
       element match {
         case file: PsiFileBase => file.putCopyableUserData(key, value)
         case _                 => element.putUserData(key, value)
