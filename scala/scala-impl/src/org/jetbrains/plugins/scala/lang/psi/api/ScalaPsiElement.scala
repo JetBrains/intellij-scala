@@ -6,6 +6,7 @@ package api
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions.Valid
 
 trait ScalaPsiElement extends PsiElement
@@ -142,7 +143,7 @@ object ScalaPsiElement {
     def context: PsiElement = getIfValid(ContextKey)
 
     def context_=(context: PsiElement): Unit = {
-      assert(context != element)
+      assert(context == null || !isContextAncestor(element, context, /*strict*/ false))
       update(ContextKey, context)
     }
 

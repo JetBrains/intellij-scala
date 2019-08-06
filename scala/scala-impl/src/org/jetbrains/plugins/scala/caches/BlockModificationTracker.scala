@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.caches
 
 import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker._
 import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -34,7 +35,8 @@ object BlockModificationTracker {
       for {
         elementContext  <- contextWithStableType(element)
         originalContext <- contextWithStableType(original)
-        if elementContext != originalContext
+
+        if !isContextAncestor(elementContext, originalContext, /*strict*/ false)
       } {
 
         //consistent block modification count in completion file
