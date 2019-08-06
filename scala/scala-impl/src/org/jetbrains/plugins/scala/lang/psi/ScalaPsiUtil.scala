@@ -624,7 +624,11 @@ object ScalaPsiUtil {
   }
 
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
-    new LightModifierList(manager, ScalaLanguage.INSTANCE)
+    new LightModifierList(manager, ScalaLanguage.INSTANCE) {
+      override def hasModifierProperty(name: String): Boolean =
+        if (name != "public") super.hasModifierProperty(name)
+        else !super.hasModifierProperty("private") && !super.hasModifierProperty("protected")
+    }
 
   def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
