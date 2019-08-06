@@ -238,10 +238,9 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     
     val isFatal = severity.isFatal
+    val messages = msg.split('\n').map(_.trim).filter(_.length > 0)
     val onError = if (isFatal) () => {originalEditor.getCaretModel moveToLogicalPosition position} else () => {}
-
-    WorksheetCompilerUtil.showCompilationMessage(
-      getScalaFile.getVirtualFile, severity, position.line, position.column, project, onError, msg.split('\n').map(_.trim).filter(_.length > 0))
+    WorksheetCompilerUtil.showCompilationMessage(getScalaFile.getVirtualFile, position, messages, severity, onError)
     
     if (isFatal) {
       hasErrors = true

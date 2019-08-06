@@ -8,6 +8,7 @@ import com.intellij.compiler.progress.CompilerTask
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
@@ -28,7 +29,8 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit, auto: Boolean) {
   import worksheet.processor.WorksheetCompiler._
   
-  private val project = worksheetFile.getProject
+  private implicit val project: Project = worksheetFile.getProject
+
   private val makeType = WorksheetProjectSettings.getMakeType(project)
   private val runType = WorksheetFileSettings.getRunType(worksheetFile)
   private val worksheetVirtual = worksheetFile.getVirtualFile
@@ -107,11 +109,8 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
         runCompilerTask(name, code, tempFile, outputDir)
       case ErrorWhileCompile(message, position) if !auto =>
          WorksheetCompilerUtil.showCompilationError(
-           worksheetVirtual,
-           position.line, position.column,
-           project,
-           onShow = () => editor.getCaretModel.moveToLogicalPosition(position),
-           msg = Array(message)
+           worksheetVirtual, position, Array(message),
+           () => editor.getCaretModel.moveToLogicalPosition(position)
          )
       case _ =>
     }

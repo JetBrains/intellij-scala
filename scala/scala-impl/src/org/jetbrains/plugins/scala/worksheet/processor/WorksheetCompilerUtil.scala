@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.compiler.impl.CompilerErrorTreeView
-import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -53,47 +53,48 @@ object WorksheetCompilerUtil {
     override def toType: Int = MessageCategory.INFORMATION
   }
 
-  def showCompilationMessage(file: VirtualFile, severity: CompilationMessageSeverity, line: Int, column: Int,
-                             project: Project, onShow: () => Unit, msg: Array[String]) {
+  def showCompilationMessage(file: VirtualFile, pos: LogicalPosition,
+                             msg: Array[String], severity: CompilationMessageSeverity,
+                             onShow: () => Unit)
+                            (implicit project: Project): Unit = {
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
 
-    def addMessageToView(treeView: CompilerErrorTreeView): Unit = treeView.addMessage(severity.toType, msg, file, line, column, null)
+    def addMessageToView(treeView: CompilerErrorTreeView): Unit =
+      treeView.addMessage(severity.toType, msg, file, pos.line, pos.column, null)
 
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      override def run(): Unit = {
-        if (file == null || !file.isValid) return
+    invokeLater {
+      if (file == null || !file.isValid) return
 
-        val (currentContent, treeError) = {
-          Option(contentManager findContent ERROR_CONTENT_NAME) match {
-            case Some(old) if old.getComponent.isInstanceOf[CompilerErrorTreeView] =>
-              val oldView = old.getComponent.asInstanceOf[CompilerErrorTreeView]
-              addMessageToView(oldView)
-              (old, oldView)
-            case None =>
-              val newView = new CompilerErrorTreeView(project, null)
-              addMessageToView(newView)
-              val errorContent = ContentFactory.SERVICE.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
-              contentManager addContent errorContent
-              (errorContent, newView)
-          }
+      val (currentContent, treeError) =
+        Option(contentManager.findContent(ERROR_CONTENT_NAME)) match {
+          case Some(old) if old.getComponent.isInstanceOf[CompilerErrorTreeView] =>
+            val oldView = old.getComponent.asInstanceOf[CompilerErrorTreeView]
+            addMessageToView(oldView)
+            (old, oldView)
+          case None =>
+            val newView = new CompilerErrorTreeView(project, null)
+            addMessageToView(newView)
+            val errorContent = ContentFactory.SERVICE.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
+            contentManager.addContent(errorContent)
+            (errorContent, newView)
         }
 
-        contentManager setSelectedContent currentContent
-        MigrationApiImpl.openMessageView(project, currentContent, treeError)
+      contentManager.setSelectedContent(currentContent)
+      MigrationApiImpl.openMessageView(project, currentContent, treeError)
 
-        onShow()
-      }
-    })
+      onShow()
+    }
   }
 
-  def showCompilationError(file: VirtualFile, line: Int, column: Int,
-                           project: Project, onShow: () => Unit, msg: Array[String]): Unit = {
-    showCompilationMessage(file, ErrorSeverity, line, column, project, onShow, msg)
-  }
+  def showCompilationError(file: VirtualFile, pos: LogicalPosition, msg: Array[String], onShow: () => Unit)
+                          (implicit project: Project): Unit =
+    showCompilationMessage(file, pos, msg, ErrorSeverity, onShow)
 
   def removeOldMessageContent(project: Project) {
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
-    if (oldContent != null) contentManager.removeContent(oldContent, true)
+    if (oldContent != null) {
+      contentManager.removeContent(oldContent, true)
+    }
   }
 }
