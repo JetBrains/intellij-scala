@@ -12,7 +12,9 @@ import scala.collection.JavaConverters._
   * @author Pavel Fatin
   */
 trait ScalaTypeAnnotationSettings {
-  def isTypeAnnotationRequiredFor(declaration: Declaration, location: Location, implementation: Option[Implementation]): Boolean =
+
+  def isTypeAnnotationRequiredFor(declaration: Declaration, location: Location,
+                                  implementation: Option[Implementation] = None): Boolean =
     reasonForTypeAnnotationOn(declaration, location, implementation).isDefined
 
   def reasonForTypeAnnotationOn(declaration: Declaration, location: Location, implementation: Option[Implementation]): Option[String]

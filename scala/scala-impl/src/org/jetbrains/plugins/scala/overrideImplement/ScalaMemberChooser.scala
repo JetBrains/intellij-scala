@@ -2,21 +2,21 @@ package org.jetbrains.plugins.scala
 package overrideImplement
 
 import java.awt.FlowLayout
-import javax.swing.event.{HyperlinkEvent, HyperlinkListener, TreeSelectionEvent, TreeSelectionListener}
-import javax.swing.{JComponent, JPanel}
 
 import com.intellij.ide.util.MemberChooser
 import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
+import javax.swing.event.{HyperlinkEvent, TreeSelectionEvent, TreeSelectionListener}
+import javax.swing.{JComponent, JPanel}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -127,7 +127,9 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 
   private def typeAnnotationNeeded(element: PsiElement): Boolean =
     ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
-      Declaration(element), Location.inside(targetClass), implementation = None)
+      Declaration(element),
+      Location.InsideClassLocation(targetClass),
+    )
 }
 
 object ScalaMemberChooser {
