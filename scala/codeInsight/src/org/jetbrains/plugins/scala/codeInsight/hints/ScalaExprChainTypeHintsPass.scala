@@ -26,7 +26,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
         if exprChain.length >= 3
 
         exprsAtLineEnd = exprChain.filter(isFollowedByLineEnd)
-        if exprsAtLineEnd.length >= 2
+        if exprsAtLineEnd.length >= 3
 
         exprs =
           if (Expression(exprsAtLineEnd.head).hasStableType) exprsAtLineEnd.tail

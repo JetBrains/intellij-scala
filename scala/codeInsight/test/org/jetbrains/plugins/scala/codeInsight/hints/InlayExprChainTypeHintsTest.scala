@@ -15,7 +15,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)
        |  .toSeq$S: Seq[Int]$E
-       |  .toString
+       |  .toString$S: String$E
      """.stripMargin
   )
 
@@ -25,7 +25,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)
        |  .toSeq$S: Seq[Int]$E
-       |  .toString
+       |  .toString$S: String$E
      """.stripMargin
   )
 
@@ -36,7 +36,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)
        |  .toSeq$S: Seq[Int]$E
-       |  .toString
+       |  .toString$S: String$E
      """.stripMargin
   )
 
@@ -56,7 +56,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSet)$S: Set[Int]$E
        |  .filter(_ > 2)
        |  .toSeq$S: Seq[Int]$E
-       |  .toString
+       |  .toString$S: String$E
      """.stripMargin
   )
 
@@ -66,7 +66,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)
        |  .toSeq$S: Seq[Int]$E
-       |  .toString)
+       |  .toString)$S: String$E
      """.stripMargin
   )
 
@@ -75,8 +75,9 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |(List(1, 2, 3)
        |  .map(_ + "")$S: List[String]$E
        |  .toSet)$S: Set[String]$E
-       |  .toSet
-     """.stripMargin
+       |  .toSet$S: Set[String]$E
+     """.stripMargin,
+    options = settings.showIdenticalTypeInExpressionChainSetter() -> true
   )
 
   def testNoHintsWhenTurnedOf(): Unit = doTest(
