@@ -140,13 +140,13 @@
               <text value="In test sources"/>
             </properties>
           </component>
-          <component id="4eb3a" class="javax.swing.JCheckBox" binding="myScript">
+          <component id="4eb3a" class="javax.swing.JCheckBox" binding="myDialectSources">
             <constraints>
               <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="In script*"/>
-              <toolTipText value="In Scala script or in non-*.scala file (*.sc, *.sbt)"/>
+              <text value="In Scala dialect sources*"/>
+              <toolTipText value="*.sbt, *.sc, etc."/>
             </properties>
           </component>
           <grid id="43d6d" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

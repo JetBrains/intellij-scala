@@ -1,16 +1,18 @@
-package org.jetbrains.plugins.scala.settings.annotations
+package org.jetbrains.plugins.scala
+package settings
+package annotations
 
-import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.roots.TestSourcesFilter.isTestSources
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.extensions.{Parent, PsiClassExt, ViewProviderExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScFileViewProvider}
 
 /**
   * @author Pavel Fatin
@@ -18,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 trait Location {
   def isInLocalScope: Boolean
 
-  def isInScript: Boolean
+  def isInDialectSources: Boolean
 
   def isInTestSources: Boolean
 
@@ -46,24 +48,26 @@ object Location {
       case _ => true
     }
 
-    override def isInScript: Boolean = element.getContainingFile match {
-      case file: ScalaFile => file.isScriptFile || !file.getName.endsWith(".scala")
-      case _ => false
-    }
+    override final def isInDialectSources: Boolean =
+      findScalaViewProvider.exists {
+        case _: ScFileViewProvider => false
+        case _ => true
+      }
 
-    override def isInTestSources: Boolean = {
-      val psiFile = Option(element.getContainingFile)
-      val vFile = psiFile.flatMap(_.getVirtualFile.toOption)
-      val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
-
-      vFile.exists(index.isInTestSourceContent)
-    }
+    override final def isInTestSources: Boolean =
+      findScalaViewProvider
+        .map(_.getVirtualFile)
+        .exists(isTestSources(_, element.getProject))
 
     override def isInsideAnonymousClass: Boolean = false
 
     override def isInsidePrivateClass: Boolean = false
 
     override def isInsideOf(classes: Set[String]): Boolean = false
+
+    private def findScalaViewProvider = Option(element.getContainingFile)
+      .map(_.getViewProvider)
+      .filter(_.hasScalaPsi)
   }
 
   private class MemberAnchorLocation(member: ScMember) extends ElementAnchorLocation(member) {

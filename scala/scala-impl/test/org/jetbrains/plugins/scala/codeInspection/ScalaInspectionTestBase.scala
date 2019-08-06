@@ -6,6 +6,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.SelectionModel
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
@@ -20,6 +21,8 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   import ScalaHighlightsTestBase._
 
   protected val description: String
+
+  protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
 
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
@@ -72,7 +75,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     val (normalizedText, offset) = findCaretOffset(fileText, stripTrailingSpaces = true)
 
     val fixture = getFixture
-    fixture.configureByText("dummy.scala", normalizedText)
+    fixture.configureByText(fileType, normalizedText)
 
     import JavaConverters._
     val highlightInfos = fixture.doHighlighting().asScala
