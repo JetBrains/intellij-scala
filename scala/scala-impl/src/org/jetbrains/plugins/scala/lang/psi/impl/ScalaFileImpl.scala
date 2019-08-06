@@ -103,7 +103,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
   override def isScriptFile: Boolean = getViewProvider match {
-    case _: ScFileViewProviderFactory.ScFileViewProvider =>
+    case _: ScFileViewProvider =>
       foldStub(isScriptFileImpl)(Function.const(false))
     case _ => false
   }

@@ -15,7 +15,7 @@ import scala.annotation.tailrec
 
 final class ScClsFileViewProvider(file: VirtualFile, decompilationResult: ScalaDecompilationResult, eventSystemEnabled: Boolean)
                                  (implicit manager: PsiManager)
-  extends impl.ScFileViewProviderFactory.ScFileViewProvider(file, eventSystemEnabled) {
+  extends ScFileViewProvider(file, eventSystemEnabled) {
 
   private def sourceName: String = decompilationResult.sourceName
 
