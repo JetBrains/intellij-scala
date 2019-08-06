@@ -10,7 +10,7 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.Language
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
-import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
@@ -1096,6 +1096,11 @@ package object extensions {
     }
     result.get()
   }
+
+  def invokeAndWait[T](modalityState: ModalityState)(body: => T): Unit =
+    preservingControlFlow {
+      ApplicationManager.getApplication.invokeAndWait(() => body, modalityState)
+    }
 
   def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
     TransactionGuard.getInstance().submitTransactionLater(disposable, body)
