@@ -57,7 +57,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       } yield {
         val exprEndOffsetInLine = getOffsetInLine(expr.getTextRange.getEndOffset, document)
         val marginLike = longestLine.substring(0, longestLine.length - exprEndOffsetInLine)
-        inlayInfoFor(expr, ty, if (alignExpressionChain) marginLike else " ", editor, TypePresentationContext(expr))
+        inlayInfoFor(expr, ty.tryExtractDesignatorSingleton, if (alignExpressionChain) marginLike else " ", editor, TypePresentationContext(expr))
       }
     ).toSeq
   }
