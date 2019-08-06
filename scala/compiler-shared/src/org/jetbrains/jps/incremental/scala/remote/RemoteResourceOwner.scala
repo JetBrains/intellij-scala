@@ -5,6 +5,7 @@ import java.net.{InetAddress, Socket}
 
 import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGConstants
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
 
@@ -59,9 +60,12 @@ trait RemoteResourceOwner {
         // sbt "leaks" some messages into console (e.g. for "explain type errors" option).
         // Report such output not as errors, but as warings (to continue make process).
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
-          client.message(Kind.WARNING, fromBytes(data))
+          val message = fromBytes(data)
+          if(StringUtils.isNotBlank(message))
+            client.message(Kind.WARNING, message)
         case Chunk(kind, data) =>
-          client.message(Kind.ERROR, "Unexpected server output: " + data)
+          val message = s"Unexpected server output: $data"
+          client.message(Kind.ERROR, message)
       }
     }
   }
