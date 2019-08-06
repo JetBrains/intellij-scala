@@ -80,6 +80,7 @@ object Main {
           case e: Throwable =>
             client.error(e.getMessage)
             client.compilationEnd()
+            client.close()
             return
         }
       }

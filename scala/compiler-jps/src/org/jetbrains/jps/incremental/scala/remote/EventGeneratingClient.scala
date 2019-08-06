@@ -18,7 +18,7 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   def isCanceled: Boolean = canceled
 
   def close() {
-    eventGenerator.complete(5, TimeUnit.SECONDS)
+    eventGenerator.complete(20, TimeUnit.MINUTES)
   }
 
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
@@ -55,7 +55,6 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
 
   override def compilationEnd() {
     listener(CompilationEndEvent())
-    eventGenerator.complete(20, TimeUnit.MINUTES)
   }
 
   override def worksheetOutput(text: String) {
