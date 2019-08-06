@@ -32,9 +32,10 @@ class WorksheetInProcessRunnerFactory {
     val classpathSet = classpathUrls.toSet
 
     classLoader match {
-      case Some((urls1, urls2, loader)) =>
-        if (compilerSet == urls1 && classpathSet == urls2) loader else createClassLoader(compilerSet, classpathSet)
-      case _ => createClassLoader(compilerSet, classpathSet)
+      case Some((urls1, urls2, loader)) if compilerSet == urls1 && classpathSet == urls2 =>
+        loader
+      case _ =>
+        createClassLoader(compilerSet, classpathSet)
     }
   }
 
@@ -43,36 +44,37 @@ class WorksheetInProcessRunnerFactory {
     private val WORKSHEET = "#worksheet#"
 
     def loadAndRun(worksheetArgs: WorksheetArgs, client: EventGeneratingClient) {
-      def toUrlSpec(p: String) = new File(p).toURI.toURL
+      def toUrlSpec(p: String): URL = new File(p).toURI.toURL
+
+      val classLoader: URLClassLoader = {
+        val worksheetUrls = (Seq(worksheetArgs.pathToRunners, worksheetArgs.worksheetTemp) ++ worksheetArgs.outputDirs).map(_.toURI.toURL)
+        val classpathUrls = worksheetArgs.classpathUrls
+        val compilerUrls  = {
+          val jars = Seq(worksheetArgs.compilerJars.library, worksheetArgs.compilerJars.compiler) ++ worksheetArgs.compilerJars.extra
+          jars.map(_.getCanonicalPath).map(toUrlSpec)
+        }
+
+        val parent = getClassLoader(compilerUrls, classpathUrls.diff(worksheetUrls))
+        new URLClassLoader(worksheetUrls.toArray, parent)
+      }
 
       val className = worksheetArgs.compiledClassName
-      val compilerUrls = Seq(worksheetArgs.compilerJars.library, worksheetArgs.compilerJars.compiler) ++
-        worksheetArgs.compilerJars.extra map (_.getCanonicalPath)
-
-      val worksheetUrls = Seq(worksheetArgs.pathToRunners, worksheetArgs.worksheetTemp) ++ worksheetArgs.outputDirs map (_.toURI.toURL)
-      val compilerUrlSeq = compilerUrls.map(toUrlSpec)
-      val classpathUrls = worksheetArgs.classpathUrls
-
-      val classLoader = new URLClassLoader(worksheetUrls.toArray, getClassLoader(compilerUrlSeq, classpathUrls diff worksheetUrls))
-
       try {
         val cl = Class.forName(className, true, classLoader)
 
-        cl.getDeclaredMethods.find(m => m.getName == "main") map {
-          method =>
-            WorksheetServer.patchSystemOut(out)
-            method.invoke(null, new PrintStream(out))
+        cl.getDeclaredMethods.find(_.getName == "main").map { method =>
+          WorksheetServer.patchSystemOut(out)
+          method.invoke(null, new PrintStream(out))
         }
       } catch {
         case userEx: InvocationTargetException =>
           out.flush()
 
-          val e = if (userEx.getCause != null) userEx.getCause else userEx
-          cleanStackTrace(
-            e, worksheetArgs.nameForST, className + "$" + className
-          ).printStackTrace(new PrintStream(out, false))
+          val ex = if (userEx.getCause != null) userEx.getCause else userEx
+          val exClean = cleanStackTrace(ex, worksheetArgs.nameForST, className + "$" + className)
+          exClean.printStackTrace(new PrintStream(out, false))
         case e: Exception =>
-          client trace e
+          client.trace(e)
       } finally {
         out.flush()
       }
@@ -82,9 +84,10 @@ class WorksheetInProcessRunnerFactory {
       def transformElement(original: StackTraceElement): StackTraceElement = {
         val originalClassName = original.getClassName
         val declaringClassName =
-          if (originalClassName == className) WORKSHEET else
-          if (originalClassName.startsWith(className + "$"))
-            WORKSHEET + "." + originalClassName.substring(className.length + 1) else originalClassName
+          if (originalClassName == className) WORKSHEET
+          else if (originalClassName.startsWith(className + "$"))
+            WORKSHEET + "." + originalClassName.substring(className.length + 1)
+          else originalClassName
         val originalFileName = if (fileName == null) original.getFileName else fileName
         new StackTraceElement(declaringClassName, original.getMethodName, originalFileName, original.getLineNumber - 4)
       }
@@ -96,16 +99,19 @@ class WorksheetInProcessRunnerFactory {
       val newTrace = new Array[StackTraceElement](length - TRACE_PREFIX + 1)
       val referenceElement = els(length - TRACE_PREFIX)
 
-      newTrace(newTrace.length - 1) =
-        new StackTraceElement(WORKSHEET, WORKSHEET, if (fileName == null) referenceElement.getFileName else fileName, referenceElement.getLineNumber - 4)
-
-      var i: Int = 0
-      while (i < newTrace.length - 1) {
-        newTrace(i) = transformElement(els(i))
-        i += 1
+      newTrace(newTrace.length - 1) = {
+        val fileNameFinal = if (fileName == null) referenceElement.getFileName else fileName
+        val newElement = new StackTraceElement(WORKSHEET, WORKSHEET, fileNameFinal, referenceElement.getLineNumber - 4)
+        newElement
       }
 
-      e setStackTrace newTrace
+      var idx: Int = 0
+      while (idx < newTrace.length - 1) {
+        newTrace(idx) = transformElement(els(idx))
+        idx += 1
+      }
+
+      e.setStackTrace(newTrace)
       e
     }
   }
