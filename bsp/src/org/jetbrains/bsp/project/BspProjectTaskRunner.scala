@@ -48,7 +48,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     val dataManager = ProjectDataManager.getInstance()
 
-    val targets = validTasks.flatMap { task =>
+    val targetsAndRebuild = validTasks.flatMap { task =>
       val moduleId = ES.getExternalProjectId(task.getModule)
 
       def predicate(node: DataNode[ModuleData]) = node.getData.getId == moduleId
@@ -63,7 +63,11 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       }
 
       targetIds.getOrElse(List.empty)
+        .map(id => (id, ! task.isIncrementalBuild))
     }
+
+    val targets = targetsAndRebuild.map(_._1)
+    val targetsToClean = targetsAndRebuild.filter(_._2).map(_._1)
 
     def onComplete(): Unit = {
       val modules = validTasks.map(_.getModule).toArray
@@ -75,7 +79,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     extensions.invokeAndWait {
       FileDocumentManager.getInstance().saveAllDocuments()
     }
-    val bspTask = new BspTask(project, targets, Option(projectTaskNotification), onComplete)
+    val bspTask = new BspTask(project, targets, targetsToClean, Option(projectTaskNotification), onComplete)
     ProgressManager.getInstance().run(bspTask)
   }
 

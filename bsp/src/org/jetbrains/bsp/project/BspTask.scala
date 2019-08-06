@@ -13,7 +13,7 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceled
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskNotification
-import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
+import org.eclipse.lsp4j.jsonrpc.{CompletableFutures, ResponseErrorException}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
@@ -27,7 +27,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.util.control.NonFatal
 
-class BspTask[T](project: Project, targets: Iterable[URI], callbackOpt: Option[ProjectTaskNotification], onComplete: ()=>Unit)
+class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Iterable[URI], callbackOpt: Option[ProjectTaskNotification], onComplete: ()=>Unit)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private var buildMessages: BuildMessages = BuildMessages.empty
@@ -65,7 +65,7 @@ class BspTask[T](project: Project, targets: Iterable[URI], callbackOpt: Option[P
     reportIndicator.start()
     report.start()
 
-    val buildJob = communication.run(compileRequest(_), notifications, processLog)
+    val buildJob = communication.run(buildRequests, notifications, processLog)
     val projectTaskResult = try {
       val result = waitForJobCancelable(buildJob, indicator)
       buildMessages = result.getStatusCode match {
@@ -122,6 +122,32 @@ class BspTask[T](project: Project, targets: Iterable[URI], callbackOpt: Option[P
         job.cancel()
         throw cancel
     }
+  }
+
+  private def buildRequests(server: BspServer) = {
+    if (targetsToClean.isEmpty) compileRequest(server)
+    else {
+      cleanRequest(server)
+      .exceptionally { err =>
+        new CleanCacheResult(s"server does not support cleaning build cache (${err.getMessage})", false)
+      }
+      .thenCompose { cleaned =>
+        if (cleaned.getCleaned) compileRequest(server)
+        else {
+          report.error("targets not cleaned, rebuild cancelled: " + cleaned.getMessage, None)
+          val res = new CompileResult(StatusCode.CANCELLED)
+          val future = new CompletableFuture[CompileResult]()
+          future.complete(res)
+          future
+        }
+      }
+    }
+  }
+
+  private def cleanRequest(server: BspServer): CompletableFuture[CleanCacheResult] = {
+    val targetIds = targetsToClean.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
+    val params = new bsp4j.CleanCacheParams(targetIds.toList.asJava)
+    server.buildTargetCleanCache(params)
   }
 
   private def compileRequest(server: BspServer): CompletableFuture[CompileResult] = {
