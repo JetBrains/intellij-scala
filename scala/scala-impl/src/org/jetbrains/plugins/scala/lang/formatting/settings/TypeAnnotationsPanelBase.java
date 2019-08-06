@@ -30,7 +30,7 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
   protected JCheckBox myConstant;
   protected JCheckBox myMemberOfAnonymousClass;
   protected JCheckBox myMemberOfPrivateClass;
-  protected JCheckBox myScript;
+    protected JCheckBox myDialectSources;
   protected JCheckBox myTestSources;
   protected JCheckBox myUnitType;
   protected TextFieldWithBrowseButton myMembers;
@@ -139,10 +139,10 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
     myTestSources = new JCheckBox();
     myTestSources.setText("In test sources");
     panel2.add(myTestSources, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myScript = new JCheckBox();
-    myScript.setText("In script*");
-    myScript.setToolTipText("In Scala script or in non-*.scala file (*.sc, *.sbt)");
-    panel2.add(myScript, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+      myDialectSources = new JCheckBox();
+      myDialectSources.setText("In Scala dialect sources*");
+      myDialectSources.setToolTipText("*.sbt, *.sc, etc.");
+      panel2.add(myDialectSources, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel3 = new JPanel();
     panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
     panel2.add(panel3, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -199,4 +199,5 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
   public JComponent $$$getRootComponent$$$() {
     return myContent;
   }
+
 }

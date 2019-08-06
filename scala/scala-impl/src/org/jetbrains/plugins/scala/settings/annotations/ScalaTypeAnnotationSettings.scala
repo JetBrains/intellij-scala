@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.settings.annotations
+package org.jetbrains.plugins.scala
+package settings
+package annotations
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.BooleanExt
@@ -47,7 +49,7 @@ object ScalaTypeAnnotationSettings {
 
       def isExcluded =
         TYPE_ANNOTATION_EXCLUDE_CONSTANT && declaration.isConstant ||
-        TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT && location.isInScript ||
+          TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES && location.isInDialectSources ||
         TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES && location.isInTestSources ||
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS && !isLocal && location.isInsidePrivateClass ||
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS && !isLocal && location.isInsideAnonymousClass ||

@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package settings
 
 import java.util
-import javax.swing._
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.colors.EditorColorsScheme
@@ -10,7 +12,7 @@ import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.execution.ParametersListUtil
-import org.jetbrains.plugins.scala.ScalaFileType
+import javax.swing._
 import org.jetbrains.plugins.scala.extensions.Binding
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter
 import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanel._
@@ -70,8 +72,8 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
         TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES, myTestSources.isSelected)
       (TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES = _, myTestSources.setSelected),
       new Binding(
-        TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT, myScript.isSelected)
-      (TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT = _, myScript.setSelected),
+        TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES, myDialectSources.isSelected)
+      (TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = _, myDialectSources.setSelected),
 
       new Binding(
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF, elementsIn(myMembers))

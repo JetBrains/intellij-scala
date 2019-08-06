@@ -201,7 +201,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS = false;
   public boolean TYPE_ANNOTATION_EXCLUDE_CONSTANT = true;
   public boolean TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE = true;
-  public boolean TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT = true;
+    public boolean TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = true;
   public boolean TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES = false;
 
   public Set<String> TYPE_ANNOTATION_EXCLUDE_MEMBER_OF = asSet("scala.App", "junit.framework.TestCase");
