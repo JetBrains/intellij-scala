@@ -19,13 +19,13 @@ import com.intellij.lang.Language;
 
 /**
  * @author ilyas
-* Date: 20.09.2006
- *
+ * Date: 20.09.2006
  */
 public class ScalaLanguage extends Language {
-  public static final Language INSTANCE = new ScalaLanguage();
 
-  private ScalaLanguage() {
-    super("Scala");
-  }
+    public static final Language INSTANCE = new ScalaLanguage();
+
+    private ScalaLanguage() {
+        super("Scala");
+    }
 }
