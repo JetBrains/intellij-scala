@@ -18,7 +18,7 @@ class BlockModificationTracker private (element: PsiElement) extends Modificatio
 
   private val topLevel = scalaTopLevelModTracker(element.getProject)
 
-  def getModificationCount: Long = {
+  override def getModificationCount: Long = {
     topLevel.getModificationCount + sumOfLocalCountsInContext(element)
   }
 
