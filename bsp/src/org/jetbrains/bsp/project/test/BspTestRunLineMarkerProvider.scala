@@ -1,4 +1,4 @@
-package org.jetbrains.bsp.project
+package org.jetbrains.bsp.project.test
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.openapi.module.ModuleManager

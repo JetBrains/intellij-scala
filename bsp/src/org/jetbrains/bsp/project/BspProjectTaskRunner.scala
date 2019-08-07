@@ -19,6 +19,7 @@ import com.intellij.task._
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
+import org.jetbrains.bsp.project.test.BspTestRunConfiguration
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.JavaConverters._
@@ -34,7 +35,10 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
         case _ : BspSyntheticModuleType => false
         case _ => ES.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
       }
-    case _: ExecuteRunConfigurationTask => false // TODO support bsp run configs
+    case t: ExecuteRunConfigurationTask => t.getRunProfile match {
+      case _: BspTestRunConfiguration => true
+      case _ => false
+    }
     case _ => false
   }
 
