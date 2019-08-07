@@ -406,7 +406,7 @@ object ScalaLanguageInjector {
 
   private[this] def parameterOf(argument: ScExpression): MaybeAnnotationOwner = {
     //avoid reference resolving on EDT thread
-    if(isEdt) return None
+    if(isEdt && !ApplicationManager.getApplication.isUnitTestMode) return None
 
     def getParameter(methodInv: MethodInvocation, index: Int): Option[PsiElement with PsiAnnotationOwner] = {
       if (index == -1) None else {
