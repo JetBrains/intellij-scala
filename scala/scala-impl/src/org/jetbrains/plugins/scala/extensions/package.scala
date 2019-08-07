@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala
 
 import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
-import java.util.concurrent.{Callable, Future}
+import java.util.concurrent.Callable
+import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
@@ -53,6 +54,7 @@ import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.concurrent.{Future, Promise}
 import scala.io.Source
 import scala.language.higherKinds
 import scala.math.Ordering
@@ -338,13 +340,13 @@ package object extensions {
   }
 
   implicit class ToNullSafe[+A >: Null](private val a: A) extends AnyVal {
-    def nullSafe = NullSafe(a)
+    def nullSafe: NullSafe[A] = NullSafe(a)
   }
 
   implicit class OptionToNullSafe[+A >: Null](private val a: Option[A]) extends AnyVal {
     //to handle Some(null) case and avoid wrapping of intermediate function results
     //in chained map/flatMap calls
-    def toNullSafe = NullSafe(a.orNull)
+    def toNullSafe: NullSafe[A] = NullSafe(a.orNull)
   }
 
   implicit class ObjectExt[T](private val v: T) extends AnyVal {
@@ -391,6 +393,7 @@ package object extensions {
     def toInt: Int = if (b) 1 else 0
   }
 
+  //noinspection ReferenceMustBePrefixed
   implicit class IntArrayExt(private val array: Array[Int]) extends AnyVal {
     import java.util.Arrays
 
@@ -1050,7 +1053,7 @@ package object extensions {
     }
   }
 
-  def executeOnPooledThread[T](body: => T): Future[T] =
+  def executeOnPooledThread[T](body: => T): java.util.concurrent.Future[T] =
     ApplicationManager.getApplication.executeOnPooledThread(body)
 
   def withProgressSynchronously[T](title: String)(body: => T): T = {
@@ -1075,13 +1078,19 @@ package object extensions {
   def withDisabledPostprocessFormatting[T](project: Project)(body: => T): T =
     PostprocessReformattingAspect.getInstance(project).disablePostprocessFormattingInside(body)
 
-  def invokeLater[T](body: => T): Unit =
-    ApplicationManager.getApplication.invokeLater(() => body)
+  def invokeLater[T](body: => T): Future[T] = {
+    val promise = Promise[T]()
+    ApplicationManager.getApplication.invokeLater(() => promise.complete(Try(body)))
+    promise.future
+  }
 
-  def invokeAndWait[T](body: => T): Unit =
+  def invokeAndWait[T](body: => T): T = {
+    val result = new AtomicReference[T]()
     preservingControlFlow {
-      ApplicationManager.getApplication.invokeAndWait(() => body)
+      ApplicationManager.getApplication.invokeAndWait(() => result.set(body))
     }
+    result.get()
+  }
 
   def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
     TransactionGuard.getInstance().submitTransactionLater(disposable, body)

@@ -22,6 +22,7 @@ import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
 import javax.swing.Icon
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -38,7 +39,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   private val toolWindowTitle = project.getName
 
   private lazy val sbtConsoleView: SbtShellConsoleView =
-    ShellUIUtil.inUIsync {
+    extensions.invokeAndWait {
       val cv = SbtShellConsoleView(project, debugConnection)
       Disposer.register(this, cv)
       cv
@@ -67,8 +68,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   override def initAndRun(): Unit = {
     super.initAndRun()
-    import ShellUIUtil.inUI
-    inUI {
+    extensions.invokeLater {
 
       // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
       // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
@@ -85,7 +85,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       // this is not correct when shell process was started without view, but we avoid that
       sbtConsoleView.setPrompt("(initializing) >")
 
-      def scrollToEnd(): Unit = inUI {
+      def scrollToEnd(): Unit = extensions.invokeLater {
         val editor = getConsoleView.getHistoryViewer
         if (!editor.isDisposed)
           EditorUtil.scrollToTheEnd(editor)
@@ -142,7 +142,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit =
     openShell(contentDescriptor.isAutoFocusContent)
 
-  def openShell(focus: Boolean): Unit = ShellUIUtil.inUI {
+  def openShell(focus: Boolean): Unit = extensions.invokeLater {
     for {
       twm <- Option(ToolWindowManager.getInstance(project))
       toolWindow <- Option(twm.getToolWindow(SbtShellToolWindowFactory.ID))
