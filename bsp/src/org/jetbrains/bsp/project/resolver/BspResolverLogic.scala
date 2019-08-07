@@ -70,14 +70,13 @@ private[resolver] object BspResolverLogic {
   private[resolver] def calculateModuleDescriptions(buildTargets: Seq[BuildTarget],
                                                     optionsItems: Seq[ScalacOptionsItem],
                                                     sourcesItems: Seq[SourcesItem],
+                                                    resourcesItems: Seq[ResourcesItem],
                                                     dependencySourcesItems: Seq[DependencySourcesItem]
                                                    ): ProjectModules = {
 
-    implicit val gson: Gson = new Gson()
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = optionsItems.map(item => (item.getTarget, item)).toMap
-    val idToDepSources = dependencySourcesItems.map(item => (item.getTarget, item)).toMap
 
     def transitiveDependencyOutputs(start: BuildTarget): Seq[File] = {
       val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
@@ -90,22 +89,33 @@ private[resolver] object BspResolverLogic {
       (start +: (direct ++ transitive)).distinct
     }
 
+    val idToDepSources = dependencySourcesItems
+      .map(item => (item.getTarget, item.getSources.asScala.map(_.toURI.toFile)))
+      .toMap
+
+    val idToResources = resourcesItems
+      .map(item => (item.getTarget, item.getResources.asScala.map(sourceDirectory(_))))
+      .toMap
+
     val idToSources = sourcesItems
       .map(item => (item.getTarget, sourceDirectories(item)))
       .toMap
+
 
     val sharedSources = sharedSourceDirs(idToSources)
 
     val moduleDescriptions = buildTargets.flatMap { target: BuildTarget =>
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
-      val depSourcesOpt = idToDepSources.get(id)
+      val depSources = idToDepSources.getOrElse(id, List.empty)
       val sources = idToSources
         .getOrElse(id, Seq.empty)
         .filterNot(sharedSources.contains)
+      val resources = idToResources.getOrElse(id, List.empty)
       val dependencyOutputs = transitiveDependencyOutputs(target)
 
-      moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sources, dependencyOutputs)
+      implicit val gson: Gson = new Gson()
+      moduleDescriptionForTarget(target, scalacOptions, depSources, sources, resources, dependencyOutputs)
     }
 
     val idToModule = (for {
@@ -158,21 +168,27 @@ private[resolver] object BspResolverLogic {
       .distinct
   }
 
+  private def sourceDirectory(uri: String, generated: Boolean = false) = {
+    val file = uri.toURI.toFile
+    if (uri.endsWith("/")) SourceDirectory(file, generated)
+    else SourceDirectory(file.getParentFile, generated)
+  }
+
   private[resolver] def moduleDescriptionForTarget(target: BuildTarget,
                                                    scalacOptions: Option[ScalacOptionsItem],
-                                                   depSourcesOpt: Option[DependencySourcesItem],
+                                                   dependencySourceDirs: Seq[File],
                                                    sourceDirs: Seq[SourceDirectory],
+                                                   resourceDirs: Seq[SourceDirectory],
                                                    dependencyOutputs: Seq[File],
                                                   )(implicit gson: Gson): Option[ModuleDescription] = {
-
-    val dependencySourcePaths = for {
-      depSources <- depSourcesOpt.toSeq
-      depSrc <- depSources.getSources.asScala
-    } yield depSrc.toURI.toFile
 
     // all subdirectories of a source dir are automatically source dirs
     val sourceRoots = sourceDirs.filter { dir =>
       ! sourceDirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
+    }
+
+    val resourceRoots = resourceDirs.filter { dir =>
+      ! resourceDirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
     }
 
     val moduleBase = Option(target.getBaseDirectory)
@@ -214,8 +230,8 @@ private[resolver] object BspResolverLogic {
       moduleKind <- scalaModule
     } yield {
       val moduleDescriptionData = createModuleDescriptionData(
-        Seq(target), tags, moduleBase, outputPath, sourceRoots,
-        classPathWithoutDependencyOutputs, dependencySourcePaths)
+        Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots,
+        classPathWithoutDependencyOutputs, dependencySourceDirs)
 
       ModuleDescription(moduleDescriptionData, moduleKind)
     }
@@ -226,6 +242,7 @@ private[resolver] object BspResolverLogic {
                                                     moduleBase: Option[File],
                                                     outputPath: Option[File],
                                                     sourceRoots: Seq[SourceDirectory],
+                                                    resourceRoots: Seq[SourceDirectory],
                                                     classPath: Seq[File],
                                                     dependencySources: Seq[File]
                                                ): ModuleDescriptionData = {
@@ -236,6 +253,7 @@ private[resolver] object BspResolverLogic {
       .map(_.getId.getUri)
       .orElse(moduleBase.map(_.toURI.toString))
       .orElse(sourceRoots.headOption.map(_.directory.toURI.toString))
+      .orElse(resourceRoots.headOption.map(_.directory.toURI.toString))
       .getOrElse(throw BspErrorMessage(s"unable to determine unique module id for module targets: $targets"))
     val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
 
@@ -248,6 +266,7 @@ private[resolver] object BspResolverLogic {
       None, None,
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty,
+      Seq.empty, Seq.empty,
       Seq.empty, Seq.empty
     )
 
@@ -258,6 +277,7 @@ private[resolver] object BspResolverLogic {
         targetDependencies = targetDeps,
         output = outputPath,
         sourceDirs = sourceRoots,
+        resourceDirs = resourceRoots,
         classpath = classPath,
         classpathSources = dependencySources,
       ) else dataBasic
@@ -267,6 +287,7 @@ private[resolver] object BspResolverLogic {
         targetTestDependencies = targetDeps,
         testOutput = outputPath,
         testSourceDirs = sourceRoots,
+        testResourceDirs = resourceRoots,
         testClasspath = classPath,
         testClasspathSources = dependencySources
       ) else data1
@@ -319,6 +340,8 @@ private[resolver] object BspResolverLogic {
         val output = dataCombined.output.orElse(dataNext.output)
         val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
         val sourceDirs = mergeSourceDirs(dataCombined.sourceDirs, dataNext.sourceDirs)
+        val resourceDirs = mergeSourceDirs(dataCombined.resourceDirs, dataNext.resourceDirs)
+        val testResourceDirs = mergeSourceDirs(dataCombined.testResourceDirs, dataNext.testResourceDirs)
         val testSourceDirs  = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
         val classPath = mergeFiles(dataCombined.classpath, dataNext.classpath)
         val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
@@ -328,8 +351,11 @@ private[resolver] object BspResolverLogic {
         val newData = ModuleDescriptionData(
           dataCombined.id, dataCombined.name,
           targets, targetDependencies, targetTestDependencies, dataCombined.basePath,
-          output, testOutput, sourceDirs, testSourceDirs,
-          classPath, classPathSources, testClassPath, testClassPathSources,
+          output, testOutput,
+          sourceDirs, testSourceDirs,
+          resourceDirs, testResourceDirs,
+          classPath, classPathSources,
+          testClassPath, testClassPathSources,
         )
 
         combined.copy(data = newData)
@@ -421,12 +447,20 @@ private[resolver] object BspResolverLogic {
       (sourceType, dir)
     }
 
+    val resourceRoots = moduleDescriptionData.resourceDirs.map { dir =>
+      (RESOURCE, dir)
+    }
+
     val testRoots = moduleDescriptionData.testSourceDirs.map { dir =>
       val sourceType = if (dir.generated) TEST_GENERATED else TEST
       (sourceType, dir)
     }
 
-    val allSourceRoots = (sourceRoots ++ testRoots).toSet
+    val testResourceRoots = moduleDescriptionData.testResourceDirs.map { dir =>
+      (TEST_RESOURCE, dir)
+    }
+
+    val allSourceRoots = (sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots).toSet
 
     val moduleName = moduleDescriptionData.name
     val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)

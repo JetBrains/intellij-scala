@@ -6,6 +6,8 @@ import ch.epfl.scala.bsp4j._
 import org.jetbrains.bsp.BspError
 import org.jetbrains.bsp.data.{SbtBuildModuleDataBsp, ScalaSdkData}
 
+import scala.util.Try
+
 
 private[resolver] object BspResolverDescriptors {
 
@@ -22,6 +24,8 @@ private[resolver] object BspResolverDescriptors {
                                                      testOutput: Option[File],
                                                      sourceDirs: Seq[SourceDirectory],
                                                      testSourceDirs: Seq[SourceDirectory],
+                                                     resourceDirs: Seq[SourceDirectory],
+                                                     testResourceDirs: Seq[SourceDirectory],
                                                      classpath: Seq[File],
                                                      classpathSources: Seq[File],
                                                      testClasspath: Seq[File],
@@ -38,9 +42,10 @@ private[resolver] object BspResolverDescriptors {
                                          sbtData: SbtBuildModuleDataBsp
                                         ) extends ModuleKind
 
-  private[resolver] case class TargetData(sources: Either[BspError, SourcesResult],
-                                          dependencySources: Either[BspError, DependencySourcesResult],
-                                          scalacOptions: Either[BspError, ScalacOptionsResult] // TODO should be optional
+  private[resolver] case class TargetData(sources: Try[SourcesResult],
+                                          dependencySources: Try[DependencySourcesResult],
+                                          resources: Try[ResourcesResult],
+                                          scalacOptions: Try[ScalacOptionsResult] // TODO should be optional
                                          )
 
   private[resolver] case class SourceDirectory(directory: File, generated: Boolean)

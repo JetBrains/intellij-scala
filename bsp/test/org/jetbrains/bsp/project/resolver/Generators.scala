@@ -104,6 +104,8 @@ object Generators {
     testOutput <- arbitrary[Option[File]]
     sourceDirs <- genSourceDirs(basePath)
     testSourceDirs <- genSourceDirs(basePath)
+    resourceDirs <- genSourceDirs(basePath)
+    testResourceDirs <- genSourceDirs(basePath)
     classPath <- arbitrary[Seq[File]]
     classPathSources <- arbitrary[Seq[File]]
     testClassPath <- arbitrary[Seq[File]]
@@ -111,7 +113,7 @@ object Generators {
     moduleKind <- genModuleKind
   } yield {
     val data = ModuleDescriptionData(id, name, targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
-      sourceDirs, testSourceDirs, classPath, classPathSources, testClassPath, testClassPathSources)
+      sourceDirs, testSourceDirs, resourceDirs, testResourceDirs, classPath, classPathSources, testClassPath, testClassPathSources)
     ModuleDescription(data, moduleKind)
   }
 

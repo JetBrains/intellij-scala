@@ -22,6 +22,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
+import scala.util.{Failure, Success, Try}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
@@ -40,10 +41,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onStatusChange(ev)
     }
 
-    def requests(implicit server: BspServer): CompletableFuture[Either[BspError, DataNode[ProjectData]]] = {
+    def requests(implicit server: BspServer): CompletableFuture[Try[DataNode[ProjectData]]] = {
       val targetsRequest = server.workspaceBuildTargets()
 
-      val projectNodeFuture: CompletableFuture[Either[BspError,DataNode[ProjectData]]] =
+      val projectNodeFuture: CompletableFuture[Try[DataNode[ProjectData]]] =
         targetsRequest.thenCompose { targetsResponse =>
           val targets = targetsResponse.getTargets.asScala
           val targetIds = targets.map(_.getId).toList
@@ -52,12 +53,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             for {
               sources <- data.sources
               depSources <- data.dependencySources // TODO not required for project, should be warning
+              resources <- data.resources
               scalacOptions <- data.scalacOptions // TODO not required for non-scala modules
             } yield {
               val descriptions = calculateModuleDescriptions(
                 targets,
                 scalacOptions.getItems.asScala,
                 sources.getItems.asScala,
+                resources.getItems.asScala,
                 depSources.getItems.asScala
               )
               projectNode(projectRootPath, moduleFilesDirectoryPath, descriptions)
@@ -96,19 +99,19 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     statusUpdate("BSP import completed") // TODO remove in favor of build toolwindow nodes
 
     result match {
-      case Left(BspTaskCancelled) =>
+      case Failure(BspTaskCancelled) =>
         listener.onCancel(id)
         null
-      case Left(err) =>
+      case Failure(err: Exception) =>
         listener.onFailure(id, err)
         throw err
-      case Right(data) =>
+      case Success(data) =>
         listener.onSuccess(id)
         data
     }
   }
 
-  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[Either[BspError, DataNode[ProjectData]]]): Either[BspError, DataNode[ProjectData]] =
+  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[Try[DataNode[ProjectData]]]): Try[DataNode[ProjectData]] =
     importState match {
       case Active(_) =>
         try { Await.result(projectJob.future, 300.millis) }
@@ -117,7 +120,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         }
       case Inactive =>
         projectJob.cancel()
-        Left(BspTaskCancelled)
+        Failure(BspTaskCancelled)
     }
 
   override def cancelTask(taskId: ExternalSystemTaskId,
@@ -144,26 +147,28 @@ object BspProjectResolver {
   private[resolver] def targetData(targetIds: List[BuildTargetIdentifier], isPreview: Boolean)(implicit bsp: BspServer):
   CompletableFuture[TargetData] =
     if (isPreview) {
-      val emptySources = Right[BspError,SourcesResult](new SourcesResult(Collections.emptyList()))
-      val emptyDS = Right[BspError,DependencySourcesResult](new DependencySourcesResult(Collections.emptyList()))
-      val emptySO = Right[BspError,ScalacOptionsResult](new ScalacOptionsResult(Collections.emptyList()))
-      CompletableFuture.completedFuture(TargetData(emptySources, emptyDS, emptySO))
+      val emptySources = Success(new SourcesResult(Collections.emptyList()))
+      val emptyResources = Success(new ResourcesResult(Collections.emptyList()))
+      val emptyDepSources = Success(new DependencySourcesResult(Collections.emptyList()))
+      val emptyScalacOpts = Success(new ScalacOptionsResult(Collections.emptyList()))
+      CompletableFuture.completedFuture(TargetData(emptySources, emptyDepSources, emptyResources, emptyScalacOpts))
     } else {
       val targets = targetIds.asJava
+
       val sourcesParams = new SourcesParams(targets)
       val sources = bsp.buildTargetSources(sourcesParams).catchBspErrors
+
       val depSourcesParams = new DependencySourcesParams(targets)
       val depSources = bsp.buildTargetDependencySources(depSourcesParams).catchBspErrors
+
+      val resourcesParams = new ResourcesParams(targets)
+      val resources = bsp.buildTargetResources(resourcesParams).catchBspErrors
+
       val scalacOptionsParams = new ScalacOptionsParams(targets)
       val scalacOptions = bsp.buildTargetScalacOptions(scalacOptionsParams).catchBspErrors
 
-      sources
-        .thenCompose { src =>
-          depSources.thenCompose { ds =>
-            scalacOptions.thenApply { so =>
-              TargetData(src,ds,so)
-            }
-          }
-        }
+      CompletableFuture
+        .allOf(sources, depSources, resources, scalacOptions)
+        .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get))
     }
 }

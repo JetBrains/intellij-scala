@@ -7,6 +7,8 @@ import java.util.concurrent.CompletableFuture
 
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 
+import scala.util.{Failure, Success, Try}
+
 object BspUtil {
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
@@ -24,12 +26,12 @@ object BspUtil {
   }
 
   implicit class CompletableFutureOps[T](cf: CompletableFuture[T]) {
-    def catchBspErrors :CompletableFuture[Either[BspError,T]] = cf.handle { (result, error) =>
+    def catchBspErrors :CompletableFuture[Try[T]] = cf.handle { (result, error) =>
       if (error != null) error match {
         case responseError: ResponseErrorException =>
-          Left(responseError.toBspError)
+          Failure(responseError.toBspError)
         case other: Throwable => throw other
-      } else Right(result)
+      } else Success(result)
     }
   }
 
