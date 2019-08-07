@@ -5,12 +5,14 @@ import java.{util => ju}
 
 import com.intellij.lang.Language
 import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.{Key, TextRange, Trinity}
 import com.intellij.psi._
 import org.apache.commons.lang3.StringUtils
 import org.intellij.plugins.intelliLang.Configuration
 import org.intellij.plugins.intelliLang.inject._
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -196,16 +198,16 @@ final class ScalaLanguageInjector(myInjectionConfiguration: Configuration) exten
                                     registrar: MultiHostRegistrar): Boolean = {
     val maybeAnnotationOwner = host match {
       case literal: ScLiteral =>
-        if (literal.isString) literalAnnotationOwner(literal)(System.currentTimeMillis)
+        if (literal.isString) annotationOwnerForStringLiteral(literal)
         else None
-      case _ => annotationOwnerFor(host) //.orElse(implicitAnnotationOwnerFor(host)) // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
+      case _ =>
+        annotationOwnerFor(host) //.orElse(implicitAnnotationOwnerFor(host)) // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
     }
 
     val maybePair = for {
       annotationOwner <- maybeAnnotationOwner
       annotation <- annotationOwner.getAnnotations
         .find(_.getQualifiedName == qualifiedName)
-
       languageId <- readAttribute(annotation, "value")
       language = InjectedLanguage.findLanguageById(languageId)
       if language != null
@@ -248,24 +250,18 @@ object ScalaLanguageInjector {
   private type AnnotationOwner = PsiAnnotationOwner with PsiElement
   private type MaybeAnnotationOwner = Option[AnnotationOwner]
 
-  private[this] object ExpirableAnnotationOwner {
+  private[this] object CachedAnnotationOwner {
 
     private[this] val OwnerKey = Key.create[(MaybeAnnotationOwner, Long)]("scala.annotation.owner")
-    private[this] val ExpirationTimeGenerator = new ju.Random(System.currentTimeMillis)
 
-    def unapply(literal: ScLiteral)
-               (implicit timestamp: Long): Option[MaybeAnnotationOwner] = literal.getCopyableUserData(OwnerKey) match {
+    def apply(literal: ScLiteral, modCount: Long): Option[MaybeAnnotationOwner] = literal.getCopyableUserData(OwnerKey) match {
       case null => None
-      case (result, expirationTime) if timestamp <= expirationTime && result.forall(_.isValid) => Some(result)
+      case (result, cachedModCount) if modCount == cachedModCount && result.forall(_.isValid) => Some(result)
       case _ => None
     }
 
-    def update(literal: ScLiteral, maybeOwner: MaybeAnnotationOwner)
-              (implicit timestamp: Long): Unit =
-      literal.putCopyableUserData(
-        OwnerKey,
-        (maybeOwner, timestamp + (2 + ExpirationTimeGenerator.nextInt(8)) * 1000)
-      )
+    def update(literal: ScLiteral, maybeOwner: (MaybeAnnotationOwner, Long)): Unit =
+      literal.putCopyableUserData(OwnerKey, maybeOwner)
   }
 
   @tailrec
@@ -295,13 +291,15 @@ object ScalaLanguageInjector {
       false
     }
 
-  private def literalAnnotationOwner(stringLiteral: ScLiteral)
-                                    (implicit timestamp: Long): MaybeAnnotationOwner = stringLiteral match {
-    case ExpirableAnnotationOwner(result) => result
-    case _ =>
-      val result = annotationOwnerFor(stringLiteral)
-      ExpirableAnnotationOwner(stringLiteral) = result
-      result
+  private def annotationOwnerForStringLiteral(stringLiteral: ScLiteral): MaybeAnnotationOwner = {
+    val modCount: Long = BlockModificationTracker(stringLiteral).getModificationCount
+    CachedAnnotationOwner(stringLiteral, modCount) match {
+      case Some(result) => result
+      case _ =>
+        val result = annotationOwnerFor(stringLiteral)
+        CachedAnnotationOwner(stringLiteral) = (result, modCount)
+        result
+    }
   }
 
   @tailrec
@@ -400,20 +398,25 @@ object ScalaLanguageInjector {
   }
 
   private[this] def parameterOf(argument: ScExpression): MaybeAnnotationOwner = {
+    //avoid reference resolving on EDT thread
+    if(ApplicationManager.getApplication.isDispatchThread) return None
+
     def getParameter(methodInv: MethodInvocation, index: Int) = {
-      if (index == -1) None
-      else methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression] flatMap {
-        ref =>
+      if (index == -1) None else {
+        val refOpt = methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
+        refOpt.flatMap { ref =>
           ref.resolve().toOption match {
             case Some(f: ScFunction) =>
               val parameters = f.parameters
               if (parameters.isEmpty) None
               else Some(parameters(index.min(parameters.size - 1)))
-            case Some(m: PsiMethod) =>
+            case Some(m: PsiMethod)  =>
               val parameters = m.parameters
-              if (parameters.isEmpty) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
+              if (parameters.isEmpty) None
+              else parameters(index.min(parameters.size - 1)).getModifierList.toOption
             case _ => None
           }
+        }
       }
     }
 
