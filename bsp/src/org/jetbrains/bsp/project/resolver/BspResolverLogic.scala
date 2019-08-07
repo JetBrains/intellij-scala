@@ -3,7 +3,7 @@ package org.jetbrains.bsp.project.resolver
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
-import java.util.{Collections, Optional}
+import java.util.Collections
 
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
@@ -387,7 +387,7 @@ private[resolver] object BspResolverLogic {
 
     val moduleDeps = calculateModuleDependencies(projectModules)
     val synthDeps = calculateSyntheticDependencies(moduleDeps, projectModules)
-    val modules = idsToTargetModule.map(_._2) ++ idToSyntheticModule.map(_._2)
+    val modules = idToModuleMap.values
 
     // effects
     addModuleDependencies(moduleDeps ++ synthDeps, idToModuleMap)
