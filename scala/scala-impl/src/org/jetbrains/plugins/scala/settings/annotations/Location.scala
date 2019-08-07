@@ -4,7 +4,7 @@ package annotations
 
 import com.intellij.openapi.roots.TestSourcesFilter.isTestSources
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
-import com.intellij.psi.{PsiClass, PsiElement, PsiModifier}
+import com.intellij.psi.{PsiClass, PsiCodeFragment, PsiElement, PsiModifier}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ViewProviderExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -30,6 +30,9 @@ sealed abstract class Location(protected val element: PsiElement) {
       }
   }
 
+  final def isInCodeFragment: Boolean =
+    element.getContainingFile.isInstanceOf[PsiCodeFragment]
+
   final def isInDialectSources: Boolean =
     findScalaViewProvider.exists {
       case _: ScFileViewProvider => false
@@ -47,7 +50,9 @@ sealed abstract class Location(protected val element: PsiElement) {
 
   def isInsideOf(classes: Set[String]): Boolean = false
 
-  private def findScalaViewProvider = Option(element.getContainingFile)
+  private def containingFile = element.getContainingFile
+
+  private def findScalaViewProvider = Option(containingFile)
     .map(_.getViewProvider)
     .filter(_.hasScalaPsi)
 }
