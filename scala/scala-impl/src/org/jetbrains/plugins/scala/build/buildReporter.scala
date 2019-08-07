@@ -106,8 +106,7 @@ class BuildToolWindowReporter(project: Project, buildId: EventId, title: String)
       else if (messages.status == BuildMessages.Canceled)
         (new SkippedResultImpl, "canceled")
       else {
-        val fails: util.List[events.Failure] = messages.errors.asJava
-        (new FailureResultImpl(fails), "failed")
+        (new FailureResultImpl(), "failed")
       }
 
     val finishEvent =
@@ -184,8 +183,7 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, m
 }
 
 
-case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], log: Seq[String], status: BuildStatus) {
-  def appendMessage(text: String): BuildMessages = copy(log = log :+ text.trim)
+case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], status: BuildStatus) {
   def addError(msg: String): BuildMessages = copy(errors = errors :+ BuildFailure(msg.trim))
   def addWarning(msg: String): BuildMessages = copy(warnings = warnings :+ BuildWarning(msg.trim))
   def status(buildStatus: BuildStatus): BuildMessages = copy(status = buildStatus)
@@ -210,7 +208,7 @@ case object BuildMessages {
 
   def randomEventId: EventId = EventId(UUID.randomUUID().toString)
 
-  def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
+  def empty = BuildMessages(Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
   def message(parentId: Any, message: String, kind: MessageEvent.Kind, position: Option[FilePosition]): AbstractBuildEvent with MessageEvent =
     position match {

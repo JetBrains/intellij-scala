@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, 
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.util.control.NonFatal
@@ -34,6 +35,8 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build")
+
+  private var diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
   import BspNotifications._
   private val notifications: NotificationCallback = {
@@ -169,8 +172,6 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
     new AnsiEscapeDecoder().escapeText(text, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
     val textNoAnsi = textNoAnsiAcceptor.result
 
-    buildMessages = buildMessages.appendMessage(textNoAnsi)
-
     import bsp4j.MessageType._
     buildMessages =
       params.getType match {
@@ -190,14 +191,19 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
   private def reportDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
     // TODO use params.originId to show tree structure
 
-    val file = params.getTextDocument.getUri.toURI.toFile
-    params.getDiagnostics.asScala.foreach { diagnostic: bsp4j.Diagnostic =>
+    val uri = params.getTextDocument.getUri.toURI
+    val uriDiagnostics = params.getDiagnostics.asScala
+    val previousDiagnostics = diagnostics.getOrElse(uri, List.empty)
+    diagnostics.put(uri, uriDiagnostics.toList)
+
+    uriDiagnostics
+      .filterNot(previousDiagnostics.contains)
+      .foreach { diagnostic: bsp4j.Diagnostic =>
+
       val start = diagnostic.getRange.getStart
       val end = diagnostic.getRange.getEnd
-      val position = Some(new FilePosition(file, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
+      val position = Some(new FilePosition(uri.toFile, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
       val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
-
-      buildMessages = buildMessages.appendMessage(text)
 
       import bsp4j.DiagnosticSeverity._
       buildMessages =
@@ -220,6 +226,7 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
             buildMessages
           }
     }
+
   }
 
   private def reportTaskStart(params: TaskStartParams): Unit = {

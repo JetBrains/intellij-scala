@@ -213,7 +213,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
           report.log(text)
 
-          messagesWithErrors.appendMessage(text)
+          messagesWithErrors
       }
     }
 
