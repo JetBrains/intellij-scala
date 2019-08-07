@@ -37,7 +37,7 @@ object BspEntityData {
 @SerialVersionUID(3)
 case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scalacOptions"))(
   @NotNull scalaOrganization: String,
-  @NotNull scalaVersion: Optional[String],
+  @Nullable scalaVersion: String,
   @NotNull scalacClasspath: util.List[File],
   @NotNull scalacOptions: util.List[String]
 ) extends BspEntityData

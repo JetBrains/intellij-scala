@@ -49,7 +49,7 @@ private[resolver] object BspResolverLogic {
     val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
     ScalaSdkData(
       scalaOrganization = target.getScalaOrganization,
-      scalaVersion = Optional.of(target.getScalaVersion),
+      scalaVersion = target.getScalaVersion,
       scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
       scalacOptions = scalaOptionsStrings
     )
