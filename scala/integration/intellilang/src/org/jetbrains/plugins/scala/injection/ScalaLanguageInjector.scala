@@ -308,20 +308,23 @@ object ScalaLanguageInjector {
 
   @tailrec
   private def annotationOwnerFor(expression: ScExpression): MaybeAnnotationOwner = expression.getParent match {
-    case pattern: ScPatternDefinition => Some(pattern)
-    case variable: ScVariableDefinition => Some(variable)
-    case _: ScArgumentExprList => parameterOf(expression)
-    case ScAssignment(leftExpression, _) => assignmentTarget(leftExpression)
-    case infix: ScInfixExpr =>
+    case pattern: ScPatternDefinition                   => Some(pattern)
+    case variable: ScVariableDefinition                 => Some(variable)
+    case param: ScParameter                             => Some(param)
+    case _: ScArgumentExprList                          => parameterOf(expression)
+    case tuple: ScTuple if tuple.isCall                 => parameterOf(expression)
+    case ScAssignment(leftExpression, _)                => assignmentTarget(leftExpression)
+    case parExpr: ScParenthesisedExpr                   => annotationOwnerFor(parExpr)
+    case safeCall: ScExpression if isSafeCall(safeCall) => annotationOwnerFor(safeCall)
+    case infix: ScInfixExpr                             =>
       if (expression == infix.getFirstChild)
-        if (isSafeCall(infix)) annotationOwnerFor(infix) else None
+        if (isSafeCall(infix))
+          annotationOwnerFor(infix)
+        else
+          None
       else
         parameterOf(expression)
-    case tuple: ScTuple if tuple.isCall => parameterOf(expression)
-    case param: ScParameter => Some(param)
-    case parExpr: ScParenthesisedExpr => annotationOwnerFor(parExpr)
-    case safeCall: ScExpression if isSafeCall(safeCall) => annotationOwnerFor(safeCall)
-    case _ => None
+    case _                                              => None
   }
 
   private def extractMultiLineStringRanges(literal: ScLiteral): Seq[TextRange] = {
