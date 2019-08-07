@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
+import org.jetbrains.sbt.RichOption
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, immutable, mutable}
@@ -404,19 +405,17 @@ object ScalaLanguageInjector {
     //avoid reference resolving on EDT thread
     if(isEdt) return None
 
-    def getParameter(methodInv: MethodInvocation, index: Int) = {
+    def getParameter(methodInv: MethodInvocation, index: Int): Option[PsiElement with PsiAnnotationOwner] = {
       if (index == -1) None else {
         val refOpt = methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
         refOpt.flatMap { ref =>
           ref.resolve().toOption match {
             case Some(f: ScFunction) =>
               val parameters = f.parameters
-              if (parameters.isEmpty) None
-              else Some(parameters(index.min(parameters.size - 1)))
+              parameters.lift(index)
             case Some(m: PsiMethod)  =>
               val parameters = m.parameters
-              if (parameters.isEmpty) None
-              else parameters(index.min(parameters.size - 1)).getModifierList.toOption
+              parameters.lift(index).safeMap(_.getModifierList)
             case _ => None
           }
         }
