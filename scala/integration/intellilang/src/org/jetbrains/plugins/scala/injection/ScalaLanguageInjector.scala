@@ -256,13 +256,16 @@ object ScalaLanguageInjector {
 
     def apply(literal: ScLiteral, modCount: Long): Option[MaybeAnnotationOwner] = literal.getCopyableUserData(OwnerKey) match {
       case null => None
-      case (result, cachedModCount) if modCount == cachedModCount && result.forall(_.isValid) => Some(result)
+      case (result, cachedModCount) if (modCount == cachedModCount || isEdt) && result.forall(_.isValid) => Some(result)
       case _ => None
     }
 
     def update(literal: ScLiteral, maybeOwner: (MaybeAnnotationOwner, Long)): Unit =
       literal.putCopyableUserData(OwnerKey, maybeOwner)
   }
+
+  @inline
+  private def isEdt: Boolean = ApplicationManager.getApplication.isDispatchThread
 
   @tailrec
   private def injectUsingPatterns(host: PsiElement, literals: Seq[StringLiteral],
@@ -399,7 +402,7 @@ object ScalaLanguageInjector {
 
   private[this] def parameterOf(argument: ScExpression): MaybeAnnotationOwner = {
     //avoid reference resolving on EDT thread
-    if(ApplicationManager.getApplication.isDispatchThread) return None
+    if(isEdt) return None
 
     def getParameter(methodInv: MethodInvocation, index: Int) = {
       if (index == -1) None else {
