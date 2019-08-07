@@ -8,8 +8,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -33,7 +33,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   protected def loadScalaLibrary: Boolean = true
 
-  override def librariesLoaders: Seq[LibraryLoader] = Seq(
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader()
   )
 
