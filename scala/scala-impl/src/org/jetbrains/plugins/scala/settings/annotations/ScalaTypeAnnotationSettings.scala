@@ -49,6 +49,7 @@ object ScalaTypeAnnotationSettings {
 
       def isExcluded =
         TYPE_ANNOTATION_EXCLUDE_CONSTANT && declaration.isConstant ||
+          location.isInCodeFragment ||
           TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES && location.isInDialectSources ||
         TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES && location.isInTestSources ||
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS && !isLocal && location.isInsidePrivateClass ||
