@@ -10,7 +10,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, _}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, RegexpTestData}
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration._

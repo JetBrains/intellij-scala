@@ -27,6 +27,9 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.RegexpTestData;
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.SingleTestData;
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData;
 import org.jetbrains.sbt.settings.SbtSettings;
 import scala.Option;
 
