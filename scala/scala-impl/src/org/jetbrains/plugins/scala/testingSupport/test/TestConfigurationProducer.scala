@@ -3,7 +3,7 @@ package testingSupport.test
 
 import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.ConfigurationType
+import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration}
 import com.intellij.execution.junit.InheritorChooser
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -14,23 +14,42 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Condition, Ref}
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import javax.swing.ListCellRenderer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.collection.JavaConverters._
 
-/**
- * @author Roman.Shein
- *         Date: 11.12.13
- */
 abstract class TestConfigurationProducer(configurationType: ConfigurationType)
-  extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType)
-    with AbstractTestConfigurationProducer {
+  extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) {
+
+  protected def suitePaths: List[String]
+
+  def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
+
+  def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)]
+
+  protected final def createConfigurationByElement(location: Location[_ <: PsiElement],
+                                                   context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+    context.getModule match {
+      case module: Module if hasTestSuitesInModuleDependencies(module) =>
+        createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
+      case _ =>
+        null
+    }
+  }
+
+  private def hasTestSuitesInModuleDependencies(module: Module): Boolean = {
+    val scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, true)
+    val psiManager = ScalaPsiManager.instance(module.getProject)
+    suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
+  }
 
   protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
     clazz.elementScope.getCachedObject(fqn)

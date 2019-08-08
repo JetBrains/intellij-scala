@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunCon
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
+import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, AbstractTestRunConfiguration}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -47,7 +47,7 @@ import scala.collection.JavaConverters._
 @Category(Array(classOf[TestingSupportTests]))
 abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with IntegrationTest with ScalaSdkOwner {
 
-  protected val configurationProducer: AbstractTestConfigurationProducer
+  protected val configurationProducer: TestConfigurationProducer
 
   override def runInDispatchThread(): Boolean = false
 
