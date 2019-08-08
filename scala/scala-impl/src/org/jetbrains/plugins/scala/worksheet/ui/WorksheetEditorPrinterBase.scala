@@ -32,8 +32,9 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       inWriteAction {
         val internalErrorPrefix = "Internal error"
         val reason = if(errorMessage == null) "" else s": $errorMessage"
-        val fullErrorMessage = s"Internal error$reason"
-        if(viewerDocument.getCharsSequence.startsWith(internalErrorPrefix)) {
+        val fullErrorMessage = s"$internalErrorPrefix$reason"
+        val documentAlreadyContainsErrors = viewerDocument.getCharsSequence.startsWith(internalErrorPrefix)
+        if(documentAlreadyContainsErrors) {
           simpleAppend("\n" + fullErrorMessage, viewerDocument)
         } else {
           simpleUpdate(fullErrorMessage, viewerDocument)
