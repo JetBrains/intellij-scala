@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test;
+package org.jetbrains.plugins.scala.testingSupport.test.actions;
 
 import com.intellij.execution.configurations.RunConfigurationBase;
 import com.intellij.execution.testframework.actions.AbstractRerunFailedTestsAction;

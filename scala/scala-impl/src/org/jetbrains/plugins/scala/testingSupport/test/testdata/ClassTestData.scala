@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
@@ -6,6 +6,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
 
 class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 

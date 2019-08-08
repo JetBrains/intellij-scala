@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.AllInPackageTestData
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
 /**

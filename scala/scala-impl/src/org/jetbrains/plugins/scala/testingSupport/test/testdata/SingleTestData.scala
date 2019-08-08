@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import org.jdom.Element
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
