@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.SingleTestData
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,12 +28,6 @@ class Specs2ConfigurationProducer extends {
     "org.specs2.specification.SpecificationStructure",
     "org.specs2.specification.core.SpecificationStructure"
   )
-
-  override def findExistingByElement(location: Location[_ <: PsiElement],
-                                     existingConfigurations: Array[RunnerAndConfigurationSettings],
-                                     context: ConfigurationContext): RunnerAndConfigurationSettings = {
-    super.findExistingByElement(location, existingConfigurations, context)
-  }
 
   override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     val element = location.getPsiElement

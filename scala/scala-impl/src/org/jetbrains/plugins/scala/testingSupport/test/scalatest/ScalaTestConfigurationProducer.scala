@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import com.intellij.execution._
-import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
@@ -27,12 +26,6 @@ class ScalaTestConfigurationProducer extends {
 } with TestConfigurationProducer(confType) {
 
   override def suitePaths: List[String] = List("org.scalatest.Suite")
-
-  override def findExistingByElement(location: Location[_ <: PsiElement],
-                                     existingConfigurations: Array[RunnerAndConfigurationSettings],
-                                     context: ConfigurationContext): RunnerAndConfigurationSettings = {
-    super.findExistingByElement(location, existingConfigurations, context)
-  }
 
   override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     val element = location.getPsiElement

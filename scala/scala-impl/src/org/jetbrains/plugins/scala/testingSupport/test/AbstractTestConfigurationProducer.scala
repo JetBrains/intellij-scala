@@ -22,7 +22,7 @@ trait AbstractTestConfigurationProducer {
 
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)]
 
-  protected def createConfigurationByElement(location: Location[_ <: PsiElement],
+  protected final def createConfigurationByElement(location: Location[_ <: PsiElement],
                                              context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     context.getModule match {
       case module: Module if hasTestSuitesInModuleDependencies(module) =>
@@ -36,12 +36,6 @@ trait AbstractTestConfigurationProducer {
     val scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, true)
     val psiManager = ScalaPsiManager.instance(module.getProject)
     suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
-  }
-
-  protected def findExistingByElement(location: Location[_ <: PsiElement],
-                                      existingConfigurations: Array[RunnerAndConfigurationSettings],
-                                      context: ConfigurationContext): RunnerAndConfigurationSettings = {
-    existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).orNull
   }
 
   protected def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
