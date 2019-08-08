@@ -11,6 +11,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 * Date: 22.02.2008
 * Time: 9:55:13
 */
-class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
+final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_DEFINITION, node) with ScTypeAliasDefinition {
 
   def this(node: ASTNode) = this(null, node)
@@ -53,6 +54,8 @@ class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
   }
 
   override def toString: String = "ScTypeAliasDefinition: " + ifReadAllowed(name)("")
+
+  override protected def baseIcon: Icon = Icons.TYPE_ALIAS
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {

@@ -13,7 +13,9 @@ import com.intellij.psi.PsiModifier._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
@@ -65,6 +67,10 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     if (isPackageObject) return "package$"
     super.getName + "$"
   }
+
+  override protected final def baseIcon: Icon =
+    if (isPackageObject) Icons.PACKAGE_OBJECT
+    else Icons.OBJECT
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = name match {

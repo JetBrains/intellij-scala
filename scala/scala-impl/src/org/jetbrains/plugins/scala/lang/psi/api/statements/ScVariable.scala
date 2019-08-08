@@ -4,9 +4,8 @@ package psi
 package api
 package statements
 
-import javax.swing.Icon
-
 import com.intellij.psi.tree.IElementType
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kVAR
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
@@ -16,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScVariable extends ScValueOrVariable with ScDecoratedIconOwner {
+trait ScVariable extends ScValueOrVariable {
+
   override protected def keywordElementType: IElementType = kVAR
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
@@ -25,7 +25,7 @@ trait ScVariable extends ScValueOrVariable with ScDecoratedIconOwner {
   }
 
   // TODO unify with ScFunction and ScValue
-  override protected def getBaseIcon(flags: Int): Icon = {
+  override protected final def baseIcon: Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {
@@ -36,6 +36,4 @@ trait ScVariable extends ScValueOrVariable with ScDecoratedIconOwner {
     }
     null
   }
-
-  def isAbstract: Boolean
 }

@@ -6,17 +6,17 @@ package toplevel
 package typedef
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScDecoratedIconOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
-
-trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember with ScDeclaredElementsHolder with ScDecoratedIconOwner {
+trait ScObject extends ScTypeDefinition
+  with ScTypedDefinition
+  with ScMember
+  with ScDeclaredElementsHolder {
 
   //Is this object generated as case class companion module
   private var flag = false
@@ -28,15 +28,11 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
     this.flag = flag
   }
 
-  override protected def getBaseIcon(flags: Int): Icon =
-    if (isPackageObject) Icons.PACKAGE_OBJECT
-    else Icons.OBJECT
-
   def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
 
   def getObjectClassOrTraitToken: PsiElement = getObjectToken
 
-  def declaredElements = Seq(this)
+  def declaredElements: Seq[ScObject] = Seq(this)
 
   def hasPackageKeyword: Boolean
 

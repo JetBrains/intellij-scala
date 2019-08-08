@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.statements
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package statements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
@@ -10,14 +14,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
-  * @author adkozlov
-  */
-trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocCommentOwner
-  with ScDeclaredElementsHolder with ScCommentOwner with Typeable {
+ * @author adkozlov
+ */
+trait ScValueOrVariable extends ScBlockStatement
+  with ScMember
+  with ScDecoratedIconOwner
+  with ScDocCommentOwner
+  with ScDeclaredElementsHolder
+  with ScCommentOwner
+  with Typeable {
 
   def keywordToken: PsiElement = findFirstChildByType(keywordElementType)
 
   protected def keywordElementType: IElementType
+
+  def isAbstract: Boolean
 
   def declaredElements: Seq[ScTypedDefinition]
 

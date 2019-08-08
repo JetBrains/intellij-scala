@@ -13,6 +13,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.TYPE_DECLARATION
@@ -29,8 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 * Date: 22.02.2008
 * Time: 9:54:54
 */
-
-class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
+final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration {
 
   def this(node: ASTNode) = this(null, node)
@@ -74,6 +74,8 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
     }
     Option(result)
   }
+
+  override protected def baseIcon: Icon = Icons.ABSTRACT_TYPE_ALIAS
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {

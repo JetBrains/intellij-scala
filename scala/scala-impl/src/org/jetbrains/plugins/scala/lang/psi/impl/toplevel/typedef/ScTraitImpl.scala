@@ -6,7 +6,9 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -52,6 +54,8 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
 
   override def isInterface: Boolean = true
+
+  override protected def baseIcon: Icon = Icons.TRAIT
 
   override def hasModifierProperty(name: String): Boolean = name match {
     case PsiModifier.ABSTRACT if isInterface => true

@@ -5,22 +5,14 @@ package api
 package toplevel
 package typedef
 
-import javax.swing.Icon
-
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDecoratedIconOwner
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 /** 
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
 */
-
-trait ScTrait extends ScTypeDefinition with ScDecoratedIconOwner {
-
-  override protected def getBaseIcon(flags: Int): Icon = Icons.TRAIT
+trait ScTrait extends ScTypeDefinition {
 
   def getTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTRAIT)
 

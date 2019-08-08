@@ -5,8 +5,6 @@ package api
 package statements
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPolymorphicElement
@@ -17,14 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
  * Date: 22.02.2008
  * Time: 9:46:00
  */
+trait ScTypeAlias extends ScPolymorphicElement
+  with ScMember
+  with ScDocCommentOwner
+  with ScCommentOwner
+  with ScDecoratedIconOwner {
 
-trait ScTypeAlias extends ScPolymorphicElement with ScMember
-  with ScDocCommentOwner with ScCommentOwner with ScDecoratedIconOwner {
-
-  override protected def getBaseIcon(flags: Int): Icon =
-    if (isDefinition) Icons.TYPE_ALIAS else Icons.ABSTRACT_TYPE_ALIAS
-
-  override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = m match {
+  override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
     case t: ScTypeAlias => t.name == name
     case _ => false
   }

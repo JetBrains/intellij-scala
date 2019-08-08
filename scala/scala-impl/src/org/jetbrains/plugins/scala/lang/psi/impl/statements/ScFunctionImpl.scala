@@ -120,7 +120,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
   // TODO unify with ScValue and ScVariable
-  protected override def getBaseIcon(flags: Int): Icon = {
+  protected override final def baseIcon: Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {

@@ -21,8 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
-
-class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
+final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
   extends ScParameterImpl(stub, ScalaElementType.CLASS_PARAM, node) with ScClassParameter {
 
   def this(node: ASTNode) = this(null, node)
@@ -76,7 +75,7 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
     visitor.visitClassParameter(this)
   }
 
-  override protected def getBaseIcon(flags: Int): Icon =
+  override protected def baseIcon: Icon =
     if (isVar) Icons.FIELD_VAR
     else if (isVal || isCaseClassVal) Icons.FIELD_VAL
     else Icons.PARAMETER
