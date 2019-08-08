@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.Location
+import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.execution.junit.InheritorChooser
@@ -47,30 +47,36 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType)
 
   protected def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 
-  override def setupConfigurationFromContext(configuration: AbstractTestRunConfiguration, context: ConfigurationContext,
+  override def setupConfigurationFromContext(configuration: AbstractTestRunConfiguration,
+                                             context: ConfigurationContext,
                                              sourceElement: Ref[PsiElement]): Boolean = {
+    def setup(testElement: PsiElement, confSettings: RunnerAndConfigurationSettings) = {
+      val configWithModule = configuration.clone.asInstanceOf[AbstractTestRunConfiguration]
+      val cfg = confSettings.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
+      configWithModule.setModule(cfg.getModule)
+
+      val runIsPossible = isRunPossibleFor(configWithModule, testElement)
+      if (runIsPossible) {
+        sourceElement.set(testElement)
+        configuration.setGeneratedName(cfg.suggestedName)
+        configuration.setFileOutputPath(cfg.getOutputFilePath)
+        configuration.setModule(cfg.getModule)
+        configuration.setName(cfg.getName)
+        configuration.setNameChangedByUser(!cfg.isGeneratedName)
+        configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
+        configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
+        configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
+        configuration.testConfigurationData = cfg.testConfigurationData
+      }
+      runIsPossible
+    }
+
     if (sourceElement.isNull) {
       false
-    }
-    else {
+    } else {
       createConfigurationByElement(context.getLocation, context) match {
-        case Some((testElement, resConfig)) if testElement != null && resConfig != null =>
-          val configWithModule = configuration.clone.asInstanceOf[AbstractTestRunConfiguration]
-          val cfg = resConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-          configWithModule.setModule(cfg.getModule)
-          runPossibleFor(configWithModule, testElement) && {
-            sourceElement.set(testElement)
-            configuration.setGeneratedName(cfg.suggestedName)
-            configuration.setFileOutputPath(cfg.getOutputFilePath)
-            configuration.setModule(cfg.getModule)
-            configuration.setName(cfg.getName)
-            configuration.setNameChangedByUser(!cfg.isGeneratedName)
-            configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
-            configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
-            configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
-            configuration.testConfigurationData = cfg.testConfigurationData
-            true
-          }
+        case Some((testElement, confSettings)) if testElement != null && confSettings != null =>
+          setup(testElement, confSettings)
         case _ =>
           false
       }
@@ -172,15 +178,15 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType)
     } else false
   }
 
-  protected def runPossibleFor(configuration: AbstractTestRunConfiguration, testElement: PsiElement): Boolean = {
+  protected def isRunPossibleFor(configuration: AbstractTestRunConfiguration, testElement: PsiElement): Boolean = {
 
     testElement match {
       case cl: PsiClass =>
-        !configuration.isInvalidSuite(cl) ||
-        ClassInheritorsSearch
-          .search(cl)
-          .asScala
-          .exists(!configuration.isInvalidSuite(_))
+        configuration.isValidSuite(cl) ||
+          ClassInheritorsSearch
+            .search(cl)
+            .asScala
+            .exists(configuration.isValidSuite)
       case _ => true
     }
   }
