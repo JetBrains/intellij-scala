@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
  */
 private[projectView] abstract class CustomDefinitionNode(definition: ScTypeDefinition)
                                                         (implicit project: Project, settings: ViewSettings)
-  extends ClassTreeNode(project, definition, settings) with IconProviderNode {
+  extends ClassTreeNode(project, definition, settings) with IconableNode {
 
   myName = definition.name
 

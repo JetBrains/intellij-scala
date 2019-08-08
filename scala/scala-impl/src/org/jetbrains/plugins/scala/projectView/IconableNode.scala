@@ -4,16 +4,15 @@ package projectView
 import java.util.Collections.emptyList
 
 import com.intellij.ide.projectView.PresentationData
-import javax.swing.Icon
+import com.intellij.ide.util.treeView.ValidateableNode
+import com.intellij.openapi.util.Iconable
 
-private[projectView] trait IconProviderNode {
-
-  def icon(flags: Int): Icon
+private[projectView] trait IconableNode extends ValidateableNode with Iconable {
 
   //noinspection TypeAnnotation
   final def emptyNodesList = emptyList[Node]()
 
   final def setIcon(data: PresentationData): Unit = {
-    data.setIcon(icon(0))
+    data.setIcon(getIcon(0))
   }
 }

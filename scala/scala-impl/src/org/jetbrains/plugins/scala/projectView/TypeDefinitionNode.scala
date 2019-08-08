@@ -19,7 +19,7 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
                                              (implicit project: Project, settings: ViewSettings)
   extends CustomDefinitionNode(definition) {
 
-  override def icon(flags: Int): Icon = definition.getIcon(flags)
+  override final def getIcon(flags: Int): Icon = definition.getIcon(flags)
 
   override def getTitle: String =
     validValue.fold(super.getTitle)(_.qualifiedName)
