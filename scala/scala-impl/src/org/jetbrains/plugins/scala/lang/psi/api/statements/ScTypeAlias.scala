@@ -16,10 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
  * Time: 9:46:00
  */
 trait ScTypeAlias extends ScPolymorphicElement
-  with ScMember
+  with ScMember.WithBaseIconProvider
   with ScDocCommentOwner
-  with ScCommentOwner
-  with ScDecoratedIconOwner {
+  with ScCommentOwner {
 
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
     case t: ScTypeAlias => t.name == name

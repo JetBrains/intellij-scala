@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.util.BaseIconProvider
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -161,6 +162,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 }
 
 object ScMember {
+
+  trait WithBaseIconProvider extends ScMember with BaseIconProvider {
+    override protected final def delegate: ScMember = this
+  }
 
   private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
 
