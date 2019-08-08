@@ -97,10 +97,9 @@ object FileKind {
   private case class ClassAndCompanionObject(override protected val definition: ScClass,
                                              override protected val companionObject: ScObject) extends PairedDefinition {
 
-    override def icon(flags: Int): Icon = {
-      val baseIcon = if (definition.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT
-      definition.decorate(baseIcon, flags)
-    }
+    private val baseIcon = if (definition.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT
+
+    override def icon(flags: Int): Icon = definition.decorate(baseIcon, flags) // TODO unify decoration process
   }
 
   private case class TraitAndCompanionObject(override protected val definition: ScTrait,
