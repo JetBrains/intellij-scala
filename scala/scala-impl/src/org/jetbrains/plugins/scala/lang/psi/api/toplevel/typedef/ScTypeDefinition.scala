@@ -21,11 +21,10 @@ import scala.collection.Seq
  * @author AlexanderPodkhalyuzin
  */
 trait ScTypeDefinition extends ScTemplateDefinition
-  with ScMember
+  with ScMember.WithBaseIconProvider
   with NavigationItem
   with PsiClassAdapter
   with ScTypeParametersOwner
-  with ScDecoratedIconOwner
   with ScDocCommentOwner
   with ScCommentOwner {
 

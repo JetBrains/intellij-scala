@@ -6,6 +6,7 @@ package statements
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -31,9 +32,9 @@ import scala.collection.immutable.Set
 /**
  * Represents Scala's internal function definitions and declarations
  */
-trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
+trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with ScTypeParametersOwner
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-  with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement with ScDecoratedIconOwner {
+  with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement {
 
   private[this] val probablyRecursive = ThreadLocal.withInitial[Boolean](() => false)
 
@@ -125,6 +126,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (isConstructor) this
     else super.setName(name)
   }
+
+  override def getIcon(flags: Int): Icon = super[WithBaseIconProvider].getIcon(flags)
 }
 
 object ScFunction {

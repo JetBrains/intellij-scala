@@ -7,12 +7,13 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
+import org.jetbrains.plugins.scala.util.BaseIconProvider
 
 sealed trait FileKind {
 
-  protected val definition: ScTypeDefinition
+  protected val delegate: ScTypeDefinition
 
   def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode]
 }
@@ -54,16 +55,16 @@ object FileKind {
 
   private sealed trait SingleDefinition extends FileKind
 
-  private case class PackageObject(override protected val definition: ScObject) extends SingleDefinition {
+  private case class PackageObject(override protected val delegate: ScObject) extends SingleDefinition {
 
     override def node(implicit project: Project, settings: ViewSettings) =
-      Some(new PackageObjectNode(definition))
+      Some(new PackageObjectNode(delegate))
   }
 
-  private case class TypeDefinition(override protected val definition: ScTypeDefinition) extends SingleDefinition {
+  private case class TypeDefinition(override protected val delegate: ScTypeDefinition) extends SingleDefinition {
 
     override def node(implicit project: Project, settings: ViewSettings) =
-      Some(new TypeDefinitionNode(definition))
+      Some(new TypeDefinitionNode(delegate))
   }
 
   private sealed trait PairedDefinition extends FileKind with Iconable {
@@ -74,7 +75,7 @@ object FileKind {
       if (settings != null && settings.isShowMembers) {
         None
       } else {
-        class LeafNode extends CustomDefinitionNode(definition) {
+        class LeafNode extends CustomDefinitionNode(delegate) {
 
           override def getIcon(flags: Int): Icon = PairedDefinition.this.getIcon(flags)
 
@@ -93,15 +94,15 @@ object FileKind {
       }
   }
 
-  private case class ClassAndCompanionObject(override protected val definition: ScClass,
-                                             override protected val companionObject: ScObject) extends PairedDefinition {
+  private case class ClassAndCompanionObject(override protected val delegate: ScClass,
+                                             override protected val companionObject: ScObject)
+    extends PairedDefinition with BaseIconProvider {
 
-    private val baseIcon = if (definition.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT
-
-    override def getIcon(flags: Int): Icon = definition.decorate(baseIcon, flags) // TODO unify decoration process
+    protected override val baseIcon: Icon =
+      if (delegate.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT
   }
 
-  private case class TraitAndCompanionObject(override protected val definition: ScTrait,
+  private case class TraitAndCompanionObject(override protected val delegate: ScTrait,
                                              override protected val companionObject: ScObject) extends PairedDefinition {
 
     override def getIcon(flags: Int): Icon = TRAIT_AND_OBJECT
