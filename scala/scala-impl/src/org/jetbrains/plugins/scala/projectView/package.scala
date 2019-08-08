@@ -17,7 +17,7 @@ package object projectView {
     import FileNode._
 
     def apply(file: ScalaFile)
-             (implicit project: Project, settings: ViewSettings): Node with IconProviderNode = file.getFileType match {
+             (implicit project: Project, settings: ViewSettings): Node with IconableNode = file.getFileType match {
       case ScalaFileType.INSTANCE =>
         if (file.isScriptFile)
           new ScriptFileNode(file)

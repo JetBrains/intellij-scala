@@ -3,6 +3,7 @@ package projectView
 
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Iconable
 import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -13,7 +14,7 @@ sealed trait FileKind {
 
   protected val definition: ScTypeDefinition
 
-  def node(implicit project: Project, settings: ViewSettings): Option[Node with IconProviderNode]
+  def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode]
 }
 
 object FileKind {
@@ -65,11 +66,9 @@ object FileKind {
       Some(new TypeDefinitionNode(definition))
   }
 
-  private sealed trait PairedDefinition extends FileKind {
+  private sealed trait PairedDefinition extends FileKind with Iconable {
 
     protected val companionObject: ScObject
-
-    protected def icon(flags: Int): Icon
 
     override def node(implicit project: Project, settings: ViewSettings): Option[CustomDefinitionNode] =
       if (settings != null && settings.isShowMembers) {
@@ -77,7 +76,7 @@ object FileKind {
       } else {
         class LeafNode extends CustomDefinitionNode(definition) {
 
-          override def icon(flags: Int): Icon = PairedDefinition.this.icon(flags)
+          override def getIcon(flags: Int): Icon = PairedDefinition.this.getIcon(flags)
 
           override def isAlwaysLeaf: Boolean = true
 
@@ -99,12 +98,12 @@ object FileKind {
 
     private val baseIcon = if (definition.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT
 
-    override def icon(flags: Int): Icon = definition.decorate(baseIcon, flags) // TODO unify decoration process
+    override def getIcon(flags: Int): Icon = definition.decorate(baseIcon, flags) // TODO unify decoration process
   }
 
   private case class TraitAndCompanionObject(override protected val definition: ScTrait,
                                              override protected val companionObject: ScObject) extends PairedDefinition {
 
-    override def icon(flags: Int): Icon = TRAIT_AND_OBJECT
+    override def getIcon(flags: Int): Icon = TRAIT_AND_OBJECT
   }
 }

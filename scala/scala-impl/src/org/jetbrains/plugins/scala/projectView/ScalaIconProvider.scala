@@ -12,7 +12,7 @@ final class ScalaIconProvider extends IconProvider {
   override def getIcon(element: PsiElement, flags: Int): Icon = element match {
     case file: ScalaFile =>
       ProgressManager.checkCanceled()
-      Node(file)(null, null).icon(flags)
+      Node(file)(null, null).getIcon(flags)
     case _ => null
   }
 }
