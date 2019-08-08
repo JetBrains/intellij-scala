@@ -47,7 +47,7 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     val suiteClasses = AllClassesSearch
       .search(config.getSearchScope.intersectWith(GlobalSearchScopesCore.projectTestScope(getProject)), getProject)
       .asScala
-      .filter(c => classCondition(c.qualifiedName)).filterNot(config.isInvalidSuite)
+      .filter(c => classCondition(c.qualifiedName)).filter(config.isValidSuite)
 
     //we don't care about linearization here, so can process in arbitrary order
     @tailrec

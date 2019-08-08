@@ -74,7 +74,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     }
 
     for (cl <- getClasses(pack)) {
-      if (!config.isInvalidSuite(cl))
+      if (config.isValidSuite(cl))
         classes += cl
     }
     if (classes.isEmpty)
