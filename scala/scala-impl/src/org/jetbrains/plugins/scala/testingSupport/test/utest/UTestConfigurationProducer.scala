@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, 
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) {
+} with AbstractTestConfigurationProducer(confType) {
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement

@@ -3,7 +3,7 @@ package testingSupport.scalatest
 
 import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.junit.Assert.fail
 
@@ -13,7 +13,7 @@ import org.junit.Assert.fail
   */
 abstract class ScalaTestTestCase extends ScalaTestingTestCase {
 
-  override protected val configurationProducer: TestConfigurationProducer =
+  override protected val configurationProducer: AbstractTestConfigurationProducer =
     TestConfigurationUtil.scalaTestConfigurationProducer
 
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {

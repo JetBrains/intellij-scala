@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProduce
 class Specs2ConfigurationProducer extends {
   val confType = new Specs2ConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) {
+} with AbstractTestConfigurationProducer(confType) {
 
   override def suitePaths = List(
     "org.specs2.specification.SpecificationStructure",

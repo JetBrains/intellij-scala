@@ -18,12 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 
 class ScalaTestConfigurationProducer extends {
   val confType = new ScalaTestConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) {
+} with AbstractTestConfigurationProducer(confType) {
 
   override def suitePaths: List[String] = List("org.scalatest.Suite")
 
