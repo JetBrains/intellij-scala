@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunCon
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration, TestConfigurationProducer}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 

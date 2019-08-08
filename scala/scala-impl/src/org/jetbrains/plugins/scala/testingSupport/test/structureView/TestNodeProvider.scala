@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
 import org.jetbrains.plugins.scala.lang.structureView.element.{Test, TypeDefinition, Value}
-import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
@@ -526,7 +526,7 @@ object TestNodeProvider {
     case _ => None
   }
 
-  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: TestConfigurationProducer): Seq[String] = {
+  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: AbstractTestConfigurationProducer): Seq[String] = {
     @tailrec
     def getTestLeaves(elements: Iterable[TreeElement], res: List[Test] = List()): List[Test] = {
       if (elements.isEmpty) res else {

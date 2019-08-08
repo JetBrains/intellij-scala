@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.collection.JavaConverters._
 
-abstract class TestConfigurationProducer(configurationType: ConfigurationType)
+abstract class AbstractTestConfigurationProducer(configurationType: ConfigurationType)
   extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) {
 
   protected def suitePaths: List[String]
