@@ -7,11 +7,13 @@ import com.intellij.debugger.engine.evaluation.CodeFragmentFactoryContextWrapper
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -38,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -1484,9 +1487,10 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def isGenerateAnonfun(elem: PsiElement): Boolean = {
-    def isGenerateAnonfunWithCache: Boolean = {
 
-      def computation = elem match {
+    @CachedInUserData(elem, BlockModificationTracker(elem))
+    def isAnonfunCached: Boolean = {
+      elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case b: ScBlock if b.isAnonymousFunction => false //handled in isGenerateAnonfunSimple
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
@@ -1495,22 +1499,13 @@ object ScalaEvaluatorBuilderUtil {
           if call.args == argExprs => true
         case _ => false
       }
-
-      def cacheProvider = new CachedValueProvider[Boolean] {
-        override def compute(): Result[Boolean] = Result.create(computation, elem)
-      }
-
-      if (elem == null) false
-      else {
-        try {
-          if (!elem.isValid) false
-          else CachedValuesManager.getCachedValue(elem, cacheProvider)
-        }
-        catch {
-          case _: PsiInvalidElementAccessException => false
-        }
-      }
     }
+
+    def isGenerateAnonfunWithCache: Boolean = {
+      if (elem == null || !elem.isValid || DumbService.isDumb(elem.getProject)) false
+      else isAnonfunCached
+    }
+
 
     def isGenerateAnonfunSimple: Boolean = {
       elem match {
