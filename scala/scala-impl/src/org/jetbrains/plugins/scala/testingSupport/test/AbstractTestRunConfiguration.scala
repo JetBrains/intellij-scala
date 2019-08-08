@@ -251,6 +251,8 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = AbstractTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
 
+  protected[test] final def isValidSuite(clazz: PsiClass): Boolean = !isInvalidSuite(clazz)
+
   private def addParametersString(pString: String, add: String => Unit): Unit = ParametersList.parse(pString).foreach(add)
 
   def addClassesAndTests(classToTests: Map[String, Set[String]], add: String => Unit): Unit = {
@@ -505,11 +507,17 @@ abstract class AbstractTestRunConfiguration(project: Project,
 }
 
 trait SuiteValidityChecker {
+
   protected[test] def isInvalidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = {
-    isInvalidClass(clazz) || {
-      val list: PsiModifierList = clazz.getModifierList
-      list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
-    } || !ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)
+    isInvalidClass(clazz) ||
+      hasAbstractModifier(clazz) ||
+      lackSuitableConstructor(clazz) ||
+      !ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)
+  }
+
+  private def hasAbstractModifier(clazz: PsiClass) = {
+    val list: PsiModifierList = clazz.getModifierList
+    list != null && list.hasModifierProperty(PsiModifier.ABSTRACT)
   }
 
   protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
