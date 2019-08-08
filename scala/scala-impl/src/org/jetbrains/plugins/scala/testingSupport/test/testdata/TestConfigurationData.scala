@@ -52,15 +52,18 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
     envs = form.getEnvironmentVariables
   }
 
-  def initWorkingDir(): Unit =
-    if (workingDirectory == null || workingDirectory.trim.isEmpty)
-      setWorkingDirectory(provideDefaultWorkingDir)
+  def initWorkingDir(): Unit = {
+    if (workingDirectory == null || workingDirectory.trim.isEmpty) {
+      val workingDir = moduleWorkingDirectory(getModule)
+      setWorkingDirectory(workingDir)
+    }
+  }
 
-  private def provideDefaultWorkingDir: String = {
-    val module = getModule
-    TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
+  private def moduleWorkingDirectory(module: Module): String = {
+    val provider = TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null)
+    provider match {
       case Some(provider) => provider.getWorkingDirectory(module)
-      case _ => Option(getProject.baseDir).map(_.getPath).getOrElse("")
+      case _              => Option(getProject.baseDir).map(_.getPath).getOrElse("")
     }
   }
 
