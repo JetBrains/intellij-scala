@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
   * @since 13.05.2015.
   */
 abstract class UTestTestCase extends ScalaTestingTestCase {
-  override protected val configurationProducer: AbstractTestConfigurationProducer =
+  override protected val configurationProducer: AbstractTestConfigurationProducer[_] =
     TestConfigurationUtil.uTestConfigurationProducer
 
   protected val testSuiteSecondPrefix = "import utest.framework.TestSuite"

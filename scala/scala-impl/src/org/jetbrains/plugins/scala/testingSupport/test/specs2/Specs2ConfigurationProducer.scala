@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
 import com.intellij.execution._
-import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
@@ -14,66 +14,33 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 04.05.2009
- */
-
 class Specs2ConfigurationProducer extends {
   val confType = new Specs2ConfigurationType
   val confFactory = confType.confFactory
-} with AbstractTestConfigurationProducer(confType) {
+} with AbstractTestConfigurationProducer[Specs2RunConfiguration](confType) {
+
 
   override def suitePaths = List(
     "org.specs2.specification.SpecificationStructure",
     "org.specs2.specification.core.SpecificationStructure"
   )
 
-  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
-    val element = location.getPsiElement
-    if (element == null) return None
+  protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.specs2.presentable.text", packageName)
 
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      val name = element match {
-        case p: PsiPackage => p.getName
-        case d: PsiDirectory => d.getName
-      }
-      return Some((element, TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.specs2.presentable.text", name))))
-    }
+  //TODO: move logic from prepareRunConfiguration, like it is done in other test frameworks
+  protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
+    testClass.name
 
-    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-
-    if (parent == null) return None
-
-    val settings = RunManager.getInstance(location.getProject).createConfiguration(parent.name, confFactory)
-    val runConfiguration = settings.getConfiguration.asInstanceOf[Specs2RunConfiguration]
-    val (testClass, testName) = getLocationClassAndTest(location)
-    if (testClass == null) return None
-    val testClassPath = testClass.qualifiedName
-    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
-    runConfiguration.testConfigurationData.initWorkingDir()
+  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, testClass: ScTypeDefinition, testName: String): Unit = {
+    super.prepareRunConfiguration(runConfiguration, testClass, testName)
 
     // If the selected element is a non-empty string literal, we assume that this
     // is the name of an example to be filtered.
     if (testName != null) {
-      val options = runConfiguration.testConfigurationData.getJavaOptions
-      runConfiguration.testConfigurationData.setJavaOptions(options)
-      val testNamePrefixed = testClassPath + "::" + testName
+      val testNamePrefixed = s"${testClass.qualifiedName}::$testName"
       runConfiguration.setGeneratedName(testNamePrefixed)
       runConfiguration.setName(testNamePrefixed)
     }
-
-    try {
-      val module = ScalaPsiUtil.getModule(element)
-      if (module != null) {
-        runConfiguration.setModule(module)
-      }
-    }
-    catch {
-      case _: Exception =>
-    }
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
-    Some((testClass, settings))
   }
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
@@ -93,7 +60,7 @@ class Specs2ConfigurationProducer extends {
 
     if (!ScalaPsiUtil.isInheritorDeep(parent, suiteClazz)) return false
 
-    val (testClass, testName) = getLocationClassAndTest(location)
+    val (testClass, testName) = getTestClassWithTestName(location)
     if (testClass == null) return false
     val testClassPath = testClass.qualifiedName
 
@@ -114,7 +81,7 @@ class Specs2ConfigurationProducer extends {
       .flatMap(TestConfigurationUtil.getStaticTestName(_))
   }
 
-  def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestNameImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (testClassDef == null) return (null, null)
@@ -123,12 +90,13 @@ class Specs2ConfigurationProducer extends {
       element.elementScope.getCachedClass(_)
     }
     if (suiteClasses.isEmpty) return (null, null)
-    val suiteClazz = suiteClasses.head
+    val suiteClazz = suiteClasses.head // TODO: why head???
     if (!ScalaPsiUtil.isInheritorDeep(testClassDef, suiteClazz)) return (null, null)
 
-    ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
-      case Some(infixExpr: ScInfixExpr) => (testClassDef, extractStaticTestName(infixExpr).orNull)
-      case _ => (testClassDef, null)
+    val testName = ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
+      case Some(infixExpr: ScInfixExpr) => extractStaticTestName(infixExpr).orNull
+      case _                            => null
     }
+    (testClassDef, testName)
   }
 }

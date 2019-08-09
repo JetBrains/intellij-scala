@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration}
 import com.intellij.execution.junit.InheritorChooser
+import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
@@ -26,19 +26,66 @@ import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.collection.JavaConverters._
 
-abstract class AbstractTestConfigurationProducer(configurationType: ConfigurationType)
-  extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) {
+abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration](configurationType: ConfigurationType)
+  extends RunConfigurationProducer[T](configurationType) {
 
   protected def suitePaths: List[String]
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
 
-  def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)]
+  def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+    val element = location.getPsiElement
+    if (element == null) return None
+
+    val confFactory = getConfigurationFactory
+    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
+      val name     = element match {
+        case p: PsiPackage   => p.getName
+        case d: PsiDirectory => d.getName
+      }
+      val displayName = configurationNameForPackage(name)
+      val settings = TestConfigurationUtil.packageSettings(element, location, confFactory, displayName)
+      return Some((element, settings))
+    }
+
+    val (testClass, testName) = getTestClassWithTestName(location)
+    if (testClass == null) return None
+
+    val confName         = configurationName(testClass, testName)
+    // TODO: under the hood of `createConfiguration` something is happening with templates
+    val settings         = RunManager.getInstance(location.getProject).createConfiguration(confName, confFactory)
+    val runConfiguration = settings.getConfiguration.asInstanceOf[T]
+
+    prepareRunConfiguration(runConfiguration, testClass, testName)
+
+    try {
+      val module = ScalaPsiUtil.getModule(element)
+      if (module != null) {
+        runConfiguration.setModule(module)
+      }
+    } catch {
+      case _: Exception =>
+    }
+
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
+    Some((testClass, settings))
+  }
+
+  protected def configurationNameForPackage(packageName: String): String
+
+  protected def configurationName(testClass: ScTypeDefinition, testName: String): String
+
+  protected def prepareRunConfiguration(runConfiguration: T, testClass: ScTypeDefinition, testName: String): Unit = {
+    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClass.qualifiedName, testName)
+    runConfiguration.testConfigurationData.initWorkingDir()
+  }
 
   protected final def createConfigurationByElement(location: Location[_ <: PsiElement],
                                                    context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     context.getModule match {
       case module: Module if hasTestSuitesInModuleDependencies(module) =>
+        val element = location.getPsiElement
+        if (element == null) return None
         createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
       case _ =>
         null
@@ -57,22 +104,26 @@ abstract class AbstractTestConfigurationProducer(configurationType: Configuratio
         ScalaPsiUtil.isInheritorDeep(clazz, _)
       }
 
-  final def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  final def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val timeoutMs =
       if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
 
-    UIFreezingGuard.withTimeout(timeoutMs, getLocationClassAndTestImpl(location), (null, null))(location.getProject)
+    UIFreezingGuard.withTimeout(
+      timeoutMs,
+      getTestClassWithTestNameImpl(location),
+      (null, null)
+    )(location.getProject)
   }
 
 
-  protected def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
+  protected def getTestClassWithTestNameImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 
-  override def setupConfigurationFromContext(configuration: AbstractTestRunConfiguration,
+  override def setupConfigurationFromContext(configuration: T,
                                              context: ConfigurationContext,
                                              sourceElement: Ref[PsiElement]): Boolean = {
     def setup(testElement: PsiElement, confSettings: RunnerAndConfigurationSettings) = {
-      val configWithModule = configuration.clone.asInstanceOf[AbstractTestRunConfiguration]
-      val cfg = confSettings.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
+      val configWithModule = configuration.clone.asInstanceOf[T]
+      val cfg = confSettings.getConfiguration.asInstanceOf[T]
       configWithModule.setModule(cfg.getModule)
 
       val runIsPossible = isRunPossibleFor(configWithModule, testElement)
@@ -182,7 +233,7 @@ abstract class AbstractTestConfigurationProducer(configurationType: Configuratio
     }
   }
 
-  override def isConfigurationFromContext(configuration: AbstractTestRunConfiguration, context: ConfigurationContext): Boolean = {
+  override def isConfigurationFromContext(configuration: T, context: ConfigurationContext): Boolean = {
     //TODO: implement me properly
     val runnerClassName = configuration.mainClass
 
@@ -192,13 +243,13 @@ abstract class AbstractTestConfigurationProducer(configurationType: Configuratio
         isConfigurationByLocation(configuration, context.getLocation)
       } else {
         (context.getModule == configurationModule ||
-                context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
+                context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[T]
                         .getConfigurationModule.getModule == configurationModule) && !configuration.testConfigurationData.isInstanceOf[ClassTestData]
       }
     } else false
   }
 
-  protected def isRunPossibleFor(configuration: AbstractTestRunConfiguration, testElement: PsiElement): Boolean = {
+  protected def isRunPossibleFor(configuration: T, testElement: PsiElement): Boolean = {
 
     testElement match {
       case cl: PsiClass =>

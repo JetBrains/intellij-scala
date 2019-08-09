@@ -526,7 +526,7 @@ object TestNodeProvider {
     case _ => None
   }
 
-  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: AbstractTestConfigurationProducer): Seq[String] = {
+  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: AbstractTestConfigurationProducer[_]): Seq[String] = {
     @tailrec
     def getTestLeaves(elements: Iterable[TreeElement], res: List[Test] = List()): List[Test] = {
       if (elements.isEmpty) res else {
@@ -549,7 +549,7 @@ object TestNodeProvider {
       case _ =>
         nodeProvider.provideNodes(new TypeDefinition(aSuite)).asScala
     }).map { e =>
-      Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.element))) filter {
+      Option(configurationProducer.getTestClassWithTestName(new PsiLocation(e.element))) filter {
         case (suite, testName) =>
           suite != null && suite.getQualifiedName == suiteName && testName != null
       }
