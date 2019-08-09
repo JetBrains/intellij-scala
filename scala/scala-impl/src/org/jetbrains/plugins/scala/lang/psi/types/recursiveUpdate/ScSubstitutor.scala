@@ -104,10 +104,12 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     else if (other.isEmpty) this
     else {
       val thisLength = substitutions.length
-      val newLength = thisLength + other.substitutions.length
+      val otherLength = other.substitutions.length
+      val newLength = thisLength + otherLength
 
-      if (newLength > followLimit)
-        LOG.error("Too much followers for substitutor: " + this.toString)
+      if (newLength > followLimit) {
+        LOG.error(s"Too large substitutors concatenated (of size $thisLength and $otherLength")
+      }
 
       val newArray = new Array[Update](newLength)
       substitutions.copyToArray(newArray, 0)
