@@ -3,7 +3,6 @@ package testingSupport.test.specs2
 
 import com.intellij.execution._
 import com.intellij.execution.configurations.RunConfiguration
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
@@ -31,8 +30,8 @@ class Specs2ConfigurationProducer extends {
   protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     testClass.name
 
-  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, element: PsiElement, testClass: ScTypeDefinition, testName: String): Unit = {
-    super.prepareRunConfiguration(runConfiguration, element, testClass, testName)
+  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {
+    super.prepareRunConfiguration(runConfiguration, location, testClass, testName)
 
     // If the selected element is a non-empty string literal, we assume that this
     // is the name of an example to be filtered.

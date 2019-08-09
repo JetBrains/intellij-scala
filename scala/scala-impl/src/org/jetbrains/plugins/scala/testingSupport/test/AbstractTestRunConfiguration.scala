@@ -83,7 +83,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def suitePaths: List[String]
 
-  def mainClass: String
+  def runnerClassName: String
 
   def reporterClass: String
 
@@ -354,7 +354,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
             params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk)
         }
 
-        params.setMainClass(mainClass)
+        params.setMainClass(runnerClassName)
 
         def addParameters(add: String => Unit, after: () => Unit): Unit = {
           addClassesAndTests(suitesToTestsMap, add)

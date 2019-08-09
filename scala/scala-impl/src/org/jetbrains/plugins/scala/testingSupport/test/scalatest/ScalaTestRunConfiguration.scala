@@ -30,7 +30,7 @@ class ScalaTestRunConfiguration(project: Project,
 
   override def suitePaths: List[String] = ScalaTestUtil.suitePaths
 
-  override def mainClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
+  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
 
   override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
 

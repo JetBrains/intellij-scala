@@ -26,7 +26,7 @@ class Specs2RunConfiguration(project: Project,
 
   override def suitePaths: List[String] = Specs2Util.suitePaths
 
-  override def mainClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
+  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
 
   override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier"
 
