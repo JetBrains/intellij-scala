@@ -33,7 +33,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
 
-  def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+  final def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     val element = location.getPsiElement
     if (element == null) return None
 
@@ -55,18 +55,11 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     val settings         = RunManager.getInstance(location.getProject).createConfiguration(confName, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[T]
 
-    prepareRunConfiguration(runConfiguration, testClass, testName)
+    prepareRunConfiguration(runConfiguration, element, testClass, testName)
 
-    try {
-      val module = ScalaPsiUtil.getModule(element)
-      if (module != null) {
-        runConfiguration.setModule(module)
-      }
-    } catch {
-      case _: Exception =>
-    }
+    val extensionManager = JavaRunConfigurationExtensionManager.getInstance
+    extensionManager.extendCreatedConfiguration(runConfiguration, location)
 
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
     Some((testClass, settings))
   }
 
@@ -74,14 +67,25 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   protected def configurationName(testClass: ScTypeDefinition, testName: String): String
 
-  protected def prepareRunConfiguration(runConfiguration: T, testClass: ScTypeDefinition, testName: String): Unit = {
+  protected def prepareRunConfiguration(runConfiguration: T, element: PsiElement, testClass: ScTypeDefinition, testName: String): Unit = {
     val testDataOld = runConfiguration.testConfigurationData
     val testDataNew = ClassTestData(runConfiguration, testClass.qualifiedName, testName)
 
     testDataNew.javaOptions = testDataOld.javaOptions
     testDataNew.envs = testDataOld.envs
     testDataNew.testArgs = testDataOld.testArgs
+    // TODO: should we copy working dir from template when creating configuration using right click?
     testDataNew.initWorkingDir()
+
+    // TODO: working dir is initialized before module is set, thus it becomes equal to the project root, is that correct?
+    try {
+      val module = ScalaPsiUtil.getModule(element)
+      if (module != null) {
+        runConfiguration.setModule(module)
+      }
+    } catch {
+      case _: Exception => // TODO: why are we swallowing the exception, what if we remove it?
+    }
 
     runConfiguration.testConfigurationData = testDataNew
   }

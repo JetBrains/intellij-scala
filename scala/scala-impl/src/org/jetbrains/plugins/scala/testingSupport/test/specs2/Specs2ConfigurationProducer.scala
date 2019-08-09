@@ -31,8 +31,8 @@ class Specs2ConfigurationProducer extends {
   protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
     testClass.name
 
-  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, testClass: ScTypeDefinition, testName: String): Unit = {
-    super.prepareRunConfiguration(runConfiguration, testClass, testName)
+  override protected def prepareRunConfiguration(runConfiguration: Specs2RunConfiguration, element: PsiElement, testClass: ScTypeDefinition, testName: String): Unit = {
+    super.prepareRunConfiguration(runConfiguration, element, testClass, testName)
 
     // If the selected element is a non-empty string literal, we assume that this
     // is the name of an example to be filtered.
