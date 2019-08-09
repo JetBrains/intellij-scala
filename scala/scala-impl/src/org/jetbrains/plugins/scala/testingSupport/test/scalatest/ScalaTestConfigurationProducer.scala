@@ -23,42 +23,15 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
 class ScalaTestConfigurationProducer extends {
   val confType = new ScalaTestConfigurationType
   val confFactory = confType.confFactory
-} with AbstractTestConfigurationProducer(confType) {
+} with AbstractTestConfigurationProducer[ScalaTestRunConfiguration](confType) {
 
   override def suitePaths: List[String] = List("org.scalatest.Suite")
 
-  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
-    val element = location.getPsiElement
-    if (element == null) return None
+  protected def configurationNameForPackage(packageName: String): String =
+    ScalaBundle.message("test.in.scope.scalatest.presentable.text", packageName)
 
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      val name = element match {
-        case p: PsiPackage => p.getName
-        case d: PsiDirectory => d.getName
-      }
-      return Some((element, TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.scalatest.presentable.text", name))))
-    }
-
-    val (testClass, testName) = getLocationClassAndTest(location)
-    if (testClass == null) return None
-    val testClassPath = testClass.qualifiedName
-    val configurationName = StringUtil.getShortName(testClassPath) + (if (testName != null) "." + testName else "")
-    val settings = RunManager.getInstance(location.getProject).createConfiguration(configurationName, confFactory)
-    val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
-    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
-    runConfiguration.testConfigurationData.initWorkingDir()
-
-    try {
-      val module = ScalaPsiUtil.getModule(element)
-      if (module != null) {
-        runConfiguration.setModule(module)
-      }
-    } catch {
-      case _: Exception =>
-    }
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
-    Some((testClass, settings))
-  }
+  protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
+    StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "." + testName)
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement
@@ -69,7 +42,7 @@ class ScalaTestConfigurationProducer extends {
         else TestConfigurationUtil.isPackageConfiguration(element, configuration)
       return result
     }
-    val (testClass, testName) = getLocationClassAndTest(location)
+    val (testClass, testName) = getTestClassWithTestName(location)
     if (testClass == null) return false
     val testClassPath = testClass.qualifiedName
     configuration match {
@@ -83,7 +56,7 @@ class ScalaTestConfigurationProducer extends {
     }
   }
 
-  override def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestNameImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
 
     def matchesSomeTestSuite(typ: ScTemplateDefinition): Boolean = suitePaths.exists(isInheritor(typ, _))
@@ -702,7 +675,7 @@ class ScalaTestConfigurationProducer extends {
         (clazz, testNamesConcat)
       } else {
         val parent = location.getPsiElement.getParent
-        if (parent != null) getLocationClassAndTest(new PsiLocation(location.getProject, parent))
+        if (parent != null) getTestClassWithTestName(new PsiLocation(location.getProject, parent))
         else null
       }
     } else {

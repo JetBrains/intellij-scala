@@ -9,6 +9,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
   * @since 16.10.2014.
   */
 abstract class Specs2TestCase extends ScalaTestingTestCase {
-  override protected val configurationProducer: AbstractTestConfigurationProducer =
+  override protected val configurationProducer: AbstractTestConfigurationProducer[_] =
     TestConfigurationUtil.specs2ConfigurationProducer
 }

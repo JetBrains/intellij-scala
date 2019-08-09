@@ -13,7 +13,7 @@ import org.junit.Assert.fail
   */
 abstract class ScalaTestTestCase extends ScalaTestingTestCase {
 
-  override protected val configurationProducer: AbstractTestConfigurationProducer =
+  override protected val configurationProducer: AbstractTestConfigurationProducer[_] =
     TestConfigurationUtil.scalaTestConfigurationProducer
 
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {

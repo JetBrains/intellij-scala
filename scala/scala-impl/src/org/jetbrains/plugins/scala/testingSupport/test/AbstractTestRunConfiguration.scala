@@ -62,11 +62,12 @@ import scala.concurrent.Future
 abstract class AbstractTestRunConfiguration(project: Project,
                                             val configurationFactory: ConfigurationFactory,
                                             val name: String,
-                                            val configurationProducer: AbstractTestConfigurationProducer)
+                                            val configurationProducer: AbstractTestConfigurationProducer[_ <: AbstractTestRunConfiguration])
   extends ModuleBasedConfiguration[RunConfigurationModule,Element](
     name,
     new RunConfigurationModule(project),
-    configurationFactory) with ScalaTestingConfiguration {
+    configurationFactory
+  ) with ScalaTestingConfiguration {
 
   @BeanProperty var testKind: TestKind = TestKind.CLASS
 

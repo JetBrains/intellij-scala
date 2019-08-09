@@ -20,7 +20,14 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, 
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
   val confFactory = confType.confFactory
-} with AbstractTestConfigurationProducer(confType) {
+} with AbstractTestConfigurationProducer[UTestRunConfiguration](confType) {
+
+  override def suitePaths: List[String] = UTestUtil.suitePaths
+
+  protected def configurationNameForPackage(packageName: String): String = ScalaBundle.message("test.in.scope.utest.presentable.text", packageName)
+
+  protected def configurationName(testClass: ScTypeDefinition, testName: String): String =
+    StringUtil.getShortName(testClass.qualifiedName) + (if (testName == null) "" else "\\" + testName)
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement
@@ -29,7 +36,7 @@ class UTestConfigurationProducer extends {
       if (!configuration.isInstanceOf[UTestRunConfiguration]) return false
       return TestConfigurationUtil.isPackageConfiguration(element, configuration)
     }
-    val (testClass, testName) = getLocationClassAndTest(location)
+    val (testClass, testName) = getTestClassWithTestName(location)
     if (testClass == null) return false
     val testClassPath = testClass.qualifiedName
     configuration match {
@@ -42,42 +49,6 @@ class UTestConfigurationProducer extends {
       case _ => false
     }
   }
-
-  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
-    val element = location.getPsiElement
-    if (element == null) return None
-
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      val name = element match {
-        case p: PsiPackage => p.getName
-        case d: PsiDirectory => d.getName
-      }
-      return Some((element, TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.utest.presentable.text", name))))
-    }
-
-    val (testClass, testName) = getLocationClassAndTest(location)
-    if (testClass == null) return None
-    val testClassPath = testClass.qualifiedName
-    val settings = RunManager.getInstance(location.getProject).
-      createConfiguration(StringUtil.getShortName(testClassPath) +
-        (if (testName != null) "\\" + testName else ""), confFactory)
-    val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
-    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClassPath, testName)
-    runConfiguration.testConfigurationData.initWorkingDir()
-    try {
-      val module = ScalaPsiUtil.getModule(element)
-      if (module != null) {
-        runConfiguration.setModule(module)
-      }
-    }
-    catch {
-      case _: Exception =>
-    }
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
-    Some((testClass, settings))
-  }
-
-  override def suitePaths: List[String] = UTestUtil.suitePaths
 
   /**
     * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
@@ -135,7 +106,7 @@ class UTestConfigurationProducer extends {
     } yield testPath
   }
 
-  override def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  override def getTestClassWithTestNameImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val fail = (null, null)
     //first, check that containing type definition is a uTest suite

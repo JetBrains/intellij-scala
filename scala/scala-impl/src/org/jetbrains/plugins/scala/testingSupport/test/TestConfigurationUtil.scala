@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.{ConfigurationFactory, RunConfiguration}
 import com.intellij.execution.junit.JavaRuntimeConfigurationProducerBase
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.openapi.util.text.StringUtil
@@ -26,12 +26,14 @@ import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationP
 
 object TestConfigurationUtil {
 
-  def packageSettings(element: PsiElement, location: Location[_ <: PsiElement],
-                      confFactory: AbstractTestRunConfigurationFactory,
+  def packageSettings(element: PsiElement,
+                      location: Location[_ <: PsiElement],
+                      confFactory: ConfigurationFactory,
                       displayName: String): RunnerAndConfigurationSettings = {
     val pack: PsiPackage = element match {
       case dir: PsiDirectory => JavaRuntimeConfigurationProducerBase.checkPackage(dir)
       case pack: PsiPackage => pack
+      case _ => null
     }
     if (pack == null) return null
     val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, confFactory)
