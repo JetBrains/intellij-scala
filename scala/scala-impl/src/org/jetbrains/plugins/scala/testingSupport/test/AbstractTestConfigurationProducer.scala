@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration}
-import com.intellij.execution.junit.InheritorChooser
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
+import com.intellij.execution.junit.{InheritorChooser, JavaRuntimeConfigurationProducerBase}
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Condition, Ref}
 import com.intellij.psi._
@@ -21,7 +22,7 @@ import javax.swing.ListCellRenderer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.collection.JavaConverters._
@@ -37,29 +38,45 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     val element = location.getPsiElement
     if (element == null) return None
 
-    val confFactory = getConfigurationFactory
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      val name     = element match {
-        case p: PsiPackage   => p.getName
-        case d: PsiDirectory => d.getName
+    if (element.is[PsiPackage, PsiDirectory]) {
+      getTestPackageWithPackageName(element) match {
+        case (null, _) => None
+        case (testPackage, packageName) =>
+          createConfigurationForPackage(location, element, testPackage, packageName)
       }
-      val displayName = configurationNameForPackage(name)
-      val settings = TestConfigurationUtil.packageSettings(element, location, confFactory, displayName)
-      return Some((element, settings))
+    } else {
+      getTestClassWithTestName(location) match {
+        case (null, _) => None
+        case (testClass, testName) =>
+          createConfigurationForTestClass(location, element, testClass, testName)
+      }
     }
+  }
 
-    val (testClass, testName) = getTestClassWithTestName(location)
-    if (testClass == null) return None
+  private def createConfigurationForPackage(location: Location[_ <: PsiElement], element: PsiElement,
+                                            testPackage: PsiPackage, packageName: String): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+    val displayName   = configurationNameForPackage(packageName)
+    val settings      = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
+    val configuration = settings.getConfiguration.asInstanceOf[T]
 
-    val confName         = configurationName(testClass, testName)
-    val settings         = RunManager.getInstance(location.getProject).createConfiguration(confName, confFactory)
-    val runConfiguration = settings.getConfiguration.asInstanceOf[T]
+    configuration.testConfigurationData = AllInPackageTestData(configuration, testPackage.getQualifiedName)
+    configuration.setGeneratedName(displayName)
+    configuration.setModule(location.getModule)
+    configuration.testConfigurationData.initWorkingDir()
 
-    prepareRunConfiguration(runConfiguration, element, testClass, testName)
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
+    Some((element, settings))
+  }
 
-    val extensionManager = JavaRunConfigurationExtensionManager.getInstance
-    extensionManager.extendCreatedConfiguration(runConfiguration, location)
+  private def createConfigurationForTestClass(location: Location[_ <: PsiElement], element: PsiElement,
+                                              testClass: ScTypeDefinition, testName: String) = {
+    val displayName   = configurationName(testClass, testName)
+    val settings      = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
+    val configuration = settings.getConfiguration.asInstanceOf[T]
 
+    prepareRunConfiguration(configuration, element, testClass, testName)
+
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
     Some((testClass, settings))
   }
 
@@ -113,6 +130,12 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       .exists {
         ScalaPsiUtil.isInheritorDeep(clazz, _)
       }
+
+  private def getTestPackageWithPackageName(element: PsiElement): (PsiPackage, String) = element match {
+    case dir: PsiDirectory => (JavaRuntimeConfigurationProducerBase.checkPackage(dir), dir.getName)
+    case pack: PsiPackage  => (pack, pack.getName)
+    case _                 => (null, null)
+  }
 
   final def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val timeoutMs =

@@ -26,26 +26,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationP
 
 object TestConfigurationUtil {
 
-  def packageSettings(element: PsiElement,
-                      location: Location[_ <: PsiElement],
-                      confFactory: ConfigurationFactory,
-                      displayName: String): RunnerAndConfigurationSettings = {
-    val pack: PsiPackage = element match {
-      case dir: PsiDirectory => JavaRuntimeConfigurationProducerBase.checkPackage(dir)
-      case pack: PsiPackage => pack
-      case _ => null
-    }
-    if (pack == null) return null
-    val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, confFactory)
-    val configuration = settings.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-    configuration.testConfigurationData = AllInPackageTestData(configuration, pack.getQualifiedName)
-    configuration.setGeneratedName(displayName)
-    configuration.setModule(location.getModule)
-    configuration.testConfigurationData.initWorkingDir()
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
-    settings
-  }
-
   def isPackageConfiguration(element: PsiElement, configuration: RunConfiguration): Boolean = {
     val pack: PsiPackage = element match {
       case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
