@@ -1,0 +1,5 @@
+package org.jetbrains.plugins.scala.codeInspection.feature
+
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+
+abstract class LanguageFeatureInspectionTestBase extends ScalaInspectionTestBase

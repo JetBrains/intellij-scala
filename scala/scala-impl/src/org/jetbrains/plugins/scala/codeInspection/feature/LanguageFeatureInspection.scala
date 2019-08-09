@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala
-package codeInspection.feature
+package codeInspection
+package feature
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project._
@@ -28,7 +28,7 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
       case e: ScPostfixExpr => e.operation
     },
     Feature("reflective call", "scala.language", "reflectiveCalls", _.reflectiveCalls, _.reflectiveCalls = true) {
-      case e @ ReferenceTarget(Parent(_: ScRefinement)) => e.getLastChild match {
+      case e @ ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.isInstanceOf[ScTypeAlias] => e.getLastChild match {
         case id @ ElementType(ScalaTokenTypes.tIDENTIFIER) => id
         case _ => e
       }
@@ -51,7 +51,8 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
     },
     Feature("macro definition", "scala.language.experimental", "macros", _.macros, _.macros = true) {
       case e: ScMacroDefinition => e.children.find(it => it.getText == "macro").getOrElse(e)
-    })
+    }
+  )
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = { case e: PsiElement =>
     val module = ModuleUtilCore.findModuleForPsiElement(e)
