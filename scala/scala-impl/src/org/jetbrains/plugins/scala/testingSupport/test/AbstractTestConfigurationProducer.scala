@@ -52,7 +52,6 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     if (testClass == null) return None
 
     val confName         = configurationName(testClass, testName)
-    // TODO: under the hood of `createConfiguration` something is happening with templates
     val settings         = RunManager.getInstance(location.getProject).createConfiguration(confName, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[T]
 
@@ -76,8 +75,15 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   protected def configurationName(testClass: ScTypeDefinition, testName: String): String
 
   protected def prepareRunConfiguration(runConfiguration: T, testClass: ScTypeDefinition, testName: String): Unit = {
-    runConfiguration.testConfigurationData = ClassTestData(runConfiguration, testClass.qualifiedName, testName)
-    runConfiguration.testConfigurationData.initWorkingDir()
+    val testDataOld = runConfiguration.testConfigurationData
+    val testDataNew = ClassTestData(runConfiguration, testClass.qualifiedName, testName)
+
+    testDataNew.javaOptions = testDataOld.javaOptions
+    testDataNew.envs = testDataOld.envs
+    testDataNew.testArgs = testDataOld.testArgs
+    testDataNew.initWorkingDir()
+
+    runConfiguration.testConfigurationData = testDataNew
   }
 
   protected final def createConfigurationByElement(location: Location[_ <: PsiElement],

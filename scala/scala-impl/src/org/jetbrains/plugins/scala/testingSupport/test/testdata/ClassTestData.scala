@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.testdata
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.PsiClass
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
@@ -46,9 +47,12 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 }
 
 object ClassTestData {
-  def apply(config: AbstractTestRunConfiguration, className: String): ClassTestData = apply(config, className, null)
+
+  def apply(config: AbstractTestRunConfiguration, className: String): ClassTestData =
+    apply(config, className, null)
+
   def apply(config: AbstractTestRunConfiguration, className: String, testName: String): ClassTestData = {
-    if (testName != null && testName != "") {
+    if (StringUtils.isNotBlank(testName)) {
       val res = new SingleTestData(config)
       res.setTestClassPath(className)
       res.setTestName(testName)
