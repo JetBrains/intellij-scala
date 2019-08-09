@@ -311,12 +311,13 @@ object ScalaPsiUtil {
 
   def isAnonExpression(expr: ScExpression): Boolean = isAnonymousExpression(expr)._1 >= 0
 
-  def getModule(element: PsiElement): Module = {
-    val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    if (element.getContainingFile.getVirtualFile != null)
-      index.getModuleForFile(element.getContainingFile.getVirtualFile)
-    else null
-  }
+  def getModule(element: PsiElement): Module =
+    element.getContainingFile.getVirtualFile match {
+      case null => null
+      case vFile =>
+        val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+        index.getModuleForFile(vFile)
+    }
 
   def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {
     if (packageFqn.length == 0) None
