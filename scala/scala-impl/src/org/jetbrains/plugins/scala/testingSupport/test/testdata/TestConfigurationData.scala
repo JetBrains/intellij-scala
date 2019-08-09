@@ -6,6 +6,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.xmlb.XmlSerializer
+import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
@@ -16,6 +17,7 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import scala.beans.BeanProperty
 
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
+
   protected def getModule: Module = config.getModule
   protected def getProject: Project = config.getProject
   protected def checkModule(): Unit = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
@@ -53,7 +55,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   }
 
   def initWorkingDir(): Unit = {
-    if (workingDirectory == null || workingDirectory.trim.isEmpty) {
+    if (StringUtils.isBlank(workingDirectory)) {
       val workingDir = moduleWorkingDirectory(getModule)
       setWorkingDirectory(workingDir)
     }
@@ -107,6 +109,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
 }
 
 object TestConfigurationData {
+
   def createFromExternal(element: Element, configuration: AbstractTestRunConfiguration): TestConfigurationData = {
     val testData = configuration.testKind match {
       case TestKind.CLASS           => new ClassTestData(configuration)
