@@ -22,7 +22,7 @@ import javax.swing.ListCellRenderer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.collection.JavaConverters._
@@ -48,7 +48,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       getTestClassWithTestName(location) match {
         case (null, _) => None
         case (testClass, testName) =>
-          createConfigurationForTestClass(location, element, testClass, testName)
+          createConfigurationForTestClass(location, testClass, testName)
       }
     }
   }
@@ -59,22 +59,19 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     val settings      = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
     val configuration = settings.getConfiguration.asInstanceOf[T]
 
-    configuration.testConfigurationData = AllInPackageTestData(configuration, testPackage.getQualifiedName)
-    configuration.setGeneratedName(displayName)
-    configuration.setModule(location.getModule)
-    configuration.testConfigurationData.initWorkingDir()
+    prepareRunConfigurationForPackage(configuration, location, testPackage, displayName)
 
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
     Some((element, settings))
   }
 
-  private def createConfigurationForTestClass(location: Location[_ <: PsiElement], element: PsiElement,
+  private def createConfigurationForTestClass(location: Location[_ <: PsiElement],
                                               testClass: ScTypeDefinition, testName: String) = {
     val displayName   = configurationName(testClass, testName)
     val settings      = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
     val configuration = settings.getConfiguration.asInstanceOf[T]
 
-    prepareRunConfiguration(configuration, element, testClass, testName)
+    prepareRunConfiguration(configuration, location, testClass, testName)
 
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
     Some((testClass, settings))
@@ -84,31 +81,43 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   protected def configurationName(testClass: ScTypeDefinition, testName: String): String
 
-  protected def prepareRunConfiguration(runConfiguration: T, element: PsiElement, testClass: ScTypeDefinition, testName: String): Unit = {
-    val testDataOld = runConfiguration.testConfigurationData
-    val testDataNew = ClassTestData(runConfiguration, testClass.qualifiedName, testName)
-
-    testDataNew.javaOptions = testDataOld.javaOptions
-    testDataNew.envs = testDataOld.envs
-    testDataNew.testArgs = testDataOld.testArgs
-    // TODO: should we copy working dir from template when creating configuration using right click?
-    testDataNew.initWorkingDir()
-
-    // TODO: working dir is initialized before module is set, thus it becomes equal to the project root, is that correct?
-    try {
-      val module = ScalaPsiUtil.getModule(element)
-      if (module != null) {
-        runConfiguration.setModule(module)
-      }
-    } catch {
-      case _: Exception => // TODO: why are we swallowing the exception, what if we remove it?
-    }
-
-    runConfiguration.testConfigurationData = testDataNew
+  // TODO: probably it should be moved to TestConfigurationData, reconsider after refactoring TestConfigurationData
+  private def copyTestData(from: TestConfigurationData, to: TestConfigurationData): Unit = {
+    to.javaOptions = from.javaOptions
+    to.envs = from.envs
+    to.testArgs = from.testArgs
+    to.useSbt = from.useSbt
+    to.useUiWithSbt = from.useUiWithSbt
+    to.jrePath = from.jrePath
+    to.showProgressMessages = from.showProgressMessages
+    to.setWorkingDirectory(from.getWorkingDirectory)
   }
 
-  protected final def createConfigurationByElement(location: Location[_ <: PsiElement],
-                                                   context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+  private def prepareRunConfigurationForPackage(configuration: T, location: Location[_ <: PsiElement], testPackage: PsiPackage, displayName: String): Unit = {
+    configuration.setModule(location.getModule)
+    configuration.setGeneratedName(displayName)
+
+    val testDataOld = configuration.testConfigurationData
+    val testDataNew = AllInPackageTestData(configuration, testPackage.getQualifiedName)
+    copyTestData(testDataOld, testDataNew)
+    testDataNew.initWorkingDir()
+
+    configuration.testConfigurationData = testDataNew
+  }
+
+  protected def prepareRunConfiguration(configuration: T, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {
+    configuration.setModule(location.getModule)
+
+    val testDataOld = configuration.testConfigurationData
+    val testDataNew = ClassTestData(configuration, testClass.qualifiedName, testName)
+    copyTestData(testDataOld, testDataNew)
+    testDataNew.initWorkingDir()
+
+    configuration.testConfigurationData = testDataNew
+  }
+
+  private final def createConfigurationByElement(location: Location[_ <: PsiElement],
+                                                 context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     context.getModule match {
       case module: Module if hasTestSuitesInModuleDependencies(module) =>
         val element = location.getPsiElement
@@ -268,9 +277,9 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   override def isConfigurationFromContext(configuration: T, context: ConfigurationContext): Boolean = {
     //TODO: implement me properly
-    val runnerClassName = configuration.mainClass
+    val runnerClassName = configuration.runnerClassName
 
-    if (runnerClassName != null && runnerClassName == configuration.mainClass) {
+    if (runnerClassName != null && runnerClassName == configuration.runnerClassName) {
       val configurationModule: Module = configuration.getConfigurationModule.getModule
       if (context.getLocation != null) {
         isConfigurationByLocation(configuration, context.getLocation)

@@ -43,7 +43,7 @@ class UTestRunConfiguration(project: Project,
 
   override def suitePaths = List("utest.framework.TestSuite", "utest.TestSuite")
 
-  override def mainClass = "org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner"
+  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner"
 
   override def errorMessage: String = "utest is not specified"
 
