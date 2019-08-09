@@ -121,8 +121,8 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
       val unified1 = subst.withBindings(typeParams, typeParams)
       val unified2 = substitutor.withBindings(otherTypeParams, typeParams)
 
-      val bType = unified1(subst(returnType))
-      val gType = unified2(substitutor(retType))
+      val bType = unified1(returnType)
+      val gType = unified2(retType)
       t = bType.conforms(gType, undef)
       if (t.isRight) {
         trueResult = true
