@@ -18,7 +18,6 @@ import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
-import com.sun.istack.Nullable
 import org.jdom.Element
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
@@ -46,8 +45,10 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
   private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
 
-  @Nullable
-  private def getModule: Module = getConfigurationModule.getModule
+
+  private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
+
+  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException("Module is not specified"))
 
   override protected def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
@@ -77,8 +78,9 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
     getModule match {
-      case null => null
-      case module => setConsoleBuilder(ScalaLanguageConsole.builderFor(module))
+      case Some(module) =>
+        setConsoleBuilder(ScalaLanguageConsole.builderFor(module))
+      case None =>
     }
 
     protected override def createJavaParameters: JavaParameters = {
@@ -91,22 +93,22 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       val params: JavaParameters = getJavaParameters
       val classPath = params.getClassPath
 
-      validateJLineInClassPath(classPath, getModule) match {
+      val module = requireModule
+      validateJLineInClassPath(classPath, module) match {
         case JlineResolveResult.NotRequired =>
           super.execute(executor, runner)
         case RequiredFound(file) =>
           classPath.add(file)
           super.execute(executor, runner)
         case JlineResolveResult.RequiredNotFound =>
-          showJLineMissingNotification()
+          showJLineMissingNotification(module)
           null
       }
     }
   }
 
   private def createParams: JavaParameters = {
-    val module = getModule
-    if (module == null) throw new ExecutionException("Module is not specified")
+    val module = requireModule
 
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
@@ -139,17 +141,17 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       ShortenCommandLine.CLASSPATH_FILE
     }
 
-  private def showJLineMissingNotification(): Unit = {
+  private def showJLineMissingNotification(module: Module): Unit = {
     val message = {
       import JLineFinder.JLineJarName
       import ScalaLanguageConsoleView.ScalaConsole
-      val sdkName = getModule.scalaSdk.map(_.getName).getOrElse("")
+      val sdkName = module.scalaSdk.safeMap(_.getName).getOrElse("<unknown sdk>")
       s"""$ScalaConsole requires $JLineJarName to run
          |Please add it to `$sdkName` compiler classpath
          |""".stripMargin.trim.replaceAll("\n", "<br>")
     }
 
-    val action = new NotificationAction("&Configure Scala SDK classpath") {
+    val goToSdkSettingsAction = new NotificationAction("&Configure Scala SDK classpath") {
       override def startInTransaction: Boolean = true
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
@@ -157,16 +159,16 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
         val editor = new SingleConfigurableEditor(project, configurable, SettingsDialog.DIMENSION_KEY) {
           override protected def getStyle = DialogStyle.COMPACT
         }
-        getModule.scalaSdk match {
+        module.scalaSdk match {
           case Some(sdk) => configurable.selectProjectOrGlobalLibrary(sdk, true)
-          case None => configurable.selectGlobalLibraries(true)
+          case None      => configurable.selectGlobalLibraries(true)
         }
         editor.show()
       }
     }
 
     NotificationUtil.builder(project, message)
-      .addAction(action)
+      .addAction(goToSdkSettingsAction)
       .setTitle(null)
       .show()
   }
@@ -189,7 +191,7 @@ private object ScalaConsoleRunConfiguration {
    * @return false - if jline jar could not be found and it is required to run scala console in current scala version<br>
    *         true - otherwise
    */
-  def validateJLineInClassPath(classPath: PathsList, module: Module): JlineResolveResult =
+  private def validateJLineInClassPath(classPath: PathsList, module: Module): JlineResolveResult =
     if (isJLineNeeded(module) && !isJLinePresentIn(classPath)) {
       jLineFor(classPath) match {
         case Some(jline) => RequiredFound(jline)
@@ -197,19 +199,19 @@ private object ScalaConsoleRunConfiguration {
       }
     } else NotRequired
 
-  def isJLineNeeded(module: Module): Boolean =
+  private def isJLineNeeded(module: Module): Boolean =
     module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13)
 
-  def isJLinePresentIn(classPath: PathsList): Boolean =
+  private def isJLinePresentIn(classPath: PathsList): Boolean =
     classPath.getPathList.asScala.exists(new File(_).getName == JLineFinder.JLineJarName)
 
-  def jLineFor(classPath: PathsList): Option[File] = {
+  private def jLineFor(classPath: PathsList): Option[File] = {
     val jars = classPath.getPathList.asScala.map(new File(_))
     val compilerJar = jars.find(_.getName.startsWith("scala-compiler"))
     compilerJar.flatMap(JLineFinder.findJline)
   }
 
-  object JLineFinder {
+  private object JLineFinder {
     //this is a dependency of scala-compiler-2.13.0, it is the last jline 2.x version
     //so we can use exact value instead of some regexp with versions
     //see: https://mvnrepository.com/artifact/org.scala-lang/scala-compiler/2.13.0
