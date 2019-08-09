@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.references
+package org.jetbrains.plugins.scala
+package lang
+package references
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PsiJavaElementPattern
@@ -7,18 +9,17 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.ArbitraryPlaceUrlReferenceProvider
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FilePathReferenceProvider
 import com.intellij.psi.tree.TokenSet
-import com.intellij.util.ProcessingContext
+import com.intellij.util.{IncorrectOperationException, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 import scala.collection.mutable.ListBuffer
 
-class ScalaReferenceContributor extends PsiReferenceContributor {
+final class ScalaReferenceContributor extends PsiReferenceContributor {
 
   override def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
 
@@ -30,23 +31,29 @@ class ScalaReferenceContributor extends PsiReferenceContributor {
   }
 }
 
-private class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
+private final class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
 
-  override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
-    element match {
-      case _: ScInterpolatedStringLiteral => PsiReference.EMPTY_ARRAY
-      case l: ScLiteral if (l.isString || l.isMultiLineString) && l.textContains('$') =>
-        val interpolated = ScalaPsiElementFactory.createExpressionFromText("s" + l.getText, l.getContext)
-        val references = interpolated.getChildren.filter {
-          case _: ScInterpolatedExpressionPrefix => false
-          case _: ScReferenceExpression             => true
-          case _                                    => false
-        }
-        references.map { ref =>
-          new InterpolatedStringPsiReference(ref.asInstanceOf[ScReferenceExpression], l, interpolated)
-        }
-      case _ => PsiReference.EMPTY_ARRAY
-    }
+  import PsiReference.EMPTY_ARRAY
+
+  override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = element match {
+    case _: ScInterpolatedStringLiteral => EMPTY_ARRAY
+    case literal: ScLiteral if literal.isString && literal.textContains('$') => // TODO remove this hack
+      try {
+        val interpolated = createExpressionFromText("s" + literal.getText, literal.getContext)
+          .asInstanceOf[ScInterpolatedStringLiteral]
+
+        for {
+          child <- interpolated.getInjections.toArray
+          if child.isInstanceOf[ScReferenceExpression]
+        } yield new InterpolatedStringPsiReference(
+          child.asInstanceOf[ScReferenceExpression],
+          literal,
+          interpolated
+        )
+      } catch {
+        case _: IncorrectOperationException => EMPTY_ARRAY
+      }
+    case _ => EMPTY_ARRAY
   }
 }
 
