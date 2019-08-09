@@ -8,31 +8,31 @@ package annotator
 
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertMatches(messages("")) {
       case Nil =>
     }
   }
 
-  def testFine() {
+  def testFine(): Unit = {
     assertMatches(messages("def f(p: Any) {}; f(null)")) {
       case Nil =>
     }
   }
 
-  def testDoesNotTakeParameters() {
+  def testDoesNotTakeParameters(): Unit = {
     assertMatches(messages("def f {}; f(Unit, null)")) {
       case Error("(Unit, null)", "f does not take parameters") :: Nil =>
     }
   }
 
-  def testMissedParametersClause() {
+  def testMissedParametersClause(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f")) {
       case Error("f", "Missing arguments for method f(Any, Any)") :: Nil =>
     }
   }
 
-  def testExcessArguments() {
+  def testExcessArguments(): Unit = {
     assertMatches(messages("def f() {}; f(null)")) {
       case Error("(n", "Too many arguments for method f") :: Nil =>
     }
@@ -51,100 +51,100 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   }
 
   // TODO "argument(s)" not "parameter(s)"
-  def testMissedParameters() {
+  def testMissedParameters(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f()")) {
       case Error("()", "Unspecified value parameters: a: Any, b: Any") ::Nil =>
     }
   }
 
-  def testMissedParametersWhitespace() {
+  def testMissedParametersWhitespace(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f( )")) {
       case Error("( )", "Unspecified value parameters: a: Any, b: Any") ::Nil =>
     }
   }
 
-  def testMissedOneParameter() {
+  def testMissedOneParameter(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f(123)")) {
       case Error("3)", "Unspecified value parameters: b: Any") ::Nil =>
     }
   }
 
-  def testMissedMoreParameters() {
+  def testMissedMoreParameters(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any, c: Any) {}; f(123)")) {
       case Error("3)", "Unspecified value parameters: b: Any, c: Any") ::Nil =>
     }
   }
 
-  def testMissedParameterWhitespace() {
+  def testMissedParameterWhitespace(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f(123 )")) {
       case Error("3 )", "Unspecified value parameters: b: Any") ::Nil =>
     }
   }
 
-  def testMissedParameterComma() {
+  def testMissedParameterComma(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f(123, )")) {
       case Error("3, )", "Unspecified value parameters: b: Any") ::Nil =>
     }
   }
 
-  def testMissedParameterComment() {
+  def testMissedParameterComment(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f(123 /* foo */ )")) {
       case Error("3 /* foo */ )", "Unspecified value parameters: b: Any") ::Nil =>
     }
   }
 
-  def testPositionalAfterNamed() {
+  def testPositionalAfterNamed(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any, c: Any) {}; f(c = null, null, Unit)")) {
       case Error("null", "Positional after named argument") ::
               Error("Unit", "Positional after named argument") :: Nil =>
     }
   }
 
-  def testNamedDuplicates() {
+  def testNamedDuplicates(): Unit = {
     assertMatches(messages("def f(a: Any) {}; f(a = null, a = Unit)")) {
       case Error("a", "Parameter specified multiple times") ::
               Error("a", "Parameter specified multiple times") :: Nil =>
     }
   }
 
-  def testUnresolvedParameter() {
+  def testUnresolvedParameter(): Unit = {
     assertMatches(messages("def f(a: Any) {}; f(b = null)")) {
       case Nil =>
     }
   }
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
       case Error("B", "Type mismatch, expected: A, actual: B.type") :: Nil => // SCL-15592
     }
   }
 
-  def testMalformedSignature() {
+  def testMalformedSignature(): Unit = {
     assertMatches(messages("def f(a: A*, b: B) {}; f(A, B)")) {
       case Error("f", "f has malformed definition") :: Nil =>
     }
   }
 
-  def testIncorrectExpansion() {
+  def testIncorrectExpansion(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any) {}; f(Seq(null): _*, Seq(null): _*)")) {
       case Error("Seq(null): _*", "Expansion for non-repeated parameter") ::
               Error("Seq(null): _*", "Expansion for non-repeated parameter") :: Nil =>
     }
   }
 
-  def testDoesNotTakeTypeParameters() {
+  def testDoesNotTakeTypeParameters(): Unit = {
     assertMatches(messages("def f = 0; f[Any]")) {
       case Error("[Any]", "f does not take type parameters") :: Nil =>
     }
   }
 
-  def testMissingTypeParameter() {
+  def testMissingTypeParameter(): Unit = {
     assertMatches(messages("def f[A, B] = 0; f[Any]")) {
       case Error("[Any]", "Unspecified type parameters: B") :: Nil =>
     }
   }
 
-  def testExcessTypeParameter() {
+  def testExcessTypeParameter(): Unit = {
     assertMatches(messages("def f[A] = 0; f[Any, Any]")) {
       case Error("Any", "Too many type arguments for f") :: Nil =>
     }
