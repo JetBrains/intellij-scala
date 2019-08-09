@@ -315,7 +315,6 @@ object ScalaLanguageInjector {
     case tuple: ScTuple if tuple.isCall                 => parameterOf(expression)
     case ScAssignment(leftExpression, _)                => assignmentTarget(leftExpression)
     case parExpr: ScParenthesisedExpr                   => annotationOwnerFor(parExpr)
-    case safeCall: ScExpression if isSafeCall(safeCall) => annotationOwnerFor(safeCall)
     case infix: ScInfixExpr                             =>
       if (expression == infix.getFirstChild)
         if (isSafeCall(infix))
@@ -324,6 +323,7 @@ object ScalaLanguageInjector {
           None
       else
         parameterOf(expression)
+    case safeCall: ScExpression if isSafeCall(safeCall) => annotationOwnerFor(safeCall)
     case _                                              => None
   }
 

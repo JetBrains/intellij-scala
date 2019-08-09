@@ -13,9 +13,10 @@ import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
+
   def enablePresentation(presentation: Presentation): Unit = {
     presentation.setEnabled(true)
-    presentation setVisible true
+    presentation.setVisible(true)
   }
   
   def disablePresentation(presentation: Presentation): Unit = {
