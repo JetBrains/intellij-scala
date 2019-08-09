@@ -37,7 +37,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           .takeWhile {
             _.isRight
           }
-          .map(_.right.get)
+          .map(_.right.get.tryExtractDesignatorSingleton)
         if types.toSet.size >= 2
 
         document = editor.getDocument
@@ -57,7 +57,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       } yield {
         val exprEndOffsetInLine = getOffsetInLine(expr.getTextRange.getEndOffset, document)
         val marginLike = longestLine.substring(0, longestLine.length - exprEndOffsetInLine)
-        inlayInfoFor(expr, ty.tryExtractDesignatorSingleton, if (alignExpressionChain) marginLike else " ", editor, TypePresentationContext(expr))
+        inlayInfoFor(expr, ty, if (alignExpressionChain) marginLike else " ", editor, TypePresentationContext(expr))
       }
     ).toSeq
   }

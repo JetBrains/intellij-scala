@@ -101,6 +101,18 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     """.stripMargin
   )
 
+  def testBoringChainHasNoHints_2(): Unit = doTest(
+    s"""
+       |val test = List(1, 2, 3)
+       |test
+       |  .filter(_ > 2)
+       |  .filter(_ == 39)
+       |  .map(_ + 3)
+       |  .filter(_ < 2)
+    """.stripMargin
+  )
+
+
   def testChainWithoutLineBreaksHasNoHints(): Unit = doTest(
     s"""
        |List(1, 2, 3).toSeq.filter(_ > 2)
