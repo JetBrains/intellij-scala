@@ -5,10 +5,13 @@ import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j._
+import com.intellij.build.events.MessageEvent
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.task.event.ExternalSystemBuildEvent
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
+import org.jetbrains.bsp.BspTaskCancelled
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
@@ -16,12 +19,13 @@ import org.jetbrains.bsp.project.resolver.BspResolverLogic._
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BspError, BspTaskCancelled}
+import org.jetbrains.plugins.scala.build.BuildEventMessage
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
@@ -41,30 +45,44 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onStatusChange(ev)
     }
 
-    def requests(implicit server: BspServer): CompletableFuture[Try[DataNode[ProjectData]]] = {
+    def buildEvent(msg: String, kind: MessageEvent.Kind): Unit = {
+      val buildEvent = new BuildEventMessage(id, kind, "BSP", msg)
+      val event = new ExternalSystemBuildEvent(id, buildEvent)
+      listener.onStatusChange(event)
+    }
+
+    def requests(implicit server: BspServer): CompletableFuture[DataNode[ProjectData]] = {
       val targetsRequest = server.workspaceBuildTargets()
 
-      val projectNodeFuture: CompletableFuture[Try[DataNode[ProjectData]]] =
+      val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
         targetsRequest.thenCompose { targetsResponse =>
           val targets = targetsResponse.getTargets.asScala
           val targetIds = targets.map(_.getId).toList
           val td = targetData(targetIds, isPreviewMode)
           td.thenApply { data =>
-            for {
-              sources <- data.sources
-              depSources <- data.dependencySources // TODO not required for project, should be warning
-              resources <- data.resources
-              scalacOptions <- data.scalacOptions // TODO not required for non-scala modules
-            } yield {
-              val descriptions = calculateModuleDescriptions(
-                targets,
-                scalacOptions.getItems.asScala,
-                sources.getItems.asScala,
-                resources.getItems.asScala,
-                depSources.getItems.asScala
-              )
-              projectNode(projectRootPath, moduleFilesDirectoryPath, descriptions)
+
+            val sources = data.sources.map(_.getItems.asScala).getOrElse {
+              buildEvent("request failed: buildTarget/sources", MessageEvent.Kind.WARNING)
+              List.empty[SourcesItem]
             }
+
+            val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {
+              buildEvent("request failed: buildTarget/dependencySources", MessageEvent.Kind.INFO)
+              List.empty[DependencySourcesItem]
+            }
+            val resources = data.resources.map(_.getItems.asScala).getOrElse {
+              buildEvent("request failed: buildTarget/resources", MessageEvent.Kind.INFO)
+              List.empty[ResourcesItem]
+            }
+            val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {
+              buildEvent("request failed: buildTarget/scalacOptions", MessageEvent.Kind.INFO)
+              List.empty[ScalacOptionsItem]
+            }
+
+            val descriptions = calculateModuleDescriptions(
+              targets, scalacOptions, sources, resources, depSources
+            )
+            projectNode(projectRootPath, moduleFilesDirectoryPath, descriptions)
           }
         }
 
@@ -111,13 +129,26 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
   }
 
-  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[Try[DataNode[ProjectData]]]): Try[DataNode[ProjectData]] =
+  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[DataNode[ProjectData]]): Try[DataNode[ProjectData]] =
+
     importState match {
       case Active(_) =>
-        try { Await.result(projectJob.future, 300.millis) }
-        catch {
-          case _: TimeoutException => waitForProjectCancelable(projectJob)
+        var retry = false
+
+        val res = try {
+          val res = Await.result(projectJob.future, 300.millis)
+          Success(res)
         }
+        catch {
+          case to: TimeoutException =>
+            retry = true // hack around tail call optimization not working in catch
+            Failure(to)
+          case NonFatal(x) => Failure(x)
+        }
+
+        if (retry) waitForProjectCancelable(projectJob)
+        else res
+
       case Inactive =>
         projectJob.cancel()
         Failure(BspTaskCancelled)

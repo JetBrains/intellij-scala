@@ -3,7 +3,6 @@ package org.jetbrains.bsp.project.resolver
 import java.io.File
 
 import ch.epfl.scala.bsp4j._
-import org.jetbrains.bsp.BspError
 import org.jetbrains.bsp.data.{SbtBuildModuleDataBsp, ScalaSdkData}
 
 import scala.util.Try
@@ -36,6 +35,7 @@ private[resolver] object BspResolverDescriptors {
   private[resolver] sealed abstract class ModuleKind
 
   private[resolver] case class ScalaModule(scalaSdkData: ScalaSdkData) extends ModuleKind
+  private[resolver] case class JavaModule() extends ModuleKind
   private[resolver] case class UnspecifiedModule() extends ModuleKind
 
   private[resolver] case class SbtModule(scalaSdkData: ScalaSdkData,

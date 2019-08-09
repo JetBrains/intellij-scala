@@ -68,7 +68,7 @@ private[resolver] object BspResolverLogic {
   }
 
   private[resolver] def calculateModuleDescriptions(buildTargets: Seq[BuildTarget],
-                                                    optionsItems: Seq[ScalacOptionsItem],
+                                                    scalacOptionsItems: Seq[ScalacOptionsItem],
                                                     sourcesItems: Seq[SourcesItem],
                                                     resourcesItems: Seq[ResourcesItem],
                                                     dependencySourcesItems: Seq[DependencySourcesItem]
@@ -76,7 +76,7 @@ private[resolver] object BspResolverLogic {
 
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
-    val idToScalacOptions = optionsItems.map(item => (item.getTarget, item)).toMap
+    val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
 
     def transitiveDependencyOutputs(start: BuildTarget): Seq[File] = {
       val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
@@ -174,6 +174,10 @@ private[resolver] object BspResolverLogic {
     else SourceDirectory(file.getParentFile, generated)
   }
 
+  private def filterRoots(dirs: Seq[SourceDirectory]) = dirs.filter { dir =>
+    ! dirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
+  }
+
   private[resolver] def moduleDescriptionForTarget(target: BuildTarget,
                                                    scalacOptions: Option[ScalacOptionsItem],
                                                    dependencySourceDirs: Seq[File],
@@ -183,13 +187,8 @@ private[resolver] object BspResolverLogic {
                                                   )(implicit gson: Gson): Option[ModuleDescription] = {
 
     // all subdirectories of a source dir are automatically source dirs
-    val sourceRoots = sourceDirs.filter { dir =>
-      ! sourceDirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
-    }
-
-    val resourceRoots = resourceDirs.filter { dir =>
-      ! resourceDirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
-    }
+    val sourceRoots = filterRoots(sourceDirs)
+    val resourceRoots = filterRoots(resourceDirs)
 
     val moduleBase = Option(target.getBaseDirectory)
       .map(_.toURI.toFile)
@@ -203,38 +202,33 @@ private[resolver] object BspResolverLogic {
 
     val tags = target.getTags.asScala
 
-    val targetData =
-      if (tags.contains(BuildTargetTag.NO_IDE)) None
-      else Option(target.getData).map(_.asInstanceOf[JsonElement])
-
-    val scalaModule =
-      targetData.flatMap(extractScalaSdkData)
-        .map(target => getScalaSdkData(target, scalacOptions))
-        .map(ScalaModule)
-
-    // TODO there's ambiguity in the data object in BuildTarget.data
-    //   there needs to be a marker for the type so that it can be deserialized to the correct class
-
-    // TODO there's some disagreement on responsibility of handling sbt build data.
-    //  specifically with bloop, the main workspace is not sbt-aware, and IntelliJ would need to start separate bloop
-    //  servers for the build modules.
-    //      val sbtModule =
-    //        targetData.flatMap(extractSbtData)
-    //          .map { data =>
-    //            val (sbtModuleData, scalaSdkData) = calculateSbtData(data)
-    //            SbtModule(scalaSdkData, sbtModuleData)
-    //          }
-
-    // TODO warning output when modules are skipped because of missing base or scala module data
-    for {
-      moduleKind <- scalaModule
-    } yield {
-      val moduleDescriptionData = createModuleDescriptionData(
-        Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots,
-        classPathWithoutDependencyOutputs, dependencySourceDirs)
-
-      ModuleDescription(moduleDescriptionData, moduleKind)
+    val targetData = Option(target.getData).map(_.asInstanceOf[JsonElement])
+    val moduleKind = targetData.flatMap { data =>
+      target.getDataKind match {
+        case BuildTargetDataKind.SCALA =>
+          targetData.flatMap(extractScalaSdkData)
+            .map(target => getScalaSdkData(target, scalacOptions))
+            .map(ScalaModule)
+        case BuildTargetDataKind.SBT =>
+          // TODO there's some disagreement on responsibility of handling sbt build data.
+          //  specifically with bloop, the main workspace is not sbt-aware, and IntelliJ would need to start separate bloop
+          //  servers for the build modules.
+          targetData.flatMap(extractSbtData)
+            .map { data =>
+              val (sbtModuleData, scalaSdkData) = getSbtData(data, scalacOptions)
+              SbtModule(scalaSdkData, sbtModuleData)
+            }
+        case _ =>
+          Some(UnspecifiedModule())
+      }
     }
+
+    val moduleDescriptionData = createModuleDescriptionData(
+      Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots,
+      classPathWithoutDependencyOutputs, dependencySourceDirs)
+
+    if (tags.contains(BuildTargetTag.NO_IDE)) None
+    else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(UnspecifiedModule())))
   }
 
   private[resolver] def createModuleDescriptionData(targets: Seq[BuildTarget],
@@ -634,4 +628,3 @@ private[resolver] object BspResolverLogic {
   private[resolver] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, export: Boolean)
 
 }
-
