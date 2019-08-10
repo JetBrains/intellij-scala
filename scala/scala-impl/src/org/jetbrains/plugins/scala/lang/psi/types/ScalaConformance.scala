@@ -656,7 +656,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       U1	with	. . .	with	Un       === comps1
       Un                            === compn*/
       def workWithSignature(s: TermSignature, retType: ScType): Boolean = {
-        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, constraints, ScSubstitutor.empty)
+        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, constraints)
         processor.processType(r, s.namedElement)
         constraints = processor.getConstraints
         processor.getResult

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, Unit, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, Unit, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -24,8 +24,9 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
  * @author Alexander Podkhalyuzin
  */
 
-class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
-                                          constraints: ConstraintSystem, substitutor: ScSubstitutor)
+class CompoundTypeCheckSignatureProcessor(s: TermSignature,
+                                          retType: ScType,
+                                          constraints: ConstraintSystem)
   extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(s.projectContext) {
 
   private def nameHint: NameHint = _ => s.name
@@ -60,7 +61,7 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor(tp2.lowerType)
+          val lower2 = tp2.lowerType
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
@@ -69,7 +70,7 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
           undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor(tp2.upperType)
+          val upper2 = tp2.upperType
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
@@ -119,7 +120,7 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature, retType: ScType,
       val typeParams = sign1.typeParams
       val otherTypeParams = s.typeParams
       val unified1 = subst.withBindings(typeParams, typeParams)
-      val unified2 = substitutor.withBindings(otherTypeParams, typeParams)
+      val unified2 = ScSubstitutor.bind(otherTypeParams, typeParams.map(TypeParameterType(_)))
 
       val bType = unified1(returnType)
       val gType = unified2(retType)
