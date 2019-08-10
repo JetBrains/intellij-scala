@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
@@ -159,10 +159,11 @@ class TermSignature(_name: String,
   def parameterlessKind: Int = {
     if (paramLength > 0) HasParameters
     else namedElement match {
-      case f: ScFunction     => if (!f.hasParameterClause) Parameterless else EmptyParentheses
-      case _: PsiMethod      => EmptyParentheses
-      case _: ScNamedElement => ScalaVal
-      case _                 => JavaField
+      case f: ScFunction                => if (!f.hasParameterClause) Parameterless else EmptyParentheses
+      case _: PsiMethod                 => EmptyParentheses
+      case inNameContext(_: ScVariable) => Parameterless
+      case _: ScNamedElement            => ScalaVal
+      case _                            => JavaField
     }
   }
 

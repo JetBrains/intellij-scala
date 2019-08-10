@@ -42,4 +42,21 @@ class TypeConformanceCompoundTest extends TypeConformanceTestBase {
       |}
       |//True
     """.stripMargin, checkEquivalence = true)
+
+  def testVarRefinement(): Unit = doTest(
+    """
+      |val v: { var zzz: Int } = new {
+      |  def zzz: Int = 0
+      |  def zzz_=(i: Int): Unit = ()
+      |}
+      |//True
+      |""".stripMargin
+  )
+
+  def testVarRefinement2(): Unit = doTest(
+    """
+      |val v: {def zzz: Int; def zzz_=(i: Int): Unit} = new {var zzz: Int = 0}
+      |//True
+      |""".stripMargin
+  )
 }

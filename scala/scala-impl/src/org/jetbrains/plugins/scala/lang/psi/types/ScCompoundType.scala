@@ -151,7 +151,7 @@ object ScCompoundType {
             e => (TermSignature(e), e.`type`().getOrAny)
           }
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (TermSignature(e), e.`type`().getOrAny)
+            e => (TermSignature.scalaSetter(e), api.Unit)
           }
         case valDecl: ScValue =>
           signatureMapVal ++= valDecl.declaredElements.map {
