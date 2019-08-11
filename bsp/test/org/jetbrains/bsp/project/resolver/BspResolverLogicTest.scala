@@ -1,13 +1,14 @@
 package org.jetbrains.bsp.project.resolver
 
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetCapabilities, BuildTargetIdentifier}
+import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.UnspecifiedModule
 import org.junit.Test
 
 import scala.collection.JavaConverters._
 
 class BspResolverLogicTest {
 
-  /** When base dir is empty, no module is created */
+  /** When base dir is empty, only root module is created */
   @Test def testCalculateModuleDescriptionsEmptyBaseDir(): Unit = {
 
     val target = new BuildTarget(
@@ -18,8 +19,11 @@ class BspResolverLogicTest {
 
     val descriptions = BspResolverLogic.calculateModuleDescriptions(List(target), List(), List(), List(), List())
 
-    assert(descriptions.modules.isEmpty)
     assert(descriptions.synthetic.isEmpty)
+    assert(descriptions.modules.size == 1)
+    val rootModule = descriptions.modules.head
+    assert(rootModule.moduleKindData == UnspecifiedModule())
+    assert(rootModule.data.targets.head == target)
   }
 
 }
