@@ -618,6 +618,8 @@ private[resolver] object BspResolverLogic {
         val sbtNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
         moduleNode.addChild(sbtNode)
+
+      case UnspecifiedModule() =>
     }
   }
 
