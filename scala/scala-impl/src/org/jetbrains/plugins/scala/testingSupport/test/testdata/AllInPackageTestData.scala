@@ -7,6 +7,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
+import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -14,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
@@ -21,7 +23,11 @@ import scala.collection.mutable.ArrayBuffer
 
 class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
+  @BeanProperty var testPackagePath: String = ""
+
   @BeanProperty var classBuf: java.util.List[String] = new util.ArrayList[String]()
+
+  override def getKind: TestKind = TestKind.ALL_IN_PACKAGE
 
   override def getScope(withDependencies: Boolean): GlobalSearchScope = {
     searchTest match {
@@ -85,11 +91,17 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     aMap(classFqns)
   }
 
-  override def getKind: TestKind = TestKind.ALL_IN_PACKAGE
-
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
     testPackagePath = form.getTestPackagePath
+    searchTest = form.getSearchForTest
+  }
+
+  override def readExternal(element: Element): Unit = {
+    super.readExternal(element)
+    JdomExternalizerMigrationHelper(element) { helper =>
+      helper.migrateString("package")(testPackagePath = _)
+    }
   }
 }
 
