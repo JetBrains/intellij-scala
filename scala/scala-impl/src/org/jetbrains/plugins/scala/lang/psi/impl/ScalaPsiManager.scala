@@ -347,12 +347,6 @@ class ScalaPsiManager(implicit val project: Project) {
     private def forTopLevelClasses(clazz: PsiClass): nodes.Map = forTopLevelMap.computeIfAbsent(clazz, nodes.build)
 
     def cachedMap(clazz: PsiClass): nodes.Map = {
-      if (!clazz.isValid) {
-        forLibraryMap.remove(clazz)
-        forTopLevelMap.remove(clazz)
-        return MixinNodes.emptyMap[T]
-      }
-
       CachesUtil.libraryAwareModTracker(clazz) match {
         case `rootManager`               => forLibraryClasses(clazz)
         case TopLevelModificationTracker => forTopLevelClasses(clazz)
@@ -367,9 +361,9 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   }
 
-  object SignatureNodesCache     extends SignatureCaches(SignatureNodes)
-  object StableNodesCache        extends SignatureCaches(StableNodes)
-  object TypeNodesCache          extends SignatureCaches(TypeNodes)
+  object SignatureNodesCache extends SignatureCaches(SignatureNodes)
+  object StableNodesCache    extends SignatureCaches(StableNodes)
+  object TypeNodesCache      extends SignatureCaches(TypeNodes)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @volatile

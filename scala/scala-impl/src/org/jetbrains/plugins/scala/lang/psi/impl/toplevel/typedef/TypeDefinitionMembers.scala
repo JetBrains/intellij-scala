@@ -197,9 +197,21 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
-  def getSignatures(clazz: PsiClass): SMap              = ScalaPsiManager.instance(clazz).SignatureNodesCache.cachedMap(clazz)
-  def getStableSignatures(clazz: PsiClass): PMap = ScalaPsiManager.instance(clazz).StableNodesCache.cachedMap(clazz)
-  def getTypes(clazz: PsiClass): TMap                   = ScalaPsiManager.instance(clazz).TypeNodesCache.cachedMap(clazz)
+  def getSignatures(clazz: PsiClass): SMap       = ifValid(clazz)(_.SignatureNodesCache.cachedMap(clazz))
+
+  def getStableSignatures(clazz: PsiClass): PMap = ifValid(clazz)(_.StableNodesCache.cachedMap(clazz))
+
+  def getTypes(clazz: PsiClass): TMap            = ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz))
+
+  private def ifValid[T <: Signature](clazz: PsiClass)
+                                     (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
+    clazz match {
+      case Valid(c) =>
+        val manager = ScalaPsiManager.instance(c.getProject)
+        cache(manager)
+      case _ => MixinNodes.emptyMap
+    }
+  }
 
   def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp, compoundTypeThisType)

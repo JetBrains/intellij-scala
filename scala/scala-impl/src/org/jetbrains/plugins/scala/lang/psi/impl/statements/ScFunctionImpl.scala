@@ -350,25 +350,18 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
-    val clazz = containingClass
-    if (clazz != null) {
-      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name).findNode(this)
-      option
-        .flatMap(_.primarySuper)
-        .map(_.info)
-        .collect {
-          case p: PhysicalMethodSignature => (p.method, p.substitutor)
-        }
-    }
-    else None
+    val option = TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this)
+    option
+      .flatMap(_.primarySuper)
+      .map(_.info)
+      .collect {
+        case p: PhysicalMethodSignature => (p.method, p.substitutor)
+      }
   }
 
 
   def superSignatures: Seq[TermSignature] = {
-    val clazz = containingClass
-    if (clazz == null) return Seq.empty
-
-    TypeDefinitionMembers.getSignatures(clazz).forName(name).findNode(this) match {
+    TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq.empty
     }

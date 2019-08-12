@@ -598,8 +598,10 @@ object ScalaPsiUtil {
       case e@(_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
       case _ => return Seq.empty
     }
-    if (clazz == null) return Seq.empty
-    val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
+    val types =
+      if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz)
+      else TypeDefinitionMembers.getTypes(clazz)
+
     types.forName(element.name).findNode(element) match {
       //partial match
       case Some(x) if !withSelfType || x.info == element => x.supers.map(_.info)

@@ -165,7 +165,6 @@ object RenameSuperMembersUtil {
       case _ => return Seq.empty
     }
     val aClass = member.containingClass
-    if (aClass == null) return Seq.empty
     val signatures =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(aClass)
       else TypeDefinitionMembers.getSignatures(aClass)
@@ -184,7 +183,6 @@ object RenameSuperMembersUtil {
       case _ => return Seq()
     }
     val aClass = typeAlias.containingClass
-    if (aClass == null) return Seq()
     val types =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(aClass)
       else TypeDefinitionMembers.getTypes(aClass)
