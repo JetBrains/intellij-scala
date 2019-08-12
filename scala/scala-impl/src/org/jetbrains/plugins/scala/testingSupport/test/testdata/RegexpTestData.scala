@@ -7,11 +7,13 @@ import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.search.GlobalSearchScopesCore
 import com.intellij.psi.search.searches.AllClassesSearch
+import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
@@ -117,6 +119,14 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     super.apply(form)
     classRegexps = form.getClassRegexps
     testRegexps = form.getTestRegexps
+  }
+
+  override def readExternal(element: Element): Unit = {
+    super.readExternal(element)
+    JdomExternalizerMigrationHelper(element) { helper =>
+      helper.migrateArray("classRegexps", "pattern")(arr => classRegexps = arr.clone())
+      helper.migrateArray("testRegexps", "pattern")(arr => testRegexps = arr.clone())
+    }
   }
 }
 

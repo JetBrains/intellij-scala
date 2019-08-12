@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.util
 
+import java.util
+
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.JavaConverters._
 
 class JdomExternalizerMigrationHelper private (element: org.jdom.Element) {
 
@@ -17,18 +19,22 @@ class JdomExternalizerMigrationHelper private (element: org.jdom.Element) {
     readString(key).foreach(x => patcher(x.toInt))
 
   def migrateMap(mapKey: String, elemKey: String, map: java.util.Map[String, String]): Unit = {
-    element
-      .getChild(mapKey)
-      .toOption
-      .map(_.getChildren(elemKey))
-      .map(_.asScala)
-      .getOrElse(Nil)
-      .foreach { e =>
-        map.put(
-          e.getAttributeValue(NAME_KEY).toOption.getOrElse(""),
-          e.getAttributeValue(VALUE_KEY).toOption.getOrElse("")
-        )
-      }
+    val mapElement = element.getChild(mapKey).toOption
+    val mapEntries = mapElement.map(_.getChildren(elemKey).asScala).getOrElse(Nil)
+
+    mapEntries.foreach { e =>
+      val key = e.getAttributeValue(NAME_KEY).toOption.getOrElse("")
+      val value = e.getAttributeValue(VALUE_KEY).toOption.getOrElse("")
+      map.put(key, value)
+    }
+  }
+
+  def migrateArray(arrayKey: String, elemKey: String)(patcher: Array[String] => Unit): Unit = {
+    val map = new util.HashMap[String, String]()
+    // array is a map from index to array element, e.g. <pattern name="0" value="MyValue" />
+    migrateMap(arrayKey, elemKey, map)
+    val array = map.asScala.toArray.sortBy(_._1).map(_._2)
+    patcher(array)
   }
 
   private def needsMigration(): Boolean = element.getChild(SETTING_KEY) != null
