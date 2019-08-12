@@ -66,6 +66,8 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   @BeanProperty var testKind: TestKind = TestKind.CLASS
 
+  def testKind_(kind: TestKind): Unit = testKind = Option(testKind).getOrElse(TestKind.CLASS)
+
   var testConfigurationData: TestConfigurationData = new ClassTestData(this)
 
   final def javaSuitePaths: java.util.List[String] = suitePaths.asJava
