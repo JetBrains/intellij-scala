@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.resolver
 
-import java.io.File
+import java.io.{File, PrintWriter, StringWriter}
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
@@ -121,6 +121,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         listener.onCancel(id)
         null
       case Failure(err: Exception) =>
+        val writer = new PrintWriter(new StringWriter())
+        err.printStackTrace(writer)
+        listener.onTaskOutput(id, writer.toString, false)
         listener.onFailure(id, err)
         throw err
       case Success(data) =>
