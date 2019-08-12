@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfigur
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.util.{JdomExternalizerMigrationHelper, NotificationUtil}
 import org.jetbrains.sbt.{RichFile, RichOption}
 
 import scala.beans.BeanProperty
@@ -71,6 +71,15 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     super.readExternal(element)
     readModule(element)
     XmlSerializer.deserializeInto(this, element)
+    migrate(element)
+  }
+
+  private def migrate(element: Element): Unit = JdomExternalizerMigrationHelper(element) { helper =>
+    helper.migrateString("consoleArgs")(consoleArgs = _)
+    helper.migrateString("workingDirectory")(workingDirectory = _)
+    helper.migrateString("javaOptions")(javaOptions = _)
+    // see revision 8a3f9d28c, some time ago javaOptions was serialized as "vmparams4"
+    helper.migrateString("vmparams4")(javaOptions = _)
   }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =

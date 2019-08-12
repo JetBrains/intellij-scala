@@ -7,6 +7,10 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 class ScalaConsoleConfigurationType extends ConfigurationType with DumbAware {
   private val confFactory = new ScalaConsoleRunConfigurationFactory(this)
+  // to migrate configurations with the old id
+  private val confFactoryLegacy = new ScalaConsoleRunConfigurationFactory(this) {
+    override def getId: String = "Scala Console"
+  }
 
   def getIcon: Icon = Icons.SCALA_CONSOLE
 
@@ -14,7 +18,7 @@ class ScalaConsoleConfigurationType extends ConfigurationType with DumbAware {
 
   def getConfigurationTypeDescription: String = "Scala REPL run configurations"
 
-  def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
+  def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory, confFactoryLegacy)
 
   def getId: String = "ScalaScriptConsoleRunConfiguration"
 }
