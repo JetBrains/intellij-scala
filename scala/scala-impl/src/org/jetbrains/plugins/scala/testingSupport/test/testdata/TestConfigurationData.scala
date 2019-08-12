@@ -47,6 +47,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
   }
 
   def apply(form: TestRunConfigurationForm): Unit = {
+    setSearchTest(form.getSearchForTest)
     setJavaOptions(form.getJavaOptions)
     setTestArgs(form.getTestArgs)
     setJrePath(form.getJrePath)
@@ -70,6 +71,8 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
       helper.migrateString("params")(testArgs = _)
       helper.migrateString("searchForTest")(x => searchTest = SearchForTest.parse(x))
       helper.migrateMap("envs", "envVar", envs)
+      helper.migrateString("workingDirectory")(workingDirectory =_)
+      helper.migrateString("jrePath")(jrePath =_)
     }
   }
 

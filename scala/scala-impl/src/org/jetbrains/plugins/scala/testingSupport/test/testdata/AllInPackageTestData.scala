@@ -94,7 +94,6 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
     testPackagePath = form.getTestPackagePath
-    searchTest = form.getSearchForTest
   }
 
   override def readExternal(element: Element): Unit = {
