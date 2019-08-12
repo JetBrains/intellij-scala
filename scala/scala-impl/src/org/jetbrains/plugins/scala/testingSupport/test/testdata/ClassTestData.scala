@@ -4,12 +4,20 @@ import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.PsiClass
 import org.apache.commons.lang3.StringUtils
+import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
+
+import scala.beans.BeanProperty
 
 class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
+
+  @BeanProperty var testClassPath: String = ""
+
+  override def getKind: TestKind = TestKind.CLASS
 
   protected[test] def getClassPathClazz: PsiClass = config.getClazz(getTestClassPath, withDependencies = false)
 
@@ -38,11 +46,16 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
     Map(clazz.qualifiedName -> Set[String]())
   }
 
-  override def getKind: TestKind = TestKind.CLASS
-
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
     testClassPath = form.getTestClassPath
+  }
+
+  override def readExternal(element: Element): Unit = {
+    super.readExternal(element)
+    JdomExternalizerMigrationHelper(element) { helper =>
+      helper.migrateString("path")(testClassPath = _)
+    }
   }
 }
 

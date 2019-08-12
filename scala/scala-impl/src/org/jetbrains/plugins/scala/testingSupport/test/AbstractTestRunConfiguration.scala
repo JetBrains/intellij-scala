@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.actions.AbstractTestRerunFailedTestsAction
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, RegexpTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
@@ -53,11 +53,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
-/**
-  * @author Ksenia.Sautina
-  * @since 5/15/12
-  */
 
 abstract class AbstractTestRunConfiguration(project: Project,
                                             val configurationFactory: ConfigurationFactory,
@@ -89,9 +84,15 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def errorMessage: String
 
-  def getTestClassPath: String = testConfigurationData.testClassPath
+  override def getTestClassPath: String = testConfigurationData match {
+    case data: ClassTestData => data.testClassPath
+    case _ => null
+  }
 
-  def getTestPackagePath: String = testConfigurationData.testPackagePath
+  override def getTestPackagePath: String = testConfigurationData match {
+    case data: AllInPackageTestData => data.testPackagePath
+    case _ => null
+  }
 
   def allowsSbtUiRun: Boolean = false
 
@@ -506,7 +507,6 @@ abstract class AbstractTestRunConfiguration(project: Project,
       helper.migrateString("testKind")(x => testKind = TestKind.fromString(x))
     }
   }
-
 }
 
 trait SuiteValidityChecker {

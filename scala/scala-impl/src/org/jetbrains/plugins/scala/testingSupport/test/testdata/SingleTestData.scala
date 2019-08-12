@@ -11,6 +11,8 @@ import scala.beans.BeanProperty
 
 class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData(config) {
 
+  override def getKind: TestKind = TestKind.TEST_NAME
+
   @BeanProperty var testName = ""
 
   private def splitTests: Array[String] = testName.split("\n").filter(!_.isEmpty)
@@ -26,8 +28,6 @@ class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData
     if (clazzMap.size != 1) throw new ExecutionException("Multiple classes specified for single-test run")
     clazzMap.map{ case (aClazz, _) => (aClazz, splitTests.toSet)}
   }
-
-  override def getKind: TestKind = TestKind.TEST_NAME
 
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)

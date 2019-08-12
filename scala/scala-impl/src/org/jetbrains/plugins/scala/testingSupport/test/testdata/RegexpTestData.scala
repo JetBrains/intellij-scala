@@ -20,6 +20,8 @@ import scala.collection.mutable
 
 class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
+  override def getKind: TestKind = TestKind.REGEXP
+
   @BeanProperty var classRegexps: Array[String] = Array.empty
   @BeanProperty var testRegexps: Array[String]  = Array.empty
   @BeanProperty var testsBuf: java.util.Map[String, java.util.Set[String]] = new util.HashMap()
@@ -110,8 +112,6 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     testsBuf = res.map { case (k, v) => k -> v.asJava }.asJava
     res
   }
-
-  override def getKind: TestKind = TestKind.REGEXP
 
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
