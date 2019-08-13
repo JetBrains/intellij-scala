@@ -28,8 +28,11 @@ import com.intellij.util.containers.MultiMap
 import javax.swing.ListSelectionModel
 import org.jetbrains.plugins.scala.codeInsight.intention.declarations.ChangeAccessModifierIntention._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -48,9 +51,28 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
 
   private var targetModifier: Option[String] = None
 
+  private def findMember(elem: PsiElement): Option[ScMember] = {
+    def isAssign(psiElement: PsiElement): Boolean =
+      psiElement.elementType == ScalaTokenTypes.tASSIGN
+
+    elem.withParents
+      .takeWhile {
+        case _: PsiFile => false
+        case _: ScExpression => false
+        case _: ScTemplateBody => false
+        case _ => true
+      }
+      .takeWhile {
+        e =>
+          // never show the intention if the caret is left of an =
+          !isAssign(e) && !e.getPrevSiblingNotWhitespaceComment.toOption.exists(isAssign)
+      }
+      .collectFirst { case member: ScMember => member}
+  }
+
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val availableOpt = for {
-      member <- element.parentOfType[ScMember]
+      member <- findMember(element)
       description <- getMemberDescription(member)
     } yield {
       val available = availableModifiers(member)
@@ -74,7 +96,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     for {
-      member <- element.parentOfType[ScMember]
+      member <- findMember(element)
       file <- member.containingFile
     } {
       val possibleModifiers = availableModifiers(member)

@@ -186,4 +186,100 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
       )
     }
   }
+
+  def test_available_on_access_modifier(): Unit = {
+    checkIntentionIsAvailable(
+      s"""
+        |class Test {
+        |  private$CARET def test() = ()
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def test_available_on_type_params(): Unit = {
+    checkIntentionIsAvailable(
+      s"""
+         |class Test[X[_$CARET]]
+         |""".stripMargin
+    )
+  }
+
+  def test_available_on_constructor(): Unit = {
+    checkIntentionIsAvailable(
+      s"""
+         |class Test(val x$CARET: Int)
+         |""".stripMargin
+    )
+  }
+
+  def test_available_on_params(): Unit = {
+    checkIntentionIsAvailable(
+      s"""
+         |class Test {
+         |  def test(x$CARET: Int): Unit = ()
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def test_available_on_return_type(): Unit = {
+    checkIntentionIsAvailable(
+      s"""
+         |class Test {
+         |  def test(x: Int): Uni${CARET}t = ()
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def test_available_on_type_alias(): Unit = {
+    checkIntentionIsAvailable(
+      s"""
+         |class Test {
+         |  type$CARET X = Int
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def test_not_available_in_funcdef(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+         |class Test {
+         |  private def test() = ($CARET)
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def test_not_available_in_funcdef_2(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+         |class Test {
+         |  private def test() = $CARET ()
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def test_not_available_in_class_body(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+         |class Test {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def test_not_available_in_type_alias_def(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+         |class Test {
+         |  type X =${CARET} Int
+         |}
+         |""".stripMargin
+    )
+  }
 }
