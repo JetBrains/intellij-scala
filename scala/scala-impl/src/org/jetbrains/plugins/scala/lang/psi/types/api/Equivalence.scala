@@ -6,6 +6,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
+import org.jetbrains.plugins.scala.caches.stats.CacheStatsCollector
 
 /**
   * @author adkozlov
@@ -46,6 +47,9 @@ trait Equivalence {
   protected def equivComputable(key: Key): Computable[ConstraintsResult]
 
   private def equivInner(key: Key): ConstraintsResult = {
+    val cacheStats = CacheStatsCollector("Equivalence.equivInner", "equivInner")
+
+    cacheStats.invocation()
     val nowEval = eval.get()
     val fromCache = if (nowEval) null
     else {
@@ -62,10 +66,19 @@ trait Equivalence {
       case null =>
         val stackStamp = RecursionManager.markStack()
 
-        guard.doPreventingRecursion(key, equivComputable(key)) match {
+        cacheStats.calculationStart()
+
+        val calculated = try {
+          guard.doPreventingRecursion(key, equivComputable(key))
+        } finally {
+          cacheStats.calculationEnd()
+        }
+
+        calculated match {
           case null => Left
           case result =>
             if (!nowEval && stackStamp.mayCacheNow()) {
+
               try {
                 eval.set(true)
                 cache.put(key, result)

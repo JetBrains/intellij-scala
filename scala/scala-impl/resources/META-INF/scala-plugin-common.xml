@@ -1570,6 +1570,12 @@
         <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
         <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
       </action>
+      <action id="Scala.PrintCachesReport"
+              class="org.jetbrains.plugins.scala.caches.stats.PrintScalaCachesReportAction" >
+      </action>
+      <action id="Scala.ToggleCacheTracing"
+              class="org.jetbrains.plugins.scala.caches.stats.ToggleScalaCacheTracingAction" >
+      </action>
     </actions>
 
 </idea-plugin>

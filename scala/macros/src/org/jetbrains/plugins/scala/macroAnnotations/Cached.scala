@@ -50,26 +50,17 @@ object Cached {
         //generated names
         val cachedFunName = generateTermName(name.toString, "$cachedFun")
         val cacheStatsName = generateTermName(name.toString, "$cacheStats")
+        val cacheName = q"${name.toString}"
+
         val keyId = c.freshName(name.toString + "$cacheKey")
 
         val mapAndCounterRef = generateTermName(name.toString, "$mapAndCounter")
         val timestampedDataRef = generateTermName(name.toString,  "$valueAndCounter")
 
-        val analyzeCaches = analyzeCachesEnabled(c)
-        val defdefFQN = thisFunctionFQN(name.toString)
-
         //DefDef parameters
         val flatParams = paramss.flatten
         val paramNames = flatParams.map(_.name)
         val hasParameters: Boolean = flatParams.nonEmpty
-
-        val analyzeCachesField =
-          if(analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
-          else EmptyTree
-
-        val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
-
-        val currModCount = q"val currModCount = $modTracker.getModificationCount()"
 
         val (fields, updatedRhs) = if (hasParameters) {
           //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
@@ -81,9 +72,7 @@ object Cached {
               new _root_.scala.volatile()
               private val $mapAndCounterRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$mapType]] =
                 new $atomicReferenceTypeFQN($timestampedFQN(null, -1L))
-
-              ..$analyzeCachesField
-           """
+            """
 
           val getOrUpdateMapDef = q"""
               def getOrUpdateMap() = {
@@ -96,11 +85,12 @@ object Cached {
             """
 
           def updatedRhs = q"""
-             def $cachedFunName(): $retTp = {
-               $actualCalculation
-             }
+             def $cachedFunName(): $retTp = $rhs
 
-             ..$currModCount
+             val currModCount = $modTracker.getModificationCount()
+
+             val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
+             $cacheStatsName.invocation()
 
              $getOrUpdateMapDef
 
@@ -112,8 +102,14 @@ object Cached {
                case null =>
                  val stackStamp = $recursionManagerFQN.markStack()
 
-                 //null values are not allowed in ConcurrentHashMap, but we want to cache nullable functions
-                 val computed = _root_.scala.Some($cachedFunName())
+                 $cacheStatsName.calculationStart()
+
+                 val computed = try {
+                   //null values are not allowed in ConcurrentHashMap, but we want to cache nullable functions
+                   _root_.scala.Some($cachedFunName)
+                 } finally {
+                   $cacheStatsName.calculationEnd()
+                 }
 
                  if (stackStamp.mayCacheNow()) {
                    val race = map.putIfAbsent(key, computed)
@@ -130,18 +126,29 @@ object Cached {
               new _root_.scala.volatile()
               private val $timestampedDataRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$retTp]] =
                 new $atomicReferenceTypeFQN($timestampedFQN(${defaultValue(c)(retTp)}, -1L))
+            """
 
-            ..$analyzeCachesField
-          """
-
-          val getOrUpdateValue =
+          val updatedRhs =
             q"""
+               def $cachedFunName(): $retTp = $rhs
+
+               val currModCount = $modTracker.getModificationCount()
+
+               val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
+               $cacheStatsName.invocation()
+
                val timestamped = $timestampedDataRef.get
                if (timestamped.modCount == currModCount) timestamped.data
                else {
                  val stackStamp = $recursionManagerFQN.markStack()
 
-                 val computed = $cachedFunName()
+                 $cacheStatsName.calculationStart()
+
+                 val computed = try {
+                   $cachedFunName
+                 } finally {
+                   $cacheStatsName.calculationEnd()
+                 }
 
                  if (stackStamp.mayCacheNow()) {
                    $timestampedDataRef.compareAndSet(timestamped, $timestampedFQN(computed, currModCount))
@@ -149,17 +156,7 @@ object Cached {
                  }
                  else computed
                }
-             """
 
-          val updatedRhs =
-            q"""
-               def $cachedFunName(): $retTp = {
-                 $actualCalculation
-               }
-
-               ..$currModCount
-
-               $getOrUpdateValue
              """
           (fields, updatedRhs)
         }
@@ -169,7 +166,7 @@ object Cached {
           ..$fields
           $updatedDef
           """
-        CachedMacroUtil.println(res)
+        CachedMacroUtil.debug(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }

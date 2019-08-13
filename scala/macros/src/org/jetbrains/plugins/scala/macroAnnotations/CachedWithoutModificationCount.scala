@@ -30,8 +30,6 @@ object CachedWithoutModificationCount {
     import c.universe._
     implicit val x: c.type = c
 
-    val analyzeCaches = analyzeCachesEnabled(c)
-
     def parameters: (ValueWrapper, List[Tree]) = {
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
@@ -60,20 +58,17 @@ object CachedWithoutModificationCount {
         //generated names
         val cacheVarName = c.freshName(name)
         val mapName = generateTermName(name.toString, "map")
-        val cachedFunName = generateTermName(name.toString, "$cachedFun")
         val computedValue = generateTermName(name.toString, "computedValue")
         val cacheStatsName = generateTermName(name.toString, "cacheStats")
+        val cacheName = q"${name.toString}"
+
         val keyId = c.freshName(name.toString + "cacheKey")
-        val defdefFQN = thisFunctionFQN(name.toString)
 
         //DefDef parameters
         val flatParams = paramss.flatten
         val paramNames = flatParams.map(_.name)
         val hasParameters: Boolean = flatParams.nonEmpty
 
-        val analyzeCachesField =
-          if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
-          else EmptyTree
         val wrappedRetTp: Tree = valueWrapper match {
           case ValueWrapper.None => retTp
           case ValueWrapper.WeakReference => tq"_root_.java.lang.ref.WeakReference[$retTp]"
@@ -87,14 +82,12 @@ object CachedWithoutModificationCount {
         val fields = if (hasParameters) {
           q"""
             private val $mapName = new java.util.concurrent.ConcurrentHashMap[(..${flatParams.map(_.tpt)}), $wrappedRetTp]()
-            ..$analyzeCachesField
             ..$addToBuffers
           """
         } else {
           q"""
             new _root_.scala.volatile()
             private var $cacheVarName: $wrappedRetTp = null.asInstanceOf[$wrappedRetTp]
-            ..$analyzeCachesField
           """
         }
 
@@ -130,12 +123,21 @@ object CachedWithoutModificationCount {
 
         val functionContents =
           q"""
-            ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
+
+            val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
+            $cacheStatsName.invocation()
 
             val resultFromCache = $getFromCache
             if (resultFromCache == null) {
-              val $computedValue = $cachedFunName()
+
+              $cacheStatsName.calculationStart()
+
+              val $computedValue = try {
+                $rhs
+              } finally {
+                $cacheStatsName.calculationEnd()
+              }
 
               assert($computedValue != null, "Cached function should never return null")
 
@@ -145,21 +147,13 @@ object CachedWithoutModificationCount {
             else resultFromCache
           """
 
-        val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
-        val updatedRhs =
-          q"""
-          def $cachedFunName(): $retTp = {
-            $actualCalculation
-          }
-          $functionContents
-        """
-        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, functionContents)
         val res =
           q"""
           ..$fields
           $updatedDef
           """
-        println(res)
+        debug(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }

@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
+import org.jetbrains.plugins.scala.caches.stats.CacheStatsCollector
 
 /**
   * @author adkozlov
@@ -14,8 +15,8 @@ import org.jetbrains.plugins.scala.caches.RecursionManager
 trait Conformance {
   typeSystem: TypeSystem =>
 
-  import TypeSystem._
   import ConstraintsResult.Left
+  import TypeSystem._
 
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
@@ -42,17 +43,27 @@ trait Conformance {
 
   protected def conformsComputable(key: Key, visited: Set[PsiClass]): Computable[ConstraintsResult]
 
-  private def conformsInner(key: Key, visited: Set[PsiClass]) = cache.get(key) match {
-    case null if guard.checkReentrancy(key) => Left
-    case null =>
-      val stackStamp = RecursionManager.markStack()
+  def conformsInner(key: Key, visited: Set[PsiClass]): ConstraintsResult = {
+    val cacheStats = CacheStatsCollector("Conformance.conformsInner", "conformsInner")
+    cacheStats.invocation()
 
-      guard.doPreventingRecursion(key, conformsComputable(key, visited)) match {
-        case null => Left
-        case result =>
-          if (stackStamp.mayCacheNow()) cache.put(key, result)
-          result
-      }
-    case cached => cached
+    cache.get(key) match {
+      case null if guard.checkReentrancy(key) => Left
+      case null =>
+        val stackStamp = RecursionManager.markStack()
+        cacheStats.calculationStart()
+        try {
+          guard.doPreventingRecursion(key, conformsComputable(key, visited)) match {
+            case null => Left
+            case result =>
+              if (stackStamp.mayCacheNow()) cache.put(key, result)
+              result
+          }
+        }
+        finally {
+          cacheStats.calculationEnd()
+        }
+      case cached => cached
+    }
   }
 }

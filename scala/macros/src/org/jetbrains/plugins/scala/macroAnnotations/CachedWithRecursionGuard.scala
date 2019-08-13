@@ -54,9 +54,7 @@ object CachedWithRecursionGuard {
         //generated names
         val keyId = c.freshName(name.toString + "cacheKey")
         val cacheStatsName = generateTermName(name.toString, "cacheStats")
-        val analyzeCaches = CachedMacroUtil.analyzeCachesEnabled(c)
-        val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
-        val computedValue = generateTermName(name.toString, "computedValue")
+        val cacheName = q"${name.toString}"
         val guard = generateTermName(name.toString, "guard")
         val defValueName = generateTermName(name.toString, "defaultValue")
         val elemName = generateTermName(name.toString, "element")
@@ -89,19 +87,19 @@ object CachedWithRecursionGuard {
           if (hasParams) q"($elemName, $dataName)"
           else q"$elemName"
 
-        val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
-        val guardedCalculation = withUIFreezingGuard(c)(actualCalculation)
+        val guardedCalculation = withUIFreezingGuard(c)(rhs, retTp)
         val withProbablyRecursiveException = handleProbablyRecursiveException(c)(elemName, dataName, keyVarName, guardedCalculation)
         val calculationWithAllTheChecks = doPreventingRecursion(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp)
 
         val updatedRhs = q"""
-          ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
-
           val $elemName = $element
           val $dataName = $dataValue
           val $dataForGuardName = $dataForRecursionGuard
           val $keyVarName = ${getOrCreateKey(c, hasParams)(q"$keyId", dataType, resultType)}
           def $defValueName: $resultType = $defaultValue
+
+          val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
+          $cacheStatsName.invocation()
 
           val $holderName = $getOrCreateCachedHolder
           val fromCachedHolder = $getFromHolder
@@ -113,7 +111,13 @@ object CachedWithRecursionGuard {
 
           val stackStamp = $recursionManagerFQN.markStack()
 
-          val $resultName: $resultType = $calculationWithAllTheChecks
+          $cacheStatsName.calculationStart()
+
+          val $resultName = try {
+            $calculationWithAllTheChecks
+          } finally {
+            $cacheStatsName.calculationEnd()
+          }
 
           if (stackStamp.mayCacheNow()) {
             $updateHolder
@@ -121,14 +125,12 @@ object CachedWithRecursionGuard {
           }
           else $resultName
           """
-        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
-        val res = q"""
-          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
-          ..$updatedDef
-          """
-        println(res)
-        c.Expr(res)
+        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+
+        debug(updatedDef)
+
+        c.Expr(updatedDef)
       case _ => abort("You can only annotate one function!")
     }
   }
