@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.util.SystemProperties
 
 import scala.collection.JavaConverters._
 
@@ -24,9 +25,13 @@ trait CacheStatsCollector {
 }
 
 object CacheStatsCollector {
-  private var _enabled: Boolean = false
+  private val tracingProperty = SystemProperties.is("scala.plugin.caches.tracing")
 
-  val isAvailable: Boolean = ApplicationManager.getApplication.isInternal
+  val isAvailable: Boolean = {
+    tracingProperty || ApplicationManager.getApplication.isInternal
+  }
+
+  private var _enabled: Boolean = tracingProperty
 
   def isEnabled: Boolean = _enabled
 
