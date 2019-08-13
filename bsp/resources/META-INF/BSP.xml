@@ -4,7 +4,7 @@
 
     <project-components>
         <component>
-            <implementation-class>org.jetbrains.bsp.protocol.BspCommunicationComponent</implementation-class>
+            <implementation-class>org.jetbrains.bsp.protocol.BspCommunicationService</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.bsp.BspBuildLoop</implementation-class>
@@ -29,6 +29,8 @@
         <applicationService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
+
+        <applicationService serviceImplementation="org.jetbrains.bsp.protocol.BspCommunicationService"/>
 
         <projectImportProvider implementation="org.jetbrains.bsp.project.BspProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.bsp.project.BspProjectImportBuilder"/>

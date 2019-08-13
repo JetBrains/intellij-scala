@@ -1,5 +1,7 @@
 package org.jetbrains.bsp.project
 
+import java.io.File
+
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
@@ -22,7 +24,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getLocalSettingsProvider: Function[Project, BspLocalSettings] = BspLocalSettings.getInstance(_)
 
   override def getExecutionSettingsProvider: Function[openapi.util.Pair[Project, String], BspExecutionSettings] =
-    pair => BspExecutionSettings.executionSettingsFor(pair.first, pair.second)
+    pair => BspExecutionSettings.executionSettingsFor(pair.first, new File(pair.second))
 
   override def getProjectResolverClass: Class[BspProjectResolver] = classOf[BspProjectResolver]
 

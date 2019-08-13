@@ -90,7 +90,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     // TODO reuse existing connection if available. https://youtrack.jetbrains.com/issue/SCL-14847
-    val communication = BspCommunication.forBaseDir(projectRootPath, executionSettings)
+    val communication = BspCommunication.forBaseDir(new File(projectRootPath), executionSettings)
 
     val notifications: NotificationCallback = {
       case BspNotifications.LogMessage(params) =>
@@ -111,7 +111,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     importState = Active(communication)
     val result = waitForProjectCancelable(projectJob)
-    communication.closeSession()
     importState = Inactive
 
     statusUpdate("BSP import completed") // TODO remove in favor of build toolwindow nodes
@@ -163,7 +162,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case Active(session) =>
         listener.beforeCancel(taskId)
         importState = Inactive
-        session.closeSession()
         listener.onCancel(taskId)
         true
       case Inactive =>

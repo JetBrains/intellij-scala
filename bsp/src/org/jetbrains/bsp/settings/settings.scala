@@ -172,10 +172,8 @@ class BspExecutionSettings(val basePath: File,
 
 object BspExecutionSettings {
 
-  def executionSettingsFor(project: Project, path: String): BspExecutionSettings = {
+  def executionSettingsFor(project: Project, basePath: File): BspExecutionSettings = {
     val systemSettings = BspSystemSettings.getInstance
-
-    val basePath = new File(path)
     val bloopExecutable = new File(systemSettings.getState.bloopPath)
     new BspExecutionSettings(basePath, bloopExecutable, systemSettings.getState.traceBsp)
   }

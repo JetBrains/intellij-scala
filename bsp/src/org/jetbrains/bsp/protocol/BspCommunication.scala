@@ -6,21 +6,16 @@ import java.nio.file._
 
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.google.gson.Gson
-import com.intellij.conversion.ProjectSettings
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
-import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
-import com.intellij.openapi.vcs.changes.ui.ChangesTreeImpl.VirtualFiles
-import com.intellij.openapi.vfs.{VirtualFileManager, VirtualFileSystem}
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.SystemProperties
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
@@ -32,22 +27,36 @@ import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
+import scala.collection.mutable
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
 // TODO connections should be independent from project: https://youtrack.jetbrains.com/issue/SCL-14876
-class BspCommunicationComponent(project: Project) extends ProjectComponent {
+class BspCommunicationService {
 
-  val communication = new BspCommunication(base, Some(project), executionSettings)
+  private val comms = mutable.Map[URI, BspCommunication]()
 
-  private def base = new File(project.getBasePath)
-  private def executionSettings = {
-    val workingDirPath =
-      Option(ProjectUtil.guessProjectDir(project))
-        .getOrElse(throw new IllegalStateException(s"no project directory found for project ${project.getName}"))
-        .getCanonicalPath
-    BspExecutionSettings.executionSettingsFor(project, workingDirPath)
+  // TODO
+  // 1. close sessions on app or project closing
+  // 2. do something with unresponsive sessions
+  // 3. close unused sessions
+
+  def communicate(base: File): BspCommunication =
+    comms.getOrElseUpdate(
+      base.getCanonicalFile.toURI,
+      new BspCommunication(base, None, executionSettings(base))
+    )
+
+  private def executionSettings(base: File) = {
+    val vfile = VirtualFileManager.getInstance().findFileByUrl(base.getCanonicalFile.toURI.toString)
+    val project = ProjectUtil.guessProjectForFile(vfile)
+    BspExecutionSettings.executionSettingsFor(project, base)
   }
+}
+
+object BspCommunicationService {
+  def getService: BspCommunicationService =
+    ServiceManager.getService(classOf[BspCommunicationService])
 }
 
 class BspCommunication(base: File, project: Option[Project], executionSettings: BspExecutionSettings) {
@@ -82,7 +91,7 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
         newSessionBuilder.withInitialJob(job)
           .addNotificationCallback(projectCallback)
           .withTraceLogPredicate(project
-            .map(p => () => BspExecutionSettings.executionSettingsFor(p, base.getAbsolutePath).traceBsp)
+            .map(p => () => BspExecutionSettings.executionSettingsFor(p, base).traceBsp)
             .getOrElse(() => executionSettings.traceBsp))
         val newSession = newSessionBuilder.create
         session = Some(newSession)
@@ -110,7 +119,7 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
     case _ => // ignore
   }
 
-  def closeSession(): Try[Unit] = session match {
+  private[protocol] def closeSession(): Try[Unit] = session match {
     case None => Success(())
     case Some(s) =>
       session = None
@@ -147,15 +156,15 @@ object BspCommunication {
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
   //      BspCommunication instances per base path: https://youtrack.jetbrains.com/issue/SCL-14876
   def forProject(project: Project): BspCommunication = {
-    val pm = project.getComponent(classOf[BspCommunicationComponent])
-    if (pm == null) throw new IllegalStateException(s"unable to get component BspCommunication for project $project")
-    else pm.communication
+    val comm = BspCommunicationService.getService
+    if (comm == null) throw new IllegalStateException(s"unable to get component BspCommunication for project $project")
+    else comm.communicate(new File(project.getBasePath))
   }
 
-  def forBaseDir(baseDir: String, executionSettings: BspExecutionSettings): BspCommunication = {
-    val baseFile = new File(baseDir)
-    if (!baseFile.isDirectory) throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
-    new BspCommunication(baseFile, None, executionSettings)
+  def forBaseDir(baseDir: File, executionSettings: BspExecutionSettings): BspCommunication = {
+    val comm = BspCommunicationService.getService
+    if (!baseDir.isDirectory) throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
+    else comm.communicate(baseDir)
   }
 
 
