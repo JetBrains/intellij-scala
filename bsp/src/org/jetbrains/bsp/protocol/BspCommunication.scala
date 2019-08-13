@@ -11,7 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
@@ -55,7 +55,7 @@ class BspCommunicationService {
 }
 
 object BspCommunicationService {
-  def getService: BspCommunicationService =
+  def getInstance: BspCommunicationService =
     ServiceManager.getService(classOf[BspCommunicationService])
 }
 
@@ -155,16 +155,14 @@ object BspCommunication {
 
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
   //      BspCommunication instances per base path: https://youtrack.jetbrains.com/issue/SCL-14876
-  def forProject(project: Project): BspCommunication = {
-    val comm = BspCommunicationService.getService
-    if (comm == null) throw new IllegalStateException(s"unable to get component BspCommunication for project $project")
-    else comm.communicate(new File(project.getBasePath))
-  }
+  def forProject(project: Project): BspCommunication =
+    BspCommunicationService.getInstance.communicate(new File(project.getBasePath))
 
   def forBaseDir(baseDir: File, executionSettings: BspExecutionSettings): BspCommunication = {
-    val comm = BspCommunicationService.getService
-    if (!baseDir.isDirectory) throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
-    else comm.communicate(baseDir)
+    if (!baseDir.isDirectory)
+      throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
+    else
+      BspCommunicationService.getInstance.communicate(baseDir)
   }
 
 
@@ -196,8 +194,6 @@ object BspCommunication {
 
     val vfm = VirtualFileManager.getInstance()
 
-    // FIXME getting this from config will only work when the config window has been opened before.
-    // this is probably not the right place to get it from.
     val compilerOutputDirFromConfig = for {
       projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is redered with :// separator which findFileByUrl needs
       project <- Option(ProjectUtil.guessProjectForFile(projectDir))
@@ -278,7 +274,6 @@ object BspCommunication {
     if (dir.isDirectory) dir.listFiles()
     else Array.empty[File]
   }
-
 
   private def findFreePort(port: Int): Int = {
     val port = 5001
