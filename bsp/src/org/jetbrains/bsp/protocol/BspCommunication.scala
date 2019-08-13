@@ -67,11 +67,9 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
 
   private def acquireSessionAndRun(job: BspSessionJob[_,_]): Either[BspError, BspSession] = session.synchronized {
     session match {
-      case Some(currentSession) if currentSession.isAlive =>
-        Right(currentSession)
-
-      case Some(_) => // dead session
-        openSession(job)
+      case Some(currentSession) =>
+        if (currentSession.isAlive) Right(currentSession)
+        else openSession(job)
 
       case None =>
         openSession(job)

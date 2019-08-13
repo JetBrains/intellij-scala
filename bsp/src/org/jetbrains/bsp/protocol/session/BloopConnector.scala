@@ -23,14 +23,15 @@ class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, ca
     val socketAndCleanupOpt: Option[Either[BspError, (Socket, ()=>Unit)]] = methods.collectFirst {
       case UnixLocalBsp(socketFile) =>
 
-        val socketResult = connectUnixSocket(socketFile)
+        val procAndSocketResult = connectUnixSocket(socketFile)
 
-        socketResult.map { socket =>
+        procAndSocketResult.map { case (proc, socket) =>
           val cleanup: ()=>Unit = () => {
             socket.close()
             socket.shutdownInput()
             socket.shutdownOutput()
             if (socketFile.isFile) socketFile.delete()
+            proc.destroy()
           }
 
           (socket, cleanup)
@@ -56,16 +57,17 @@ class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, ca
     }
   }
 
-  private def connectUnixSocket(socketFile: File): Either[BspErrorMessage, UnixDomainSocket] = {
+  private def connectUnixSocket(socketFile: File): Either[BspErrorMessage, (Process, UnixDomainSocket)] = {
 
     val verboseParam = if (verbose) "--verbose" else ""
     val bloopParams = s"bsp --protocol local --socket $socketFile $verboseParam"
-    runBloop(bloopParams)
+    val proc = runBloop(bloopParams)
 
     if (bspReady(socketFile)) {
-      Right(new UnixDomainSocket(socketFile.getCanonicalPath))
+      val socket = new UnixDomainSocket(socketFile.getCanonicalPath)
+      Right((proc, socket))
     } else {
-      // TODO kill bloop process on cancel / error
+      proc.destroy()
       Left(BspErrorMessage("Bloop did not create socket file. Is the server running?"))
     }
   }
