@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 class ScalaTestRunConfigurationFactory(override val typez: ConfigurationType)
   extends AbstractTestRunConfigurationFactory(typez) {
 
-  def createTemplateConfiguration(project: Project): RunConfiguration = {
-    val configuration = new ScalaTestRunConfiguration(project, this, "")
-    configuration
-  }
+  def createTemplateConfiguration(project: Project): RunConfiguration =
+    new ScalaTestRunConfiguration(project, this, "")
 }

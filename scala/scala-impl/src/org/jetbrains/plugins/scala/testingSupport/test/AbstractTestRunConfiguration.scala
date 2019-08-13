@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.actions.AbstractTestRerunFailedTestsAction
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, RegexpTestData, TestConfigurationData}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
@@ -125,8 +125,12 @@ abstract class AbstractTestRunConfiguration(project: Project,
   }
 
   def unionScope(moduleGuard: Module => Boolean, withDependencies: Boolean): GlobalSearchScope = {
-    var scope: GlobalSearchScope = if (getModule != null) mScope(getModule, withDependencies) else GlobalSearchScope.EMPTY_SCOPE
-    for (module <- ModuleManager.getInstance(getProject).getModules) {
+    var scope: GlobalSearchScope = getModule match {
+      case null   => GlobalSearchScope.EMPTY_SCOPE
+      case module => mScope(module, withDependencies)
+    }
+    val projectModules = ModuleManager.getInstance(getProject).getModules
+    for (module <- projectModules) {
       if (moduleGuard(module)) {
         scope = scope.union(mScope(module, withDependencies))
       }
@@ -134,10 +138,11 @@ abstract class AbstractTestRunConfiguration(project: Project,
     scope
   }
 
-  def getScope(withDependencies: Boolean): GlobalSearchScope = {
-    if (getModule != null) mScope(getModule, withDependencies)
-    else unionScope(_ => true, withDependencies)
-  }
+  def getScope(withDependencies: Boolean): GlobalSearchScope =
+    getModule match {
+      case null   => unionScope(_ => true, withDependencies)
+      case module => mScope(module, withDependencies)
+    }
 
   def expandPath(_path: String): String = {
     var path = _path
@@ -227,18 +232,16 @@ abstract class AbstractTestRunConfiguration(project: Project,
     })
   }
 
-  protected[test] def getSuiteClass: PsiClass = {
-    val suiteClasses = suitePaths.map(suitePath => getClazz(suitePath, withDependencies = true)).filter(_ != null)
+  protected[test] def getSuiteClass: Either[RuntimeConfigurationException, PsiClass] = {
+    val suiteClasses = suitePaths.map(getClazz(_, withDependencies = true)).filter(_ != null)
 
     if (suiteClasses.isEmpty) {
-      throw new RuntimeConfigurationException(errorMessage)
+      Left(new RuntimeConfigurationException(errorMessage))
+    } else if (suiteClasses.size > 1) {
+      Left(new RuntimeConfigurationException(s"Multiple suite traits detected: $suiteClasses"))
+    } else {
+      Right(suiteClasses.head)
     }
-
-    if (suiteClasses.size > 1) {
-      throw new RuntimeConfigurationException("Multiple suite traits detected: " + suiteClasses)
-    }
-
-    suiteClasses.head
   }
 
   override def checkConfiguration() {
@@ -255,7 +258,8 @@ abstract class AbstractTestRunConfiguration(project: Project,
     group
   }
 
-  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = AbstractTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+  //TODO: move logic to isValidState (including inheritors), make final, to avoid double negations
+  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = getSuiteClass.fold(_ => true, AbstractTestRunConfiguration.isInvalidSuite(clazz, _))
 
   protected[test] final def isValidSuite(clazz: PsiClass): Boolean = !isInvalidSuite(clazz)
 
@@ -511,6 +515,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
   }
 }
 
+// TODO: simplify: now we have duplicates of method `isInvalidSuite` in companion object, subclasses, subclasses companion objects...
 trait SuiteValidityChecker {
 
   protected[test] def isInvalidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = {

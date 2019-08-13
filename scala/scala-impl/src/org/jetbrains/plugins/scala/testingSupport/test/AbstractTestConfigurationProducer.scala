@@ -94,7 +94,9 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   }
 
   private def prepareRunConfigurationForPackage(configuration: T, location: Location[_ <: PsiElement], testPackage: PsiPackage, displayName: String): Unit = {
-    configuration.setModule(location.getModule)
+    if (configuration.getModule == null) {
+      configuration.setModule(location.getModule)
+    }
     configuration.setGeneratedName(displayName)
 
     val testDataOld = configuration.testConfigurationData
@@ -106,7 +108,9 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   }
 
   protected def prepareRunConfiguration(configuration: T, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {
-    configuration.setModule(location.getModule)
+    if (configuration.getModule == null) {
+      configuration.setModule(location.getModule)
+    }
 
     val testDataOld = configuration.testConfigurationData
     val testDataNew = ClassTestData(configuration, testClass.qualifiedName, testName)
@@ -292,9 +296,13 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   }
 
   protected def isRunPossibleFor(configuration: T, testElement: PsiElement): Boolean = {
-
+    // We check `hasTestSuitesInModuleDependencies` once again because configuration is only created when classpath
+    // of the module from the context contains test suite class.
+    // However the created configuration can contain another module, defined in the template.
+    // For that case we do not want to hide  'Create Test Configuration' item in context menu.
+    // Instead, we allow opening "create configuration" dialog and show the error there, in the bottom of the dialog.
     testElement match {
-      case cl: PsiClass =>
+      case cl: PsiClass if hasTestSuitesInModuleDependencies(configuration.getModule) =>
         configuration.isValidSuite(cl) ||
           ClassInheritorsSearch
             .search(cl)
