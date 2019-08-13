@@ -266,7 +266,15 @@ private[resolver] object BspResolverLogic {
 
     val targetDeps = targets.flatMap(_.getDependencies.asScala)
 
-    val data1 = if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
+    val data = if(tags.contains(TEST))
+      dataBasic.copy(
+        targetTestDependencies = targetDeps,
+        testOutput = outputPath,
+        testSourceDirs = sourceRoots,
+        testResourceDirs = resourceRoots,
+        testClasspath = classPath,
+        testClasspathSources = dependencySources
+      ) else
       dataBasic.copy(
         targetDependencies = targetDeps,
         output = outputPath,
@@ -274,21 +282,9 @@ private[resolver] object BspResolverLogic {
         resourceDirs = resourceRoots,
         classpath = classPath,
         classpathSources = dependencySources,
-      ) else dataBasic
+      )
 
-    val data2 = if(tags.contains(TEST))
-      data1.copy(
-        targetTestDependencies = targetDeps,
-        testOutput = outputPath,
-        testSourceDirs = sourceRoots,
-        testResourceDirs = resourceRoots,
-        testClasspath = classPath,
-        testClasspathSources = dependencySources
-      ) else data1
-
-    // TODO ignore and warn about unsupported build target kinds? map to special module?
-
-    data2
+    data
   }
 
   /** "Inherits" data from other modules into newly created synthetic module description.
