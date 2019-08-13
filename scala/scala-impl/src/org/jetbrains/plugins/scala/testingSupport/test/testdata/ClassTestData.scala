@@ -23,17 +23,24 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 
   override def checkSuiteAndTestName(): Unit = {
     checkModule()
+
     if (getTestClassPath == "") {
       throw new RuntimeConfigurationException("Test Class is not specified")
     }
-    val clazz = getClassPathClazz
-    if (clazz == null || config.isInvalidSuite(clazz)) {
-      if (clazz != null && !ScalaPsiUtil.isInheritorDeep(clazz, config.getSuiteClass)) {
-        throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
+
+    val testClass = getClassPathClazz
+    if (testClass == null) {
+      throw new RuntimeConfigurationException("Test Class '%s' not found in module '%s'".format(getTestClassPath, getModule.getName))
+    }
+
+    //TODO: config.isInvalidSuite calls config.getSuiteClass and we call config.getSuiteClass again on the next line
+    //  we should refactor how isInvalidSuite is currently implemented to avoid this
+    if (config.isInvalidSuite(testClass)) {
+      val suiteClass = config.getSuiteClass.toTry.get
+      if (ScalaPsiUtil.isInheritorDeep(testClass, suiteClass)) {
+        throw new RuntimeConfigurationException("No Suite Class is found for Class '%s' in module '%s'".format(getTestClassPath, getModule.getName))
       } else {
-        throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".
-          format(getTestClassPath,
-            getModule.getName))
+        throw new RuntimeConfigurationException("Class '%s' is not inheritor of Suite trait".format(getTestClassPath))
       }
     }
   }

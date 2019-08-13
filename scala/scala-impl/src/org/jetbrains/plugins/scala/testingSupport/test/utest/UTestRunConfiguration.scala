@@ -20,7 +20,7 @@ class UTestRunConfiguration(project: Project,
   override protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
     if (!clazz.isInstanceOf[ScObject]) return true
     val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty("abstract") ||  !ScalaPsiUtil.isInheritorDeep(clazz, getSuiteClass)
+    list != null && list.hasModifierProperty("abstract") || getSuiteClass.fold(_ => true, !ScalaPsiUtil.isInheritorDeep(clazz, _))
   }
 
   @tailrec

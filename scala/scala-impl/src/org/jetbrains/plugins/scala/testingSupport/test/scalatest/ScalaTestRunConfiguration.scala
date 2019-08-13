@@ -38,7 +38,7 @@ class ScalaTestRunConfiguration(project: Project,
 
   override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
 
-  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = getSuiteClass.fold(_ => true, ScalaTestRunConfiguration.isInvalidSuite(clazz, _))
 
   override def allowsSbtUiRun: Boolean = true
 

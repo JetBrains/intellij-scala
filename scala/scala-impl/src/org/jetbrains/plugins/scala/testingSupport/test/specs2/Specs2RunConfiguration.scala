@@ -34,7 +34,7 @@ class Specs2RunConfiguration(project: Project,
 
   override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
 
-  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = getSuiteClass.fold(_ => true, Specs2RunConfiguration.isInvalidSuite(clazz, _))
 
   override protected def sbtClassKey = " -- -specname "
 
