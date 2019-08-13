@@ -17,13 +17,14 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 package object completion {
@@ -85,10 +86,25 @@ package object completion {
 
     def blockModCount(element: PsiElement) = BlockModificationTracker(element).getModificationCount
 
+    def areTheSame(element: PsiElement, originalElement: PsiElement): Boolean = {
+      element.startOffset == originalElement.startOffset &&
+        element.getClass == originalElement.getClass
+    }
+
+    @tailrec
+    def sameInOriginalFile(elementContext: PsiElement, originalPlace: PsiElement): Option[ScExpression] = {
+      contextWithStableType(originalPlace) match {
+        case Some(ctx) =>
+          if (areTheSame(ctx, elementContext)) Some(ctx)
+          else sameInOriginalFile(elementContext, ctx.getContext)
+        case _ => None
+      }
+    }
+
     if (originalPosition != null) {
       for {
         elementContext  <- contextWithStableType(positionInCompletionFile)
-        originalContext <- contextWithStableType(originalPosition)
+        originalContext <- sameInOriginalFile(elementContext, originalPosition)
 
         if !isContextAncestor(elementContext, originalContext, /*strict*/ false)
       } {

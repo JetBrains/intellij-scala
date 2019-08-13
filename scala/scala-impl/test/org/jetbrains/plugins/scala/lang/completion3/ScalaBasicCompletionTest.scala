@@ -1233,6 +1233,26 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
         |""".stripMargin,
     item = "toString"
   )
+
+  def testCompletionAfterDotNotLastInBlock(): Unit = doCompletionTest(
+    fileText = s"""class TestClass {
+       |  def unitReturnFunc: Unit = {
+       |    val testValue = ""
+       |    testValue.$CARET
+       |    ()
+       |  }
+       |}
+       |""".stripMargin,
+    resultText = s"""class TestClass {
+       |  def unitReturnFunc: Unit = {
+       |    val testValue = ""
+       |    testValue.charAt($CARET)
+       |    ()
+       |  }
+       |}
+       |""".stripMargin,
+    item = "charAt"
+  )
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
