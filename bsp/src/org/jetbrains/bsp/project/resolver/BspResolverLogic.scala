@@ -407,7 +407,7 @@ private[resolver] object BspResolverLogic {
 
     val moduleDeps = calculateModuleDependencies(projectModules)
     val synthDeps = calculateSyntheticDependencies(moduleDeps, projectModules)
-    val modules = idToModuleMap.values
+    val modules = idToModuleMap.values.toSet
 
     // effects
     addModuleDependencies(moduleDeps ++ synthDeps, idToModuleMap)
