@@ -143,7 +143,7 @@ object RecursionManager {
       }
     }
 
-    private[RecursionManager] def beforeComputation(realKey: MyKey[_]) {
+    private[RecursionManager] def beforeComputation(realKey: MyKey[_]): Unit = {
       enters += 1
       if (progressMap.isEmpty) {
         assert(reentrancyCount == 0, "Non-zero stamp with empty stack: " + reentrancyCount)
@@ -159,7 +159,7 @@ object RecursionManager {
       }
     }
 
-    private[RecursionManager] def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int) {
+    private[RecursionManager] def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int): Unit = {
       exits += 1
       if (sizeAfter != progressMap.size) {
         LOG.error("Map size changed: " + progressMap.size + " " + sizeAfter + " " + realKey.userObject)
@@ -176,10 +176,10 @@ object RecursionManager {
         _isDirty = false
       }
       reentrancyCount = reentrancyCountBefore
-      checkZero
+      checkZero()
     }
 
-    private[RecursionManager] def checkDepth(s: String) {
+    private[RecursionManager] def checkDepth(s: String): Unit = {
       val oldDepth: Int = depth
       if (oldDepth != progressMap.size) {
         depth = progressMap.size
@@ -187,7 +187,7 @@ object RecursionManager {
       }
     }
 
-    private[RecursionManager] def checkZero: Boolean = {
+    private[RecursionManager] def checkZero(): Boolean = {
       if (!progressMap.isEmpty && new Integer(0) != progressMap.get(progressMap.keySet.iterator.next)) {
         val message = "Recursion stack: first inserted key should have zero reentrancyCount "
         LOG.error(message + progressMap + "; value=" + progressMap.get(progressMap.keySet.iterator.next))

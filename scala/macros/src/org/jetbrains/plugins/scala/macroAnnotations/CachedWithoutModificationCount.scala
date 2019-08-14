@@ -162,8 +162,8 @@ object CachedWithoutModificationCount {
 
 object ValueWrapper extends Enumeration {
   type ValueWrapper = Value
-  val None = Value("None")
-  val SoftReference = Value("SoftReference")
-  val WeakReference = Value("WeakReference")
-  val SofterReference = Value("SofterReference")
+  val None: ValueWrapper = Value("None")
+  val SoftReference: ValueWrapper = Value("SoftReference")
+  val WeakReference: ValueWrapper = Value("WeakReference")
+  val SofterReference: ValueWrapper = Value("SofterReference")
 }

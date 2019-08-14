@@ -259,15 +259,15 @@ object CachedMacroUtil {
 object ModCount extends Enumeration {
   type ModCount = Value
   //any physical psi change
-  val getModificationCount = Value("getModificationCount")
+  val getModificationCount: ModCount = Value("getModificationCount")
 
   //only changes that may affect return type of a current block
-  val getBlockModificationCount = Value("getBlockModificationCount")
+  val getBlockModificationCount: ModCount = Value("getBlockModificationCount")
 
   //Use for hot methods: it has minimal overhead, but updates on each change
   //
   // PsiModificationTracker is not an option, because it
   // - requires calling getProject first
   // - doesn't work for non-physical elements
-  val anyScalaPsiModificationCount = Value("anyScalaPsiModificationCount")
+  val anyScalaPsiModificationCount: ModCount = Value("anyScalaPsiModificationCount")
 }

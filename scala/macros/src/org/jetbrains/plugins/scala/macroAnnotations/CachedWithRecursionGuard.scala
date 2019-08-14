@@ -5,17 +5,17 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 /**
-  * This annotation generates code that caches result of the function. Caches are invalidated on `dependencyItem` change.
-  *
-  * Computation is also guarded against recursive calls on the same data.
-  * See
-  * `org.jetbrains.plugins.scala.caches.RecursionManager`
-  * `org.jetbrains.plugins.scala.caches.CachesUtil.handleRecursiveCall`
-  * `org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.handleProbablyRecursiveException`
-  *
-  * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
-  * Date: 9/28/15.
-  */
+ * This annotation generates code that caches result of the function. Caches are invalidated on `dependencyItem` change.
+ *
+ * Computation is also guarded against recursive calls on the same data.
+ * See
+ * `org.jetbrains.plugins.scala.caches.RecursionManager`
+ * `org.jetbrains.plugins.scala.caches.CachesUtil.handleRecursiveCall`
+ * `org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.handleProbablyRecursiveException`
+ *
+ * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
+ * Date: 9/28/15.
+ */
 class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
 }

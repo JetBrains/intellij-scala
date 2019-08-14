@@ -8,13 +8,13 @@ import org.junit.Assert
   * @since 15.04.2016.
   */
 trait AssertMatches extends FailableTest {
-  def assertNothing[T](actual: Option[T]) {
+  def assertNothing[T](actual: Option[T]): Unit = {
     assertMatches(actual) {
       case Nil =>
     }
   }
 
-  def assertMatches[T](actual: Option[T])(pattern: PartialFunction[T, Unit]) {
+  def assertMatches[T](actual: Option[T])(pattern: PartialFunction[T, Unit]): Unit = {
     actual match {
       case Some(value) =>
         Assert.assertTrue(if (shouldPass) "actual: " + value.toString else failingPassed, shouldPass == pattern.isDefinedAt(value))
@@ -22,7 +22,7 @@ trait AssertMatches extends FailableTest {
     }
   }
 
-  def assertNothing[T](actual: T) {
+  def assertNothing[T](actual: T): Unit = {
     assertNothing(Some(actual))
   }
 
