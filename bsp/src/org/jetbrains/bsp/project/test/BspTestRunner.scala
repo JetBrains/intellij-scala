@@ -27,7 +27,11 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits._
 
-class BspTestRunProfileState(val project: Project, val rc: BspTestRunConfiguration, val ex: Executor) extends RunProfileState {
+class BspTestRunner(
+                     val project: Project,
+                     val rc: BspTestRunConfiguration,
+                     val ex: Executor,
+                     val testClasses: Map[URI, List[String]]) extends RunProfileState {
 
   val gson = new Gson()
 
@@ -55,6 +59,21 @@ class BspTestRunProfileState(val project: Project, val rc: BspTestRunConfigurati
     val targetIds = targets().map(uri => new BuildTargetIdentifier(uri.toString))
     val params = new TestParams(targetIds.toList.asJava)
     params.setOriginId(UUID.randomUUID().toString)
+
+    testClasses
+      .map { case (uri, classes) => new ScalaTestClassesItem(new BuildTargetIdentifier(uri.toString), classes.asJava) }
+      .toList
+    match {
+      case Nil =>
+      case list =>
+        params.setDataKind("scala-test")
+        params.setData({
+          val p = new ScalaTestParams
+          p.setTestClasses(list.asJava)
+          p
+        })
+    }
+
     server.buildTargetTest(params)
   }
 
@@ -135,9 +154,7 @@ class BspTestRunProfileState(val project: Project, val rc: BspTestRunConfigurati
       project, rc, "BSP", ex))
     val bspCommunication = project.getComponent(classOf[BspCommunicationComponent]).communication
 
-    bspCommunication.run(testRequest, onBspNotification(procHandler, new BspTestSession()), _ => {
-    })
-      .future
+    bspCommunication.run(testRequest, onBspNotification(procHandler, new BspTestSession()), _ => {}).future
       .onComplete(_ => procHandler.shutdown())
     new DefaultExecutionResult(console, procHandler)
   }

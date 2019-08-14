@@ -147,11 +147,29 @@ object BSPCli extends App {
     server.buildTargetCompile(params)
   }
 
-  def testRequest(targets: BuildIds)(server: BspServer): CompletableFuture[TestResult] = {
+  def testAllRequest(targets: BuildIds)(server: BspServer): CompletableFuture[TestResult] = {
     val params = new bsp4j.TestParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetTest(params)
   }
+
+
+  def testSingleRequest(targets: BuildIds, clasId: String, buildTargetUri: String)(server: BspServer): CompletableFuture[TestResult] = {
+    val params = new bsp4j.TestParams(targets)
+    params.setOriginId(UUID.randomUUID().toString)
+    params.setDataKind("scala-test")
+    params.setData({
+      val p = new ScalaTestParams
+      p.setTestClasses(List(
+        new ScalaTestClassesItem(
+          new BuildTargetIdentifier(buildTargetUri),
+          List(clasId).asJava)
+      ).asJava)
+      p
+    })
+    server.buildTargetTest(params)
+  }
+
 
   def testClasses(targets: BuildIds)(server: BspServer): CompletableFuture[ScalaTestClassesResult] = {
     val params = new bsp4j.ScalaTestClassesParams(targets)
@@ -160,20 +178,26 @@ object BSPCli extends App {
   }
 
   private def repl(): Unit = {
+    val exit = "exit[ \t]*".r
+    val compile = "compile[ \t]*".r
+    val getScalTestClasses = "getScalaTestClasses[ \t]*".r
+    val runAllTests = "runAllTests[ \t]*".r
+    val runTestClass = "runTestClass[ \t]+([^\\s\\\\]+)[ \t]+([^\\s\\\\]+)[ \t]*".r
+
     while (running) {
       print(Console.GREEN + ">>> " + Console.RESET)
-      val line = StdIn.readLine()
-      line match {
-        case "exit" =>
+      StdIn.readLine() match {
+        case exit() =>
           bspComm.closeSession()
           running = false
-        case "compile" => bspReq(compileRequest(targetIds.asJava))
-        case "test" => bspReq(testRequest(targetIds.asJava))
-        case "scalaTestClasses" => bspReq(testClasses(targetIds.asJava))
+        case compile() => bspReq(compileRequest(targetIds.asJava))
+        case getScalTestClasses() => bspReq(testClasses(targetIds.asJava))
+        case runAllTests() => bspReq(testAllRequest(targetIds.asJava))
+        case runTestClass(className, targetUri) => bspReq(testSingleRequest(targetIds.asJava, className, targetUri))
         case _ => println("Illegal command")
       }
     }
-    // There are non daemon threads, need to exit explicitly to stop them
+    // There are non daemon threads, need to explicitly stop them
     System.exit(0)
   }
 }
