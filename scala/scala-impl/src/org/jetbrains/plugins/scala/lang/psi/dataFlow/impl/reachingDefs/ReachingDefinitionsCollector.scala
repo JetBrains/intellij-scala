@@ -19,19 +19,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNam
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author ilyas
- */
+object ReachingDefinitionsCollector {
 
-object ReachingDefintionsCollector {
-  
   def collectVariableInfo(fragment: Seq[PsiElement], place: PsiElement): FragmentVariableInfos = {
     // CFG -> DFA
     val commonParent = findCommonParent(fragment: _*)
     val cfowner = getParentOfType(commonParent.getContext, classOf[ScControlFlowOwner], false)
     if (cfowner == null) {
       val message = "cfowner == null: " + fragment.map(_.getText).mkString("(", ", ", ")") + "\n" + "files: " +
-              fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
+        fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
       throw new RuntimeException(message)
     }
     val cfg = cfowner.getControlFlow //todo: make cache more right to not get PsiInvalidAccess

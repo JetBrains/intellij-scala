@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
@@ -226,7 +226,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
                            lastExprType: Option[ScType])
                           (implicit project: Project, editor: Editor): Unit = {
 
-    val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling)
+    val info = ReachingDefinitionsCollector.collectVariableInfo(elements, sibling)
 
     val input = info.inputVariables
     val output = info.outputVariables

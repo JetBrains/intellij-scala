@@ -38,7 +38,7 @@ class ReachingDefsCollectTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val scope = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end),
       classOf[ScControlFlowOwner], false).getParent.asInstanceOf[ScalaPsiElement]
 
-    import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector._
+    import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitionsCollector._
     val infos = collectVariableInfo(range, scope)
     val cf = dumpDefInfos(infos)
     Assert.assertEquals(input.get(1).trim, cf.trim)

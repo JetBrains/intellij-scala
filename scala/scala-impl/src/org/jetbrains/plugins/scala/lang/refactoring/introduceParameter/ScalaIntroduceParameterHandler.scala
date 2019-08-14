@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryCon
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefintionsCollector, VariableInfo}
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefinitionsCollector, VariableInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
@@ -148,7 +148,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor): Option[ScalaIntroduceParameterData] = {
     implicit val project = methodLike.getProject
 
-    val info = ReachingDefintionsCollector.collectVariableInfo(elems, methodLike)
+    val info = ReachingDefinitionsCollector.collectVariableInfo(elems, methodLike)
     val input = info.inputVariables
     val (types, argText, argClauseText) =
       if (input.nonEmpty || exprWithTypes.isEmpty) {
