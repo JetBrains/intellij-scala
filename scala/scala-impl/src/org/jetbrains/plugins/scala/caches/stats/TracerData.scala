@@ -5,6 +5,7 @@ case class TracerData(id: String,
                       fromCacheCount: Int,
                       actualCount: Int,
                       maxTime: Int,
+                      ownTime: Int,
                       totalTime: Int) {
 
   def totalCount: Int = fromCacheCount + actualCount

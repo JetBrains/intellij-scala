@@ -18,10 +18,11 @@ trait Tracer {
   protected def fromCacheCount: Int
   protected def actualCount   : Int
   protected def maxTime       : Int
+  protected def ownTime       : Int
   protected def totalTime     : Int
 
-  def stats: TracerData =
-    TracerData(id, name, fromCacheCount, actualCount, maxTime, totalTime)
+  def data: TracerData =
+    TracerData(id, name, fromCacheCount, actualCount, maxTime, ownTime, totalTime)
 }
 
 object Tracer {
@@ -58,6 +59,7 @@ object Tracer {
     override protected def fromCacheCount  : Int = 0
     override protected def actualCount: Int = 0
     override protected def maxTime    : Int = 0
+    override protected def ownTime    : Int = 0
     override protected def totalTime  : Int = 0
   }
 
@@ -66,7 +68,9 @@ object Tracer {
     private val actualCounter           = new AtomicInteger(0)
     private val maxCalculationTime      = new AtomicInteger(0)
     private val totalCalculationTime    = new AtomicInteger(0)
+    private val ownCalculationTime      = new AtomicInteger(0)
     private val currentCalculationStart = ThreadLocal.withInitial[java.lang.Long](() => null)
+    private val lastUpdate              = ThreadLocal.withInitial[java.lang.Long](() => null)
     private val recursionDepth          = ThreadLocal.withInitial[Int](() => 0)
 
     override def invocation(): Unit = {
@@ -74,32 +78,71 @@ object Tracer {
     }
 
     override def calculationStart(): Unit = {
+      val currentTime = System.currentTimeMillis()
+      pushNested(currentTime)
+
       actualCounter.incrementAndGet()
-      if (recursionDepth.get == 0) {
-        currentCalculationStart.set(System.currentTimeMillis())
+      if (recursionDepth.get == 1) {
+        currentCalculationStart.set(currentTime)
+        lastUpdate.set(currentTime)
       }
-      recursionDepth.set(recursionDepth.get + 1)
     }
 
     override def calculationEnd(): Unit = {
-      recursionDepth.set(recursionDepth.get - 1)
-      if (recursionDepth.get == 0) {
-        val start = currentCalculationStart.get()
-        val duration = (System.currentTimeMillis() - start).toInt
+      val currentTime  = System.currentTimeMillis()
 
-        val max = maxCalculationTime.get() max duration
-        maxCalculationTime.set(max)
+      updateTotalTime(currentTime, isNested = false)
 
-        totalCalculationTime.addAndGet(duration)
+      if (recursionDepth.get == 1) {
+        val duration = (currentTime - currentCalculationStart.get()).toInt
         currentCalculationStart.set(null)
+        maxCalculationTime.updateAndGet(_ max duration)
+      }
+
+      popNested(currentTime)
+    }
+
+    private def pushNested(currentTime: Long): Unit = {
+      recursionDepth.set(recursionDepth.get + 1)
+
+      currentTracers.get() match {
+        case previous :: _ => previous.updateTotalTime(currentTime, isNested = false)
+        case _ =>
+      }
+      currentTracers.set(this :: currentTracers.get())
+    }
+
+    private def popNested(currentTime: Long): Unit = {
+      currentTracers.set(currentTracers.get().tail)
+
+      currentTracers.get() match {
+        case previous :: _ => previous.updateTotalTime(currentTime, isNested = true)
+        case _ =>
+      }
+
+      recursionDepth.set(recursionDepth.get - 1)
+    }
+
+    private def updateTotalTime(currentTime: Long, isNested: Boolean): Unit = {
+      if (recursionDepth.get == 1) {
+        val delta = (currentTime - lastUpdate.get).toInt
+
+        if (!isNested)
+          ownCalculationTime.addAndGet(delta)
+
+        totalCalculationTime.addAndGet(delta)
+        lastUpdate.set(currentTime)
       }
     }
 
     override protected def fromCacheCount: Int = invocationCounter.get - actualCount
     override protected def actualCount   : Int = actualCounter.get
     override protected def maxTime       : Int = maxCalculationTime.get
+    override protected def ownTime       : Int = ownCalculationTime.get
     override protected def totalTime     : Int = totalCalculationTime.get
   }
+
+  private val currentTracers: ThreadLocal[List[TracerImpl]] = ThreadLocal.withInitial(() => Nil)
 
   private object TracerImpl {
 
@@ -111,7 +154,7 @@ object Tracer {
     }
 
     def currentData: java.util.List[TracerData] =
-      tracersMap.values().asScala.toSeq.map(_.stats).asJava
+      tracersMap.values().asScala.toSeq.map(_.data).asJava
 
     def clearAll(): Unit = tracersMap.clear()
   }

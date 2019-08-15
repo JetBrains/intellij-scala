@@ -127,8 +127,9 @@ private object TracerTableModel {
     column("Read from cache", _.fromCacheCount),
     column("Actually computed", _.actualCount),
     column("Max Time, ms", _.maxTime),
-    column("Avg Time, ms", _.avgTime),
-    column("Total Time, ms", _.totalTime)
+    column("Total Time, ms", _.totalTime),
+    column("Own Time, ms", _.ownTime),
+    column("Avg Time, ms", _.avgTime)
   )
 
   private def column[T: Ordering](name: String,
