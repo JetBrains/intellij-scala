@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.caches.stats
 
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 import com.intellij.openapi.application.ApplicationManager
 
@@ -56,19 +56,19 @@ object Tracer {
     override def calculationStart(): Unit = ()
     override def calculationEnd()  : Unit = ()
 
-    override protected def fromCacheCount  : Int = 0
-    override protected def actualCount: Int = 0
-    override protected def maxTime    : Int = 0
-    override protected def ownTime    : Int = 0
-    override protected def totalTime  : Int = 0
+    override protected def fromCacheCount: Int = 0
+    override protected def actualCount   : Int = 0
+    override protected def maxTime       : Int = 0
+    override protected def ownTime       : Int = 0
+    override protected def totalTime     : Int = 0
   }
 
   private class TracerImpl(val id: String, val name: String) extends Tracer {
     private val invocationCounter       = new AtomicInteger(0)
     private val actualCounter           = new AtomicInteger(0)
-    private val maxCalculationTime      = new AtomicInteger(0)
-    private val totalCalculationTime    = new AtomicInteger(0)
-    private val ownCalculationTime      = new AtomicInteger(0)
+    private val maxCalculationTime      = new AtomicLong(0)
+    private val totalCalculationTime    = new AtomicLong(0)
+    private val ownCalculationTime      = new AtomicLong(0)
     private val currentCalculationStart = ThreadLocal.withInitial[java.lang.Long](() => null)
     private val lastUpdate              = ThreadLocal.withInitial[java.lang.Long](() => null)
     private val recursionDepth          = ThreadLocal.withInitial[Int](() => 0)
@@ -78,7 +78,7 @@ object Tracer {
     }
 
     override def calculationStart(): Unit = {
-      val currentTime = System.currentTimeMillis()
+      val currentTime = System.nanoTime()
       pushNested(currentTime)
 
       actualCounter.incrementAndGet()
@@ -89,14 +89,16 @@ object Tracer {
     }
 
     override def calculationEnd(): Unit = {
-      val currentTime  = System.currentTimeMillis()
+      val currentTime  = System.nanoTime()
 
       updateTotalTime(currentTime, isNested = false)
 
       if (recursionDepth.get == 1) {
-        val duration = (currentTime - currentCalculationStart.get()).toInt
-        currentCalculationStart.set(null)
+        val duration = currentTime - currentCalculationStart.get()
         maxCalculationTime.updateAndGet(_ max duration)
+
+        currentCalculationStart.set(null)
+        lastUpdate.set(null)
       }
 
       popNested(currentTime)
@@ -125,7 +127,7 @@ object Tracer {
 
     private def updateTotalTime(currentTime: Long, isNested: Boolean): Unit = {
       if (recursionDepth.get == 1) {
-        val delta = (currentTime - lastUpdate.get).toInt
+        val delta = currentTime - lastUpdate.get
 
         if (!isNested)
           ownCalculationTime.addAndGet(delta)
@@ -137,10 +139,12 @@ object Tracer {
 
     override protected def fromCacheCount: Int = invocationCounter.get - actualCount
     override protected def actualCount   : Int = actualCounter.get
-    override protected def maxTime       : Int = maxCalculationTime.get
-    override protected def ownTime       : Int = ownCalculationTime.get
-    override protected def totalTime     : Int = totalCalculationTime.get
+    override protected def maxTime       : Int = roundToMillis(maxCalculationTime.get)
+    override protected def ownTime       : Int = roundToMillis(ownCalculationTime.get)
+    override protected def totalTime     : Int = roundToMillis(totalCalculationTime.get)
   }
+
+  private def roundToMillis(nanos: Long): Int = Math.round(nanos.toDouble / (1000 * 1000)).toInt
 
   private val currentTracers: ThreadLocal[List[TracerImpl]] = ThreadLocal.withInitial(() => Nil)
 
