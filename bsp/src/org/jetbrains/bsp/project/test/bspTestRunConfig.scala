@@ -12,8 +12,6 @@ import org.jetbrains.bsp.Icons
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.test.BspTestConfigurationForm._
 
-import scala.collection.JavaConverters._
-
 
 
 class BspTestRunType extends ConfigurationType {
@@ -46,6 +44,10 @@ class BspTestSettingsEditor extends SettingsEditor[BspTestRunConfiguration] {
 }
 
 
+class BspTestClassNotFoundException(klasName: String) extends ConfigurationException(
+  "Unknown test class",
+  s"The test class $klasName was not reported by BSP endpoint buildTarget/scalaTestClasses (try to reimport the project)")
+
 class BspTestRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
   extends RunConfigurationBase[String](project, configurationFactory, name) {
 
@@ -58,18 +60,11 @@ class BspTestRunConfiguration(val project: Project, val configurationFactory: Co
     testClasses = testSelection match {
       case SelectionMode.CLASS =>
         val testClassName = settings.getTestClassName
-        BspMetadata.getPerModule(project)
-          .find {
-            case (_, meta) => meta.testClasses.contains(testClassName)
-          }
-          .flatMap {
-            case (_, meta) => meta.targetIds.asScala.toList match {
-              case head :: _ => Some(head -> List(testClassName))
-              case Nil => None
-            }
-          }
-          .orElse(throw new ConfigurationException("Unknown test class",
-            s"The test class $testClassName was not repjorted by BSP endpoint buildTarget/scalaTestClasses (try to reimport project)"))
+        BspMetadata.findScalaTestClasses(project)
+          .filter({ case (_, klas) => klas == testClassName })
+          .find(_ => true)
+          .orElse(throw new BspTestClassNotFoundException(testClassName))
+          .map { case (l, r) => (l, List(r)) }
           .toMap
       case SelectionMode.ALL_IN_PROJECT => Map.empty
     }
