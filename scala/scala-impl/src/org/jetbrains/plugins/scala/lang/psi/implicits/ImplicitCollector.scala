@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
+import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -30,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -141,25 +143,36 @@ class ImplicitCollector(place: PsiElement,
         allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
       }
       else {
+        val tracer = Tracer("ImplicitCollector.cache", "collect")
+        tracer.invocation()
+
         val implicitCollectorCache = ImplicitCollector.cache(project)
         implicitCollectorCache.get(place, tp) match {
-          case Some(cached) if !fullInfo => return cached
+          case Some(cached) => return cached
           case _ =>
         }
-        val stackStamp = RecursionManager.markStack()
 
-        val firstCandidates = compatible(visibleNamesCandidates)
-        val result =
-          if (firstCandidates.exists(_.isApplicable())) firstCandidates
-          else {
-            val secondCandidates = compatible(fromTypeCandidates)
-            if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
-          }
+        tracer.calculationStart()
+        try {
 
-        if (!isExtensionConversion && stackStamp.mayCacheNow())
-          implicitCollectorCache.put(place, tp, result)
+          val stackStamp = RecursionManager.markStack()
 
-        result
+          val firstCandidates = compatible(visibleNamesCandidates)
+          val result =
+            if (firstCandidates.exists(_.isApplicable())) firstCandidates
+            else {
+              val secondCandidates = compatible(fromTypeCandidates)
+              if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
+            }
+
+          if (!isExtensionConversion && stackStamp.mayCacheNow())
+            implicitCollectorCache.put(place, tp, result)
+
+          result
+
+        } finally {
+          tracer.calculationEnd()
+        }
       }
     }
 
@@ -480,6 +493,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
+  @Measure
   def checkFunctionType(
     c:             ScalaResolveResult,
     fun:           ScFunction,
@@ -546,6 +560,7 @@ class ImplicitCollector(place: PsiElement,
     (name == "conforms" || name == "$conforms") && clazz != null && clazz.qualifiedName == "scala.Predef"
   }
 
+  @Measure
   private def checkFunctionByType(
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,

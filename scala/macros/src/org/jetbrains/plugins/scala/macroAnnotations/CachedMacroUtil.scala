@@ -113,6 +113,11 @@ object CachedMacroUtil {
     c.universe.TermName(prefix + "$" + postfix)
   }
 
+  def stringLiteral(name: AnyRef)(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"${name.toString}"
+  }
+
   def abort(s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
 
   def box(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
