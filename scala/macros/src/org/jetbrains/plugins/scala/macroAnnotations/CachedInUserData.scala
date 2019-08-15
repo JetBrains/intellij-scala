@@ -52,7 +52,7 @@ object CachedInUserData {
         //generated names
         val keyId = c.freshName(name.toString + "cacheKey")
         val cacheName = q"${name.toString}"
-        val cacheStatsName = generateTermName(name.toString, "cacheStats")
+        val tracerName = generateTermName(name.toString, "$tracer")
         val elemName = generateTermName(name.toString, "element")
         val dataName = generateTermName(name.toString, "data")
         val keyVarName = generateTermName(name.toString, "key")
@@ -83,8 +83,8 @@ object CachedInUserData {
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $actualCalculation
 
-          val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
-          $cacheStatsName.invocation()
+          val $tracerName = $internalTracer($keyId, $cacheName)
+          $tracerName.invocation()
 
           val $dataName = $dataValue
           val $keyVarName = ${getOrCreateKey(c, hasParams)(q"$keyId", dataType, resultType)}
@@ -96,12 +96,12 @@ object CachedInUserData {
 
           val stackStamp = $recursionManagerFQN.markStack()
 
-          $cacheStatsName.calculationStart()
+          $tracerName.calculationStart()
 
           val $resultName = try {
             $computation
           } finally {
-            $cacheStatsName.calculationEnd()
+            $tracerName.calculationEnd()
           }
 
           if (stackStamp.mayCacheNow()) {

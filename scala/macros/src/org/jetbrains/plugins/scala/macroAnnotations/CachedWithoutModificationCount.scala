@@ -59,7 +59,7 @@ object CachedWithoutModificationCount {
         val cacheVarName = c.freshName(name)
         val mapName = generateTermName(name.toString, "map")
         val computedValue = generateTermName(name.toString, "computedValue")
-        val cacheStatsName = generateTermName(name.toString, "cacheStats")
+        val tracerName = generateTermName(name.toString, "$tracer")
         val cacheName = q"${name.toString}"
 
         val keyId = c.freshName(name.toString + "cacheKey")
@@ -125,18 +125,18 @@ object CachedWithoutModificationCount {
           q"""
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
 
-            val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
-            $cacheStatsName.invocation()
+            val $tracerName = $internalTracer($keyId, $cacheName)
+            $tracerName.invocation()
 
             val resultFromCache = $getFromCache
             if (resultFromCache == null) {
 
-              $cacheStatsName.calculationStart()
+              $tracerName.calculationStart()
 
               val $computedValue = try {
                 $rhs
               } finally {
-                $cacheStatsName.calculationEnd()
+                $tracerName.calculationEnd()
               }
 
               assert($computedValue != null, "Cached function should never return null")

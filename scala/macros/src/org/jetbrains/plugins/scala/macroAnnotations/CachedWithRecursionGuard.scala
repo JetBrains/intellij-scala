@@ -53,7 +53,7 @@ object CachedWithRecursionGuard {
 
         //generated names
         val keyId = c.freshName(name.toString + "cacheKey")
-        val cacheStatsName = generateTermName(name.toString, "cacheStats")
+        val tracerName = generateTermName(name.toString, "$tracer")
         val cacheName = q"${name.toString}"
         val guard = generateTermName(name.toString, "guard")
         val defValueName = generateTermName(name.toString, "defaultValue")
@@ -98,8 +98,8 @@ object CachedWithRecursionGuard {
           val $keyVarName = ${getOrCreateKey(c, hasParams)(q"$keyId", dataType, resultType)}
           def $defValueName: $resultType = $defaultValue
 
-          val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
-          $cacheStatsName.invocation()
+          val $tracerName = $internalTracer($keyId, $cacheName)
+          $tracerName.invocation()
 
           val $holderName = $getOrCreateCachedHolder
           val fromCachedHolder = $getFromHolder
@@ -111,12 +111,12 @@ object CachedWithRecursionGuard {
 
           val stackStamp = $recursionManagerFQN.markStack()
 
-          $cacheStatsName.calculationStart()
+          $tracerName.calculationStart()
 
           val $resultName = try {
             $calculationWithAllTheChecks
           } finally {
-            $cacheStatsName.calculationEnd()
+            $tracerName.calculationEnd()
           }
 
           if (stackStamp.mayCacheNow()) {

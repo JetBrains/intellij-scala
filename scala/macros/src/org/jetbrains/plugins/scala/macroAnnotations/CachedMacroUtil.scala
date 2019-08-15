@@ -67,9 +67,9 @@ object CachedMacroUtil {
     tq"_root_.com.intellij.openapi.util.Key"
   }
 
-  def cacheStatsCollector(implicit c: whitebox.Context): c.universe.Tree = {
+  def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.stats.CacheStatsCollector"
+    q"_root_.org.jetbrains.plugins.scala.caches.stats.Tracer"
   }
 
   def recursionGuardFQN(implicit c: whitebox.Context): c.universe.Tree = {

@@ -4,28 +4,27 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.util.SystemProperties
 
 import scala.collection.JavaConverters._
 
-trait CacheStatsCollector {
-  def cacheName: String
+trait Tracer {
+  def name: String
 
   def invocation()      : Unit
   def calculationStart(): Unit
   def calculationEnd()  : Unit
 
-  protected def cacheHits  : Int
-  protected def cacheMisses: Int
-  protected def maxTime    : Int
-  protected def totalTime  : Int
+  protected def fromCacheCount: Int
+  protected def actualCount   : Int
+  protected def maxTime       : Int
+  protected def totalTime     : Int
 
-  def stats: CacheStats =
-    CacheStats(cacheName, cacheHits, cacheMisses, maxTime, totalTime)
+  def stats: TracerData =
+    TracerData(name, fromCacheCount, actualCount, maxTime, totalTime)
 }
 
-object CacheStatsCollector {
-  private val tracingProperty = SystemProperties.is("scala.plugin.caches.tracing")
+object Tracer {
+  private val tracingProperty = System.getProperty("internal.profiler.tracing") == "true"
 
   val isAvailable: Boolean = {
     tracingProperty || ApplicationManager.getApplication.isInternal
@@ -37,37 +36,32 @@ object CacheStatsCollector {
 
   def setEnabled(v: Boolean): Unit = {
     _enabled = v
-    if (!v) {
-      CollectorImpl.clearAll()
-    }
   }
 
-  def apply(id: String, name: String): CacheStatsCollector =
-    if (isEnabled) CollectorImpl.getOrCreate(id, name)
-    else NoOpCollector
+  def apply(id: String, name: String): Tracer =
+    if (isEnabled) TracerImpl.getOrCreate(id, name)
+    else NoOpTracer
 
-  def printReport(): Unit = {
-    if (isEnabled) {
-      CollectorImpl.printReport()
-    }
-  }
+  def clearAll(): Unit = TracerImpl.clearAll()
 
-  private object NoOpCollector extends CacheStatsCollector {
-    override def cacheName: String = "No cache stats"
+  def getCurrentData: java.util.List[TracerData] = TracerImpl.currentData
+
+  private object NoOpTracer extends Tracer {
+    override def name: String = "No cache stats"
 
     override def invocation()      : Unit = ()
     override def calculationStart(): Unit = ()
     override def calculationEnd()  : Unit = ()
 
-    override protected def cacheHits  : Int = 0
-    override protected def cacheMisses: Int = 0
+    override protected def fromCacheCount  : Int = 0
+    override protected def actualCount: Int = 0
     override protected def maxTime    : Int = 0
     override protected def totalTime  : Int = 0
   }
 
-  private class CollectorImpl(val cacheId: String, val cacheName: String) extends CacheStatsCollector {
+  private class TracerImpl(val id: String, val name: String) extends Tracer {
     private val invocationCounter       = new AtomicInteger(0)
-    private val cacheMissCounter        = new AtomicInteger(0)
+    private val actualCounter           = new AtomicInteger(0)
     private val maxCalculationTime      = new AtomicInteger(0)
     private val totalCalculationTime    = new AtomicInteger(0)
     private val currentCalculationStart = ThreadLocal.withInitial[java.lang.Long](() => null)
@@ -78,7 +72,7 @@ object CacheStatsCollector {
     }
 
     override def calculationStart(): Unit = {
-      cacheMissCounter.incrementAndGet()
+      actualCounter.incrementAndGet()
       if (recursionDepth.get == 0) {
         currentCalculationStart.set(System.currentTimeMillis())
       }
@@ -99,27 +93,25 @@ object CacheStatsCollector {
       }
     }
 
-    override protected def cacheHits  : Int = invocationCounter.get - cacheMisses
-    override protected def cacheMisses: Int = cacheMissCounter.get
-    override protected def maxTime    : Int = maxCalculationTime.get
-    override protected def totalTime  : Int = totalCalculationTime.get
+    override protected def fromCacheCount: Int = invocationCounter.get - actualCount
+    override protected def actualCount   : Int = actualCounter.get
+    override protected def maxTime       : Int = maxCalculationTime.get
+    override protected def totalTime     : Int = totalCalculationTime.get
   }
 
-  private object CollectorImpl {
+  private object TracerImpl {
 
-    private val cacheStatsMap =
-      new ConcurrentHashMap[String, CacheStatsCollector]()
+    private val tracersMap =
+      new ConcurrentHashMap[String, Tracer]()
 
-    def getOrCreate(id: String, name: String): CacheStatsCollector = {
-      cacheStatsMap.computeIfAbsent(id, new CollectorImpl(_, name))
+    def getOrCreate(id: String, name: String): Tracer = {
+      tracersMap.computeIfAbsent(id, new TracerImpl(_, name))
     }
 
-    def printReport(): Unit = {
-      val data = cacheStatsMap.values().asScala.map(_.stats).toSeq.sortBy(_.name)
-      CacheStats.printReport(data)
-    }
+    def currentData: java.util.List[TracerData] =
+      tracersMap.values().asScala.toSeq.map(_.stats).asJava
 
-    def clearAll(): Unit = cacheStatsMap.clear()
+    def clearAll(): Unit = tracersMap.clear()
   }
 
 }

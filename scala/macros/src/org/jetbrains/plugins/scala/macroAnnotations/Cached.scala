@@ -49,7 +49,7 @@ object Cached {
         }
         //generated names
         val cachedFunName = generateTermName(name.toString, "$cachedFun")
-        val cacheStatsName = generateTermName(name.toString, "$cacheStats")
+        val tracerName = generateTermName(name.toString, "$tracer")
         val cacheName = q"${name.toString}"
 
         val keyId = c.freshName(name.toString + "$cacheKey")
@@ -89,8 +89,8 @@ object Cached {
 
              val currModCount = $modTracker.getModificationCount()
 
-             val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
-             $cacheStatsName.invocation()
+             val $tracerName = $internalTracer($keyId, $cacheName)
+             $tracerName.invocation()
 
              $getOrUpdateMapDef
 
@@ -102,13 +102,13 @@ object Cached {
                case null =>
                  val stackStamp = $recursionManagerFQN.markStack()
 
-                 $cacheStatsName.calculationStart()
+                 $tracerName.calculationStart()
 
                  val computed = try {
                    //null values are not allowed in ConcurrentHashMap, but we want to cache nullable functions
                    _root_.scala.Some($cachedFunName)
                  } finally {
-                   $cacheStatsName.calculationEnd()
+                   $tracerName.calculationEnd()
                  }
 
                  if (stackStamp.mayCacheNow()) {
@@ -134,20 +134,20 @@ object Cached {
 
                val currModCount = $modTracker.getModificationCount()
 
-               val $cacheStatsName = $cacheStatsCollector($keyId, $cacheName)
-               $cacheStatsName.invocation()
+               val $tracerName = $internalTracer($keyId, $cacheName)
+               $tracerName.invocation()
 
                val timestamped = $timestampedDataRef.get
                if (timestamped.modCount == currModCount) timestamped.data
                else {
                  val stackStamp = $recursionManagerFQN.markStack()
 
-                 $cacheStatsName.calculationStart()
+                 $tracerName.calculationStart()
 
                  val computed = try {
                    $cachedFunName
                  } finally {
-                   $cacheStatsName.calculationEnd()
+                   $tracerName.calculationEnd()
                  }
 
                  if (stackStamp.mayCacheNow()) {

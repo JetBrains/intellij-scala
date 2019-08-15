@@ -170,6 +170,9 @@
                   factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
                   conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
 
+        <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false"
+                    factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory" />
+
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
@@ -1569,12 +1572,6 @@
               class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
         <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
         <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
-      </action>
-      <action id="Scala.PrintCachesReport"
-              class="org.jetbrains.plugins.scala.caches.stats.PrintScalaCachesReportAction" >
-      </action>
-      <action id="Scala.ToggleCacheTracing"
-              class="org.jetbrains.plugins.scala.caches.stats.ToggleScalaCacheTracingAction" >
       </action>
     </actions>
 

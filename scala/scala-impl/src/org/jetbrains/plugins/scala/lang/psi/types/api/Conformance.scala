@@ -7,7 +7,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.CacheStatsCollector
+import org.jetbrains.plugins.scala.caches.stats.Tracer
 
 /**
   * @author adkozlov
@@ -44,14 +44,14 @@ trait Conformance {
   protected def conformsComputable(key: Key, visited: Set[PsiClass]): Computable[ConstraintsResult]
 
   def conformsInner(key: Key, visited: Set[PsiClass]): ConstraintsResult = {
-    val cacheStats = CacheStatsCollector("Conformance.conformsInner", "conformsInner")
-    cacheStats.invocation()
+    val tracer = Tracer("Conformance.conformsInner", "conformsInner")
+    tracer.invocation()
 
     cache.get(key) match {
       case null if guard.checkReentrancy(key) => Left
       case null =>
         val stackStamp = RecursionManager.markStack()
-        cacheStats.calculationStart()
+        tracer.calculationStart()
         try {
           guard.doPreventingRecursion(key, conformsComputable(key, visited)) match {
             case null => Left
@@ -61,7 +61,7 @@ trait Conformance {
           }
         }
         finally {
-          cacheStats.calculationEnd()
+          tracer.calculationEnd()
         }
       case cached => cached
     }
