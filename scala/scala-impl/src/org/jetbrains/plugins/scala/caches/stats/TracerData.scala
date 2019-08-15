@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-case class TracerData(name: String,
+case class TracerData(id: String,
+                      name: String,
                       fromCacheCount: Int,
                       actualCount: Int,
                       maxTime: Int,

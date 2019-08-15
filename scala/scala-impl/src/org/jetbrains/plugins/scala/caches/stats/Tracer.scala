@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 import scala.collection.JavaConverters._
 
 trait Tracer {
+  def id: String
   def name: String
 
   def invocation()      : Unit
@@ -20,7 +21,7 @@ trait Tracer {
   protected def totalTime     : Int
 
   def stats: TracerData =
-    TracerData(name, fromCacheCount, actualCount, maxTime, totalTime)
+    TracerData(id, name, fromCacheCount, actualCount, maxTime, totalTime)
 }
 
 object Tracer {
@@ -47,6 +48,7 @@ object Tracer {
   def getCurrentData: java.util.List[TracerData] = TracerImpl.currentData
 
   private object NoOpTracer extends Tracer {
+    override def id: String = "$$NoOpTracer$$"
     override def name: String = "No cache stats"
 
     override def invocation()      : Unit = ()

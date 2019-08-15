@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.caches.stats
 
 import java.awt.BorderLayout
 import java.util.Comparator
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.icons.AllIcons
@@ -14,7 +14,6 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import javax.swing.{Icon, JPanel, JScrollPane}
-import org.jetbrains.plugins.scala.caches.stats.CacheStatsTableModel.columns
 
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
 
@@ -40,7 +39,7 @@ object InternalProfilerToolWindowFactory {
     actionToolbarPanel.setLayout(new BorderLayout)
     actionToolbarPanel.add(actionToolBar.getComponent)
 
-    val table = new TableView(CacheStatsTableModel.instance)
+    val table = new TableView(TracerTableModel.instance)
 
     val scrollPane = new JScrollPane
     scrollPane.setViewportView(table)
@@ -58,7 +57,9 @@ object InternalProfilerToolWindowFactory {
   def scheduleRefresh(): Unit = {
     JobScheduler.getScheduler
       .scheduleWithFixedDelay(() => {
-        if (Tracer.isEnabled) CacheStatsTableModel.refresh()
+        ApplicationManager.getApplication.invokeLater(() =>
+          TracerTableModel.refresh()
+        )
       }, 500L, 500L, TimeUnit.MILLISECONDS)
   }
 
@@ -85,28 +86,42 @@ object InternalProfilerToolWindowFactory {
 
     def actionPerformed(e: AnActionEvent): Unit = {
       Tracer.clearAll()
-      CacheStatsTableModel.refresh()
+      TracerTableModel.clear()
     }
   }
 
 }
 
 
-private class CacheStatsTableModel(stats: java.util.List[TracerData])
-  extends ListTableModel[TracerData](columns, stats)
+private class TracerTableModel extends ListTableModel[String](TracerTableModel.columns: _*)
 
-private object CacheStatsTableModel {
+private object TracerTableModel {
+  private val map = new ConcurrentHashMap[String, TracerData]()
 
-  lazy val instance = new CacheStatsTableModel(Tracer.getCurrentData)
+  lazy val instance = new TracerTableModel
+
+  def clear(): Unit = {
+    map.clear()
+    instance.setItems(new java.util.ArrayList())
+  }
 
   def refresh(): Unit = {
     val data = Tracer.getCurrentData
-    ApplicationManager.getApplication.invokeLater { () =>
-      instance.setItems(data)
+    val tableModel = TracerTableModel.instance
+
+    data.forEach { d =>
+      val tracerId = d.id
+      map.put(tracerId, d)
+
+      tableModel.indexOf(tracerId) match {
+        case -1  => tableModel.addRow(tracerId)
+        case idx => tableModel.fireTableRowsUpdated(idx, idx)
+      }
     }
+
   }
 
-  private val columns = Array[ColumnInfo[_, _]](
+  private def columns = Array[ColumnInfo[_, _]](
     column("Computation", _.name),
     column("Invoked", _.totalCount),
     column("Read from cache", _.fromCacheCount),
@@ -117,10 +132,10 @@ private object CacheStatsTableModel {
   )
 
   private def column[T: Ordering](name: String,
-                                  value: TracerData => T): ColumnInfo[TracerData, T] =
-    new ColumnInfo[TracerData, T](name) {
-      override def valueOf(item: TracerData): T = value(item)
+                                  value: TracerData => T): ColumnInfo[String, T] =
+    new ColumnInfo[String, T](name) {
+      override def valueOf(id: String): T = value(map.get(id))
 
-      override def getComparator: Comparator[TracerData] = implicitly[Ordering[T]].on(valueOf)
+      override def getComparator: Comparator[String] = implicitly[Ordering[T]].on(valueOf)
     }
 }
