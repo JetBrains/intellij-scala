@@ -14,7 +14,7 @@ case class TracerData(id: String,
     if (actualCount == 0) 0
     else {
       val exact = totalTime.toDouble / actualCount
-      (exact * 100).round / 100
+      (exact * 100).round.toDouble / 100
     }
   }
 }
