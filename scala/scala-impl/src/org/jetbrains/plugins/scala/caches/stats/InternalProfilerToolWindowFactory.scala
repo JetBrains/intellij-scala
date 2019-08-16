@@ -13,7 +13,7 @@ import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import javax.swing.{Icon, JPanel, JScrollPane}
+import javax.swing.{Icon, JPanel, JScrollPane, JTable}
 import org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory.scheduleRefresh
 import org.jetbrains.plugins.scala.caches.stats.TracerTableModel.{MyColumnInfo, map}
 
@@ -57,7 +57,8 @@ object InternalProfilerToolWindowFactory {
     actionToolbarPanel.setLayout(new BorderLayout)
     actionToolbarPanel.add(actionToolBar.getComponent)
 
-    val table = new TracerTable(tableModel)
+    val table = new TableView(tableModel)
+    tableModel.fixColumnWidth(table)
 
     val scrollPane = new JScrollPane
     scrollPane.setViewportView(table)
@@ -109,18 +110,6 @@ object InternalProfilerToolWindowFactory {
 
 }
 
-private class TracerTable(model: TracerTableModel) extends TableView(model) {
-  fixColumnWidth()
-
-  private def fixColumnWidth(): Unit = {
-    val wideIdx = model.columns.indexWhere(_.wide)
-    if (wideIdx >= 0) {
-      getColumnModel.getColumn(wideIdx)
-        .setPreferredWidth(1000)
-    }
-  }
-}
-
 private class TracerTableModel(val columns: Seq[MyColumnInfo[_]])
   extends ListTableModel[String](columns: _*) {
 
@@ -138,6 +127,14 @@ private class TracerTableModel(val columns: Seq[MyColumnInfo[_]])
     }
   }
 
+  def fixColumnWidth(table: JTable): Unit = {
+    val infos = columns.iterator
+    val tableColumns = table.getColumnModel.getColumns.asScala
+    infos.zip(tableColumns).foreach {
+      case (info, column) =>
+        column.setPreferredWidth(100 * info.preferredWidth)
+    }
+  }
 }
 
 private object TracerTableModel {
@@ -146,9 +143,11 @@ private object TracerTableModel {
   lazy val timings = new TracerTableModel(columnsWithTimings)
   lazy val parentCalls = new TracerTableModel(columnsWithParentCalls)
 
+
+
   class MyColumnInfo[T: Ordering](name: String,
                                   value: TracerData => T,
-                                  val wide: Boolean) extends ColumnInfo[String, T](name) {
+                                  val preferredWidth: Int) extends ColumnInfo[String, T](name) {
 
     override def valueOf(id: String): T = value(map.get(id))
 
@@ -167,7 +166,7 @@ private object TracerTableModel {
   }
 
   private def columnsWithTimings = Seq[MyColumnInfo[_]](
-    column("Computation", _.name),
+    column("Computation", _.name, preferredWidth = 5),
     column("Invoked", _.totalCount),
     column("Read from cache", _.fromCacheCount),
     column("Actually computed", _.actualCount),
@@ -178,17 +177,17 @@ private object TracerTableModel {
   )
 
   private def columnsWithParentCalls = Seq[MyColumnInfo[_]](
-    column("Computation", _.name),
+    column("Computation", _.name, preferredWidth = 6),
     column("Actually computed", _.actualCount),
     column("Total Time, ms", _.totalTime),
-    column("Parent calls", parentCallsText, wide = true)
+    column("Parent calls", parentCallsText, preferredWidth = 12)
   )
 
 
   private def column[T: Ordering](name: String,
                                   value: TracerData => T,
-                                  wide: Boolean = false): MyColumnInfo[T] =
-    new MyColumnInfo[T](name, value, wide)
+                                  preferredWidth: Int = 1): MyColumnInfo[T] =
+    new MyColumnInfo[T](name, value, preferredWidth)
 
 
   private def parentCallsText(data: TracerData): String = {
