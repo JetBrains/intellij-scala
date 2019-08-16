@@ -36,8 +36,8 @@ object ReachingDefinitionsCollector {
 
     // instructions in given fragment
     val fragmentInstructions = filterByFragment(cfg, fragment)
-    
-    val inputInfos = computeInputVaribles(fragmentInstructions).filter(info => !isVisible(info.element, place))
+
+    val inputInfos = computeInputVariables(fragmentInstructions).filter(info => !isVisible(info.element, place))
     val outputInfos = computeOutputVariables(fragmentInstructions, dfaResult)
 
     FragmentVariableInfos(inputInfos, outputInfos)
@@ -68,7 +68,7 @@ object ReachingDefinitionsCollector {
         checkResolve(createExpressionWithContextFromText(element.name, place.getContext, place))
       case _: ScTypeAlias | _: ScTypeDefinition =>
         val decl = createDeclarationFromText(s"val dummyVal: ${element.name}", place.getContext, place)
-                .asInstanceOf[ScValueDeclaration]
+          .asInstanceOf[ScValueDeclaration]
         decl.typeElement match {
           case Some(st: ScSimpleTypeElement) => st.reference.exists(checkResolve)
           case _ => false
@@ -86,11 +86,11 @@ object ReachingDefinitionsCollector {
     i => i.element.exists(isInFragment(_, fragment))
   }
 
-  def computeOutputVariables(innerInstructions: Seq[Instruction],
-                             dfaResult: mutable.Map[Instruction, RDSet]): Iterable[VariableInfo] = {
+  private def computeOutputVariables(innerInstructions: Seq[Instruction],
+                                     dfaResult: mutable.Map[Instruction, RDSet]): Iterable[VariableInfo] = {
     val buffer = new ArrayBuffer[PsiNamedElement]
     for {
-      (read @ ReadWriteVariableInstruction(_, readRef, Some(definitionToRead), false), rdset) <- dfaResult
+      (read@ReadWriteVariableInstruction(_, readRef, Some(definitionToRead), false), rdset) <- dfaResult
       if !innerInstructions.contains(read)
       reaching <- rdset
       if innerInstructions.contains(reaching)
@@ -104,11 +104,12 @@ object ReachingDefinitionsCollector {
     buffer.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
 
-  def computeInputVaribles(innerInstructions: Seq[Instruction]): Iterable[VariableInfo] = {
+  private def computeInputVariables(innerInstructions: Seq[Instruction]): Iterable[VariableInfo] = {
     val buffer = mutable.Set[PsiNamedElement]()
     val definedHere = innerInstructions.collect {
       case DefinitionInstruction(_, named, _) => named
     }
+
     innerInstructions.foreach {
       case ReadWriteVariableInstruction(_, _, Some(definition), _) if !definedHere.contains(definition) =>
         definition match {
@@ -118,22 +119,12 @@ object ReachingDefinitionsCollector {
       case _ =>
     }
 
-    def isSynthetic(element: PsiNamedElement): Boolean = element match {
-      case _: SyntheticNamedElement => true
-      case _ => false
-    }
-
-    buffer.filterNot(isSynthetic).toSeq.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
+    val physical = buffer.filter(_.isPhysical).toSeq
+    physical.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
-
-
 }
 
 case class FragmentVariableInfos(inputVariables: Iterable[VariableInfo],
                                  outputVariables: Iterable[VariableInfo])
-
-object FragmentVariableInfos {
-  def empty = FragmentVariableInfos(Nil, Nil)
-}
 
 case class VariableInfo(element: PsiNamedElement)
