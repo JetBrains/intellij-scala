@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong, AtomicReference}
 
 import com.intellij.openapi.application.ApplicationManager
 
@@ -151,16 +150,49 @@ object Tracer {
   private object TracerImpl {
 
     private val tracersMap =
-      new ConcurrentHashMap[String, Tracer]()
+      new MyConcurrentMap[String, Tracer]()
 
     def getOrCreate(id: String, name: String): Tracer = {
       tracersMap.computeIfAbsent(id, new TracerImpl(_, name))
     }
 
     def currentData: java.util.List[TracerData] =
-      tracersMap.values().asScala.toSeq.map(_.data).asJava
+      tracersMap.values.asScala.toSeq.map(_.data).asJava
 
     def clearAll(): Unit = tracersMap.clear()
+  }
+
+  private class MyConcurrentMap[K, V >: Null] {
+    private val emptyMap = java.util.Collections.emptyMap[K, V]()
+
+    private val ref: AtomicReference[java.util.Map[K, V]] = new AtomicReference(emptyMap)
+
+    def computeIfAbsent(k: K, v: K => V): V = {
+      do {
+        val prev = ref.get()
+        prev.get(k) match {
+          case null =>
+            val newValue = v(k)
+            val newMap = add(prev, k, newValue)
+            if (ref.compareAndSet(prev, newMap))
+              return newValue
+          case v =>
+            return v
+        }
+      } while (true)
+      //will never executed
+      null
+    }
+
+    def clear(): Unit = ref.set(emptyMap)
+
+    def values: java.util.Collection[V] = ref.get.values()
+
+    private def add(oldMap: java.util.Map[K, V], key: K, value: V): java.util.Map[K, V] = {
+      val newMap = new java.util.HashMap[K, V](oldMap)
+      newMap.put(key, value)
+      java.util.Collections.unmodifiableMap(newMap)
+    }
   }
 
 }
