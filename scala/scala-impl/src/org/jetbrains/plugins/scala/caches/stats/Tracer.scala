@@ -20,8 +20,11 @@ trait Tracer {
   protected def ownTime       : Int
   protected def totalTime     : Int
 
+  //name to count
+  protected def parentCalls   : java.util.List[(String, Int)]
+
   def data: TracerData =
-    TracerData(id, name, fromCacheCount, actualCount, maxTime, ownTime, totalTime)
+    TracerData(id, name, fromCacheCount, actualCount, maxTime, ownTime, totalTime, parentCalls)
 }
 
 object Tracer {
@@ -60,7 +63,11 @@ object Tracer {
     override protected def maxTime       : Int = 0
     override protected def ownTime       : Int = 0
     override protected def totalTime     : Int = 0
+
+    override protected def parentCalls: java.util.List[(String, Int)] = java.util.Collections.emptyList()
   }
+
+  private val root = new TracerImpl("root-tracer-id$$", "<root>")
 
   private class TracerImpl(val id: String, val name: String) extends Tracer {
     private val invocationCounter       = new AtomicInteger(0)
@@ -71,6 +78,8 @@ object Tracer {
     private val currentCalculationStart = ThreadLocal.withInitial[java.lang.Long](() => null)
     private val lastUpdate              = ThreadLocal.withInitial[java.lang.Long](() => null)
     private val recursionDepth          = ThreadLocal.withInitial[Int](() => 0)
+
+    private val parentCallCounters      = new MyConcurrentMap[TracerImpl, AtomicInteger]
 
     override def invocation(): Unit = {
       invocationCounter.incrementAndGet()
@@ -107,8 +116,11 @@ object Tracer {
       recursionDepth.set(recursionDepth.get + 1)
 
       currentTracers.get() match {
-        case previous :: _ => previous.updateTotalTime(currentTime, isNested = false)
+        case previous :: _ =>
+          previous.updateTotalTime(currentTime, isNested = false)
+          callFrom(previous)
         case _ =>
+          callFrom(root)
       }
       currentTracers.set(this :: currentTracers.get())
     }
@@ -136,11 +148,19 @@ object Tracer {
       }
     }
 
+    private def callFrom(other: TracerImpl): Unit = {
+      val intRef = parentCallCounters.computeIfAbsent(other, _ => new AtomicInteger(0))
+      intRef.addAndGet(1)
+    }
+
     override protected def fromCacheCount: Int = invocationCounter.get - actualCount
     override protected def actualCount   : Int = actualCounter.get
     override protected def maxTime       : Int = roundToMillis(maxCalculationTime.get)
     override protected def ownTime       : Int = roundToMillis(ownCalculationTime.get)
     override protected def totalTime     : Int = roundToMillis(totalCalculationTime.get)
+
+    override protected def parentCalls   : java.util.List[(String, Int)] =
+      parentCallCounters.map((tr, ref) => (tr.name, ref.get))
   }
 
   private def roundToMillis(nanos: Long): Int = Math.round(nanos.toDouble / (1000 * 1000)).toInt
@@ -180,13 +200,20 @@ object Tracer {
             return v
         }
       } while (true)
-      //will never executed
+      //will be never reached
       null
     }
 
     def clear(): Unit = ref.set(emptyMap)
 
     def values: java.util.Collection[V] = ref.get.values()
+
+    def map[T](f: (K, V) => T): java.util.List[T] = {
+      val map = ref.get()
+      val result = new java.util.ArrayList[T]
+      map.forEach((k, v) => result.add(f(k, v)))
+      result
+    }
 
     private def add(oldMap: java.util.Map[K, V], key: K, value: V): java.util.Map[K, V] = {
       val newMap = new java.util.HashMap[K, V](oldMap)

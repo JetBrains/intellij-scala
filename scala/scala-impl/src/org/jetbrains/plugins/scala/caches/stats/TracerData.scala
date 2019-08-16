@@ -6,7 +6,8 @@ case class TracerData(id: String,
                       actualCount: Int,
                       maxTime: Int,
                       ownTime: Int,
-                      totalTime: Int) {
+                      totalTime: Int,
+                      parentCalls: java.util.List[(String, Int)]) {
 
   def totalCount: Int = fromCacheCount + actualCount
 
