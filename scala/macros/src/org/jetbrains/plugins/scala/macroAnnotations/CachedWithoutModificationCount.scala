@@ -60,7 +60,7 @@ object CachedWithoutModificationCount {
         val mapName = generateTermName(name.toString, "map")
         val computedValue = generateTermName(name.toString, "computedValue")
         val tracerName = generateTermName(name.toString, "$tracer")
-        val cacheName = q"${name.toString}"
+        val cacheName = withClassName(name)
 
         val keyId = c.freshName(name.toString + "cacheKey")
 

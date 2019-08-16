@@ -47,7 +47,7 @@ trait Equivalence {
   protected def equivComputable(key: Key): Computable[ConstraintsResult]
 
   private def equivInner(key: Key): ConstraintsResult = {
-    val tracer = Tracer("Equivalence.equivInner", "equivInner")
+    val tracer = Tracer("Equivalence.equivInner", "Equivalence.equivInner")
 
     tracer.invocation()
     val nowEval = eval.get()

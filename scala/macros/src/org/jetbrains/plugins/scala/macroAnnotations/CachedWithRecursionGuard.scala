@@ -54,7 +54,7 @@ object CachedWithRecursionGuard {
         //generated names
         val keyId = c.freshName(name.toString + "cacheKey")
         val tracerName = generateTermName(name.toString, "$tracer")
-        val cacheName = q"${name.toString}"
+        val cacheName = withClassName(name)
         val guard = generateTermName(name.toString, "guard")
         val defValueName = generateTermName(name.toString, "defaultValue")
         val elemName = generateTermName(name.toString, "element")

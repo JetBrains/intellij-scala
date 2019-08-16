@@ -44,7 +44,7 @@ trait Conformance {
   protected def conformsComputable(key: Key, visited: Set[PsiClass]): Computable[ConstraintsResult]
 
   def conformsInner(key: Key, visited: Set[PsiClass]): ConstraintsResult = {
-    val tracer = Tracer("Conformance.conformsInner", "conformsInner")
+    val tracer = Tracer("Conformance.conformsInner", "Conformance.conformsInner")
     tracer.invocation()
 
     cache.get(key) match {

@@ -18,7 +18,7 @@ object Measure {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
 
         val uniqueId = stringLiteral(c.freshName(name))
-        val cacheName = stringLiteral(name)
+        val cacheName = withClassName(name)
         val updatedBody =
           q"""
             val _tracer_ = $internalTracer($uniqueId, $cacheName)

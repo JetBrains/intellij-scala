@@ -51,7 +51,7 @@ object CachedInUserData {
 
         //generated names
         val keyId = c.freshName(name.toString + "cacheKey")
-        val cacheName = q"${name.toString}"
+        val cacheName = withClassName(name)
         val tracerName = generateTermName(name.toString, "$tracer")
         val elemName = generateTermName(name.toString, "element")
         val dataName = generateTermName(name.toString, "data")

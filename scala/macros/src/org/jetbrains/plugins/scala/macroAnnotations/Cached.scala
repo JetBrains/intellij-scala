@@ -50,7 +50,7 @@ object Cached {
         //generated names
         val cachedFunName = generateTermName(name.toString, "$cachedFun")
         val tracerName = generateTermName(name.toString, "$tracer")
-        val cacheName = q"${name.toString}"
+        val cacheName = withClassName(name)
 
         val keyId = c.freshName(name.toString + "$cacheKey")
 

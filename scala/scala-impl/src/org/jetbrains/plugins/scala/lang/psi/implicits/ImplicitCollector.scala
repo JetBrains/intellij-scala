@@ -143,7 +143,7 @@ class ImplicitCollector(place: PsiElement,
         allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
       }
       else {
-        val tracer = Tracer("ImplicitCollector.cache", "collect")
+        val tracer = Tracer("ImplicitCollector.collect", "ImplicitCollector.collect")
         tracer.invocation()
 
         val implicitCollectorCache = ImplicitCollector.cache(project)
