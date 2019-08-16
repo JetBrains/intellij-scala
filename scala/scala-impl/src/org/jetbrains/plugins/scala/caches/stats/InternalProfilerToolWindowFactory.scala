@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
+import com.intellij.ui.TableViewSpeedSearch
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
@@ -59,6 +60,7 @@ object InternalProfilerToolWindowFactory {
 
     val table = new TableView(tableModel)
     tableModel.fixColumnWidth(table)
+    registerSpeedSearch(tableModel, table)
 
     val scrollPane = new JScrollPane
     scrollPane.setViewportView(table)
@@ -108,21 +110,55 @@ object InternalProfilerToolWindowFactory {
     }
   }
 
+  def registerSpeedSearch(tableModel: TracerTableModel, table: TableView[String]): Unit = {
+    new TableViewSpeedSearch(table) {
+
+      def getItemText(id: String): String =
+        tableModel.rowText(id)
+
+      override def onSearchFieldUpdated(pattern: String): Unit = {
+        val filter = (text: String) => {
+          pattern.isEmpty || !isPopupActive ||
+            getComparator.matchingDegree(pattern, text) > 0
+        }
+
+        tableModel.setFilter(filter)
+      }
+    }
+  }
 }
 
 private class TracerTableModel(val columns: Seq[MyColumnInfo[_]])
   extends ListTableModel[String](columns: _*) {
 
-  def refresh(): Unit = {
+  private var currentFilter: String => Boolean = Function.const(true)
+
+  def setFilter(value: String => Boolean): Unit = {
+    currentFilter = value
+  }
+
+  def refresh(): Unit = refresh(currentFilter)
+
+  def rowText(id: String): String = {
+    columns.map(_.valueOf(id)).mkString(" ")
+  }
+
+  private def refresh(filter: String => Boolean): Unit = {
     val data = Tracer.getCurrentData
+
+    def matches(d: TracerData): Boolean = filter(rowText(d.id))
 
     data.forEach { d =>
       val tracerId = d.id
       map.put(tracerId, d)
 
       indexOf(tracerId) match {
-        case -1  => addRow(tracerId)
-        case idx => fireTableRowsUpdated(idx, idx)
+        case -1 =>
+          if (matches(d)) addRow(tracerId)
+          else ()
+        case idx =>
+          if (matches(d)) fireTableRowsUpdated(idx, idx)
+          else removeRow(idx)
       }
     }
   }
@@ -143,10 +179,8 @@ private object TracerTableModel {
   lazy val timings = new TracerTableModel(columnsWithTimings)
   lazy val parentCalls = new TracerTableModel(columnsWithParentCalls)
 
-
-
   class MyColumnInfo[T: Ordering](name: String,
-                                  value: TracerData => T,
+                                  val value: TracerData => T,
                                   val preferredWidth: Int) extends ColumnInfo[String, T](name) {
 
     override def valueOf(id: String): T = value(map.get(id))
