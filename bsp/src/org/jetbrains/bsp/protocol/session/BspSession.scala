@@ -42,6 +42,7 @@ class BspSession private(bspIn: InputStream,
   private var currentJob: BspSessionJob[_,_] = initialJob
 
   private var lastProcessOutput: Long = 0
+  private var lastActivity: Long = 0
 
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
@@ -72,11 +73,13 @@ class BspSession private(bspIn: InputStream,
         shutdown(Some(bspError))
     }
 
+    import scala.concurrent.ExecutionContext.Implicits.global
     try {
       currentJob.run(serverConnection.server) // in case not yet running
-      val currentIgnoringErrors = currentJob.future.recover {
-        case NonFatal(_) => ()
-      }(ExecutionContext.global)
+      val currentIgnoringErrors = currentJob.future
+        .recover { case NonFatal(_) => () }
+        .andThen { case _ => lastActivity = System.currentTimeMillis()}
+
       Await.result(currentIgnoringErrors, queueTimeout) // will throw on job error
 
       val next = jobs.poll(queueTimeout.toMillis, TimeUnit.MILLISECONDS)
@@ -114,7 +117,6 @@ class BspSession private(bspIn: InputStream,
       writer.close()
     }
   }
-
 
   private def bspTraceLogger: PrintWriter = {
     val logfile = sys.env.get("BSP_TRACE_PATH")
@@ -263,6 +265,8 @@ class BspSession private(bspIn: InputStream,
     result
   }
 
+  private[protocol] def getLastActivity: Long = lastActivity
+
 
   private class BspSessionClient extends BspClient {
     // task notifications
@@ -313,6 +317,7 @@ class BspSession private(bspIn: InputStream,
       val lines = Source.fromInputStream(input).getLines()
       lines.foreach { message =>
         lastProcessOutput = System.currentTimeMillis()
+        lastActivity = lastProcessOutput
         currentJob.log(message + '\n')
       }
     }

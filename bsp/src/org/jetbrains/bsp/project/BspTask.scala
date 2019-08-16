@@ -13,7 +13,7 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceled
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskNotification
-import org.eclipse.lsp4j.jsonrpc.{CompletableFutures, ResponseErrorException}
+import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}

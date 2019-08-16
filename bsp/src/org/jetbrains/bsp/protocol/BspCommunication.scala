@@ -3,20 +3,24 @@ package org.jetbrains.bsp.protocol
 import java.io.File
 import java.net.URI
 import java.nio.file._
+import java.util.concurrent.TimeUnit
 
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.google.gson.Gson
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
+import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.SystemProperties
+import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
@@ -28,29 +32,66 @@ import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, Bsp
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
 import scala.collection.mutable
+import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
 // TODO connections should be independent from project: https://youtrack.jetbrains.com/issue/SCL-14876
-class BspCommunicationService {
+class BspCommunicationService extends Disposable {
+
+  { // init
+    val app = ApplicationManager.getApplication
+    Disposer.register(app, this)
+
+    val bus = ApplicationManager.getApplication.getMessageBus.connect()
+    bus.subscribe(ProjectManager.TOPIC, MyProjectListener)
+  }
+
+  private val timeout = 10.minutes
+  private val cleanerPause = 10.seconds
 
   private val comms = mutable.Map[URI, BspCommunication]()
 
-  // TODO
-  // 1. close sessions on app or project closing
-  // 2. do something with unresponsive sessions
-  // 3. close unused sessions
+  private val executorService = AppExecutorUtil.getAppScheduledExecutorService
+
+  private val commCleaner = executorService
+    .scheduleWithFixedDelay(() => closeIdleSessions(), cleanerPause.toMillis, cleanerPause.toMillis, TimeUnit.MILLISECONDS)
+
+  private def closeIdleSessions(): Unit = {
+    val now = System.currentTimeMillis()
+    comms.values.foreach { comm =>
+      if (comm.isIdle(now, timeout))
+        comm.closeSession()
+    }
+  }
 
   def communicate(base: File): BspCommunication =
     comms.getOrElseUpdate(
       base.getCanonicalFile.toURI,
-      new BspCommunication(base, None, executionSettings(base))
+      {
+        val comm = new BspCommunication(base, None, executionSettings(base))
+        Disposer.register(this, comm)
+        comm
+      }
     )
 
   private def executionSettings(base: File) = {
     val vfile = VirtualFileManager.getInstance().findFileByUrl(base.getCanonicalFile.toURI.toString)
     val project = ProjectUtil.guessProjectForFile(vfile)
     BspExecutionSettings.executionSettingsFor(project, base)
+  }
+
+  override def dispose(): Unit = {
+    comms.values.foreach(_.closeSession())
+    commCleaner.cancel(true)
+  }
+
+  private object MyProjectListener extends ProjectManagerListener {
+    override def projectClosed(project: Project): Unit = {
+      val projectDir = ProjectUtil.guessProjectDir(project)
+      val uri = Paths.get(projectDir.getCanonicalPath).toUri
+      comms.get(uri).foreach(_.closeSession())
+    }
   }
 }
 
@@ -59,7 +100,7 @@ object BspCommunicationService {
     ServiceManager.getService(classOf[BspCommunicationService])
 }
 
-class BspCommunication(base: File, project: Option[Project], executionSettings: BspExecutionSettings) {
+class BspCommunication(base: File, project: Option[Project], executionSettings: BspExecutionSettings) extends Disposable {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
@@ -117,11 +158,17 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
     case _ => // ignore
   }
 
-  private[protocol] def closeSession(): Try[Unit] = session match {
+  private[bsp] def closeSession(): Try[Unit] = session match {
     case None => Success(())
     case Some(s) =>
       session = None
       s.shutdown()
+  }
+
+  private[protocol] def isIdle(now: Long, timeout: Duration) = session match {
+    case None => false
+    case Some(s) =>
+      s.isAlive && now - s.getLastActivity >  timeout.toMillis
   }
 
   def run[T, A](task: BspSessionTask[T],
@@ -146,6 +193,9 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
     new NonAggregatingBspJob(job)
   }
 
+  override def dispose(): Unit = {
+    closeSession()
+  }
 }
 
 
