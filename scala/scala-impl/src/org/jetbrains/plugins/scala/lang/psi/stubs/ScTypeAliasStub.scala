@@ -16,4 +16,6 @@ trait ScTypeAliasStub extends ScBoundsOwnerStub[ScTypeAlias]
   def isDeclaration: Boolean
 
   def isStableQualifier: Boolean
+
+  def stableQualifier: Option[String]
 }
