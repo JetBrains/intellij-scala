@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.{UniqueNameSuggester, suggestNamesByType}
@@ -110,12 +111,19 @@ sealed abstract class PhysicalExtractorPatternComponents protected(`class`: ScTy
 
 object PhysicalExtractorPatternComponents {
 
-  def unapply(`class`: ScTypeDefinition)
-             (implicit parameters: ClauseCompletionParameters): Option[PhysicalExtractorPatternComponents] =
+  def unapply(
+    `class`: ScTypeDefinition
+  )(implicit
+    parameters: ClauseCompletionParameters
+  ): Option[PhysicalExtractorPatternComponents] =
     for {
       Extractor(method) <- `class`.baseCompanionModule
-      returnType <- method.returnType.toOption
-      types = ScPattern.extractorParameters(returnType, parameters.place, isOneArgCaseClass = false)
+      returnType        <- method.returnType.toOption
+      types = ScPattern.unapplySubpatternTypes(
+        returnType,
+        parameters.place,
+        method.name == CommonNames.UnapplySeq
+      )
     } yield new PhysicalExtractorPatternComponents(`class`, types) {}
 }
 
