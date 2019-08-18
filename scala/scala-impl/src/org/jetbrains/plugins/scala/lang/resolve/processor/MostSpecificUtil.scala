@@ -7,17 +7,15 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -127,18 +125,21 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                       (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
               if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
                 case p: Parameter if p.isRepeated =>
-                  val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.resolveScope,
-                    "scala.collection.Seq").orNull
-                  if (seq != null) {
-                    val newParamType = p.paramType match {
-                      case ScExistentialType(q, _) =>
-                        ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)))
-                      case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
-                    }
-                    Parameter(p.name, p.deprecatedName, newParamType, p.expectedType,
-                      p.isDefault, isRepeated = false, isByName = p.isByName)
+                  implicit val scope: ElementScope = r1.element.elementScope
+
+                  val newParamType = p.paramType match {
+                    case ScExistentialType(q, _) => ScExistentialType(q.tryWrapIntoSeqType)
+                    case paramType               => paramType.tryWrapIntoSeqType
                   }
-                  else p
+
+                  Parameter(
+                    p.name,
+                    p.deprecatedName,
+                    newParamType,
+                    p.expectedType,
+                    p.isDefault,
+                    isByName = p.isByName
+                  )
                 case p => p
               }
               val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0

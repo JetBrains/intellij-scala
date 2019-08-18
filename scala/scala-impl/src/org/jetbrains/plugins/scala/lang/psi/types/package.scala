@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -12,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMeth
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
@@ -223,25 +226,27 @@ package object types {
 
     def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
 
+    def wrapIntoSeqType(implicit scope: ElementScope): Option[ScType] =
+      scope.scalaSeqType.map(ScParameterizedType(_, Seq(scType)))
+
+    def tryWrapIntoSeqType(implicit scope: ElementScope): ScType =
+      wrapIntoSeqType.getOrElse(scType)
+
     def hasRecursiveTypeParameters[T](typeParamIds: Set[Long]): Boolean = scType.subtypeExists {
       case tpt: TypeParameterType =>
         typeParamIds.contains(tpt.typeParamId)
       case _ => false
     }
+  }
 
-    def tryWrapIntoSeqType(implicit scope: ElementScope): ScType =
-      scope
-        .getCachedClass("scala.collection.Seq")
-        .map(ScalaType.designator)
-        .map(ScParameterizedType(_, Seq(scType)))
-        .getOrElse(scType)
-
-    def tryUnwrapSeqType: ScType = scType match {
-      case ParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
-        if des.qualifiedName == "scala.collection.Seq" =>
-        targ
-      case _ => scType
-    }
+  implicit class ScalaSeqExt(private val context: PsiElement) extends AnyVal {
+    @CachedInUserData(
+      context,
+      ScalaPsiManager.instance(context.getProject()).TopLevelModificationTracker
+    )
+    def scalaSeqFqn: String =
+      if (context.newCollectionsFramework) "scala.collection.immutable.Seq"
+      else                                 "scala.collection.Seq"
   }
 
   implicit class ScTypesExt(private val types: Seq[ScType]) extends AnyVal {

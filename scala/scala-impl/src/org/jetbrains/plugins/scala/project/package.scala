@@ -79,6 +79,9 @@ package object project {
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def hasScala3: Boolean = scalaLanguageLevel.exists(_ >= Scala_3_0)
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def hasNewCollectionsFramework: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_13)
+
     def scalaSdk: Option[LibraryEx] = Option {
       ScalaSdkCache(module.getProject)(module)
     }
@@ -230,6 +233,8 @@ package object project {
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
 
     def partialUnificationEnabled: Boolean = isDefinedInModuleOrProject(_.isPartialUnificationEnabled)
+
+    def newCollectionsFramework: Boolean = module.exists(_.hasNewCollectionsFramework)
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
