@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -82,11 +83,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               case method: PsiMethod => subst(method.getReturnType.toScType())
             }
 
-            val oneArgCaseClassMethod: Boolean = sign.method match {
-              case function: ScFunction => ScPattern.isOneArgCaseClassMethod(function)
-              case _ => false
-            }
-            val params = ScPattern.extractorParameters(returnType, args, oneArgCaseClassMethod).zipWithIndex
+            val isUnapplySeq = methodName == CommonNames.UnapplySeq
+            val params = ScPattern.unapplySubpatternTypes(returnType, args, isUnapplySeq).zipWithIndex
 
             if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
@@ -94,9 +92,9 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 case (param, o) =>
                   val buffer: StringBuilder = new StringBuilder("")
                   buffer.append(param.presentableText)
-                  val isSeq = methodName == "unapplySeq" && (param.extractClass match {
-                    case Some(clazz) => clazz.qualifiedName == "scala.Seq"
-                    case _ => false
+                  val isSeq = isUnapplySeq && (param.extractClass match {
+                    case Some(clazz) => clazz.qualifiedName == args.scalaSeqFqn
+                    case _           => false
                   })
                   if (isSeq) {
                     buffer.delete(0, buffer.indexOf("[") + 1)

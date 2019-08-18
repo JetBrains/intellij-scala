@@ -75,7 +75,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
 
   private[this] def reprType(`type`: ScType, place: PsiElement)
                             (nilType: ScType, consType: ScType) =
-    ScPattern.extractPossibleProductParts(`type`, place, isOneArgCaseClass = false).foldRight(nilType) {
+    ScPattern.extractPossibleProductParts(`type`, place).foldRight(nilType) {
       case (part, resultType) => ScParameterizedType(consType, Seq(part, resultType))
     }
 
