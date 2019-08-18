@@ -145,54 +145,61 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   private var precedence = -1
 
+  @tailrec
+  private def getPackageName(element: PsiElement): String = element match {
+    case null => ""
+    case o: ScObject if o.isPackageObject =>
+      val qualifier = o.qualifiedName
+      val packageSuffix: String = ".`package`"
+      if (qualifier.endsWith(packageSuffix))
+        qualifier.substring(0, qualifier.length - packageSuffix.length)
+      else qualifier
+    case p: ScPackaging => p.fullPackageName
+    case _              => getPackageName(element.getParent)
+  }
+
   /**
     * See [[org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes]]
     */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
-    import PrecedenceTypes._
+    import PrecedenceTypes.{OTHER_MEMBERS => _, _}
+    lazy val OTHER_MEMBERS: Int = PrecedenceTypes.OTHER_MEMBERS(element, place)
+
+    def getPackagePrecedence(qualifier: String): Int = {
+      if (qualifier == null) return OTHER_MEMBERS
+      val index: Int = qualifier.lastIndexOf('.')
+      if (index == -1) return PACKAGE_LOCAL_PACKAGE
+      val q = qualifier.substring(0, index)
+
+      if (q == "java.lang")           JAVA_LANG
+      else if (q == "scala")          SCALA
+      else if (q == placePackageName) OTHER_MEMBERS
+      else                            PACKAGE_LOCAL_PACKAGE
+    }
+
+    def getClazzPrecedence(clazz: PsiClass): Int = {
+      val q = clazz match {
+        case td: ScTypeDefinition =>
+          if (td.containingClass != null) return OTHER_MEMBERS
+          getPackageName(td)
+        case p: PsiClass =>
+          if (p.getContainingClass != null) return OTHER_MEMBERS
+          val qualifier = p.getQualifiedName
+          if (qualifier == null) return OTHER_MEMBERS
+          val index: Int = qualifier.lastIndexOf('.')
+          if (index == -1) return OTHER_MEMBERS
+          qualifier.substring(0, index)
+        case _ =>
+      }
+
+      if (q == "java.lang")           JAVA_LANG
+      else if (q == "scala")          SCALA
+      else if (q == placePackageName) OTHER_MEMBERS
+      else                            PACKAGE_LOCAL
+    }
+
     def getPrecedenceInner: Int = {
-      def getPackagePrecedence(qualifier: String): Int = {
-        if (qualifier == null) return OTHER_MEMBERS
-        val index: Int = qualifier.lastIndexOf('.')
-        if (index == -1) return PACKAGE_LOCAL_PACKAGE
-        val q = qualifier.substring(0, index)
-        if (q == "java.lang") JAVA_LANG
-        else if (q == "scala") SCALA
-        else if (q == placePackageName) OTHER_MEMBERS
-        else PACKAGE_LOCAL_PACKAGE
-      }
-      def getClazzPrecedence(clazz: PsiClass): Int = {
-        @tailrec
-        def getPackageName(element: PsiElement): String = {
-          element match {
-            case null => ""
-            case o: ScObject if o.isPackageObject =>
-              val qualifier = o.qualifiedName
-              val packageSuffix: String = ".`package`"
-              if (qualifier.endsWith(packageSuffix)) qualifier.substring(0, qualifier.length - packageSuffix.length) else qualifier
-            case p: ScPackaging => p.fullPackageName
-            case _ => getPackageName(element.getParent)
-          }
-        }
-        val q = clazz match {
-          case td: ScTypeDefinition =>
-            if (td.containingClass != null) return OTHER_MEMBERS
-            getPackageName(td)
-          case p: PsiClass =>
-            if (p.getContainingClass != null) return OTHER_MEMBERS
-            val qualifier = p.getQualifiedName
-            if (qualifier == null) return OTHER_MEMBERS
-            val index: Int = qualifier.lastIndexOf('.')
-            if (index == -1) return OTHER_MEMBERS
-            qualifier.substring(0, index)
-          case _ =>
-        }
-        if (q == "java.lang") JAVA_LANG
-        else if (q == "scala") SCALA
-        else if (q == placePackageName) OTHER_MEMBERS
-        else PACKAGE_LOCAL
-      }
-      if (importsUsed.size == 0) {
+      if (importsUsed.isEmpty) {
         ScalaPsiUtil.nameContext(getActualElement) match {
           case _: ScSyntheticClass => return SCALA //like scala.Int
           case obj: ScObject if obj.isPackageObject =>
@@ -203,7 +210,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
             return getPackagePrecedence(qualifier)
           case clazz: PsiClass =>
             return getClazzPrecedence(clazz)
-          case (_: ScBindingPattern | _: PsiMember) =>
+          case _: ScBindingPattern | _: PsiMember =>
             val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
             val clazz: PsiClass = clazzStub match {
               case clazz: PsiClass => clazz
@@ -233,7 +240,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
         return OTHER_MEMBERS
       }
       val importsUsedSeq = importsUsed.toSeq
-      val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
+      val importUsed: ImportUsed = importsUsedSeq.last
       // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
       //      these separately.
       importUsed match {

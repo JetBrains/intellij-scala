@@ -24,27 +24,42 @@ trait SimpleResolveTestBase {
 
   import SimpleResolveTestBase._
 
-  protected def folderPath = TestUtils.getTestDataPath + "/resolve/"
+  protected def folderPath: String = TestUtils.getTestDataPath + "/resolve/"
 
-  protected def doResolveTest(sources: Seq[(String, String)]): Unit = {
+  protected def getSrc(source: String, file: PsiFile): ScReference = {
+    val srcOffset = source.replaceAll(REFTGT, "").indexOf(REFSRC)
+    if (srcOffset != -1)
+      PsiTreeUtil.getParentOfType(file.findElementAt(srcOffset), classOf[ScReference])
+    else null
+  }
+
+  protected def getTgt(source: String, file: PsiFile): PsiElement = {
+    val tgtOffset = source.replaceAll(REFSRC, "").indexOf(REFTGT)
+    if (tgtOffset != -1)
+      PsiTreeUtil.getParentOfType(file.findElementAt(tgtOffset), classOf[PsiElement])
+    else null
+  }
+
+  protected def doResolveTest(sources: (String, String)*): Unit = {
     var src: ScReference = null
     var tgt: PsiElement = null
-    def configureFile(file: (String, String), configureFun: (String, String) => PsiFile) = {
+
+    def configureFile(file: (String, String), configureFun: (String, String) => PsiFile): Unit = {
       val (source, fileName) = file
       val trimmed = source.trim.replace("\r", "")
-      val srcOffset = trimmed.replaceAll(REFTGT, "").indexOf(REFSRC)
-      val tgtOffset = trimmed.replaceAll(REFSRC, "").indexOf(REFTGT)
       val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT,""))
-      if (src == null && srcOffset != -1)
-        src = PsiTreeUtil.getParentOfType(psiFile.findElementAt(srcOffset), classOf[ScReference])
-      if (tgt == null && tgtOffset != -1)
-        tgt = PsiTreeUtil.getParentOfType(psiFile.findElementAt(tgtOffset), classOf[PsiElement])
+      if (src == null) src = getSrc(trimmed, psiFile)
+      if (tgt == null) tgt = getTgt(trimmed, psiFile)
     }
+
     sources.dropRight(1).foreach(configureFile(_, getFixture.addFileToProject)) // add additional files first
+
     sources.lastOption match {
-      case Some(file) => configureFile(file, getFixture.configureByText)  // last file is the one to be opened in editor
+      case Some(file) =>
+        configureFile(file, getFixture.configureByText) // last file is the one to be opened in editor
       case None => Assert.fail("No testdata provided")
     }
+
     Assert.assertNotNull("Failed to locate source element", src)
     val result = src.resolve()
     if (shouldPass) {
@@ -60,7 +75,8 @@ trait SimpleResolveTestBase {
       }
   }
 
-  protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit = doResolveTest(Seq(source -> fileName))
+  protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit =
+    doResolveTest(source -> fileName)
 
   protected def doResolveTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"

@@ -104,7 +104,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
 
     if (levelSet.isEmpty) true
-    else if (holder.currentPrecedence == OTHER_MEMBERS) update
+    else if (otherMembersValuesSet.contains(holder.currentPrecedence)) update
     else !update
   }
 
