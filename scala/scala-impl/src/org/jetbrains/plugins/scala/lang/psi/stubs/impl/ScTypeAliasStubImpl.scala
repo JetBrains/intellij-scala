@@ -20,5 +20,6 @@ class ScTypeAliasStubImpl(parent: StubElement[_ <: PsiElement],
                           val upperBoundText: Option[String],
                           val isLocal: Boolean,
                           val isDeclaration: Boolean,
-                          val isStableQualifier: Boolean)
+                          val isStableQualifier: Boolean,
+                          val stableQualifier: Option[String])
   extends ScNamedStubBase[ScTypeAlias](parent, elementType, name) with ScTypeAliasStub

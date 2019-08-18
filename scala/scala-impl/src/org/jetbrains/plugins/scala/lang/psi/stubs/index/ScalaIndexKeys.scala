@@ -39,6 +39,7 @@ object ScalaIndexKeys {
   val CLASS_PARAMETER_NAME_KEY: StubIndexKey[String, ScClassParameter] = createIndexKey("sc.class.parameter.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = createIndexKey("sc.type.alias.name")
   val STABLE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = createIndexKey("sc.stable.alias.name")
+  val STABLE_ALIAS_FQN_KEY: StubIndexKey[Integer, ScTypeAlias] = createIndexKey("sc.stable.alias.fqn")
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = createIndexKey("sc.super.class.name")
   val SELF_TYPE_CLASS_NAME_KEY: StubIndexKey[String, ScSelfTypeElement] = createIndexKey("sc.self.type.class.name.key")
 
