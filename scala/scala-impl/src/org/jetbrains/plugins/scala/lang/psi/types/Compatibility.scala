@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -107,14 +108,10 @@ object Compatibility {
   }
 
   def seqTypeFor(expr: ScTypedExpression): Option[ScType] =
-    seqClass.map { clazz =>
-      if (ApplicationManager.getApplication.isUnitTestMode) clazz
+    seqClass.map(clazz =>
+      if (ApplicationManager.getApplication.isUnitTestMode) ScDesignatorType(clazz)
       else throw new RuntimeException("Illegal state for seqClass variable")
-    }.orElse {
-      expr.elementScope.getCachedClass("scala.collection.Seq")
-    }.map {
-      ScalaType.designator
-    }
+    ).orElse(expr.elementScope.scalaSeqType)
 
   def checkConformance(checkNames: Boolean,
                        parameters: Seq[Parameter],
@@ -129,7 +126,7 @@ object Compatibility {
 
   def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
     val pairs = for(Expression(assignment @ ScAssignment.Named(name)) <- exprs) yield (name, assignment)
-    val names = pairs.unzip._1
+    val names = pairs.map(_._1)
     val clashedNames = names.diff(names.distinct)
     pairs.filter(p => clashedNames.contains(p._1)).map(_._2)
   }
@@ -214,8 +211,8 @@ object Compatibility {
       else {
         val getIt = used.indexOf(false)
         used(getIt) = true
-        val param: Parameter = parameters(getIt)
-        val paramType = param.paramType
+        val param        = parameters(getIt)
+        val paramType    = param.paramType
         val expectedType = param.expectedType
         val typeResult =
           expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1
@@ -235,30 +232,37 @@ object Compatibility {
 
     while (k < parameters.length.min(exprs.length)) {
       exprs(k) match {
-        case Expression(expr: ScTypedExpression) if expr.isSequenceArg =>
-          seqTypeFor(expr) match {
-            case Some(seqType) =>
-              val getIt = used.indexOf(false)
-              used(getIt) = true
-              val param: Parameter = parameters(getIt)
+        case e @ Expression(expr: ScTypedExpression) if expr.isSequenceArg =>
+          implicit val scope: ElementScope = expr.elementScope
 
-              if (!param.isRepeated)
-                problems ::= ExpansionForNonRepeatedParameter(expr)
+          val getIt = used.indexOf(false)
+          used(getIt) = true
+          val param: Parameter = parameters(getIt)
 
-              val tp = ScParameterizedType(seqType, Seq(param.paramType))
-              val expectedType = ScParameterizedType(seqType, Seq(param.expectedType))
+          if (!param.isRepeated) problems ::= ExpansionForNonRepeatedParameter(expr)
 
-              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
-                if (exprType.weakConforms(tp)) {
-                  matched ::= (param, expr, exprType)
-                  constraintAccumulator += exprType.conforms(tp, ConstraintSystem.empty, checkWeak = true).constraints
-                } else {
-                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), constraintAccumulator, defaultParameterUsed, matched)
-                }
-              }
-            case _ =>
-              problems :::= doNoNamed(Expression(expr)).reverse
+          val repeatedArgsConformanceProblems = for {
+            tpe         <- param.paramType.wrapIntoSeqType
+            expectedTpe <- param.expectedType.wrapIntoSeqType
+            exprTpe <- expr
+                        .getTypeAfterImplicitConversion(
+                          checkWithImplicits,
+                          isShapesResolve,
+                          expectedTpe.toOption
+                        )
+                        .tr
+                        .toOption
+          } yield {
+            if (exprTpe.weakConforms(tpe)) {
+              matched ::= (param, expr, exprTpe)
+              constraintAccumulator += exprTpe
+                .conforms(tpe, ConstraintSystem.empty, checkWeak = true)
+                .constraints
+              List.empty
+            } else List(TypeMismatch(expr, tpe))
           }
+
+          problems :::= repeatedArgsConformanceProblems.getOrElse(doNoNamed(e).reverse)
         case Expression(assign@ScAssignment.Named(name)) =>
           val index = parameters.indexWhere { p =>
             ScalaNamesUtil.equivalent(p.name, name) ||

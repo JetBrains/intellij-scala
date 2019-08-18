@@ -306,12 +306,9 @@ object PhysicalMethodSignature {
     val typeElementType = p.`type`().getOrAny
     implicit val scope: ElementScope = p.elementScope
 
-    if (p.isRepeatedParameter)
-      typeElementType.tryWrapIntoSeqType(scope)
-    else if (p.isCallByNameParameter)
-      FunctionType(typeElementType, Seq.empty)
-    else
-      typeElementType
+    if (p.isRepeatedParameter)        typeElementType.tryWrapIntoSeqType
+    else if (p.isCallByNameParameter) FunctionType(typeElementType, Seq.empty)
+    else                              typeElementType
   }
 }
 

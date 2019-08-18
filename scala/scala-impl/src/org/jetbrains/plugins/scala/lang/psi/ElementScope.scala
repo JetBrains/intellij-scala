@@ -6,8 +6,9 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -43,6 +44,9 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
   def getCachedClasses(fqn: String): Array[PsiClass] =
     manager.getCachedClasses(scope, fqn)
 
+  def scalaSeqType: Option[ScType] =
+    manager.scalaSeqAlias(scope).map(ScDesignatorType.apply)
+
   private def manager =
     ScalaPsiManager.instance(project)
 }
@@ -50,7 +54,7 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
 object ElementScope {
   def apply(element: PsiElement): ElementScope = {
     val project = element.getProject
-    val scope = element.resolveScope
+    val scope   = element.resolveScope
 
     ElementScope(project, scope)
   }
@@ -58,5 +62,6 @@ object ElementScope {
   def apply(project: Project): ElementScope =
     ElementScope(project, GlobalSearchScope.allScope(project))
 
-  implicit def toProjectContext(implicit elementScope: ElementScope): ProjectContext = elementScope.project
+  implicit def toProjectContext(implicit elementScope: ElementScope): ProjectContext =
+    elementScope.project
 }

@@ -10,9 +10,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring._
 
@@ -53,19 +52,12 @@ class ScalaParameterInfo(@BeanProperty var name: String,
   protected def psiType: PsiType = {
     if (scType == null) return null
 
-    implicit val elementScope = ElementScope(project)
+    implicit val elementScope: ElementScope = ElementScope(project)
 
-    val resultType = if (isByName) {
-      val functionType = FunctionType(scType, Seq())
-      functionType
-    }
-    else if (isRepeatedParameter) {
-      val seqType = ScalaPsiManager.instance(project).getCachedClass(elementScope.scope, "scala.collection.Seq")
-        .map(ScalaType.designator(_))
-        .getOrElse(Nothing)
-      ScParameterizedType(seqType, Seq(scType))
-    }
-    else scType
+    val resultType =
+      if (isByName)                 FunctionType(scType, Seq())
+      else if (isRepeatedParameter) scType.tryWrapIntoSeqType
+      else                          scType
 
     resultType.toPsiType
   }
@@ -117,7 +109,7 @@ object ScalaParameterInfo {
     val elems = p.children.takeWhile(_ != nameId)
     elems.map(_.getText).mkString
   }
-  
+
   def allForMethod(methodLike: ScMethodLike): Seq[Seq[ScalaParameterInfo]] = {
     def infos(clause: ScParameterClause): Seq[ScalaParameterInfo] = clause.parameters.map(new ScalaParameterInfo(_))
     methodLike.parameterList.clauses.map(infos)

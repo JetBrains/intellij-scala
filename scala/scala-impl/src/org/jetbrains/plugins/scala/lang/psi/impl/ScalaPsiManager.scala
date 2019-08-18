@@ -157,6 +157,11 @@ class ScalaPsiManager(implicit val project: Project) {
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(ScalaNamesUtil.cleanFqn(name), scope, classOf[ScTypeAlias])
 
+  def getStableAliasByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
+    STABLE_ALIAS_FQN_KEY
+      .integerElements(fqn, scope, classOf[ScTypeAlias])
+      .filter(_.qualifiedNameOpt.contains(fqn))
+
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
@@ -220,6 +225,10 @@ class ScalaPsiManager(implicit val project: Project) {
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
     elementScope.function1Type()
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
+  def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] =
+    getStableAliasByFqn("scala.Seq", scope).headOption
 
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     if (DumbService.getInstance(project).isDumb) return Set.empty
