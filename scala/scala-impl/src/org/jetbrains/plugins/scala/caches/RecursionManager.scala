@@ -32,11 +32,12 @@ object RecursionManager {
 
   /** see [[com.intellij.openapi.util.RecursionGuard#markStack]]*/
   def markStack(): StackStamp = new StackStamp {
-    private val stamp = ourStack.get.getReentrancyCount
+    private val stamp = ourStack.get.stamp()
     private val platformStamp = platformGuard.markStack()
 
     override def mayCacheNow: Boolean = {
-      stamp == ourStack.get.getReentrancyCount && !ourStack.get.isDirty && platformStamp.mayCacheNow()
+      val stack = ourStack.get
+      !stack.isStampWithinRecursiveCalculation(stamp) && !stack.isDirty && platformStamp.mayCacheNow()
     }
   }
 
@@ -115,7 +116,9 @@ object RecursionManager {
   }
 
   private class CalculationStack {
-    private[this] var reentrancyCount: Int = 0
+    // this marks the beginning depth of a recursive calculation
+    // all calls that have the same or greater depth should not be cached
+    private[this] var minStackDepthWithinRecursiveCalculation: Int = Int.MaxValue
     private[this] var depth: Int = 0
     private[this] var enters: Int = 0
     private[this] var exits: Int = 0
@@ -125,15 +128,18 @@ object RecursionManager {
     private[RecursionManager] val progressMap = new util.LinkedHashMap[MyKey[_], Integer]
 
     private[RecursionManager] def checkReentrancy(realKey: MyKey[_]): Boolean = {
-      val isReentrant = progressMap.containsKey(realKey)
-
-      if (isReentrant)
-        reentrancyCount += 1
-
-      isReentrant
+      Option(progressMap.get(realKey)) match {
+        case Some(stackDepthOfPrevEnter) =>
+          minStackDepthWithinRecursiveCalculation = math.min(minStackDepthWithinRecursiveCalculation, stackDepthOfPrevEnter)
+          true
+        case None =>
+          false
+      }
     }
 
-    private[RecursionManager] def getReentrancyCount: Int = reentrancyCount
+    private[RecursionManager] def stamp(): Int = depth
+    private[RecursionManager] def isStampWithinRecursiveCalculation(stamp: Int): Boolean =
+      stamp >= minStackDepthWithinRecursiveCalculation
 
     private[RecursionManager] def isDirty: Boolean = _isDirty
 
@@ -146,12 +152,13 @@ object RecursionManager {
     private[RecursionManager] def beforeComputation(realKey: MyKey[_]): Unit = {
       enters += 1
       if (progressMap.isEmpty) {
-        assert(reentrancyCount == 0, "Non-zero stamp with empty stack: " + reentrancyCount)
+        assert(minStackDepthWithinRecursiveCalculation == Int.MaxValue,
+          "Empty stack should have no recursive calculation depth, but is " + minStackDepthWithinRecursiveCalculation)
       }
       checkDepth("before computation 1")
       val sizeBefore: Int = progressMap.size
-      progressMap.put(realKey, reentrancyCount)
       depth += 1
+      progressMap.put(realKey, depth)
       checkDepth("before computation 2")
       val sizeAfter: Int = progressMap.size
       if (sizeAfter != sizeBefore + 1) {
@@ -167,7 +174,14 @@ object RecursionManager {
       if (depth != progressMap.size) {
         LOG.error("Inconsistent depth after computation; depth=" + depth + "; map=" + progressMap)
       }
-      val reentrancyCountBefore: Integer = progressMap.remove(realKey)
+      val recordedStackSize: Int = {
+        val recordedStackSizeInteger = progressMap.remove(realKey)
+        assert(recordedStackSizeInteger != null)
+        recordedStackSizeInteger
+      }
+
+      assert(recordedStackSize == sizeAfter, "Expected recorded stack to be equal to current size")
+
       depth -= 1
       if (sizeBefore != progressMap.size) {
         LOG.error("Map size doesn't decrease: " + progressMap.size + " " + sizeBefore + " " + realKey.userObject)
@@ -175,7 +189,11 @@ object RecursionManager {
       if (depth == 0) {
         _isDirty = false
       }
-      reentrancyCount = reentrancyCountBefore
+
+      if (depth < minStackDepthWithinRecursiveCalculation) {
+        minStackDepthWithinRecursiveCalculation = Int.MaxValue
+      }
+
       checkZero()
     }
 
@@ -188,9 +206,9 @@ object RecursionManager {
     }
 
     private[RecursionManager] def checkZero(): Boolean = {
-      if (!progressMap.isEmpty && new Integer(0) != progressMap.get(progressMap.keySet.iterator.next)) {
-        val message = "Recursion stack: first inserted key should have zero reentrancyCount "
-        LOG.error(message + progressMap + "; value=" + progressMap.get(progressMap.keySet.iterator.next))
+      if (progressMap.size == 1 && progressMap.values().iterator().next() != 1) {
+        val message = "Recursion stack: first inserted key should have a depth of 1"
+        LOG.error(message + progressMap + "; value=" + progressMap.values().iterator().next())
         return false
       }
       true
