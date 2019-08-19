@@ -294,7 +294,7 @@ lazy val sbtRuntimeDependencies =
       conflictWarning := ConflictWarning.disable,
       resolvers += sbt.Classpaths.sbtPluginReleases,
       ideSkipProject := true,
-      packageMethod := PackagingMethod.Skip(),
+      packageMethod := PackagingMethod.DepsOnly(),
       packageLibraryMappings ++= Seq(
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
