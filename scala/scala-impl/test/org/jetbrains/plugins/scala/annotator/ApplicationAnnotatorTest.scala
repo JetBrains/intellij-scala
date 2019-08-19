@@ -229,4 +229,33 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
     assertNothing(messages(code))
   }
+
+  val fooDef = "def foo(first: Boolean, int: Int = 3, last: Boolean): Unit = ()\n"
+  def assertWithFoo(code: String)(expected: Message*): Unit =
+    assertMessagesSorted(messages(fooDef + code))(expected: _*)
+
+  def testIncompleteCallWithNamedParam_1(): Unit =
+    assertWithFoo("foo(last = )")(
+      Error("= )", "Unspecified value parameters: first: Boolean")
+    )
+
+  def testIncompleteCallWithNamedParam_2(): Unit =
+    assertWithFoo("foo(first = true, )")(
+      Error("e, )", "Unspecified value parameters: last: Boolean")
+    )
+
+  def testIncompleteCallWithNamedParam_3(): Unit =
+    assertWithFoo("foo(first = true, last = 3)")(
+      Error("3", "Type mismatch, expected: Boolean, actual: Int")
+    )
+
+  def testIncompleteCallWithNamedParam_4(): Unit =
+    assertWithFoo("foo(last = true, int = 34)")(
+      Error("4)", "Unspecified value parameters: first: Boolean")
+    )
+
+  def testIncompleteCallWithNamedParam_5(): Unit =
+    assertWithFoo("foo(last = true, 3, first = true)")(
+      Error("3", "Positional after named argument")
+    )
 }
