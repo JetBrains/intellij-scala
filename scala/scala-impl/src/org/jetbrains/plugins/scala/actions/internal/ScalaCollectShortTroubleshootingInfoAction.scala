@@ -17,6 +17,8 @@ import com.intellij.util.text.DateFormatUtil
 class ScalaCollectShortTroubleshootingInfoAction
   extends AnAction("(Scala) Collect Troubleshooting Information Short") {
 
+  private val Unknown = "unknown"
+
   override def actionPerformed(e: AnActionEvent): Unit = {
     val summary = collectSummary
     copyToClipboard(summary)
@@ -34,8 +36,17 @@ class ScalaCollectShortTroubleshootingInfoAction
     val scalaPluginVersion = PluginManagerCore.getPlugins.find(_.getName == "Scala").map(_.getVersion).getOrElse("-")
     val osInfo = s"${SystemInfo.OS_NAME} (${SystemInfo.OS_VERSION}, ${SystemInfo.OS_ARCH})"
 
+    val properties = System.getProperties
+    val javaRuntime = {
+      val version = properties.getProperty("java.runtime.version", properties.getProperty("java.version", Unknown))
+      val osArch = properties.getProperty("os.arch", "")
+      s"$version$osArch"
+    }
+    val javaVmName = s"${properties.getProperty("java.vm.name", Unknown)} ${properties.getProperty("java.vendor", Unknown)}"
+
     s"""Scala Plugin : $scalaPluginVersion
        |IDEA Build   : $ideaBuildNumber $ideaBuildDate
+       |JRE          : $javaRuntime ($javaVmName)
        |OS           : $osInfo
        |""".stripMargin
   }
