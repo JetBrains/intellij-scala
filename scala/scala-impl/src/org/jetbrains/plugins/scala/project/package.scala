@@ -15,8 +15,10 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiElement
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.worksheet.WorksheetScratchFileCreationHelper
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
@@ -232,10 +234,15 @@ package object project {
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
 
-    private def inThisModuleOrProject[T](predicate: Module => T): Option[T] = module match {
-      case Some(m) => Option(predicate(m))
-      case None => element.getProject.modulesWithScala.collectFirst { case x => predicate(x) }
-      }
+    private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =
+      module
+        .orElse(worksheetModule)
+        .orElse(element.getProject.anyScalaModule)
+        .map(predicate)
+
+    private def worksheetModule[T]: Option[Module] =
+      element.getContainingFile.toOption
+        .flatMap(_.getUserData(WorksheetScratchFileCreationHelper.WORKSHEET_FILE_MODULE).toOption)
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {

@@ -378,8 +378,7 @@
         <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
         <callHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaCallHierarchyProvider"/>
         <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory"/>
-        <highlightUsagesHandlerFactory
-                implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetHighlightResFactory"/>
+        <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetHighlightResFactory"/>
         <constantExpressionEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator"/>
         <annotationSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.ScalaAnnotationSupport"/>
         <!--<classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>-->
@@ -395,8 +394,10 @@
         <editorFileSwapper implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaEditorFileSwapper"/>
         <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaSourceRootFinder"/>
 
-        <configurationType
-                implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
+        <scratch.creationHelper language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetScratchFileCreationHelper"/>
+        <scratch.creationHelper language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetScratchFileCreationHelper"/>
+
+        <configurationType implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.ReplRunActionPromoter"/>

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet
 package settings
 
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -22,19 +23,19 @@ import org.jetbrains.plugins.scala.worksheet.server.InProcessServer
 class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   import WorksheetFileSettings.SerializableWorksheetAttributes._
   import WorksheetFileSettings._
-  
+
   override def project: Project = file.getProject
 
   private def getDefaultSettings = WorksheetCommonSettings(project)
 
-  private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T = 
+  private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T =
     ev.readAttribute(attr, file).getOrElse(orDefault)
-  
+
   private def setSetting[T](attr: FileAttribute, value: T)(implicit ev: SerializableInFileAttribute[T]): Unit =
     ev.writeAttribute(attr, file, value)
 
   override def getRunType: WorksheetExternalRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
-  
+
   override def setRunType(runType: WorksheetExternalRunType): Unit = setSetting(WORKSHEET_RUN_TYPE, runType)
 
   override def isInteractive: Boolean = getSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
@@ -49,7 +50,11 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   override def setMakeBeforeRun(value: Boolean): Unit = setSetting(IS_MAKE_BEFORE_RUN, value)
 
-  override def setModuleName(value: String): Unit = setSetting(CP_MODULE_NAME, value)
+  override def setModuleName(value: String): Unit = {
+    setSetting(CP_MODULE_NAME, value)
+    file.putUserData(WorksheetScratchFileCreationHelper.WORKSHEET_FILE_MODULE, getModuleFor)
+    DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
+  }
 
   override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
 
