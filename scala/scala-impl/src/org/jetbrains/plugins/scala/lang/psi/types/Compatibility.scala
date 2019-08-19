@@ -41,8 +41,8 @@ object Compatibility {
 
   case class Expression(expr: ScExpression)(implicit pc: ProjectContext) {
 
-    var typez: ScType = null
-    var place: PsiElement = null
+    var typez: ScType = _
+    var place: PsiElement = _
     def this(tp: ScType)(implicit pc: ProjectContext) = {
       this(null: ScExpression)
       typez = tp
@@ -174,7 +174,7 @@ object Compatibility {
     val clashedAssignments = clashedAssignmentsIn(exprs)
 
     if(clashedAssignments.nonEmpty) {
-      val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes(_))
+      val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes)
       return ConformanceExtResult(problems, constraintAccumulator)
     }
 
@@ -393,14 +393,14 @@ object Compatibility {
 
   def toParameter(p: PsiParameter): Parameter = {
     val tp = p.paramType(extractVarargComponent = false)
-    Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, None, tp, tp, false, p.isVarArgs, false, p.index,
+    val name = if (p.isInstanceOf[ClsParameterImpl]) "" else p.name
+    Parameter(name, None, tp, tp, isDefault = false, isRepeated = p.isVarArgs, isByName = false, p.index,
       p match {
         case param: ScParameter => Some(param)
         case _ => None
       })
   }
 
-  // TODO refactor a lot of duplication out of this method
   def compatible(named: PsiNamedElement,
                  substitutor: ScSubstitutor,
                  argClauses: List[Seq[Expression]],

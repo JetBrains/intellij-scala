@@ -388,7 +388,7 @@ object MethodResolveProcessor {
           addExpectedTypeProblems()
         } else {
           val result =
-            Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
+            Compatibility.compatible(tp, substitutor, args, checkWithImplicits,
               ref.resolveScope, isShapeResolve, ref)
           problems ++= result.problems
           addExpectedTypeProblems(result = Some(result))
