@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
+import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.extensions
 
@@ -59,7 +60,8 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
         moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
         metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
       } yield {
-        metadata.getData.targetIds.asScala.toList
+        val data = metadata.getData
+        data.targetIds.asScala.map(id => BspTarget(data.workspace, id)).toList
       }
 
       targetIds.getOrElse(List.empty)

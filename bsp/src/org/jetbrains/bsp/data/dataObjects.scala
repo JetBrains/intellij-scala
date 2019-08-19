@@ -53,7 +53,7 @@ object ScalaSdkData {
   * @param targetIds target ids mapped to module
   */
 @SerialVersionUID(4)
-case class BspMetadata @PropertyMapping(Array("targetIds"))(@NotNull targetIds: util.List[URI])
+case class BspMetadata @PropertyMapping(Array("targetIds")) (workspace: URI, @NotNull targetIds: util.List[URI])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
 }

@@ -33,12 +33,17 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   private var importState: ImportState = Inactive
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
-                                  projectRootPath: String,
+                                  workspaceCreationPath: String,
                                   isPreviewMode: Boolean,
                                   executionSettings: BspExecutionSettings,
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
 
-    val moduleFilesDirectoryPath = new File(projectRootPath, ".idea/modules").getAbsolutePath
+    val workspaceCreationFile = new File(workspaceCreationPath)
+    val workspace =
+      if (workspaceCreationFile.isDirectory) workspaceCreationFile
+      else workspaceCreationFile.getParentFile
+
+    val moduleFilesDirectoryPath = new File(workspace, ".idea/modules").getAbsolutePath
 
     def statusUpdate(msg: String): Unit = {
       val ev = new ExternalSystemTaskNotificationEvent(id, msg)
@@ -82,7 +87,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             val descriptions = calculateModuleDescriptions(
               targets, scalacOptions, sources, resources, depSources
             )
-            projectNode(projectRootPath, moduleFilesDirectoryPath, descriptions)
+            projectNode(workspace.getCanonicalPath, moduleFilesDirectoryPath, descriptions)
           }
         }
 
@@ -90,7 +95,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     // TODO reuse existing connection if available. https://youtrack.jetbrains.com/issue/SCL-14847
-    val communication = BspCommunication.forBaseDir(new File(projectRootPath), executionSettings)
+    val communication = BspCommunication.forWorkspace(new File(workspaceCreationPath))
 
     val notifications: NotificationCallback = {
       case BspNotifications.LogMessage(params) =>
@@ -106,7 +111,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val projectJob =
       communication.run(requests(_), notifications, processLogger)
 
-    listener.onStart(id, projectRootPath)
+    listener.onStart(id, workspaceCreationPath)
     statusUpdate("BSP import started") // TODO remove in favor of build toolwindow nodes
 
     importState = Active(communication)

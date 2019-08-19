@@ -69,17 +69,14 @@ class BspCommunicationService extends Disposable {
     comms.getOrElseUpdate(
       base.getCanonicalFile.toURI,
       {
-        val comm = new BspCommunication(base, None, executionSettings(base))
+        val comm = new BspCommunication(base, executionSettings(base))
         Disposer.register(this, comm)
         comm
       }
     )
 
-  private def executionSettings(base: File) = {
-    val vfile = VirtualFileManager.getInstance().findFileByUrl(base.getCanonicalFile.toURI.toString)
-    val project = ProjectUtil.guessProjectForFile(vfile)
-    BspExecutionSettings.executionSettingsFor(project, base)
-  }
+  private def executionSettings(base: File): BspExecutionSettings =
+    BspExecutionSettings.executionSettingsFor(base)
 
   override def dispose(): Unit = {
     comms.values.foreach(_.closeSession())
@@ -100,7 +97,7 @@ object BspCommunicationService {
     ServiceManager.getService(classOf[BspCommunicationService])
 }
 
-class BspCommunication(base: File, project: Option[Project], executionSettings: BspExecutionSettings) extends Disposable {
+class BspCommunication(base: File, executionSettings: BspExecutionSettings) extends Disposable {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
@@ -128,35 +125,33 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
         Left(error)
       case Right(newSessionBuilder) =>
         newSessionBuilder.withInitialJob(job)
-          .addNotificationCallback(projectCallback)
-          .withTraceLogPredicate(project
-            .map(p => () => BspExecutionSettings.executionSettingsFor(p, base).traceBsp)
-            .getOrElse(() => executionSettings.traceBsp))
+//          .addNotificationCallback(projectCallback) TODO
+          .withTraceLogPredicate(() => BspExecutionSettings.executionSettingsFor(base).traceBsp)
         val newSession = newSessionBuilder.create
         session = Some(newSession)
         Right(newSession)
     }
   }
 
-  private val bspSettings: Option[BspProjectSettings] =
-    for {
-      p <- project
-      basePath <- Option(ProjectUtil.guessProjectDir(p))
-      settings <- Option(BspSettings.getInstance(p).getLinkedProjectSettings(basePath.getPath))
-    } yield settings
-
-  val projectCallback: NotificationCallback = {
-    case BspNotifications.DidChangeBuildTarget(didChange) =>
-      for {
-        p <- project
-        s <- bspSettings
-        if s.isUseAutoImport
-      } {
-        FileDocumentManager.getInstance.saveAllDocuments()
-        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(p, BSP.ProjectSystemId))
-      }
-    case _ => // ignore
-  }
+//  private val bspSettings(basePath: File): Option[BspProjectSettings] =
+//    for {
+//      p <- project
+//      basePath <- Option(ProjectUtil.guessProjectDir(p))
+//      settings <- Option(BspSettings.getInstance(p).getLinkedProjectSettings(basePath.getPath))
+//    } yield settings
+//
+//  val projectCallback: NotificationCallback = {
+//    case BspNotifications.DidChangeBuildTarget(didChange) =>
+//      for {
+//        p <- project
+//        s <- bspSettings
+//        if s.isUseAutoImport
+//      } {
+//        FileDocumentManager.getInstance.saveAllDocuments()
+//        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(p, BSP.ProjectSystemId))
+//      }
+//    case _ => // ignore
+//  }
 
   private[bsp] def closeSession(): Try[Unit] = session match {
     case None => Success(())
@@ -203,10 +198,10 @@ object BspCommunication {
 
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
   //      BspCommunication instances per base path: https://youtrack.jetbrains.com/issue/SCL-14876
-  def forProject(project: Project): BspCommunication =
-    BspCommunicationService.getInstance.communicate(new File(project.getBasePath))
+//  def forProject(project: Project): BspCommunication =
+//    BspCommunicationService.getInstance.communicate(new File(project.getBasePath))
 
-  def forBaseDir(baseDir: File, executionSettings: BspExecutionSettings): BspCommunication = {
+  def forWorkspace(baseDir: File): BspCommunication = {
     if (!baseDir.isDirectory)
       throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
     else

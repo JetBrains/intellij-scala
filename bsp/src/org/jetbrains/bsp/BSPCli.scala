@@ -85,7 +85,7 @@ object BSPCli extends App {
 
   var running = true
   val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), new File(opts.bloopExec), true)
-  val bspComm = BspCommunication.forBaseDir(new File(opts.projectPath), bspExecSettings)
+  val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
   val resolver = new BspProjectResolver()
   val targets = {
     println("Resolving build targets...")

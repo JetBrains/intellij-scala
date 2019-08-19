@@ -15,7 +15,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskNotification
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.project.BspTask.TextCollector
+import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -28,9 +28,10 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.util.control.NonFatal
 
-class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Iterable[URI], callbackOpt: Option[ProjectTaskNotification], onComplete: ()=>Unit)
+class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget], callbackOpt: Option[ProjectTaskNotification], onComplete: ()=>Unit)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
+  @volatile
   private var buildMessages: BuildMessages = BuildMessages.empty
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
@@ -63,13 +64,19 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
   override def run(indicator: ProgressIndicator): Unit = {
     val reportIndicator = new IndicatorReporter(indicator)
 
-    val communication = BspCommunication.forProject(project)
+    val targetByWorkspace = targets.groupBy(_.workspace)
+    val targetToCleanByWorkspace = targetsToClean.groupBy(_.workspace)
 
     reportIndicator.start()
     report.start()
 
-    val buildJob = communication.run(buildRequests, notifications, processLog)
-    val projectTaskResult = try {
+    val buildJobs = targetByWorkspace.map { case (workspace, targets) =>
+      val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
+      val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
+      communication.run(buildRequests(targets, targetsToClean)(_), notifications, processLog)
+    }
+
+    def projectTaskResult(buildJob: BspJob[CompileResult]) = try {
       val result = waitForJobCancelable(buildJob, indicator)
       buildMessages = result.getStatusCode match {
         case StatusCode.OK =>
@@ -111,6 +118,8 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
         buildMessages.toTaskResult
     }
 
+    buildJobs.map(projectTaskResult).fold(buildMessages.toTaskResult) {}
+
     callbackOpt.foreach(_.finished(projectTaskResult))
     onComplete()
   }
@@ -127,15 +136,15 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
     }
   }
 
-  private def buildRequests(server: BspServer) = {
-    if (targetsToClean.isEmpty) compileRequest(server)
+  private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])(implicit server: BspServer) = {
+    if (targetsToClean.isEmpty) compileRequest(targets)
     else {
-      cleanRequest(server)
+      cleanRequest(targetsToClean)
       .exceptionally { err =>
         new CleanCacheResult(s"server does not support cleaning build cache (${err.getMessage})", false)
       }
       .thenCompose { cleaned =>
-        if (cleaned.getCleaned) compileRequest(server)
+        if (cleaned.getCleaned) compileRequest(targets)
         else {
           report.error("targets not cleaned, rebuild cancelled: " + cleaned.getMessage, None)
           val res = new CompileResult(StatusCode.CANCELLED)
@@ -147,14 +156,14 @@ class BspTask[T](project: Project, targets: Iterable[URI], targetsToClean: Itera
     }
   }
 
-  private def cleanRequest(server: BspServer): CompletableFuture[CleanCacheResult] = {
-    val targetIds = targetsToClean.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
+  private def cleanRequest(targetsToClean: Iterable[BspTarget])(implicit server: BspServer): CompletableFuture[CleanCacheResult] = {
+    val targetIds = targetsToClean.map(target => new bsp4j.BuildTargetIdentifier(target.target.toString))
     val params = new bsp4j.CleanCacheParams(targetIds.toList.asJava)
     server.buildTargetCleanCache(params)
   }
 
-  private def compileRequest(server: BspServer): CompletableFuture[CompileResult] = {
-    val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
+  private def compileRequest(targets: Iterable[BspTarget])(implicit server: BspServer): CompletableFuture[CompileResult] = {
+    val targetIds = targets.map(target => new bsp4j.BuildTargetIdentifier(target.target.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
     params.setOriginId(bspTaskId.id)
 
@@ -272,4 +281,6 @@ object BspTask {
 
     def result: String = builder.result()
   }
+
+  case class BspTarget(workspace: URI, target: URI)
 }
