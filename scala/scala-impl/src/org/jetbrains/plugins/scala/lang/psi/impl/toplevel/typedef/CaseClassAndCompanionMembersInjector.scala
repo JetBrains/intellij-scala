@@ -28,19 +28,22 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
             case Some(x: ScPrimaryConstructor) =>
               val clauses = x.parameterList.clauses
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
-              val returnTypeText = if (params.isEmpty) BooleanCanonical
-              else {
-                val params = clauses.head.parameters
+
+              val returnTypeText =
                 if (params.isEmpty) BooleanCanonical
                 else {
-                  val caseClassParamTypes = params.map(p => paramTypeText(p, defaultTypeText = AnyCanonical))
-                  val optionTypeArg = caseClassParamTypes match {
-                    case Seq(text) => text
-                    case seq       => seq.commaSeparated(Model.Parentheses)
+                  val params = clauses.head.parameters
+                  if (params.isEmpty) BooleanCanonical
+                  else {
+                    val caseClassParamTypes = params.map(p => paramTypeText(p, defaultTypeText = AnyCanonical))
+                    val optionTypeArg = caseClassParamTypes match {
+                      case Seq(text) => text
+                      case seq       => seq.commaSeparated(Model.Parentheses)
+                    }
+                    s"$OptionCanonical[$optionTypeArg]"
                   }
-                  s"$OptionCanonical[$optionTypeArg]"
                 }
-              }
+
               val unapplyName = if (params.lastOption.exists(_.isRepeatedParameter)) UnapplySeq else Unapply
 
               Some(s"def $unapplyName$typeParamsDefinition(x$$0: $className$typeArgs): $returnTypeText = throw new Error()")

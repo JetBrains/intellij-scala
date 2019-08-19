@@ -253,7 +253,7 @@ object ScPattern {
                 }
               }
 
-              val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, isUnapplySeq = false)
+              val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
               if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args))
               else if (argIndex < args.length) Some(updateRes(subst(args(argIndex)).unpackedType))
               else None
@@ -278,7 +278,7 @@ object ScPattern {
             }
           fun.returnType match {
             case Right(rt) =>
-              val subpatternTpes = ScPattern.unapplySubpatternTypes(subst(rt), pattern, isUnapplySeq = true)
+              val subpatternTpes = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
 
               if (subpatternTpes.isEmpty) None
               else {
@@ -346,11 +346,11 @@ object ScPattern {
   }
 
   def expectedNumberOfExtractorArguments(
-    returnType:   ScType,
-    place:        PsiElement,
-    isUnapplySeq: Boolean
+    returnType: ScType,
+    place:      PsiElement,
+    fun:        ScFunction
   ): Int =
-    unapplySubpatternTypes(returnType, place, isUnapplySeq).size
+    unapplySubpatternTypes(returnType, place, fun).size
 
   private[this] case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
@@ -396,7 +396,7 @@ object ScPattern {
         } yield extracted
     }
 
-  def extractSeqElementType(seqTpe: ScType, place: PsiElement): Option[ScType] = {
+  private[this] def extractSeqElementType(seqTpe: ScType, place: PsiElement): Option[ScType] = {
     lazy val applyBasedExtractor = ApplyBasedExtractor(place)
     lazy val seqLikeExtractor    = SeqLikeType(place)
 
@@ -407,29 +407,29 @@ object ScPattern {
     }
   }
 
-  def unapplySubpatternTypes(
-    returnTpe:    ScType,
-    place:        PsiElement,
-    isUnapplySeq: Boolean
-  ): Seq[ScType] =
+  private[this] def productElementTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] =
     if (returnTpe.isBoolean) Seq.empty
     else {
       lazy val byNameExtractor = ByNameExtractor(place)
+      val extracted            = extractedType(returnTpe, place)
 
-      val tpe = extractedType(returnTpe, place)
-
-      val tpes =
-        if (isUnapplySeq) tpe.map {
-          case TupleType(comps) => extractSeqElementType(comps.last, place).map(comps.init :+ _).getOrElse(Seq.empty)
-          case tpe              => extractSeqElementType(tpe, place).toSeq
-        } else tpe.map {
-          case TupleType(comps)       => comps
-          case byNameExtractor(comps) => comps
-          case tpe                    => Seq(tpe)
-        }
-
-      tpes.getOrElse(Seq.empty)
+      extracted.map {
+        case TupleType(comps)       => comps
+        case tpe if fun.isSynthetic => Seq(tpe)
+        case byNameExtractor(comps) => comps
+        case tpe                    => Seq(tpe)
+      }.getOrElse(Seq.empty)
     }
+
+  def unapplySubpatternTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] = {
+    val isUnapplySeq = fun.name == CommonNames.UnapplySeq
+    val tpes         = productElementTypes(returnTpe, place, fun)
+
+    if (tpes.isEmpty)       Seq.empty
+    else if (!isUnapplySeq) tpes
+    else
+      extractSeqElementType(tpes.last, place).fold(Seq.empty[ScType])(tpes.init :+ _)
+  }
 
   def isQuasiquote(fun: ScFunction): Boolean = {
     val fqnO = Option(fun.containingClass).flatMap(_.qualifiedName.toOption)

@@ -122,7 +122,7 @@ object PhysicalExtractorPatternComponents {
       types = ScPattern.unapplySubpatternTypes(
         returnType,
         parameters.place,
-        method.name == CommonNames.UnapplySeq
+        method
       )
     } yield new PhysicalExtractorPatternComponents(`class`, types) {}
 }
