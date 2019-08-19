@@ -73,7 +73,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
               case Some(t) => success(t.`type`().getOrNothing)
               case None => success(Nothing)
             }
-          case None => expectedParamType.map(_.unpackedType) match {
+          case None => this.expectedParamType.map(_.unpackedType) match {
             case Some(t) => success(t)
             case None => success(Nothing)
           }

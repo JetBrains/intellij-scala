@@ -8,18 +8,18 @@ package params
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{FunctionLikeType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 
@@ -30,7 +30,7 @@ import scala.annotation.tailrec
  */
 
 trait ScParameter extends ScTypedDefinition with ScModifierListOwner
-                  with PsiParameterAdapter with ScImportableDeclarationsOwner {
+                  with PsiParameterAdapter with ScImportableDeclarationsOwner { self =>
   override def getTypeElement: PsiTypeElement
 
   def isWildcard: Boolean = "_" == name
@@ -97,39 +97,56 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
     case _ => false
   }
 
+  /**
+   * Infers expected type for the parameter of an anonymous function
+   * based on the corresponding function-like type.
+   */
   def expectedParamType: Option[ScType] = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
-      // For parameter of anonymous functions to infer parameter's type from an appropriate
-      // an. fun's type
-      case f: ScFunctionExpr =>
-        var flag = false
-        var result: Option[ScType] = None //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes(fromUnderscore = false) if !flag) {
-          @tailrec
-          def applyForFunction(tp: ScType, checkDeep: Boolean) {
-            tp.removeAbstracts match {
-              case FunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
-              case FunctionType(_, params) if params.length == f.parameters.length =>
-                val i = clause.parameters.indexOf(this)
-                if (result.isDefined) {
-                  result = None
-                  flag = true
-                } else result = Some(params(i))
-              case any if f.isSAMEnabled =>
-                //infer type if it's a Single Abstract Method
-                SAMUtil.toSAMType(any, f) match {
-                  case Some(FunctionType(_, params)) =>
-                    val i = clause.parameters.indexOf(this)
-                    if (i < params.length) result = Some(params(i))
-                  case _ =>
-                }
-              case _ =>
-            }
+      case fn: ScFunctionExpr =>
+        val functionLikeType = FunctionLikeType(this)
+        val eTpe             = fn.expectedType(fromUnderscore = false).map(_.removeAbstracts)
+        val idx              = clause.parameters.indexOf(this)
+        val isUnderscoreFn   = ScUnderScoreSectionUtil.isUnderscoreFunction(fn)
+
+        @tailrec
+        def extractFromFunctionType(tpe: ScType, checkDeep: Boolean = false): Option[ScType] =
+          tpe match {
+            case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
+            case functionLikeType(_, _, paramTpes)           => paramTpes.lift(idx)
+            case _                                           => None
           }
-          applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).nonEmpty)
-        }
-        result
+
+        val maybeExpectedParamTpe = eTpe.flatMap(extractFromFunctionType(_, isUnderscoreFn))
+        maybeExpectedParamTpe.orElse(inferExpectedParamTypeUndoingEtaExpansion(fn))
       case _ => None
+    }
+  }
+
+  /**
+   * When typing a parameter of function literal of shape `(a1, ... aN) => f(a1, ...., aN)`,
+   * if we failed to find an expected type from an expected type of a corresponding function literal
+   * (e.g. because there were multiple overloaded alternatives for `f` w/o matching parameter types)
+   * try inferring it from the usage of [[self]] in the (non-polymorphic) function call.
+   */
+  private[this] def inferExpectedParamTypeUndoingEtaExpansion(fn: ScFunctionExpr): Option[ScType] =
+    fn.result.collect { case ResultOfEtaExpansion(tpe) => tpe }
+
+  private object ResultOfEtaExpansion {
+    def unapply(invocation: MethodInvocation): Option[ScType] = {
+      val maybeInvokedAndArgs = invocation match {
+        case MethodInvocation(inv: ScReferenceExpression, args)          => (inv, args).toOption
+        case ScBlock(MethodInvocation(inv: ScReferenceExpression, args)) => (inv, args).toOption
+        case _                                                           => None
+      }
+
+      for {
+        (inv, args)  <- maybeInvokedAndArgs
+        targetMethod <- inv.bind().collect { case ScalaResolveResult(m: PsiMethod, _) => m }
+        if !targetMethod.hasTypeParameters // if the function is polymorphic -- bail out
+        targetArg <- args.find(_.getText == self.name)
+        eTpe      <- targetArg.expectedType(false)
+      } yield eTpe
     }
   }
 
