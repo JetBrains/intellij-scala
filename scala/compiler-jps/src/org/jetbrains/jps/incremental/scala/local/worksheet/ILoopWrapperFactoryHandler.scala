@@ -18,7 +18,7 @@ import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
 
-  private var replFactory: (ClassLoader, JavaILoopWrapperFactory, String) = _
+  private var replClassLoader: (ClassLoader, String) = _
 
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream,
                             @NotNull client: Client): Unit =  try {
@@ -27,20 +27,21 @@ class ILoopWrapperFactoryHandler {
     val scalaVersion = findScalaVersionIn(scalaInstance)
     val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
 
-    replFactory match {
-      case (_, _, oldVersion) if oldVersion == scalaVersion =>
+    // TODO: improve caching, for now we can have only 1 instance with 1 version of scala
+    replClassLoader match {
+      case (_, oldVersion) if oldVersion == scalaVersion =>
       case _ =>
         val loader = createIsolatingClassLoader(compilerJars)
-        val iLoopWrapper = new JavaILoopWrapperFactory
-        replFactory = (loader, iLoopWrapper, scalaVersion)
+        replClassLoader = (loader, scalaVersion)
     }
 
     client.progress("Running REPL...")
 
-    val (classLoader, iLoopWrapper, _) = replFactory
+    val (classLoader, _) = replClassLoader
 
     WorksheetServer.patchSystemOut(out)
 
+    val iLoopWrapper = new JavaILoopWrapperFactory
     val clientProvider: JavaClientProvider = message => client.progress(message)
     iLoopWrapper.loadReplWrapperAndRun(
       scalaToJava(commonArguments.worksheetFiles),
@@ -113,7 +114,7 @@ class ILoopWrapperFactoryHandler {
 }
 
 object ILoopWrapperFactoryHandler {
-  // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to encrease the version
+  // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
   private val WRAPPER_VERSION = 1
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =

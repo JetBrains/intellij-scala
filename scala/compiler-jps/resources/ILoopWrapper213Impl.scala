@@ -15,6 +15,7 @@ import scala.collection.JavaConverters._
 
 /**
   * User: Dmitry.Naydanov
+  * ATTENTION: when editing ensure to increase the ILoopWrapperFactoryHandler.WRAPPER_VERSION
   */
 class ILoopWrapper213Impl(myOut: PrintWriter, projectFullCp: java.util.List[String]) extends ILoop(new DummyConfig, out = myOut) with ILoopWrapper {
   override def init(): Unit = {
