@@ -1,13 +1,13 @@
 package org.jetbrains.sbt
-package language.completion
+package language
+package completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaLookupItem}
-import org.jetbrains.plugins.scala.lang.completion.{ScalaCompletionContributor, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
@@ -25,15 +25,12 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * @author Nikolay Obedin
  * @since 7/10/14.
  */
+final class SbtCompletionContributor extends ScalaCompletionContributor {
 
-class SbtCompletionContributor extends ScalaCompletionContributor {
-
-  val afterInfixOperator: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement().withSuperParent(2, classOf[ScInfixExpr])
-
+  private val afterInfixOperator = sbtFilePattern && infixExpressionChildPattern
 
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       implicit val project: ProjectContext = parameters.getPosition.getProject
 
       val place     = positionFromParameters(parameters)

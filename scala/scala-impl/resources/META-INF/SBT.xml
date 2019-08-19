@@ -96,9 +96,10 @@
         <!--<externalSystemTaskNotificationListener-->
                 <!--implementation="org.jetbrains.plugins.scala.project.migration.MigratorsSbtImportListener"/>-->
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
-            order="first, before liveTemplates" id="sbtCompletionContributor"/>
-        <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"
-                                order="first, before sbtCompletionContributor" />
+                                order="first, before liveTemplates" id="sbtCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"
+                                order="after scalaCompletionContrubutor"/>
         <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
                                 order="first"/>
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"

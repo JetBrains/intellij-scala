@@ -1,33 +1,29 @@
-package org.jetbrains.sbt.language.completion
+package org.jetbrains.sbt
+package language
+package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
-import com.intellij.patterns.{PlatformPatterns, StandardPatterns}
+import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.patterns.StandardPatterns.{instanceOf, string}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.resolvers.SbtResolverUtils
 
 /**
   * @author Mikhail Mutcianko
   * @since 24.07.16
   */
+final class SbtMavenDependencyCompletionContributor extends CompletionContributor {
 
-class SbtMavenDependencyCompletionContributor extends CompletionContributor {
-
-  val MAX_ITEMS = 6000
-
-  import PlatformPatterns.{psiElement, psiFile}
-  import StandardPatterns.{instanceOf, string}
-
-  private val pattern = psiElement.inFile(psiFile.withFileType(instanceOf(SbtFileType.getClass))) &&
+  private val pattern = sbtFilePattern &&
     (
-      psiElement.withSuperParent(2, classOf[ScInfixExpr]) && psiElement.withChild(psiElement.withText(string.oneOf("%", "%%"))) ||
+      infixExpressionChildPattern && psiElement.withChild(psiElement.withText(string.oneOf("%", "%%"))) ||
         psiElement.inside(
           instanceOf(classOf[ScInfixExpr]) && psiElement.withChild(psiElement.withText("libraryDependencies"))
         )
