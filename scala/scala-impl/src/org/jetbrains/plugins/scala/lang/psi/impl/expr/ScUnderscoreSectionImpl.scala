@@ -12,11 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.util.SAMUtil
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -53,62 +51,35 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
               case Some(`typed`) =>
                 typed.typeElement match {
                   case Some(te) => return te.`type`()
-                  case _ => return Failure("Typed statement is not complete for underscore section")
+                  case _        => return Failure("Typed statement is not complete for underscore section")
                 }
               case _ => return typed.`type`()
             }
           case _ =>
         }
+
         overExpr match {
           case None => Failure("No type inferred")
           case Some(expr: ScExpression) =>
-            val unders = ScUnderScoreSectionUtil.underscores(expr)
+            val unders      = ScUnderScoreSectionUtil.underscores(expr)
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
+
             var e: PsiElement = this
             while (e != expr) {
               startOffset += e.startOffsetInParent
               e = e.getContext
             }
-            val i = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)
-            if (i < 0) return Failure("Not found under")
-            var result: Option[ScType] = null //strange logic to handle problems with detecting type
-            var forEqualsParamLength: Boolean = false //this is for working completion
-            for (tp <- expr.expectedTypes(fromUnderscore = false) if result != None) {
 
-              def processFunctionType(params: Seq[ScType]) {
-                if (result != null) {
-                  if (params.length == unders.length && !forEqualsParamLength) {
-                    result = Some(params(i))
-                    forEqualsParamLength = true
-                  } else if (params.length == unders.length) result = None
-                }
-                else if (params.length > unders.length) result = Some(params(i))
-                else {
-                  result = Some(params(i))
-                  forEqualsParamLength = true
-                }
-              }
+            val functionLikeType = FunctionLikeType(expr)
 
-              tp.removeAbstracts match {
-                case FunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
-                case any if this.isSAMEnabled =>
-                  SAMUtil.toSAMType(any, this) match {
-                    case Some(FunctionType(_, params)) if params.length >= unders.length =>
-                      processFunctionType(params)
-                    case _ =>
-                  }
-                case _ =>
-              }
-            }
-            if (result == null || result.isEmpty) {
-              this.expectedType(fromUnderscore = false) match {
-                case Some(tp: ScType) => result = Some(tp)
-                case _ => result = None
-              }
-            }
-            result match {
-              case None => Failure("No type inferred")
-              case Some(t) => Right(t)
+            val idx = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)
+            idx match {
+              case -1 => Failure("Failed to found corresponging underscore section")
+              case i =>
+                expr.expectedType(fromUnderscore = false).map(_.removeAbstracts) match {
+                  case Some(functionLikeType(_, _, params)) => params.lift(i).asTypeResult
+                  case _                                    => this.expectedType(false).asTypeResult
+                }
             }
         }
     }

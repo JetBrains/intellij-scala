@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -33,7 +33,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
-import org.jetbrains.plugins.scala.util.SAMUtil
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_13
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -55,31 +56,142 @@ class ExpectedTypesImpl extends ExpectedTypes {
   def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
 
-    onlyOne(types)
+    filterAlternatives(types, expr)
   }
 
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expr.expectedTypesEx(fromUnderscore)
 
-    onlyOne(types)
+    filterAlternatives(types, expr)
   }
 
-  private def onlyOne(types: Seq[ParameterType]): Option[ParameterType] = {
+  private[this] def filterAlternatives(
+    types: Seq[ParameterType],
+    place: PsiElement
+  ): Option[ParameterType] = {
     val distinct =
       types.sortBy {
         case (_: ScAbstractType, _) => 1
-        case _ => 0
+        case _                      => 0
       }.distinctBy {
         case (ScAbstractType(_, lower, upper), _) if lower == upper => lower
-        case (t, _) => t
+        case (t, _)                                                 => t
       }
-    distinct match {
-      case Seq(tp) => Some(tp)
-      case _ => None
+
+    if (distinct.size == 1) distinct.headOption
+    else {
+      val arities = aritiesOf(place)
+
+      if (arities.isEmpty) None
+      else {
+        val tpes = distinct.map(_._1)
+        expectedFunctionTypeFromOverloadedAlternatives(tpes, arities, place)
+      }
     }
   }
 
-  // Expression has no expected type if followed by "." + "Identifier expected" error, #SCL-15754
+  private def onlyOne[T](types: Seq[T]): Option[T] =
+    if (types.size == 1) types.headOption
+    else                 None
+
+  /** Returns arity of the functional literal `e`, taking tupling into account. */
+  private[this] def aritiesOf(e: PsiElement): Set[Int] = e match {
+    case block: ScBlockExpr if block.isAnonymousFunction => aritiesOf(block.caseClauses.get)
+    case clauses: ScCaseClauses                          => clauses.caseClause.pattern.fold(Set.empty[Int])(aritiesOf)
+    case _: ScReferencePattern                           => Set(1)
+    case tuple: ScTuplePattern                           => Set(tuple.bindings.size, 1)
+    case fn: ScFunctionExpr                              => Set(fn.parameters.size)
+    case e: ScExpression =>
+      val underscores = ScUnderScoreSectionUtil.underscores(e).size
+      if (underscores == 0) Set.empty
+      else                  Set(1)
+    case _ => Set.empty
+  }
+
+  /**
+   * When type checking a function literal supplied to an overloaded method
+   * we first filter expected types based on function arity and then if scalaVersion >= 2.13
+   * merge function-like types with equivalent parameters (more on that below).
+   *
+   * See: https://github.com/scala/scala/pull/6871
+   * We only provide an expected type (for each argument position) when:
+   * - there is at least one FunctionN type expected by one of the overloads:
+   *   in this case, the expected type is a FunctionN[Ti, ?], where Ti are the argument types (they must all be =:=),
+   *   and the expected result type is elided using a wildcard.
+   *   This does not exclude any overloads that expect a SAM, because they conform to a function type through SAM conversion
+   * - OR: all overloads expect a SAM type of the same class, but with potentially varying result types (argument types must be =:=)
+   * */
+  private[this] def expectedFunctionTypeFromOverloadedAlternatives(
+    alternatives:    Seq[ScType],
+    expectedArities: Set[Int],
+    place:           PsiElement
+  ): Option[ParameterType] = {
+    import FunctionTypeMarker._
+
+    implicit val scope: ElementScope = place.elementScope
+
+    val canMergeParamTpes = place.scalaLanguageLevelOrDefault >= Scala_2_13
+    val functionLikeType  = FunctionLikeType(place)
+
+    def paramTpesMatch(lhs: Seq[ScType], rhs: Seq[ScType]): Boolean =
+      lhs.isEmpty || lhs.corresponds(rhs) { case (l, r) => l.equiv(r) }
+
+    @tailrec
+    def recur(
+      tpes:              Iterator[ScType],
+      correctArity:      List[ScType]     = Nil,
+      isFunctionN:       Boolean          = false,
+      isPartialFunction: Boolean          = false,
+      isSameSam:         Boolean          = true,
+      SAMCls:            Option[PsiClass] = None,
+      paramTpes:         Seq[ScType]      = Seq.empty
+    ): (Option[ScType], List[ScType]) =
+      if (tpes.isEmpty) {
+        val mergedTpe =
+          if (isPartialFunction) PartialFunctionType((Any, paramTpes.head)).toOption
+          else if (isFunctionN)  FunctionType((Any, paramTpes)).toOption
+          else if (isSameSam)    SAMCls.map(cls => ScParameterizedType(ScDesignatorType(cls), paramTpes))
+          else                   None
+
+        (mergedTpe, correctArity)
+      } else tpes.next() match {
+        case ftpe @ functionLikeType(marker, _, ptpes) if paramTpesMatch(paramTpes, ptpes) =>
+          if (!expectedArities.contains(ptpes.size)) {
+            /* Skip function like types with wrong arity */
+            recur(tpes, correctArity, isFunctionN, isPartialFunction, isSameSam, SAMCls, paramTpes)
+          } else {
+            val currentSAM = marker match {
+              case SAM(cls) => cls.toOption
+              case _        => None
+            }
+
+            val currentSAMClsMatches = currentSAM.exists(cls =>
+              (isSameSam && SAMCls.isEmpty) || SAMCls.contains(cls)
+            )
+
+            recur(
+              tpes,
+              ftpe :: correctArity,
+              isFunctionN       || marker == FunctionN,
+              isPartialFunction || marker == PF,
+              isSameSam         && currentSAMClsMatches,
+              currentSAM,
+              ptpes
+            )
+          }
+        case _ => (None, Nil)
+      }
+
+    val (maybeMergedTpe, correctArity) = recur(alternatives.iterator)
+
+    val result =
+      if (canMergeParamTpes) maybeMergedTpe
+      else                   onlyOne(correctArity)
+
+    result.map(_ -> None)
+  }
+
+// Expression has no expected type if followed by "." + "Identifier expected" error, #SCL-15754
   private def isInIncompeteCode(e: ScExpression): Boolean = {
     def isIncompleteDot(e1: LeafPsiElement, e2: PsiErrorElement) =
       e1.textMatches(".") && e2.getErrorDescription == "Identifier expected"
@@ -104,18 +216,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     val sameInContext = expr.getDeepSameElementInContext
 
-    @tailrec
     def fromFunction(tp: ParameterType): Array[ParameterType] = {
+      val functionLikeType = FunctionLikeType(expr)
       tp._1 match {
-        case FunctionType(retType, _) => Array((retType, None))
-        case PartialFunctionType(retType, _) => Array((retType, None))
-        case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
-        case samType if expr.isSAMEnabled =>
-          SAMUtil.toSAMType(samType, expr) match {
-            case Some(methodType) => fromFunction(methodType, tp._2)
-            case _ => Array.empty
-          }
-        case _ => Array.empty
+        case functionLikeType(_, retTpe, _) => Array((retTpe, None))
+        case _                              => Array.empty
       }
     }
 
@@ -128,10 +233,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
       if (sameInContext == null) 0
       else argExprs.indexWhere(_ == sameInContext).max(0)
 
-    def expectedTypesForArg(invocation: MethodInvocation, arg: ScExpression): Array[ParameterType] = {
+    def expectedTypesForArg(invocation: MethodInvocation): Array[ParameterType] = {
       val argExprs = invocation.argumentExpressions
+      val invoked  = invocation.getEffectiveInvokedExpr
 
-      val invoked = invocation.getEffectiveInvokedExpr
       val tps = invoked match {
         case ref: ScReferenceExpression =>
           if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
@@ -146,9 +251,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
           }
         case _ => Array((invoked.getNonValueType(), false))
       }
+
       val updatedWithExpected = tps.map {
         case (r, isDynamicNamed) => (r.map(invocation.updateAccordingToExpectedType), isDynamicNamed)
       }
+
       updatedWithExpected
         .filterNot(_._1.exists(_.equiv(Nothing)))
         .flatMap {
@@ -240,8 +347,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _ => Array.empty
         }
       //method application
-      case tuple: ScTuple if tuple.isCall =>
-        expectedTypesForArg(tuple.getContext.asInstanceOf[ScInfixExpr], expr)
+      case tuple: ScTuple if tuple.isCall => expectedTypesForArg(tuple.getContext.asInstanceOf[ScInfixExpr])
       case tuple: ScTuple =>
         val buffer = new ArrayBuffer[ParameterType]
         val exprs = tuple.exprs
@@ -259,12 +365,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) addType(tp)
         }
         buffer.toArray
-      case infix@ScInfixExpr.withAssoc(_, operation, `sameInContext`) if !expr.isInstanceOf[ScTuple] =>
+      case infix@ScInfixExpr.withAssoc(_, _, `sameInContext`) if !expr.isInstanceOf[ScTuple] =>
         val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.innerElement.getOrElse(return Array.empty)
           case _ => expr
         }
-        expectedTypesForArg(infix, zExpr)
+        expectedTypesForArg(infix)
       //SLS[4.1]
       case v @ ScPatternDefinition.expr(`sameInContext`)  if v.isSimple => declaredOrInheritedType(v)
       case v @ ScVariableDefinition.expr(`sameInContext`) if v.isSimple => declaredOrInheritedType(v)
@@ -289,7 +395,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
       case args: ScArgumentExprList =>
         args.getContext match {
-          case mc: ScMethodCall => expectedTypesForArg(mc, expr)
+          case mc: ScMethodCall => expectedTypesForArg(mc)
           case ctx @ (_: ScConstructorInvocation | _: ScSelfInvocation) =>
             val argExprs = args.exprs
             val argIdx = argIndex(argExprs)
@@ -512,7 +618,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
 
         fun.returnType.toOption.map(typeParamSubst.followed(subst))
-      case Some((fun: ScSyntheticFunction, subst)) =>
+      case Some((fun: ScSyntheticFunction, _)) =>
         val typeParamSubst =
           ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
 

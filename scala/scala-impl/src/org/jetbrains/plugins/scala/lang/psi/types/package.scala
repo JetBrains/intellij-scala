@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.util.control.NoStackTrace
@@ -334,5 +335,32 @@ package object types {
 
   object Aliased {
     def unapply(tpe: ScType): Option[AliasType] = tpe.isAliasType
+  }
+
+  /**
+   * Extractor for types, which are function-like
+   * (i.e. FunctionN types, PartialFunction types and SAM traits).
+   * See also: [[FunctionTypeMarker]]
+   */
+  final case class FunctionLikeType(place: PsiElement) {
+    import FunctionTypeMarker._
+
+    def unapply(tpe: ScType): Option[(FunctionTypeMarker, ScType, Seq[ScType])] = tpe match {
+      case FunctionType(retTpe, paramTpes)       => (FunctionN, retTpe, paramTpes).toOption
+      case PartialFunctionType(retTpe, paramTpe) => (PF, retTpe, Seq(paramTpe)).toOption
+      case ScAbstractType(_, _, upper)           => unapply(upper)
+      case tpe                                   =>
+        for {
+          (_, retTpe, paramTpes) <- SAMUtil.toSAMType(tpe, place).flatMap(unapply)
+          cls                    <- tpe.extractClass
+        } yield (SAM(cls), retTpe, paramTpes)
+    }
+  }
+
+  sealed trait FunctionTypeMarker
+  object FunctionTypeMarker {
+    case object FunctionN         extends FunctionTypeMarker
+    case object PF                extends FunctionTypeMarker
+    case class SAM(cls: PsiClass) extends FunctionTypeMarker
   }
 }
