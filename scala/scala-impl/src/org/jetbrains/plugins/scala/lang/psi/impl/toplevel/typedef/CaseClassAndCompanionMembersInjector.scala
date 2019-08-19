@@ -5,7 +5,8 @@ package impl
 package toplevel
 package typedef
 
-import org.jetbrains.plugins.scala.extensions.{Model, PsiModifierListOwnerExt, StringsExt}
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.extensions.{Model, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
@@ -71,11 +72,16 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
         // That may not look entirely reasonable, but that's how it's done in scalac
         lazy val hasUserDefinedCopyMethod =
-          cls.functions.exists(_.name == Copy) ||
-            cls.supers.exists(_.findMethodsByName(Copy).nonEmpty)
+          hasCopyMethod(cls) || cls.supers.exists(hasCopyMethod)
+
         !hasRepeatedParam && !hasUserDefinedCopyMethod
       case _ => false
     })
+
+  private def hasCopyMethod(psiClass: PsiClass) = psiClass match {
+    case td: ScTypeDefinition => td.functions.exists(_.name == Copy)
+    case c: PsiClass          => c.getMethods.exists(_.name == Copy)
+  }
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] = source match {
     case ObjectWithCaseClassCompanion(obj, cc) if obj.isSyntheticObject =>
