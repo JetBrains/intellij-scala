@@ -87,6 +87,7 @@ object InternalProfilerToolWindowFactory {
     actionToolbarPanel.add(actionToolBar.getComponent)
 
     val table = tableModel.createTable()
+    tableModel.registerSpeedSearch(table)
     scheduleRefresh(tableModel, dataSource)
 
     val scrollPane = new JScrollPane
