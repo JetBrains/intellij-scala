@@ -94,7 +94,7 @@ object SAMUtil {
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-    def toSAMType(expected: ScType, element: PsiElement): Option[ScType] ={
+    def toSAMType(expected: ScType, element: PsiElement): Option[ScType] = {
       implicit val scope: ElementScope = element.elementScope
       val languageLevel                = element.scalaLanguageLevelOrDefault
 

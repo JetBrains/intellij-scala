@@ -63,10 +63,11 @@ object ScPattern {
       val psiManager = ScalaPsiManager.instance
 
       pattern.getContext match {
-        case list: ScPatternList => list.getContext match {
-          case _var: ScVariable => _var.`type`().toOption
-          case _val: ScValue => _val.`type`().toOption
-        }
+        case list: ScPatternList =>
+          list.getContext match {
+            case _var: ScVariable => _var.`type`().toOption
+            case _val: ScValue    => _val.`type`().toOption
+          }
         case argList: ScPatternArgumentList =>
           argList.getContext match {
             case constr: ScConstructorPattern =>
@@ -90,12 +91,14 @@ object ScPattern {
                   //so it's right pattern
                   val i = tuple.patternList match {
                     case Some(patterns: ScPatterns) => patterns.patterns.indexWhere(_ == pattern)
-                    case _ => return None
+                    case _                          => return None
                   }
+
                   val patternLength: Int = tuple.patternList match {
                     case Some(pat) => pat.patterns.length
-                    case _ => -1 //is it possible to get here?
+                    case _         => -1 //is it possible to get here?
                   }
+
                   return expectedTypeForExtractorArg(infix.operation, i + 1, infix.expectedType, patternLength)
                 }
               case _ =>
@@ -113,31 +116,32 @@ object ScPattern {
           case _: ScXmlPattern =>
             val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
-                  pattern match {
-                    case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
-                      ScDesignatorType(nodeClass).wrapIntoSeqType
-                    case _ => Some(ScDesignatorType(nodeClass))
-                  }
+              pattern match {
+                case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
+                  ScDesignatorType(nodeClass).wrapIntoSeqType
+                case _ => Some(ScDesignatorType(nodeClass))
+              }
             }
           case _ => None
         }
         case clause: ScCaseClause => clause.getContext /*clauses*/ .getContext match {
           case matchStat: ScMatch => matchStat.expression match {
             case Some(e) => Some(e.`type`().getOrAny)
-            case _ => None
+            case _       => None
           }
           case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
             val thr = psiManager.getCachedClass(elementScope.scope, "java.lang.Throwable")
             thr.map(ScalaType.designator(_))
           case b: ScBlockExpr =>
+            val functionLikeType = FunctionLikeType(b)
+
             b.expectedType(fromUnderscore = false) match {
               case Some(et) =>
                 et.removeAbstracts match {
-                  case FunctionType(_, Seq()) => Some(api.Unit)
-                  case FunctionType(_, Seq(p0)) => Some(p0)
-                  case FunctionType(_, params) => Some(TupleType(params))
-                  case PartialFunctionType(_, param) => Some(param)
-                  case _ => None
+                  case functionLikeType(_, _, Seq())   => Some(api.Unit)
+                  case functionLikeType(_, _, Seq(p0)) => Some(p0)
+                  case functionLikeType(_, _, params)  => Some(TupleType(params))
+                  case _                               => None
                 }
               case None => None
             }
