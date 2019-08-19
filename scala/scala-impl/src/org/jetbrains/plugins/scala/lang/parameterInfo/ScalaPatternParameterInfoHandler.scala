@@ -84,30 +84,26 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             }
 
             val isUnapplySeq = methodName == CommonNames.UnapplySeq
-            val params = ScPattern.unapplySubpatternTypes(returnType, args, isUnapplySeq).zipWithIndex
+            val params = ScPattern.unapplySubpatternTypes(returnType, args, sign.method.asInstanceOf[ScFunction]).zipWithIndex
 
             if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               buffer.append(params.map {
-                case (param, o) =>
-                  val buffer: StringBuilder = new StringBuilder("")
-                  buffer.append(param.presentableText)
-                  val isSeq = isUnapplySeq && (param.extractClass match {
-                    case Some(clazz) => clazz.qualifiedName == args.scalaSeqFqn
-                    case _           => false
-                  })
-                  if (isSeq) {
-                    buffer.delete(0, buffer.indexOf("[") + 1)
-                    buffer.deleteCharAt(buffer.length - 1)
-                    buffer.append("*")
-                  }
-                  val isBold = if (o == index || (isSeq && o <= index)) true
-                  else {
-                    //todo: check type
-                    false
-                  }
-                  val paramTypeText = buffer.toString()
-                  val paramText = paramTextFor(sign, o, paramTypeText)
+                case (param, i) =>
+                  val sb = StringBuilder.newBuilder
+                  sb.append(param.presentableText)
+
+                  val isSeq = isUnapplySeq && i == args.getArgsCount - 1
+                  if (isSeq) sb.append("*")
+
+                  val isBold =
+                    if (i == index || (isSeq && i <= index)) true
+                    else {
+                      //todo: check type
+                      false
+                    }
+                  val paramTypeText = sb.toString()
+                  val paramText = paramTextFor(sign, i, paramTypeText)
 
                   if (isBold) "<b>" + paramText + "</b>" else paramText
               }.mkString(", "))
@@ -195,7 +191,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val element = file.findElementAt(offset)
     if (element == null) return null
 
-    implicit val project = file.projectContext
+    implicit val project: ProjectContext = file.projectContext
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {
