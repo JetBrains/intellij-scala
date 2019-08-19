@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
-import com.intellij.codeInspection.InspectionToolProvider
+import com.intellij.codeInspection.{InspectionToolProvider, LocalInspectionTool}
 import com.intellij.openapi.application.ApplicationManager
 
 import scala.collection.mutable.ArrayBuffer
@@ -11,9 +11,9 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaInternalInspectionsProvider extends InspectionToolProvider {
-  def getInspectionClasses: Array[Class[_]] = {
+  def getInspectionClasses: Array[Class[_ <: LocalInspectionTool]] = {
     if (ApplicationManager.getApplication.isInternal) {
-      val buffer = new ArrayBuffer[Class[_]]()
+      val buffer = new ArrayBuffer[Class[_ <: LocalInspectionTool]]()
       buffer += classOf[ScalaWrongMethodsUsageInspection]
       buffer += classOf[AnnotatorBasedErrorInspection]
       buffer.toArray

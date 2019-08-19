@@ -42,7 +42,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
     }
   }
 
-  def isRenaming(dataContext: DataContext): Boolean = isAvailableOnDataContext(dataContext)
+  override def isRenaming(dataContext: DataContext): Boolean = isAvailableOnDataContext(dataContext)
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {

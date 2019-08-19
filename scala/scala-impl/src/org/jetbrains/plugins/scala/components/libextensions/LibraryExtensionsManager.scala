@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.components.libextensions
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.intellij.ide.plugins.PluginManager
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
@@ -247,7 +247,7 @@ object LibraryExtensionsManager {
   }
 
   implicit class ExtensionDescriptorEx(private val ed: ExtensionDescriptor) extends AnyVal {
-    def isAvailable: Boolean = ed.pluginId.isEmpty || PluginManager.isPluginInstalled(PluginId.getId(ed.pluginId))
+    def isAvailable: Boolean = ed.pluginId.isEmpty || PluginManagerCore.isPluginInstalled(PluginId.getId(ed.pluginId))
   }
 
   implicit class StringEx(private val str: String) extends AnyVal {
