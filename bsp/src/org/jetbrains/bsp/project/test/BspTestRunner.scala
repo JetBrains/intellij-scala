@@ -31,7 +31,7 @@ class BspTestRunner(
                      val project: Project,
                      val rc: BspTestRunConfiguration,
                      val ex: Executor,
-                     val testClasses: Map[URI, List[String]]) extends RunProfileState {
+                     val testClasses: Option[Map[URI, List[String]]]) extends RunProfileState {
 
   val gson = new Gson()
 
@@ -59,21 +59,19 @@ class BspTestRunner(
     val targetIds = targets().map(uri => new BuildTargetIdentifier(uri.toString))
     val params = new TestParams(targetIds.toList.asJava)
     params.setOriginId(UUID.randomUUID().toString)
-
-    testClasses
-      .map { case (uri, classes) => new ScalaTestClassesItem(new BuildTargetIdentifier(uri.toString), classes.asJava) }
-      .toList
-    match {
-      case Nil =>
-      case list =>
+    testClasses match {
+      case Some(m) =>
+        val scalaTestClasses = m
+          .map { case (uri, classes) => new ScalaTestClassesItem(new BuildTargetIdentifier(uri.toString), classes.asJava) }
+          .toList
         params.setDataKind("scala-test")
         params.setData({
           val p = new ScalaTestParams
-          p.setTestClasses(list.asJava)
+          p.setTestClasses(scalaTestClasses.asJava)
           p
         })
+      case None =>
     }
-
     server.buildTargetTest(params)
   }
 
