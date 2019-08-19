@@ -194,8 +194,10 @@ object Compatibility {
       return ConformanceExtResult(collectSimpleProblems(exprs, parameters), constraintAccumulator)
     }
 
-    if (parameters.isEmpty)
-      return ConformanceExtResult(if(exprs.isEmpty) Seq.empty else Seq(new ApplicabilityProblem("5")), constraintAccumulator)
+    if (parameters.isEmpty) {
+      assert(exprs.isEmpty, "Empty exprs should have been handled by the excess check above")
+      return ConformanceExtResult(Seq.empty, constraintAccumulator)
+    }
 
     var k = 0
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
@@ -331,10 +333,13 @@ object Compatibility {
 
     if (exprs.length == parameters.length) return ConformanceExtResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched)
     else if (exprs.length > parameters.length) {
-      if (namedMode)
-        return ConformanceExtResult(Seq(new ApplicabilityProblem("12")), constraintAccumulator, defaultParameterUsed, matched)
-      if (!parameters.last.isRepeated)
-        return ConformanceExtResult(Seq(new ApplicabilityProblem("13")), constraintAccumulator, defaultParameterUsed, matched)
+      if (namedMode) {
+        // if we are in nameMode we cannot supply
+        val excessiveExprs = exprs.drop(parameters.length).map(_.expr)
+        return ConformanceExtResult(excessiveExprs.map(ExcessArgument), constraintAccumulator, defaultParameterUsed, matched)
+      }
+      assert (parameters.last.isRepeated, "This case should have been handled by excessive check above")
+
       val paramType: ScType = parameters.last.paramType
       val expectedType: ScType = parameters.last.expectedType
       while (k < exprs.length) {
