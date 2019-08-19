@@ -9,9 +9,7 @@ package annotator
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
   def testEmpty(): Unit = {
-    assertMatches(messages("")) {
-      case Nil =>
-    }
+    assertNothing(messages("()"))
   }
 
   def testFine(): Unit = {
@@ -101,16 +99,16 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   }
 
   def testNamedDuplicates(): Unit = {
-    assertMatches(messages("def f(a: Any) {}; f(a = null, a = Unit)")) {
-      case Error("a", "Parameter specified multiple times") ::
-              Error("a", "Parameter specified multiple times") :: Nil =>
-    }
+    assertMessagesSorted(messages("def f(a: Any) {}; f(a = null, a = Unit)"))(
+      Error("a", "Parameter specified multiple times"),
+      Error("a", "Parameter specified multiple times"),
+    )
   }
 
   def testUnresolvedParameter(): Unit = {
-    assertMatches(messages("def f(a: Any) {}; f(b = null)")) {
-      case Nil =>
-    }
+    assertMessagesSorted(messages("def f(a: Any) {}; f(b = null)"))(
+      Error("b", "Cannot resolve symbol b")
+    )
   }
 
   def testTypeMismatch(): Unit = {
@@ -120,9 +118,10 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   }
 
   def testMalformedSignature(): Unit = {
-    assertMatches(messages("def f(a: A*, b: B) {}; f(A, B)")) {
-      case Error("f", "f has malformed definition") :: Nil =>
-    }
+    assertMessagesSorted(messages("def f(a: A*, b: B) {}; f(A, B)"))(
+      Error("f", "f has malformed definition"),
+      Error("a: A*", "*-parameter must come last")
+    )
   }
 
   def testIncorrectExpansion(): Unit = {
@@ -159,7 +158,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       case Error("()", "'Int' does not take parameters") :: Nil =>
     }
 
-    assertMatches(messages("val a: Any = ???; a(3)")) {
+    assertMatches(messages("val a: Any = (); a(3)")) {
       case Error("(3)", "'a.type' does not take parameters") :: Nil =>
     }
   }
@@ -174,15 +173,14 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     val code =
       """
         |object Test {
-        |  def apply(int: Int): Unit = ???
-        |  def apply(str: Float): Unit = ???
+        |  def apply(int: Int): Unit = ()
+        |  def apply(str: Float): Unit = ()
         |}
         |Test(true)
       """.stripMargin
 
     assertMessagesSorted(messages(code))(
-      // Handled by ScReferenceAnnotator.annotate
-      // Error("Test", "Cannot resolve overloaded method 'Test'") // SCL-15594
+      Error("Test", "Cannot resolve overloaded method 'Test'") // SCL-15594
     )
   }
 
@@ -190,16 +188,15 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     val code =
       """
         |class Test {
-        |  def apply(int: Int): Unit = ???
-        |  def apply(str: Float): Unit = ???
+        |  def apply(int: Int): Unit = ()
+        |  def apply(str: Float): Unit = ()
         |}
-        |def test: Test = ???
+        |def test: Test = new Test
         |test(true)
       """.stripMargin
 
     assertMessagesSorted(messages(code))(
-      // Handled by ScReferenceAnnotator.annotate
-      // Error("test", "Cannot resolve overloaded method 'test'") // SCL-15594
+      Error("test", "Cannot resolve overloaded method 'test'") // SCL-15594
     )
   }
 
@@ -207,10 +204,10 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     val code =
       """
         |class Test {
-        |  def apply(int: Int): Unit = ???
-        |  def apply(str: Float): Unit = ???
+        |  def apply(int: Int): Unit = ()
+        |  def apply(str: Float): Unit = ()
         |}
-        |def test(i: Int)(i: Int): Test = ???
+        |def test(i: Int)(j: Int): Test = new Test
         |test(3)(3)(true)
       """.stripMargin
 
@@ -224,10 +221,10 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       val code =
       """
         |object Test {
-        |  protected def update(propName: String, p: Any): Unit = ()
-        |  def update(propName: String, p: => Any): Unit = ()
+        |  protected def update(propName: Boolean, p: Any): Unit = ()
+        |  def update(propName: Boolean, p: => Any): Unit = ()
         |}
-        |Test("test") = true
+        |Test(false) = true
       """.stripMargin
 
     assertNothing(messages(code))
