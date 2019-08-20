@@ -28,11 +28,6 @@ import scala.language.postfixOps
  * To run the program enter the following command in sbt interactive shell
  * run-main org.jetbrains.bsp.BSPCli --bloop $(which bloop) --project /some/project --log /my/bsp.log
  *
- * Supported commands are
- * - compile
- * - test
- * - exit
- *
  * compile and test are called against previously resolved build target URIs.
  */
 object BSPCli extends App {
@@ -179,25 +174,35 @@ object BSPCli extends App {
 
   private def repl(): Unit = {
     val exit = "exit[ \t]*".r
+    val help = "help[ \t]*".r
     val compile = "compile[ \t]*".r
     val getScalTestClasses = "getScalaTestClasses[ \t]*".r
     val runAllTests = "runAllTests[ \t]*".r
     val runTestClass = "runTestClass[ \t]+([^\\s\\\\]+)[ \t]+([^\\s\\\\]+)[ \t]*".r
-
+    val helpText =
+      """Available commands:
+        |- compile
+        |- getScalaTestClasses
+        |- runAllTests
+        |- runTestClass <className> <targetUri>
+        |- exit
+        |- help""".stripMargin
     while (running) {
       print(Console.GREEN + ">>> " + Console.RESET)
       StdIn.readLine() match {
         case exit() =>
           bspComm.closeSession()
           running = false
+        case help() => println(helpText)
         case compile() => bspReq(compileRequest(targetIds.asJava))
         case getScalTestClasses() => bspReq(testClasses(targetIds.asJava))
         case runAllTests() => bspReq(testAllRequest(targetIds.asJava))
         case runTestClass(className, targetUri) => bspReq(testSingleRequest(targetIds.asJava, className, targetUri))
-        case _ => println("Illegal command")
+        case _ => println("Illegal command, type help for more")
       }
     }
     // There are non daemon threads, need to explicitly stop them
     System.exit(0)
   }
 }
+
