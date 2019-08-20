@@ -280,7 +280,8 @@ private[resolver] object BspResolverLogic {
         testSourceDirs = sourceRoots,
         testResourceDirs = resourceRoots,
         testClasspath = classPath,
-        testClasspathSources = dependencySources
+        testClasspathSources = dependencySources,
+        testClasses = testClasses
       ) else
       dataBasic.copy(
         targetDependencies = targetDeps,
