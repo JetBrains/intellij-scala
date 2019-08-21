@@ -84,6 +84,7 @@ object BlockModificationTracker {
     case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
     case v: ScValueOrVariable => v.typeElement.isEmpty
     case _: ScTypedExpression |
+         _: ScThrow |
          _: ScWhile |
          _: ScFinallyBlock |
          _: ScTemplateBody |
