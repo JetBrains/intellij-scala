@@ -53,14 +53,14 @@ object Versions {
       }
   }
 
-  case object ScalaKind extends Kind(
+  case object Scala extends Kind(
     if (applicationInternalModeEnabled)
       ScalaCandidatesEntity :: DottyEntity :: Nil
     else
       ScalaEntity :: Nil
   )
 
-  case object SbtKind extends Kind(
+  case object SBT extends Kind(
     Sbt1Entity :: Sbt013Entity :: Nil
   )
 
@@ -83,7 +83,6 @@ object Versions {
   private[this] object Entity {
 
     import buildinfo.BuildInfo._
-    import debugger._
 
     val ScalaEntity = Entity(
       "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",

@@ -28,7 +28,7 @@ final class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSet
 ) {
 
   import SbtModuleBuilder._
-  import Versions._
+  import Versions.{SBT => SbtKind, Scala => ScalaKind}
 
   private val selections = Selections(
     null,
@@ -225,7 +225,7 @@ object SbtModuleBuilder {
                                       var resolveClassifiers: Boolean,
                                       var resolveSbtClassifiers: Boolean) {
 
-    import Versions._
+    import Versions.{Kind, SBT => SbtKind, Scala => ScalaKind}
 
     def apply(kind: Kind): String = kind match {
       case ScalaKind => scalaVersion

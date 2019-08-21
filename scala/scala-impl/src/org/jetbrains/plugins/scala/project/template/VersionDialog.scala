@@ -16,7 +16,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
     setTitle("Download")
     myVersion.setTextRenderer(Version.abbreviate)
 
-    Versions.ScalaKind().versions match {
+    Versions.Scala().versions match {
       case Array() =>
         Messages.showErrorDialog(
           createCenterPanel(),
