@@ -24,9 +24,16 @@ public class WorksheetArgsJava {
   
   private final ReplArgsJava replArgs;
 
-   private WorksheetArgsJava(String worksheetClassName, File pathToRunners, File worksheetTempFile, List<File> outputDirs,
-                             String nameForST, List<URL> classpathURLs, File compLibrary, File compiler,
-                             List<File> compExtra, ReplArgsJava replArgs) {
+  private WorksheetArgsJava(String worksheetClassName,
+                            File pathToRunners,
+                            File worksheetTempFile,
+                            List<File> outputDirs,
+                            String nameForST,
+                            List<URL> classpathURLs,
+                            File compLibrary,
+                            File compiler,
+                            List<File> compExtra,
+                            ReplArgsJava replArgs) {
     this.worksheetClassName = worksheetClassName;
     this.pathToRunners = pathToRunners;
     this.worksheetTempFile = worksheetTempFile;
@@ -40,13 +47,19 @@ public class WorksheetArgsJava {
   }
 
 
-  public static WorksheetArgsJava constructArgsFrom(List<String> argsString, String nameForST, File compLibrary,
-                                                    File compiler, List<File> compExtra, List<File> classpath) {
+  public static WorksheetArgsJava constructArgsFrom(List<String> argsString,
+                                                    String nameForST,
+                                                    File compLibrary,
+                                                    File compiler,
+                                                    List<File> compExtra,
+                                                    List<File> classpath) {
     if (argsString.isEmpty()) return null;
     int argsSize = argsString.size();
     
     String last = argsString.get(argsSize - 1);
-    ReplArgsJava replArgs = "replenabled".equals(last) ? new ReplArgsJava(argsString.get(argsSize - 3), argsString.get(argsSize - 2)) : null;
+    ReplArgsJava replArgs = "replenabled".equals(last)
+            ? new ReplArgsJava(argsString.get(argsSize - 3), argsString.get(argsSize - 2))
+            : null;
     
     String worksheetClassName = argsString.get(0);
     File pathToRunners = validate(pathToFile(argsString.get(1)), "pathToRunners");
@@ -58,17 +71,27 @@ public class WorksheetArgsJava {
       if (f != null) outputDirs.add(f);
     }
     
-    ArrayList<URL> classPathUrls = new ArrayList<URL>(classpath.size());
-    for (File aClasspath : classpath)
+    ArrayList<URL> classPathUrls = new ArrayList<>(classpath.size());
+    for (File aClasspath : classpath) {
       try {
         classPathUrls.add(aClasspath.toURI().toURL());
       } catch (MalformedURLException e) {
         //ignore
       }
-    
+    }
       
-    return new WorksheetArgsJava(worksheetClassName, pathToRunners, worksheetTemp, outputDirs, nameForST, classPathUrls, 
-        compLibrary, compiler, compExtra, replArgs);  
+    return new WorksheetArgsJava(
+        worksheetClassName,
+        pathToRunners,
+        worksheetTemp,
+        outputDirs,
+        nameForST,
+        classPathUrls,
+        compLibrary,
+        compiler,
+        compExtra,
+        replArgs
+    );
   }
 
   private static File pathToFile(String path) {
