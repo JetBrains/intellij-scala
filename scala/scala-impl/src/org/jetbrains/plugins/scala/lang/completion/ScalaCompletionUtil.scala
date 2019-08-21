@@ -9,6 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -94,7 +95,9 @@ object ScalaCompletionUtil {
         }
       case _: ScReferenceExpression =>
         parent.getParent match {
-          case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause =>
+          case _: ScDeclarationSequenceHolder |
+               _: ScTemplateBody |
+               _: ScCaseClause =>
             if (awful(parent, leaf))
               return (true, true)
           case _ =>
