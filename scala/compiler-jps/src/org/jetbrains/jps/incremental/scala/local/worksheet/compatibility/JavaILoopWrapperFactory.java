@@ -9,13 +9,11 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -130,18 +128,19 @@ public class JavaILoopWrapperFactory {
       return null;
     }
 
-    List<File> classpath = new ArrayList<>(Arrays.asList(worksheetArgs.getCompLibrary(), worksheetArgs.getCompiler()));
+    List<File> classpath = new ArrayList<>();
+    classpath.add(worksheetArgs.getCompLibrary());
+    classpath.add(worksheetArgs.getCompiler());
     classpath.addAll(worksheetArgs.getCompExtra());
     classpath.addAll(worksheetArgs.getOutputDirs());
-    classpath.addAll(worksheetArgs.getClasspathURLs().stream().map(url -> {
-      try {
-        return url.toURI();
-      } catch (URISyntaxException e) {
-        return null;
-      }
-    }).filter(Objects::nonNull).map(File::new).collect(Collectors.toList()));
+    classpath.addAll(worksheetArgs.getClasspathURLs().stream().map(toURI()).filter(Objects::nonNull).map(File::new).collect(Collectors.toList()));
 
-    List<String> stringCp = classpath.stream().filter(File::exists).map(File::getAbsolutePath).collect(Collectors.toList());
+    List<String> stringCp = classpath.stream()
+            .filter(File::exists)
+            .map(File::getAbsolutePath)
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
 
     try {
       Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, List.class);
@@ -153,6 +152,16 @@ public class JavaILoopWrapperFactory {
     }
   }
 
+  @NotNull
+  private Function<URL, URI> toURI() {
+    return url -> {
+      try {
+        return url.toURI();
+      } catch (URISyntaxException e) {
+        return null;
+      }
+    };
+  }
 
   private static class MySimpleCache {
     private final int limit;
