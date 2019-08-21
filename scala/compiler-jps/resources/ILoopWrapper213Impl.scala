@@ -21,7 +21,9 @@ class ILoopWrapper213Impl(myOut: PrintWriter, projectFullCp: java.util.List[Stri
   override def init(): Unit = {
     val mySettings = new Settings
     mySettings.classpath.append(projectFullCp.asScala.mkString(File.pathSeparator))
-    mySettings.usejavacp.tryToSet(List.empty)
+    // do not use java class path because it contains scala library jars with version
+    // different from one that is used during compilation (it is passed from the plugin classpath)
+    mySettings.usejavacp.tryToSetFromPropertyValue(false.toString)
 
     createInterpreter(mySettings)
 

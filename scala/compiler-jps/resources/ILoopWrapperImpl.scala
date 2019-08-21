@@ -20,7 +20,9 @@ class ILoopWrapperImpl(out: PrintWriter, projectFullCp: java.util.List[String]) 
   override def init(): Unit = {
     val mySettings = new Settings
     mySettings.classpath.value = projectFullCp.asScala.mkString(File.pathSeparator)
-    mySettings.usejavacp.value = true
+    // do not use java class path because it contains scala library jars with version
+    // different from one that is used during compilation (it is passed from the plugin classpath)
+    mySettings.usejavacp.value = false
     
     this.settings = mySettings
     

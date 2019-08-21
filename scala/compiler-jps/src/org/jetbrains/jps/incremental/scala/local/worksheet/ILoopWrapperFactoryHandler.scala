@@ -115,7 +115,7 @@ class ILoopWrapperFactoryHandler {
 
 object ILoopWrapperFactoryHandler {
   // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
-  private val WRAPPER_VERSION = 1
+  private val WRAPPER_VERSION = 2
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
