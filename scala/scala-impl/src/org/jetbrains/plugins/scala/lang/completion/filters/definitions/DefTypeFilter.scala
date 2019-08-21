@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion
-package filters.definitions
+package filters
+package definitions
 
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -30,13 +29,11 @@ class DefTypeFilter extends ElementFilter {
         case _ => return false
       }
       parent.getParent match {
-        case parent@(_: ScBlock | _: ScCaseClause | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile)
-          if !parent.isInstanceOf[ScalaFile] || parent.asInstanceOf[ScalaFile].isScriptFile =>
-          if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-            leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
-            (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
-              (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT ||
-                !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
+        case parent@(_: ScDeclarationSequenceHolder |
+                     _: ScCaseClause |
+                     _: ScTemplateBody |
+                     _: ScClassParameter) =>
+          if (awful(parent, leaf))
             return true
         case _ =>
       }
