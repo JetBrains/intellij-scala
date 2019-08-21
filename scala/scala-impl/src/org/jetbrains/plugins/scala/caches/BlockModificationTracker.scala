@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 
 import scala.annotation.tailrec
 
+// TODO Rename to "ExpressionModificationTracker" - it's type annotation, not "block" that makes the difference.
 class BlockModificationTracker private (element: PsiElement) extends ModificationTracker {
 
   private val topLevel = scalaTopLevelModTracker(element.getProject)
@@ -82,7 +83,8 @@ object BlockModificationTracker {
   private def hasUnstableType(expr: ScExpression): Boolean = expr.getContext match {
     case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
     case v: ScValueOrVariable => v.typeElement.isEmpty
-    case _: ScWhile |
+    case _: ScTypedExpression |
+         _: ScWhile |
          _: ScFinallyBlock |
          _: ScTemplateBody |
          _: ScDo => false
