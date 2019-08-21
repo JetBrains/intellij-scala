@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.resolver
 
 import java.io.File
 import java.net.URI
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import java.util.Collections
 
 import ch.epfl.scala.bsp4j._
@@ -485,8 +485,7 @@ private[resolver] object BspResolverLogic {
     libraryTestDependencyData.setScope(DependencyScope.TEST)
 
     val targetIds = moduleDescriptionData.targets.map(_.getId.getUri.toURI)
-    val projectURI = Paths.get(projectRootPath).toAbsolutePath.toUri
-    val metadata = BspMetadata(projectURI, targetIds.asJava)
+    val metadata = BspMetadata(targetIds.asJava)
 
     // data node wiring
 

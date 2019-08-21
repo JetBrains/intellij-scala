@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.project
 
 import java.io.File
+import java.nio.file.Paths
 import java.util
 
 import com.intellij.compiler.impl.CompilerUtil
@@ -18,7 +19,6 @@ import com.intellij.task._
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
-import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.JavaConverters._
@@ -52,16 +52,18 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     val targetsAndRebuild = validTasks.flatMap { task =>
       val moduleId = ES.getExternalProjectId(task.getModule)
 
-      def predicate(node: DataNode[ModuleData]) = node.getData.getId == moduleId
-      // TODO all these options fail silently. collect errors and report something
+      // TODO all these Options fail silently. collect errors and report something
       val targetIds = for {
-        projectInfo <- Option(dataManager.getExternalProjectData(project, BSP.ProjectSystemId, project.getBasePath))
-        projectStructure <- Option(projectInfo.getExternalProjectStructure)
-        moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
+        projectPath <- Option(ES.getExternalProjectPath(task.getModule))
+        projectData <- Option(ES.findProjectData(project, BSP.ProjectSystemId, projectPath))
+        moduleDataNode <- Option(ES.find(
+          projectData, ProjectKeys.MODULE,
+          (node: DataNode[ModuleData]) => node.getData.getId == moduleId))
         metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
       } yield {
         val data = metadata.getData
-        data.targetIds.asScala.map(id => BspTarget(data.workspace, id)).toList
+        val workspaceUri = Paths.get(projectPath).toUri
+        data.targetIds.asScala.map(id => BspTarget(workspaceUri, id)).toList
       }
 
       targetIds.getOrElse(List.empty)

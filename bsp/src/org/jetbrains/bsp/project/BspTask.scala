@@ -16,10 +16,10 @@ import com.intellij.task.ProjectTaskNotification
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -28,11 +28,12 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.util.control.NonFatal
 
-class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget], callbackOpt: Option[ProjectTaskNotification], onComplete: ()=>Unit)
+class BspTask[T](project: Project,
+                 targets: Iterable[BspTarget],
+                 targetsToClean: Iterable[BspTarget],
+                 callbackOpt: Option[ProjectTaskNotification],
+                 onComplete: ()=>Unit)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-
-  @volatile
-  private var buildMessages: BuildMessages = BuildMessages.empty
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build")
@@ -40,24 +41,30 @@ class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean:
   private var diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
   import BspNotifications._
-  private val notifications: NotificationCallback = {
+  private def notifications(report: BuildToolWindowReporter): NotificationAggregator[BuildMessages] =
+    (messages, notification) => notification match {
     case LogMessage(params) =>
       report.log(params.getMessage)
+      messages
     case ShowMessage(params) =>
-      reportShowMessage(params)
+      reportShowMessage(messages, params)
     case PublishDiagnostics(params) =>
-      reportDiagnostics(params)
+      reportDiagnostics(messages, params)
     case TaskStart(params) =>
       reportTaskStart(params)
+      messages
     case TaskProgress(params) =>
       reportTaskProgress(params)
+      messages
     case TaskFinish(params) =>
       reportTaskFinish(params)
+      messages
     case DidChangeBuildTarget(_) =>
       // ignore
+      messages
   }
 
-  private val processLog: ProcessLogger = { message =>
+  private def processLog(report: BuildToolWindowReporter): ProcessLogger = { message =>
     report.log(message)
   }
 
@@ -73,56 +80,75 @@ class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean:
     val buildJobs = targetByWorkspace.map { case (workspace, targets) =>
       val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
       val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
-      communication.run(buildRequests(targets, targetsToClean)(_), notifications, processLog)
+      communication.run(
+        buildRequests(targets, targetsToClean)(_),
+        BuildMessages.empty,
+        notifications(report),
+        processLog(report))
     }
 
-    def projectTaskResult(buildJob: BspJob[CompileResult]) = try {
-      val result = waitForJobCancelable(buildJob, indicator)
-      buildMessages = result.getStatusCode match {
-        case StatusCode.OK =>
-          buildMessages.status(BuildMessages.OK)
-        case StatusCode.ERROR =>
-          buildMessages.status(BuildMessages.Error)
-        case StatusCode.CANCELLED =>
-          buildMessages.status(BuildMessages.Canceled)
-      }
+    val compileResults = buildJobs.map(waitForJobCancelable(_, indicator))
+    val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
+    val combinedMessages = updatedMessages.fold(BuildMessages.empty){ (m1, m2) => m1.combine(m2) }
 
-      // TODO report language specific compile result if available
-      report.finish(buildMessages)
-      reportIndicator.finish(buildMessages)
-      buildMessages.toTaskResult
+    // TODO start/finish task for individual builds
+    if (combinedMessages.status == BuildMessages.Canceled) {
+      report.finishCanceled()
+      reportIndicator.finishCanceled()
+    } else if (combinedMessages.exceptions.nonEmpty) {
+      // TODO report all exceptions?
+      report.finishWithFailure(combinedMessages.exceptions.head)
+      reportIndicator.finishWithFailure(combinedMessages.exceptions.head)
+    }
+    else {
+      report.finish(combinedMessages)
+      reportIndicator.finish(combinedMessages)
+    }
+
+    val result = combinedMessages.toTaskResult
+    callbackOpt.foreach(_.finished(result))
+    onComplete()
+  }
+
+  private def messagesWithStatus(report: BuildToolWindowReporter,
+                               reportIndicator: IndicatorReporter,
+                               result: CompileResult,
+                               messages: BuildMessages): BuildMessages = {
+    try {
+      result.getStatusCode match {
+        case StatusCode.OK =>
+          messages.status(BuildMessages.OK)
+        case StatusCode.ERROR =>
+          messages.status(BuildMessages.Error)
+        case StatusCode.CANCELLED =>
+          messages.status(BuildMessages.Canceled)
+      }
 
     } catch {
       case error: ResponseErrorException =>
-        buildMessages = buildMessages.status(BuildMessages.Error)
-        val message = error.getMessage
-        val failure = BuildFailureException(message)
-        report.error(message, None)
-        report.finishWithFailure(failure)
-        reportIndicator.finishWithFailure(failure)
-        buildMessages.toTaskResult
+        val msg = error.getMessage
+        // TODO report full error to log?
+        report.error(msg, None)
+        reportIndicator.error(msg, None)
+
+        messages
+          .addError(msg)
+          .status(BuildMessages.Error)
 
       case _: ProcessCanceledException =>
-        report.finishCanceled()
-        reportIndicator.finishCanceled()
-        buildMessages = buildMessages.status(BuildMessages.Canceled)
-        buildMessages.toTaskResult
+        messages.status(BuildMessages.Canceled)
 
       case NonFatal(err) =>
         val errName = err.getClass.getName
         val msg = Option(err.getMessage).getOrElse(errName)
+        // TODO report full error to log?
         report.error(msg, None)
-        report.finishWithFailure(err)
-        reportIndicator.finishWithFailure(err)
-        buildMessages = buildMessages.status(BuildMessages.Error)
-        buildMessages.toTaskResult
+        messages
+          .addError(msg)
+          .status(BuildMessages.Error)
     }
-
-    buildJobs.map(projectTaskResult).fold(buildMessages.toTaskResult) {}
-
-    callbackOpt.foreach(_.finished(projectTaskResult))
-    onComplete()
   }
+
 
   @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): R = {
     try {
@@ -170,7 +196,7 @@ class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean:
     server.buildTargetCompile(params)
   }
 
-  private def reportShowMessage(params: bsp4j.ShowMessageParams): Unit = {
+  private def reportShowMessage(buildMessages: BuildMessages, params: bsp4j.ShowMessageParams): BuildMessages = {
     // TODO handle message type (warning, error etc) in output
     // TODO use params.requestId to show tree structure
     val text = params.getMessage
@@ -182,22 +208,21 @@ class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean:
     val textNoAnsi = textNoAnsiAcceptor.result
 
     import bsp4j.MessageType._
-    buildMessages =
-      params.getType match {
-        case ERROR =>
-          report.error(textNoAnsi, None)
-          buildMessages.addError(textNoAnsi)
-        case WARNING =>
-          report.warning(textNoAnsi, None)
-          buildMessages.addWarning(textNoAnsi)
-        case INFORMATION =>
-          buildMessages
-        case LOG =>
-          buildMessages
-      }
+    params.getType match {
+      case ERROR =>
+        report.error(textNoAnsi, None)
+        buildMessages.addError(textNoAnsi)
+      case WARNING =>
+        report.warning(textNoAnsi, None)
+        buildMessages.addWarning(textNoAnsi)
+      case INFORMATION =>
+        buildMessages
+      case LOG =>
+        buildMessages
+    }
   }
 
-  private def reportDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
+  private def reportDiagnostics(buildMessages: BuildMessages, params: bsp4j.PublishDiagnosticsParams): BuildMessages = {
     // TODO use params.originId to show tree structure
 
     val uri = params.getTextDocument.getUri.toURI
@@ -207,7 +232,7 @@ class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean:
 
     uriDiagnostics
       .filterNot(previousDiagnostics.contains)
-      .foreach { diagnostic: bsp4j.Diagnostic =>
+      .foldLeft(buildMessages) { (messages, diagnostic) =>
 
       val start = diagnostic.getRange.getStart
       val end = diagnostic.getRange.getEnd
@@ -215,27 +240,25 @@ class BspTask[T](project: Project, targets: Iterable[BspTarget], targetsToClean:
       val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
 
       import bsp4j.DiagnosticSeverity._
-      buildMessages =
-        Option(diagnostic.getSeverity).map {
-          case ERROR =>
-            report.error(text, position)
-            buildMessages.addError(text)
-          case WARNING =>
-            report.warning(text, position)
-            buildMessages.addWarning(text)
-          case INFORMATION =>
-            report.info(text, position)
-            buildMessages
-          case HINT =>
-            report.info(text, position)
-            buildMessages
+      Option(diagnostic.getSeverity).map {
+        case ERROR =>
+          report.error(text, position)
+          messages.addError(text)
+        case WARNING =>
+          report.warning(text, position)
+          messages.addWarning(text)
+        case INFORMATION =>
+          report.info(text, position)
+          messages
+        case HINT =>
+          report.info(text, position)
+          messages
+      }
+        .getOrElse {
+          report.info(text, position)
+          messages
         }
-          .getOrElse {
-            report.info(text, position)
-            buildMessages
-          }
     }
-
   }
 
   private def reportTaskStart(params: TaskStartParams): Unit = {

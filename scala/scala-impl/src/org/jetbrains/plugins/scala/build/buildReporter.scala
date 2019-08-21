@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.build
 
-import java.util
 import java.util.UUID
 
-import com.intellij.build.events.impl._
 import com.intellij.build.events._
+import com.intellij.build.events.impl._
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition, events}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.components.ServiceManager
@@ -14,8 +13,6 @@ import com.intellij.pom.Navigatable
 import com.intellij.task.ProjectTaskResult
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.build.BuildMessages._
-
-import scala.collection.JavaConverters._
 
 trait BuildReporter {
   def start()
@@ -183,10 +180,17 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, m
 }
 
 
-case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], status: BuildStatus) {
+case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], exceptions: Seq[Exception], status: BuildStatus) {
   def addError(msg: String): BuildMessages = copy(errors = errors :+ BuildFailure(msg.trim))
   def addWarning(msg: String): BuildMessages = copy(warnings = warnings :+ BuildWarning(msg.trim))
   def status(buildStatus: BuildStatus): BuildMessages = copy(status = buildStatus)
+  def exception(exception: Exception): BuildMessages = copy(exceptions = exceptions :+ exception, status = Error)
+  def combine(other: BuildMessages): BuildMessages = BuildMessages(
+    this.warnings ++ other.warnings,
+    this.errors ++ other.errors,
+    this.exceptions ++ other.exceptions,
+    this.status.combine(other.status)
+  )
   def toTaskResult: ProjectTaskResult =
     new ProjectTaskResult(
       status == Canceled || status == Error,
@@ -197,7 +201,16 @@ case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failu
 
 case object BuildMessages {
 
-  sealed abstract class BuildStatus
+  sealed abstract class BuildStatus {
+    def combine(other: BuildStatus): BuildStatus = (this,other) match {
+      case (Indeterminate, s) => s
+      case (s, Indeterminate) => s
+      case (Error, _) | (_, Error) => Error
+      case (Canceled, _) | (_, Canceled) => Canceled
+      case (OK, OK) => OK
+    }
+  }
+
   case object Indeterminate extends BuildStatus
   case object OK extends BuildStatus
   case object Error extends BuildStatus
@@ -208,7 +221,7 @@ case object BuildMessages {
 
   def randomEventId: EventId = EventId(UUID.randomUUID().toString)
 
-  def empty = BuildMessages(Vector.empty, Vector.empty, BuildMessages.Indeterminate)
+  def empty: BuildMessages = BuildMessages(Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
   def message(parentId: Any, message: String, kind: MessageEvent.Kind, position: Option[FilePosition]): AbstractBuildEvent with MessageEvent =
     position match {

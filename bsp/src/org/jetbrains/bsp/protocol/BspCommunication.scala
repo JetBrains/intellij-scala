@@ -11,9 +11,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
@@ -28,8 +25,8 @@ import org.jetbrains.bsp.protocol.session.BspServerConnector._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
-import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
-import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
+import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.bsp.{BspError, BspErrorMessage}
 
 import scala.collection.mutable
 import scala.concurrent.duration._
