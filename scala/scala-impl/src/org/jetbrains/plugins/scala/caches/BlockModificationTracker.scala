@@ -91,11 +91,7 @@ object BlockModificationTracker {
          _: ScTemplateBody |
          _: ScDo => false
     //expression is not last in a block and not assigned to anything, cannot affect type inference outside
-    case _: ScBlock =>
-      expr.nextSiblings.forall {
-        case _: ScExpression => false
-        case _ => true
-      }
+    case block: ScBlock => block.resultExpression.contains(expr)
     case _ => true
   }
 }
