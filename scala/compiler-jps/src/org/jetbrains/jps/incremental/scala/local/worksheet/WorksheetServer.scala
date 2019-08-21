@@ -70,7 +70,9 @@ object WorksheetServer {
     val javaArgs = WorksheetArgsJava.constructArgsFrom(
       commonArgs.worksheetFiles.asJava, 
       commonArgs.compilationData.sources.headOption.map(_.getName).orNull, 
-      compilerJars.library, compilerJars.compiler, compilerJars.extra.asJava, 
+      compilerJars.library,
+      compilerJars.compiler,
+      compilerJars.extra.asJava,
       commonArgs.compilationData.classpath.asJava
     )
     
