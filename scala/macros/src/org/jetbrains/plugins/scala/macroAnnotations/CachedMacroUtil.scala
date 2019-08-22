@@ -207,12 +207,12 @@ object CachedMacroUtil {
 
     q"""val realKey = $guard.createKey($data)
 
-        val (sizeBefore, sizeAfter) = $guard.beforeComputation(realKey)
+        val (sizeBefore, sizeAfter, minDepth) = $guard.beforeComputation(realKey)
         try {
           $computation
         }
         finally {
-          $guard.afterComputation(realKey, sizeBefore, sizeAfter)
+          $guard.afterComputation(realKey, sizeBefore, sizeAfter, minDepth)
         }
      """
   }

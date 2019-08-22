@@ -5,7 +5,6 @@ import java.util.Objects
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.util.containers.ContainerUtil
 
@@ -37,7 +36,7 @@ object RecursionManager {
 
     override def mayCacheNow: Boolean = {
       val stack = ourStack.get
-      !stack.isStampWithinRecursiveCalculation(stamp) && !stack.isDirty && platformStamp.mayCacheNow()
+      !stack.isStampWithinRecursion(stamp) && !stack.isDirty && platformStamp.mayCacheNow()
     }
   }
 
@@ -54,13 +53,13 @@ object RecursionManager {
 
       val realKey = createKey(data)
 
-      val (sizeBefore, sizeAfter) = beforeComputation(realKey)
+      val (sizeBefore, sizeAfter, minDepthBefore) = beforeComputation(realKey)
 
       try {
         computable
       }
       finally {
-        afterComputation(realKey, sizeBefore, sizeAfter)
+        afterComputation(realKey, sizeBefore, sizeAfter, minDepthBefore)
       }
     }
 
@@ -72,17 +71,17 @@ object RecursionManager {
 
     def createKey(data: Data, myCallEquals: Boolean = false) = new MyKey[Data](id, data, myCallEquals)
 
-    def beforeComputation(realKey: MyKey[Data]): (Int, Int) = {
+    def beforeComputation(realKey: MyKey[Data]): (Int, Int, Int) = {
       val stack = ourStack.get()
       val sizeBefore: Int = stack.progressMap.size
-      stack.beforeComputation(realKey)
+      val minDepthBefore = stack.beforeComputation(realKey)
       val sizeAfter: Int = stack.progressMap.size
-      (sizeBefore, sizeAfter)
+      (sizeBefore, sizeAfter, minDepthBefore)
     }
 
-    def afterComputation(realKey: MyKey[Data], sizeBefore: Int, sizeAfter: Int): Unit = {
+    def afterComputation(realKey: MyKey[Data], sizeBefore: Int, sizeAfter: Int, minDepthBefore: Int): Unit = {
       val stack = ourStack.get()
-      try stack.afterComputation(realKey, sizeBefore, sizeAfter)
+      try stack.afterComputation(realKey, sizeBefore, sizeAfter, minDepthBefore)
       catch {
         case e: Throwable =>
           //noinspection ThrowFromFinallyBlock
@@ -117,8 +116,10 @@ object RecursionManager {
 
   private class CalculationStack {
     // this marks the beginning depth of a recursive calculation
-    // all calls that have the same or greater depth should not be cached
-    private[this] var minStackDepthWithinRecursiveCalculation: Int = Int.MaxValue
+    // all calls that have a greater depth should not be cached
+    // the call that has an equal value can be cached because it is
+    // the call that started the recursion
+    private[this] var minStackDepthInRecursion: Int = Int.MaxValue
     private[this] var depth: Int = 0
     private[this] var enters: Int = 0
     private[this] var exits: Int = 0
@@ -130,7 +131,7 @@ object RecursionManager {
     private[RecursionManager] def checkReentrancy(realKey: MyKey[_]): Boolean = {
       Option(progressMap.get(realKey)) match {
         case Some(stackDepthOfPrevEnter) =>
-          minStackDepthWithinRecursiveCalculation = math.min(minStackDepthWithinRecursiveCalculation, stackDepthOfPrevEnter)
+          minStackDepthInRecursion = math.min(minStackDepthInRecursion, stackDepthOfPrevEnter)
           true
         case None =>
           false
@@ -138,8 +139,8 @@ object RecursionManager {
     }
 
     private[RecursionManager] def stamp(): Int = depth
-    private[RecursionManager] def isStampWithinRecursiveCalculation(stamp: Int): Boolean =
-      stamp >= minStackDepthWithinRecursiveCalculation
+    private[RecursionManager] def isStampWithinRecursion(stamp: Int): Boolean =
+      stamp > minStackDepthInRecursion
 
     private[RecursionManager] def isDirty: Boolean = _isDirty
 
@@ -149,11 +150,11 @@ object RecursionManager {
       }
     }
 
-    private[RecursionManager] def beforeComputation(realKey: MyKey[_]): Unit = {
+    private[RecursionManager] def beforeComputation(realKey: MyKey[_]): Int = {
       enters += 1
       if (progressMap.isEmpty) {
-        assert(minStackDepthWithinRecursiveCalculation == Int.MaxValue,
-          "Empty stack should have no recursive calculation depth, but is " + minStackDepthWithinRecursiveCalculation)
+        assert(minStackDepthInRecursion == Int.MaxValue,
+          "Empty stack should have no recursive calculation depth, but is " + minStackDepthInRecursion)
       }
       checkDepth("before computation 1")
       val sizeBefore: Int = progressMap.size
@@ -164,9 +165,12 @@ object RecursionManager {
       if (sizeAfter != sizeBefore + 1) {
         LOG.error("Key doesn't lead to the map size increase: " + sizeBefore + " " + sizeAfter + " " + realKey.userObject)
       }
+      val minDepthBefore = minStackDepthInRecursion
+      minStackDepthInRecursion = Int.MaxValue
+      minDepthBefore
     }
 
-    private[RecursionManager] def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int): Unit = {
+    private[RecursionManager] def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int, minDepthBefore: Int): Unit = {
       exits += 1
       if (sizeAfter != progressMap.size) {
         LOG.error("Map size changed: " + progressMap.size + " " + sizeAfter + " " + realKey.userObject)
@@ -190,8 +194,10 @@ object RecursionManager {
         _isDirty = false
       }
 
-      if (depth < minStackDepthWithinRecursiveCalculation) {
-        minStackDepthWithinRecursiveCalculation = Int.MaxValue
+      minStackDepthInRecursion =
+        math.min(minStackDepthInRecursion, minDepthBefore)
+      if (depth < minStackDepthInRecursion) {
+        minStackDepthInRecursion = Int.MaxValue
       }
 
       checkZero()
