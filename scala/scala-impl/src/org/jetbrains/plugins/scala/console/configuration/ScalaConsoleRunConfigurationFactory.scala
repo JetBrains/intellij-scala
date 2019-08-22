@@ -5,6 +5,12 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project._
 
 class ScalaConsoleRunConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez) {
+
+  // (!!! DO NOT CHANGE IT TO "Scala REPL")
+  // Preserve old factory id due to we changed display name to "Scala REPL"
+  // Default implementation of `getId` delegates to `getName` which delegates to `myType.getDisplayName`
+  override def getId: String = "Scala Console"
+
   override def createTemplateConfiguration(project: Project): RunConfiguration = {
     new ScalaConsoleRunConfiguration(project, this, "")
   }
