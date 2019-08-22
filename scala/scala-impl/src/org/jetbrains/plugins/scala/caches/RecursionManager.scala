@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
+import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import com.intellij.util.containers.ContainerUtil
 
 /**
@@ -23,8 +24,6 @@ import com.intellij.util.containers.ContainerUtil
 object RecursionManager {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.RecursionManager")
 
-  private val platformGuard = com.intellij.openapi.util.RecursionManager.createGuard("scala.recursion.manager")
-
   private val ourStack: ThreadLocal[CalculationStack] = new ThreadLocal[CalculationStack]() {
     override protected def initialValue: CalculationStack = new CalculationStack
   }
@@ -32,7 +31,7 @@ object RecursionManager {
   /** see [[com.intellij.openapi.util.RecursionGuard#markStack]]*/
   def markStack(): StackStamp = new StackStamp {
     private val stamp = ourStack.get.stamp()
-    private val platformStamp = platformGuard.markStack()
+    private val platformStamp = PlatformRM.markStack()
 
     override def mayCacheNow: Boolean = {
       val stack = ourStack.get
