@@ -90,6 +90,7 @@ object BlockModificationTracker {
          _: ScFinallyBlock |
          _: ScTemplateBody |
          _: ScDo => false
+    case `if`: ScIf if `if`.condition.contains(expr) => false
     //expression is not last in a block and not assigned to anything, cannot affect type inference outside
     case block: ScBlock => block.resultExpression.contains(expr)
     case _ => true

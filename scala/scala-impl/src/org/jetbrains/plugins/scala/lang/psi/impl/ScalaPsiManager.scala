@@ -428,6 +428,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
     override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
 
+    // TODO Improve, add unit tests (e.g. replacing expression in "if (...)" doesn't change the "if", regardless of the getClass)
     override def childReplaced(event: PsiTreeChangeEvent): Unit = {
       val changedElement =
         if (event.getNewChild.getClass == event.getOldChild.getClass)
