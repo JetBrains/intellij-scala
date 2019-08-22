@@ -7,12 +7,12 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 
@@ -109,7 +109,17 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
       case ExpectedTypeMismatch => // it will be reported later
       case DefaultTypeParameterMismatch(_, _) => //it will be reported later
-      case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")
+
+      case AmbiguousImplicitParameters(_) =>
+      case MissedParametersClause(_) =>
+      case DoesNotTakeTypeParameters =>
+      case ElementApplicabilityProblem(_, _, _) =>
+      case ExcessTypeArgument(_) =>
+      case IncompleteCallSyntax(_) =>
+      case InternalApplicabilityProblem(_) =>
+      case MissedTypeParameter(_) =>
+      case NotFoundImplicitParameter(_) =>
+      case WrongTypeParameterInferred =>
     }
   }
 

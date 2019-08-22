@@ -26,10 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPatternPrefix, ScInterpolatedExpressionPrefix}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -88,12 +88,12 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
                       "Unspecified type parameters: " + as.mkString(", "))
                 }
-                r.problems.foreach {
+                withoutNonHighlightables(r.problems, holder).foreach {
                   case MissedTypeParameter(_) =>
                   // handled in bulk above
                   case DoesNotTakeTypeParameters =>
                     holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall), f.name + " does not take type parameters")
-                  case ExcessTypeArgument(arg) if inSameFile(arg, holder) =>
+                  case ExcessTypeArgument(arg) =>
                     holder.createErrorAnnotation(arg, "Too many type arguments for " + f.name)
                   case DefaultTypeParameterMismatch(expected, actual) => genCall.typeArgs match {
                     case Some(typeArgs) =>
@@ -102,7 +102,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                     case _ =>
                   }
                   case _ =>
-                  //holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
               case call: MethodInvocation =>
                 val missed =
@@ -139,16 +138,16 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   }
                 }
 
-                problems.foreach {
+                withoutNonHighlightables(problems, holder).foreach {
                   case DoesNotTakeParameters() =>
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters"))
-                  case ExcessArgument(argument) if inSameFile(argument, holder) =>
+                  case ExcessArgument(argument) =>
                     if (inDesugaring) {
                       registerCreateFromUsageFixesFor(reference,
                         holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
                     }
-                  case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
+                  case TypeMismatch(expression, expectedType) =>
                     if (countMatches && !typeMismatchShown) {
                       expression.`type`().foreach {
                         registerTypeMismatchError(_, expectedType, expression)
@@ -159,21 +158,33 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                   case MalformedDefinition() =>
                     holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
-                  case ExpansionForNonRepeatedParameter(expression) if inSameFile(expression, holder) =>
+                  case ExpansionForNonRepeatedParameter(expression) =>
                     holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
-                  case PositionalAfterNamedArgument(argument) if inSameFile(argument, holder) =>
+                  case PositionalAfterNamedArgument(argument) =>
                     holder.createErrorAnnotation(argument, "Positional after named argument")
-                  case ParameterSpecifiedMultipleTimes(assignment) if inSameFile(assignment, holder) =>
+                  case ParameterSpecifiedMultipleTimes(assignment) =>
                     holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
                   // TODO What's even that? Why don't we reuse TypeMismatch?
-                  case ElementApplicabilityProblem(element, actual, expected) if inSameFile(element, holder) =>
+                  case ElementApplicabilityProblem(element, actual, expected) =>
                     TypeMismatchError.register(element, expected, actual) { (expected, actual) =>
                       ScalaBundle.message("type.mismatch.found.required", actual, expected)
                     }
-                  case _ =>
-                    holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
+
+                  case AmbiguousImplicitParameters(_) =>
+                  case DefaultTypeParameterMismatch(_, _) =>
+                  case DoesNotTakeTypeParameters =>
+                  case ExcessTypeArgument(_) =>
+                  case MissedParametersClause(_) =>
+                  case MissedTypeParameter(_) =>
+                  case NotFoundImplicitParameter(_) =>
+
+                  case IncompleteCallSyntax(_) =>
+                  case InternalApplicabilityProblem(description) =>
+                    throw new AssertionError(
+                      "Internal applicability problem should not be get to the annotator, but found: " + description
+                    )
                 }
               case _ if !reference.isInstanceOf[ScInterpolatedPatternPrefix] =>
                 r.problems.foreach {
@@ -231,7 +242,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
 
     val resolve = refElement.multiResolveScala(false)
-    def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
+    def processError(countError: Boolean, fixes: => Seq[IntentionAction]): Unit = {
       lazy val cachedFixes = fixes
       //todo remove when resolve of unqualified expression will be fully implemented
       if (refElement.getManager.isInProject(refElement) &&
@@ -309,6 +320,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                       case elem => elem
                     }).getPrevSibling
 
+                    @scala.annotation.tailrec
                     def check(neighbour: PsiElement): Boolean = {
                       if (neighbour == null ||
                         neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
@@ -483,6 +495,32 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
 
+  // some properties cannot be shown because they are synthetic for example.
+  // filter these out
+  private def withoutNonHighlightables(problems: Seq[ApplicabilityProblem], holder: AnnotationHolder): Seq[ApplicabilityProblem] = problems.filter {
+    case PositionalAfterNamedArgument(argument) => inSameFile(argument, holder)
+    case ParameterSpecifiedMultipleTimes(assignment) => inSameFile(assignment, holder)
+    case UnresolvedParameter(assignment) => inSameFile(assignment, holder)
+    case ExpansionForNonRepeatedParameter(argument) => inSameFile(argument, holder)
+    case ElementApplicabilityProblem(element, _, _) => inSameFile(element, holder)
+    case ExcessArgument(argument) => inSameFile(argument, holder)
+    case MissedParametersClause(clause) => inSameFile(clause, holder)
+    case TypeMismatch(expression, _) => inSameFile(expression, holder)
+    case ExcessTypeArgument(argument) => inSameFile(argument, holder)
+    case MalformedDefinition() => true
+    case DoesNotTakeParameters() => true
+    case MissedValueParameter(_) => true
+    case DefaultTypeParameterMismatch(_, _) => true
+    case WrongTypeParameterInferred => true
+    case DoesNotTakeTypeParameters => true
+    case MissedTypeParameter(_) => true
+    case ExpectedTypeMismatch => true
+    case NotFoundImplicitParameter(_) => true
+    case AmbiguousImplicitParameters(_) => true
+    case IncompleteCallSyntax(_) => true
+    case InternalApplicabilityProblem(_) => true
+  }
+
   private def inSameFile(elem: PsiElement, holder: AnnotationHolder): Boolean = {
     elem != null && elem.getContainingFile == holder.getCurrentAnnotationSession.getFile
   }
@@ -509,13 +547,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  private def registerAddFixes(refElement: ScReference, annotation: Annotation, actions: IntentionAction*) {
+  private def registerAddFixes(refElement: ScReference, annotation: Annotation, actions: IntentionAction*): Unit = {
     for (action <- actions) {
       annotation.registerFix(action)
     }
   }
 
-  private def registerCreateFromUsageFixesFor(ref: ScReference, annotation: Annotation) {
+  private def registerCreateFromUsageFixesFor(ref: ScReference, annotation: Annotation): Unit = {
     ref match {
       case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
