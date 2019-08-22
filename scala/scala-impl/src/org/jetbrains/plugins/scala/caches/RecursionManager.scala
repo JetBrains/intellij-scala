@@ -46,18 +46,18 @@ object RecursionManager {
     ourStack.get.prohibitCaching()
   }
 
-  class RecursionGuard[Data >: Null <: AnyRef, Result >: Null <: AnyRef] private (id: String) {
+  class RecursionGuard[Data >: Null <: AnyRef] private (id: String) {
 
     //see also org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.doPreventingRecursion
-    def doPreventingRecursion(data: Data, computable: Computable[Result]): Result = {
-      if (checkReentrancy(data)) return null
+    def doPreventingRecursion[Result](data: Data)(computable: => Option[Result]): Option[Result] = {
+      if (checkReentrancy(data)) return None
 
       val realKey = createKey(data)
 
       val (sizeBefore, sizeAfter) = beforeComputation(realKey)
 
       try {
-        computable.compute()
+        computable
       }
       finally {
         afterComputation(realKey, sizeBefore, sizeAfter)
@@ -93,12 +93,12 @@ object RecursionManager {
   }
 
   object RecursionGuard {
-    private val guards: ConcurrentMap[String, RecursionGuard[_, _]] =
-      ContainerUtil.newConcurrentMap[String, RecursionGuard[_, _]]()
+    private val guards: ConcurrentMap[String, RecursionGuard[_]] =
+      ContainerUtil.newConcurrentMap[String, RecursionGuard[_]]()
 
-    def apply[Data >: Null <: AnyRef, Result >: Null <: AnyRef](id: String): RecursionGuard[Data, Result] =
-      guards.computeIfAbsent(id, new RecursionGuard[Data, Result](_))
-        .asInstanceOf[RecursionGuard[Data, Result]]
+    def apply[Data >: Null <: AnyRef](id: String): RecursionGuard[Data] =
+      guards.computeIfAbsent(id, new RecursionGuard[Data](_))
+        .asInstanceOf[RecursionGuard[Data]]
   }
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {

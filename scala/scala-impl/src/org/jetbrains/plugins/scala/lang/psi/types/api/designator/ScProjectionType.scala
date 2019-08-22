@@ -337,14 +337,14 @@ final class ScProjectionType private(val projected: ScType,
 
 object ScProjectionType {
 
-  private val guard = RecursionManager.RecursionGuard[ScType, Option[ScType]]("aliasProjectionGuard")
+  private val guard = RecursionManager.RecursionGuard[ScType]("aliasProjectionGuard")
 
   def simpleAliasProjection(p: ScProjectionType): ScType = {
-    if (guard.checkReentrancy(p)) return p
-
     p.actual() match {
       case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>
-        val upper = guard.doPreventingRecursion(p, td.upperBound.map(subst).toOption)
+        val upper = guard.doPreventingRecursion(p) {
+          td.upperBound.map(subst).toOption
+        }
         upper
           .filter(_.typeDepth < p.typeDepth)
           .getOrElse(p)

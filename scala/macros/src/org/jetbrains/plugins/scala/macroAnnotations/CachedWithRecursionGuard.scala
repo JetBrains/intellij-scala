@@ -75,9 +75,11 @@ object CachedWithRecursionGuard {
           if (hasParams) q"$holderName.get($dataName)"
           else q"$holderName.get()"
 
-        val updateHolder =
-          if (hasParams) q"$holderName.putIfAbsent($dataName, $resultName)"
-          else q"$holderName.compareAndSet(null, $resultName)"
+        val updateHolder = new UpdateHolderGenerator[c.type](c) {
+          override def apply(resultName: c.universe.TermName): c.universe.Tree =
+            if (hasParams) q"$holderName.putIfAbsent($dataName, $resultName)"
+            else q"$holderName.compareAndSet(null, $resultName)"
+        }
 
         val dataForGuardType =
           if (hasParams) tq"($elementType, $dataType)"
@@ -89,7 +91,8 @@ object CachedWithRecursionGuard {
 
         val guardedCalculation = withUIFreezingGuard(c)(rhs, retTp)
         val withProbablyRecursiveException = handleProbablyRecursiveException(c)(elemName, dataName, keyVarName, guardedCalculation)
-        val calculationWithAllTheChecks = doPreventingRecursion(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp)
+        val withCaching = doCaching(c)(withProbablyRecursiveException, resultName, updateHolder)
+        val cachedCalculationWithAllTheChecks = doPreventingRecursion(c)(withCaching, guard, dataForGuardName, retTp)
 
         val updatedRhs = q"""
           val $elemName = $element
@@ -105,25 +108,17 @@ object CachedWithRecursionGuard {
           val fromCachedHolder = $getFromHolder
           if (fromCachedHolder != null) return fromCachedHolder
 
-          val $guard = $recursionGuardFQN[$dataForGuardType, $cachedValueProviderResultTypeFQN[$resultType]]($keyVarName.toString)
+          val $guard = $recursionGuardFQN[$dataForGuardType]($keyVarName.toString)
           if ($guard.checkReentrancy($dataForGuardName))
             return $cachesUtilFQN.handleRecursiveCall($elemName, $dataName, $keyVarName, $defValueName)
 
-          val stackStamp = $recursionManagerFQN.markStack()
-
           $tracerName.calculationStart()
 
-          val $resultName = try {
-            $calculationWithAllTheChecks
+          try {
+            $cachedCalculationWithAllTheChecks
           } finally {
             $tracerName.calculationEnd()
           }
-
-          if (stackStamp.mayCacheNow()) {
-            $updateHolder
-            $getFromHolder
-          }
-          else $resultName
           """
 
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)

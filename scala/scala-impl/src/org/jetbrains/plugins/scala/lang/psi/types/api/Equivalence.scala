@@ -8,22 +8,22 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer
 
+import scala.util.DynamicVariable
+
 /**
   * @author adkozlov
   */
 trait Equivalence {
   typeSystem: TypeSystem =>
 
-  import TypeSystem._
   import ConstraintsResult.Left
+  import TypeSystem._
 
-  private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
+  private val guard = RecursionManager.RecursionGuard[Key](s"${typeSystem.name}.equivalence.guard")
 
   private val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
 
-  private val eval = new ThreadLocal[Boolean] {
-    override def initialValue(): Boolean = false
-  }
+  private val eval = new DynamicVariable(false)
 
   final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right).isRight
 
@@ -50,45 +50,30 @@ trait Equivalence {
     val tracer = Tracer("Equivalence.equivInner", "Equivalence.equivInner")
 
     tracer.invocation()
-    val nowEval = eval.get()
-    val fromCache = if (nowEval) null
-    else {
-      try {
-        eval.set(true)
-        cache.get(key)
-      } finally {
-        eval.set(false)
+    val nowEval = eval.value
+    val fromCache =
+      if (nowEval) None
+      else eval.withValue(true) {
+        Option(cache.get(key))
       }
-    }
 
-    fromCache match {
-      case null if guard.checkReentrancy(key) => Left
-      case null =>
+    fromCache.orElse(
+      guard.doPreventingRecursion(key) {
         val stackStamp = RecursionManager.markStack()
 
         tracer.calculationStart()
-
-        val calculated = try {
-          guard.doPreventingRecursion(key, equivComputable(key))
+        val result = try {
+          Option(equivComputable(key).compute())
         } finally {
           tracer.calculationEnd()
         }
 
-        calculated match {
-          case null => Left
-          case result =>
-            if (!nowEval && stackStamp.mayCacheNow()) {
-
-              try {
-                eval.set(true)
-                cache.put(key, result)
-              } finally {
-                eval.set(false)
-              }
-            }
-            result
-        }
-      case cached => cached
-    }
+        result.foreach(result =>
+          if (!nowEval && stackStamp.mayCacheNow())
+            eval.withValue(true) { cache.put(key, result) }
+        )
+        result
+      }
+    ).getOrElse(Left)
   }
 }

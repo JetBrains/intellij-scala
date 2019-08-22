@@ -18,7 +18,7 @@ trait Conformance {
   import ConstraintsResult.Left
   import TypeSystem._
 
-  private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
+  private val guard = RecursionManager.RecursionGuard[Key](s"${typeSystem.name}.conformance.guard")
 
   private val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
 
@@ -47,23 +47,23 @@ trait Conformance {
     val tracer = Tracer("Conformance.conformsInner", "Conformance.conformsInner")
     tracer.invocation()
 
-    cache.get(key) match {
-      case null if guard.checkReentrancy(key) => Left
-      case null =>
+    Option(cache.get(key)).orElse(
+      guard.doPreventingRecursion(key) {
         val stackStamp = RecursionManager.markStack()
         tracer.calculationStart()
+
         try {
-          guard.doPreventingRecursion(key, conformsComputable(key, visited)) match {
-            case null => Left
-            case result =>
-              if (stackStamp.mayCacheNow()) cache.put(key, result)
-              result
-          }
+          val result = Option(conformsComputable(key, visited).compute())
+          result.foreach(result =>
+              if (stackStamp.mayCacheNow())
+                cache.put(key, result)
+          )
+          result
         }
         finally {
           tracer.calculationEnd()
         }
-      case cached => cached
-    }
+      }
+    ).getOrElse(Left)
   }
 }

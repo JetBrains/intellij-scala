@@ -171,6 +171,29 @@ object CachedMacroUtil {
      """
   }
 
+  abstract class UpdateHolderGenerator[C <: whitebox.Context](val c: C) {
+    def apply(resultName: c.universe.TermName): c.universe.Tree
+  }
+
+  def doCaching(c: whitebox.Context)(computation: c.universe.Tree, resultName: c.universe.TermName,
+                                     updateHolderGenerator: UpdateHolderGenerator[c.type]): c.universe.Tree = {
+    import c.universe.Quasiquote
+    implicit val context: c.type = c
+
+    q"""
+      {
+        val stackStamp = $recursionManagerFQN.markStack()
+
+        val $resultName = $computation
+
+        if (stackStamp.mayCacheNow()) {
+          ${updateHolderGenerator(resultName)}
+        }
+        $resultName
+      }
+      """
+  }
+
   def doPreventingRecursion(c: whitebox.Context)(computation: c.universe.Tree,
                                                  guard: c.universe.TermName,
                                                  data: c.universe.TermName,
