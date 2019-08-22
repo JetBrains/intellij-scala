@@ -156,25 +156,39 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     assertEquals("@c(@a(b()+c(#a)))", c())
   }
 
-  /*
-    // This test is technically correct, but it is not that bad if c isn't cached.
+  def test_inside_of_recursion_but_after_recursive_branch(): Unit = {
+    val a = Func("a")
+    val b = Func("b")
+    val c = Func("c")
 
-    def test_inside_of_recursion_but_after_recursive_branch(): Unit = {
-      val a = Func("a")
-      val b = Func("b")
-      val c = Func("c")
+    a ~> b ~> a
+    a ~> c
 
-      a ~> b ~> a
-      a ~> c
+    assertEquals("a(b(#a)+c())", a())
+    // c should be cached but not b
+    assertEquals("@c()", c())
+    assertEquals("b(@a(b(#a)+c()))", b())
 
-      assertEquals("a(b(#a)+c())", a())
-      // c should be cached but not b
-      assertEquals("@c()", c())
-      assertEquals("b(@a(b(#a)+c()))", b())
+    assertEquals("@a(b(#a)+c())", a())
+    assertEquals("@b(@a(b(#a)+c()))", b())
+  }
 
-      assertEquals("@a(b(#a)+c())", a())
-      assertEquals("@b(@a(b(#a)+c()))", b())
-    }
+  def test_inside_of_recursion_but_after_recursive_branch_2(): Unit = {
+    val a = Func("a")
+    val a2 = Func("a2")
+    val b = Func("b")
+    val c = Func("c")
 
-   */
+    a ~> a2 ~> b ~> a
+    a2 ~> c
+
+    assertEquals("a(a2(b(#a)+c()))", a())
+    // c should be cached but not b
+    assertEquals("@c()", c())
+    assertEquals("a2(b(@a(a2(b(#a)+c())))+@c())", a2())
+    assertEquals("@b(@a(a2(b(#a)+c())))", b())
+
+    assertEquals("@a(a2(b(#a)+c()))", a())
+    assertEquals("@a2(b(@a(a2(b(#a)+c())))+@c())", a2())
+  }
 }
