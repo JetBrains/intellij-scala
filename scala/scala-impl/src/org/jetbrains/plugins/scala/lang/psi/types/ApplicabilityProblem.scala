@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
@@ -21,8 +20,6 @@ case class ParameterSpecifiedMultipleTimes(assignment: ScAssignment) extends App
 case class UnresolvedParameter(assignment: ScAssignment) extends ApplicabilityProblem
 //TODO , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
-// TODO Why don't we reuse TypeMismatch?
-case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem
 
 // applicability problem
 case class DoesNotTakeParameters() extends ApplicabilityProblem

@@ -113,7 +113,6 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case AmbiguousImplicitParameters(_) =>
       case MissedParametersClause(_) =>
       case DoesNotTakeTypeParameters =>
-      case ElementApplicabilityProblem(_, _, _) =>
       case ExcessTypeArgument(_) =>
       case IncompleteCallSyntax(_) =>
       case InternalApplicabilityProblem(_) =>
