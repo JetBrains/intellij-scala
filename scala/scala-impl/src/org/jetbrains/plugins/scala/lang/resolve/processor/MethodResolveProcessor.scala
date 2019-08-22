@@ -3,6 +3,7 @@ package lang
 package resolve
 package processor
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
@@ -172,6 +173,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
 }
 
 object MethodResolveProcessor {
+  private lazy val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor")
+
   private def problemsFor(c: ScalaResolveResult,
                           checkWithImplicits: Boolean,
                           ref: PsiElement,
@@ -313,7 +316,12 @@ object MethodResolveProcessor {
         problems ++= result.problems
         result.copy(problems)
       } else {
-        problems += new ApplicabilityProblem("2")
+        val problem = InternalApplicabilityProblem(
+          "not all type parameters are defined. typeargs=[" + typeArgElements.mkString(", ") +
+            "] and classTypeParams=[" + classTypeParameters.mkString(", ") + "]"
+        )
+        LOG.warn(problem.toString)
+        problems += problem
         ConformanceExtResult(problems)
       }
     }
