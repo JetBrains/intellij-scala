@@ -56,4 +56,3 @@ case class BspMetadata @PropertyMapping(Array("targetIds")) (@NotNull targetIds:
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
 }
-
