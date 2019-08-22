@@ -150,19 +150,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     case _                 => (null, null)
   }
 
-  final def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
-    val timeoutMs =
-      if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
-
-    UIFreezingGuard.withTimeout(
-      timeoutMs,
-      getTestClassWithTestNameImpl(location),
-      (null, null)
-    )(location.getProject)
-  }
-
-
-  protected def getTestClassWithTestNameImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
+  def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 
   override def setupConfigurationFromContext(configuration: T,
                                              context: ConfigurationContext,

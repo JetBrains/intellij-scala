@@ -40,14 +40,8 @@ abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
 
   final def bind(): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
-    val timeoutMs =
-      if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
 
-    val result =
-      if (timeoutMs < 0) multiResolveScala(false)
-      else UIFreezingGuard.withTimeout(timeoutMs, multiResolveScala(false), ScalaResolveResult.EMPTY_ARRAY)
-
-    result match {
+    multiResolveScala(false) match {
       case Array(r) => Some(r)
       case _ => None
     }
