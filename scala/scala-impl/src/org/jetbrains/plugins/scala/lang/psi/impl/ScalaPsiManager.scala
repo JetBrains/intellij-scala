@@ -22,6 +22,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
@@ -44,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, T
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
@@ -428,12 +429,18 @@ class ScalaPsiManager(implicit val project: Project) {
 
     override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
 
-    // TODO Improve, add unit tests (e.g. replacing expression in "if (...)" doesn't change the "if", regardless of the getClass)
     override def childReplaced(event: PsiTreeChangeEvent): Unit = {
+      val parent = event.getParent
+
+      // Ignore changed literals as long as the type is preserved
+      if (!parent.module.exists(_.literalTypesEnabled) && parent.is[ScLiteral] && !parent.is[ScInterpolatedStringLiteral]) {
+        return
+      }
+
       val changedElement =
         if (event.getNewChild.getClass == event.getOldChild.getClass)
           event.getNewChild
-        else event.getParent
+        else parent
 
       onPsiChange(event, changedElement)
     }
