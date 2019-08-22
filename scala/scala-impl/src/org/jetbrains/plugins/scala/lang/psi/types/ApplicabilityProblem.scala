@@ -8,16 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * Pavel.Fatin, 02.06.2010
- */
 
-//TODO must be abstract with no description when completed 
-sealed class ApplicabilityProblem(val description: String = "unknown")
-
-object ApplicabilityProblem {
-  def unapply(a: ApplicabilityProblem): Option[String] = Some(a.description)
-}
+sealed abstract class ApplicabilityProblem
 
 // definition syntax problems
 case class MalformedDefinition() extends ApplicabilityProblem
@@ -30,7 +22,7 @@ case class UnresolvedParameter(assignment: ScAssignment) extends ApplicabilityPr
 //TODO , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
 // TODO Why don't we reuse TypeMismatch?
-case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem("42")
+case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem
 
 // applicability problem
 case class DoesNotTakeParameters() extends ApplicabilityProblem
@@ -50,3 +42,6 @@ case class NotFoundImplicitParameter(tpe: ScType) extends ApplicabilityProblem
 case class AmbiguousImplicitParameters(resuts: Seq[ScalaResolveResult]) extends ApplicabilityProblem
 
 // TODO AmbiguousOverloading(results: Seq[ScalaResolveResult]) extends ApplicabilityProblem ?
+
+case class IncompleteCallSyntax(description: String) extends ApplicabilityProblem
+case class InternalApplicabilityProblem(description: String) extends ApplicabilityProblem

@@ -4,6 +4,7 @@ package psi
 package types
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
@@ -36,6 +37,8 @@ import scala.meta.intellij.QuasiquoteInferUtil
  * @author ven
  */
 object Compatibility {
+  private lazy val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.Compatibility")
+
   @TestOnly
   var seqClass: Option[PsiClass] = None
 
@@ -283,8 +286,10 @@ object Compatibility {
             }
             problems :::= doNoNamed(Expression(extractExpression(assign))).reverse
           } else {
-            if (!checkNames)
-              return ConformanceExtResult(Seq(new ApplicabilityProblem("9")), constraintAccumulator, defaultParameterUsed, matched)
+            if (!checkNames) {
+              val internalProblem = InternalApplicabilityProblem("Found named parameter which were not supposed to be checked")
+              return ConformanceExtResult(Seq(internalProblem), constraintAccumulator, defaultParameterUsed, matched)
+            }
             used(index) = true
             val param: Parameter = parameters(index)
             if (index != k) {
@@ -320,7 +325,7 @@ object Compatibility {
                   }
                 }
               case _ =>
-                return ConformanceExtResult(Seq(new ApplicabilityProblem("11")), constraintAccumulator, defaultParameterUsed, matched)
+                return ConformanceExtResult(Seq(IncompleteCallSyntax("Assignment missing right side")), constraintAccumulator, defaultParameterUsed, matched)
             }
           }
         case expr: Expression =>
@@ -455,8 +460,10 @@ object Compatibility {
         )
 
         checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
-      case _ =>
-        ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
+      case unknown =>
+        val problem = InternalApplicabilityProblem(s"Cannot handle compatibility for $unknown")
+        LOG.error(problem.toString)
+        ConformanceExtResult(Seq(problem))
     }
   }
 
