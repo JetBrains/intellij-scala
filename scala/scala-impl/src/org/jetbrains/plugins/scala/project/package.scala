@@ -18,7 +18,6 @@ import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
-import org.jetbrains.plugins.scala.worksheet.WorksheetScratchFileCreationHelper
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
@@ -28,6 +27,14 @@ import scala.language.implicitConversions
  * @author Pavel Fatin
  */
 package object project {
+
+  object UserDataKeys {
+
+    // used to "attach" a module to some scala file, which is out of any module for some reason
+    // the primary purpose is to attach a module for a scala scratch file
+    val SCALA_ATTACHED_MODULE = new Key[Module]("ScalaAttachedModule")
+  }
+
 
   import project.ScalaLanguageLevel._
 
@@ -245,9 +252,9 @@ package object project {
         .orElse(element.getProject.anyScalaModule)
         .map(predicate)
 
-    private def worksheetModule[T]: Option[Module] =
+    private def worksheetModule: Option[Module] =
       element.getContainingFile.toOption
-        .flatMap(_.getUserData(WorksheetScratchFileCreationHelper.WORKSHEET_FILE_MODULE).toOption)
+        .flatMap(_.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE).toOption)
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {

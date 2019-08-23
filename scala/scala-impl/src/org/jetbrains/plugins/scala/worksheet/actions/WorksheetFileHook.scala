@@ -11,8 +11,10 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.ui.UIUtil
@@ -20,7 +22,9 @@ import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.UserDataKeys
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
 
 /**
@@ -138,36 +142,45 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       loadEvaluationResult(source, file)
       WorksheetFileHook.getDocumentFrom(source.getProject, file) foreach (WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
     }
-    
+
+    private def ensureWorksheetModuleIsSet(file: ScalaFile): Unit =
+      file.getOrUpdateUserData(
+        UserDataKeys.SCALA_ATTACHED_MODULE,
+        WorksheetCommonSettings(file).getModuleFor
+      )
+
     private def loadEvaluationResult(source: FileEditorManager, file: VirtualFile) {
-      source getSelectedEditor file match {
+      source.getSelectedEditor(file) match {
         case txt: TextEditor => txt.getEditor match {
           case ext: EditorEx =>
 
-            PsiDocumentManager getInstance project getPsiFile ext.getDocument match {
-              case scalaFile: ScalaFile => WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile) foreach {
-                case (result, ratio) if !result.isEmpty =>
-                  val viewer = WorksheetEditorPrinterFactory.createViewer(ext, file)
-                  val document = viewer.getDocument
+            PsiDocumentManager.getInstance(project).getPsiFile(ext.getDocument) match {
+              case scalaFile: ScalaFile =>
+                ensureWorksheetModuleIsSet(scalaFile)
 
-                  val splitter = WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY.get(viewer)
+                WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile).foreach {
+                  case (result, ratio) if !result.isEmpty =>
+                    val viewer = WorksheetEditorPrinterFactory.createViewer(ext, file)
+                    val document = viewer.getDocument
 
-                  extensions.inWriteAction {
-                    document setText result
-                    PsiDocumentManager.getInstance(project).commitDocument(document)
+                    val splitter = WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY.get(viewer)
 
-                    if (splitter != null) {
-                      try {
-                        splitter setProportion ratio
-                        val group = WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
-                        WorksheetEditorPrinterFactory.synch(ext, viewer, Option(splitter), Option(group))
-                      } catch {
-                        case _: Exception => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
+                    extensions.inWriteAction {
+                      document setText result
+                      PsiDocumentManager.getInstance(project).commitDocument(document)
+
+                      if (splitter != null) {
+                        try {
+                          splitter setProportion ratio
+                          val group = WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                          WorksheetEditorPrinterFactory.synch(ext, viewer, Option(splitter), Option(group))
+                        } catch {
+                          case _: Exception => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
+                        }
                       }
                     }
-                  }
-                case _ =>
-              }
+                  case _ =>
+                }
               case _ =>
             }
           case _ =>
@@ -175,7 +188,6 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         case _ =>
       }
     }
-    
   }
 }
 

@@ -52,7 +52,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   override def setModuleName(value: String): Unit = {
     setSetting(CP_MODULE_NAME, value)
-    file.putUserData(WorksheetScratchFileCreationHelper.WORKSHEET_FILE_MODULE, getModuleFor)
+    file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, getModuleFor)
     DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
   }
 

@@ -394,9 +394,6 @@
         <editorFileSwapper implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaEditorFileSwapper"/>
         <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaSourceRootFinder"/>
 
-        <scratch.creationHelper language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetScratchFileCreationHelper"/>
-        <scratch.creationHelper language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetScratchFileCreationHelper"/>
-
         <configurationType implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>
