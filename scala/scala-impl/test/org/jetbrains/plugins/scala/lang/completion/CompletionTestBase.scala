@@ -91,7 +91,7 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
 
     val items = LookupManager.getActiveLookup(editor) match {
       case lookup: LookupImpl => lookup.getItems.toArray(LookupElement.EMPTY_ARRAY).map(_.getLookupString)
-      case _ => null
+      case _ => Array.empty[String]
     }
 
     checkResult(items, getExpectedResult)
