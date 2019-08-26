@@ -2,11 +2,15 @@ package org.jetbrains.plugins.scala
 package lang
 package lexer
 
+import java.{util => ju}
+
 import com.intellij.psi.tree.IElementType
 
 final class ScalaModifierTokenType private(val modifier: ScalaModifier) extends ScalaTokenType(modifier.text())
 
 object ScalaModifierTokenType {
+
+  private[this] val cache = new ju.EnumMap[ScalaModifier, ScalaModifierTokenType](classOf[ScalaModifier])
 
   val Inline = ScalaModifierTokenType(ScalaModifier.Inline);
   val Opaque = ScalaModifierTokenType(ScalaModifier.Opaque)
@@ -23,6 +27,4 @@ object ScalaModifierTokenType {
     case tokenType: ScalaModifierTokenType => Some(tokenType.modifier)
     case _ => None
   }
-
-  private val cache = new java.util.EnumMap[ScalaModifier, ScalaModifierTokenType](classOf[ScalaModifier])
 }
