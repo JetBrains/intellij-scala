@@ -13,10 +13,11 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import org.jetbrains.bsp
 import org.jetbrains.bsp.project.resolver.BspProjectResolver
-import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
-import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
+import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -58,13 +59,28 @@ object BSPCli extends App {
     System.setProperty("java.awt.headless", "true")
     val opts = parseOpts(args)
     opts.tracePath.fold({})(p => sys.props += ("BSP_TRACE_PATH" -> p))
-    val application = new MockApplication(() => {}) {
+    val application: MockApplication = new MockApplication(() => {}) {
+      val bspSettingsState: BspSystemSettings.State = {
+        val st = new bsp.settings.BspSystemSettings.State()
+        st.traceBsp = opts.tracePath.isDefined
+        st.bloopPath = opts.bloopExec
+        st
+      }
+      override def isUnitTestMode: Boolean = false
+
       override def getComponent[T](interfaceClass: Class[T]): T = {
-        if (interfaceClass == classOf[VirtualFileManager]) {
+        if (interfaceClass == classOf[VirtualFileManager])
           new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())){
             override def findFileByUrl(url: String): VirtualFile = null
           }.asInstanceOf[T]
-        } else super.getComponent(interfaceClass)
+        else if (interfaceClass == classOf[BspCommunicationService])
+          (new BspCommunicationService).asInstanceOf[T]
+        else if (interfaceClass == classOf[BspSystemSettings]) {
+          val set = new BspSystemSettings
+          set.loadState(bspSettingsState)
+          set.asInstanceOf[T]
+        }
+        else super.getComponent(interfaceClass)
       }
     }
     ApplicationManager.setApplication(application, () => {})
