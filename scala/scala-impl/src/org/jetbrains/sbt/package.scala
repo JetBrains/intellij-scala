@@ -3,11 +3,10 @@ package org.jetbrains
 import _root_.java.io._
 import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
-import _root_.java.util.Optional
-import _root_.java.util.{ArrayList => JArrayList, List => JList}
-import _root_.org.jetbrains.annotations.Nullable
+import _root_.java.util.{Optional, ArrayList => JArrayList, List => JList}
 
-import com.intellij.ide.plugins.PluginManager
+import _root_.org.jetbrains.annotations.Nullable
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
@@ -202,7 +201,7 @@ package object sbt {
   def isIdeaPluginEnabled(id: String): Boolean = {
     import plugins.scala.extensions.ToNullSafe
     PluginId.findId(id).nullSafe
-      .map(PluginManager.getPlugin)
+      .map(PluginManagerCore.getPlugin)
       .exists(_.isEnabled)
   }
 }

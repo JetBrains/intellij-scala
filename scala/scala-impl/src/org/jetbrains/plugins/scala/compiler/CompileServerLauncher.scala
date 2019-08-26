@@ -4,7 +4,7 @@ package compiler
 import java.io.{File, IOException}
 
 import com.intellij.compiler.server.BuildManager
-import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManager}
+import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -76,7 +76,7 @@ object CompileServerLauncher {
     extension <- NailgunServerAdditionalCp.EP_NAME.getExtensions
     filesPath <- extension.getClasspath.split(";")
     pluginId: PluginId = extension.getPluginDescriptor.getPluginId
-    plugin: IdeaPluginDescriptor = PluginManager.getPlugin(pluginId)
+    plugin: IdeaPluginDescriptor = PluginManagerCore.getPlugin(pluginId)
     pluginsLibs = new File(plugin.getPath, "lib")
   } yield new File(pluginsLibs, filesPath)
 
