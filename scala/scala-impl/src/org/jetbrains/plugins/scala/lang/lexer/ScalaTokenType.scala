@@ -12,21 +12,21 @@ class ScalaTokenType(val debugName: String) extends IElementType(debugName, Scal
 
 object ScalaTokenType {
 
-  val Long = new ScalaTokenType("long")
+  val Long    = new ScalaTokenType("long")
   val Integer = new ScalaTokenType("integer")
-  val Double = new ScalaTokenType("double")
-  val Float = new ScalaTokenType("float")
+  val Double  = new ScalaTokenType("double")
+  val Float   = new ScalaTokenType("float")
 
-  val Enum = new ScalaTokenType("enum")
+  val Enum   = new ScalaTokenType("enum")
   val Export = new ScalaTokenType("export")
-  val Given = new ScalaTokenType("given")
-  val Then = new ScalaTokenType("then")
+  val Given  = new ScalaTokenType("given")
+  val Then   = new ScalaTokenType("then")
 
-  val FunctionalArrow = new ScalaTokenType("=>>")
+  val TypeLambdaArrow = new ScalaTokenType("=>>")
 
   /* soft keywords */
   val Derives = new ScalaTokenType("derives")
-  val As = new ScalaTokenType("as")
+  val As      = new ScalaTokenType("as")
 
   // TODO to be removed
   object IsEnum {

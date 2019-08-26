@@ -156,6 +156,10 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScTypeVariableTypeElementImpl(node)
   }
 
+  val TYPE_LAMBDA: ScTypeElementType = new ScTypeElementType("type lambda") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScTypeLambdaTypeElementImpl(node)
+  }
+
   /** ***********************************************************************************/
   /** ************************************ TYPE PARTS ***********************************/
   /** ***********************************************************************************/

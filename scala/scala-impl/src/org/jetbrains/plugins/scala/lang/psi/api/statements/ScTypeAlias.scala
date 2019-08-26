@@ -7,7 +7,7 @@ package statements
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPolymorphicElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
 
 /**
@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
  */
 trait ScTypeAlias extends ScPolymorphicElement
   with ScMember.WithBaseIconProvider
+  with ScNamedElement
   with ScDocCommentOwner
   with ScCommentOwner {
 

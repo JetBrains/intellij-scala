@@ -19,7 +19,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  */
 object TypeParam {
 
-  def parse(builder: ScalaPsiBuilder, mayHaveVariance: Boolean = true): Boolean = {
+  def parse(
+    builder:              ScalaPsiBuilder,
+    mayHaveVariance:      Boolean = true,
+    mayHaveViewBounds:    Boolean = true,
+    mayHaveContextBounds: Boolean = true
+  ): Boolean = {
     val paramMarker = builder.mark
     val annotationMarker = builder.mark
     var exist = false
@@ -32,9 +37,10 @@ object TypeParam {
     if (mayHaveVariance) {
       builder.getTokenText match {
         case "+" | "-" => builder.advanceLexer()
-        case _ =>
+        case _         =>
       }
     }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() //Ate identifier
@@ -51,8 +57,9 @@ object TypeParam {
     val boundParser = parseBound(builder) _
     boundParser(">:")
     boundParser("<:")
-    while (boundParser("<%")) {}
-    while (boundParser(":")) {}
+
+    if (mayHaveViewBounds)    while (boundParser("<%")) {}
+    if (mayHaveContextBounds) while (boundParser(":")) {}
 
     paramMarker.done(ScalaElementType.TYPE_PARAM)
     true

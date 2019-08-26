@@ -23,7 +23,7 @@ import scala.collection.mutable
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
   private val referencesStack = new mutable.Stack[ScReference]()
-  
+
   override def visitScalaElement(element: ScalaPsiElement) {
     if (referencesStack.nonEmpty && referencesStack.top == element) {
       referencesStack.pop()
@@ -177,6 +177,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   // TODO visitReference
   def visitTypeProjection(proj: ScTypeProjection) {}
   def visitTupleTypeElement(tuple: ScTupleTypeElement) {visitTypeElement(tuple)}
+  def visitTypeLammbdaTypeElement(lambda: ScTypeLambdaTypeElement): Unit = visitTypeElement(lambda)
   def visitParenthesisedTypeElement(parenthesised: ScParenthesisedTypeElement) {visitTypeElement(parenthesised)}
   def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {visitTypeElement(parameterized)}
   def visitInfixTypeElement(infix: ScInfixTypeElement) {visitTypeElement(infix)}

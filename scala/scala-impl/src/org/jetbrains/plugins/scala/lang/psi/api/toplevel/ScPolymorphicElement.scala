@@ -7,5 +7,4 @@ package toplevel
 /**
  * @author ven
  */
-trait ScPolymorphicElement extends ScTypeParametersOwner with ScTypeBoundsOwner with ScNamedElement {
-}
+trait ScPolymorphicElement extends ScTypeParametersOwner with ScTypeBoundsOwner

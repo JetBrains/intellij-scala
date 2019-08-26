@@ -4,8 +4,9 @@ package parser
 package parsing
 package types
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 
 /**
  * @author Alexander Podkhalyuzin
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * Type ::= InfixType '=>' Type
  *        | '(' ['=>' Type] ')' => Type
+ *        | TypeParamClause '=>>' Type      (Scala 3+ only)
  *        | InfixType [ExistentialClause]
  *        | _ [>: Type] [<: Type]
  */
@@ -27,7 +29,36 @@ trait Type {
 
   def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
     val typeMarker = builder.mark
-    if (!infixType.parse(builder, star, isPattern)) {
+
+    if (infixType.parse(builder, star, isPattern)) {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tFUNTYPE =>
+          builder.advanceLexer() //Ate =>
+          if (!parse(builder, isPattern = isPattern)) {
+            builder.error(ScalaBundle.message("wrong.type"))
+          }
+          typeMarker.done(ScalaElementType.TYPE)
+        case ScalaTokenTypes.kFOR_SOME =>
+          ExistentialClause parse builder
+          typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
+        case _ => typeMarker.drop()
+      }
+      true
+    } else if (/* check if Scala version is >= 3.0 */
+      TypeParamClause.parse(builder, mayHaveContextBounds = false, mayHaveViewBounds = false)) {
+      /** Scala 3+ Type Lambdas */
+      builder.getTokenText match {
+        case ScalaTokenType.TypeLambdaArrow.debugName =>
+          builder.remapCurrentToken(ScalaTokenType.TypeLambdaArrow)
+          builder.advanceLexer()
+          if (!parse(builder, isPattern = isPattern)) {
+            builder.error(ScalaBundle.message("wrong.type"))
+          }
+          typeMarker.done(ScalaElementType.TYPE_LAMBDA)
+        case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
+      }
+      true
+    } else {
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
@@ -58,29 +89,14 @@ trait Type {
               funMarker.done(ScalaElementType.TYPE)
             case _ =>
           }
-          return true
-        case ScalaTokenTypes.tIDENTIFIER if builder.getTokenText == "*" => 
+          true
+        case ScalaTokenTypes.tIDENTIFIER if builder.getTokenText == "*" =>
           typeMarker.drop()
-          return true
+          true
         case _ =>
           typeMarker.drop()
-          return false
+          false
       }
     }
-
-
-    builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE =>
-        builder.advanceLexer() //Ate =>
-        if (!parse(builder, isPattern = isPattern)) {
-          builder error ScalaBundle.message("wrong.type")
-        }
-        typeMarker.done(ScalaElementType.TYPE)
-      case ScalaTokenTypes.kFOR_SOME =>
-        ExistentialClause parse builder
-        typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
-      case _ => typeMarker.drop()
-    }
-    true
   }
 }
