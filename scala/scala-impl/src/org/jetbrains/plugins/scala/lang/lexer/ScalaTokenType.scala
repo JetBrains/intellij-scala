@@ -19,7 +19,7 @@ object ScalaTokenType {
   val Enum = new ScalaTokenType("enum")
   val Export = new ScalaTokenType("export")
   val Given = new ScalaTokenType("given")
-  val Then = new ScalaTokenType("enum")
+  val Then = new ScalaTokenType("then")
 
   val FunctionalArrow = new ScalaTokenType("=>>")
 
