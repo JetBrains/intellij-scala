@@ -8,6 +8,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer
+import org.jetbrains.plugins.scala.extensions.NullSafe
 
 /**
   * @author adkozlov
@@ -18,7 +19,7 @@ trait Conformance {
   import ConstraintsResult.Left
   import TypeSystem._
 
-  private val guard = RecursionManager.RecursionGuard[Key](s"${typeSystem.name}.conformance.guard")
+  private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
   private val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
 
@@ -47,13 +48,12 @@ trait Conformance {
     val tracer = Tracer("Conformance.conformsInner", "Conformance.conformsInner")
     tracer.invocation()
 
-    Option(cache.get(key)).orElse(
+    NullSafe(cache.get(key)).orElse(
       guard.doPreventingRecursion(key) {
         val stackStamp = RecursionManager.markStack()
         tracer.calculationStart()
-
         try {
-          val result = Option(conformsComputable(key, visited).compute())
+          val result = NullSafe(conformsComputable(key, visited).compute())
           result.foreach(result =>
               if (stackStamp.mayCacheNow())
                 cache.put(key, result)
@@ -63,7 +63,7 @@ trait Conformance {
         finally {
           tracer.calculationEnd()
         }
-      }
+      }.getOrElse(NullSafe.empty)
     ).getOrElse(Left)
   }
 }

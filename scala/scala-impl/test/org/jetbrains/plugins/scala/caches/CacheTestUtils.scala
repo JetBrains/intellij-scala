@@ -34,6 +34,7 @@ trait CacheTestUtils { testFixtureProvider: TestFixtureProvider =>
    *    "x(y()+z())"   // means x called y and after that z (but y and z didn't call any other functions)
    *    "x(y(#x))"     // # denotes a call to a function that is currently being evaluated, so a default value is returned
    *    "@x()"         // @ denotes that x was not evaluated but the result was taken from its cache
+   *    "@@x()"        // @@ denotes that x was not evaluated and not normally cached, but was taken from the local cache
    *
    */
   case class CachedRecursiveFunction(name: String) {
@@ -60,7 +61,16 @@ trait CacheTestUtils { testFixtureProvider: TestFixtureProvider =>
 
       val wasCached = oldCount == calcCounter && !result.startsWith("#")
 
-      if (wasCached) "@" + result
+      if (wasCached) {
+        val localResult = RecursionManager
+          .RecursionGuard[PsiElement, String]("callcacheKey$macro$1")
+          .getFromLocalCache(psi)
+        if (localResult == null) {
+          "@" + result
+        } else {
+          "@@" + result
+        }
+      }
       else result
     }
   }

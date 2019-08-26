@@ -104,7 +104,7 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> b ~> c ~> b
 
     assertEquals("a(b(c(#b)))", a())
-    // after the call to a, a and be should be cached but not c
+    // after the call to a, a and b should be cached but not c
     assertEquals("@b(c(#b))", b())
     assertEquals("@a(b(c(#b)))", a())
     assertEquals("c(@b(c(#b)))", c())
@@ -180,7 +180,7 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     val c = Func("c")
 
     a ~> a2 ~> b ~> a
-    a2 ~> c
+         a2 ~> c
 
     assertEquals("a(a2(b(#a)+c()))", a())
     // c should be cached but not b
@@ -190,5 +190,38 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
 
     assertEquals("@a(a2(b(#a)+c()))", a())
     assertEquals("@a2(b(@a(a2(b(#a)+c())))+@c())", a2())
+  }
+
+  def test_local_cache(): Unit = {
+    val a = Func("a")
+    val b = Func("b")
+
+    b ~> a
+    // a calls b twice
+    a ~> b
+    a ~> b
+
+    // b is cached locally inside of a, but has to be recomputed when leaving the recursion
+    assertEquals("a(b(#a)+@@b(#a))", a())
+    assertEquals("b(@a(b(#a)+@@b(#a)))", b())
+  }
+
+  def test_local_cache_reset(): Unit = {
+    val a = Func("a")
+    val b = Func("b")
+    val c = Func("c")
+
+    a ~> b ~> a
+         b ~> c ~> b
+         b ~> c
+    a ~> c
+
+    // d is locally cached when inside the recursion of c but is not cached outside of it
+    val cInOnlyB = "c(@@b(#a+c(#b)+@@c(#b)))"
+    val expectA = s"a(b(#a+c(#b)+@@c(#b))+$cInOnlyB)"
+    assertEquals(expectA, a())
+    val expectB = s"b(@$expectA+@$cInOnlyB+@$cInOnlyB)"
+    assertEquals(expectB, b())
+    assertEquals(s"c($expectB)", c())
   }
 }

@@ -29,6 +29,10 @@ final class NullSafe[+A >: Null] private(val get: A) extends AnyVal {
     if (notNull) NullSafe(pf.applyOrElse(get, Function.const(null)))
     else empty
 
+  @inline def orElse[B >: A](other: => NullSafe[B]): NullSafe[B] =
+    if (notNull) this
+    else other
+
   @inline def getOrElse[B >: A](other: => B): B =
     if (notNull) get
     else other

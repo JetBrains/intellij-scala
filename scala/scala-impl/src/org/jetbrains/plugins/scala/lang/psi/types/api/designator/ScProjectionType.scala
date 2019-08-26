@@ -337,7 +337,7 @@ final class ScProjectionType private(val projected: ScType,
 
 object ScProjectionType {
 
-  private val guard = RecursionManager.RecursionGuard[ScType]("aliasProjectionGuard")
+  private val guard = RecursionManager.RecursionGuard[ScType, Nothing]("aliasProjectionGuard")
 
   def simpleAliasProjection(p: ScProjectionType): ScType = {
     p.actual() match {
@@ -346,6 +346,7 @@ object ScProjectionType {
           td.upperBound.map(subst).toOption
         }
         upper
+          .flatten
           .filter(_.typeDepth < p.typeDepth)
           .getOrElse(p)
       case _ => p

@@ -175,21 +175,32 @@ object CachedMacroUtil {
     def apply(resultName: c.universe.TermName): c.universe.Tree
   }
 
-  def doCaching(c: whitebox.Context)(computation: c.universe.Tree, resultName: c.universe.TermName,
+  def doCaching(c: whitebox.Context)(computation: c.universe.Tree,
+                                     resultName: c.universe.TermName,
+                                     guardName: c.universe.TermName,
+                                     dataName: c.universe.TermName,
                                      updateHolderGenerator: UpdateHolderGenerator[c.type]): c.universe.Tree = {
     import c.universe.Quasiquote
     implicit val context: c.type = c
 
     q"""
       {
-        val stackStamp = $recursionManagerFQN.markStack()
+        val fromLocalCache = $guardName.getFromLocalCache($dataName)
+        if (fromLocalCache != null) (fromLocalCache, false)
+        else {
+          val stackStamp = $recursionManagerFQN.markStack()
 
-        val $resultName = $computation
+          val $resultName = { $computation }
 
-        if (stackStamp.mayCacheNow()) {
-          ${updateHolderGenerator(resultName)}
+          val cacheLocally =
+            if (stackStamp.mayCacheNow()) {
+              ${updateHolderGenerator(resultName)}
+              false
+            } else {
+              true
+            }
+          ($resultName, cacheLocally)
         }
-        $resultName
       }
       """
   }
@@ -205,14 +216,16 @@ object CachedMacroUtil {
       abort("Annotated function has explicit return statements, function body can't be inlined")(c)
     }
 
-    q"""val realKey = $guard.createKey($data)
+    q"""{
+          val realKey = $guard.createKey($data)
 
-        val (sizeBefore, sizeAfter, minDepth) = $guard.beforeComputation(realKey)
-        try {
-          $computation
-        }
-        finally {
-          $guard.afterComputation(realKey, sizeBefore, sizeAfter, minDepth)
+          val (sizeBefore, sizeAfter, minDepth, localCacheBefore) = $guard.beforeComputation(realKey)
+          try {
+            $computation
+          }
+          finally {
+            $guard.afterComputation(realKey, sizeBefore, sizeAfter, minDepth, localCacheBefore)
+          }
         }
      """
   }

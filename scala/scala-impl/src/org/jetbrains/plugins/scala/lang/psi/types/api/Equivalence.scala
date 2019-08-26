@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer
+import org.jetbrains.plugins.scala.extensions.NullSafe
 
 import scala.util.DynamicVariable
 
@@ -16,10 +17,10 @@ import scala.util.DynamicVariable
 trait Equivalence {
   typeSystem: TypeSystem =>
 
-  import ConstraintsResult.Left
   import TypeSystem._
+  import ConstraintsResult.Left
 
-  private val guard = RecursionManager.RecursionGuard[Key](s"${typeSystem.name}.equivalence.guard")
+  private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
 
   private val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
 
@@ -52,9 +53,9 @@ trait Equivalence {
     tracer.invocation()
     val nowEval = eval.value
     val fromCache =
-      if (nowEval) None
+      if (nowEval) NullSafe.empty
       else eval.withValue(true) {
-        Option(cache.get(key))
+        NullSafe(cache.get(key))
       }
 
     fromCache.orElse(
@@ -63,7 +64,7 @@ trait Equivalence {
 
         tracer.calculationStart()
         val result = try {
-          Option(equivComputable(key).compute())
+          NullSafe(equivComputable(key).compute())
         } finally {
           tracer.calculationEnd()
         }
@@ -73,7 +74,7 @@ trait Equivalence {
             eval.withValue(true) { cache.put(key, result) }
         )
         result
-      }
+      }.getOrElse(NullSafe.empty)
     ).getOrElse(Left)
   }
 }
