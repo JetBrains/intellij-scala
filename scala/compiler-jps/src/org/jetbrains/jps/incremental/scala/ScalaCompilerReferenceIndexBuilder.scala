@@ -101,9 +101,9 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       val sources = mapping.getSourcesIterator.asScala
 
       sources.foreach { source =>
-        val outputs    = mapping.getOutputs(source)
+        val outputs    = Option(mapping.getOutputs(source)).fold(Iterable.empty[String])(_.asScala)
         val sourceFile = new File(source)
-        outputs.forEach(cls => classes += CompiledClass(sourceFile, new File(cls)))
+        outputs.foreach(cls => classes += CompiledClass(sourceFile, new File(cls)))
       }
     }
 
