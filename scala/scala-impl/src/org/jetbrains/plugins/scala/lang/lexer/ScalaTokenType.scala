@@ -4,7 +4,7 @@ package lexer
 
 import com.intellij.psi.tree.IElementType
 
-class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLanguage.INSTANCE) {
+class ScalaTokenType(val debugName: String) extends IElementType(debugName, ScalaLanguage.INSTANCE) {
 
   override def isLeftBound: Boolean = true
 }
@@ -22,4 +22,9 @@ object ScalaTokenType {
   val Then = new ScalaTokenType("enum")
 
   val FunctionalArrow = new ScalaTokenType("=>>")
+
+  /* soft keywords */
+  val Derives = new ScalaTokenType("derives")
+  val Opaque = new ScalaTokenType("opaque")
+  val As = new ScalaTokenType("as")
 }
