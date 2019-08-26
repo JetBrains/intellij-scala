@@ -19,7 +19,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import jetbrains.buildServer.messages.serviceMessages._
 import org.jetbrains.bsp.data.BspMetadata
-import org.jetbrains.bsp.protocol.BspCommunicationComponent
+import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
 
@@ -151,7 +151,7 @@ class BspTestRunner(
     val procHandler = new MProcHandler
     val console = SMTestRunnerConnectionUtil.createAndAttachConsole("BSP", procHandler, new SMTRunnerConsoleProperties(
       project, rc, "BSP", ex))
-    val bspCommunication = project.getComponent(classOf[BspCommunicationComponent]).communication
+    val bspCommunication = BspCommunicationService.getInstance.communicate(project)
 
     bspCommunication.run(testRequest, onBspNotification(procHandler, new BspTestSession()), _ => {}).future
       .onComplete(_ => procHandler.shutdown())

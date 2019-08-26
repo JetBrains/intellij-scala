@@ -30,8 +30,7 @@ private[resolver] object BspResolverDescriptors {
                                                      classpath: Seq[File],
                                                      classpathSources: Seq[File],
                                                      testClasspath: Seq[File],
-                                                     testClasspathSources: Seq[File],
-                                                     testClasses: Seq[TestClassId])
+                                                     testClasspathSources: Seq[File])
 
   private[resolver] case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription])
 
@@ -47,8 +46,7 @@ private[resolver] object BspResolverDescriptors {
   private[resolver] case class TargetData(sources: Try[SourcesResult],
                                           dependencySources: Try[DependencySourcesResult],
                                           resources: Try[ResourcesResult],
-                                          scalacOptions: Try[ScalacOptionsResult], // TODO should be optional,
-                                          scalaTestClasses: Try[ScalaTestClassesResult]
+                                          scalacOptions: Try[ScalacOptionsResult] // TODO should be optional
                                          )
 
   private[resolver] case class SourceDirectory(directory: File, generated: Boolean)

@@ -4,8 +4,11 @@ import java.io.File
 import java.net.URI
 import java.util
 
-import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
-import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
+import com.intellij.openapi.externalSystem.model.project.{AbstractExternalEntityData, ModuleData}
+import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.BSP
@@ -55,4 +58,25 @@ object ScalaSdkData {
 case class BspMetadata @PropertyMapping(Array("targetIds")) (@NotNull targetIds: util.List[URI])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
+  import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
+
+  def get(project: Project, module: Module): Option[BspMetadata] = {
+    val dataManager = ProjectDataManager.getInstance()
+
+    val moduleId = ES.getExternalProjectId(module)
+
+    def predicate(node: DataNode[ModuleData]) = node.getData.getId == moduleId
+
+    // TODO all these options fail silently. collect errors and report something
+    val metadata = for {
+      projectInfo <- Option(dataManager.getExternalProjectData(project, BSP.ProjectSystemId, project.getBasePath))
+      projectStructure <- Option(projectInfo.getExternalProjectStructure)
+      moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
+      metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
+    } yield {
+      metadata.getData
+    }
+    metadata
+  }
+
 }

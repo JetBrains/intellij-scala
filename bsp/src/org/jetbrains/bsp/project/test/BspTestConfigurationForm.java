@@ -1,6 +1,9 @@
 package org.jetbrains.bsp.project.test;
 
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBList;
@@ -9,10 +12,9 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.bsp.data.BspMetadata;
 import org.jetbrains.plugins.scala.util.JListCompatibility;
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper;
-import scala.collection.JavaConverters;
+import scala.runtime.BoxedUnit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -20,19 +22,25 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
-public class BspTestConfigurationForm {
+import static java.util.stream.Collectors.*;
+
+
+public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfiguration> {
 	final Project project;
 	JPanel mainPanel;
 	JComboBox testModeCombobox;
 
+	// Test classes selection form
 	JPanel testClassFormWrapper;
 	JTextField testClassNameRegex;
 	JBList matchedClassesList;
+	JButton refreshClassesButton;
 	CollectionListModelWrapper matchedClassesModel = new CollectionListModelWrapper(new CollectionListModel<String>(Collections.emptyList()));
+	List<TestClass> lastRequestResult = Collections.emptyList();
 
 	@SuppressWarnings("unchecked")
 	public BspTestConfigurationForm(Project project) {
@@ -47,8 +55,9 @@ public class BspTestConfigurationForm {
 			});
 		}
 		{ // init matched classes list
+			matchedClassesList.setEmptyText("No matched test classes");
 			JListCompatibility.setModel(matchedClassesList, matchedClassesModel.getModelRaw());
-			updateMatchedClassesList(Collections.emptyList());
+			updateMatchedClassesList(Collections.emptyMap());
 			testClassNameRegex.getDocument().addDocumentListener(new DocumentAdapter() {
 				@Override
 				protected void textChanged(@NotNull DocumentEvent e) {
@@ -56,22 +65,32 @@ public class BspTestConfigurationForm {
 				}
 			});
 		}
+		{ // init refresh classes button
+			refreshClassesButton.addActionListener(ev -> fetchAndRefreshClasses());
+		}
 	}
 
 	private void onClassNameRegexChanged() {
+		Map<String, List<String>> matched = Collections.emptyMap();
 		try {
-			Pattern pat = Pattern.compile(testClassNameRegex.getText());
-			List<String> matched = JavaConverters.seqAsJavaList(BspMetadata.findScalaTestClasses(project))
-				.stream()
-				.map(t -> t._2)
-				.filter(s -> pat.matcher(s).matches())
-				.collect(Collectors.toList());
-			updateMatchedClassesList(matched);
-		} catch (PatternSyntaxException e) {
-			matchedClassesModel.getModel().removeAll();
-			matchedClassesList.setEmptyText("Invalid regex");
-		}
+			matched = calculateMatchedClasses();
+		} catch (PatternSyntaxException ignored) { }
+		updateMatchedClassesList(matched);
 	}
+
+	private void fetchAndRefreshClasses() {
+		new FetchScalaTestClassesTask(project, xs -> {
+			this.lastRequestResult = xs.getItems().stream()
+				.map(x -> new TestClass(x.getTarget().getUri(), x.getClasses()))
+				.collect(toList());
+			SwingUtilities.invokeLater(() -> updateMatchedClassesList(calculateMatchedClasses()));
+			return BoxedUnit.UNIT;
+		}, x -> {
+			x.printStackTrace();
+			return BoxedUnit.UNIT;
+		}).queue();
+	}
+
 
 	private void onSelectModeChanged(TestMode current) {
 		switch (current) {
@@ -79,21 +98,70 @@ public class BspTestConfigurationForm {
 				testClassFormWrapper.setVisible(false);
 				break;
 			case CLASS:
+				if (lastRequestResult.isEmpty())
+					fetchAndRefreshClasses();
 				testClassFormWrapper.setVisible(true);
 				break;
 		}
 	}
 
-	public void apply(BspTestRunConfiguration conf) {
+
+	private void updateMatchedClassesList(Map<String, List<String>> matchedClasses) {
+		matchedClassesModel.getModel().replaceAll(matchedClasses.values().stream()
+			.flatMap(List::stream)
+			.sorted()
+			.collect(toList()));
+	}
+
+	@Override
+	protected void resetEditorFrom(@NotNull BspTestRunConfiguration conf) {
 		testModeCombobox.setSelectedItem(conf.getTestMode());
 		onSelectModeChanged(conf.getTestMode());
 		testClassNameRegex.setText(conf.getTestClassesRegex());
+		lastRequestResult = conf.lastTestClassesResponse();
+		if (lastRequestResult.isEmpty() && conf.getTestMode() == TestMode.CLASS) {
+			fetchAndRefreshClasses();
+		} else {
+			updateMatchedClassesList(calculateMatchedClasses());
+		}
 	}
 
-	private void updateMatchedClassesList(List<String> matchedClasses) {
-		if (matchedClasses.isEmpty())
-			matchedClassesList.setEmptyText("No matched test classes");
-		matchedClassesModel.getModel().replaceAll(matchedClasses);
+	private Map<String, List<String>> calculateMatchedClasses() {
+		Pattern regex = Pattern.compile(testClassNameRegex.getText());
+		return lastRequestResult.stream()
+			.flatMap(item -> item.getClasses().stream()
+				.filter(x -> regex.matcher(x).matches())
+				.map(x -> Pair.create(item.getTarget(), x)))
+			.collect(groupingBy(x -> x.first, mapping(x -> x.second, toList())));
+	}
+
+	@Override
+	protected void applyEditorTo(@NotNull BspTestRunConfiguration runConfig) throws ConfigurationException {
+		Map<String, List<String>> matched = Collections.emptyMap();
+		if (testModeCombobox.getSelectedItem() == TestMode.CLASS) {
+			if (lastRequestResult == null)
+				throw new ConfigurationException("No matched test classes");
+			try {
+				matched = calculateMatchedClasses();
+			} catch (PatternSyntaxException e) {
+				throw new ConfigurationException("Illegal regex");
+			}
+			if (matched.isEmpty()) {
+				throw new ConfigurationException("No matched test classes");
+			}
+		}
+
+		// Apply UI to run config
+		runConfig.setLastTestClassesResponse(lastRequestResult);
+		runConfig.setTestClassesRegex(testClassNameRegex.getText());
+		runConfig.setMatchedTestClasses(matched);
+		runConfig.setTestMode((TestMode) testModeCombobox.getSelectedItem());
+	}
+
+	@NotNull
+	@Override
+	protected JComponent createEditor() {
+		return $$$getRootComponent$$$();
 	}
 
 
@@ -139,7 +207,7 @@ public class BspTestConfigurationForm {
 		testModeCombobox = new JComboBox();
 		mainPanel.add(testModeCombobox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
 		testClassFormWrapper = new JPanel();
-		testClassFormWrapper.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+		testClassFormWrapper.setLayout(new GridLayoutManager(3, 4, new Insets(0, 0, 0, 0), -1, -1));
 		mainPanel.add(testClassFormWrapper, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		final JLabel label2 = new JLabel();
 		label2.setText("Test classes regex:");
@@ -154,6 +222,10 @@ public class BspTestConfigurationForm {
 		matchedClassesList = new JBList();
 		matchedClassesList.setAutoscrolls(false);
 		jBScrollPane1.setViewportView(matchedClassesList);
+		refreshClassesButton = new JButton();
+		refreshClassesButton.setIcon(new ImageIcon(getClass().getResource("/actions/refresh.png")));
+		refreshClassesButton.setText("Refresh");
+		testClassFormWrapper.add(refreshClassesButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**

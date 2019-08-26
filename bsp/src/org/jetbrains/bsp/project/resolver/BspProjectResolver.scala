@@ -84,13 +84,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
               List.empty[ScalacOptionsItem]
             }
 
-            val testClasses = data.scalaTestClasses.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/scalaTestClasses", MessageEvent.Kind.INFO)
-              List.empty[ScalaTestClassesItem]
-            }
-
             val descriptions = calculateModuleDescriptions(
-              targets, scalacOptions, sources, resources, depSources, testClasses
+              targets, scalacOptions, sources, resources, depSources
             )
             projectNode(workspace.getCanonicalPath, moduleFilesDirectoryPath, descriptions)
           }
@@ -193,9 +188,8 @@ object BspProjectResolver {
       val emptyResources = Success(new ResourcesResult(Collections.emptyList()))
       val emptyDepSources = Success(new DependencySourcesResult(Collections.emptyList()))
       val emptyScalacOpts = Success(new ScalacOptionsResult(Collections.emptyList()))
-      val emptyTestClasses = Success(new ScalaTestClassesResult(Collections.emptyList()))
 
-      CompletableFuture.completedFuture(TargetData(emptySources, emptyDepSources, emptyResources, emptyScalacOpts, emptyTestClasses))
+      CompletableFuture.completedFuture(TargetData(emptySources, emptyDepSources, emptyResources, emptyScalacOpts))
     } else {
       val targets = targetIds.asJava
 
@@ -210,15 +204,9 @@ object BspProjectResolver {
 
       val scalacOptionsParams = new ScalacOptionsParams(targets)
       val scalacOptions = bsp.buildTargetScalacOptions(scalacOptionsParams).catchBspErrors
-      val testClassesParams = {
-        val p = new ScalaTestClassesParams(targets)
-        p.setOriginId(UUID.randomUUID().toString)
-        p
-      }
-      val testClasses = bsp.buildTargetScalaTestClasses(testClassesParams).catchBspErrors
 
       CompletableFuture
-        .allOf(sources, depSources, resources, scalacOptions, testClasses)
-        .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get, testClasses.get))
+        .allOf(sources, depSources, resources, scalacOptions)
+        .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get))
     }
 }

@@ -55,6 +55,10 @@ class BspCommunicationService extends Disposable {
       }
     )
 
+  def communicate(proj: Project): BspCommunication = communicate(
+    new File(ProjectUtil.guessProjectDir(proj).getCanonicalPath))
+
+
   private def executionSettings(base: File): BspExecutionSettings =
     BspExecutionSettings.executionSettingsFor(base)
 

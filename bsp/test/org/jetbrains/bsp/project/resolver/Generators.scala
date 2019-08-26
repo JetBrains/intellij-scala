@@ -113,7 +113,7 @@ object Generators {
     moduleKind <- genModuleKind
   } yield {
     val data = ModuleDescriptionData(id, name, targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
-      sourceDirs, testSourceDirs, resourceDirs, testResourceDirs, classPath, classPathSources, testClassPath, testClassPathSources, Seq.empty)
+      sourceDirs, testSourceDirs, resourceDirs, testResourceDirs, classPath, classPathSources, testClassPath, testClassPathSources)
     ModuleDescription(data, moduleKind)
   }
 
