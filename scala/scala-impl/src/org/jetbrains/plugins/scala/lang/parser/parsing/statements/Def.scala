@@ -4,7 +4,7 @@ package parser
 package parsing
 package statements
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifierTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
@@ -39,12 +39,12 @@ object Def {
       val modifierMarker = builder.mark
       if (isMod) {
         while (Modifier.parse(builder)) {}
-        
-        if (builder.isMetaEnabled) while (builder.getTokenText == ScalaTokenTypes.kINLINE.toString) {
+
+        if (builder.isMetaEnabled) while (builder.getTokenText == ScalaModifierTokenType.Inline.modifier.text) {
 //          val inlineMarker = builder.mark()
-          builder.remapCurrentToken(ScalaTokenTypes.kINLINE)
+          builder.remapCurrentToken(ScalaModifierTokenType.Inline)
           builder.advanceLexer()
-//          inlineMarker.done(ScalaTokenTypes.kINLINE)
+          //          inlineMarker.done(ScalaModifierTokenType.Inline)
         }
       }
       else {

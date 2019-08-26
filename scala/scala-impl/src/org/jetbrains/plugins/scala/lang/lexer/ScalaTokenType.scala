@@ -25,6 +25,5 @@ object ScalaTokenType {
 
   /* soft keywords */
   val Derives = new ScalaTokenType("derives")
-  val Opaque = new ScalaTokenType("opaque")
   val As = new ScalaTokenType("as")
 }

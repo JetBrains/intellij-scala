@@ -100,17 +100,15 @@ public interface ScalaTokenTypes {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ScalaModifierTokenType kABSTRACT = ScalaModifierTokenType.of(ScalaModifier.Abstract);
-    ScalaModifierTokenType kCASE = ScalaModifierTokenType.of(ScalaModifier.Case);
-    ScalaModifierTokenType kIMPLICIT = ScalaModifierTokenType.of(ScalaModifier.Implicit);
-    ScalaModifierTokenType kFINAL = ScalaModifierTokenType.of(ScalaModifier.Final);
-    ScalaModifierTokenType kLAZY = ScalaModifierTokenType.of(ScalaModifier.Lazy);
-    ScalaModifierTokenType kOVERRIDE = ScalaModifierTokenType.of(ScalaModifier.Override);
-    ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.of(ScalaModifier.Private);
-    ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
-    ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
-    ScalaModifierTokenType kINLINE = ScalaModifierTokenType.of(ScalaModifier.Inline);
-
+    ScalaModifierTokenType kABSTRACT = ScalaModifierTokenType.apply(ScalaModifier.Abstract);
+    ScalaModifierTokenType kCASE = ScalaModifierTokenType.apply(ScalaModifier.Case);
+    ScalaModifierTokenType kIMPLICIT = ScalaModifierTokenType.apply(ScalaModifier.Implicit);
+    ScalaModifierTokenType kFINAL = ScalaModifierTokenType.apply(ScalaModifier.Final);
+    ScalaModifierTokenType kLAZY = ScalaModifierTokenType.apply(ScalaModifier.Lazy);
+    ScalaModifierTokenType kOVERRIDE = ScalaModifierTokenType.apply(ScalaModifier.Override);
+    ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.apply(ScalaModifier.Private);
+    ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.apply(ScalaModifier.Protected);
+    ScalaModifierTokenType kSEALED = ScalaModifierTokenType.apply(ScalaModifier.Sealed);
 
     IElementType kCATCH = new ScalaTokenType("catch");
     IElementType kCLASS = new ScalaTokenType("class");
