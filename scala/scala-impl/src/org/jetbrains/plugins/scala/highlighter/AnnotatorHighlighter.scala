@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifierTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -248,7 +248,7 @@ object AnnotatorHighlighter {
       case x: ScGenerator => visitGenerator(x, holder)
       case x: ScForBinding => visitForBinding(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.kINLINE =>
+      case _ if element.getNode.getElementType == ScalaModifierTokenType.Inline =>
         val annotation = holder.createInfoAnnotation(element, null)
         annotation.setTextAttributes(DefaultHighlighter.KEYWORD)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
