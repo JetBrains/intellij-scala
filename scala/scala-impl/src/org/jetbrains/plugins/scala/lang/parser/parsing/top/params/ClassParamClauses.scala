@@ -2,23 +2,22 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 package parsing
-package top.params
+package top
+package params
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
-  * @author Alexander Podkhalyuzin
-  *         Date: 08.02.2008
-  */
-
-/*
- * ClassParamClauses ::= {ClassParamClause}
- *                       [[nl] '(' 'implicit' ClassParams ')']
+ * [[ClassParamClauses]] ::= { [[ClassParamClause]] }
+ * [ [nl] '(' 'implicit' ClassParams ')' ]
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 08.02.2008
  */
-object ClassParamClauses {
+object ClassParamClauses extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val classParamClausesMarker = builder.mark
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val classParamClausesMarker = builder.mark()
     while (ClassParamClause.parse(builder)) {}
     ImplicitClassParamClause.parse(builder)
     classParamClausesMarker.done(ScalaElementType.PARAM_CLAUSES)

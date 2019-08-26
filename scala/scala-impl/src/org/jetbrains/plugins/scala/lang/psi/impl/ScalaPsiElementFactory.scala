@@ -21,6 +21,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -240,7 +242,7 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(top.params.ClassParamClause.parse)
 
   def createClassParamClausesWithContext(text: String, context: PsiElement): ScParameters =
-    createElementWithContext[ScParameters](text, context, contextLastChild(context))(top.params.ClassParamClauses.parse)
+    createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses()(_))
 
   def createConstructorFromText(text: String, context: PsiElement, child: PsiElement): ScConstructorInvocation =
     createElementWithContext[ScConstructorInvocation](text, context, child)(parsingBase.Constructor.parse)
@@ -787,10 +789,10 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScMember](text, context, child)(parsingStat.Def.parse(_))
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject =
-    createElementWithContext[ScObject](text, context, child)(top.TmplDef.parse)
+    createElementWithContext[ScObject](text, context, child)(TmplDef()(_))
 
   def createTypeDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScTypeDefinition =
-    createElementWithContext[ScTypeDefinition](text, context, child)(top.TmplDef.parse)
+    createElementWithContext[ScTypeDefinition](text, context, child)(TmplDef()(_))
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScStableCodeReference](text, context, child) {
@@ -933,7 +935,7 @@ object ScalaPsiElementFactory {
   }
 
   def createTemplateDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition =
-    createElementWithContext[ScTemplateDefinition](text, context, child)(top.TmplDef.parse)
+    createElementWithContext[ScTemplateDefinition](text, context, child)(TmplDef()(_))
 
   def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration =
     createElementWithContext[ScDeclaration](text, context, child)(parsingStat.Dcl.parse(_))

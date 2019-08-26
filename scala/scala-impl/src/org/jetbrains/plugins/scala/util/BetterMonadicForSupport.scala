@@ -22,7 +22,7 @@ class BetterMonadicForSupport(project: Project) {
       |}
     """.stripMargin
 
-    ScalaPsiElementFactory.createElement(text)(TmplDef.parse)(project)
+    ScalaPsiElementFactory.createElement(text)(TmplDef()(_))(project)
   }
 
   val syntheticDeclarations: Seq[PsiElement] = Seq(

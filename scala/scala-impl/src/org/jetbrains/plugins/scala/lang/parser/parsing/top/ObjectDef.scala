@@ -8,24 +8,23 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
+ * [[ObjectDef]] ::= id [[ClassTemplateOpt]]
+ *
 * @author Alexander Podkhalyuzin
 * Date: 06.02.2008
 */
+object ObjectDef extends ParsingRule {
 
-/*
- *  ObjectDef ::= id ClassTemplateOpt
- */
-object ObjectDef {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
+      case ScalaTokenTypes.tIDENTIFIER =>
+        builder.advanceLexer() //Ate identifier
+
+        //parse extends block
+        ClassTemplateOpt.parse(builder)
+        true
       case _ =>
-        builder error ScalaBundle.message("identifier.expected")
-        return false
+        builder.error(ScalaBundle.message("identifier.expected"))
+        false
     }
-    //parse extends block
-    ClassTemplateOpt parse builder
-    true
-  }
 }

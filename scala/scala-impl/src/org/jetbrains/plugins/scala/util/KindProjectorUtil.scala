@@ -19,8 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 
 /**
   * Partially based on and inspired by contribution from @vovapolu
@@ -92,7 +91,7 @@ object KindProjectorUtil {
          |}
        """.stripMargin
 
-    ScalaPsiElementFactory.createElement(text)(TmplDef.parse)
+    ScalaPsiElementFactory.createElement(text)(TmplDef()(_))
   }
 
   /**

@@ -9,23 +9,24 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 
 /**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.02.2008
-  */
-
-/*
- * TraitDef ::= id [TypeParamClause] TraitTemplateOpt
+ * [[TraitDef]] ::= id [ [[TypeParamClause]] ] [[TraitTemplateOpt]]
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 06.02.2008
  */
-object TraitDef {
+object TraitDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
-    case ScalaTokenTypes.tIDENTIFIER =>
-      builder.advanceLexer() //Ate identifier
-      TypeParamClause.parse(builder)
-      TraitTemplateOpt.parse(builder)
-      true
-    case _ =>
-      builder.error(ErrMsg("identifier.expected"))
-      false
-  }
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.getTokenType match {
+      case ScalaTokenTypes.tIDENTIFIER =>
+        builder.advanceLexer() // Ate identifier
+
+        TypeParamClause.parse(builder)
+        TraitTemplateOpt.parse(builder)
+
+        true
+      case _ =>
+        builder.error(ScalaBundle.message("identifier.expected"))
+        false
+    }
 }
