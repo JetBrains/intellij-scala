@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.lang.lexer
+package org.jetbrains.plugins.scala
+package lang
+package lexer
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.ScalaLanguage
 
 class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLanguage.INSTANCE) {
 
@@ -14,4 +15,11 @@ object ScalaTokenType {
   val Integer = new ScalaTokenType("integer")
   val Double = new ScalaTokenType("double")
   val Float = new ScalaTokenType("float")
+
+  val Enum = new ScalaTokenType("enum")
+  val Export = new ScalaTokenType("export")
+  val Given = new ScalaTokenType("given")
+  val Then = new ScalaTokenType("enum")
+
+  val FunctionalArrow = new ScalaTokenType("=>>")
 }
