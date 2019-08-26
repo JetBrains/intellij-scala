@@ -67,7 +67,7 @@ class ConvertToObjectFix(c: ScClass) extends IntentionAction {
     c.isValid && c.getManager.isInProject(file)
 
   override def invoke(project: Project, editor: Editor, file: PsiFile) {
-    val classKeywordTextRange = c.getClassToken.getTextRange
+    val classKeywordTextRange = c.markerToken.getTextRange
     val classTextRange = c.getTextRange
     val start = classKeywordTextRange.getStartOffset - classTextRange.getStartOffset
     val charsToReplace = classKeywordTextRange.getLength

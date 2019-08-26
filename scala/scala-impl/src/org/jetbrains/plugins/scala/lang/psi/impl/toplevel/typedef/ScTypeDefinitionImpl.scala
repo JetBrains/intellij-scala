@@ -17,6 +17,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -50,7 +51,8 @@ import scala.annotation.tailrec
 
 abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
                                                                nodeType: ScTemplateDefinitionElementType[T],
-                                                               node: ASTNode)
+                                                               node: ASTNode,
+                                                               protected val tokenType: ScalaTokenType)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScTypeDefinition with PsiClassFake with ScTemplateDefinitionImpl {
 
@@ -116,6 +118,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
             | (_: ScClass, _: ScClass) => true
     case _ => false
   }
+
+  override final def markerToken: LeafElement =
+    findFirstChildByType(tokenType).asInstanceOf[LeafElement]
 
   def getSourceMirrorClass: PsiClass = {
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)

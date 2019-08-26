@@ -111,7 +111,7 @@ public interface ScalaTokenTypes {
     ScalaModifierTokenType kSEALED = ScalaModifierTokenType.apply(ScalaModifier.Sealed);
 
     IElementType kCATCH = new ScalaTokenType("catch");
-    IElementType kCLASS = new ScalaTokenType("class");
+    ScalaTokenType kCLASS = new ScalaTokenType("class");
     IElementType kDEF = new ScalaTokenType("def");
     IElementType kDO = new ScalaTokenType("do");
     IElementType kELSE = new ScalaTokenType("else");
@@ -125,14 +125,14 @@ public interface ScalaTokenTypes {
     IElementType kMATCH = new ScalaTokenType("match");
     IElementType kNEW = new ScalaTokenType("new");
     IElementType kNULL = new ScalaTokenType("null");
-    IElementType kOBJECT = new ScalaTokenType("object");
+    ScalaTokenType kOBJECT = new ScalaTokenType("object");
     IElementType kPACKAGE = new ScalaTokenType("package");
 
     IElementType kRETURN = new ScalaTokenType("return");
     IElementType kSUPER = new ScalaTokenType("super");
     IElementType kTHIS = new ScalaTokenType("this");
     IElementType kTHROW = new ScalaTokenType("throw");
-    IElementType kTRAIT = new ScalaTokenType("trait");
+    ScalaTokenType kTRAIT = new ScalaTokenType("trait");
     IElementType kTRY = new ScalaTokenType("try");
     IElementType kTRUE = new ScalaTokenType("true");
     IElementType kTYPE = new ScalaTokenType("type");

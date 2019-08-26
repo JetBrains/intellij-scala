@@ -8,6 +8,7 @@ package typedef
 import com.intellij.navigation.NavigationItem
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
+import com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -53,7 +54,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
     visitor.visitTypeDefinition(this)
   }
 
-  def getObjectClassOrTraitToken: PsiElement
+  def markerToken: LeafElement
 
   def getSourceMirrorClass: PsiClass
 

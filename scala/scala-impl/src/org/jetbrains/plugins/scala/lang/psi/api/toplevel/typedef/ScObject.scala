@@ -5,8 +5,7 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
 /**
@@ -27,10 +26,6 @@ trait ScObject extends ScTypeDefinition
   def isSyntheticObject_=(flag: Boolean): Unit = {
     this.flag = flag
   }
-
-  def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
-
-  def getObjectClassOrTraitToken: PsiElement = getObjectToken
 
   def declaredElements: Seq[ScObject] = Seq(this)
 

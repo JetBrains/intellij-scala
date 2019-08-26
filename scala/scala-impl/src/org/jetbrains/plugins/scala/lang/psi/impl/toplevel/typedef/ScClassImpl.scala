@@ -10,10 +10,9 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -38,14 +37,15 @@ import scala.collection.mutable.ArrayBuffer
 class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   nodeType: ScTemplateDefinitionElementType[ScClass],
                   node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node)
+  extends ScTypeDefinitionImpl(stub, nodeType, node, ScalaTokenTypes.kCLASS)
     with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
 
   override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
-  override protected final def baseIcon: Icon =
-    if (this.hasAbstractModifier) Icons.ABSTRACT_CLASS
-    else Icons.CLASS
+  //noinspection TypeAnnotation
+  override protected final def baseIcon =
+    if (this.hasAbstractModifier) icons.Icons.ABSTRACT_CLASS
+    else icons.Icons.CLASS
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitClass(this)
 
