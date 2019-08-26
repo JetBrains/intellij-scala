@@ -70,6 +70,7 @@ object ScalaElementType {
   val CLASS_DEFINITION: ScTemplateDefinitionElementType[ScClass] = ClassDefinition
   val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
+  val ENUM_DEFINITION: ScTemplateDefinitionElementType[ScTypeDefinition] = EnumDefinition
   val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
