@@ -49,6 +49,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   protected val configurationProducer: AbstractTestConfigurationProducer[_]
 
+  override implicit val version: ScalaVersion = Scala_2_11
+
   override def runInDispatchThread(): Boolean = false
 
   override protected def addFileToProject(fileName: String, fileText: String): Unit = {

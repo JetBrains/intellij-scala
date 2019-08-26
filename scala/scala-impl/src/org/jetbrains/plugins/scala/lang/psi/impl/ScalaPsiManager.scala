@@ -226,7 +226,7 @@ class ScalaPsiManager(implicit val project: Project) {
   def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
     elementScope.function1Type()
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] =
     getStableAliasByFqn("scala.Seq", scope).headOption
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 
@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, R
 class ResolvePrecedenceTest2_13
     extends ScalaLightCodeInsightFixtureTestAdapter
     with SimpleResolveTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+  override implicit val version: ScalaVersion = Scala_2_13
 
   def testSCL16057(): Unit = doResolveTest(
     s"""
@@ -35,7 +35,7 @@ class ResolvePrecedenceTest2_13
 class ResolvePrecedenceTest2_12
   extends ScalaLightCodeInsightFixtureTestAdapter
     with SimpleResolveTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_12
+  override implicit val version: ScalaVersion = Scala_2_12
 
   def testSCL16057(): Unit = doResolveTest(
     s"""
@@ -60,7 +60,7 @@ class ResolvePrecedenceTest2_12
 class ResolvePrecedenceTestWildcardImportSameUnit
     extends ScalaLightCodeInsightFixtureTestAdapter
     with SimpleResolveTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+  override implicit val version: ScalaVersion = Scala_2_13
 
   def testScalacIssue11593(): Unit = doResolveTest(
     s"""
@@ -80,7 +80,7 @@ class ResolvePrecedenceTestWildcardImportSameUnit
 class ResolvePrecedenceTestWildcardImportOtherUnit
   extends ScalaLightCodeInsightFixtureTestAdapter
     with SimpleResolveTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+  override implicit val version: ScalaVersion = Scala_2_13
 
   override protected def getTgt(
     source: String,

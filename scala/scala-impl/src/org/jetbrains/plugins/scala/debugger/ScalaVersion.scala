@@ -6,11 +6,13 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 /**
  * @author Nikolay.Tropin
  */
-sealed abstract class ScalaVersion(languageLevel: ScalaLanguageLevel,
-                                   minorSuffix: String) {
+sealed abstract class ScalaVersion(private val languageLevel: ScalaLanguageLevel,
+                                   minorSuffix: String) extends Ordered[ScalaVersion]  {
   def major: String = languageVersion
 
   def minor: String = s"$languageVersion.$minorSuffix"
+
+  override def compare(that: ScalaVersion): Int = languageLevel.compare(that.languageLevel)
 
   private def languageVersion = languageLevel.getVersion
 }
