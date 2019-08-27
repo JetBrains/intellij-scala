@@ -9,8 +9,6 @@ package typedef
  * @author ilyas
  */
 
-import java.{util => ju}
-
 import com.intellij.lang.ASTNode
 import com.intellij.navigation._
 import com.intellij.openapi.project.DumbService
@@ -339,31 +337,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   }
 
-
-  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod =
-    super[ScTypeDefinition].findMethodBySignature(patternMethod, checkBases)
-
-  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] =
-    super[ScTypeDefinition].findMethodsBySignature(patternMethod, checkBases)
-
-  import com.intellij.openapi.util.{Pair => IPair}
-
-  override def findMethodsAndTheirSubstitutorsByName(name: String,
-                                                     checkBases: Boolean): ju.List[IPair[PsiMethod, PsiSubstitutor]] =
-    super[ScTypeDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
-
-  override def getAllMethodsAndTheirSubstitutors: ju.List[IPair[PsiMethod, PsiSubstitutor]] =
-    super[ScTypeDefinition].getAllMethodsAndTheirSubstitutors
-
-  override def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] =
-    super[ScTypeDefinition].getVisibleSignatures
-
-  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] =
-    super[ScTypeDefinition].findMethodsByName(name, checkBases)
-
-  override def findFieldByName(name: String, checkBases: Boolean): PsiField =
-    super[ScTypeDefinition].findFieldByName(name, checkBases)
-
   override def delete(): Unit = getContainingFile match {
     case file@FileKind(_) if isTopLevel => file.delete()
     case _ => getParent.getNode.removeChild(getNode)
@@ -416,9 +389,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def getAllInnerClasses: Array[PsiClass] =
     PsiClassImplUtil.getAllInnerClasses(this)
-
-  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
-    super[ScTypeDefinition].findInnerClassByName(name, checkBases)
 
   override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)

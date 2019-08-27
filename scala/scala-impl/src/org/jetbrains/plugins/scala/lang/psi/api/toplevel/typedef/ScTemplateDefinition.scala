@@ -5,14 +5,9 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.execution.junit.JUnitUtil
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.impl.PsiClassImplUtil.MemberType
-import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
@@ -26,13 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.JavaConverters._
 
 /**
  * @author ven
@@ -78,71 +70,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   }
 
   def showAsInheritor: Boolean = extendsBlock.templateBody.isDefined
-
-  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
-    PsiClassImplUtil.findMethodBySignature(this, patternMethod, checkBases)
-  }
-
-  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = {
-    PsiClassImplUtil.findMethodsBySignature(this, patternMethod, checkBases)
-  }
-
-  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
-    val toSearchWithIndices = Set("main", JUnitUtil.SUITE_METHOD_NAME) //these methods may be searched from EDT, search them without building a whole type hierarchy
-
-    def withIndices(): Array[PsiMethod] = {
-      val inThisClass = allFunctionsByName(name)
-
-      val files = this.allSupers.flatMap(_.containingVirtualFile).asJava
-      val scope = GlobalSearchScope.filesScope(getProject, files)
-      val manager = ScalaShortNamesCacheManager.getInstance(getProject)
-      val candidates = manager.methodsByName(name)(scope)
-      val inBaseClasses = candidates.filter(m => this.isInheritor(m.containingClass, deep = true))
-
-      (inThisClass ++ inBaseClasses).toArray
-    }
-
-    if (toSearchWithIndices.contains(name)) withIndices()
-    else PsiClassImplUtil.findMethodsByName(this, name, checkBases)
-  }
-
-  override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
-    PsiClassImplUtil.findFieldByName(this, name, checkBases)
-  }
-
-  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
-    PsiClassImplUtil.findInnerByName(this, name, checkBases)
-  }
-
-  import java.util.{Collection => JCollection, List => JList}
-
-  import com.intellij.openapi.util.{Pair => IPair}
-
-  override def findMethodsAndTheirSubstitutorsByName(name: String,
-                                                     checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
-    //the reordering is a hack to enable 'go to test location' for junit test methods defined in traits
-    PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases)
-      .asScala
-      .sortBy(myPair =>
-        myPair.first match {
-          case ScFunctionWrapper(_: ScFunctionDeclaration) => 1
-          case wrapper@ScFunctionWrapper(delegate: ScFunctionDefinition) => wrapper.containingClass match {
-            case myClass: ScTemplateDefinition if myClass.membersWithSynthetic.contains(delegate) => 0
-            case _ => 1
-          }
-          case _ => 1
-      })
-      .asJava
-  }
-
-  override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
-    PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
-  }
-
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
-  override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
-    PsiSuperMethodImplUtil.getVisibleSignatures(this)
-  }
 
   def getTypeWithProjections(thisProjections: Boolean = false): TypeResult
 
