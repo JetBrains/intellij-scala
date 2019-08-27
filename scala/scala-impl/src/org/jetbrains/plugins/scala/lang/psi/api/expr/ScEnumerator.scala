@@ -8,8 +8,10 @@ trait ScEnumerator extends ScalaPsiElement with PsiPolyVariantReference {
 
   def desugared: Option[ScEnumerator.DesugaredEnumerator]
 
-  // the token that marks the enumerator (<-, =, if)
+  /** @return the token that marks the enumerator (<-, =, if) */
   def enumeratorToken: Option[PsiElement]
+
+  def expr: Option[ScExpression]
 }
 
 object ScEnumerator {
