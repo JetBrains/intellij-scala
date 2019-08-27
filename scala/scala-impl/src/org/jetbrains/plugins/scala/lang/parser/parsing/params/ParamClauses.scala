@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /*
  * ParamClauses ::= {ParamClause} [ImplicitParamClause]
+ *                  |  {ParamClause} {GivenParamClause}
  */
 object ParamClauses {
 
@@ -26,6 +27,10 @@ object ParamClauses {
     }
     while (ParamClause.parse(builder)) {}
     ImplicitParamClause parse builder
+    var hadGiven = false
+    while (GivenParamClause.parse(builder, hadGiven)) {
+      hadGiven = true
+    }
     paramMarker.done(ScalaElementType.PARAM_CLAUSES)
     true
   }
