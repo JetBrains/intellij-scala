@@ -72,7 +72,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def isAnnotationType: Boolean =
     elementScope.getCachedClass("scala.annotation.Annotation")
-      .exists(isInheritor(_, deep = true))
+      .exists(isInheritor(_, checkDeep = true))
 
   override final def `type`(): TypeResult = getTypeWithProjections(thisProjections = true)
 
@@ -342,10 +342,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getSupers: Array[PsiClass] = extendsBlock.supers.filter {
     _ != this
   }.toArray
-
-  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
-    super[ScTypeDefinition].isInheritor(baseClass, deep)
-
 
   def methodsByName(name: String): Iterator[PhysicalMethodSignature] = {
     TypeDefinitionMembers.getSignatures(this).forName(name)

@@ -164,9 +164,6 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
 
   def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 
-  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
-    super[ScNewTemplateDefinition].isInheritor(baseClass, deep)
-
   override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitNewTemplateDefinition(this)
   }

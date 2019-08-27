@@ -5,7 +5,6 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
@@ -13,19 +12,15 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.mutable
 
 /**
  * @author ven
@@ -254,95 +249,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         case p: PhysicalMethodSignature => p.method
       }
   }
-
-  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
-    Path(baseClass) match {
-      case Path.JavaObject => true // These doesn't appear in the superTypes at the moment, so special case required.
-      case Path(_, _, kind) if kind.isFinal => false
-      case _ if DumbService.getInstance(getProject).isDumb => false
-      case path => (if (deep) superPathsDeep else superPaths).contains(path)
-    }
-
-  @Cached(ModCount.getModificationCount, this)
-  private def superPaths: Set[Path] =
-    supers.map(Path.apply).toSet
-
-  @Cached(ModCount.getModificationCount, this)
-  private def superPathsDeep: Set[Path] = {
-    val collected = mutable.Set.empty[Path]
-
-    def dfs(clazz: PsiClass): Unit = {
-      val path = Path(clazz)
-
-      if (collected.add(path)) {
-        clazz match {
-          case definition: ScTemplateDefinition =>
-            val supersIterator = definition.supers.iterator
-            while (supersIterator.hasNext) {
-              dfs(supersIterator.next())
-            }
-          case _ =>
-            val supersIterator = clazz.getSuperTypes.iterator
-            while (supersIterator.hasNext) {
-              supersIterator.next().resolveGenerics.getElement match {
-                case null =>
-                case next => dfs(next)
-              }
-            }
-        }
-      }
-    }
-
-    dfs(this)
-
-    collected.remove(Path(this))
-    collected.toSet
-  }
 }
 
 object ScTemplateDefinition {
   object ExtendsBlock {
     def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
-  }
-
-  sealed abstract class Kind(val isFinal: Boolean)
-
-  object Kind {
-    object Class extends Kind(false)
-    object Trait extends Kind(false)
-    object Object extends Kind(true)
-    object NewTd extends Kind(true)
-    object SyntheticFinal extends Kind(true)
-    object NonScala extends Kind(false)
-  }
-
-  case class Path(name: String, qualifiedName: Option[String], kind: Kind)
-
-  object Path {
-
-    val JavaObject = Path(
-      CommonClassNames.JAVA_LANG_OBJECT_SHORT,
-      Some(CommonClassNames.JAVA_LANG_OBJECT),
-      Kind.NonScala
-    )
-
-    def apply(clazz: PsiClass): Path = {
-      import Kind._
-      val kind = clazz match {
-        case _: ScTrait => Trait
-        case _: ScClass => Class
-        case _: ScObject => Object
-        case _: ScNewTemplateDefinition => NewTd
-        case synthetic: ScSyntheticClass =>
-          synthetic.className match {
-            case "AnyRef" | "AnyVal" => Class
-            case _ => SyntheticFinal
-          }
-        case _ => NonScala
-      }
-
-      Path(clazz.name, Option(clazz.qualifiedName), kind)
-    }
   }
 
   private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
