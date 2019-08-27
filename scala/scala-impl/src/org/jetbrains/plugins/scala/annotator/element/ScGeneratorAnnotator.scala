@@ -17,12 +17,10 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
                        (implicit holder: AnnotationHolder): Unit = {
     checkGenerator(element, typeAware)
 
-    element.valKeyword match {
-      case Some(valKeyword) =>
-        val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
-      case _ =>
+    element.valKeyword.foreach { valKeyword =>
+      val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerators.generator.val.keyword.found"))
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
     }
   }
 

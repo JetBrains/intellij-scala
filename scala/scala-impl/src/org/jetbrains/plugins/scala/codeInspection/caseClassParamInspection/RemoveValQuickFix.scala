@@ -39,6 +39,22 @@ class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends I
   override def getFamilyName: String = "Remove 'val' from definition"
 }
 
+class RemoveCaseFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction {
+
+  override def getText: String = "Remove unnecessary 'case'"
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    if (!forBinding.isValid) return
+    forBinding.findChildrenByType(ScalaTokenTypes.kCASE).foreach(_.delete())
+  }
+
+  override def startInWriteAction(): Boolean = true
+
+  override def getFamilyName: String = "Remove 'case' from definition"
+}
+
 class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends IntentionAction {
 
   override def getText: String = "Remove unnecessary 'val'"
