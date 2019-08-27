@@ -10,7 +10,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -122,7 +122,7 @@ object ScalaInheritors {
 
       clazz match {
         case td: ScTypeDefinition if !td.isEffectivelyFinal =>
-          val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, false))
+          val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, deep = false))
           directInheritors
             .foreach(collectStableInheritors(_, visited + clazz, buffer))
         case _ =>

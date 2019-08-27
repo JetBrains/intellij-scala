@@ -35,7 +35,7 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
           if (psiFile != null) {
             psiFile.depthFirst().foreach {
               case td: ScTemplateDefinition if continue =>
-                if (td.isInheritor(clazz, true) && checkCandidate(td, params))
+                if (td.isInheritor(clazz, deep = true) && checkCandidate(td, params))
                   continue = consumer.process(td)
               case _ =>
             }

@@ -89,7 +89,7 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
     """.stripMargin)
 
     val clazz = myFixture.findClass("Test").asInstanceOf[ScClass]
-    Assert.assertTrue("Method from injected superclass not found", clazz.findMethodsByName(superMethodName, true).nonEmpty)
+    Assert.assertTrue("Method from injected superclass not found", clazz.findMethodsByName(superMethodName, checkBases = true).nonEmpty)
   }
 
   def testRemoveMethod(): Unit = {

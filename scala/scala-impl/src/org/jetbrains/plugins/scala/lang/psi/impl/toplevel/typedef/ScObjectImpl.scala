@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.moduleFieldName
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper, ScLightField}
@@ -27,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
 /**
@@ -37,7 +39,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                    nodeType: ScTemplateDefinitionElementType[ScObject],
                    node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node, ScalaTokenTypes.kOBJECT)
-    with ScObject {
+    with ScObject with ScTemplateDefinition {
 
   override def additionalClassJavaName: Option[String] =
     if (baseCompanionModule.isEmpty) Option(getName).map(_.stripSuffix("$")) else None
@@ -91,7 +93,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
-    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
+    if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
       val newState = state.withFromType(None)
       val qual = qualifiedName
@@ -105,7 +107,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    def processDeclarations() = processDeclarationsImpl(processor, state, lastParent, place)
+    def processDeclarations() = super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
 
     if (isPackageObject) ScObjectImpl.withFlag {
       processDeclarations()
@@ -149,6 +151,19 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   }
 
   override def psiInnerClasses: Array[PsiClass] = Array.empty
+
+  override def getAllMethods: Array[PsiMethod] = {
+    val res = new ArrayBuffer[PsiMethod]()
+    res ++= getConstructors
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach { signature =>
+      val isInterface = signature.namedElement match {
+        case t: ScTypedDefinition if t.isAbstractMember => true
+        case _ => false
+      }
+      this.processWrappersForSignature(signature, isStatic = false, isInterface = isInterface)(res += _)
+    }
+    res.toArray
+  }
 
   @Cached(ModCount.getBlockModificationCount, this)
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))

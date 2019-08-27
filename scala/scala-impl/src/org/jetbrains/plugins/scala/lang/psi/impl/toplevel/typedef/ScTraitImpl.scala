@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
 import scala.collection.mutable
@@ -47,6 +46,12 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
     super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
   }
 
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+  }
+
+
   override def isInterface: Boolean = true
 
   //noinspection TypeAnnotation
@@ -58,7 +63,12 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
   }
 
   override def getAllMethods: Array[PsiMethod] = {
-    val res = mutable.ArrayBuffer(super.getAllMethods: _*)
+    val res = mutable.ArrayBuffer.empty[PsiMethod]
+    res ++= getConstructors
+
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach {
+      this.processWrappersForSignature(_, isStatic = false, isInterface = true)(res += _)
+    }
 
     if (this.scalaLanguageLevelOrDefault >= Scala_2_12) {
       /** static forwarders for trait companion objects are only generated starting with scala 2.12 */
@@ -73,8 +83,6 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
     res.toArray
   }
-
-  override protected def isInterface(signature: TermSignature): Boolean = true
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
 

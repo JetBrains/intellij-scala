@@ -20,13 +20,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDefinitionImpl, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -35,8 +39,8 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
                                                      node: ASTNode)
-  extends ScTemplateDefinitionImpl(stub, nodeType, node)
-    with ScNewTemplateDefinition {
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+    with ScNewTemplateDefinition with ScTemplateDefinitionImpl with PsiClassFake {
 
   override def toString: String = "NewTemplateDefinition"
 
@@ -150,17 +154,72 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
     }.toArray
   }
 
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+  }
+
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
   def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 
+  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
+    super[ScNewTemplateDefinition].isInheritor(baseClass, deep)
+
   override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitNewTemplateDefinition(this)
   }
 
-  override protected def isInterface(signature: TermSignature): Boolean = false
+  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
+    super[ScNewTemplateDefinition].findMethodBySignature(patternMethod, checkBases)
+  }
+
+  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = {
+    super[ScNewTemplateDefinition].findMethodsBySignature(patternMethod, checkBases)
+  }
+
+  import java.util.{Collection => JCollection, List => JList}
+
+  import com.intellij.openapi.util.{Pair => IPair}
+
+  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
+    super[ScNewTemplateDefinition].findMethodsByName(name, checkBases)
+  }
+
+  override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
+    super[ScNewTemplateDefinition].findFieldByName(name, checkBases)
+  }
+
+  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
+    super[ScNewTemplateDefinition].findInnerClassByName(name, checkBases)
+  }
+
+  override def getAllFields: Array[PsiField] = {
+    super[ScNewTemplateDefinition].getAllFields
+  }
+
+  override def findMethodsAndTheirSubstitutorsByName(name: String,
+                                                     checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
+    super[ScNewTemplateDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
+  }
+
+  override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
+    super[ScNewTemplateDefinition].getAllMethodsAndTheirSubstitutors
+  }
+
+  override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
+    super[ScNewTemplateDefinition].getVisibleSignatures
+  }
+
+  override def getAllMethods: Array[PsiMethod] = {
+    val res = mutable.ArrayBuffer.empty[PsiMethod]
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach {
+      this.processWrappersForSignature(_, isStatic = false, isInterface = false)(res += _)
+    }
+    res.toArray
+  }
 
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)

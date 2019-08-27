@@ -189,7 +189,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
           m => m.containingClass match {
             case null => None
             case `clazz` => Some(m, clazz)
-            case c if clazz.isInheritor(c, true) => Some(m, c)
+            case c if clazz.isInheritor(c, deep = true) => Some(m, c)
             case _ => None
           }
         }
@@ -237,7 +237,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
               val message = ScalaBundle.message("member.of.anonymous.class.cannot.be.used.in.extracted.member", named.name, currentMemberName)
               conflicts.putValue(m, message)
             case m: PsiMember
-              if m.containingClass != null && ref.qualifier.exists(_.isInstanceOf[ScSuperReference]) && clazz.isInheritor(m.containingClass, true) =>
+              if m.containingClass != null && ref.qualifier.exists(_.isInstanceOf[ScSuperReference]) && clazz.isInheritor(m.containingClass, deep = true) =>
               val message = ScalaBundle.message("super.reference.used.in.extracted.member", currentMemberName)
               conflicts.putValue(m, message)
             case _ =>

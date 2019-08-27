@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Alexander.Podkhalyuzin
@@ -89,12 +90,27 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+  }
+
   override def isCase: Boolean = hasModifierProperty("case")
 
   override def getAllMethods: Array[PsiMethod] = {
-    val res = mutable.ArrayBuffer(super.getAllMethods: _*)
-
+    val res = new ArrayBuffer[PsiMethod]()
     val names = new mutable.HashSet[String]
+
+    res ++= getConstructors
+
+    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach { signature =>
+      val isInterface = signature.namedElement match {
+        case t: ScTypedDefinition if t.isAbstractMember => true
+        case _ => false
+      }
+      this.processWrappersForSignature(signature, isStatic = false, isInterface = isInterface)(res += _, names += _)
+    }
+
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(o: ScObject) =>
         def add(method: PsiMethod) {
@@ -103,7 +119,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           }
         }
 
-        TypeDefinitionMembers.getSignatures(o).allSignatures.foreach(
+        TypeDefinitionMembers.getSignatures(o).allSignatures.foreach (
           this.processWrappersForSignature(_, isStatic = true, isInterface = false)(add)
         )
       case _ =>

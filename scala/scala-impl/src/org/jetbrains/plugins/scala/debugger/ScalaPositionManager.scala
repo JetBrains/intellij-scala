@@ -849,7 +849,7 @@ object ScalaPositionManager {
       val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
       val clazz: PsiClass =
         manager.getCachedClass(obj.resolveScope, "scala.DelayedInit").orNull
-      clazz != null && obj.isInheritor(clazz, true)
+      clazz != null && obj.isInheritor(clazz, deep = true)
     case _ => false
   }
 
