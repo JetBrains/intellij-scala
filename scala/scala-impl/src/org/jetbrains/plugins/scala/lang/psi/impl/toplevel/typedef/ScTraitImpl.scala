@@ -25,7 +25,8 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
                                      nodeType: ScTemplateDefinitionElementType[ScTrait],
                                      node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node, ScalaTokenTypes.kTRAIT)
-    with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
+    with ScTrait
+    with ScTypeParametersOwner {
 
   override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
 
@@ -33,23 +34,23 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor
+
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-
-    desugaredElement match {
-      case Some(td) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
+                                                  state: ResolveState,
+                                                  lastParent: PsiElement,
+                                                  place: PsiElement): Boolean = desugaredElement match {
+    case Some(td: ScTemplateDefinitionImpl[_]) =>
+      td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
       case _ =>
-    }
-    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
-    super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
+        super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
+          super.processDeclarationsForTemplateBody(processor, state, lastParent, place)
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-  }
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean =
+    processDeclarationsImpl(processor, state, lastParent, place)
 
 
   override def isInterface: Boolean = true

@@ -6,17 +6,12 @@ package toplevel
 package typedef
 
 import com.intellij.execution.junit.JUnitUtil
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil.MemberType
 import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -33,10 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -46,7 +38,7 @@ import scala.collection.JavaConverters._
  * @author ven
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
-  import com.intellij.psi.PsiMethod
+
   def qualifiedName: String = null
 
   def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
@@ -125,10 +117,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   import java.util.{Collection => JCollection, List => JList}
 
   import com.intellij.openapi.util.{Pair => IPair}
-
-  def getAllFields: Array[PsiField] = {
-    PsiClassImplUtil.getAllFields(this)
-  }
 
   override def findMethodsAndTheirSubstitutorsByName(name: String,
                                                      checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
@@ -287,102 +275,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def isScriptFileClass: Boolean = getContainingFile match {
     case file: ScalaFile => file.isScriptFile
     case _ => false
-  }
-
-  def processDeclarations(processor: PsiScopeProcessor,
-                          oldState: ResolveState,
-                          lastParent: PsiElement,
-                          place: PsiElement) : Boolean = {
-    if (!processor.isInstanceOf[BaseProcessor]) {
-      val lastChild = this.lastChildStub.orNull
-      val languageLevel: LanguageLevel =
-        processor match {
-          case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
-          case _ => PsiUtil.getLanguageLevel(getProject)
-        }
-      return PsiClassImplUtil.processDeclarationsInClass(this, processor, oldState, null, lastChild, place, languageLevel, false)
-    }
-    if (extendsBlock.templateBody.isDefined &&
-      PsiTreeUtil.isContextAncestor(extendsBlock.templateBody.get, place, false) && lastParent != null) return true
-    processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
-  }
-
-  def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                         oldState: ResolveState,
-                                         lastParent: PsiElement,
-                                         place: PsiElement): Boolean = {
-    if (DumbService.getInstance(getProject).isDumb) return true
-    //exception cases
-    this match {
-      case s: ScTypeParametersOwner => s.typeParametersClause match {
-        case Some(tpc) if PsiTreeUtil.isContextAncestor(tpc, place, false) => return true
-        case _ =>
-      }
-      case _ =>
-    }
-
-    // Process selftype reference
-    selfTypeElement match {
-      case Some(se) if se.name != "_" => if (!processor.execute(se, oldState)) return false
-      case _ =>
-    }
-
-    val fromType =
-      if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
-      else ScalaType.designator(this)
-
-    val state = oldState.withFromType(fromType)
-
-    val eb = extendsBlock
-    eb.templateParents match {
-        case Some(p) if PsiTreeUtil.isContextAncestor(p, place, false) =>
-          eb.earlyDefinitions match {
-            case Some(ed) => for (m <- ed.members) {
-              ProgressManager.checkCanceled()
-              m match {
-                case _var: ScVariable => for (declared <- _var.declaredElements) {
-                  ProgressManager.checkCanceled()
-                  if (!processor.execute(declared, state)) return false
-                }
-                case _val: ScValue => for (declared <- _val.declaredElements) {
-                  ProgressManager.checkCanceled()
-                  if (!processor.execute(declared, state)) return false
-                }
-              }
-            }
-            case None =>
-          }
-          true
-        case _ =>
-          eb.earlyDefinitions match {
-            case Some(ed) if PsiTreeUtil.isContextAncestor(ed, place, true) =>
-            case _ =>
-              extendsBlock match {
-                case e: ScExtendsBlock if e != null =>
-                  if (PsiTreeUtil.isContextAncestor(e, place, true) ||
-                      ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||
-                      !PsiTreeUtil.isContextAncestor(this, place, true)) {
-                    this match {
-                      case t: ScTypeDefinition if selfTypeElement.isDefined &&
-                        !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
-                        PsiTreeUtil.isContextAncestor(e.templateBody.orNull, place, true) &&
-                        processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>
-                          selfTypeElement match {
-                            case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
-                            case _ =>
-                              if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) {
-                                return false
-                              }
-                          }
-                      case _ =>
-                        if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
-                    }
-                  }
-                case _ =>
-              }
-          }
-          true
-      }
   }
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {

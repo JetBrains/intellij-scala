@@ -20,13 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDefinitionImpl, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
@@ -39,8 +37,7 @@ import scala.collection.mutable
 final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
                                                      node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScNewTemplateDefinition with ScTemplateDefinitionImpl with PsiClassFake {
+  extends ScTemplateDefinitionImpl(stub, nodeType, node) with ScNewTemplateDefinition {
 
   override def toString: String = "NewTemplateDefinition"
 
@@ -139,9 +136,10 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
                                           lastParent: PsiElement, place: PsiElement): Boolean =
   extendsBlock.templateBody match {
     case Some(body) if PsiTreeUtil.isContextAncestor(body, place, false) =>
-      super[ScNewTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
+      super.processDeclarationsForTemplateBody(processor, state, lastParent, place)
     case _ => true
   }
+
   def nameId: PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
   override def name: String = "<anonymous>"
@@ -154,10 +152,11 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
     }.toArray
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-  }
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean =
+    processDeclarationsImpl(processor, state, lastParent, place)
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
@@ -194,10 +193,6 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
 
   override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
     super[ScNewTemplateDefinition].findInnerClassByName(name, checkBases)
-  }
-
-  override def getAllFields: Array[PsiField] = {
-    super[ScNewTemplateDefinition].getAllFields
   }
 
   override def findMethodsAndTheirSubstitutorsByName(name: String,

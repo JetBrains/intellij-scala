@@ -38,8 +38,7 @@ import scala.util.control.ControlThrowable
 class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                    nodeType: ScTemplateDefinitionElementType[ScObject],
                    node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node, ScalaTokenTypes.kOBJECT)
-    with ScObject with ScTemplateDefinition {
+  extends ScTypeDefinitionImpl(stub, nodeType, node, ScalaTokenTypes.kOBJECT) with ScObject {
 
   override def additionalClassJavaName: Option[String] =
     if (baseCompanionModule.isEmpty) Option(getName).map(_.stripSuffix("$")) else None
@@ -93,7 +92,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
-    if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
+    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
       val newState = state.withFromType(None)
       val qual = qualifiedName
@@ -105,9 +104,11 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     true
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    def processDeclarations() = super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    def processDeclarations() = processDeclarationsImpl(processor, state, lastParent, place)
 
     if (isPackageObject) ScObjectImpl.withFlag {
       processDeclarations()
