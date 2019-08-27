@@ -4,13 +4,9 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
-trait ScGenerator extends ScEnumerator with ScPatterned {
-  def expr: Option[ScExpression]
-
-  def valKeyword: Option[PsiElement]
+trait ScGenerator extends ScEnumerator with ScPatternedEnumerator {
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitGenerator(this)
