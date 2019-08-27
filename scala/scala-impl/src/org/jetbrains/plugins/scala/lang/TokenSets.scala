@@ -15,7 +15,9 @@ object TokenSets {
   val TYPE_DEFINITIONS: TokenSet = TokenSet.create(
     CLASS_DEFINITION,
     TRAIT_DEFINITION,
-    OBJECT_DEFINITION
+    OBJECT_DEFINITION,
+    ENUM_DEFINITION,
+    ENUM_CASE_DEFINITION
   )
 
   val BINDING_PATTERNS: TokenSet = TokenSet.create(

@@ -13,8 +13,10 @@ import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScEnumImpl, ScObjectImpl, ScTraitImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -26,7 +28,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
                                                                                 language: Language = ScalaLanguage.INSTANCE)
   extends ScStubElementType[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language) {
 
-  override def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
+  override final def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getQualifiedName)
     dataStream.writeName(stub.javaQualifiedName)
@@ -43,8 +45,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeNames(stub.implicitClassNames)
   }
 
-  override def deserialize(dataStream: StubInputStream,
-                           parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
+  override final def deserialize(dataStream: StubInputStream,
+                                 parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
     parentStub,
     this,
     nameRef = dataStream.readNameString,
@@ -63,8 +65,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     implicitClassNames = dataStream.readNames
   )
 
-  override def createStubImpl(definition: TypeDef,
-                              parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
+  override final def createStubImpl(definition: TypeDef,
+                                    parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
     val fileName = definition.containingVirtualFile
       .map(_.getName).orNull
 
@@ -202,6 +204,13 @@ object EnumDefinition extends ScTemplateDefinitionElementType[ScTypeDefinition](
   override def createElement(node: ASTNode) = new ScEnumImpl(null, null, node)
 
   override def createPsi(stub: ScTemplateDefinitionStub[ScTypeDefinition]) = new ScEnumImpl(stub, this, null)
+}
+
+object EnumCase extends ScTemplateDefinitionElementType[ScEnumCase]("enum case") {
+
+  override def createElement(node: ASTNode) = new ScEnumCaseImpl(null, null, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub[ScEnumCase]) = new ScEnumCaseImpl(stub, this, null)
 }
 
 object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("new template definition") {

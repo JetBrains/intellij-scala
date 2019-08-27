@@ -7,9 +7,10 @@ package top
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.ClassConstr
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.EnumBody
 
 /**
- * [[EnumDef]] ::= id [[ClassConstr]] InheritClauses EnumBody
+ * [[EnumDef]] ::= id [[ClassConstr]] [[InheritClauses]] [[EnumBody]]
  */
 object EnumDef extends ParsingRule {
 
@@ -18,7 +19,8 @@ object EnumDef extends ParsingRule {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer()
         ClassConstr()
-        // todo InheritClauses EnumBody
+        InheritClauses()
+        EnumBody()
         true
       case _ =>
         builder.error(ScalaBundle.message("identifier.expected"))

@@ -6,6 +6,7 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
+@deprecated("to be merged with ScDeclaredElementsHolder")
 trait ScDeclaration extends ScalaPsiElement {
   def declaredElements : Seq[ScNamedElement]
 }

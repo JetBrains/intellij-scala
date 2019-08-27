@@ -120,6 +120,10 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitGenerator(gen: ScGenerator) { visitScalaElement(gen) }
   def visitGuard(guard: ScGuard) { visitScalaElement(guard) }
   def visitFunction(fun: ScFunction) { visitScalaElement(fun) }
+
+  def visitEnumCase(enumCase: ScEnumCase): Unit = {
+    visitScalaElement(enumCase)
+  }
   def visitTypeDefinition(typedef: ScTypeDefinition) { visitScalaElement(typedef) }
   def visitImportExpr(expr: ScImportExpr) {visitScalaElement(expr)}
   def visitSelfInvocation(self: ScSelfInvocation) {visitScalaElement(self)}

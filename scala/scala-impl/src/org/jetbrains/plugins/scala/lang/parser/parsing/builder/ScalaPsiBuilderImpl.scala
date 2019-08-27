@@ -16,7 +16,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
   extends impl.PsiBuilderAdapter(delegate)
     with ScalaPsiBuilder {
 
-  import lexer.{ScalaTokenTypes => T}
+  import lexer.ScalaTokenTypes._
 
   implicit def project: Project = getProject
 
@@ -30,7 +30,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     areTrailingCommasAndIdBindingEnabled(containingFile)
 
   override def isTrailingComma: Boolean = getTokenType match {
-    case T.tCOMMA => _isTrailingCommasEnabled
+    case `tCOMMA` => _isTrailingCommasEnabled
     case _ => false
   }
 
@@ -74,32 +74,34 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
 
   private def canStartStatement: Boolean = getTokenType match {
     case null => false
-    case T.kCATCH |
-         T.kELSE |
-         T.kEXTENDS |
-         T.kFINALLY |
-         T.kMATCH |
-         T.kWITH |
-         T.kYIELD |
-         T.tCOMMA |
-         T.tDOT |
-         T.tSEMICOLON |
-         T.tCOLON |
-         T.tASSIGN |
-         T.tFUNTYPE |
-         T.tCHOOSE |
-         T.tUPPER_BOUND |
-         T.tLOWER_BOUND |
-         T.tVIEW |
-         T.tINNER_CLASS |
-         T.tLSQBRACKET |
-         T.tRSQBRACKET |
-         T.tRPARENTHESIS |
-         T.tRBRACE => false
-    case T.kCASE =>
+    case `kCATCH` |
+         `kELSE` |
+         `kEXTENDS` |
+         `kFINALLY` |
+         `kMATCH` |
+         `kWITH` |
+         `kYIELD` |
+         `tCOMMA` |
+         `tDOT` |
+         `tSEMICOLON` |
+         `tCOLON` |
+         `tASSIGN` |
+         `tFUNTYPE` |
+         `tCHOOSE` |
+         `tUPPER_BOUND` |
+         `tLOWER_BOUND` |
+         `tVIEW` |
+         `tINNER_CLASS` |
+         `tLSQBRACKET` |
+         `tRSQBRACKET` |
+         `tRPARENTHESIS` |
+         `tRBRACE` => false
+    case `kCASE` =>
       this.predict {
         _.getTokenType match {
-          case T.kOBJECT | T.kCLASS => true
+          case `kOBJECT` |
+               `kCLASS` |
+               `tIDENTIFIER` => true
           case _ => false
         }
       }

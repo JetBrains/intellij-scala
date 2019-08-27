@@ -16,6 +16,8 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScTypeDefinition],
                        node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node, ScalaTokenType.Enum) {
 
+  override def toString: String = "ScEnum" + extensions.ifReadAllowed(": " + name)("")
+
   //noinspection TypeAnnotation
   override protected def baseIcon = icons.Icons.CLASS; // TODO add an icon
 }

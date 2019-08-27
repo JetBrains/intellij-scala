@@ -4,7 +4,7 @@ package parser
 package parsing
 package statements
 
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifierTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifierTokenType, ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
@@ -60,6 +60,8 @@ object Def {
       modifierMarker.done(ScalaElementType.MODIFIERS)
     }
     //Look for val,var,def or type
+
+    implicit val b: ScalaPsiBuilder = builder
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
@@ -103,6 +105,9 @@ object Def {
         }
       case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
            | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT =>
+        defMarker.rollbackTo()
+        TmplDef.parse(builder)
+      case ScalaTokenType.IsEnum() =>
         defMarker.rollbackTo()
         TmplDef.parse(builder)
       case _ =>

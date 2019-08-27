@@ -57,7 +57,8 @@ object ScalaElementType {
   val PACKAGING: ScPackagingElementType.type = ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
-  val TEMPLATE_BODY = new ScTemplateBodyElementType
+  val TEMPLATE_BODY: ScTemplateBodyElementType = TemplateBody
+  val ENUM_BODY: ScTemplateBodyElementType = EnumBody
   val PARAM = new signatures.ScParameterElementType
   val PARAM_CLAUSE = new signatures.ScParamClauseElementType
   val PARAM_CLAUSES = new signatures.ScParamClausesElementType
@@ -71,6 +72,7 @@ object ScalaElementType {
   val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
   val ENUM_DEFINITION: ScTemplateDefinitionElementType[ScTypeDefinition] = EnumDefinition
+  val ENUM_CASE_DEFINITION: ScTemplateDefinitionElementType[ScEnumCase] = EnumCase
   val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType

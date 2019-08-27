@@ -4,7 +4,7 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, EmptyDcl}
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
  */
 object BlockStat {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val tokenType = builder.getTokenType
 
     val patcher = ParserPatcher.getSuitablePatcher(builder)
@@ -48,6 +48,8 @@ object BlockStat {
           }
         }
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
+        return TmplDef.parse(builder)
+      case ScalaTokenType.IsEnum() =>
         return TmplDef.parse(builder)
       case _ if patcher.parse(builder) => parse(builder)
       case _ =>

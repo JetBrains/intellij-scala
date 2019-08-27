@@ -90,11 +90,7 @@ object TmplDef extends ParsingRule {
         () => if (caseState) true else TraitDef.parse(builder),
         TRAIT_DEFINITION
       )
-      case `tIDENTIFIER` =>
-        builder.getTokenText match {
-          case lexer.ScalaTokenType.Enum.debugName => Some(() => EnumDef(), ENUM_DEFINITION)
-          case _ => None
-        }
+      case lexer.ScalaTokenType.IsEnum() => Some(() => EnumDef(), ENUM_DEFINITION)
       case _ => None
     }
 }

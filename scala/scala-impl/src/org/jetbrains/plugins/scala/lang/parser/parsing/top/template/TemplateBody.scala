@@ -4,69 +4,87 @@ package parser
 package parsing
 package top.template
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateBodyElementType
 
 import scala.annotation.tailrec
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 08.02.2008
-*/
-
-/*
- *  TemplateBody ::= '{' [SelfType] TemplateStat {semi TemplateStat} '}'
+/**
+ * @author Alexander Podkhalyuzin
+ *         Date: 08.02.2008
  */
-object TemplateBody {
+trait TemplateBody extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder) {
+  import lexer.ScalaTokenTypes._
+
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val templateBodyMarker = builder.mark
     //Look for {
     builder.enableNewlines()
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE =>
-        builder.advanceLexer() //Ate {
-      case _ => builder error ScalaBundle.message("lbrace.expected")
+      case `tLBRACE` =>
+        builder.advanceLexer() // Ate {
+      case _ =>
+        builder.error(ScalaBundle.message("lbrace.expected"))
     }
-    SelfType parse builder
-    //this metod parse recursively TemplateStat {semi TemplateStat}
-    @tailrec
-    def subparse(): Boolean = {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tRBRACE =>
-          builder.advanceLexer() //Ate }
-          true
-        case null =>
-          builder error ScalaBundle.message("rbrace.expected")
-          true
-        case _ =>
-          if (TemplateStat parse builder) {
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE =>
-                builder.advanceLexer() //Ate }
-                true
-              case ScalaTokenTypes.tSEMICOLON =>
-                while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer()
-                subparse()
-              case _ =>
-                if (builder.newlineBeforeCurrentToken) subparse()
-                else {
-                  builder error ScalaBundle.message("semi.expected")
-                  builder.advanceLexer() //Ate something
-                  subparse()
-                }
-            }
-          }
-          else {
-            builder error ScalaBundle.message("def.dcl.expected")
-            builder.advanceLexer() //Ate something
-            subparse()
-          }
-      }
-    }
-    subparse()
+
+    SelfType.parse(builder)
+    parseStatements()
+
     builder.restoreNewlinesState()
-    templateBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
+    templateBodyMarker.done(elementType)
+    true
   }
+
+  protected def elementType: ScTemplateBodyElementType
+
+  protected def parseStatement()(implicit builder: ScalaPsiBuilder): Boolean
+
+  @tailrec
+  private def parseStatements()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+    case null =>
+      builder.error(ScalaBundle.message("rbrace.expected"))
+      true
+    case `tRBRACE` =>
+      builder.advanceLexer() // Ate }
+      true
+    case _ =>
+      if (parseStatement()) {
+        builder.getTokenType match {
+          case `tRBRACE` =>
+            builder.advanceLexer() //Ate }
+            true
+          case `tSEMICOLON` =>
+            while (builder.getTokenType == `tSEMICOLON`) builder.advanceLexer()
+            parseStatements()
+          case _ =>
+            if (!builder.newlineBeforeCurrentToken) {
+              builder.error(ScalaBundle.message("semi.expected"))
+              builder.advanceLexer() // Ate something
+            }
+
+            parseStatements()
+        }
+      } else {
+        builder.error(ScalaBundle.message("def.dcl.expected"))
+        builder.advanceLexer() // Ate something
+        parseStatements()
+      }
+  }
+}
+
+/**
+ * [[TemplateBody]] ::= [nl] '{' [ [[SelfType]]  [[TemplateStat]] { semi [[TemplateStat]] } '}'
+ */
+object TemplateBody extends TemplateBody {
+
+  override protected def elementType: ScTemplateBodyElementType =
+    ScalaElementType.TEMPLATE_BODY
+
+  override protected def parseStatement()(implicit builder: ScalaPsiBuilder): Boolean =
+    TemplateStat.parse(builder)
+
+  @deprecated
+  def parse(builder: ScalaPsiBuilder): Unit = apply()(builder)
 }
