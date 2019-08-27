@@ -39,7 +39,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   nodeType: ScTemplateDefinitionElementType[ScClass],
                   node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node)
-    with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+    with ScClass
+    with ScTypeParametersOwner {
 
   override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
@@ -68,11 +69,11 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     if (DumbService.getInstance(getProject).isDumb) return true
 
     desugaredElement match {
-      case Some(td) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
+      case Some(td: ScTemplateDefinitionImpl[_]) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
       case _ =>
     }
 
-    if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
+    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     constructor match {
       case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
@@ -90,10 +91,11 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-  }
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean =
+    processDeclarationsImpl(processor, state, lastParent, place)
 
   override def isCase: Boolean = hasModifierProperty("case")
 

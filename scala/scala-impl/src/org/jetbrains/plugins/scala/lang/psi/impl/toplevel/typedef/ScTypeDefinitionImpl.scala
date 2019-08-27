@@ -51,8 +51,7 @@ import scala.annotation.tailrec
 abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
                                                                nodeType: ScTemplateDefinitionElementType[T],
                                                                node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScTypeDefinition with PsiClassFake with ScTemplateDefinitionImpl {
+  extends ScTemplateDefinitionImpl(stub, nodeType, node) with ScTypeDefinition {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
@@ -391,7 +390,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getDocComment: PsiDocComment =
     super[ScTypeDefinition].getDocComment
 
-  override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super[PsiClassFake].isDeprecated)
+  override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super.isDeprecated)
 
   override def psiInnerClasses: Array[PsiClass] = {
     val inCompanionModule = baseCompanionModule.toSeq.flatMap {
@@ -415,9 +414,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
     super[ScTypeDefinition].findInnerClassByName(name, checkBases)
-
-  override def getAllFields: Array[PsiField] =
-    super[ScTypeDefinition].getAllFields
 
   override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)

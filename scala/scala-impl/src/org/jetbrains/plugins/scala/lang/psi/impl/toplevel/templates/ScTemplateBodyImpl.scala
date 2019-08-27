@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -64,9 +65,11 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   def selfTypeElement: Option[ScSelfTypeElement] =
     Option(getStubOrPsiChild(SELF_TYPE))
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
-                                   lastParent: PsiElement, place: PsiElement): Boolean = {
-    val td = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinition])
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    val td = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinitionImpl[_]])
     if (td != null) {
       td.desugaredElement match {
         case Some(td: ScTemplateDefinition) =>
@@ -76,6 +79,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
             .exists(tb => tb.processDeclarations(processor, state, tb.getLastChild, place))
         case _ =>
       }
+
       if (!td.processDeclarationsForTemplateBody(processor, state, td.extendsBlock, place)) return false
     }
     super.processDeclarations(processor, state, lastParent, place)
