@@ -7,16 +7,16 @@ package expr
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 trait ScFor extends ScExpression {
   /**
     * @param forDisplay true if the desugaring is intended for being shown to the user,
     *                   false if it is intented for the type system.
     */
-  def desugared(forDisplay: Boolean = false) : Option[ScExpression]
+  def desugared(forDisplay: Boolean = false): Option[ScExpression]
+
+  def desugarPattern(pattern: ScPattern): Option[ScPattern]
+
+  def desugarEnumerator(enumerator: ScEnumerator): Option[ScEnumerator.DesugaredEnumerator]
 
   def isYield: Boolean
 
