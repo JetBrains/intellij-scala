@@ -46,20 +46,19 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     result map { case (expr, _, _) => expr }
   }
 
-  def desugarPattern(pattern: ScPattern): Option[ScPattern] = {
+  override def desugarPattern(pattern: ScPattern): Option[ScPattern] = {
     getDesugaredExprWithMappings flatMap {
       case (_, patternMapping, _) =>
         patternMapping.get(pattern)
     }
   }
 
-  def desugarEnumerator(enumerator: ScEnumerator): Option[ScEnumerator.DesugaredEnumerator] = {
+  override def desugarEnumerator(enumerator: ScEnumerator): Option[ScEnumerator.DesugaredEnumerator] = {
     getDesugaredExprWithMappings flatMap {
       case (_, _, enumMapping) =>
         enumMapping.get(enumerator)
     }
   }
-
 
   override protected def innerType: TypeResult = {
     desugared() flatMap {
