@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.*;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScAnonymousGivenParam;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam;
@@ -66,6 +67,8 @@ public class JavaArrayFactoryUtil {
   public static ArrayFactory<ScTemplateParents> ScTemplateParentsFactory = ScTemplateParents[]::new;
 
   public static ArrayFactory<ScParameter> ScParameterFactory = ScParameter[]::new;
+
+  public static ArrayFactory<ScAnonymousGivenParam> ScAnonymousGivenParameterFactory = ScAnonymousGivenParam[]::new;
 
   public static ArrayFactory<ScBindingPattern> ScBindingPatternFactory = ScBindingPattern[]::new;
 
