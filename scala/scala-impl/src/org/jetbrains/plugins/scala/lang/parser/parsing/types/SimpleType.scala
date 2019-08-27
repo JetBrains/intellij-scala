@@ -33,7 +33,7 @@ trait SimpleType {
   protected def typeArgs: TypeArgs
   protected def types: Types
 
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true, failOnError: Boolean = false): Boolean = {
     @tailrec
     def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true) {
       builder.getTokenType match {
@@ -75,34 +75,37 @@ trait SimpleType {
       case ScalaTokenTypes.tLPARENTHESIS =>
         val tupleMarker = builder.mark
         builder.advanceLexer()
-        builder.disableNewlines()
-        val (_, isTuple) = types parse builder
-        builder.getTokenType match {
-          case ScalaTokenTypes.tCOMMA =>
-            builder.advanceLexer() //Ate ,
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS =>
-                builder.advanceLexer() //Ate )
-                if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
-                else {
-                  builder.error("Identifier expected, but ',' found")
-                  tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
-                }
-              case _ =>
-                builder error ScalaBundle.message("rparenthesis.expected")
-                if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
-                else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
-            }
-          case ScalaTokenTypes.tRPARENTHESIS =>
-            builder.advanceLexer() //Ate )
-            if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
-            else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
-          case _ =>
-            builder error ScalaBundle.message("rparenthesis.expected")
-            if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
-            else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
+        builder.withDisabledNewlines {
+          val (_, isTuple) = types parse builder
+          builder.getTokenType match {
+            case ScalaTokenTypes.tCOMMA =>
+              builder.advanceLexer() //Ate ,
+              builder.getTokenType match {
+                case ScalaTokenTypes.tRPARENTHESIS =>
+                  builder.advanceLexer() //Ate )
+                  if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
+                  else {
+                    if (failOnError) return false
+                    builder.error("Identifier expected, but ',' found")
+                    tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
+                  }
+                case _ =>
+                  if (failOnError) return false
+                  builder error ScalaBundle.message("rparenthesis.expected")
+                  if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
+                  else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
+              }
+            case ScalaTokenTypes.tRPARENTHESIS =>
+              builder.advanceLexer() //Ate )
+              if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
+              else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
+            case _ =>
+              if (failOnError) return false
+              builder error ScalaBundle.message("rparenthesis.expected")
+              if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
+              else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
+          }
         }
-        builder.restoreNewlinesState()
       case ScalaTokenTypes.kTHIS |
               ScalaTokenTypes.tIDENTIFIER |
               ScalaTokenTypes.kSUPER =>

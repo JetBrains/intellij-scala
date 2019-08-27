@@ -25,4 +25,18 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def isIdBinding: Boolean
 
   def isMetaEnabled: Boolean
+
+  @inline
+  def withEnabledNewlines[T](body: => T): T = {
+    enableNewlines()
+    try body
+    finally restoreNewlinesState()
+  }
+
+  @inline
+  def withDisabledNewlines[T](body: => T): T = {
+    disableNewlines()
+    try body
+    finally restoreNewlinesState()
+  }
 }

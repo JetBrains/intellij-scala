@@ -22,11 +22,11 @@ object AnnotType extends AnnotType {
 trait AnnotType {
   protected def simpleType: SimpleType
 
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true, failOnError: Boolean = false): Boolean = {
     val annotMarker = builder.mark
     var isAnnotation = false
     //parse Simple type
-    if (simpleType.parse(builder, isPattern, multipleSQBrackets)) {
+    if (simpleType.parse(builder, isPattern, multipleSQBrackets, failOnError)) {
       val annotationsMarker = builder.mark
       while (!builder.newlineBeforeCurrentToken && Annotation.parse(builder,
         countLinesAfterAnnotation = false)) {isAnnotation = true}
