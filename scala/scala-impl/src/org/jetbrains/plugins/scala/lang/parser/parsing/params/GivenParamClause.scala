@@ -34,6 +34,14 @@ object GivenParamClause {
         true
       }
 
+    // try parse given types first, because they also might start with '('
+    // example:
+    //   def test given (TupleFstType, TupleSndType) = ...
+    if (hadGivenKeyword && GivenTypes.parse(builder)) {
+      marker.done(ScalaElementType.ANONYMOUS_GIVEN_PARAM_CLAUSE)
+      return true
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
