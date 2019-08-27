@@ -14,5 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
   */
 class ScParamClauseStubImpl(parent: StubElement[_ <: PsiElement],
                             elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                            val isImplicit: Boolean)
+                            val isImplicit: Boolean,
+                            val isGiven: Boolean)
   extends StubBase[ScParameterClause](parent, elementType) with ScParamClauseStub
