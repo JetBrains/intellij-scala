@@ -195,7 +195,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       defScope match {
         case Some(clazz: PsiClass) =>
           commonParent.parentsInFile.collectFirst {
-            case td: ScTemplateDefinition if td == clazz || td.isInheritor(clazz, deep = true) => td
+            case td: ScTemplateDefinition if td == clazz || td.isInheritor(clazz, true) => td
           }
         case local @ Some(_) => local
         case _ =>

@@ -17,13 +17,15 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.intellij.psi.{HierarchicalMethodSignature, PsiClass, PsiElement, PsiField, PsiMethod, PsiSubstitutor, ResolveState}
+import com.intellij.psi.{CommonClassNames, HierarchicalMethodSignature, PsiClass, PsiElement, PsiField, PsiMethod, PsiSubstitutor, ResolveState}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -31,9 +33,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScalaType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 
-import scala.collection.JavaConverters
+import scala.collection.{JavaConverters, mutable}
 
 abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl](stub: ScTemplateDefinitionStub[T],
                                                                                  nodeType: ScTemplateDefinitionElementType[T],
@@ -43,6 +45,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     with ScTemplateDefinition {
 
   import PsiTreeUtil.isContextAncestor
+  import ScTemplateDefinitionImpl._
 
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)
@@ -70,7 +73,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       val inBaseClasses = ScalaShortNamesCacheManager.getInstance(getProject)
         .methodsByName(name)(scope)
         .filter { method =>
-          this.isInheritor(method.containingClass, deep = true)
+          isInheritor(method.containingClass, checkDeep = true)
         }
 
       (inThisClass ++ inBaseClasses).toArray
@@ -106,6 +109,50 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] =
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
+
+  override final def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean =
+    Path(baseClass) match {
+      case Path.JavaObject => true // These doesn't appear in the superTypes at the moment, so special case required.
+      case Path(_, _, kind) if kind.isFinal => false
+      case _ if DumbService.getInstance(getProject).isDumb => false
+      case path => (if (checkDeep) superPathsDeep else superPaths).contains(path)
+    }
+
+  @Cached(ModCount.getModificationCount, this)
+  private def superPaths: Set[Path] =
+    supers.map(Path.apply).toSet
+
+  @Cached(ModCount.getModificationCount, this)
+  private def superPathsDeep: Set[Path] = {
+    val collected = mutable.Set.empty[Path]
+
+    def dfs(clazz: PsiClass): Unit = {
+      val path = Path(clazz)
+
+      if (collected.add(path)) {
+        clazz match {
+          case definition: ScTemplateDefinition =>
+            val supersIterator = definition.supers.iterator
+            while (supersIterator.hasNext) {
+              dfs(supersIterator.next())
+            }
+          case _ =>
+            val supersIterator = clazz.getSuperTypes.iterator
+            while (supersIterator.hasNext) {
+              supersIterator.next().resolveGenerics.getElement match {
+                case null =>
+                case next => dfs(next)
+              }
+            }
+        }
+      }
+    }
+
+    dfs(this)
+
+    collected.remove(Path(this))
+    collected.toSet
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    oldState: ResolveState,
@@ -214,6 +261,49 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
             }
         }
         true
+    }
+  }
+}
+
+object ScTemplateDefinitionImpl {
+
+  sealed abstract class Kind(val isFinal: Boolean)
+
+  object Kind {
+    object Class extends Kind(false)
+    object Trait extends Kind(false)
+    object Object extends Kind(true)
+    object NewTd extends Kind(true)
+    object SyntheticFinal extends Kind(true)
+    object NonScala extends Kind(false)
+  }
+
+  case class Path(name: String, qualifiedName: Option[String], kind: Kind)
+
+  object Path {
+
+    val JavaObject = Path(
+      CommonClassNames.JAVA_LANG_OBJECT_SHORT,
+      Some(CommonClassNames.JAVA_LANG_OBJECT),
+      Kind.NonScala
+    )
+
+    def apply(clazz: PsiClass): Path = {
+      import Kind._
+      val kind = clazz match {
+        case _: ScTrait => Trait
+        case _: ScClass => Class
+        case _: ScObject => Object
+        case _: ScNewTemplateDefinition => NewTd
+        case synthetic: ScSyntheticClass =>
+          synthetic.className match {
+            case "AnyRef" | "AnyVal" => Class
+            case _ => SyntheticFinal
+          }
+        case _ => NonScala
+      }
+
+      Path(clazz.name, Option(clazz.qualifiedName), kind)
     }
   }
 }
