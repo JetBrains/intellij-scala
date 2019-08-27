@@ -18,19 +18,20 @@ object Enumerator {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumeratorMarker = builder.mark
 
-    def parseNonGuard(f: Boolean): Boolean = {
+    def parseNonGuard(withVal: Boolean): Boolean = {
       if (!Pattern1.parse(builder)) {
-        if (!f) {
+        val res = if (withVal) {
           builder.error(ErrMsg("wrong.pattern"))
           enumeratorMarker.done(ScalaElementType.FOR_BINDING)
-          return true
+          true
         } else if (!Guard.parse(builder, noIf = true)) {
           enumeratorMarker.rollbackTo()
-          return false
+          false
         } else {
           enumeratorMarker.drop()
-          return true
+          true
         }
+        return res
       }
       builder.getTokenType match {
         case ScalaTokenTypes.tASSIGN =>
@@ -39,7 +40,7 @@ object Enumerator {
           enumeratorMarker.rollbackTo()
           return Generator.parse(builder)
         case _ =>
-          if (!f) {
+          if (withVal) {
             builder.error(ErrMsg("choose.expected"))
             enumeratorMarker.done(ScalaElementType.FOR_BINDING)
             return true
@@ -60,11 +61,15 @@ object Enumerator {
         Guard.parse(builder)
         enumeratorMarker.drop()
         true
+      case ScalaTokenTypes.kCASE =>
+        val res = Generator.parse(builder)
+        enumeratorMarker.drop()
+        res
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
-        parseNonGuard(false)
-      case _ =>
         parseNonGuard(true)
+      case _ =>
+        parseNonGuard(false)
     }
   }
 }

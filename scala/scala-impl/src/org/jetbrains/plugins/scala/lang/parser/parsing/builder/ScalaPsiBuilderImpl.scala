@@ -7,6 +7,8 @@ import com.intellij.lang.{PsiBuilder, impl}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.resolve.FileContextUtil
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder
 import org.jetbrains.plugins.scala.util.ScalaUtil.areTrailingCommasAndIdBindingEnabled
 
 /**
@@ -97,12 +99,16 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
          `tRPARENTHESIS` |
          `tRBRACE` => false
     case `kCASE` =>
-      this.predict {
-        _.getTokenType match {
+      this.predict { builder =>
+        builder.getTokenType match {
           case `kOBJECT` |
                `kCLASS` |
                `tIDENTIFIER` => true
-          case _ => false
+          case _ =>
+            val lastElement = builder.getLatestDoneMarker.getTokenType
+            lastElement == ScalaElementType.GENERATOR ||
+              lastElement == ScalaElementType.FOR_BINDING ||
+              lastElement == ScalaElementType.GUARD
         }
       }
     case _ => true
