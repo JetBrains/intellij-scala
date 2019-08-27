@@ -4,6 +4,9 @@ import com.intellij.psi.PsiElement
 
 trait ScPatternedEnumerator extends ScPatterned {
 
-  // only can exist in for-binding, but added here in order annotator can highlight the error, not the parser
+  // only can exist in for-binding, but always parsed
   def valKeyword: Option[PsiElement]
+
+  // only can exist in generator, but always parsed
+  def caseKeyword: Option[PsiElement]
 }

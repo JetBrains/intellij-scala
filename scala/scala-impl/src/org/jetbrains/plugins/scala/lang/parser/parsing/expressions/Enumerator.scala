@@ -66,7 +66,6 @@ object Enumerator {
         builder.advanceLexer() //Ate val
         // we parse incorrect code like: 1)  for-binding with `case` keyword 2) generator with `val` keyword
         // error highlighting is done in annotator
-        // TODO: patch ScGeneratorAnnotator
         parseGeneratorOrBinding(true)
       case _ =>
         parseGeneratorOrBinding(false)

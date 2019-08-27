@@ -14,4 +14,6 @@ trait ScPatternedEnumeratorImpl
   override def pattern: ScPattern = findChildByClassScala(classOf[ScPattern])
 
   override def valKeyword: Option[PsiElement] = Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
+
+  override def caseKeyword: Option[PsiElement] = Option(getNode.findChildByType(ScalaTokenTypes.kCASE)).map(_.getPsi)
 }
