@@ -160,6 +160,10 @@ object ScalaElementType {
     override def createElement(node: ASTNode): ScTypeElement = new ScTypeLambdaTypeElementImpl(node)
   }
 
+  val MATCH_TYPE: ScTypeElementType = new ScTypeElementType("match type") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScMatchTypeElementImpl(node)
+  }
+
   /** ***********************************************************************************/
   /** ************************************ TYPE PARTS ***********************************/
   /** ***********************************************************************************/
@@ -171,6 +175,14 @@ object ScalaElementType {
   }
   val TYPES: ScalaElementType = new ScalaElementType("common type") {
     override def createElement(node: ASTNode) = new ScTypesImpl(node)
+  }
+
+  val TYPE_CASE_CLAUSES: ScalaElementType = new ScalaElementType("match type cases") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScMatchTypeCasesImpl(node)
+  }
+
+  val TYPE_CASE_CLAUSE: ScalaElementType = new ScalaElementType("match type case") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScMatchTypeCaseImpl(node)
   }
 
   /** ***********************************************************************************/

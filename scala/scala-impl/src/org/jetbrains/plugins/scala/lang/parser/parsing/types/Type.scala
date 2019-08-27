@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
  * Type ::= InfixType '=>' Type
  *        | '(' ['=>' Type] ')' => Type
  *        | TypeParamClause '=>>' Type      (Scala 3+ only)
+ *        | MatchType                       (Scala 3+ Only)
  *        | InfixType [ExistentialClause]
  *        | _ [>: Type] [<: Type]
  */
@@ -44,8 +45,7 @@ trait Type {
         case _ => typeMarker.drop()
       }
       true
-    } else if (/* check if Scala version is >= 3.0 */
-      TypeParamClause.parse(builder, mayHaveContextBounds = false, mayHaveViewBounds = false)) {
+    } else if (TypeParamClause.parse(builder, mayHaveContextBounds = false, mayHaveViewBounds = false)) {
       /** Scala 3+ Type Lambdas */
       builder.getTokenText match {
         case ScalaTokenType.TypeLambdaArrow.debugName =>
