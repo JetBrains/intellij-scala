@@ -77,7 +77,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
     var prevBaseMethod: PsiMethod = PsiTreeUtil.getPrevSiblingOfType(baseMethod, classOf[PsiMethod])
 
     while (prevBaseMethod != null) {
-      td.findMethodBySignature(prevBaseMethod, checkBases = false) match {
+      td.findMethodBySignature(prevBaseMethod, false) match {
         case ScFunctionWrapper(delegate) => return delegate.getNextSibling
         case method: PsiMethod if method.isPhysical => return method.getNextSibling
         case _ =>
@@ -89,7 +89,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
     var nextBaseMethod: PsiMethod = PsiTreeUtil.getNextSiblingOfType(baseMethod, classOf[PsiMethod])
 
     while (nextBaseMethod != null) {
-      td.findMethodBySignature(nextBaseMethod, checkBases = false) match {
+      td.findMethodBySignature(nextBaseMethod, false) match {
         case ScFunctionWrapper(delegate) => return delegate
         case method: PsiMethod if method.isPhysical => return method
         case _ =>
