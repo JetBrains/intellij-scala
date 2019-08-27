@@ -7,6 +7,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -100,12 +101,13 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
          `tRPARENTHESIS` |
          `tRBRACE` => false
     case `kCASE` =>
-      this.predict {
-        _.getTokenType match {
+      this.predict { builder =>
+        builder.getTokenType match {
           case ObjectKeyword |
                ClassKeyword |
                `tIDENTIFIER` => true
-          case _ => false
+          case _ =>
+            false
         }
       }
     case _ => true
