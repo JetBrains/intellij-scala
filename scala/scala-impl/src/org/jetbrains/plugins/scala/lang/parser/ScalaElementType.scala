@@ -60,7 +60,6 @@ object ScalaElementType {
   val TEMPLATE_BODY: ScTemplateBodyElementType = TemplateBody
   val ENUM_BODY: ScTemplateBodyElementType = EnumBody
   val PARAM = new signatures.ScParameterElementType
-  val ANONYMOUS_GIVEN_PARAM = new signatures.ScAnonymousGivenParameterElementType
   val PARAM_CLAUSE = new signatures.ScParamClauseElementType
   val ANONYMOUS_GIVEN_PARAM_CLAUSE = new signatures.ScAnonymousGivenParamClauseElementType
   val PARAM_CLAUSES = new signatures.ScParamClausesElementType

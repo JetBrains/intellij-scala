@@ -7,13 +7,14 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScAnonymousGivenParameterClause, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScAnonymousGivenParameterClause, ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 class ScAnonymousGivenParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.ANONYMOUS_GIVEN_PARAM_CLAUSE, node)
@@ -23,12 +24,24 @@ class ScAnonymousGivenParameterClauseImpl private(stub: ScParamClauseStub, node:
 
   def this(stub: ScParamClauseStub) = this(stub, null)
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def parameters: Seq[ScParameter] = {
-    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScAnonymousGivenParameterFactory)
-  }
+  def parameters: Seq[ScParameter] = Seq.empty
 
-  override def effectiveParameters: Seq[ScParameter] = parameters
+  def anonymousGivenTypeElements: Seq[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement])
+
+  override def effectiveParameters: Seq[ScParameter] = {
+    getParent
+      .asOptionOf[ScParameters]
+      .map(parameters => parameters -> parameters.getParent.isInstanceOf[ScPrimaryConstructor])
+      .map { case (parameters, isClassParameter) =>
+        val params =
+          for ((tyElem, idx) <- anonymousGivenTypeElements.zipWithIndex)
+            yield "x$" + idx + ": " + tyElem.getText
+        ScalaPsiElementFactory
+          .createImplicitClauseFromTextWithContext(params, parameters, isClassParameter)
+          .parameters
+      }
+      .getOrElse(Seq.empty)
+  }
 
   override def isImplicit: Boolean = false
 
