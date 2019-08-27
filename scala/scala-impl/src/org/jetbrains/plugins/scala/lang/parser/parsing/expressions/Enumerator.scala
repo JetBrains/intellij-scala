@@ -8,32 +8,27 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1}
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 /*
- * ForBinding ::= Generator
+ * Enumerator ::= Generator
  *              | Guard
  *              | 'val' Pattern1 '=' Expr
  */
-object ForBinding {
+object Enumerator {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    val forBindingMarker = builder.mark
+    val enumeratorMarker = builder.mark
 
     def parseNonGuard(f: Boolean): Boolean = {
       if (!Pattern1.parse(builder)) {
         if (!f) {
-          builder error ErrMsg("wrong.pattern")
-          forBindingMarker.done(ScalaElementType.FOR_BINDING)
+          builder.error(ErrMsg("wrong.pattern"))
+          enumeratorMarker.done(ScalaElementType.FOR_BINDING)
           return true
         } else if (!Guard.parse(builder, noIf = true)) {
-          forBindingMarker.rollbackTo()
+          enumeratorMarker.rollbackTo()
           return false
         } else {
-          forBindingMarker.drop()
+          enumeratorMarker.drop()
           return true
         }
       }
@@ -41,29 +36,29 @@ object ForBinding {
         case ScalaTokenTypes.tASSIGN =>
           builder.advanceLexer() //Ate =
         case ScalaTokenTypes.tCHOOSE =>
-          forBindingMarker.rollbackTo()
-          return Generator parse builder
+          enumeratorMarker.rollbackTo()
+          return Generator.parse(builder)
         case _ =>
           if (!f) {
-            builder error ErrMsg("choose.expected")
-            forBindingMarker.done(ScalaElementType.FOR_BINDING)
+            builder.error(ErrMsg("choose.expected"))
+            enumeratorMarker.done(ScalaElementType.FOR_BINDING)
             return true
           } else {
-            forBindingMarker.rollbackTo()
+            enumeratorMarker.rollbackTo()
             return false
           }
       }
       if (!Expr.parse(builder)) {
-        builder error ErrMsg("wrong.expression")
+        builder.error(ErrMsg("wrong.expression"))
       }
-      forBindingMarker.done(ScalaElementType.FOR_BINDING)
+      enumeratorMarker.done(ScalaElementType.FOR_BINDING)
       true
     }
 
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
-        Guard parse builder
-        forBindingMarker.drop()
+        Guard.parse(builder)
+        enumeratorMarker.drop()
         true
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val

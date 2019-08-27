@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 /*
  * Enumerators ::= Generator {semi ForBinding}
  */
@@ -40,7 +35,7 @@ object Enumerators {
         case _ if Guard.parse(builder) => true
         case _ => exit = false; true
       }
-      if (!guard && !ForBinding.parse(builder)) exit = false
+      if (!guard && !Enumerator.parse(builder)) exit = false
     }
     enumsMarker.done(ScalaElementType.ENUMERATORS)
     true
