@@ -8,10 +8,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 03.03.2008
-*/
+/*
+ * Ascription ::= ':' InfixType
+ *              | ':' Annotation {Annotation}
+ *              | ':' '_' '* // removed in Scala 3
+ */
 object Ascription {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
@@ -45,7 +46,7 @@ object Ascription {
         x = x + 1
       }
       annotationsMarker.done(ScalaElementType.ANNOTATIONS)
-      if (x == 0) builder error ScalaBundle.message("annotation.expected")
+      if (x == 0) builder error ScalaBundle.message("annotation.or.type.expected")
     }
     ascriptionMarker.drop()
     true
