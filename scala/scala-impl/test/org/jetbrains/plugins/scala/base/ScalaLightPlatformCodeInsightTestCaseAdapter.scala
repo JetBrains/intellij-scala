@@ -90,14 +90,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
   override protected def tearDown(): Unit = try {
     disposeLibraries(getModule)
     val allJdks = ProjectJdkTable.getInstance.getAllJdks
-    WriteAction.run(() => {
-      def foo(): Unit =
-        for (jdk <- allJdks) {
-          ProjectJdkTable.getInstance.removeJdk(jdk)
-        }
-
-      foo()
-    })
+    WriteAction.run(() => allJdks.foreach(ProjectJdkTable.getInstance.removeJdk))
   } finally super.tearDown()
 }
 
