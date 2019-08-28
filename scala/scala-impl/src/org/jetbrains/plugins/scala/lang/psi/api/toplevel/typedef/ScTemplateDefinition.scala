@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -104,13 +105,97 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeSignatures: Iterator[TypeSignature]
+  def allTypeSignatures: Iterator[TypeSignature] =
+    TypeDefinitionMembers.getTypes(this).allSignatures
 
-  def allVals: Iterator[TermSignature]
+  def allTypeSignaturesIncludingSelfType: Iterator[TypeSignature] = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections().getOrAny
+        selfType.glb(clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allSignatures
+          case _ =>
+            allTypeSignatures
+        }
+      case _ =>
+        allTypeSignatures
+    }
+  }
 
-  def allMethods: Iterator[PhysicalMethodSignature]
+  private def isValSignature(s: TermSignature): Boolean = s match {
+    case _: PhysicalMethodSignature => false
+    case _ => s.namedElement.nameContext match {
+      case _: ScValueOrVariable | _: ScClassParameter => s.namedElement.name == s.name
+      case _: PsiField => true
+      case _ => false
+    }
+  }
 
-  def allSignatures: Iterator[TermSignature]
+  def allVals: Iterator[TermSignature] = {
+    TypeDefinitionMembers.getSignatures(this).allSignatures.filter(isValSignature)
+  }
+
+  def allValsIncludingSelfType: Iterator[TermSignature] = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections().getOrAny
+        selfType.glb(clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType))
+              .allSignatures
+              .filter(isValSignature)
+          case _ =>
+            allVals
+        }
+      case _ =>
+        allVals
+    }
+  }
+
+  def allMethods: Iterator[PhysicalMethodSignature] =
+    TypeDefinitionMembers.getSignatures(this)
+      .allSignatures
+      .collect {
+        case p: PhysicalMethodSignature => p
+      }
+
+  def allMethodsIncludingSelfType: Iterator[PhysicalMethodSignature] = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections().getOrAny
+        selfType.glb(clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType))
+              .allSignatures
+              .collect {
+                case p: PhysicalMethodSignature => p
+              }
+          case _ =>
+            allMethods
+        }
+      case _ =>
+        allMethods
+    }
+  }
+
+  def allSignatures: Iterator[TermSignature] =
+    TypeDefinitionMembers.getSignatures(this).allSignatures
+
+  def allSignaturesIncludingSelfType: Iterator[TermSignature] = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections().getOrAny
+        selfType.glb(clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allSignatures
+          case _ =>
+            allSignatures
+        }
+      case _ =>
+        allSignatures
+    }
+  }
 
   def isScriptFileClass: Boolean = getContainingFile match {
     case file: ScalaFile => file.isScriptFile

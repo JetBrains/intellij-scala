@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -193,7 +193,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           if (!execute(field, state)) break = false
         }
         if (!break) return false
-        processEnum(e, execute(_, state))
+        TypeDefinitionMembers.processEnum(e, execute(_, state))
       case ScDesignatorType(o: ScObject) =>
         processElement(o, ScSubstitutor.empty, place, state)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
@@ -262,7 +262,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
         true
       case comp: ScCompoundType =>
-        processDeclarations(comp, this, state, null, place)
+        TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
       case ex: ScExistentialType =>
         processTypeImpl(ex.quantified, place, state.withSubstitutor(ScSubstitutor.empty))
       case ScExistentialArgument(_, _, _, upper) =>
@@ -284,7 +284,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         processTypeImpl(s(ta.upperBound.getOrAny), place, newState)(recState.add(ta))
       //need to process scala way
       case clazz: PsiClass =>
-        processClassDeclarations(clazz, BaseProcessor.this, state.withSubstitutor(newSubst), null, place)
+        TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.withSubstitutor(newSubst), null, place)
       case des: ScTypedDefinition =>
         val typeResult: TypeResult =
           des match {
