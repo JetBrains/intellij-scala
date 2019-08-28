@@ -792,14 +792,8 @@ class SimplePrintVisitor protected() {
 
   protected def visitSwitchLabelStatement(caseValues: Seq[IntermediateNode], arrow: String,
                                           body: Option[IntermediateNode]): Unit = {
-    printer.append("case ")
-    var first = true
-    caseValues.foreach(e => {
-      if (first) first = false
-      else printer.append(" | ")
-      visit(e)
-    })
-    printer.append(s" $arrow ")
+
+    printWithSeparator(caseValues, " | ", "case ", s" $arrow ")
     body.foreach(visit)
   }
 
