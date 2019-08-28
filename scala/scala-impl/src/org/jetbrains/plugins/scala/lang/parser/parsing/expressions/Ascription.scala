@@ -9,14 +9,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
 /*
+ * Scala2:
  * Ascription ::= ':' InfixType
  *              | ':' Annotation {Annotation}
- *              | ':' '_' '* // removed in Scala 3
+ *              | ':' '_' '*
+ * Scala3:
+ * Ascription ::=  ‘:’ InfixType
+                |  ‘:’ Annotation {Annotation}
  */
 object Ascription {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val ascriptionMarker = builder.mark
+
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
@@ -24,21 +29,23 @@ object Ascription {
         ascriptionMarker.drop()
         return false
     }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER =>
         val seqArgMarker = builder.mark
-        ascriptionMarker.drop()
         builder.advanceLexer() //Ate _
         builder.getTokenText match {
           case "*" =>
+            ascriptionMarker.drop()
             builder.advanceLexer() //Ate *
+            seqArgMarker.done(ScalaElementType.SEQUENCE_ARG)
+            return true
           case _ =>
-            builder error ScalaBundle.message("star.expected")
+            seqArgMarker.rollbackTo()
         }
-        seqArgMarker.done(ScalaElementType.SEQUENCE_ARG)
-        return true
       case _ =>
     }
+
     if (!Type.parse(builder)) {
       var x = 0
       val annotationsMarker = builder.mark
@@ -46,8 +53,11 @@ object Ascription {
         x = x + 1
       }
       annotationsMarker.done(ScalaElementType.ANNOTATIONS)
-      if (x == 0) builder error ScalaBundle.message("annotation.or.type.expected")
+      if (x == 0) {
+        builder.error(ScalaBundle.message("annotation.or.type.expected"))
+      }
     }
+
     ascriptionMarker.drop()
     true
   }
