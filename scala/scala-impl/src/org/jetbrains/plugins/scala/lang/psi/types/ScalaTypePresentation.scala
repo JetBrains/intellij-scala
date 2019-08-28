@@ -28,7 +28,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
   import ScalaTypePresentation._
   import api.ScTypePresentation._
 
-  protected override def typeText(`type`: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String)
+  protected override def typeText(`type`: ScType, nameRenderer: NameRenderer)
                                  (implicit context: TypePresentationContext): String = {
     def typesText(types: Seq[ScType]): String = types
       .map(innerTypeText(_))
@@ -41,7 +41,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case _ =>
         def typeParamText(param: ScTypeParam): String = {
 
-          def typeText0(tp: ScType) = typeText(substitutor(tp), nameFun, nameWithPointFun)
+          def typeText0(tp: ScType) = typeText(substitutor(tp), nameRenderer)
 
           val buffer = new StringBuilder(if (param.isContravariant) "-" else if (param.isCovariant) "+" else "")
           buffer ++= param.name
@@ -89,27 +89,29 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
       }
 
-      if (context.nameResolvesTo(refName, e)) refName
+      val escapedName = nameRenderer.escapeName(refName)
+
+      if (context.nameResolvesTo(refName, e)) escapedName
       else
         projType.projected match {
           case ScDesignatorType(pack: PsiPackage) =>
-            nameWithPointFun(pack) + refName
+            nameRenderer.renderNameWithPoint(pack) + escapedName
           case ScDesignatorType(named) if checkIfStable(named) =>
-            nameWithPointFun(named) + refName + typeTailForProjection
+            nameRenderer.renderNameWithPoint(named) + escapedName + typeTailForProjection
           case ScThisType(obj: ScObject) =>
-            nameWithPointFun(obj) + refName + typeTailForProjection
+            nameRenderer.renderNameWithPoint(obj) + escapedName + typeTailForProjection
           case p@ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
-            s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
+            s"${innerTypeText(p, needDotType = false)}.$escapedName$typeTailForProjection"
           case p: ScProjectionType if checkIfStable(p.actualElement) =>
-            s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
+            s"${projectionTypeText(p, needDotType = false)}.$escapedName$typeTailForProjection"
           case StaticJavaClassHolder(clazz) if isStaticJavaClass =>
-            nameWithPointFun(clazz) + refName
+            nameRenderer.renderNameWithPoint(clazz) + escapedName
           case p@(_: ScCompoundType | _: ScExistentialType) =>
-            s"(${innerTypeText(p)})#$refName"
+            s"(${innerTypeText(p)})#$escapedName"
           case p =>
             val innerText = innerTypeText(p)
-            if (innerText.endsWith(ObjectTypeSuffix)) innerText.stripSuffix("type") + refName
-            else s"$innerText#$refName"
+            if (innerText.endsWith(ObjectTypeSuffix)) innerText.stripSuffix("type") + escapedName
+            else s"$innerText#$escapedName"
         }
     }
 
@@ -210,7 +212,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
       private def mayUseSimpleName(named: PsiNamedElement): Boolean = {
         val simpleName = named.name
-        simpleName == nameFun(named) || context.nameResolvesTo(simpleName, named)
+        simpleName == nameRenderer.renderName(named) || context.nameResolvesTo(simpleName, named)
       }
 
       private def annotated(named: PsiNamedElement) = named match {
@@ -297,7 +299,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           case _ => false
         }
 
-        nameFun(element) + typeTail(flag && needDotType)
+        nameRenderer.renderName(element) + typeTail(flag && needDotType)
       case proj: ScProjectionType if proj != null =>
         projectionTypeText(proj, needDotType)
       case p: ParameterizedType => parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
