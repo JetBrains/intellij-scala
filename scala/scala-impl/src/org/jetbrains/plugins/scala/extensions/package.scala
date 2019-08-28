@@ -1083,11 +1083,15 @@ package object extensions {
   def withDisabledPostprocessFormatting[T](project: Project)(body: => T): T =
     PostprocessReformattingAspect.getInstance(project).disablePostprocessFormattingInside(body)
 
-  def invokeLater[T](body: => T): Future[T] = {
+  // Make sure to handle possible exceptions
+  def invokeInFuture[T](body: => T): Future[T] = {
     val promise = Promise[T]()
-    ApplicationManager.getApplication.invokeLater(() => promise.complete(Try(body)))
+    invokeLater(promise.complete(Try(body)))
     promise.future
   }
+
+  def invokeLater[T](body: => T): Unit =
+    ApplicationManager.getApplication.invokeLater(() => body)
 
   def invokeAndWait[T](body: => T): T = {
     val result = new AtomicReference[T]()
