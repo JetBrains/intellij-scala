@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.EnumBody
  */
 object EnumDef extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer()

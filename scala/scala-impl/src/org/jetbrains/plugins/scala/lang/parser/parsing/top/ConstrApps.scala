@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * [[ConstrApps]] ::= ConstrApp {'with' ConstrApp} |  ConstrApp {',' ConstrApp}
  */
 object ConstrApps extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val clausesMarker = builder.mark()
 
     builder.getTokenType match {

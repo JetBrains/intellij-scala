@@ -18,7 +18,7 @@ trait TemplateBody extends ParsingRule {
 
   import lexer.ScalaTokenTypes._
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val templateBodyMarker = builder.mark
     //Look for {
     builder.enableNewlines()
@@ -84,7 +84,4 @@ object TemplateBody extends TemplateBody {
 
   override protected def parseStatement()(implicit builder: ScalaPsiBuilder): Boolean =
     TemplateStat.parse(builder)
-
-  @deprecated
-  def parse(builder: ScalaPsiBuilder): Unit = apply()(builder)
 }

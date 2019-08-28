@@ -16,7 +16,7 @@ object EnumCase extends ParsingRule {
   import ScalaElementType._
   import lexer.ScalaTokenTypes.{kCASE, tIDENTIFIER}
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val caseMarker = builder.mark()
     builder.getTokenType match {
       case `kCASE` =>

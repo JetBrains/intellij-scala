@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
  */
 object ClassConstr extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     TypeParamClause.parse(builder)
 
     val constructorMarker = builder.mark()
