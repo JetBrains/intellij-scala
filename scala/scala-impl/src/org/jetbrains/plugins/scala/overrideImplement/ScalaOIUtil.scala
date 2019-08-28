@@ -15,14 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementVariableWithClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.Function.const
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import scala.collection.{JavaConverters, mutable}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,12 +29,6 @@ import scala.collection.mutable
  */
 
 object ScalaOIUtil {
-
-  private[this] def toClassMember(signature: PhysicalMethodSignature, isOverride: Boolean): ClassMember = {
-    val method = signature.method
-    assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
-    ScMethodMember(signature, isOverride)
-  }
 
   private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {
     val Signature(named, substitutor) = signature
@@ -91,6 +84,7 @@ object ScalaOIUtil {
       if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
       chooser.show()
 
+      import JavaConverters._
       val elements = chooser.getSelectedElements
       if (elements != null) selectedMembers ++= elements.asScala
       if (selectedMembers.isEmpty) return
@@ -113,6 +107,8 @@ object ScalaOIUtil {
       val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
       val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
       val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
+
+      import JavaConverters._
       val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse.asJava).asScala
       inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }
@@ -121,31 +117,58 @@ object ScalaOIUtil {
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))
 
   def getAllMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
-    classMembersWithFilter(clazz, withSelfType = true)()
+    classMembersWithFilter(clazz, withSelfType = true)(Function.const(true), Function.const(true))
 
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
 
-  private[this] def classMembersWithFilter(clazz: ScTemplateDefinition,
+  private[this] def classMembersWithFilter(definition: ScTemplateDefinition,
                                            withSelfType: Boolean,
                                            isOverride: Boolean = true)
-                                          (f1: PhysicalMethodSignature => Boolean = const(true),
-                                           f2: PsiNamedElement => Boolean = const(true)): Seq[ClassMember] = {
-    val methods =
-      (if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods)
-        .filter(s => s.namedElement.isValid && f1(s))
+                                          (f1: PhysicalMethodSignature => Boolean,
+                                           f2: PsiNamedElement => Boolean): Seq[ClassMember] = {
+    val maybeThisType = if (withSelfType)
+      for {
+        selfType <- definition.selfType
+        clazzType = definition.getTypeWithProjections().getOrAny
 
-    val aliasesAndValues = (if (withSelfType) clazz.allTypeSignaturesIncludingSelfType ++ clazz.allValsIncludingSelfType
-    else clazz.allTypeSignatures ++ clazz.allVals).filter {
-      case Signature(named, _) => named.isValid && f2(named)
+        glb = selfType.glb(clazzType)
+        if glb.isInstanceOf[ScCompoundType]
+      } yield (glb.asInstanceOf[ScCompoundType], Some(clazzType))
+    else
+      None
+
+    val types = maybeThisType.fold(getTypes(definition)) {
+      case (compoundType, compoundTypeThisType) => getTypes(compoundType, compoundTypeThisType)
+    }.allSignatures
+
+    val signatures = maybeThisType.fold(getSignatures(definition)) {
+      case (compoundType, compoundTypeThisType) => getSignatures(compoundType, compoundTypeThisType)
     }
 
-    (methods.map(toClassMember(_, isOverride)) ++ aliasesAndValues.flatMap(toClassMember(_, isOverride)))
-      .toBuffer
+    val methods = signatures.allSignatures.filter {
+      case signature: PhysicalMethodSignature if signature.namedElement.isValid => f1(signature)
+      case _ => false
+    }.map {
+      case signature: PhysicalMethodSignature =>
+        val method = signature.method
+        assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
+        ScMethodMember(signature, isOverride)
+    }
+
+    val values = signatures.allSignatures.filter(isValSignature)
+
+    val aliasesAndValues = (types ++ values).filter {
+      case Signature(named, _) => named.isValid && f2(named)
+    }.flatMap {
+      toClassMember(_, isOverride)
+    }
+
+    (methods ++ aliasesAndValues).toBuffer
   }
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
-                              visited: Set[PsiClass] = Set.empty) : Boolean = {
+                              visited: Set[PsiClass] = Set.empty): Boolean = {
     if (visited.contains(clazz)) return false
     clazz match {
       case td: ScTypeDefinition if td.isCase =>
@@ -173,17 +196,20 @@ object ScalaOIUtil {
     sign.method match {
       case method if isProductAbstractMethod(method, clazz) => true
       case f: ScFunctionDeclaration if !f.isNative => false
-      case x if x.name == "$tag" || x.name == "$init$"=> false
+      case x if x.name == "$tag" || x.name == "$init$" => false
       case x: ScFunction if x.isCopyMethod && x.isSynthetic => false
       case x if x.containingClass == clazz => false
       case x: PsiModifierListOwner if (x.hasModifierPropertyScala("abstract") &&
-              !x.isInstanceOf[ScFunctionDefinition])
-              || x.hasModifierPropertyScala("final") => false
+        !x.isInstanceOf[ScFunctionDefinition])
+        || x.hasModifierPropertyScala("final") => false
       case Constructor(_) => false
       case method if !ResolveUtils.isAccessible(method, clazz.extendsBlock) => false
       case method =>
         var flag = false
-        if (method match {case x: ScFunction => x.parameters.isEmpty case _ => method.getParameterList.getParametersCount == 0}) {
+        if (method match {
+          case x: ScFunction => x.parameters.isEmpty
+          case _ => method.getParameterList.getParametersCount == 0
+        }) {
           for (term <- clazz.allVals; v = term.namedElement) if (v.name == method.name) {
             v.nameContext match {
               case x: ScValue if x.containingClass == clazz => flag = true
@@ -206,9 +232,9 @@ object ScalaOIUtil {
       case _ if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
-              !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
+        !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
       case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
-              !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
+        !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
       case x: ScFunctionDeclaration if !x.isNative => true
       case _ => false
     }
@@ -251,7 +277,7 @@ object ScalaOIUtil {
     }
   }
 
-  def getAnchor(offset: Int, clazz: ScTemplateDefinition) : Option[ScMember] = {
+  def getAnchor(offset: Int, clazz: ScTemplateDefinition): Option[ScMember] = {
     val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
       case Some(x) => x
       case None => return None
@@ -269,8 +295,11 @@ object ScalaOIUtil {
     }
   }
 
-  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterator[PhysicalMethodSignature] = {
-    val all = if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods
-    all.filter(needOverride(_, clazz))
-  }
+  def methodSignaturesToOverride(definition: ScTemplateDefinition): Iterator[PhysicalMethodSignature] =
+    definition.allSignatures.filter {
+      case signature: PhysicalMethodSignature => needOverride(signature, definition)
+      case _ => false
+    }.map {
+      _.asInstanceOf[PhysicalMethodSignature]
+    }
 }
