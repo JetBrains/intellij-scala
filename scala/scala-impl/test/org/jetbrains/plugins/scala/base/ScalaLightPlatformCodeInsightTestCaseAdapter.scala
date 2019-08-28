@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.base
 
-import java.io.IOException
 import java.util
 
 import com.intellij.openapi.actionSystem.DataContext
@@ -25,7 +24,6 @@ import scala.collection.Seq
  */
 @deprecated
 abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase with ScalaSdkOwner {
-  import LightPlatformCodeInsightTestCase._
   import LightPlatformTestCase._
 
   protected def sourceRootPath: String = null
@@ -41,7 +39,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
     val scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary)
     back.add(scalaLoader)
     val path = sourceRootPath
-    if (path != null) back.add(new SourcesLoader(path))
+    if (path != null) back.add(SourcesLoader(path))
     val result = scala.collection.JavaConverters.asScalaBuffer(back)
     val addLibs = additionalLibraries
     //noinspection unchecked (because variance)
@@ -52,9 +50,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {
     override def tuneModule(module: Module): Unit = afterSetUpProject(module)
 
-    override
-
-    def getSdk: Sdk = return SmartJDKLoader.getOrCreateJDK(JavaSdkVersion.JDK_1_8)
+    override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK(JavaSdkVersion.JDK_1_8)
   }
 
   protected def afterSetUpProject(module: Module): Unit = {
@@ -95,7 +91,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
     disposeLibraries(getModule)
     val allJdks = ProjectJdkTable.getInstance.getAllJdks
     WriteAction.run(() => {
-      def foo() =
+      def foo(): Unit =
         for (jdk <- allJdks) {
           ProjectJdkTable.getInstance.removeJdk(jdk)
         }
