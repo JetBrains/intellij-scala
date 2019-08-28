@@ -12,12 +12,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.{Pair => JBPair}
+import com.intellij.psi._
 import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.intellij.psi.{CommonClassNames, HierarchicalMethodSignature, PsiClass, PsiElement, PsiField, PsiMethod, PsiSubstitutor, ResolveState}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -29,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
@@ -46,6 +46,20 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
   import PsiTreeUtil.isContextAncestor
   import ScTemplateDefinitionImpl._
+  import TypeDefinitionMembers._
+
+  override final def allTypeSignatures: Iterator[TypeSignature] =
+    getTypes(this).allSignatures
+
+  override final def allVals: Iterator[TermSignature] =
+    allSignatures.filter(isValSignature)
+
+  override final def allMethods: Iterator[PhysicalMethodSignature] =
+    allSignatures.filter(_.isInstanceOf[PhysicalMethodSignature])
+      .map(_.asInstanceOf[PhysicalMethodSignature])
+
+  override final def allSignatures: Iterator[TermSignature] =
+    getSignatures(this).allSignatures
 
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)
@@ -249,12 +263,10 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
                       selfTypeElement match {
                         case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
                         case _ =>
-                          if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) {
-                            return false
-                          }
+                          if (!processClassDeclarations(this, processor, state, lastParent, place)) return false
                       }
                     case _ =>
-                      if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+                      if (!processClassDeclarations(this, processor, state, lastParent, place)) return false
                   }
                 }
               case _ =>

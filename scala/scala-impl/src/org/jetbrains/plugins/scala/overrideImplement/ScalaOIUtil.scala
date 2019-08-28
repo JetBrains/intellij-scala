@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementVariableWithClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -121,7 +122,7 @@ object ScalaOIUtil {
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))
 
   def getAllMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
-    classMembersWithFilter(clazz, withSelfType = true)()
+    classMembersWithFilter(clazz, withSelfType = true)(const(true), const(true))
 
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
@@ -129,20 +130,47 @@ object ScalaOIUtil {
   private[this] def classMembersWithFilter(clazz: ScTemplateDefinition,
                                            withSelfType: Boolean,
                                            isOverride: Boolean = true)
-                                          (f1: PhysicalMethodSignature => Boolean = const(true),
-                                           f2: PsiNamedElement => Boolean = const(true)): Seq[ClassMember] = {
-    val methods =
-      (if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods)
-        .filter(s => s.namedElement.isValid && f1(s))
-
-    val aliasesAndValues = (if (withSelfType) clazz.allTypeSignaturesIncludingSelfType ++ clazz.allValsIncludingSelfType
-    else clazz.allTypeSignatures ++ clazz.allVals).filter {
-      case Signature(named, _) => named.isValid && f2(named)
+                                          (f1: PhysicalMethodSignature => Boolean,
+                                           f2: PsiNamedElement => Boolean): Seq[ClassMember] = {
+    val maybeTypes = findSelfType(clazz, withSelfType)
+    val signatures = maybeTypes.fold(getSignatures(clazz)) {
+      case (compoundType, thisType) => getSignatures(compoundType, Some(thisType))
+    }
+    val types = maybeTypes.fold(getTypes(clazz)) {
+      case (compoundType, thisType) => getTypes(compoundType, Some(thisType))
     }
 
-    (methods.map(toClassMember(_, isOverride)) ++ aliasesAndValues.flatMap(toClassMember(_, isOverride)))
-      .toBuffer
+    val methods = signatures.allSignatures.filter {
+      case signature: PhysicalMethodSignature if signature.namedElement.isValid => f1(signature)
+      case _ => false
+    }.flatMap {
+      toClassMember(_, isOverride)
+    }
+
+    val values = signatures.allSignatures.filter(isValSignature)
+
+    val aliasesAndValues = (types.allSignatures ++ values).filter {
+      case Signature(named, _) => named.isValid && f2(named)
+    }.flatMap {
+      toClassMember(_, isOverride)
+    }
+
+    (methods ++ aliasesAndValues).toSeq
   }
+
+  private[this] def findSelfType(clazz: ScTemplateDefinition,
+                                 withSelfType: Boolean) =
+    if (withSelfType) {
+      for {
+        selfType <- clazz.selfType
+        thisType = clazz.getTypeWithProjections().getOrAny
+
+        glb = selfType.glb(thisType)
+        if glb.isInstanceOf[ScCompoundType]
+      } yield (glb.asInstanceOf[ScCompoundType], thisType)
+    } else {
+      None
+    }
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
                               visited: Set[PsiClass] = Set.empty) : Boolean = {
@@ -269,8 +297,12 @@ object ScalaOIUtil {
     }
   }
 
-  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterator[PhysicalMethodSignature] = {
-    val all = if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods
-    all.filter(needOverride(_, clazz))
-  }
+  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterator[PhysicalMethodSignature] =
+    findSelfType(clazz, withSelfType)
+      .fold(getSignatures(clazz)) {
+        case (compoundType, thisType) => getSignatures(compoundType, Some(thisType))
+      }.allSignatures.filter {
+      case signature: PhysicalMethodSignature => needOverride(signature, clazz)
+      case _ => false
+    }.map(_.asInstanceOf[PhysicalMethodSignature])
 }
