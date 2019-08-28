@@ -101,8 +101,8 @@ class SimplePrintVisitor protected() {
       visitWhile(w, initialization, condition, body, update, whileType)
     case TryCatchStatement(resourcesList, tryBlock, catchStatements, finallyStatements, arrow) =>
       visitTryCatch(resourcesList, tryBlock, catchStatements, finallyStatements, arrow)
-    case SwitchStatemtnt(expression, body) => visitSwitchStatement(expression, body)
-    case SwitchLabelStatement(caseValue, arrow) => visitSwitchLabelStatement(caseValue, arrow)
+    case SwitchBlock(expression, body) => visitSwitchStatement(expression, body)
+    case SwitchLabelStatement(caseValues, arrow, body) => visitSwitchLabelStatement(caseValues, arrow, body)
     case SynchronizedStatement(lock, body) => visitSynchronizedStatement(lock, body)
     case ExpressionListStatement(exprs) => visitExpressionListStatement(exprs)
     case EnumConstruction(name) => visit(name)
@@ -790,10 +790,17 @@ class SimplePrintVisitor protected() {
     }
   }
 
-  protected def visitSwitchLabelStatement(caseValue: Option[IntermediateNode], arrow: String): Unit = {
+  protected def visitSwitchLabelStatement(caseValues: Seq[IntermediateNode], arrow: String,
+                                          body: Option[IntermediateNode]): Unit = {
     printer.append("case ")
-    if (caseValue.isDefined) visit(caseValue.get)
+    var first = true
+    caseValues.foreach(e => {
+      if (first) first = false
+      else printer.append(" | ")
+      visit(e)
+    })
     printer.append(s" $arrow ")
+    body.foreach(visit)
   }
 
   protected def visitNotSupported(iNode: Option[IntermediateNode], msg: String): Unit = {

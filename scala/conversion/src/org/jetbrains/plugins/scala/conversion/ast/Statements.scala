@@ -31,9 +31,10 @@ case class ExpressionListStatement(exprs: Seq[IntermediateNode]) extends Interme
 
 case class SynchronizedStatement(lock: Option[IntermediateNode], body: Option[IntermediateNode]) extends IntermediateNode
 
-case class SwitchLabelStatement(caseValue: Option[IntermediateNode], arrow: String) extends IntermediateNode
+case class SwitchLabelStatement(caseValues: Seq[IntermediateNode], arrow: String,
+                                body: Option[IntermediateNode] = None) extends IntermediateNode
 
-case class SwitchStatemtnt(expession: Option[IntermediateNode], body: Option[IntermediateNode]) extends IntermediateNode
+case class SwitchBlock(expession: Option[IntermediateNode], body: Option[IntermediateNode]) extends IntermediateNode
 
 case class TryCatchStatement(resourcesList: Seq[(String, IntermediateNode)], tryBlock: Seq[IntermediateNode],
                              catchStatements: Seq[(IntermediateNode, IntermediateNode)],

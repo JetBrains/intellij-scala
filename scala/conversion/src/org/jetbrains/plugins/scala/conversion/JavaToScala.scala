@@ -180,21 +180,28 @@ object JavaToScala {
         val condition = Option(a.getAssertCondition).map(convertPsiToIntermediate(_, externalProperties))
         val description = Option(a.getAssertDescription).map(convertPsiToIntermediate(_, externalProperties))
         AssertStatement(condition, description)
-      case s: PsiSwitchLabelStatement =>
-        val caseValue = if (s.isDefaultCase)
-          Some(LiteralExpression("_"))
+      case s: PsiSwitchLabelStatementBase =>
+        val caseValues = if (s.isDefaultCase)
+          Seq(LiteralExpression("_"))
         else
-          Option(s.getCaseValue).map(convertPsiToIntermediate(_, externalProperties))
-        SwitchLabelStatement(caseValue, ScalaPsiUtil.functionArrow(s.getProject))
-      case s: PsiSwitchStatement =>
+          Option(s.getCaseValues)
+            .map(it => it.getExpressions.toSeq.map(convertPsiToIntermediate(_, externalProperties)))
+              .getOrElse(Seq.empty)
+        val body : Option[PsiStatement] = s match {
+          case rs: PsiSwitchLabeledRuleStatement => Option(rs.getBody)
+          case _ => None
+        }
+        SwitchLabelStatement(caseValues, ScalaPsiUtil.functionArrow(s.getProject),
+          body.map(convertPsiToIntermediate(_, externalProperties)))
+      case s: PsiSwitchBlock =>
         def statements = Option(s.getBody).map(_.getStatements)
 
-        def defaultStatement = SwitchLabelStatement(Some(LiteralExpression("_")), ScalaPsiUtil.functionArrow(s.getProject))
+        def defaultStatement = SwitchLabelStatement(Seq(LiteralExpression("_")), ScalaPsiUtil.functionArrow(s.getProject))
 
         val expr = Option(s.getExpression).map(convertPsiToIntermediate(_, externalProperties))
         val body = Option(s.getBody).map(convertPsiToIntermediate(_, externalProperties))
 
-        if (statements.exists(_.length == 0)) SwitchStatemtnt(expr, Some(defaultStatement)) else SwitchStatemtnt(expr, body)
+        if (statements.exists(_.length == 0)) SwitchBlock(expr, Some(defaultStatement)) else SwitchBlock(expr, body)
       case p: PsiPackageStatement => PackageStatement(convertPsiToIntermediate(p.getPackageReference, externalProperties))
       case f: PsiForeachStatement =>
         val tp = Option(f.getIteratedValue).flatMap((e: PsiExpression) => Option(e.getType))
