@@ -55,7 +55,22 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     generateSimpleByText(fileText, testText)
   }
 
-   def testSimpleTags() {
+  def testSimpleClass(): Unit = {
+    val fileText =
+      """package foo
+        |
+        |class A"""
+    val expected =
+      """<html><body><div class="definition"><font size="-1"><b>foo</b></font><pre>class <b>A</b>
+        |</pre></div></body></html>""".stripMargin.replaceAll("\r", "")
+
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
+    val element = getFileAdapter.getLastChild.getLastChild
+    val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
+    Assert.assertEquals(expected, generated)
+  }
+
+  def testSimpleTags() {
     val fileText =
       """
       | /**

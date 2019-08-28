@@ -721,7 +721,7 @@ object ScalaDocumentationProvider {
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
                                (implicit typeToString: ScType => String): String = {
-    val buffer: StringBuilder = new StringBuilder(" extends ")
+    val buffer: StringBuilder = new StringBuilder()
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
@@ -734,7 +734,7 @@ object ScalaDocumentationProvider {
         }
     }
 
-    buffer.toString()
+    if (buffer.isEmpty) "" else " extends " + buffer
   }
 
   private def parseModifiers(elem: ScModifierListOwner): String = {
