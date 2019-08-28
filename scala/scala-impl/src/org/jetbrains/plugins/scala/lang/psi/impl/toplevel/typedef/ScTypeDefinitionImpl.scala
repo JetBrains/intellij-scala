@@ -13,7 +13,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.navigation._
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
-import com.intellij.psi.impl._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.javadoc.PsiDocComment
@@ -382,9 +381,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case c: PsiClass => c
     } ++ inCompanionModule).toArray
   }
-
-  override def getAllInnerClasses: Array[PsiClass] =
-    PsiClassImplUtil.getAllInnerClasses(this)
 
   override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)

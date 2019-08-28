@@ -20,15 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDefinitionImpl, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-
-import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -168,13 +166,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
     visitor.visitNewTemplateDefinition(this)
   }
 
-  override def getAllMethods: Array[PsiMethod] = {
-    val res = mutable.ArrayBuffer.empty[PsiMethod]
-    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach {
-      this.processWrappersForSignature(_, isStatic = false, isInterface = false)(res += _)
-    }
-    res.toArray
-  }
+  override protected def isInterface(namedElement: PsiNamedElement): Boolean = false
 
   @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)

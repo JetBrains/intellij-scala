@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -27,9 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Alexander.Podkhalyuzin
@@ -99,35 +96,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override def isCase: Boolean = hasModifierProperty("case")
 
-  override def getAllMethods: Array[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]()
-    val names = new mutable.HashSet[String]
-
-    res ++= getConstructors
-
-    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach { signature =>
-      val isInterface = signature.namedElement match {
-        case t: ScTypedDefinition if t.isAbstractMember => true
-        case _ => false
-      }
-      this.processWrappersForSignature(signature, isStatic = false, isInterface = isInterface)(res += _, names += _)
-    }
-
-    ScalaPsiUtil.getCompanionModule(this) match {
-      case Some(o: ScObject) =>
-        def add(method: PsiMethod) {
-          if (!names.contains(method.getName)) {
-            res += method
-          }
-        }
-
-        TypeDefinitionMembers.getSignatures(o).allSignatures.foreach(
-          this.processWrappersForSignature(_, isStatic = true, isInterface = false)(add)
-        )
-      case _ =>
-    }
-    res.toArray
-  }
+  override protected def addFromCompanion(companion: ScTypeDefinition): Boolean = companion.isInstanceOf[ScObject]
 
   override def getConstructors: Array[PsiMethod] =
     constructor.toArray
