@@ -70,7 +70,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     @inline
     def hasPrefix(prefix: String): Boolean =
       prefix.length <= offset && offset < text.length &&
-        text.substring(offset - prefix.length, offset) == " case "
+        text.substring(offset - prefix.length, offset) == prefix
 
     val myTask: Task = if (isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
       getScaladocTask(text, offset)
