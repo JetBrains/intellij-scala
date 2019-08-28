@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -216,23 +216,19 @@ object ScalaGenerateEqualsAction {
       }
     }
 
-    private def overrideModifier(aClass: ScTemplateDefinition, signature: TermSignature): String = {
-      val needModifier = ScalaOIUtil.methodSignaturesToOverride(aClass, withSelfType = false).exists {
-        case sign: PhysicalMethodSignature => sign.equiv(signature)
-        case _ => false
+    private def overrideModifier(definition: ScTemplateDefinition, signature: TermSignature): String = {
+      val needModifier = methodSignaturesToOverride(definition).exists {
+        _.equiv(signature)
       }
       if (needModifier) ScalaKeyword.OVERRIDE else ""
     }
 
-    private def overridesFromJavaObject(aClass: ScTemplateDefinition, signature: TermSignature): Boolean = {
-      val methodsToOverride = ScalaOIUtil.methodSignaturesToOverride(aClass, withSelfType = false)
-      methodsToOverride exists {
-        case sign: PhysicalMethodSignature if sign.equiv(signature) =>
+    private def overridesFromJavaObject(definition: ScTemplateDefinition, signature: TermSignature): Boolean =
+      methodSignaturesToOverride(definition).exists { sign =>
+        sign.equiv(signature) &&
           //used only for equals and hashcode methods
           sign.isJava && sign.method.findSuperMethods(false).isEmpty
-        case _ => false
       }
-    }
 
     private def findClassAtCaret(implicit editor: Editor, file: PsiFile) =
       elementOfTypeAtCaret(classOf[ScClass])

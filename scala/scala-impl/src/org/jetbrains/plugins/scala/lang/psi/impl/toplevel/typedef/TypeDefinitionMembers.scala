@@ -34,6 +34,18 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  */
 object TypeDefinitionMembers {
 
+  def isValSignature(signature: TermSignature): Boolean = signature match {
+    case _: PhysicalMethodSignature => false
+    case _ =>
+      val element = signature.namedElement
+      element.nameContext match {
+        case _: ScValueOrVariable |
+             _: ScClassParameter => element.name == signature.name
+        case _: PsiField => true
+        case _ => false
+      }
+  }
+
   //noinspection ScalaWrongMethodsUsage
   private def isStaticJava(m: PsiMember): Boolean = !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
 
@@ -267,11 +279,11 @@ object TypeDefinitionMembers {
   }
 
   //todo: this method requires refactoring
-  def processDeclarations(clazz: PsiClass,
-                          processor: PsiScopeProcessor,
-                          state: ResolveState,
-                          lastParent: PsiElement,
-                          place: PsiElement): Boolean = {
+  def processClassDeclarations(clazz: PsiClass,
+                               processor: PsiScopeProcessor,
+                               state: ResolveState,
+                               lastParent: PsiElement,
+                               place: PsiElement): Boolean = {
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(clazz)))
