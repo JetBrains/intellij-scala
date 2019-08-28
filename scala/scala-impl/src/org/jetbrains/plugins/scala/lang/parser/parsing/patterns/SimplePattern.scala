@@ -11,12 +11,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 29.02.2008
-*/
-
 /*
+ * Scala 2.x
  * SimplePattern ::= '_'
  *                 | varid
  *                 | Literal
@@ -25,6 +21,19 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 | StableId '(' [Patterns ','] [(varid | '_' ) '@'] '_' '*'')'
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
+ *
+ * Scala 3
+ * SimplePattern ::=  PatVar
+ *                 |  Literal
+ *                 |  ‘(’ [Patterns] ‘)’
+ *                 |  Quoted
+ *                 |  XmlPattern
+ *                 |  SimplePattern1 [TypeArgs] [ArgumentPatterns]
+ *
+ * PatVar         ::=  varid
+ *                  |  ‘_’
+ * SimplePattern1 ::=  Path
+ *                  |  SimplePattern1 ‘.’ id
  */
 object SimplePattern {
 
