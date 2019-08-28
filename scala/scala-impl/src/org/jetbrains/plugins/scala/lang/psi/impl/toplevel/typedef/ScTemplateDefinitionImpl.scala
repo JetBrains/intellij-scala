@@ -12,19 +12,19 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.{Pair => JBPair}
+import com.intellij.psi._
 import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.intellij.psi.{CommonClassNames, HierarchicalMethodSignature, PsiClass, PsiElement, PsiField, PsiMethod, PsiSubstitutor, ResolveState}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -47,8 +47,45 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   import PsiTreeUtil.isContextAncestor
   import ScTemplateDefinitionImpl._
 
+  override def getAllMethods: Array[PsiMethod] = {
+    val names = mutable.HashSet.empty[String]
+    val result = mutable.ArrayBuffer(getConstructors: _*)
+
+    allSignatures.foreach { signature =>
+      this.processWrappersForSignature(
+        signature,
+        isStatic = false,
+        isInterface = isInterface(signature.namedElement)
+      )(result.+=, names.+=)
+    }
+
+    for {
+      companion <- ScalaPsiUtil.getCompanionModule(this).toIterator
+      if addFromCompanion(companion)
+
+      signature <- companion.allSignatures
+    } this.processWrappersForSignature(
+      signature,
+      isStatic = true,
+      isInterface = false
+    )(method => if (!names.contains(method.getName)) result += method)
+
+
+    result.toArray
+  }
+
+  protected def isInterface(namedElement: PsiNamedElement): Boolean = namedElement match {
+    case definition: ScTypedDefinition => definition.isAbstractMember
+    case _ => false
+  }
+
+  protected def addFromCompanion(companion: ScTypeDefinition): Boolean = false
+
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)
+
+  override final def getAllInnerClasses: Array[PsiClass] =
+    PsiClassImplUtil.getAllInnerClasses(this)
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField =
     PsiClassImplUtil.findFieldByName(this, name, checkBases)
