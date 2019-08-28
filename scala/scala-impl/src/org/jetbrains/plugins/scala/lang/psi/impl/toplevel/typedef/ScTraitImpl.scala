@@ -15,8 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
-import scala.collection.mutable
-
 /**
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
@@ -63,27 +61,11 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
     case _ => super.hasModifierProperty(name)
   }
 
-  override def getAllMethods: Array[PsiMethod] = {
-    val res = mutable.ArrayBuffer.empty[PsiMethod]
-    res ++= getConstructors
+  override protected def isInterface(namedElement: PsiNamedElement): Boolean = true
 
-    TypeDefinitionMembers.getSignatures(this).allSignatures.foreach {
-      this.processWrappersForSignature(_, isStatic = false, isInterface = true)(res += _)
-    }
-
-    if (this.scalaLanguageLevelOrDefault >= Scala_2_12) {
-      /** static forwarders for trait companion objects are only generated starting with scala 2.12 */
-      ScalaPsiUtil
-        .getCompanionModule(this)
-        .foreach(companion =>
-          TypeDefinitionMembers.getSignatures(companion).allSignatures.foreach {
-            this.processWrappersForSignature(_, isStatic = true, isInterface = false)(res += _)
-          }
-        )
-    }
-
-    res.toArray
-  }
+  /** static forwarders for trait companion objects are only generated starting with scala 2.12 */
+  override protected def addFromCompanion(companion: ScTypeDefinition): Boolean =
+    this.scalaLanguageLevelOrDefault >= Scala_2_12
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
 
