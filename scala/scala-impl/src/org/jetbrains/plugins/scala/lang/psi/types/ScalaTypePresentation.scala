@@ -89,27 +89,29 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
       }
 
-      if (context.nameResolvesTo(refName, e)) refName
+      val decoratedName = nameFun(e)
+
+      if (context.nameResolvesTo(refName, e)) decoratedName
       else
         projType.projected match {
           case ScDesignatorType(pack: PsiPackage) =>
-            nameWithPointFun(pack) + refName
+            nameWithPointFun(pack) + decoratedName
           case ScDesignatorType(named) if checkIfStable(named) =>
-            nameWithPointFun(named) + refName + typeTailForProjection
+            nameWithPointFun(named) + decoratedName + typeTailForProjection
           case ScThisType(obj: ScObject) =>
-            nameWithPointFun(obj) + refName + typeTailForProjection
+            nameWithPointFun(obj) + decoratedName + typeTailForProjection
           case p@ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
-            s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
+            s"${innerTypeText(p, needDotType = false)}.$decoratedName$typeTailForProjection"
           case p: ScProjectionType if checkIfStable(p.actualElement) =>
-            s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
+            s"${projectionTypeText(p, needDotType = false)}.$decoratedName$typeTailForProjection"
           case StaticJavaClassHolder(clazz) if isStaticJavaClass =>
-            nameWithPointFun(clazz) + refName
+            nameWithPointFun(clazz) + decoratedName
           case p@(_: ScCompoundType | _: ScExistentialType) =>
-            s"(${innerTypeText(p)})#$refName"
+            s"(${innerTypeText(p)})#$decoratedName"
           case p =>
             val innerText = innerTypeText(p)
-            if (innerText.endsWith(ObjectTypeSuffix)) innerText.stripSuffix("type") + refName
-            else s"$innerText#$refName"
+            if (innerText.endsWith(ObjectTypeSuffix)) innerText.stripSuffix("type") + decoratedName
+            else s"$innerText#$decoratedName"
         }
     }
 

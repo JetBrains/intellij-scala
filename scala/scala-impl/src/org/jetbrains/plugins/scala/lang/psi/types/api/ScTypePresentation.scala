@@ -33,11 +33,11 @@ trait TypePresentation {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       e match {
         case o: ScObject if withPoint && o.qualifiedName == "scala.Predef" => ""
-        case e: PsiClass => "<a href=\"psi_element://" + e.qualifiedName + "\"><code>" +
+        case e: PsiClass => "<a href=\"psi_element://" + StringEscapeUtils.escapeHtml(e.qualifiedName) + "\"><code>" +
           StringEscapeUtils.escapeHtml(e.name) +
           "</code></a>" + (if (withPoint) "." else "")
         case _: PsiPackage if withPoint => ""
-        case _ => StringEscapeUtils.escapeHtml(e.name) + "."
+        case _ => StringEscapeUtils.escapeHtml(e.name) + (if (withPoint) "." else "")
       }
     }
     typeText(`type`, nameFun(_, withPoint = false), nameFun(_, withPoint = true))

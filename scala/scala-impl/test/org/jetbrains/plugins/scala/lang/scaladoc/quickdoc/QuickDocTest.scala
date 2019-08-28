@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.junit.Assert
 
@@ -367,6 +367,26 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
     configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
     val element = getFileAdapter.getLastChild
+    val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
+    Assert.assertEquals(expected, generated)
+  }
+
+  def testTraitSpecialChars() {
+    val fileText =
+      """
+        |object A {
+        |trait <:<[A,B]
+        |def f(a: Int <:< String): Unit = {}
+        |}"""
+
+    val expected =
+      """<html><body><div class="definition"><a href="psi_element://A"><code>A</code></a><pre>def <b>f</b>
+        |(a: <a href="psi_element://A"><code>A</code></a>.
+        |<a href="psi_element://A.&lt;:&lt;"><code>&lt;:&lt;</code></a>[Int, String]): Unit</pre></div></body></html>"""
+        .stripMargin.replaceAll("[\r\n]", "")
+
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
+    val element = getFileAdapter.getLastChild.asInstanceOf[ScObject].getMethods.head
     val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
     Assert.assertEquals(expected, generated)
   }
