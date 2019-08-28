@@ -5,7 +5,7 @@ package api
 package statements
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScMatchTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -29,8 +29,10 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       _.`type`()
     }.getOrElse(Failure("No alias type"))
 
+  // TODO: fix for cases when isMatchTypeDefinition is true
   def lowerBound: TypeResult = aliasedType
 
+  // TODO: fix for cases when isMatchTypeDefinition is true
   def upperBound: TypeResult = aliasedType
 
   def isExactAliasFor(cls: PsiClass): Boolean = {
@@ -74,4 +76,12 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       typeParameters.isEmpty && aliasedType.getOrElse(return false).equiv(clsType)
     }
   }
+
+  /** Is this a Scala 3+ style match type definition */
+  def isMatchTypeDefinition: Boolean = matchTypeElement.isDefined
+
+  def matchTypeElement: Option[ScMatchTypeElement]
+
+  /** If [[isMatchTypeDefinition]] is true, then optional upper bound type element */
+  def boundTypeElement: Option[ScTypeElement]
 }

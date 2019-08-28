@@ -15,10 +15,11 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScMatchTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
+import org.jetbrains.plugins.scala.extensions._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -44,7 +45,17 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   }
 
   override def aliasedTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(Option(findChildByClassScala(classOf[ScTypeElement])))(_.typeElement)
+    byPsiOrStub(getLastChild.asOptionOf[ScTypeElement])(_.typeElement)
+
+  override def matchTypeElement: Option[ScMatchTypeElement] =
+    aliasedTypeElement.collect { case mte: ScMatchTypeElement => mte }
+
+  override def boundTypeElement: Option[ScTypeElement] =
+    if (!isMatchTypeDefinition) None
+    else {
+      val bound = findChildByType[PsiElement](ScalaTokenTypes.tUPPER_BOUND).toOption
+      bound.flatMap(_.getNextSiblingNotWhitespaceComment.asOptionOf[ScTypeElement])
+    }
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
