@@ -7,7 +7,7 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.ParamClauses
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, Params}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
@@ -32,6 +32,21 @@ object FunDef {
         faultMarker.drop()
         return false
     }
+
+    if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+      val extensionMethodParamMarker = builder.mark()
+      builder.advanceLexer() // ate (
+      builder.withDisabledNewlines {
+        Params parse builder
+        if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) {
+          builder.advanceLexer() // ate )
+          extensionMethodParamMarker.done(ScalaElementType.PARAM_CLAUSE)
+        } else {
+          extensionMethodParamMarker.drop()
+        }
+      }
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         FunSig parse builder
