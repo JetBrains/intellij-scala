@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
  */
 
 /*
- * Type ::= InfixType '=>' Type
+ * Type ::= {'given'} InfixType '=>' Type
  *        | '(' ['=>' Type] ')' => Type
  *        | TypeParamClause '=>>' Type      (Scala 3+ only)
  *        | MatchType                       (Scala 3+ Only)
@@ -31,6 +31,15 @@ trait Type {
   def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
     val typeMarker = builder.mark
 
+    val isImplicitFunctionType =
+      builder.getTokenText match {
+        case ScalaTokenType.Given.debugName =>
+          builder.remapCurrentToken(ScalaTokenType.Given)
+          builder.advanceLexer()
+          true
+        case _ => false
+      }
+
     if (infixType.parse(builder, star, isPattern)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE =>
@@ -39,12 +48,18 @@ trait Type {
             builder.error(ScalaBundle.message("wrong.type"))
           }
           typeMarker.done(ScalaElementType.TYPE)
+        case _ if isImplicitFunctionType =>
+          builder.error(ScalaBundle.message("fun.sign.expected"))
+          typeMarker.done(ScalaElementType.TYPE)
         case ScalaTokenTypes.kFOR_SOME =>
           ExistentialClause parse builder
           typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
         case _ => typeMarker.drop()
       }
       true
+    } else if (isImplicitFunctionType) {
+      typeMarker.drop()
+      false
     } else if (TypeParamClause.parse(builder, mayHaveContextBounds = false, mayHaveViewBounds = false)) {
       /** Scala 3+ Type Lambdas */
       builder.getTokenText match {
