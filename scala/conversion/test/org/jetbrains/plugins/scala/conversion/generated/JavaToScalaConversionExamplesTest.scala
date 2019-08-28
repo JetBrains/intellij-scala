@@ -77,4 +77,6 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testImports(): Unit = doTest()
 
   def testLambdaExpr(): Unit = doTest()
+
+  def testSwitchExpression(): Unit = doTest()
 }
