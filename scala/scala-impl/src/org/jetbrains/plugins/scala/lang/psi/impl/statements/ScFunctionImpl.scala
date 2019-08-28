@@ -254,6 +254,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
+  def isExtensionMethod: Boolean = extensionMethodClause.isDefined
+
+  def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
+
   //todo implement me!
   def isVarArgs = false
 
