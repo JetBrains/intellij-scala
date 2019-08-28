@@ -8,13 +8,14 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -30,7 +31,13 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   def clauses: Seq[ScParameterClause] = {
-    getStubOrPsiChildren(ScalaElementType.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
+    // if the function is a function method, then prepend the param clause
+    val extensionMethodParamClause = getParent
+      .asOptionOf[ScFunction]
+      .flatMap(_.extensionMethodClause)
+      .toSeq
+
+    extensionMethodParamClause ++ getStubOrPsiChildren(ScalaElementType.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
