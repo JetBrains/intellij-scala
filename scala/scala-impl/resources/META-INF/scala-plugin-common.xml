@@ -125,6 +125,7 @@
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaFeatureSettings"/>
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
       <fileType name="Scala" language="Scala" extensions="scala"

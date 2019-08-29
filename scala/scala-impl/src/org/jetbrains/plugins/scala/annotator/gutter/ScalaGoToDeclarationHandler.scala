@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.settings.ScalaFeatureSettings
 
 import scala.annotation.tailrec
 
@@ -30,6 +31,12 @@ import scala.annotation.tailrec
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
   def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+    if (!ScalaFeatureSettings.instanceIn(element.getProject).enabled) {
+      // TODO This doesn't disable the GoTo action completely (when a PSI tree is present).
+      // TODO We also need to disable the built-in IDEA heuristics (e.g. GotoDeclarationAction.findTargetElementsNoVS) to achieve that.
+      return null
+    }
+
     if (element == null) return null
     val containingFile = element.getContainingFile
     if (containingFile == null) return null

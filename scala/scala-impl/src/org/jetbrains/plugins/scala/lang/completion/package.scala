@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.settings.ScalaFeatureSettings
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters
@@ -167,6 +168,12 @@ package object completion {
   abstract class ScalaCompletionContributor extends CompletionContributor {
 
     override def fillCompletionVariants(parameters: CompletionParameters, resultSet: CompletionResultSet): Unit = {
+      if (!ScalaFeatureSettings.instanceIn(parameters.getPosition.getProject).enabled) {
+        // TODO This doesn't disable the Autocomplete action completely (when a PSI tree is present).
+        // TODO We also need to disable the built-in IDEA heuristics to achieve that.
+        return
+      }
+
       val prefixMatcher = resultSet.getPrefixMatcher
 
       val sorter = CompletionSorter.defaultSorter(parameters, prefixMatcher) match {

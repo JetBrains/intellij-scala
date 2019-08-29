@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder
+import org.jetbrains.plugins.scala.settings.ScalaFeatureSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil.areTrailingCommasAndIdBindingEnabled
 
 /**
@@ -112,5 +112,12 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
         }
       }
     case _ => true
+  }
+
+  override def error(message: String): Unit = {
+    if (!ScalaFeatureSettings.instanceIn(getProject).enabled) {
+      return
+    }
+    super.error(message)
   }
 }

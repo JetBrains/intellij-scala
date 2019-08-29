@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.settings.ScalaFeatureSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,7 +25,9 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
   private var myRefCountHolder: ScalaRefCountHolder = _
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
-  override def suitableForFile(file: PsiFile): Boolean = file.hasScalaPsi
+  override def suitableForFile(file: PsiFile): Boolean =
+    ScalaFeatureSettings.instanceIn(file.getProject).enabled &&
+      file.hasScalaPsi
 
   def visit(element: PsiElement): Unit = {
     if (DumbService.getInstance(project).isDumb) return
