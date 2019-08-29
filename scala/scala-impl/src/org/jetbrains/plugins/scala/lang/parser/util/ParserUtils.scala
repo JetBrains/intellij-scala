@@ -13,12 +13,12 @@ import scala.annotation.tailrec
 
 object ParserUtils {
 
-  def eatSeqWildcardNext(builder: PsiBuilder): Boolean = {
+  // _* (Scala 2 version of wildcard)
+  def eatShortSeqWildcardNext(builder: PsiBuilder): Boolean = {
     val marker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
-      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-        builder.getTokenText == "*") {
+      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == "*") {
         builder.advanceLexer()
         marker.done(ScalaElementType.SEQ_WILDCARD)
         true
@@ -137,12 +137,14 @@ object ParserUtils {
     builder.build(ScalaElementType.NAMING_PATTERN) { repr =>
       if (withComma) {
         repr.advanceLexer() // ,
-    }
+      }
 
       if (repr.invalidVarId) {
         repr.advanceLexer()
-        repr.advanceLexer() // @
-        eatSeqWildcardNext(repr)
-      } else false
-  }
+        repr.advanceLexer() // @ or :
+        eatShortSeqWildcardNext(repr)
+      } else {
+        false
+      }
+    }
 }

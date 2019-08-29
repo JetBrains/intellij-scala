@@ -34,8 +34,11 @@ package object parser {
     }
 
     def lookAhead(elementTypes: IElementType*): Boolean =
+      lookAhead(0, elementTypes: _*)
+
+    def lookAhead(offset: Int, elementTypes: IElementType*): Boolean =
       elementTypes.zipWithIndex.forall {
-        case (elementType, index) => elementType == repr.lookAhead(index)
+        case (elementType, index) => elementType == repr.lookAhead(index + offset)
       }
 
     def lookBack(expected: IElementType): Boolean = {
@@ -56,10 +59,13 @@ package object parser {
         case _ => (steps, accumulator)
       }
 
-    def invalidVarId: Boolean = !(repr.getTokenText match {
+    def invalidVarId: Boolean = !validVarId
+
+    // TODO: something wrong with this naming, `varid` from gammar rules is something different: `varid ::=  lower idrest`
+    private def validVarId: Boolean = repr.getTokenText match {
       case "" | "`" => false
       case text => text.head.isUpper || (text.head == '`' && text.last == '`')
-    })
+    }
   }
 
   implicit class ScalaPsiBuilderExt(private val repr: parser.parsing.builder.ScalaPsiBuilder) extends AnyVal {
