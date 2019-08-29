@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{MatchType, Type}
 * @author Alexander Podkhalyuzin
 * Date: 13.02.2008
 */
-object TypeDef {
+object TypeDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
@@ -48,12 +48,12 @@ object TypeDef {
       case ScalaTokenTypes.tUPPER_BOUND =>
         // Scala 3+ match type case
         builder.advanceLexer()
-        if (!Type.parse(builder)) builder.error(ScalaBundle.message("wrong.type"))
+        if (!Type.parse()) builder.error(ScalaBundle.message("wrong.type"))
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer()
 
-            if (!MatchType.parse(builder))
+            if (!MatchType.parse())
               builder.error(ScalaBundle.message("match.type.expected"))
 
             faultMarker.drop()

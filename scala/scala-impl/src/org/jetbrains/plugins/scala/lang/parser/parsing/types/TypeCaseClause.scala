@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
- * TypeCaseClause ::= ‘case’ InfixType ‘=>’ Type [nl]
+ * [[TypeCaseClause]] ::= ‘case’ [[InfixType]] ‘=>’ [[Type]] [nl]
  */
-object TypeCaseClause {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object TypeCaseClause extends ParsingRule {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE =>

@@ -25,10 +25,12 @@ object Type extends Type {
   override protected def infixType = InfixType
 }
 
-trait Type {
+trait Type extends ParsingRule {
   protected def infixType: InfixType
 
-  def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = parse(star = false, isPattern = false)
+
+  def parse(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
 
     val isImplicitFunctionType =
@@ -44,7 +46,7 @@ trait Type {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE =>
           builder.advanceLexer() //Ate =>
-          if (!parse(builder, isPattern = isPattern)) {
+          if (!parse(isPattern = isPattern)) {
             builder.error(ScalaBundle.message("wrong.type"))
           }
           typeMarker.done(ScalaElementType.TYPE)
@@ -66,12 +68,15 @@ trait Type {
         case ScalaTokenType.TypeLambdaArrow.debugName =>
           builder.remapCurrentToken(ScalaTokenType.TypeLambdaArrow)
           builder.advanceLexer()
-          if (!parse(builder, isPattern = isPattern)) {
+          if (!parse(isPattern = isPattern)) {
             builder.error(ScalaBundle.message("wrong.type"))
           }
           typeMarker.done(ScalaElementType.TYPE_LAMBDA)
         case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
       }
+      true
+    } else if (MatchType.parse()) {
+      typeMarker.drop()
       true
     } else {
       builder.getTokenType match {
@@ -80,7 +85,7 @@ trait Type {
           builder.getTokenText match {
             case ">:" =>
               builder.advanceLexer()
-              if (!parse(builder)) {
+              if (!parse()) {
                 builder error ScalaBundle.message("wrong.type")
               }
             case _ => //nothing
@@ -88,7 +93,7 @@ trait Type {
           builder.getTokenText match {
             case "<:" =>
               builder.advanceLexer()
-              if (!parse(builder)) {
+              if (!parse()) {
                 builder error ScalaBundle.message("wrong.type")
               }
             case _ => //nothing
@@ -98,7 +103,7 @@ trait Type {
             case ScalaTokenTypes.tFUNTYPE =>
               val funMarker = typeMarker.precede()
               builder.advanceLexer() //Ate =>
-              if (!parse(builder, isPattern = isPattern)) {
+              if (!parse(isPattern = isPattern)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               funMarker.done(ScalaElementType.TYPE)
