@@ -6,6 +6,7 @@ import com.intellij.psi.PsiErrorElement
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaFeatureSettings
 
 trait SimpleParserTestBase extends SimpleTestCase {
   def err(err: String): String = {
@@ -37,7 +38,10 @@ trait SimpleParserTestBase extends SimpleTestCase {
          |""".stripMargin
     )
 
-    val file = parseText(code)
+
+    val file = withActiveFeatureSettings{
+      parseText(code)
+    }
     val errors = file.depthFirst().toSeq.filterBy[PsiErrorElement]
     if (expectedErrors.isEmpty) {
       assert(errors.isEmpty, "Expected no errors but found: " + errors.map(_.getErrorDescription).mkString(", "))
@@ -49,5 +53,13 @@ trait SimpleParserTestBase extends SimpleTestCase {
       assert(notFoundErrors.isEmpty, "Expected errors but didn't find: " + notFoundErrors.mkString(", "))
     }
     file
+  }
+
+  private def withActiveFeatureSettings[T](body: => T): T = {
+    val settings = ScalaFeatureSettings.instanceIn(fixture.getProject)
+    val old = settings.enabled
+    settings.enabled = true
+    try body
+    finally settings.enabled = old
   }
 }
