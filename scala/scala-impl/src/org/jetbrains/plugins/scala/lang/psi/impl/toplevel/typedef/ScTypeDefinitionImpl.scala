@@ -15,7 +15,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.impl.source.tree.LeafElement
-import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
@@ -359,9 +358,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     Predef.assert(nameId != null, "Class hase null nameId. Class text: " + getText) //diagnostic for EA-20122
     new JavaIdentifier(nameId)
   }
-
-  override def getDocComment: PsiDocComment =
-    super[ScTypeDefinition].getDocComment
 
   override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super.isDeprecated)
 

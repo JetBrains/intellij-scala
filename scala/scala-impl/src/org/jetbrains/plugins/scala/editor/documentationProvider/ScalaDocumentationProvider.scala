@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package editor.documentationProvider
+package editor
+package documentationProvider
 
 import com.intellij.codeInsight.javadoc.{JavaDocInfoGenerator, JavaDocUtil}
 import com.intellij.lang.documentation.CodeDocumentationProvider
@@ -434,7 +435,7 @@ object ScalaDocumentationProvider {
               case _ =>
             }
           case member: ScMember if member.getContainingClass != null =>
-            processingQueue enqueue member
+            processingQueue.enqueue(member)
 
             member.containingClass match {
               case od: ScDocCommentOwner => tc += od
@@ -455,9 +456,10 @@ object ScalaDocumentationProvider {
 
     private def selectComment2(): Option[ScDocComment] = {
       while (processingQueue.nonEmpty) {
-        val next = processingQueue.dequeue()
-
-        if (next.docComment.isDefined) return next.docComment
+        processingQueue.dequeue().getDocComment match {
+          case null =>
+          case comment => return Some(comment)
+        }
       }
 
       None

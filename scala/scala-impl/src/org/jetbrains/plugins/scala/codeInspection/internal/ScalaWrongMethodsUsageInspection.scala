@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala.codeInspection.internal
+package org.jetbrains.plugins.scala
+package codeInspection
+package internal
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
@@ -17,8 +18,7 @@ import scala.collection.mutable
   * @author Alefas
   * @since 02.04.12
   */
-
-class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
+final class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
   override def getID: String = "ScalaWrongMethodsUsage"
@@ -48,8 +48,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
             map.get(m.name) match {
               case Some(classes) =>
                 val containingClass = m.containingClass
-                classes.find {
-                  case clazz =>
+                classes.find { clazz =>
                     val instance = ScalaPsiManager.instance(holder.getProject)
                     val cachedClass = instance.getCachedClass(m.resolveScope, clazz).orNull
                     if (cachedClass != null && containingClass != null) {
@@ -62,11 +61,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                     var parent: PsiElement = ref.getParent
                     while (parent != null) {
                       parent match {
-                        case f: ScDocCommentOwner =>
-                          f.docComment match {
-                            case Some(d) => if (d.getText.contains("for Java only")) return
-                            case _ =>
-                          }
+                        case ScDocCommentOwner(ElementText(text)) if (text.contains("for Java only")) => return
                         case _ =>
                       }
                       parent = parent.getParent

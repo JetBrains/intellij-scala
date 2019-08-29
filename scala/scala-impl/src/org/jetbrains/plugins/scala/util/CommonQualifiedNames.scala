@@ -10,6 +10,8 @@ object CommonQualifiedNames {
 
   final val JavaObjectCanonical = Root + CommonClassNames.JAVA_LANG_OBJECT
 
+  final val DeprecatedFqn = Scala + "deprecated"
+
   final val ProductFqn = Scala + "Product"
   final val ProductCanonical = Root + ProductFqn
 

@@ -1,6 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.suppression
+package org.jetbrains.plugins.scala
+package codeInspection
+package suppression
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl.actions.SuppressByCommentFix
@@ -8,28 +10,23 @@ import com.intellij.codeInspection.{InspectionsBundle, SuppressionUtil, Suppress
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
-import scala.collection.JavaConverters._
-
 /**
  * @author Nikolay.Tropin
  */
-
 abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends SuppressByCommentFix(key, classOf[ScalaPsiElement]) {
   override def createSuppression(project: Project, element: PsiElement, container: PsiElement): Unit = {
     val text: String = SuppressionUtilCore.SUPPRESS_INSPECTIONS_TAG_NAME + " " + key.getID
     val comment: PsiComment = SuppressionUtil.createComment(project, text, ScalaLanguage.INSTANCE)
     val newLine = createNewLine()(element.getManager)
+
     container match {
-      case owner: ScDocCommentOwner if owner.docComment.isDefined =>
-        val docComment = owner.docComment.get
+      case ScDocCommentOwner(docComment) =>
         container.addAfter(comment, docComment)
         container.addAfter(newLine, docComment)
       case owner: ScCommentOwner =>
@@ -43,7 +40,8 @@ abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends S
     }
   }
 
-  override def getCommentsFor(container: PsiElement): util.List[_ <: PsiElement] = {
+  override def getCommentsFor(container: PsiElement): ju.List[_ <: PsiElement] = {
+    import collection.JavaConverters._
     ScalaSuppressableInspectionTool.commentsFor(container).asJava
   }
 }

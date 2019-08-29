@@ -973,13 +973,13 @@ object ScalaPsiElementFactory {
                        (implicit ctx: ProjectContext): PsiElement =
     createClassWithBody(
       s"""/**@param $text
-          |*/""".stripMargin).docComment.orNull
+         |*/""".stripMargin).getDocComment
       .getNode.getChildren(null)(1).getChildren(null)(2).getPsi
 
   def createDocTagName(name: String)
                       (implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText("/**@" + name + " qwerty */")
-      .typeDefinitions(0).docComment.get.getNode.getChildren(null)(1).getChildren(null)(0).getPsi
+      .typeDefinitions.head.getDocComment.getNode.getChildren(null)(1).getChildren(null)(0).getPsi
 
   def createDocLinkValue(text: String)
                         (implicit ctx: ProjectContext): ScDocResolvableCodeReference =
@@ -1049,8 +1049,7 @@ object ScalaPsiElementFactory {
 
   def createDocComment(prefix: String)
                       (implicit context: ProjectContext): ScDocComment =
-    createScalaFileFromText(s"$prefix class a").typeDefinitions.head
-      .docComment.orNull
+    createScalaFileFromText(s"$prefix class a").typeDefinitions.head.getDocComment
 
   private[this] def elementCreationException(kind: String, text: String,
                                              context: PsiElement = null,

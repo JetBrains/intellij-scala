@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package editor.documentationProvider
+package editor
+package documentationProvider
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
@@ -39,10 +40,9 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
       case id: PsiElement if id.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         id.getParent match {
           case docOwner: ScDocCommentOwner =>
-            docOwner.docComment match {
-              case Some(_) => recreateStub(docOwner, editor.getDocument)
-              case None => createStub(docOwner, editor.getDocument) 
-            }
+            val document = editor.getDocument
+            if (docOwner.getDocComment != null) recreateStub(docOwner, document)
+            else createStub(docOwner, document)
           case _ =>
         }
       case _ => 

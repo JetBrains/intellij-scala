@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
-package codeInspection.suppression
+package codeInspection
+package suppression
 
 import java.util.regex.Matcher
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInspection.{SuppressQuickFix, SuppressionUtil}
 import com.intellij.psi.{PsiComment, PsiDirectory, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
 /**
@@ -35,14 +36,16 @@ object ScalaSuppressableInspectionTool {
     }
   }
 
-  def commentsFor(elem: PsiElement): Seq[PsiComment] = {
-    elem match {
-      case null | _: PsiFile | _: PsiDirectory => Seq.empty
-      case co: ScCommentOwner => co.allComments
-      case stmt =>
-        val prev = stmt.getPrevSiblingNotWhitespace
-        prev.asOptionOf[PsiComment].toSeq
-    }
+  def commentsFor(element: PsiElement): List[PsiComment] = element match {
+    case null |
+         _: PsiFile |
+         _: PsiDirectory => Nil
+    case owner: ScCommentOwner => owner.allComments
+    case _ =>
+      element.getPrevSiblingNotWhitespace match {
+        case comment: PsiComment => comment :: Nil
+        case _ => Nil
+      }
   }
 
   def suppressActions(toolShortName: String): Array[SuppressQuickFix] = {
