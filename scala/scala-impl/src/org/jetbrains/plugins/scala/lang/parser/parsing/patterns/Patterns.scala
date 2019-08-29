@@ -35,7 +35,6 @@ object Patterns {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOMMA =>
         builder.advanceLexer() //Ate ,
-      var end = false
         while (Pattern.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA =>
@@ -44,9 +43,6 @@ object Patterns {
               patternsMarker.done(ScalaElementType.PATTERNS)
               return true
           }
-        }
-        if (false) {
-          ParserUtils.eatSeqWildcardNext(builder)
         }
         patternsMarker.done(ScalaElementType.PATTERNS)
         true
