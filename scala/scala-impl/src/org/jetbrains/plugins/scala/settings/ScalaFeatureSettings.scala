@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 // TODO Support listeners.
 @State(name = "ScalaProjectSettings", storages = Array(new Storage("scala_features.xml")))
 class ScalaFeatureSettings(project: Project) extends ProjectComponent {
-    var enabled = false
+    var enabled = true
 }
 
 object ScalaFeatureSettings {
