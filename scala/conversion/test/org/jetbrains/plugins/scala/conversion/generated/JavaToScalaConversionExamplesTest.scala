@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package conversion
 package generated
 
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
@@ -79,4 +80,18 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testLambdaExpr(): Unit = doTest()
 
   def testSwitchExpression(): Unit = doTest()
+
+  def testSwitchRemovableBreak(): Unit = doTest()
+
+  def testSwitchExpressionYield(): Unit = {
+    import com.intellij.openapi.roots.LanguageLevelProjectExtension
+    val projectExtension = LanguageLevelProjectExtension.getInstance(getProject)
+    val oldLevel = projectExtension.getLanguageLevel
+    try {
+      projectExtension.setLanguageLevel(LanguageLevel.JDK_13_PREVIEW)
+      doTest()
+    } finally {
+      projectExtension.setLanguageLevel(oldLevel)
+    }
+  }
 }

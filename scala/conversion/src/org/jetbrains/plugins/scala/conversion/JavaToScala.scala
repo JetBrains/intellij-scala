@@ -11,8 +11,9 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import com.siyeh.ig.psiutils.ControlFlowUtils
 import org.jetbrains.plugins.scala.conversion.ast.{ModifierType, _}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt, ObjectExt, OptionExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
 import org.jetbrains.plugins.scala.lang.dependency.Path
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -481,9 +482,13 @@ object JavaToScala {
         PolyadicExpression(p.getOperands.map(convertPsiToIntermediate(_, externalProperties)), tokenValue)
       case r: PsiReferenceParameterList => TypeParameters(r.getTypeParameterElements.map(convertPsiToIntermediate(_, externalProperties)))
       case b: PsiBreakStatement =>
-        if (b.getLabelIdentifier != null)
+        if (isBreakRemovable(b)) EmptyConstruction()
+        else if (b.getLabelIdentifier != null)
           NotSupported(None, "break " + b.getLabelIdentifier.getText + "// todo: label break is not supported")
         else NotSupported(None, "break //todo: break is not supported")
+      case y: PsiYieldStatement =>
+        if (isYieldRemovable(y)) convertPsiToIntermediate(y.getExpression, externalProperties)
+        else NotSupported(None, "`yield` " + Option(y.getExpression).map(_.getText).getOrElse("") + "// todo: yield is not supported\n")
       case c: PsiContinueStatement =>
         if (c.getLabelIdentifier != null)
           NotSupported(None, "continue " + c.getLabelIdentifier.getText + " //todo: continue is not supported")
@@ -1028,4 +1033,50 @@ object JavaToScala {
       case _ => false
     }
   }
+
+  @scala.annotation.tailrec
+  private def isYieldRemovable(statement: PsiStatement): Boolean = {
+    val noNextStatement = PsiTreeUtil.getNextSiblingOfType(statement, classOf[PsiStatement]) == null
+    statement.getParent match {
+      case _: PsiSwitchLabeledRuleStatement => noNextStatement
+      case s: PsiIfStatement => isYieldRemovable(s)
+      case s: PsiLabeledStatement => isYieldRemovable(s)
+      case b: PsiCodeBlock if noNextStatement =>
+        b.getParent match {
+          case bs: PsiBlockStatement => isYieldRemovable(bs)
+          case _: PsiSwitchExpression => true
+          case _ => false
+        }
+      case _ => false
+    }
+  }
+
+  private def isBreakRemovable(statement: PsiBreakStatement): Boolean = {
+      statement.findExitedStatement() match {
+        case sw: PsiSwitchStatement => isBreakRemovable(sw, statement)
+        case _ => false
+      }
+  }
+
+  @scala.annotation.tailrec
+  private def isBreakRemovable(switchStatement: PsiSwitchStatement, statement: PsiStatement): Boolean = {
+    statement.getParent match {
+      case _: PsiSwitchLabeledRuleStatement => true
+      case s: PsiIfStatement => isBreakRemovable(switchStatement, s)
+      case s: PsiLabeledStatement => isBreakRemovable(switchStatement, s)
+      case b: PsiCodeBlock if PsiTreeUtil.getNextSiblingOfType(statement, classOf[PsiStatement]) == null =>
+        b.getParent match {
+          case bs: PsiBlockStatement => isBreakRemovable(switchStatement, bs)
+          case p => p eq switchStatement
+        }
+      case _ =>
+        PsiTreeUtil.getNextSiblingOfType(statement, classOf[PsiStatement]) match {
+          case ls: PsiSwitchLabelStatement =>
+            (ls.getEnclosingSwitchBlock eq switchStatement) && !ControlFlowUtils.statementMayCompleteNormally(statement)
+          case bs: PsiBreakStatement => bs.findExitedStatement eq switchStatement
+          case _ => false
+        }
+    }
+  }
+
 }
