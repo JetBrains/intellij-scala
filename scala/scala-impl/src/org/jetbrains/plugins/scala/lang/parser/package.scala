@@ -35,7 +35,10 @@ package object parser {
       repr.advanceLexer()
     }
 
-    def lookAhead(elementTypes: IElementType*): Boolean = {
+    def lookAhead(elementTypes: IElementType*): Boolean =
+      lookAhead(0, elementTypes: _*)
+
+    def lookAhead(offset: Int, elementTypes: IElementType*): Boolean = {
       val types = elementTypes.iterator
 
       @tailrec
@@ -44,7 +47,7 @@ package object parser {
           types.next() == repr.lookAhead(steps) &&
             lookAhead(steps + 1)
 
-      lookAhead(0)
+      lookAhead(offset)
     }
 
     def lookBack(expected: IElementType): Boolean = {
@@ -53,7 +56,7 @@ package object parser {
       expected == actual
     }
 
-    @tailrec
+    @annotation.tailrec
     final def skipWhiteSpacesAndComments(steps: Int,
                                          accumulator: IElementType = null): (Int, IElementType) =
       repr.getCurrentOffset match {
@@ -65,10 +68,13 @@ package object parser {
         case _ => (steps, accumulator)
       }
 
-    def invalidVarId: Boolean = !(repr.getTokenText match {
+    def invalidVarId: Boolean = !validVarId
+
+    // TODO: something wrong with this naming, `varid` from gammar rules is something different: `varid ::=  lower idrest`
+    private def validVarId: Boolean = repr.getTokenText match {
       case "" | "`" => false
       case text => text.head.isUpper || (text.head == '`' && text.last == '`')
-    })
+    }
   }
 
   implicit class ScalaPsiBuilderExt(private val repr: parser.parsing.builder.ScalaPsiBuilder) extends AnyVal {

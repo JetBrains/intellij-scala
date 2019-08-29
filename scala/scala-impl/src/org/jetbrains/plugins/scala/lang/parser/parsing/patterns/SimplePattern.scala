@@ -30,15 +30,18 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 |  XmlPattern
  *                 |  SimplePattern1 [TypeArgs] [ArgumentPatterns]
  *
- * PatVar         ::=  varid
- *                  |  ‘_’
- * SimplePattern1 ::=  Path
- *                  |  SimplePattern1 ‘.’ id
+ * PatVar           ::=  varid
+ *                    |  ‘_’
+ * SimplePattern1   ::=  Path
+ *                    |  SimplePattern1 ‘.’ id
+ * ArgumentPatterns ::=  ‘(’ [Patterns] ‘)’
+ *                    |  ‘(’ [Patterns ‘,’] Pattern2 ‘:’ ‘_’ ‘*’ ‘)’
  */
 object SimplePattern {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simplePatternMarker = builder.mark
+
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() //Ate _
@@ -88,6 +91,7 @@ object SimplePattern {
         }
       case _ =>
     }
+
     if (InterpolationPattern parse builder) {
       simplePatternMarker.done(ScalaElementType.INTERPOLATION_PATTERN)
       return true
@@ -102,10 +106,12 @@ object SimplePattern {
       simplePatternMarker.drop()
       return true
     }
+
     if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER) &&
-            !builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tDOT) &&
-            !builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tLPARENTHESIS) &&
-      builder.invalidVarId) {
+      !builder.lookAhead(1, ScalaTokenTypes.tDOT) &&
+      !builder.lookAhead(1, ScalaTokenTypes.tLPARENTHESIS) &&
+      builder.invalidVarId
+    ) {
       val rpm = builder.mark
       builder.getTokenText
       builder.advanceLexer()
@@ -119,32 +125,25 @@ object SimplePattern {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS =>
           rb1.rollbackTo()
-          StableId parse(builder, ScalaElementType.REFERENCE)
+          StableId.parse(builder, ScalaElementType.REFERENCE)
           val args = builder.mark
           builder.advanceLexer() //Ate (
           builder.disableNewlines()
 
+          // TODO: add annotate as error in scala 3.0 remember that:
+          //  "Under the -language:Scala2 option, Dotty will accept both the old and the new syntax.
+          //  A migration warning will be emitted when the old syntax is encountered."
+          // _* (Scala 2)
           def parseSeqWildcard(): Boolean = {
-            val isUnderWithIdentifier = builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-            if (isUnderWithIdentifier) {
-              val wild = builder.mark
-
-              // TODO: remove all such builder.getTokenType/builder.getTokenTexts, the original issue is not reproduced anymore due to platform changes
-              builder.getTokenType
-              builder.advanceLexer()
-              if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals(builder.getTokenText)) {
-                builder.advanceLexer()
-                wild.done(ScalaElementType.SEQ_WILDCARD)
-                true
-              } else {
-                wild.rollbackTo()
-                false
-              }
+            if (builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+              ParserUtils.eatShortSeqWildcardNext(builder)
             } else {
               false
             }
           }
 
+          // TODO: add annotate as error in scala 3.0
+          // xs @ _* (Scala 2)
           def parseSeqWildcardBinding(): Boolean = {
             val condition =
               builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) ||
@@ -157,8 +156,26 @@ object SimplePattern {
             }
           }
 
-          def parseSeqWildcardAny(): Boolean = parseSeqWildcard() || parseSeqWildcardBinding()
+          // TODO: add annotate as error in scala 2.x
+          // xs : _* (Scala 3)
+          def parseSeqWildcardBindingScala3(): Boolean = {
+            val condition =
+              builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tCOLON, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) ||
+                builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tCOLON, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
 
+            if (condition) {
+              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma = false)
+            } else {
+              false
+            }
+          }
+
+          def parseSeqWildcardAny(): Boolean = parseSeqWildcard() ||  parseSeqWildcardBindingScala3() || parseSeqWildcardBinding()
+
+          // FIXME: we do not allow wildcards in the beginning (e.g. case List(_*, 42) => ???, but allow them
+          //  in the middle (e.g. case List(1, _*, 2, _*) => ???) and do not highlight any error
+          //  (compiler says Error: bad simple pattern: bad use of _* (a sequence pattern must be the last pattern))
+          //  we should whether not parse wildcards in the middle OR (the best IMO) move the error to annotator
           if (!parseSeqWildcardAny()) {
             if (Pattern.parse(builder)) {
               while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
@@ -178,15 +195,17 @@ object SimplePattern {
           }
           builder.restoreNewlinesState()
           args.done(ScalaElementType.PATTERN_ARGS)
+
           simplePatternMarker.done(ScalaElementType.CONSTRUCTOR_PATTERN)
-          return true
+          true
         case _ =>
           rb1.drop()
           simplePatternMarker.done(ScalaElementType.StableReferencePattern)
-          return true
+          true
       }
+    } else {
+      simplePatternMarker.rollbackTo()
+      false
     }
-    simplePatternMarker.rollbackTo()
-    false
   }
 }
