@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.scope._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStatementElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
@@ -36,20 +38,18 @@ import scala.collection.mutable
  * @author Alexander Podkhalyuzin
  *         Date: 20.02.2008
  */
-
-class ScImportStmtImpl private(stub: ScImportStmtStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.IMPORT_STMT, node) with ScImportStmt {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScImportStmtStub) = this(stub, null)
+class ScImportStmtImpl(stub: ScImportStmtStub,
+                       nodeType: ScStatementElementType,
+                       node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+    with ScImportStmt {
 
   override def toString: String = "ScImportStatement"
 
-  import com.intellij.psi.scope._
-
-  def importExprs: Seq[ScImportExpr] =
-    getStubOrPsiChildren(ScalaElementType.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
+  def importExprs: Seq[ScImportExpr] = getStubOrPsiChildren(
+    ScalaElementType.IMPORT_EXPR,
+    JavaArrayFactoryUtil.ScImportExprFactory
+  ).toSeq
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

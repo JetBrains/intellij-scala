@@ -31,7 +31,7 @@ object TopStatSeq {
         //otherwise parse TopStat
         case _ =>
 
-          (parseState, TopStat.parse(builder, parseState)) match {
+          (parseState, TopStat.parse(parseState)(builder)) match {
             case (_, 0) =>
               builder error ScalaBundle.message("wrong.top.statment.declaration")
               builder.advanceLexer()

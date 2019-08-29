@@ -32,9 +32,29 @@ object ScalaTokenType {
   object IsEnum {
 
     def unapply(elementType: IElementType)
-               (implicit builder: ScalaPsiBuilder): Boolean = elementType match {
-      case ScalaTokenTypes.tIDENTIFIER => builder.getTokenText == Enum.debugName
-      case _ => false
-    }
+               (implicit builder: ScalaPsiBuilder): Boolean =
+      isIdentifier(elementType, Enum)
   }
+
+  object IsExport {
+
+    def unapply(elementType: IElementType)
+               (implicit builder: ScalaPsiBuilder): Boolean =
+      isIdentifier(elementType, Export)
+  }
+
+  object IsGiven {
+
+    def unapply(elementType: IElementType)
+               (implicit builder: ScalaPsiBuilder): Boolean =
+      isIdentifier(elementType, Given)
+  }
+
+
+  private[this] def isIdentifier(elementType: IElementType,
+                                 tokenType: ScalaTokenType)
+                                (implicit builder: ScalaPsiBuilder): Boolean =
+    elementType == ScalaTokenTypes.tIDENTIFIER &&
+      tokenType.debugName == builder.getTokenText
+
 }

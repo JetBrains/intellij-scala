@@ -17,5 +17,5 @@ object EnumStat extends ParsingRule {
 
   // TODO Annotation Modifier
   override def parse()(implicit builder: ScalaPsiBuilder): Boolean =
-    TemplateStat.parse(builder) || EnumCase()
+    TemplateStat() || EnumCase()
 }

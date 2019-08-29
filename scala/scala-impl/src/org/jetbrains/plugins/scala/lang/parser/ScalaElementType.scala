@@ -38,7 +38,8 @@ object ScalaElementType {
   val IMPORT_SELECTOR = new ScImportSelectorElementType
   val IMPORT_SELECTORS = new ScImportSelectorsElementType
   val IMPORT_EXPR = new ScImportExprElementType
-  val IMPORT_STMT = new ScImportStmtElementType
+  val IMPORT_STMT: ScStatementElementType = ImportStatement
+  val EXPORT_STMT: ScStatementElementType = ExportStatement
   val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
   val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
   val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration

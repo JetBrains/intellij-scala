@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 package parsing
-package top.template
+package top
+package template
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
@@ -83,5 +84,5 @@ object TemplateBody extends TemplateBody {
     ScalaElementType.TEMPLATE_BODY
 
   override protected def parseStatement()(implicit builder: ScalaPsiBuilder): Boolean =
-    TemplateStat.parse(builder)
+    TemplateStat()
 }
