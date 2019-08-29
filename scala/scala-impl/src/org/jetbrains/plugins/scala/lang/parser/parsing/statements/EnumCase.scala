@@ -4,17 +4,17 @@ package parser
 package parsing
 package statements
 
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.ClassConstr
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ConstrApps
 
 /**
- * [[EnumCase]] ::= 'case' (id [[ClassConstr]] [ 'extends' [[ConstrApps]] ] ] | ids)
+ * [[EnumCase]] ::= 'case' ( id [[ClassConstr]] [ 'extends' [[ConstrApps]] ] ] | [[Ids]])
  */
 object EnumCase extends ParsingRule {
 
-  import ScalaElementType._
-  import lexer.ScalaTokenTypes.{kCASE, tIDENTIFIER}
+  import lexer.ScalaTokenTypes.{kCASE, tCOMMA, tIDENTIFIER}
 
   override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val caseMarker = builder.mark()
@@ -23,11 +23,15 @@ object EnumCase extends ParsingRule {
         builder.advanceLexer()
         builder.getTokenType match {
           case `tIDENTIFIER` =>
-            builder.advanceLexer()
-            ClassConstr()
-            ConstrApps()
+            if (builder.lookAhead(1) == tCOMMA) {
+              Ids()
+            } else {
+              builder.advanceLexer()
+              ClassConstr()
+              ConstrApps()
+            }
 
-            caseMarker.done(ENUM_CASE_DEFINITION)
+            caseMarker.done(ScalaElementType.ENUM_CASE_DEFINITION)
           case _ =>
             builder.error(ScalaBundle.message("identifier.expected"))
             caseMarker.drop()

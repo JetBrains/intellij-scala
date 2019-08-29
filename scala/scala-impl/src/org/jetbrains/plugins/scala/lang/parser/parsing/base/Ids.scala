@@ -4,44 +4,51 @@ package parser
 package parsing
 package base
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 15.02.2008
-*/
-
-/*
- *  ids ::= id { ,  id}
+ * [[Ids]] ::= [[Ids.Id]] { ','  [[Ids.Id]] }
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 15.02.2008
  */
+object Ids extends ParsingRule {
 
-object Ids {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val idListMarker = builder.mark
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER =>
-        val m = builder.mark
-        builder.advanceLexer //Ate identifier
-        m.done(ScalaElementType.FIELD_ID)
-      case _ =>
-        idListMarker.drop
-        return false
-    }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer() //Ate ,
-      builder.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER =>
-          val m = builder.mark
-          builder.advanceLexer //Ate identifier
-          m.done(ScalaElementType.FIELD_ID)
-        case _ =>
-          builder error ErrMsg("identifier.expected")
-          idListMarker.done(ScalaElementType.IDENTIFIER_LIST)
-          return true
+  import ScalaElementType.{FIELD_ID, IDENTIFIER_LIST}
+  import lexer.ScalaTokenTypes.{tCOMMA, tIDENTIFIER}
+
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val listMarker = builder.mark()
+
+    if (Id()) {
+      var stop = false
+      while (stop && builder.getTokenType == tCOMMA) {
+        builder.advanceLexer() //Ate ,
+
+        if (!Id()) {
+          builder.error(ErrMsg("identifier.expected"))
+          stop = true
+        }
       }
+
+      listMarker.done(IDENTIFIER_LIST)
+      true
+    } else {
+      listMarker.drop()
+      false
     }
-    idListMarker.done(ScalaElementType.IDENTIFIER_LIST)
-    return true
+  }
+
+  private object Id extends ParsingRule {
+
+    override def parse()(implicit builder: ScalaPsiBuilder): Boolean =
+      builder.getTokenType match {
+        case `tIDENTIFIER` =>
+          val marker = builder.mark()
+          builder.advanceLexer() //Ate identifier
+          marker.done(FIELD_ID)
+          true
+        case _ => false
+      }
   }
 }
