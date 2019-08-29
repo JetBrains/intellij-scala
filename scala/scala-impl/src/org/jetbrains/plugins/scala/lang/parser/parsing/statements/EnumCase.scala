@@ -26,11 +26,13 @@ object EnumCase extends ParsingRule {
             builder.advanceLexer()
             ClassConstr()
             ConstrApps()
+
+            caseMarker.done(ENUM_CASE_DEFINITION)
           case _ =>
             builder.error(ScalaBundle.message("identifier.expected"))
+            caseMarker.drop()
         }
 
-        caseMarker.done(ENUM_CASE_DEFINITION)
         true
       case _ =>
         caseMarker.rollbackTo()
