@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
-import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -24,7 +23,6 @@ import scala.collection.Seq
 trait ScTypeDefinition extends ScTemplateDefinition
   with ScMember.WithBaseIconProvider
   with NavigationItem
-  with PsiClassAdapter
   with ScTypeParametersOwner
   with ScDocCommentOwner
   with ScCommentOwner {

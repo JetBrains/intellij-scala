@@ -10,7 +10,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
-import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -25,7 +24,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
  * @author ven
  */
-trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
+trait ScTemplateDefinition extends ScNamedElement
+  with PsiClass
+  with Typeable {
 
   import ScTemplateDefinition._
 

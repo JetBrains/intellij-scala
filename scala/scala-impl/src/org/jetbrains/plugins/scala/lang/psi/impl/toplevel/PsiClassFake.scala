@@ -4,12 +4,10 @@ package psi
 package impl
 package toplevel
 
-import _root_.java.util.{Collection, Collections, List}
+import java.{util => ju}
 
 import com.intellij.openapi.util.Pair
-import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
-import com.intellij.psi.meta.PsiMetaData
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
@@ -17,95 +15,92 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 /**
  * @author ilyas
  */
-
+//noinspection TypeAnnotation
 trait PsiClassFake extends PsiClassAdapter with PsiReferenceList with ScDocCommentOwner {
   //todo: this methods from PsiReferenceList to avoid NPE. It's possible for asking different roles, so we can
   //todo: have problems for simple implementation of them
-  def getRole: Role = Role.EXTENDS_LIST
-  def getReferencedTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
-  def getReferenceElements: Array[PsiJavaCodeReferenceElement] = PsiJavaCodeReferenceElement.EMPTY_ARRAY
 
-  def isInterface: Boolean = false
+  override def getRole = PsiReferenceList.Role.EXTENDS_LIST
 
-  def isAnnotationType: Boolean = false
+  override def getReferencedTypes = PsiClassType.EMPTY_ARRAY
 
-  def isEnum: Boolean = false
+  override def getReferenceElements = PsiJavaCodeReferenceElement.EMPTY_ARRAY
 
-  def getExtendsList: PsiReferenceList = this //todo: to avoid NPE from Java
+  override def isInterface: Boolean = false
 
-  def getImplementsList: PsiReferenceList = this //todo: to avoid NPE from Java
+  override def isAnnotationType: Boolean = false
 
-  def getExtendsListTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
+  override def isEnum: Boolean = false
 
-  def getImplementsListTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
+  override def getExtendsList: PsiReferenceList = this //todo: to avoid NPE from Java
 
-  def getSuperClass: PsiClass = null
+  override def getImplementsList: PsiReferenceList = this //todo: to avoid NPE from Java
 
-  def getInterfaces: Array[PsiClass] = PsiClass.EMPTY_ARRAY
+  override def getExtendsListTypes = PsiClassType.EMPTY_ARRAY
 
-  def getSupers: Array[PsiClass] = PsiClass.EMPTY_ARRAY
+  override def getImplementsListTypes = PsiClassType.EMPTY_ARRAY
 
-  def getSuperTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
+  override def getSuperClass: PsiClass = null
 
-  def psiFields: Array[PsiField] = PsiField.EMPTY_ARRAY // todo
+  override def getInterfaces = PsiClass.EMPTY_ARRAY
 
-  def getConstructors: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY // todo
+  override def getSupers = PsiClass.EMPTY_ARRAY
 
-  def psiInnerClasses: Array[PsiClass] = PsiClass.EMPTY_ARRAY // todo
+  override def getSuperTypes = PsiClassType.EMPTY_ARRAY
 
-  def getInitializers: Array[PsiClassInitializer] = PsiClassInitializer.EMPTY_ARRAY
+  override def psiFields = PsiField.EMPTY_ARRAY // todo
 
-  def getAllFields: Array[PsiField] = getFields
+  override def getConstructors = PsiMethod.EMPTY_ARRAY // todo
 
-  def getAllMethods: Array[PsiMethod] = getMethods
+  override def psiInnerClasses = PsiClass.EMPTY_ARRAY // todo
 
-  def getAllInnerClasses: Array[PsiClass] = getInnerClasses
+  override def getInitializers = PsiClassInitializer.EMPTY_ARRAY
 
-  def findFieldByName(name: String, checkBases: Boolean): PsiField = null
+  override def getAllFields = getFields
 
-  def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = null
+  override def getAllMethods = getMethods
 
-  def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  override def getAllInnerClasses = getInnerClasses
 
-  def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
+  override def findFieldByName(name: String, checkBases: Boolean): PsiField = null
 
-  def findMethodsAndTheirSubstitutors: List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
+  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = null
 
-  def getAllMethodsAndTheirSubstitutors: List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
+  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean) = PsiMethod.EMPTY_ARRAY
 
-  def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = null
+  override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean) = ju.Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
 
-  def getLBrace: PsiJavaToken = null
+  override def getAllMethodsAndTheirSubstitutors = ju.Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
 
-  def getRBrace: PsiJavaToken = null
+  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = null
 
-  def getScope: PsiElement = null
+  override def getLBrace: PsiJavaToken = null
 
-  def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = false
+  override def getRBrace: PsiJavaToken = null
 
-  def isInheritorDeep(baseClass: PsiClass, classToPass: PsiClass): Boolean = false
+  override def getScope: PsiElement = null
 
-  def getVisibleSignatures: Collection[HierarchicalMethodSignature] = Collections.emptyList[HierarchicalMethodSignature]
+  override def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = false
 
-  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
+  override def isInheritorDeep(baseClass: PsiClass, classToPass: PsiClass): Boolean = false
 
-  def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
+  override def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] = ju.Collections.emptyList[HierarchicalMethodSignature]
 
-  def getMetaData: PsiMetaData = null
+  override def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
-  def isMetaEnough: Boolean = false
+  override def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
 
-  def hasTypeParameters: Boolean = false
+  override def hasTypeParameters: Boolean = false
 
-  def getTypeParameterList: PsiTypeParameterList = null
+  override def getTypeParameterList: PsiTypeParameterList = null
 
-  def psiTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
+  override def psiTypeParameters = PsiTypeParameter.EMPTY_ARRAY
 
-  def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = Array[PsiMethod]()
+  override def findMethodsByName(name: String, checkBases: Boolean) = PsiMethod.EMPTY_ARRAY
 
-  def psiMethods: Array[PsiMethod] = Array[PsiMethod]()
+  override def psiMethods = PsiMethod.EMPTY_ARRAY
 
-  def getQualifiedName: String = null
+  override def getQualifiedName: String = null
 
-  def getContainingClass: PsiClass = null
+  override def getContainingClass: PsiClass = null
 }
