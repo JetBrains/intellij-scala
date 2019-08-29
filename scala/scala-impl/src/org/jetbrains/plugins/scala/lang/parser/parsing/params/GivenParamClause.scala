@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.GivenKeyword
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
  *
  */
 object GivenParamClause {
-  def parse(builder: ScalaPsiBuilder, alreadyHadGivenClause: Boolean): Boolean = {
+  def parse(alreadyHadGivenClause: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     if (builder.twoNewlinesBeforeCurrentToken) {
@@ -20,7 +21,11 @@ object GivenParamClause {
     }
 
     val hadGivenKeyword =
-      if (builder.getTokenText != ScalaTokenType.Given.debugName) {
+      if (GivenKeyword.isCurrentToken(builder)) {
+        GivenKeyword.remapCurrentToken()
+        builder.advanceLexer() // Ate given
+        true
+      } else {
         if (!alreadyHadGivenClause) {
           marker.drop()
           return false
@@ -28,16 +33,12 @@ object GivenParamClause {
         // we already found a given
         builder error ErrMsg("given.keyword.expected")
         false
-      } else {
-        builder.remapCurrentToken(ScalaTokenType.Given)
-        builder.advanceLexer() // Ate given
-        true
       }
 
     // try parse given types first, because they also might start with '('
     // example:
     //   def test given (TupleFstType, TupleSndType) = ...
-    if (hadGivenKeyword && GivenTypes.parse(builder)) {
+    if (hadGivenKeyword && GivenTypes.parse()) {
       marker.done(ScalaElementType.ANONYMOUS_GIVEN_PARAM_CLAUSE)
       return true
     }

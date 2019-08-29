@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object GivenParamClauses extends ParsingRule {
   override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     var hadGiven = false
-    while (GivenParamClause.parse(builder, hadGiven)) {
+    while (GivenParamClause.parse(hadGiven)) {
       hadGiven = true
     }
     true

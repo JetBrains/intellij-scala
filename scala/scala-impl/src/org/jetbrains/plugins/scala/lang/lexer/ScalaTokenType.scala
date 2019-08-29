@@ -64,4 +64,20 @@ object ScalaTokenType {
       tokenType.debugName == builder.getTokenText &&
       builder.isScala3
 
+  // TODO also remove these
+  object AsKeyword extends DottyKeywordChecker(As)
+  object GivenKeyword extends DottyKeywordChecker(Given)
+
+  abstract class DottyKeywordChecker(tokenType: ScalaTokenType) {
+    def isCurrentToken(builder: ScalaPsiBuilder): Boolean = unapply(builder.getTokenType)(builder)
+
+    def unapply(elementType: IElementType)(implicit builder: ScalaPsiBuilder): Boolean = elementType match {
+      case `tokenType` => true
+      case ScalaTokenTypes.tIDENTIFIER => builder.getTokenText == tokenType.debugName
+      case _ => false
+    }
+
+    def remapCurrentToken()(implicit builder: ScalaPsiBuilder): Unit =
+      builder.remapCurrentToken(tokenType)
+  }
 }

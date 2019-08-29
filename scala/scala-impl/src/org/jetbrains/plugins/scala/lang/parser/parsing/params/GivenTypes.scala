@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
 /*
   GivenTypes        ::=  AnnotType {‘,’ AnnotType}
  */
-object GivenTypes {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object GivenTypes extends ParsingRule {
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!AnnotType.parse(builder, isPattern = false, failOnError = true)) {
       return false
     }
