@@ -20,9 +20,7 @@ final class ScEnumCaseImpl private[psi](stub: ScTemplateDefinitionStub[ScEnumCas
 
   import extensions._
 
-  override def toString: String = "ScEnumCase" + ifReadAllowed {
-    declaredNames.commaSeparated(new Model.Val(": ", ""))
-  }("")
+  override def toString: String = "ScEnumCase" + ifReadAllowed(": " + name)("")
 
   override def declaredElements: Seq[PsiNamedElement] = Seq(this)
 
