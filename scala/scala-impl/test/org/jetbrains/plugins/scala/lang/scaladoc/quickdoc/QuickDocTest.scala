@@ -70,6 +70,19 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     Assert.assertEquals(expected, generated)
   }
 
+  def testTopLevelClass(): Unit = {
+    val fileText =
+      """class A"""
+    val expected =
+      """<html><body><div class="definition"><pre>class <b>A</b>
+        |</pre></div></body></html>""".stripMargin.replaceAll("\r", "")
+
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
+    val element = getFileAdapter.getLastChild.getLastChild
+    val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
+    Assert.assertEquals(expected, generated)
+  }
+
   def testSimpleTags() {
     val fileText =
       """

@@ -156,22 +156,21 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     withHtmlMarkup {
       e match {
         case clazz: ScTypeDefinition =>
-          clazz.qualifiedName.lastIndexOf(".") match {
-            case -1 =>
-            case a =>
-              appendDef {
+          appendDef {
+            clazz.qualifiedName.lastIndexOf(".") match {
+              case -1 =>
+              case a =>
                 withTag("font", Seq(("size", "-1"))) {
                   b {
                     append(clazz.qualifiedName.substring(0, a))
                   }
                 }
+            }
 
-                appendMainSection(clazz, {
-                  appendNl()
-                  append(parseExtendsBlock(clazz.extendsBlock))
-                })
-              }
-              
+            appendMainSection(clazz, {
+              appendNl()
+              append(parseExtendsBlock(clazz.extendsBlock))
+            })
           }
 
           append(parseDocComment(clazz))
