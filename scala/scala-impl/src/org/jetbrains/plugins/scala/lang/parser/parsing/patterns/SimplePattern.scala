@@ -124,12 +124,12 @@ object SimplePattern {
           builder.advanceLexer() //Ate (
           builder.disableNewlines()
 
-          def parseSeqWildcard(withComma: Boolean): Boolean = {
-            if (if (withComma)
-              builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-            else builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+          def parseSeqWildcard(): Boolean = {
+            val isUnderWithIdentifier = builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
+            if (isUnderWithIdentifier) {
               val wild = builder.mark
-              if (withComma) builder.advanceLexer()
+
+              // TODO: remove all such builder.getTokenType/builder.getTokenTexts, the original issue is not reproduced anymore due to platform changes
               builder.getTokenType
               builder.advanceLexer()
               if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals(builder.getTokenText)) {
@@ -145,23 +145,31 @@ object SimplePattern {
             }
           }
 
-          def parseSeqWildcardBinding(withComma: Boolean): Boolean = {
-            if (if (withComma) builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
-            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
-              ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-            else builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
-            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
-              ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma)
-            } else false
-          }
+          def parseSeqWildcardBinding(): Boolean = {
+            val condition =
+              builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) ||
+                builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
 
-          if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && Pattern.parse(builder)) {
-            while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-              builder.advanceLexer() // eat comma
-              if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false)) Pattern.parse(builder)
+            if (condition) {
+              ParserUtils.parseVarIdWithWildcardBinding(builder, withComma = false)
+            } else {
+              false
             }
           }
+
+          def parseSeqWildcardAny(): Boolean = parseSeqWildcard() || parseSeqWildcardBinding()
+
+          if (!parseSeqWildcardAny()) {
+            if (Pattern.parse(builder)) {
+              while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+                builder.advanceLexer() // eat comma
+                if (!parseSeqWildcardAny()) {
+                  Pattern.parse(builder)
+                }
+              }
+            }
+          }
+
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
