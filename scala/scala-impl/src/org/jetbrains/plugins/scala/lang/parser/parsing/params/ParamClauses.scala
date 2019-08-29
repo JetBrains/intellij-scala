@@ -27,10 +27,7 @@ object ParamClauses {
     }
     while (ParamClause.parse(builder)) {}
     ImplicitParamClause parse builder
-    var hadGiven = false
-    while (GivenParamClause.parse(builder, hadGiven)) {
-      hadGiven = true
-    }
+    GivenParamClauses.parse()(builder)
     paramMarker.done(ScalaElementType.PARAM_CLAUSES)
     true
   }
