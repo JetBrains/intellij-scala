@@ -49,7 +49,7 @@ object BlockStat {
         }
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
         return TmplDef.parse(builder)
-      case ScalaTokenType.IsEnum() =>
+      case ScalaTokenType.IsEnum() | ScalaTokenType.GivenKeyword() =>
         return TmplDef.parse(builder)
       case _ if patcher.parse(builder) => parse(builder)
       case _ =>

@@ -8,6 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.GivenDef
 
 /**
  * [[TmplDef]] ::= { [[Annotation]] } { [[Modifier]] }
@@ -88,6 +89,7 @@ object TmplDef extends ParsingRule {
         TRAIT_DEFINITION
       )
       case lexer.ScalaTokenType.IsEnum() => Some(() => EnumDef(), ENUM_DEFINITION)
+      case lexer.ScalaTokenType.GivenKeyword() => Some(() => GivenDef.parse, ???)
       case _ => None
     }
 }

@@ -107,7 +107,7 @@ object Def {
            | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT =>
         defMarker.rollbackTo()
         TmplDef.parse(builder)
-      case ScalaTokenType.IsEnum() =>
+      case ScalaTokenType.IsEnum() | ScalaTokenType.GivenKeyword() =>
         defMarker.rollbackTo()
         TmplDef.parse(builder)
       case _ =>
