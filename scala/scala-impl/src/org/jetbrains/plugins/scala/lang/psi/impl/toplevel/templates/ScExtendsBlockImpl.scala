@@ -22,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl.addIfNotNull
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExtendsBlockElementType
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{result, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -35,12 +36,11 @@ import scala.collection.mutable.ArrayBuffer
   * @author AlexanderPodkhalyuzin
   *         Date: 20.02.2008
   */
-class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, EXTENDS_BLOCK, node) with ScExtendsBlock {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScExtendsBlockStub) = this(stub, null)
+class ScExtendsBlockImpl(stub: ScExtendsBlockStub,
+                         nodeType: ScExtendsBlockElementType,
+                         node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+    with ScExtendsBlock {
 
   override def toString: String = "ExtendsBlock"
 

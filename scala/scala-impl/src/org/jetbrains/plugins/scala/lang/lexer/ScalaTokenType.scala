@@ -50,6 +50,12 @@ object ScalaTokenType {
       isIdentifier(elementType, Given)
   }
 
+  object IsDerives {
+
+    def unapply(elementType: IElementType)
+               (implicit builder: ScalaPsiBuilder): Boolean =
+      isIdentifier(elementType, Derives)
+  }
 
   private[this] def isIdentifier(elementType: IElementType,
                                  tokenType: ScalaTokenType)

@@ -56,7 +56,8 @@ object ScalaElementType {
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
   val PACKAGING: ScPackagingElementType.type = ScPackagingElementType
-  val EXTENDS_BLOCK = new ScExtendsBlockElementType
+  val EXTENDS_BLOCK: ScExtendsBlockElementType = ExtendsBlock
+  val DERIVES_BLOCK: ScExtendsBlockElementType = DerivesBlock
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
   val TEMPLATE_BODY: ScTemplateBodyElementType = TemplateBody
   val ENUM_BODY: ScTemplateBodyElementType = EnumBody
