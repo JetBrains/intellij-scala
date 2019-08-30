@@ -47,7 +47,7 @@ trait InfixType {
           case _ =>
         }
       case _ =>
-        if (!componentType.parse(star, isPattern)(builder)) {
+        if (!componentType.parse(builder, star, isPattern)) {
           infixTypeMarker.rollbackTo()
           return false
         }
@@ -91,7 +91,7 @@ trait InfixType {
           builder.advanceLexer()
           typeMarker.done(ScalaElementType.WILDCARD_TYPE)
         case _ =>
-          if (!componentType.parse(star, isPattern)(builder)) builder.error(errorMessage)
+          if (!componentType.parse(builder, star, isPattern)) builder.error(errorMessage)
           else                                                couldBeVarArg = false
       }
 

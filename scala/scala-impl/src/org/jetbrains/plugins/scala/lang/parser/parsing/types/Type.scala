@@ -28,24 +28,14 @@ object Type extends Type {
 trait Type extends ParsingRule {
   protected def infixType: InfixType
 
-  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = parse(star = false, isPattern = false)
+  override def parse()(implicit builder: ScalaPsiBuilder): Boolean = parse(builder, star = false, isPattern = false)
 
-  def parse(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
     val typeMarker = builder.mark
+    implicit val ibuilder: ScalaPsiBuilder = builder
 
-    if (infixType.parse(builder, star, isPattern)) {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE =>
-          builder.advanceLexer() //Ate =>
-          if (!parse(isPattern = isPattern)) {
-            builder.error(ScalaBundle.message("wrong.type"))
-          }
-          typeMarker.done(ScalaElementType.TYPE)
-        case ScalaTokenTypes.kFOR_SOME =>
-          ExistentialClause parse builder
-          typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
-        case _ => typeMarker.drop()
-      }
+    if (FunType.parse()) {
+      typeMarker.drop()
       true
     } else if (TypeParamClause.parse(builder, mayHaveContextBounds = false, mayHaveViewBounds = false)) {
       /** Scala 3+ Type Lambdas */
@@ -53,15 +43,13 @@ trait Type extends ParsingRule {
         case ScalaTokenType.TypeLambdaArrow.debugName =>
           builder.remapCurrentToken(ScalaTokenType.TypeLambdaArrow)
           builder.advanceLexer()
-          if (!parse(isPattern = isPattern)) {
+          if (!parse(builder, isPattern = isPattern)) {
             builder.error(ScalaBundle.message("wrong.type"))
           }
-          typeMarker.done(ScalaElementType.TYPE_LAMBDA)
-        case _ => builder.error(ScalaBundle.message("type.lambda.expected"))
+        case _ =>
+          builder.error(ScalaBundle.message("type.lambda.expected"))
       }
-      true
-    } else if (MatchType.parse()) {
-      typeMarker.drop()
+      typeMarker.done(ScalaElementType.TYPE_LAMBDA)
       true
     } else {
       builder.getTokenType match {
@@ -88,7 +76,7 @@ trait Type extends ParsingRule {
             case ScalaTokenTypes.tFUNTYPE =>
               val funMarker = typeMarker.precede()
               builder.advanceLexer() //Ate =>
-              if (!parse(isPattern = isPattern)) {
+              if (!parse(builder, isPattern = isPattern)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               funMarker.done(ScalaElementType.TYPE)

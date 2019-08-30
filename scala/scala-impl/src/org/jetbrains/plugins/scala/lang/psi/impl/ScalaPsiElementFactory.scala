@@ -927,7 +927,7 @@ object ScalaPsiElementFactory {
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =
-    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause.parse)
+    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause.parse(_))
 
   def createWildcardPattern(implicit ctx: ProjectContext): ScWildcardPattern = {
     val element = createElementFromText("val _ = x")

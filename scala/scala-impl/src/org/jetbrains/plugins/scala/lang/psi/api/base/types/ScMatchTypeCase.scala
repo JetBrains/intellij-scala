@@ -12,5 +12,6 @@ trait ScMatchTypeCase extends ScalaPsiElement {
 }
 
 object ScMatchTypeCase {
-  def unapply(cse: ScMatchTypeCase)
+  def unapply(cse: ScMatchTypeCase): Some[(Option[ScTypeElement], Option[ScTypeElement])] =
+    Some(cse.patternTypeElement, cse.resultTypeElement)
 }
