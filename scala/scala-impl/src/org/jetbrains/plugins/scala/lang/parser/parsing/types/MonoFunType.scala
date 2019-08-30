@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /**
  * [[MonoFunType]] ::= [ 'given' ] [[InfixType]] ‘=>’ [[Type]]
  *                   | [[InfixType]] [ [[ExistentialClause]] | [[MatchTypeSuffix]] ]
+ *                   | [[DepFunParams]] '=>' [[Type]]
  */
 object MonoFunType extends ParsingRule {
   override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -23,13 +24,19 @@ object MonoFunType extends ParsingRule {
         case _ => false
       }
 
-    if (InfixType.parse(builder)) {
+    if (DepFunParams.parse() && !isImplicitFunctionType) {
+      if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
+        builder.advanceLexer()
+        if (!Type.parse()) builder.error(ScalaBundle.message("wrong.type"))
+      } else builder.error(ScalaBundle.message("fun.sign.expected"))
+
+      marker.done(ScalaElementType.DEPENDENT_FUNCTION_TYPE)
+      true
+    } else if (InfixType.parse(builder)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE =>
           builder.advanceLexer() //Ate =>
-          if (!parse()) {
-            builder.error(ScalaBundle.message("wrong.type"))
-          }
+          if (!Type.parse()) builder.error(ScalaBundle.message("wrong.type"))
           marker.done(ScalaElementType.TYPE)
         case _ if isImplicitFunctionType =>
           marker.rollbackTo()
@@ -43,6 +50,9 @@ object MonoFunType extends ParsingRule {
         case _ => marker.drop()
       }
       true
+    } else if (isImplicitFunctionType) {
+      marker.rollbackTo()
+      false
     } else {
       marker.rollbackTo()
       false

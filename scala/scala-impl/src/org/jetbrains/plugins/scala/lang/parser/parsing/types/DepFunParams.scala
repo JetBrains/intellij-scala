@@ -6,16 +6,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
- *
- * [[FunArgTypes]] ::= ‘(’ [[TypedFunParam]] {‘,’ [[TypedFunParam]] } ‘)’
+ * [[DepFunParams]] ::= '(' [[TypedFunParam]], { [[TypedFunParam]] } ')'
  */
-object FunArgTypes extends ParsingRule {
+object DepFunParams extends ParsingRule {
   override def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
-    if (InfixType.parse(builder)) {
-      ???
-    } else if (!TypedFunParam.parse()) {
+    builder.getTokenType match {
+      case ScalaTokenTypes.tLPARENTHESIS => builder.advanceLexer()
+      case _                             => marker.drop(); return false
+    }
+
+    if (!TypedFunParam.parse()) {
       marker.rollbackTo()
       false
     } else {
@@ -27,8 +29,12 @@ object FunArgTypes extends ParsingRule {
         if (!TypedFunParam.parse()) exit = true
       }
 
+      builder.getTokenType match {
+        case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer()
+        case _                             => builder.error("rparenthesis.expected")
+      }
+
       marker.done(ScalaElementType.PARAM_CLAUSE)
-      marker.precede.done(ScalaElementType.PARAM_CLAUSES)
       true
     }
   }
