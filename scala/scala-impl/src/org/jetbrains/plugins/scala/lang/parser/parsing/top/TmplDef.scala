@@ -5,6 +5,7 @@ package parsing
 package top
 
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
@@ -42,12 +43,11 @@ object TmplDef extends ParsingRule {
     modifierMarker.done(MODIFIERS)
 
     templateParser(caseState) match {
-      case Some((parse, elementType)) =>
+      case Some(parse) =>
         builder.advanceLexer()
-        if (parse()) {
-          templateMarker.done(elementType)
-        } else {
-          templateMarker.drop()
+        parse() match {
+          case Some(elementType) => templateMarker.done(elementType)
+          case None => templateMarker.drop()
         }
 
         true
@@ -80,17 +80,15 @@ object TmplDef extends ParsingRule {
   }
 
   private def templateParser(caseState: Boolean)
-                            (implicit builder: ScalaPsiBuilder): Option[(() => Boolean, IElementType)] =
+                            (implicit builder: ScalaPsiBuilder): Option[() => Option[IElementType]] = {
     builder.getTokenType match {
-      case `kCLASS` => Some(() => ClassDef(), CLASS_DEFINITION)
-      case `kOBJECT` => Some(() => ObjectDef.parse(builder), OBJECT_DEFINITION)
-      case `kTRAIT` => Some(
-        () => if (caseState) true else TraitDef.parse(builder),
-        TRAIT_DEFINITION
-      )
-      case lexer.ScalaTokenType.IsEnum() => Some(() => EnumDef(), ENUM_DEFINITION)
-      case lexer.ScalaTokenType.GivenKeyword() => Some(() => GivenDef.parse, ???)
+      case `kCLASS` => Some(() => ClassDef().option(CLASS_DEFINITION))
+      case `kOBJECT` => Some(() => ObjectDef.parse(builder).option(OBJECT_DEFINITION))
+      case `kTRAIT` => Some(() => (if (caseState) true else TraitDef.parse(builder)).option(TRAIT_DEFINITION))
+      case lexer.ScalaTokenType.IsEnum() => Some(() => EnumDef().option(ENUM_DEFINITION))
+      case lexer.ScalaTokenType.GivenKeyword() => Some(() => GivenDef.parse())
       case _ => None
     }
+  }
 }
 

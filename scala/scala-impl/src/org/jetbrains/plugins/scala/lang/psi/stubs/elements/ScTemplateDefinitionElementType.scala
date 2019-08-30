@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScEnumImpl, ScObjectImpl, ScTraitImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -211,6 +211,13 @@ object EnumCase extends ScTemplateDefinitionElementType[ScEnumCase]("enum case")
   override def createElement(node: ASTNode) = new ScEnumCaseImpl(null, null, node)
 
   override def createPsi(stub: ScTemplateDefinitionStub[ScEnumCase]) = new ScEnumCaseImpl(stub, this, null)
+}
+
+object ScGivenDefinitionDefinition extends ScTemplateDefinitionElementType[ScGivenDefinition]("given definition") {
+
+  override def createElement(node: ASTNode) = new ScGivenDefinitionImpl(null, null, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition]) = new ScGivenDefinitionImpl(stub, this, null)
 }
 
 object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("new template definition") {

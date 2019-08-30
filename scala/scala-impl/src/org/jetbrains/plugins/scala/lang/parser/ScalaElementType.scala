@@ -78,6 +78,9 @@ object ScalaElementType {
   val ENUM_CASE_DEFINITION: ScTemplateDefinitionElementType[ScEnumCase] = EnumCase
   val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
+  val GIVEN_DEFINITION: ScTemplateDefinitionElementType[ScGivenDefinition] = ScGivenDefinitionDefinition
+  def GIVEN_ALIAS: ScPropertyElementType[ScGivenAlias] = GivenAliasDefinition
+
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
   val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
   val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = ScNamingPatternElementType

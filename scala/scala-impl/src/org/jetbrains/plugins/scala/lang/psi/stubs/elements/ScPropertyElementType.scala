@@ -9,9 +9,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 
 /**
   * @author adkozlov
@@ -106,4 +107,15 @@ object VariableDefinition extends ScPropertyElementType[ScVariableDefinition]("v
 
   override protected def body(property: ScVariableDefinition): Option[ScExpression] =
     property.expr
+}
+
+object GivenAliasDefinition extends ScPropertyElementType[ScGivenAlias]("given alias") {
+  override def createElement(node: ASTNode) =
+    new ScGivenAliasImpl(null, null, node)
+
+  override def createPsi(stub: ScPropertyStub[ScGivenAlias]) =
+    new ScGivenAliasImpl(stub, this, null)
+
+  override protected def body(givenAlias: ScGivenAlias): Option[ScExpression] =
+    givenAlias.expr
 }

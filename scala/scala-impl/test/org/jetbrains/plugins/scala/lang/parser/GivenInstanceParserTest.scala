@@ -28,7 +28,7 @@ class GivenInstanceParserTest extends SimpleParserTestBase {
     } yield s"given $id $typeParams $body"
 
     for (cur <- givenDef) {
-      println("try parse:" + cur)
+      println("try parse: " + cur)
       checkParseErrors(cur)
     }
   }

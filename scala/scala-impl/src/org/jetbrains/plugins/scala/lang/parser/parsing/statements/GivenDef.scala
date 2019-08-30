@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
@@ -16,32 +16,35 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
  *                    |  ‘as’ Type {GivenParamClause} ‘=’ Expr
  *                    |  ‘(’ DefParam ‘)’ TemplateBody
  */
-object GivenDef extends ParsingRule {
-  def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
+object GivenDef {
+  def parse()(implicit builder: ScalaPsiBuilder): Option[IElementType] = {
+    import ScalaElementType._
     import ScalaTokenType._
+    import ScalaTokenTypes._
     import builder._
 
-    if (!GivenKeyword.isCurrentToken(builder)) {
-      return false
-    }
+    // given is eaten by TempDef
+    //if (!GivenKeyword.isCurrentToken(builder)) {
+    //  return None
+    //}
     val faultMarker = builder.mark()
     //GivenKeyword.remapCurrentToken()
-    advanceLexer() // Ate given
+    //advanceLexer() // Ate given
 
-    if (!GivenKeyword.isCurrentToken(builder) && !AsKeyword.isCurrentToken(builder)) {
-      advanceLexer()
+    if (getTokenType == tIDENTIFIER && !GivenKeyword.isCurrentToken(builder) && !AsKeyword.isCurrentToken(builder)) {
+      advanceLexer() // eat name of the given instance
     }
 
     TypeArgs.parse(builder, isPattern = false)
 
     val result = getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS if parseCollectiveGiven() => true
-      case _ if parseGivenExpr() => true
-      case _ if parseGivenTemplateBody() => true
-      case _ => false
+      case ScalaTokenTypes.tLPARENTHESIS if parseCollectiveGiven() => Some(GIVEN_DEFINITION)
+      case _ if parseGivenExpr() => Some(GIVEN_ALIAS)
+      case _ if parseGivenTemplateBody() => Some(GIVEN_DEFINITION)
+      case _ => None
     }
 
-    if (result) {
+    if (result.isDefined) {
       faultMarker.drop()
     } else {
       faultMarker.rollbackTo()
@@ -53,7 +56,10 @@ object GivenDef extends ParsingRule {
     if (!ParamClause.parse(builder)) {
       return false
     }
+
+    val extendsBlockMarker = builder.mark()
     TemplateBody.parse()
+    extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
     true
   }
 
@@ -66,6 +72,8 @@ object GivenDef extends ParsingRule {
     }
     val faultMarker = mark()
     AsKeyword.remapCurrentToken()
+    advanceLexer() // eat as
+
     Type.parse(builder)
     GivenParamClauses.parse()
 
@@ -73,6 +81,7 @@ object GivenDef extends ParsingRule {
       faultMarker.rollbackTo()
       return false
     }
+    advanceLexer() // eat =
 
     if (!Expr.parse(builder)) {
       faultMarker.rollbackTo()
@@ -101,10 +110,13 @@ object GivenDef extends ParsingRule {
 
     GivenParamClauses.parse()
 
+    val extendsBlockMarker = mark()
     if (!TemplateBody.parse()) {
+      extendsBlockMarker.drop()
       faultMarker.rollbackTo()
       return false
     }
+    extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
 
     faultMarker.drop()
     true
