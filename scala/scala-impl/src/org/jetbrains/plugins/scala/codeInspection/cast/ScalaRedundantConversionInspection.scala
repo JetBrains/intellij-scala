@@ -8,7 +8,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
@@ -63,8 +64,13 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
 
     override protected def doApplyFix(elem: PsiElement, scExpr: ScExpression)
                                      (implicit project: Project): Unit = {
-      elem.getParent.addBefore(scExpr, elem)
-      elem.delete()
+      scExpr match {
+        case under: ScUnderscoreSection if under.overExpr.contains(elem) =>
+          elem.replace(ScalaPsiElementFactory.createIdentifier("identity").getPsi)
+        case _ =>
+          elem.getParent.addBefore(scExpr, elem)
+          elem.delete()
+      }
     }
   }
 }
