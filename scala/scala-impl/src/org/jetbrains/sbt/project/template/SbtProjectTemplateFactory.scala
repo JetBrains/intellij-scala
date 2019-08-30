@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project.template
 
 import com.intellij.ide.util.projectWizard.WizardContext
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
@@ -19,11 +20,21 @@ class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
 
   override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] = {
     if (context.isCreatingNewProject) {
-      Array(
-        new SbtProjectTemplate(),
-        new TechHubProjectTemplate)
+
+      val defaultTemplates = Array(
+        new SbtProjectTemplate,
+        new TechHubProjectTemplate
+      )
+      defaultTemplates ++ dottyTemplates
     } else {
       Array.empty
     }
+  }
+
+  private def dottyTemplates: Array[ProjectTemplate] = {
+    val url = getClass.getClassLoader.getResource("projectTemplates/dottyTemplate.zip")
+    if (ApplicationManager.getApplication.isInternal)
+      Array(ArchivedSbtProjectTemplate("Dotty", "Minimal Dotty project", url))
+    else Array.empty
   }
 }
