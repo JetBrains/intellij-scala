@@ -15,6 +15,7 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
 
   override implicit val sbtVersion: Version = Sbt.LatestVersion
 
+  private var excludeWhenTypeIsStable: Boolean = _
   private var excludeInDialectSources: Boolean = _
   private var excludeWhenTypeMatches: ju.Set[String] = _
 
@@ -23,6 +24,9 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
 
     val settings = getScalaSettings
     import settings._
+
+    excludeWhenTypeIsStable = TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE
+    TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE = false
 
     excludeInDialectSources = TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES
     TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = false
@@ -35,6 +39,7 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
     val settings = getScalaSettings
     import settings._
 
+    TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE = excludeWhenTypeIsStable
     TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = excludeInDialectSources
     TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = excludeWhenTypeMatches
 
