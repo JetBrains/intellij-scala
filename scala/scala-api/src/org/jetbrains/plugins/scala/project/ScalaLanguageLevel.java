@@ -4,6 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import scala.Option;
 import scala.math.Ordered;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
 
     Scala_2_9("2.9"),
@@ -12,7 +15,15 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
     Scala_2_14("2.14"),
-    Scala_3_0("0.17", "3.0");
+    Scala_3_0("0.17", "3.0") {
+        @NotNull
+        private final List<String> myVersionAliases = Arrays.asList("0.18", "0.19");
+
+        @Override
+        protected boolean conformsVersion(String version) {
+            return super.conformsVersion(version) || myVersionAliases.stream().anyMatch(version::startsWith);
+        }
+    };
 
     @NotNull
     private final String myVersion;
@@ -52,11 +63,15 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     @NotNull
     public static Option<ScalaLanguageLevel> findByVersion(@NotNull String version) {
         for (ScalaLanguageLevel languageLevel : values()) {
-            if (version.startsWith(languageLevel.myVersion)) {
+            if (languageLevel.conformsVersion(version)) {
                 return Option.apply(languageLevel);
             }
         }
 
         return Option.empty();
+    }
+
+    protected boolean conformsVersion(String version) {
+        return version.startsWith(this.myVersion);
     }
 }

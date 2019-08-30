@@ -72,8 +72,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
         Importer.setScalaSdk(
           modelsProvider,
           scalaLibrary,
-          ScalaLibraryProperties(Some(version), configuration.compilerClasspath.map(mavenProject.localPathTo)
-          )
+          ScalaLibraryProperties(Some(version), configuration.compilerClasspath.map(mavenProject.localPathTo))
         )
       }
     }

@@ -55,7 +55,7 @@ object SbtProjectDataService {
       ScalaProjectSettings.getInstance(project).setBasePackages(data.basePackages)
       configureJdk(project, data)
       updateJavaCompilerOptionsIn(project, data.javacOptions.asScala)
-      setLanguageLevel(project, data)
+      setJavaLanguageLevel(project, data)
       setSbtVersion(project, data)
       updateIncrementalityType(project)
     }
@@ -70,7 +70,7 @@ object SbtProjectDataService {
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
     }
 
-    private def setLanguageLevel(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
+    private def setJavaLanguageLevel(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
       val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
       val javaLanguageLevel = SdkUtils.javaLanguageLevelFrom(data.javacOptions.asScala)
         .orElse(projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
