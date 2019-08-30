@@ -55,6 +55,7 @@ object ScalaTokenType {
                                  tokenType: ScalaTokenType)
                                 (implicit builder: ScalaPsiBuilder): Boolean =
     elementType == ScalaTokenTypes.tIDENTIFIER &&
-      tokenType.debugName == builder.getTokenText
+      tokenType.debugName == builder.getTokenText &&
+      builder.isScala3
 
 }

@@ -26,6 +26,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isMetaEnabled: Boolean
 
+  def isScala3: Boolean
+
   @inline
   def withEnabledNewlines[T](body: => T): T = {
     enableNewlines()

@@ -37,6 +37,10 @@ object ScalaUtil {
     ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(file)
   }
 
+  def isInScala3(file: Option[PsiFile]): Boolean = file.exists {
+    _.isInScala3Module
+  }
+
   def isTrailingCommasEnabled(file: PsiFile): Boolean = Option(file).exists { file =>
     val (result, _) = areTrailingCommasAndIdBindingEnabled(Some(file))(file.getProject)
     result

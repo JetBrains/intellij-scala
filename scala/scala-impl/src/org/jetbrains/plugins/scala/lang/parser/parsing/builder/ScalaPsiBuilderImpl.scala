@@ -9,7 +9,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.settings.ScalaFeatureSettings
-import org.jetbrains.plugins.scala.util.ScalaUtil.areTrailingCommasAndIdBindingEnabled
 
 /**
   * @author Alexander Podkhalyuzin
@@ -19,6 +18,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     with ScalaPsiBuilder {
 
   import lexer.ScalaTokenTypes._
+  import util.ScalaUtil._
 
   implicit def project: Project = getProject
 
@@ -43,6 +43,9 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     import meta.intellij.psi._
     _.isMetaEnabled
   }
+
+  override lazy val isScala3: Boolean =
+    isInScala3(containingFile)
 
   override def newlineBeforeCurrentToken: Boolean =
     findPreviousNewLineSafe.isDefined
