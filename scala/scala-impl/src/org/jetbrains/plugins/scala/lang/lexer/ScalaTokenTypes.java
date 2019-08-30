@@ -25,6 +25,7 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Double;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Float;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.TypeLambdaArrow;
 
 /**
  * @author ilyas
@@ -243,7 +244,8 @@ public interface ScalaTokenTypes {
             kWHILE,
             kWITH,
             kYIELD,
-            kMACRO
+            kMACRO,
+            TypeLambdaArrow()
     );
 
     TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);

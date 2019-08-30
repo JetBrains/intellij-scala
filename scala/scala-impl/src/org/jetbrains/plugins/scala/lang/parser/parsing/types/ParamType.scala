@@ -35,7 +35,7 @@ trait ParamType {
         builder.advanceLexer() //Ate '=>'
         `type`.parse(builder)
       case _ =>
-        if (!`type`.parse(builder, star = true)) false
+        if (!`type`.parse(star = true)(builder)) false
         else {
           builder.getTokenText match {
             case "*" => builder.advanceLexer() // Ate '*'

@@ -33,15 +33,6 @@ trait Type extends ParsingRule {
   def parse(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
 
-    val isImplicitFunctionType =
-      builder.getTokenText match {
-        case ScalaTokenType.Given.debugName =>
-          builder.remapCurrentToken(ScalaTokenType.Given)
-          builder.advanceLexer()
-          true
-        case _ => false
-      }
-
     if (infixType.parse(builder, star, isPattern)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE =>
@@ -50,18 +41,12 @@ trait Type extends ParsingRule {
             builder.error(ScalaBundle.message("wrong.type"))
           }
           typeMarker.done(ScalaElementType.TYPE)
-        case _ if isImplicitFunctionType =>
-          builder.error(ScalaBundle.message("fun.sign.expected"))
-          typeMarker.done(ScalaElementType.TYPE)
         case ScalaTokenTypes.kFOR_SOME =>
           ExistentialClause parse builder
           typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
         case _ => typeMarker.drop()
       }
       true
-    } else if (isImplicitFunctionType) {
-      typeMarker.drop()
-      false
     } else if (TypeParamClause.parse(builder, mayHaveContextBounds = false, mayHaveViewBounds = false)) {
       /** Scala 3+ Type Lambdas */
       builder.getTokenText match {
