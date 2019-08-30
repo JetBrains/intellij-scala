@@ -4,7 +4,7 @@ package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveCaseFromForBindingIntentionAction, RemoveValFromForBindingIntentionAction}
+import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveCaseFromPatternedEnumeratorIntentionAction, RemoveValFromForBindingIntentionAction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForBinding
 
 object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
@@ -19,11 +19,11 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
     }
 
     // TODO: this is quite the same as ScGeneratorAnnotator.annotate has
-    // looks like the presentation of these two errors is not the best, maybe rethink?
+    //  looks like the presentation (message and style) of these two errors is not the best, maybe rethink?
     element.caseKeyword.foreach { caseKeyword =>
       val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("enumerators.binding.case.keyword.found"))
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      annotation.registerFix(new RemoveCaseFromForBindingIntentionAction(element))
+      annotation.registerFix(new RemoveCaseFromPatternedEnumeratorIntentionAction(element))
     }
   }
 }

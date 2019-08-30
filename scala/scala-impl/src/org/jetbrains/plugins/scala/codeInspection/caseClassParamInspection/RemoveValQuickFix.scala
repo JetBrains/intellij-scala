@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator, ScPatternedEnumerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 class RemoveValQuickFix(param: ScClassParameter)
@@ -39,7 +39,7 @@ class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends I
   override def getFamilyName: String = "Remove 'val' from definition"
 }
 
-class RemoveCaseFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction {
+class RemoveCaseFromPatternedEnumeratorIntentionAction(forBinding: ScPatternedEnumerator) extends IntentionAction {
 
   override def getText: String = "Remove unnecessary 'case'"
 
@@ -52,7 +52,7 @@ class RemoveCaseFromForBindingIntentionAction(forBinding: ScForBinding) extends 
 
   override def startInWriteAction(): Boolean = true
 
-  override def getFamilyName: String = "Remove 'case' from definition"
+  override def getFamilyName: String = "Remove 'case' from enumerator"
 }
 
 class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends IntentionAction {
