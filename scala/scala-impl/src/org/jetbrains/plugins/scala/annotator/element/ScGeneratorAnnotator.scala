@@ -21,14 +21,14 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
 
     element.valKeyword.foreach { valKeyword =>
       val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerators.generator.val.keyword.found"))
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
       annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
     }
 
     if(element.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_3_0)) {
       element.caseKeyword.foreach { caseKeyword =>
         val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("for.pattern.bindings.require.scala3"))
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
         annotation.registerFix(new RemoveCaseFromPatternedEnumeratorFix(element))
       }
     }

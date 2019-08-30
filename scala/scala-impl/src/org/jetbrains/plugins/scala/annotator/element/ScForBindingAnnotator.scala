@@ -27,7 +27,7 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
     //  looks like the presentation (message and style) of these two errors is not the best, maybe rethink?
     element.caseKeyword.foreach { caseKeyword =>
       val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("enumerators.binding.case.keyword.found"))
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
       annotation.registerFix(new RemoveCaseFromPatternedEnumeratorFix(element))
     }
   }
