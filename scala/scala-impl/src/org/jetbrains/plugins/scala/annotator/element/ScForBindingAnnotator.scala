@@ -2,10 +2,15 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveCaseFromPatternedEnumeratorIntentionAction, RemoveValFromForBindingIntentionAction}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForBinding
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromForBindingIntentionAction
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScPatternedEnumerator}
 
 object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
 
@@ -23,7 +28,23 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
     element.caseKeyword.foreach { caseKeyword =>
       val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("enumerators.binding.case.keyword.found"))
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      annotation.registerFix(new RemoveCaseFromPatternedEnumeratorIntentionAction(element))
+      annotation.registerFix(new RemoveCaseFromPatternedEnumeratorFix(element))
     }
+  }
+
+  class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator) extends IntentionAction {
+
+    override def getText: String = "Remove unnecessary 'case'"
+
+    override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
+
+    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+      if (!enumerator.isValid) return
+      enumerator.findChildrenByType(ScalaTokenTypes.kCASE).foreach(_.delete())
+    }
+
+    override def startInWriteAction(): Boolean = true
+
+    override def getFamilyName: String = "Remove 'case' from enumerator"
   }
 }
