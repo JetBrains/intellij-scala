@@ -108,10 +108,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
                `kCLASS` |
                `tIDENTIFIER` => true
           case _ =>
-            val lastElement = builder.getLatestDoneMarker.getTokenType
-            lastElement == ScalaElementType.GENERATOR ||
-              lastElement == ScalaElementType.FOR_BINDING ||
-              lastElement == ScalaElementType.GUARD
+            false
         }
       }
     case _ => true

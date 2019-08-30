@@ -31,11 +31,12 @@ object Enumerators {
           // eat all semicolons (which is not correct), show error in ScForAnnotator
           CommonUtils.eatAllSemicolons(builder)
           false
+        case ScalaTokenTypes.kCASE => false
         case _ if builder.newlineBeforeCurrentToken => false
         case _ if Guard.parse(builder) => true
         case _ => continue = false; true
       }
-      continue = continue && (guard || Enumerator.parse(builder))
+      continue &&= (guard || Enumerator.parse(builder))
     }
     enumsMarker.done(ScalaElementType.ENUMERATORS)
     true
