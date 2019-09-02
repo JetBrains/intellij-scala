@@ -12,7 +12,7 @@ abstract class Scalatest2_13_3_0_8_Base extends ScalaTestTestCase {
 
   override protected def additionalLibraries: Seq[LibraryLoader] = IvyManagedLoader(
     "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
-    "org.scalatest" %% "scalatest" % "3.0.8-RC5",
-    "org.scalactic" %% "scalactic" % "3.1.0-SNAP12"
+    "org.scalatest" %% "scalatest" % "3.0.8",
+    "org.scalactic" %% "scalactic" % "3.0.8"
   ) :: Nil
 }
