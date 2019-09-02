@@ -146,10 +146,8 @@ object TestNodeProvider {
     } else None
   }
 
-  private val scMethodCallDefaultArg = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List
-  ("void"))
-  private val scMethodCallDefaultArgScalaTest3 = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"),
-    List("java.lang.Object"))
+  private val scMethodCallDefaultArg = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List("void"))
+  private val scMethodCallDefaultArgScalaTest3 = Seq(List("java.lang.String", "scala.collection.immutable.Seq<org.scalatest.Tag>"), List("java.lang.Object"))
 
   private def getMethodCallTestName(expr: ScMethodCall) =
   //TODO: this is horrible
