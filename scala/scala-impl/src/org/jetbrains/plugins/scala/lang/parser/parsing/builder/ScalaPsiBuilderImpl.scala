@@ -7,6 +7,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,10 +34,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
   override def isIdBinding: Boolean =
     this.invalidVarId || _isIdBindingEnabled
 
-  override lazy val isMetaEnabled: Boolean = containingFile.exists {
-    import meta.intellij.psi._
-    _.isMetaEnabled(getProject)
-  }
+  override lazy val isMetaEnabled: Boolean =
+    containingFile.exists(_.isMetaEnabled)
 
   override def newlineBeforeCurrentToken: Boolean =
     findPreviousNewLineSafe.isDefined

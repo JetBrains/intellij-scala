@@ -42,10 +42,6 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   var additionalCompilerOptions: Seq[String] = _
   var plugins: Seq[String] = _
 
-  def literalTypes: Boolean = additionalCompilerOptions.contains("-Yliteral-types")
-  def partialUnification: Boolean = additionalCompilerOptions.contains("-Ypartial-unification")
-
-
   private val ToggleOptions: Seq[(String, () => Boolean, Boolean => Unit)] = Seq(
     ("-language:dynamics", () => dynamics, dynamics = _),
     ("-language:postfixOps", () => postfixOps, postfixOps = _),
