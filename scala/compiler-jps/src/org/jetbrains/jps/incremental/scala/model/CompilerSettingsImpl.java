@@ -24,6 +24,7 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     myState = state;
   }
 
+  @Override
   public CompileOrder getCompileOrder() {
     return myState.compileOrder;
   }
@@ -33,6 +34,7 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     return new SbtIncrementalOptions(myState.nameHashing, myState.recompileOnMacroDef, myState.transitiveStep, myState.recompileAllFraction);
   }
 
+  @Override
   public String[] getCompilerOptions() {
     List<String> list = new ArrayList<String>();
 
@@ -58,6 +60,10 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
 
     if (myState.existentials) {
       list.add("-language:existentials");
+    }
+
+    if (myState.scala2Compat) {
+      list.add("-language:Scala2Compat");
     }
 
     if (myState.macros) {
@@ -161,6 +167,8 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     public boolean higherKinds;
 
     public boolean existentials;
+
+    public boolean scala2Compat;
 
     public boolean macros;
 

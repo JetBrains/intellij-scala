@@ -130,9 +130,6 @@ object SimplePattern {
           builder.advanceLexer() //Ate (
           builder.disableNewlines()
 
-          // TODO: add annotate as error in scala 3.0 remember that:
-          //  "Under the -language:Scala2 option, Dotty will accept both the old and the new syntax.
-          //  A migration warning will be emitted when the old syntax is encountered."
           // _* (Scala 2)
           def parseSeqWildcard(): Boolean = {
             if (builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
@@ -142,7 +139,6 @@ object SimplePattern {
             }
           }
 
-          // TODO: add annotate as error in scala 3.0
           // xs @ _* (Scala 2)
           def parseSeqWildcardBinding(): Boolean = {
             val condition =
@@ -156,7 +152,6 @@ object SimplePattern {
             }
           }
 
-          // TODO: add annotate as error in scala 2.x
           // xs : _* (Scala 3)
           def parseSeqWildcardBindingScala3(): Boolean = {
             val condition =

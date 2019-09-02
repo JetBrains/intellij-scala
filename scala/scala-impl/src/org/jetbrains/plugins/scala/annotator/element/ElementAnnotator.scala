@@ -40,6 +40,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScNewTemplateDefinitionAnnotator ::
       ScParameterAnnotator ::
       ScParameterizedTypeElementAnnotator ::
+      ScNamingPatternAnnotator ::
       ScParametersAnnotator ::
       ScPatternAnnotator ::
       ScValueOrVariableAnnotator ::

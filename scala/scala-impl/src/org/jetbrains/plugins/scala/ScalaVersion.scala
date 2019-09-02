@@ -31,10 +31,21 @@ class ScalaVersion protected(val languageLevel: ScalaLanguageLevel,
   override def toString: String = s"ScalaVersion($minor)"
 }
 
+//noinspection TypeAnnotation
 object ScalaVersion {
 
   implicit val scalaVersionOrdering: Ordering[ScalaVersion] =
     Ordering[project.Version].on[ScalaVersion] { v => project.Version(v.minor) }
+
+  import org.jetbrains.plugins.scala
+
+  // duplicated here to refer with `ScalaVersion.` prefix
+  val Scala_2_9  = scala.Scala_2_9
+  val Scala_2_10 = scala.Scala_2_10
+  val Scala_2_11 = scala.Scala_2_11
+  val Scala_2_12 = scala.Scala_2_12
+  val Scala_2_13 = scala.Scala_2_13
+  val Scala_3_0 = scala.Scala_3_0
 
   val allScalaVersions: Seq[ScalaVersion] = Seq(
     Scala_2_9,
