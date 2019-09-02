@@ -7,7 +7,6 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delegate)
   with ScalaPsiBuilder {
 
+  import project._
   import lexer.ScalaTokenTypes._
 
   private val newlinesEnabled = new collection.mutable.Stack[Boolean]
@@ -23,8 +23,14 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
     myDelegate.getUserData(CONTAINING_FILE_KEY)
   }
 
-  private lazy val (_isTrailingCommasEnabled, _isIdBindingEnabled) =
-    util.ScalaUtil.areTrailingCommasAndIdBindingEnabled(containingFile)(getProject)
+  override lazy val isMetaEnabled: Boolean =
+    containingFile.exists(_.isMetaEnabled)
+
+  private lazy val _isTrailingCommasEnabled =
+    containingFile.exists(_.isTrailingCommasEnabled)
+
+  private lazy val _isIdBindingEnabled =
+    containingFile.exists(_.isIdBindingEnabled)
 
   override def isTrailingComma: Boolean = getTokenType match {
     case `tCOMMA` => _isTrailingCommasEnabled
@@ -33,9 +39,6 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
 
   override def isIdBinding: Boolean =
     this.invalidVarId || _isIdBindingEnabled
-
-  override lazy val isMetaEnabled: Boolean =
-    containingFile.exists(_.isMetaEnabled)
 
   override def newlineBeforeCurrentToken: Boolean =
     findPreviousNewLineSafe.isDefined

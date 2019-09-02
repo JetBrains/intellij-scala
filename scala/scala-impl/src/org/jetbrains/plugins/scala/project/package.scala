@@ -14,7 +14,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.io.JarUtil._
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -94,6 +94,9 @@ package object project {
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def hasNewCollectionsFramework: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_13)
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isIdBindingEnabled: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_12)
+
     def scalaSdk: Option[LibraryEx] = Option {
       ScalaSdkCache(module.getProject)(module)
     }
@@ -108,6 +111,13 @@ package object project {
         .forEachLibrary(collector)
 
       collector.getResults.asScala.toSet
+    }
+
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isTrailingCommasEnabled: Boolean = scalaSdk.flatMap {
+      _.compilerVersion
+    }.exists { presentation =>
+      Version(presentation) >= Version("2.12.2")
     }
 
     def scalaCompilerSettings: ScalaCompilerSettings =
@@ -249,6 +259,29 @@ package object project {
     }
   }
 
+  implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
+
+    def isMetaEnabled: Boolean =
+      !ScStubElementType.Processing &&
+        !DumbService.isDumb(file.getProject) &&
+        isEnabledIn(_.isMetaEnabled)
+
+    def isTrailingCommasEnabled: Boolean = {
+      import ScalaProjectSettings.TrailingCommasMode._
+      ScalaProjectSettings.getInstance(file.getProject).getTrailingCommasMode match {
+        case Enabled => true
+        case Disabled => false
+        case Auto => isEnabledIn(_.isTrailingCommasEnabled)
+      }
+    }
+
+    def isIdBindingEnabled: Boolean = isEnabledIn(_.isIdBindingEnabled)
+
+    private def isEnabledIn(predicate: Module => Boolean): Boolean =
+      applicationUnitTestModeEnabled ||
+        Option(ModuleUtilCore.findModuleForFile(file)).exists(predicate)
+  }
+
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
 
@@ -274,14 +307,10 @@ package object project {
     def newCollectionsFramework: Boolean = module.exists(_.hasNewCollectionsFramework)
 
     def isMetaEnabled: Boolean =
-      element.isValid &&
-        (element.getContainingFile match {
-          case file: ScalaFile => !file.isCompiled
-          case _ => false
-        }) &&
-        !ScStubElementType.Processing &&
-        !DumbService.isDumb(element.getProject) &&
-        (applicationUnitTestModeEnabled || module.exists(_.isMetaEnabled))
+      element.isValid && (element.getContainingFile match {
+        case file: ScalaFile if !file.isCompiled => file.isMetaEnabled
+        case _ => false
+      })
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
