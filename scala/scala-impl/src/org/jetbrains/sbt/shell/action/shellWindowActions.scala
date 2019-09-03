@@ -17,7 +17,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.{DumbAwareAction, Project}
-import com.intellij.openapi.wm.ToolWindowManager
 import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
@@ -42,12 +41,12 @@ class StartAction(project: Project) extends DumbAwareAction {
   templatePresentation.setText("Start sbt shell") // TODO i18n / language-bundle
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    val twm = ToolWindowManager.getInstance(project)
-    val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
-    toolWindow.getContentManager.removeAllContents(true)
+    SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+      toolWindow.getContentManager.removeAllContents(true)
 
-    executeOnPooledThread {
-      SbtProcessManager.forProject(e.getProject).restartProcess()
+      executeOnPooledThread {
+        SbtProcessManager.forProject(e.getProject).restartProcess()
+      }
     }
   }
 
