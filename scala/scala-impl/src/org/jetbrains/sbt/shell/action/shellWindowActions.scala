@@ -59,7 +59,7 @@ class StartAction(project: Project) extends DumbAwareAction {
       presentation.setText("Restart sbt shell")
     } else {
       presentation.setIcon(AllIcons.Actions.Execute)
-      templatePresentation.setText("Start sbt shell")
+      presentation.setText("Start sbt shell")
     }
   }
 
@@ -197,10 +197,9 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
   }
 
   private def isEnabled: Boolean = remoteConnection.isDefined && shellAlive(project)
-
 }
 
-object SbtShellActionUtil {
+private object SbtShellActionUtil {
   def shellAlive(project: Project): Boolean = SbtProcessManager.forProject(project).isAlive
 
   def runAsync[T](f: => T): Future[T] = PooledThreadExecutor.INSTANCE.submit(() => f)
