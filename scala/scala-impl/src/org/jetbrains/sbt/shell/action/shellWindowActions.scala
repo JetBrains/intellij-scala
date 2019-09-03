@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.shell.action
 
 import java.awt.event.{InputEvent, KeyEvent}
-import java.util.concurrent.Future
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
@@ -20,7 +19,7 @@ import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.wm.ToolWindowManager
 import javax.swing.{Icon, KeyStroke}
-import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
@@ -47,7 +46,7 @@ class StartAction(project: Project) extends DumbAwareAction {
     val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.getContentManager.removeAllContents(true)
 
-    runAsync {
+    executeOnPooledThread {
       SbtProcessManager.forProject(e.getProject).restartProcess()
     }
   }
@@ -73,8 +72,11 @@ class StopAction(project: Project) extends DumbAwareAction {
   templatePresentation.setDescription(null)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    if (isEnabled)
-      runAsync(SbtProcessManager.forProject(e.getProject).destroyProcess())
+    if (isEnabled) {
+      executeOnPooledThread {
+        SbtProcessManager.forProject(e.getProject).destroyProcess()
+      }
+    }
   }
 
   override def update(e: AnActionEvent): Unit = {
@@ -201,6 +203,4 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
 
 private object SbtShellActionUtil {
   def shellAlive(project: Project): Boolean = SbtProcessManager.forProject(project).isAlive
-
-  def runAsync[T](f: => T): Future[T] = PooledThreadExecutor.INSTANCE.submit(() => f)
 }
