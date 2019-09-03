@@ -17,8 +17,8 @@ import org.jetbrains.sbt.shell.action._
 /**
   * Created by jast on 2017-05-17.
   */
-final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection]) extends
-  LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
+final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection])
+  extends LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
 
   def addConsoleActions(group: DefaultActionGroup): Unit = {
     // hackery because we can't construct those actions directly

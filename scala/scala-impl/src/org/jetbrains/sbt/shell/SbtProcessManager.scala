@@ -36,13 +36,14 @@ import org.jetbrains.sbt.shell.SbtProcessManager._
 import org.jetbrains.sbt.{JvmMemorySize, SbtUtil}
 
 import scala.collection.JavaConverters._
+
 /**
   * Manages the sbt shell process instance for the project.
   * Instantiates an sbt instance when initially requested.
   *
   * Created by jast on 2016-11-27.
   */
-class SbtProcessManager(project: Project) extends ProjectComponent {
+final class SbtProcessManager(project: Project) extends ProjectComponent {
 
   import SbtProcessManager.ProcessData
 
@@ -404,6 +405,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
 }
 
 object SbtProcessManager {
+
   def forProject(project: Project): SbtProcessManager = {
     val pm = project.getComponent(classOf[SbtProcessManager])
     if (pm == null) throw new IllegalStateException(s"unable to get component SbtProcessManager for project $project")
@@ -417,12 +419,13 @@ object SbtProcessManager {
     * This allows injecting plugins without messing with the user's global directory.
     * https://github.com/sbt/sbt/pull/4211
     */
-  val addPluginCommandVersion_1 = Version("1.2.0")
-  val addPluginCommandVersion_013 = Version("0.13.18")
+  private val addPluginCommandVersion_1 = Version("1.2.0")
+  private val addPluginCommandVersion_013 = Version("0.13.18")
 
   /** Minimum project sbt version that is allowed version override. */
-  val mayUpgradeSbtVersion = Version("0.13.0")
+  private val mayUpgradeSbtVersion = Version("0.13.0")
 
+  private[shell]
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File): Seq[String] = {
     val hardcoded = List("-Dsbt.supershell=false")
     val opts =
