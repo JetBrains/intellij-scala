@@ -47,7 +47,9 @@ class StartAction(project: Project) extends DumbAwareAction {
     val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.getContentManager.removeAllContents(true)
 
-    runAsync(SbtProcessManager.forProject(e.getProject).restartProcess())
+    runAsync {
+      SbtProcessManager.forProject(e.getProject).restartProcess()
+    }
   }
 
   override def update(e: AnActionEvent): Unit = {
@@ -201,5 +203,5 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
 object SbtShellActionUtil {
   def shellAlive(project: Project): Boolean = SbtProcessManager.forProject(project).isAlive
 
-  def runAsync[T](f: =>T): Future[T] = PooledThreadExecutor.INSTANCE.submit(() => f)
+  def runAsync[T](f: => T): Future[T] = PooledThreadExecutor.INSTANCE.submit(() => f)
 }

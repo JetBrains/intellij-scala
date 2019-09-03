@@ -205,5 +205,5 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 }
 
 object SbtShellRunner {
-  private def notInTest = ! ApplicationManager.getApplication.isUnitTestMode
+  private def notInTest: Boolean = !ApplicationManager.getApplication.isUnitTestMode
 }

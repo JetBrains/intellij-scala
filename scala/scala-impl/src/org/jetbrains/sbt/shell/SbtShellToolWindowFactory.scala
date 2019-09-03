@@ -24,11 +24,11 @@ import scala.concurrent.Future
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def init(toolWindow: ToolWindow): Unit = {
-    toolWindow.setStripeTitle(SbtShellToolWindowFactory.title)
+    toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
     toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
 
-    val toolwindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
-    val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolwindowId)
+    val toolWindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
+    val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolWindowId)
 
     addShortcuts(actionId)
   }
@@ -64,7 +64,8 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 }
 
 object SbtShellToolWindowFactory {
-  val title = "sbt shell"
+
+  private val Title = "sbt shell"
   val ID = "sbt-shell-toolwindow"
 
   class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
