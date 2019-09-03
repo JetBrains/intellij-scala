@@ -56,7 +56,7 @@ object ScalaPluginVersionVerifier {
   lazy val getPluginVersion: Option[Version] = {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
-        Version.parse(PluginManager.getPlugin(pluginLoader.getPluginId).getVersion)
+        Version.parse(PluginManagerCore.getPlugin(pluginLoader.getPluginId).getVersion)
       case _ => Some(Version.Snapshot)
     }
   }
@@ -64,7 +64,7 @@ object ScalaPluginVersionVerifier {
   def getPluginDescriptor: IdeaPluginDescriptorImpl = {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
-        PluginManager.getPlugin(pluginLoader.getPluginId).asInstanceOf[IdeaPluginDescriptorImpl]
+        PluginManagerCore.getPlugin(pluginLoader.getPluginId).asInstanceOf[IdeaPluginDescriptorImpl]
       case other => throw new RuntimeException(s"Wrong plugin classLoader: $other")
     }
   }
@@ -98,7 +98,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
             failed = true
             extension.getClass.getClassLoader match {
               case pluginLoader: PluginClassLoader =>
-                val plugin = PluginManager.getPlugin(pluginLoader.getPluginId)
+                val plugin = PluginManagerCore.getPlugin(pluginLoader.getPluginId)
                 val message =
                   s"Plugin ${plugin.getName} of version ${plugin.getVersion} is " +
                     s"incompatible with Scala plugin of version $version. Do you want to disable ${plugin.getName} plugin?\n" +
@@ -158,7 +158,7 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
 
   private def checkHaskForcePlugin(): Unit = {
     val haskforceId = "com.haskforce"
-    val plugin = PluginManager.getPlugin(PluginId.findId(haskforceId))
+    val plugin = PluginManagerCore.getPlugin(PluginId.findId(haskforceId))
     if (plugin == null || !plugin.isEnabled)
       return
 
