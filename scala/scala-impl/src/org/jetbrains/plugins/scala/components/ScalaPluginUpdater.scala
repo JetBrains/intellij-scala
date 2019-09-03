@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.components
 
-import java.io.{File, IOException}
-import java.lang.reflect.Field
+import java.io.File
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
@@ -14,7 +13,6 @@ import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, Pe
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.updateSettings.impl._
@@ -29,7 +27,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranc
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
-import scala.collection.JavaConverters._
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 class InvalidRepoException(what: String) extends Exception(what)
@@ -137,23 +134,6 @@ object ScalaPluginUpdater {
   }
 
   def pluginIsRelease: Boolean = !pluginIsEap && !pluginIsNightly
-
-  def uninstallPlugin(): Unit = {
-    val pluginId: PluginId = pluginDescriptor.getPluginId
-    pluginDescriptor.setDeleted(true)
-
-    try {
-      PluginInstaller.prepareToUninstall(pluginId)
-      val installedPlugins = InstalledPluginsState.getInstance().getInstalledPlugins
-      val pluginIdString: String = pluginId.getIdString
-      while (installedPlugins.asScala.exists(_.getPluginId.getIdString == pluginIdString)) {
-        installedPlugins.remove(pluginIdString)
-      }
-    }
-    catch {
-      case e1: IOException => PluginManagerMain.LOG.error(e1)
-    }
-  }
 
   def upgradeRepo(): Unit = {
     val updateSettings = UpdateSettings.getInstance()
