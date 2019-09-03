@@ -451,9 +451,11 @@ class ScalaPsiManager(implicit val project: Project) {
     override def propertyChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event, null)
   }
 
-  def clearAllCaches(): Unit = {
-    clearOnRootsChange()
-    TopLevelModificationTracker.incModificationCount()
+  def clearAllCaches(): Unit = invokeLater {
+    if (!project.isDisposed) {
+      clearOnRootsChange()
+      TopLevelModificationTracker.incModificationCount()
+    }
   }
 
   @TestOnly
