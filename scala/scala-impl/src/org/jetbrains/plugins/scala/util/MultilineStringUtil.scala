@@ -82,7 +82,7 @@ object MultilineStringUtil {
    */
   def looksLikeUsesMargins(literal: ScLiteral): Boolean = {
     val text = literal.contentText
-    val lines = text.lines
+    val lines = text.linesIterator
       .map(_.trim)
       .filterNot(_.isEmpty)
 
