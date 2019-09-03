@@ -70,6 +70,12 @@ object SbtShellToolWindowFactory {
   private val Title = "sbt shell"
   val ID = "sbt-shell-toolwindow"
 
+  def instance(implicit project: Project): Option[ToolWindow] =
+    for {
+      manager <- Option(ToolWindowManager.getInstance(project))
+      window <- Option(manager.getToolWindow(ID))
+    } yield window
+
   class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
     override def getComponentAfter(aContainer: Container, aComponent: Component): Component =
       defaultPolicy.getComponentAfter(aContainer, aComponent)
