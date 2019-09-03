@@ -35,7 +35,7 @@ object ScClassFileDecompiler {
       case ScClsStubBuilder(scalaFile) =>
         LanguageParserDefinitions.INSTANCE
           .forLanguage(ScalaLanguage.INSTANCE)
-          .asInstanceOf[lang.parser.ScalaParserDefinition]
+          .asInstanceOf[parser.ScalaParserDefinitionBase]
           .getFileNodeType
           .getBuilder
           .buildStubTree(scalaFile)

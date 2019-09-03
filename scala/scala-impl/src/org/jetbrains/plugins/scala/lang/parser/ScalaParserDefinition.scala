@@ -3,10 +3,10 @@ package lang
 package parser
 
 import com.intellij.psi.FileViewProvider
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
-final class ScalaParserDefinition extends ScalaParserDefinitionBase(
-  new psi.stubs.elements.ScStubFileElementType("scala.file")
-) {
-  override def createFile(viewProvider: FileViewProvider) =
-    new psi.impl.ScalaFileImpl(viewProvider)
+final class ScalaParserDefinition
+  extends ScalaParserDefinitionBase("scala.file", ScalaLanguage.INSTANCE) {
+
+  override def createFile(viewProvider: FileViewProvider) = new ScalaFileImpl(viewProvider)
 }
