@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createAnnotationExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
   * User: Alexander Podkhalyuzin
@@ -21,12 +21,13 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
                            val name: Option[String])
   extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub with PsiOwner[ScAnnotation] {
 
-  private[impl] var annotationExprRef: SofterReference[Option[ScAnnotationExpr]] = null
+  private[impl] var annotationExprRef: SofterReference[Option[ScAnnotationExpr]] = _
 
   def annotationExpr: Option[ScAnnotationExpr] = {
     getFromOptionalReference(annotationExprRef) {
       case (context, _) =>
-        val annotationExpr = createAnnotationExpression(annotationText)(getProject)
+        val annotation = ScalaPsiElementFactory.createAnAnnotation(annotationText)(getProject)
+        val annotationExpr = annotation.annotationExpr
         annotationExpr.context = context
         Some(annotationExpr)
     } (annotationExprRef = _)
