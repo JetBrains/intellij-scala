@@ -10,6 +10,7 @@ import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import javax.swing.KeyStroke
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.shell
 
@@ -39,10 +40,11 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
     val focusPolicy = new shell.SbtShellToolWindowFactory.TraversalPolicy(project, defaultFocusPolicy)
     toolWindow.getComponent.setFocusTraversalPolicy(focusPolicy)
 
-    val pm = SbtProcessManager.forProject(project)
-
-    Future(pm.acquireShellRunner)
-      .foreach(_.openShell(true))
+    executeOnPooledThread {
+      val sbtManager = SbtProcessManager.forProject(project)
+      val runner = sbtManager.acquireShellRunner
+      runner.openShell(true)
+    }
   }
 
   // don't auto-activate because starting sbt shell is super heavy weight
