@@ -34,25 +34,28 @@ object Content {
       case _ =>
     }
 
-    val patcher = ParserPatcher.getSuitablePatcher(builder)
-
     @tailrec
-    def subparse() {
-      var isReturn = false
-      if (!XmlContent.parse(builder) &&
-        !Reference.parse(builder) &&
-        !ScalaExpr.parse(builder) && !patcher.parse(builder)) isReturn = true
+    def subparse(): Unit = {
+      val isReturn =
+        if ((XmlContent.parse(builder) ||
+          Reference.parse(builder)) ||
+          ScalaExpr.parse(builder) ||
+          ParserPatcher.parseSuitably(builder))
+          false
+        else
+          true
+
       builder.getTokenType match {
-        case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
+        case ScalaXmlTokenTypes.XML_DATA_CHARACTERS |
+             ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF |
+             ScalaXmlTokenTypes.XML_ENTITY_REF_TOKEN =>
           builder.advanceLexer()
-        case ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF =>
-          builder.advanceLexer()
-        case ScalaXmlTokenTypes.XML_ENTITY_REF_TOKEN => builder.advanceLexer()
-        case _ =>
-          if (isReturn) return
+          subparse()
+        case _ if isReturn =>
+        case _ => subparse()
       }
-      subparse()
     }
+
     subparse()
     contentMarker.drop()
     true

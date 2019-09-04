@@ -60,7 +60,7 @@ object Expr1 {
             builder error ErrMsg("condition.expected")
         }
 
-        ParserPatcher getSuitablePatcher builder parse builder
+        ParserPatcher.parseSuitably(builder)
 
         if (!Expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")

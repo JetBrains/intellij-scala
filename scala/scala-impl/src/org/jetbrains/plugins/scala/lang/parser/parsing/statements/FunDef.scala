@@ -62,7 +62,8 @@ object FunDef {
             }
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            ParserPatcher getSuitablePatcher builder parse builder
+            ParserPatcher.parseSuitably(builder)
+
             if (Expr parse builder) {
               faultMarker.drop()
               true
