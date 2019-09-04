@@ -6,7 +6,6 @@ package xml
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
 import scala.annotation.tailrec
 
@@ -40,7 +39,7 @@ object Content {
         if ((XmlContent.parse(builder) ||
           Reference.parse(builder)) ||
           ScalaExpr.parse(builder) ||
-          ParserPatcher.parseSuitably(builder))
+          builder.skipExternalToken())
           false
         else
           true

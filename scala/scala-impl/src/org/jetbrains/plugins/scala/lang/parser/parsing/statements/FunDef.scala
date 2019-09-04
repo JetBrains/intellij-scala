@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
-import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -62,7 +61,7 @@ object FunDef {
             }
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            ParserPatcher.parseSuitably(builder)
+            builder.skipExternalToken()
 
             if (Expr parse builder) {
               faultMarker.drop()

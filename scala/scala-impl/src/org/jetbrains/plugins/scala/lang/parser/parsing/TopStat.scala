@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
-import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
 
 import scala.annotation.tailrec
 
@@ -26,8 +25,6 @@ object TopStat {
 
   @tailrec
   final def parse(builder: ScalaPsiBuilder, state: Int): Int = {
-    val patcher = ParserPatcher.getSuitablePatcher(builder)
-
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT =>
         Import parse builder
@@ -43,7 +40,7 @@ object TopStat {
             else ParserState.EMPTY_STATE
           }
         }
-      case _ if patcher.parse(builder) =>
+      case _ if builder.skipExternalToken() =>
         if (!builder.eof()) parse(builder, state) else ParserState.SCRIPT_STATE
       case _ =>
         state match {

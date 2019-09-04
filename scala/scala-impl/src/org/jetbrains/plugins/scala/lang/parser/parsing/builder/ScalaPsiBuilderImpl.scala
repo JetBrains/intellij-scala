@@ -23,7 +23,9 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
     myDelegate.getUserData(CONTAINING_FILE_KEY)
   }
 
-  override lazy val isMetaEnabled: Boolean =
+  override def skipExternalToken(): Boolean = false
+
+  override final lazy val isMetaEnabled: Boolean =
     containingFile.exists(_.isMetaEnabled)
 
   private lazy val _isTrailingCommasEnabled =
@@ -32,12 +34,12 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
   private lazy val _isIdBindingEnabled =
     containingFile.exists(_.isIdBindingEnabled)
 
-  override def isTrailingComma: Boolean = getTokenType match {
+  override final def isTrailingComma: Boolean = getTokenType match {
     case `tCOMMA` => _isTrailingCommasEnabled
     case _ => false
   }
 
-  override def isIdBinding: Boolean =
+  override final def isIdBinding: Boolean =
     this.invalidVarId || _isIdBindingEnabled
 
   override def newlineBeforeCurrentToken: Boolean =

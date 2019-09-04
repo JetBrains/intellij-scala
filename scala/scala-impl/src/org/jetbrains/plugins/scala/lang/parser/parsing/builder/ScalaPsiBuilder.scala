@@ -25,4 +25,6 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def isIdBinding: Boolean
 
   def isMetaEnabled: Boolean
+
+  def skipExternalToken(): Boolean
 }
