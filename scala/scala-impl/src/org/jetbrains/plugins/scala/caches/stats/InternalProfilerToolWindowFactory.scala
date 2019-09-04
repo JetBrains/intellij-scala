@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def init(toolWindow: ToolWindow): Unit = {
-    toolWindow.setStripeTitle("Internal Profiler")
+    toolWindow.setStripeTitle("Scala plugin profiler")
   }
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
@@ -27,6 +27,9 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
   }
 
   override def isDoNotActivateOnStart: Boolean = true
+
+  override def shouldBeAvailable(project: Project): Boolean =
+    ApplicationManager.getApplication.isInternal
 }
 
 object InternalProfilerToolWindowFactory {
