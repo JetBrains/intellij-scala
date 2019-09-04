@@ -28,7 +28,7 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     if (!file.isInstanceOf[ScalaFile] || !editor.inScalaString(offset)) return Result.Continue
 
-    editor.commitDocument(file.getProject)
+    editor.commitDocument(file.getProject)  // TODO: AVOID COMMITTING DOCUMENTS ON TYPING!
 
     val element = file.findElementAt(offset)
 
