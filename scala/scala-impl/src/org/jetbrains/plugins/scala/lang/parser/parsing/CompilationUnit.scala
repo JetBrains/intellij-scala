@@ -11,29 +11,29 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.annotation.tailrec
 
 /**
-  * @author Alexander Podkhalyuzin
-  *         Date: 05.02.2008
-  */
-
-/*
- *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
+ * [[CompilationUnit]] ::= [ 'package' [[Qual_Id]] StatementSeparator ] [[TopStatSeq]]
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 05.02.2008
  */
 object CompilationUnit {
 
-  def parse(builder: ScalaPsiBuilder): Int = {
-    var parseState = ParserState.EMPTY_STATE
+  import ParserState._
+
+  def parse()(implicit builder: ScalaPsiBuilder): Int = {
+    var parseState = EMPTY_STATE
 
     def parsePackagingBody(hasPackage: Boolean): Unit = {
       while (builder.getTokenType != null) {
         TopStatSeq.parse(builder, waitBrace = false, hasPackage = hasPackage) match {
-          case ParserState.EMPTY_STATE =>
-          case ParserState.SCRIPT_STATE =>
+          case EMPTY_STATE =>
+          case SCRIPT_STATE =>
             Stats.trigger(FeatureKey.parserScalaScript)
-            parseState = ParserState.SCRIPT_STATE
-          case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
-          case _ => 
+            parseState = SCRIPT_STATE
+          case FILE_STATE if parseState != SCRIPT_STATE => parseState = FILE_STATE
+          case _ =>
             //that means code in the file is probably invalid, so we won't call usage trigger here
-            parseState = ParserState.SCRIPT_STATE
+            parseState = SCRIPT_STATE
         }
         builder.advanceLexer()
       }
@@ -49,6 +49,7 @@ object CompilationUnit {
         @tailrec
         def parsePackageSequence(completed: Boolean, k: => Unit) {
           def askType = builder.getTokenType
+
           if (askType == null) k
           else if (askType == ScalaTokenTypes.tSEMICOLON) {
             builder.advanceLexer()
@@ -56,7 +57,7 @@ object CompilationUnit {
           } else {
             // Mark error
             if (!completed && !builder.newlineBeforeCurrentToken) {
-              builder.error(ErrMsg("semi.expected"))
+              builder.error(ScalaBundle.message("semi.expected"))
             }
             if (ScalaTokenTypes.kPACKAGE == askType &&
               !builder.lookAhead(ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
@@ -79,7 +80,7 @@ object CompilationUnit {
                     })
                   }
                 case _ =>
-                  builder error ErrMsg("package.qualID.expected")
+                  builder.error(ScalaBundle.message("package.qualID.expected"))
                   newMarker.drop()
                   parsePackageSequence(completed = true, k)
               }
@@ -94,6 +95,12 @@ object CompilationUnit {
         parsePackageSequence(completed = true, ())
       case _ => parsePackagingBody(false)
     }
+
+    while (!builder.eof()) {
+      builder.error(ScalaBundle.message("out.of.compilation.unit"))
+      builder.advanceLexer()
+    }
+
     parseState
   }
 }
