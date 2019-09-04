@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala
 package codeInspection
 
+import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.ex.ScopeToolState
 import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
+import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
@@ -160,17 +162,22 @@ abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
 
 trait ForceInspectionSeverity extends ScalaInspectionTestBase {
 
-  private var oldSeverity: String = _
+  private var oldLevel: HighlightDisplayLevel = _
   protected override def setUp(): Unit = {
     super.setUp()
-    oldSeverity = inspectionEP.level
-    inspectionEP.level = forcedInspectionSeverity.getName
-    getFixture.enableInspections(classOfInspection)
+    val toolState = inspectionToolState
+    oldLevel = toolState.getLevel
+    toolState.setLevel(forcedInspectionSeverity)
   }
 
   override def tearDown(): Unit = {
-    inspectionEP.level = oldSeverity
+    inspectionToolState.setLevel(oldLevel)
     super.tearDown()
+  }
+
+  private def inspectionToolState: ScopeToolState = {
+    val profile = ProjectInspectionProfileManager.getInstance(getFixture.getProject).getCurrentProfile
+    profile.getToolDefaultState(inspectionEP.getShortName, getFixture.getProject)
   }
 
   private def inspectionEP =
@@ -179,5 +186,5 @@ trait ForceInspectionSeverity extends ScalaInspectionTestBase {
       .find(_.implementationClass == classOfInspection.getCanonicalName)
       .get
 
-  protected def forcedInspectionSeverity: HighlightSeverity
+  protected def forcedInspectionSeverity: HighlightDisplayLevel
 }
