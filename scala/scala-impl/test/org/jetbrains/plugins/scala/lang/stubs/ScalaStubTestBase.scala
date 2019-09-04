@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.TraversableExt
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
-class ScalaStubTestBase extends SimpleTestCase {
+abstract class ScalaStubTestBase extends SimpleTestCase {
 
   def doTest[Stub <: StubElement[_] : ClassTag](fileText: String)(stubCheck: Stub => Unit): Unit = {
     val psiFile = parseText(fileText)
