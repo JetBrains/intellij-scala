@@ -7,7 +7,7 @@ package expressions
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
-import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
 object BlockExpr {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (ParserPatcher.parseSuitably(builder)) return true
+    if (builder.skipExternalToken()) return true
 
     val blockExprMarker = builder.mark
     builder.getTokenType match {
