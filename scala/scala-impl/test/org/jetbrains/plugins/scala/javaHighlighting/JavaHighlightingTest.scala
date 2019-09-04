@@ -665,7 +665,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
       """.stripMargin
 
     assertMessages(errorsFromJavaCode(scalaCode, javaCode, "TestSCL7582"))(
-      Error("$lessinit$greater$default$2","Cannot resolve method '$lessinit$greater$default$2(int)'")
+      Error("$lessinit$greater$default$2","Cannot resolve method '$lessinit$greater$default$2' in 'MooSCL7582'")
     )
   }
 
