@@ -7,6 +7,7 @@ import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
@@ -22,10 +23,13 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.vfs.VfsUtil
+import com.pty4j.unix.UnixPtyProcess
+import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings._
+import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.SbtUtil._
@@ -56,7 +60,6 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   private def pluginResolverSetting: String =
     raw"""resolvers += Resolver.file("intellij-scala-plugin", file(raw"$repoPath"))(Resolver.ivyStylePatterns)"""
 
-
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
   private def injectedPlugins(sbtMajorVersion: String): Seq[String] =
@@ -84,7 +87,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     }
   }
 
-
+  @TraceWithLogger
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
     val workingDirPath =
       Option(ProjectUtil.guessProjectDir(project))
@@ -180,8 +183,20 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
 
     val pty = createPtyCommandLine(commandLine)
     val cpty = new ColoredProcessHandler(pty)
+    patchWindowSize(cpty.getProcess)
 
     (cpty, debugConnection)
+  }
+
+  // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
+  // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
+  // TODO perhaps determine actual width of window and adapt accordingly
+  private def patchWindowSize(process: Process): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
+    process match {
+      case _: UnixPtyProcess => // don't need to do stuff
+      case proc: PtyProcess  => proc.setWinSize(new WinSize(2000, 100))
+      case _                 =>
+    }
   }
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
@@ -334,12 +349,14 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
+  @TraceWithLogger
   def initAndRunAsync(): Unit =
     executeOnPooledThread {
       val runner = acquireShellRunner()
       runner.openShell(true)
     }
 
+  @TraceWithLogger
   private def updateProcessData(): ProcessData = {
     val pd = createProcessData()
     processData.synchronized {
@@ -349,6 +366,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     pd
   }
 
+  @TraceWithLogger
   private def createProcessData(): ProcessData = {
     val (handler, debugConnection) = createShellProcessHandler()
     val title = project.getName
@@ -367,6 +385,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
    * The process handler should only be used to access the running process!
    * SbtProcessManager is solely responsible for handling the running state.
    */
+  @TraceWithLogger
   private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
     processData match {
       case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
@@ -377,6 +396,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   /** Creates the SbtShellRunner view if necessary. */
+  @TraceWithLogger
   def acquireShellRunner(): SbtShellRunner = processData.synchronized {
     processData match {
       case Some(ProcessData(_, runner)) if runner.isRunning =>
@@ -386,11 +406,15 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     }
   }
 
+  def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
+
+  @TraceWithLogger
   def restartProcess(): Unit = processData.synchronized {
     destroyProcess()
     updateProcessData()
   }
 
+  @TraceWithLogger
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
       case Some(ProcessData(handler, runner)) =>

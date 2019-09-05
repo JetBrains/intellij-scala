@@ -23,6 +23,7 @@ import com.pty4j.{PtyProcess, WinSize}
 import javax.swing.{Icon, JLabel, SwingConstants}
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.shell.SbtShellRunner._
@@ -41,6 +42,8 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   // the process handler should only be used to listen to the running process!
   // SbtProcessManager is solely responsible for destroying/respawning
+  // TODO: why is this lazy val? acquireShellProcessHandler can create a new process handler process data with
+  //  new process handler, new data and new runner!!
   private lazy val myProcessHandler: ColoredProcessHandler =
     SbtProcessManager.forProject(project)
       .acquireShellProcessHandler()
@@ -52,11 +55,13 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   //called manually by Scala Plugin, underlying initialization can be done asynchronously, so
   //right after the method execution `getConsoleView` can still return `null` and `isRunning` return false
+  @TraceWithLogger
   override def initAndRun(): Unit = {
     showInitializingPlaceholder()
     super.initAndRun()
   }
 
+  @TraceWithLogger
   private def showInitializingPlaceholder(): Unit = {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
       invokeLater {
@@ -68,6 +73,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
+  @TraceWithLogger
   override def createConsoleView: SbtShellConsoleView = {
     val cv = SbtShellConsoleView(project, debugConnection)
     Disposer.register(this, cv)
@@ -75,6 +81,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
+  @TraceWithLogger
   override def createContentDescriptorAndActions(): Unit = if(notInTest) {
     super.createContentDescriptorAndActions()
 
@@ -83,14 +90,13 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     }
   }
 
+  @TraceWithLogger
   private def initSbtShell(): Unit = {
     val consoleView = getConsoleView
     if (consoleView == null) {
       log.error("console view should be created in initAndRun by this moment")
       return
     }
-
-    patchWindowSize(myProcessHandler.getProcess)
 
     consoleView.setPrompt("(initializing) >")
 
@@ -99,17 +105,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
     initSbtShellUi(consoleView)
-  }
-
-  // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
-  // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
-  // TODO perhaps determine actual width of window and adapt accordingly
-  private def patchWindowSize(getProcess: Process): Unit = if (notInTest) {
-    myProcessHandler.getProcess match {
-      case _: UnixPtyProcess => // don't need to do stuff
-      case proc: PtyProcess  => proc.setWinSize(new WinSize(2000, 100))
-      case _                 =>
-    }
   }
 
   // TODO update icon with ready/working state
@@ -141,6 +136,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     }
   }
 
+  @TraceWithLogger
   private def createToolWindowContent(consoleView: SbtShellConsoleView): Content = {
     //Create runner UI layout
     val factory = RunnerLayoutUi.Factory.getInstance(project)
