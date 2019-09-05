@@ -36,7 +36,7 @@ class SbtShellCommunication(project: Project) extends ProjectComponent {
                  eventHandler: EventAggregator[A],
                  showShell: Boolean): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
-    process.acquireShellRunner
+    process.acquireShellRunner()
     commands.put((cmd, listener))
     listener.future
   }
@@ -75,7 +75,7 @@ class SbtShellCommunication(project: Project) extends ProjectComponent {
 
         listener.started()
 
-        val handler = process.acquireShellProcessHandler
+        val handler = process.acquireShellProcessHandler()
         handler.addProcessListener(listener)
 
         process.usingWriter { shell =>
@@ -177,11 +177,11 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
   * @param whenReady callback when going into Ready state
   * @param whenWorking callback when going into Working state
   */
-class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends LineListener {
+class SbtShellReadyListener(whenReady: => Unit, whenWorking: => Unit) extends LineListener {
 
   private var readyState: Boolean = false
 
-  def onLine(line: String): Unit = {
+  override def onLine(line: String): Unit = {
     val sbtReady = promptReady(line) || (readyState && debuggerMessage(line))
 
     if (sbtReady && !readyState) {

@@ -304,19 +304,6 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     pty
   }
 
-  /** Request an sbt shell process instance. It will be started if necessary.
-    * The process handler should only be used to access the running process!
-    * SbtProcessManager is solely responsible for handling the running state.
-    */
-  private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
-    processData match {
-      case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
-        handler
-      case _ =>
-        updateProcessData().processHandler
-    }
-  }
-
   /**
     * Inject custom settings or plugins into an sbt directory.
     * This seems to be the most straightforward way to add our own sbt settings
@@ -376,9 +363,21 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     f(writer)
   }
 
+  /** Request an sbt shell process instance. It will be started if necessary.
+   * The process handler should only be used to access the running process!
+   * SbtProcessManager is solely responsible for handling the running state.
+   */
+  private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
+    processData match {
+      case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
+        handler
+      case _ =>
+        updateProcessData().processHandler
+    }
+  }
+
   /** Creates the SbtShellRunner view if necessary. */
   def acquireShellRunner(): SbtShellRunner = processData.synchronized {
-
     processData match {
       case Some(ProcessData(_, runner)) if runner.isRunning =>
         runner
