@@ -12,6 +12,7 @@ import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import javax.swing.KeyStroke
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.sbt.shell
 
 /**
@@ -22,6 +23,7 @@ import org.jetbrains.sbt.shell
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   // called once per project open
+  @TraceWithLogger
   override def init(toolWindow: ToolWindow): Unit = {
     toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
     toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
@@ -33,6 +35,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   }
 
   // called once per project open, is not called during sbt shell restart OR close/open etc...
+  @TraceWithLogger
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     // focus sbt shell input when opening toolWindow with shortcut. #SCL-13225
     val defaultFocusPolicy = toolWindow.getComponent.getFocusTraversalPolicy
@@ -97,12 +100,11 @@ object SbtShellToolWindowFactory {
     override def getDefaultComponent(aContainer: Container): Component = {
       // default implementation focuses the toolwindow frame, but we want the editor to be directly focused to edit it directly
       val sbtManager = SbtProcessManager.forProject(project)
-      if (sbtManager.isAlive) {
-        val shellRunner = sbtManager.acquireShellRunner()
-        shellRunner.getConsoleView.getConsoleEditor.getContentComponent
-      } else {
-        defaultPolicy.getDefaultComponent(aContainer)
-      }
+      val shellComponent = for {
+        shellRunner <- sbtManager.shellRunner
+        if sbtManager.isAlive
+      } yield shellRunner.getConsoleView.getConsoleEditor.getContentComponent
+      shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
     }
   }
 }
