@@ -308,7 +308,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     * The process handler should only be used to access the running process!
     * SbtProcessManager is solely responsible for handling the running state.
     */
-  private[shell] def acquireShellProcessHandler: ColoredProcessHandler = processData.synchronized {
+  private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
     processData match {
       case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
         handler
@@ -346,34 +346,41 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private def updateProcessData(): ProcessData = {
-    val (handler, debugConnection) = createShellProcessHandler()
-
-    val title = project.getName
-    val runner = new SbtShellRunner(project, title, debugConnection)
-    runner.createConsoleView() // force creation now so that it's not null later and to avoid UI hanging
-
-    val pd = ProcessData(handler, runner)
-
-    processData.synchronized {
-      processData = Option(pd)
-      runner.initAndRun()
+  /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
+  def initAndRunAsync(): Unit =
+    executeOnPooledThread {
+      val runner = acquireShellRunner()
+      runner.openShell(true)
     }
 
+  private def updateProcessData(): ProcessData = {
+    val pd = createProcessData()
+    processData.synchronized {
+      processData = Some(pd)
+      pd.runner.initAndRun()
+    }
     pd
+  }
+
+  private def createProcessData(): ProcessData = {
+    val (handler, debugConnection) = createShellProcessHandler()
+    val title = project.getName
+    val runner = new SbtShellRunner(project, title, debugConnection)
+    ProcessData(handler, runner)
   }
 
   /** Supply a PrintWriter that writes to the current process. */
   def usingWriter[T](f: PrintWriter => T): T = {
-    val writer = new PrintWriter(new OutputStreamWriter(acquireShellProcessHandler.getProcessInput))
+    val processInput  = acquireShellProcessHandler().getProcessInput
+    val writer = new PrintWriter(new OutputStreamWriter(processInput))
     f(writer)
   }
 
   /** Creates the SbtShellRunner view if necessary. */
-  def acquireShellRunner: SbtShellRunner = processData.synchronized {
+  def acquireShellRunner(): SbtShellRunner = processData.synchronized {
 
     processData match {
-      case Some(ProcessData(_, runner)) if runner.getConsoleView.isRunning =>
+      case Some(ProcessData(_, runner)) if runner.isRunning =>
         runner
       case _ =>
         updateProcessData().runner
@@ -388,7 +395,9 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
       case Some(ProcessData(handler, runner)) =>
-        Disposer.dispose(runner)
+        invokeAndWait {
+          Disposer.dispose(runner)
+        }
         handler.destroyProcess()
         processData = None
       case None => // nothing to do
@@ -400,8 +409,12 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   /** Report if shell process is alive. Should only be used for UI/informational purposes. */
-  def isAlive: Boolean =
-    processData.exists(_.processHandler.getProcess.isAlive)
+  private[shell] def isAlive: Boolean =
+    processData.exists(isAlive)
+
+  private def isAlive(processData: ProcessData): Boolean =
+    processData.processHandler.getProcess.isAlive &&
+      processData.runner.isRunning
 }
 
 object SbtProcessManager {
