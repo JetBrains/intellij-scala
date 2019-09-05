@@ -407,7 +407,7 @@ abstract class AbstractTestRunConfiguration(project: Project,
           //use a process running sbt
           val sbtProcessManager = SbtProcessManager.forProject(project)
           //make sure the process is initialized
-          val shellRunner = sbtProcessManager.acquireShellRunner
+          val shellRunner = sbtProcessManager.acquireShellRunner()
           //TODO: this null is really weird
           SbtProcessHandlerWrapper(shellRunner createProcessHandler null)
         } else startProcess()
