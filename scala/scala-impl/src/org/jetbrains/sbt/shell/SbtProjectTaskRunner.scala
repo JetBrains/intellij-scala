@@ -155,8 +155,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
   import CommandTask._
 
-  private val taskId: UUID = UUID.randomUUID()
-  private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner
+  private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner()
 
   private def showShell(): Unit =
     shellRunner.openShell(false)
