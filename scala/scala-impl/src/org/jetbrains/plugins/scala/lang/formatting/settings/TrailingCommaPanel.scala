@@ -66,7 +66,7 @@ class TrailingCommaPanel(settings: CodeStyleSettings) extends CodeStyleAbstractP
     }
   }
 
-  override protected def createHighlighter(scheme: EditorColorsScheme) = new ScalaEditorHighlighter(null, null, scheme)
+  override protected def createHighlighter(scheme: EditorColorsScheme) = new ScalaEditorHighlighter(scheme)
 
   override protected def getFileType: FileType = ScalaFileType.INSTANCE
 

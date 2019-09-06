@@ -89,10 +89,10 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
         return 0;
     }
 
-    @Nullable
+    @NotNull
     @Override
-    protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
-        return new ScalaEditorHighlighter(null, null, scheme);
+    protected EditorHighlighter createHighlighter(@NotNull EditorColorsScheme scheme) {
+        return new ScalaEditorHighlighter(scheme);
     }
 
     @NotNull
