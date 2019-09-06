@@ -40,13 +40,10 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
             builder.append(tokenType.toString());
             printTokenRange(lexer.getTokenStart(), lexer.getTokenEnd(), builder);
             printTokenText(lexer.getTokenText(), builder);
+            builder.append('\n');
 
             lexer.advance();
             tokenType = lexer.getTokenType();
-
-            if (tokenType != null) {
-                builder.append('\n');
-            }
         }
 
         return builder.toString();
