@@ -44,21 +44,28 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
   private var myHighlights: ju.List[HighlightInfo] = _
   private var myOptimizeImportsRunnable: Runnable = _
 
-  override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {
-    case scalaFile: ScalaFile if analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
-      val unusedImports = UsageTracker.getUnusedImports(scalaFile)
-      val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
+  override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
+    file match {
+      case withScalaPsiFile: PsiFile if
+      analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) &&
+        withScalaPsiFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE) != null =>
+        val scalaFile = withScalaPsiFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
+        if (!scalaFile.isInstanceOf[ScalaFile]) return
 
-      val list = new ju.ArrayList[HighlightInfo](annotations.length)
-      annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation))
+        val unusedImports = UsageTracker.getUnusedImports(scalaFile.asInstanceOf[ScalaFile])
+        val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 
-      if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
-        myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(file, progress)
-      }
+        val list = new ju.ArrayList[HighlightInfo](annotations.length)
+        annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation))
 
-      myHighlights = list
-    case _: ScalaFile => myHighlights = ju.Collections.emptyList()
-    case _ =>
+        if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
+          myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(file, progress)
+        }
+
+        myHighlights = list
+      case _: ScalaFile => myHighlights = ju.Collections.emptyList()
+      case _ =>
+    }
   }
 
   override def applyInformationWithProgress(): Unit = {
