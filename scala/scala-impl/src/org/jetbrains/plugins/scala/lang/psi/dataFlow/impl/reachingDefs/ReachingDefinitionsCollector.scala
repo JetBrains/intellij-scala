@@ -24,7 +24,10 @@ object ReachingDefinitionsCollector {
   def collectVariableInfo(fragment: Seq[PsiElement], place: PsiElement): FragmentVariableInfos = {
     // CFG -> DFA
     val commonParent = findCommonParent(fragment: _*)
-    val cfowner = getParentOfType(commonParent.getContext, classOf[ScControlFlowOwner], false)
+    val cfowner = getParentOfType (
+      if (commonParent.getContext != null) commonParent.getContext else commonParent,
+      classOf[ScControlFlowOwner], false
+    )
     if (cfowner == null) {
       val message = "cfowner == null: " + fragment.map(_.getText).mkString("(", ", ", ")") + "\n" + "files: " +
         fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
