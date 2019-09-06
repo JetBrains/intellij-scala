@@ -362,7 +362,21 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       }
     }
 
-    if (typeAware && resolve.length != 1) {
+    def isOnTopLevel(element: PsiElement) = element match {
+      case scalaPsi: ScalaPsiElement => !scalaPsi.parents.exists(_.isInstanceOf[ScTypeDefinition])
+      case _ => false
+    } 
+    
+    //don't highlight ambiguous definitions, if they are resolved to multiple top-level declarations
+    //needed for worksheet and scala notebook files (e.g. zeppelin)
+    val isTopLevelResolve =
+      resolve.length > 1 && resolve.headOption.map(_.element).filter(isOnTopLevel).exists {
+        firstElement => 
+          val fFile = firstElement.getContainingFile
+          resolve.tail.map(_.element).forall(nextEl => nextEl.getContainingFile == fFile && isOnTopLevel(nextEl))
+      }
+    
+    if (typeAware && resolve.length != 1 && !isTopLevelResolve) {
       val parent = refElement.getParent
       def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)

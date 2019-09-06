@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isScope
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -41,6 +41,13 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   def annotateScope(element: PsiElement)
                    (implicit holder: AnnotationHolder): Unit = {
     if (!isScope(element)) return
+
+    //don't annotate clashing definitions on top level of worksheet files and non-scala files with parallel scala psi
+    element match {
+      case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile => return 
+      case parTreeFile: ScalaFile if parTreeFile.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => return
+      case _ => 
+    }
 
     def checkScope(elements: PsiElement*) {
       val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements: _*)
