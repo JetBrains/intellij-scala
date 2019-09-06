@@ -200,8 +200,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   }
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
-    val message =
-      s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of ${projectSbtVersion} configured by project."
+    val message = s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of ${projectSbtVersion} configured by project."
     val notification = SbtShellNotifications.notificationGroup.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))
@@ -388,7 +387,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   @TraceWithLogger
   private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
     processData match {
-      case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
+      case Some(data@ProcessData(handler, _)) if isAlive(data) =>
         handler
       case _ =>
         updateProcessData().processHandler
@@ -399,7 +398,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   @TraceWithLogger
   def acquireShellRunner(): SbtShellRunner = processData.synchronized {
     processData match {
-      case Some(ProcessData(_, runner)) if runner.isRunning =>
+      case Some(data@ProcessData(_, runner)) if isAlive(data) =>
         runner
       case _ =>
         updateProcessData().runner
@@ -435,9 +434,10 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   private[shell] def isAlive: Boolean =
     processData.exists(isAlive)
 
-  private def isAlive(processData: ProcessData): Boolean =
-    processData.processHandler.getProcess.isAlive &&
-      processData.runner.isRunning
+  private def isAlive(processData: ProcessData): Boolean = {
+    // processData.processHandler.getProcess.isAlive // TODO: I am not sure which is the best
+    !processData.processHandler.isProcessTerminated
+  }
 }
 
 object SbtProcessManager {
