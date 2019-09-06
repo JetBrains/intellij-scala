@@ -3,6 +3,7 @@ package lang
 package psi
 package uast
 
+import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
 import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
 import org.jetbrains.uast._
@@ -13,7 +14,7 @@ final class ScalaUastPlugin extends UastLanguagePlugin {
 
   import reflect.{ClassTag, classTag}
 
-  override val getLanguage: ScalaLanguage = ScalaLanguage.INSTANCE
+  override val getLanguage: Language = ScalaLanguage.INSTANCE
 
   override val getPriority = 0
 
