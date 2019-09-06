@@ -63,9 +63,9 @@ object CompilerData extends CompilerDataFactory {
     )
   }
 
-  def javaHome(model: JpsModel,
-               module: JpsModule,
-               isCompileServerEnabled: Boolean): Either[String, Option[File]] = {
+  private def javaHome(model: JpsModel,
+                       module: JpsModule,
+                       isCompileServerEnabled: Boolean): Either[String, Option[File]] = {
     Option(module.getSdk(JpsJavaSdkType.INSTANCE))
       .toRight("No JDK in module " + module.getName)
       .flatMap { moduleJdk =>
@@ -104,11 +104,11 @@ object CompilerData extends CompilerDataFactory {
     }
   }
 
-  def compilerJarsIn(module: JpsModule) =
+  private def compilerJarsIn(module: JpsModule): Option[CompilerJars] =
     SettingsManager.getScalaSdk(module)
       .flatMap(compilerJarsInSdk(_).toOption)
 
-  private def compilerJarsInSdk(sdk: JpsLibrary) = {
+  private def compilerJarsInSdk(sdk: JpsLibrary): Either[(String, Seq[JarFileWithName]), CompilerJars] = {
     val files = sdk.getProperties match {
       case settings: model.LibrarySettings =>
         for {
@@ -116,7 +116,8 @@ object CompilerData extends CompilerDataFactory {
           name = file.getName
           if name.endsWith(JarExtension)
         } yield JarFileWithName(file, name)
-      case _ => Seq.empty
+      case _ =>
+        Seq.empty
     }
 
     for {
@@ -139,20 +140,24 @@ object CompilerData extends CompilerDataFactory {
     )
   }
 
-  private def find(files: Seq[JarFileWithName], kind: String): Either[(String, Seq[JarFileWithName]), JarFileWithName] =
-    files.filter(_.name.startsWith(kind)) match {
-      case Seq(file) => Right(file)
+  private def find(files: Seq[JarFileWithName], kind: String): Either[(String, Seq[JarFileWithName]), JarFileWithName] = {
+    val filesOfKind = files.filter(_.name.startsWith(kind)).distinct
+    filesOfKind match {
+      case Seq(file)  => Right(file)
       case duplicates => Left(kind, duplicates)
     }
+  }
 
   // TODO implement a better version comparison
   private def versionIn(compiler: File,
                         versions: String*) =
     compilerVersion(compiler).exists { version => versions.exists(version.startsWith) }
 
-  def compilerVersion(compiler: File): Option[String] = readProperty(compiler,
+  private def compilerVersion(compiler: File): Option[String] = readProperty(
+    compiler,
     "compiler.properties",
-    "version.number")
+    "version.number"
+  )
 
   private def hasDotty(extra: Seq[File]) = extra.exists(_.getName.startsWith("dotty"))
 }
