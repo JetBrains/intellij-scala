@@ -175,7 +175,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   protected override def innerType: TypeResult = {
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
-      case _ => resolveFailure
+      case _ => 
+        multiResolveScala(false).headOption.map(convertBindToType).getOrElse(resolveFailure)
     }
   }
 
