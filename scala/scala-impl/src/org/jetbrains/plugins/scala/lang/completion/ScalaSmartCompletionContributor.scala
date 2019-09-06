@@ -4,7 +4,7 @@ package completion
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{LookupElementRenderer, _}
+import com.intellij.codeInsight.lookup._
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.application.ApplicationManager
@@ -505,9 +505,7 @@ object ScalaSmartCompletionContributor {
         }
         variants.foreach(applyVariant(_, checkForSecondCompletion = true))
         if (typez.exists(_.equiv(Boolean))) {
-          for (keyword <- Set("false", "true")) {
-            result.addElement(ScalaKeywordLookupItem.getLookupElement(keyword))
-          }
+          ScalaKeywordLookupItem.addFor(result, ScalaKeyword.FALSE, ScalaKeyword.TRUE)
         }
         if (completeThis) {
           var parent = place
