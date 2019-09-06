@@ -950,6 +950,8 @@ object ScalaPsiUtil {
   }
 
   def isScope(element: PsiElement): Boolean = element match {
+    case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile => false
+    case parTreeFile: ScalaFile if parTreeFile.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => false
     case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
          _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |
          _: ScEarlyDefinitions | _: ScRefinement => true
