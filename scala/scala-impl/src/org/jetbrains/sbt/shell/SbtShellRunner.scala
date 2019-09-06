@@ -197,11 +197,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   def getDebugConnection: Option[RemoteConnection] = debugConnection
 
-  def isRunning: Boolean = getConsoleView match {
-    case null => false
-    case view => view.isRunning
-  }
-
   override def dispose(): Unit = {}
 
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)

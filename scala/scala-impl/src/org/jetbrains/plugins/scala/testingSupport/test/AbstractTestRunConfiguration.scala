@@ -409,8 +409,11 @@ abstract class AbstractTestRunConfiguration(project: Project,
           //make sure the process is initialized
           val shellRunner = sbtProcessManager.acquireShellRunner()
           //TODO: this null is really weird
-          SbtProcessHandlerWrapper(shellRunner createProcessHandler null)
-        } else startProcess()
+          // null parameter does not affect anything, rethink API
+          SbtProcessHandlerWrapper(shellRunner.createProcessHandler(null))
+        } else {
+          startProcess()
+        }
         val runnerSettings = getRunnerSettings
         if (getConfiguration == null) setConfiguration(currentConfiguration)
         val config = getConfiguration
