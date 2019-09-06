@@ -14,6 +14,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.HelpID
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO
 import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
@@ -29,21 +30,24 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
-    trimSpacesAndComments(editor, file)
+    val scalaFile = file.findAnyScalaFile.orNull
+    if (scalaFile == null) return
+
+    trimSpacesAndComments(editor, scalaFile)
 
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
-    val maybeSelectedElement = getTypeElement(file).orElse(getExpression(file))
+    val maybeSelectedElement = getTypeElement(scalaFile).orElse(getExpression(scalaFile))
 
     def getTypeElementAtOffset: Option[ScTypeElement] = {
       val offset = editor.getCaretModel.getOffset
-      val diff = file.findElementAt(offset) match {
+      val diff = scalaFile.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset => 1
         case _ => 0
       }
 
       val realOffset = offset - diff
-      if (possibleExpressionsToExtract(file, realOffset).isEmpty)
-        Option(findElementOfClassAtOffset(file, realOffset, classOf[ScTypeElement], false))
+      if (possibleExpressionsToExtract(scalaFile, realOffset).isEmpty)
+        Option(findElementOfClassAtOffset(scalaFile, realOffset, classOf[ScTypeElement], false))
       else None
     }
 
@@ -65,14 +69,14 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
     maybeTypeElement match {
       case Some(typeElement) if editor.getUserData(REVERT_TYPE_ALIAS_INFO).isData =>
-        invokeTypeElement(file, typeElement)
+        invokeTypeElement(scalaFile, typeElement)
       case Some(typeElement) =>
         afterTypeElementChoosing(typeElement, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
-          invokeTypeElement(file, _)
+          invokeTypeElement(scalaFile, _)
         }
       case _ =>
-        afterExpressionChoosing(file, INTRODUCE_VARIABLE_REFACTORING_NAME) {
-          invokeExpression(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+        afterExpressionChoosing(scalaFile, INTRODUCE_VARIABLE_REFACTORING_NAME) {
+          invokeExpression(scalaFile, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
         }
     }
   }
