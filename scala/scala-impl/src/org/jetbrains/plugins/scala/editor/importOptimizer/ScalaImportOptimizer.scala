@@ -172,7 +172,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def isImportDelimiter(psi: PsiElement): Boolean = psi.isInstanceOf[PsiWhiteSpace]
 
-  def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] && file.getViewProvider.getAllFiles.size() < 3
+  def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
 
   def replaceWithNewImportInfos(range: RangeInfo, importInfos: Seq[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()
