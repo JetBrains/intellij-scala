@@ -24,7 +24,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
   private var myRefCountHolder: ScalaRefCountHolder = _
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
-  override def suitableForFile(file: PsiFile): Boolean = file.hasScalaPsi
+  override def suitableForFile(file: PsiFile): Boolean = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) != null
 
   def visit(element: PsiElement): Unit = {
     if (DumbService.getInstance(project).isDumb) return
@@ -53,14 +53,17 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
               holder: HighlightInfoHolder,
               analyze: Runnable): Boolean = {
 //    val time = System.currentTimeMillis()
-    clearDirtyAnnotatorHintsIn(file)
+    val scalaFile = file.findAnyScalaFile.orNull
+    if (scalaFile == null) return true
+
+    clearDirtyAnnotatorHintsIn(scalaFile)
     var success = true
     try {
       myHolder = holder
       myAnnotationHolder = new AnnotationHolderImpl(holder.getAnnotationSession)
       if (updateWholeFile) {
-        myRefCountHolder = ScalaRefCountHolder.getInstance(file)
-        success = myRefCountHolder.analyze(analyze, file)
+        myRefCountHolder = ScalaRefCountHolder.getInstance(scalaFile)
+        success = myRefCountHolder.analyze(analyze, scalaFile)
       } else {
         myRefCountHolder = null
         analyze.run()
