@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.javaHighlighting
 
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.annotator.Error
 
 /**
   * @author Alefas
@@ -56,5 +57,31 @@ class JavaHighlightingScala2_12Test extends JavaHighlightingTestBase {
       """.stripMargin
 
     assertNothing(errorsFromJavaCode(scala, java, "Test"))
+  }
+
+  def testSCL15936(): Unit = {
+    val java =
+      """
+        |import java.util.Map;
+        |
+        |public class Api {
+        |    public static void foo(Map<String, Object> params) {}
+        |}
+        |""".stripMargin
+
+    val scala =
+      """
+        |class App {
+        |  Api.foo(new java.util.TreeMap[String, Object]())
+        |  Api.foo(new java.util.TreeMap[String, Any]())
+        |}
+        |""".stripMargin
+
+    assertMessages(errorsFromScalaCode(scala, java))(
+      Error(
+        "new java.util.TreeMap[String, Any]()",
+        "Type mismatch, expected: util.Map[String, AnyRef], actual: util.TreeMap[String, Any]"
+      )
+    )
   }
 }

@@ -47,12 +47,12 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
           val substitutor = result.getSubstitutor
 
-          constructTypeForClass(clazz, paramTopLevel) { (typeParam, idx) =>
+          constructTypeForClass(clazz) { (typeParam, idx) =>
             substitutor.substitute(typeParam) match {
               case null                              => typeParamType(typeParam, rawExistentialArguments)
               case wildcardType: PsiWildcardType     => existentialArg(s"_$$${idx + 1}", wildcardType, paramTopLevel = true)
               case captured: PsiCapturedWildcardType => existentialArg(s"_$$${idx + 1}", captured.getWildcard, paramTopLevel = true)
-              case substed                           => toScTypeInner(substed, paramTopLevel, treatJavaObjectAsAny = true, rawExistentialArguments)
+              case substed                           => toScTypeInner(substed, paramTopLevel = false, treatJavaObjectAsAny = true, rawExistentialArguments)
             }
           }
       }
@@ -73,13 +73,13 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val quantified = rawExistentialArgs match {
         case None =>
           val map = new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
-          val quantified = constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
+          val quantified = constructTypeForClass(clazz) { (tp, idx) =>
             map.getOrElse(tp, TypeParameterType(tp))
           }
           map.values.foreach(_.initialize())
           quantified
         case Some(map) =>
-          constructTypeForClass(clazz, paramTopLevel) { (tp, idx) =>
+          constructTypeForClass(clazz) { (tp, idx) =>
             ScExistentialArgument(tp.name, Seq.empty, Nothing, AnyRef)
           }
 
@@ -111,17 +111,17 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     ScExistentialArgument(name, Seq.empty, lower, upper)
   }
 
-  private def constructTypeForClass(clazz: PsiClass, paramTopLevel: Boolean, withTypeParameters: Boolean = true)
+  private def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = true)
                                    (typeArgFun: (PsiTypeParameter, Int) => ScType): ScType = {
 
     clazz match {
-      case PsiClassWrapper(definition) => constructTypeForClass(definition, paramTopLevel)(typeArgFun)
+      case PsiClassWrapper(definition) => constructTypeForClass(definition)(typeArgFun)
       case _ =>
         val designator = clazz.containingClass match {
           case null   => ScDesignatorType(clazz)
           case cClass =>
             val isStatic = clazz.hasModifierProperty(STATIC)
-            val projected = constructTypeForClass(cClass, paramTopLevel, withTypeParameters = !isStatic)(typeArgFun)
+            val projected = constructTypeForClass(cClass, withTypeParameters = !isStatic)(typeArgFun)
             ScProjectionType(projected, clazz)
         }
 
