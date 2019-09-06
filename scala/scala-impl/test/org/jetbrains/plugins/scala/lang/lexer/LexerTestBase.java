@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
+import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 
 /**
@@ -8,38 +10,59 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
  * Date: 11/21/11
  */
 abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
-  protected Lexer lexer;
-  
-  public LexerTestBase(String dataPath, Lexer lexer) {
-    super(System.getProperty("path") != null ? System.getProperty("path") : dataPath);
-    this.lexer = lexer;
-  }
 
-  
-  @Override
-  public String transform(String testName, String[] data) throws Exception {
-    String fileText = data[0];
-
-    lexer.start(fileText);
-
-    StringBuilder buffer = new StringBuilder();
-
-    while (lexer.getTokenType() != null) {
-      buffer.append(prettyPrintToken());
-      lexer.advance();
-      if (lexer.getTokenType() != null) {
-        buffer.append("\n");
-      }
+    protected LexerTestBase(@NotNull String dataPath) {
+        super(customOrPropertyPath(dataPath));
     }
 
-    return buffer.toString();
-  }
+    @NotNull
+    protected abstract Lexer createLexer();
 
-  protected String prettyPrintToken() {
-    if (lexer.getTokenType() == null) return "null";
+    protected void printTokenRange(int tokenStart, int tokenEnd,
+                                   @NotNull StringBuilder builder) {
+        builder.append(':').append(' ').append('[')
+                .append(tokenStart)
+                .append(',').append(' ')
+                .append(tokenEnd)
+                .append(']').append(',');
+    }
 
-    CharSequence s = lexer.getBufferSequence();
-    s = s.subSequence(lexer.getTokenStart(), lexer.getTokenEnd());
-    return lexer.getTokenType().toString() + " {" + s + "}";
-  }
+    @NotNull
+    @Override
+    public String transform(@NotNull String testName, @NotNull String[] data) {
+        Lexer lexer = createLexer();
+        lexer.start(data[0]);
+
+        StringBuilder builder = new StringBuilder();
+
+        IElementType tokenType = lexer.getTokenType();
+        while (tokenType != null) {
+            builder.append(tokenType.toString());
+            printTokenRange(lexer.getTokenStart(), lexer.getTokenEnd(), builder);
+            printTokenText(lexer.getTokenText(), builder);
+
+            lexer.advance();
+            tokenType = lexer.getTokenType();
+
+            if (tokenType != null) {
+                builder.append('\n');
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private static String customOrPropertyPath(@NotNull String dataPath) {
+        String pathProperty = System.getProperty("path");
+        return pathProperty != null ?
+                pathProperty :
+                dataPath;
+    }
+
+    private static void printTokenText(@NotNull String tokenText,
+                                       @NotNull StringBuilder builder) {
+        builder.append(' ').append('{')
+                .append(tokenText)
+                .append('}');
+    }
 }
