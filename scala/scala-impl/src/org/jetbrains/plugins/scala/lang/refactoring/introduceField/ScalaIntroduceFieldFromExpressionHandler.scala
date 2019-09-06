@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.HelpID
-import org.jetbrains.plugins.scala.extensions.{childOf, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -57,8 +57,11 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
-    afterExpressionChoosing(file, REFACTORING_NAME) {
-      invoke(file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
+    file.findAnyScalaFile.foreach {
+      scalaFile =>
+        afterExpressionChoosing(scalaFile, REFACTORING_NAME) {
+          invoke(scalaFile, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
+        }
     }
   }
 

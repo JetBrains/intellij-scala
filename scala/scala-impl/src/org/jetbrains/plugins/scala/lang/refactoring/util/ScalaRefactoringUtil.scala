@@ -861,7 +861,10 @@ object ScalaRefactoringUtil {
     file match {
       case scalaFile: ScalaFile if ensureFileWritable(file) => scalaFile
       case _: ScalaFile => showErrorHintWithException(ScalaBundle.message("file.is.not.writable"), refactoringName)
-      case _ => showErrorHintWithException(ScalaBundle.message("only.for.scala"), refactoringName)
+      case _ =>
+        file.findAnyScalaFile.filter(ensureFileWritable).getOrElse {
+          showErrorHintWithException(ScalaBundle.message("only.for.scala"), refactoringName)
+        }
     }
 
   def maybeWritableScalaFile(file: PsiFile, refactoringName: String)
@@ -871,7 +874,7 @@ object ScalaRefactoringUtil {
       case _: ScalaFile =>
         showErrorHint(ScalaBundle.message("file.is.not.writable"), refactoringName)
         None
-      case _ => None
+      case _ => file.findAnyScalaFile.filter(ensureFileWritable).orElse(None)
     }
 
   def canBeIntroduced(expr: ScExpression): Boolean = cannotBeIntroducedReason(expr).isEmpty
