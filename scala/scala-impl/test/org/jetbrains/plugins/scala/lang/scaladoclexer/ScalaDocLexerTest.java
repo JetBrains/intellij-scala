@@ -1,4 +1,3 @@
-
 package org.jetbrains.plugins.scala.lang.scaladoclexer;
 
 import junit.framework.Test;
@@ -9,12 +8,11 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
-
 @RunWith(AllTests.class)
-public class ScaladocLexerTest extends LexerTestBase {
+public class ScalaDocLexerTest extends LexerTestBase {
 
-    public ScaladocLexerTest() {
-        super(TestUtils.getTestDataPath() + "/lexer/scaladocdata/scaladoc");
+    public ScalaDocLexerTest() {
+        super(TestUtils.getTestDataPath() + "/lexer/scalaDocData");
     }
 
     @NotNull
@@ -30,7 +28,7 @@ public class ScaladocLexerTest extends LexerTestBase {
 
     @NotNull
     public static Test suite() {
-        return new ScaladocLexerTest();
+        return new ScalaDocLexerTest();
     }
 }
 
