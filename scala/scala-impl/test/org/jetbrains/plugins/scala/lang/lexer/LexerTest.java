@@ -31,17 +31,12 @@ public class LexerTest extends LexerTestBase {
     super(TestUtils.getTestDataPath() + "/lexer/data");
   }
 
-  @NotNull
-  @Override
-  protected ScalaLexer createLexer() {
-    return new ScalaLexer();
-  }
-
   @Override
   protected void printTokenRange(int tokenStart, int tokenEnd,
                                  @NotNull StringBuilder builder) {
   }
 
+  @NotNull
   public static Test suite() {
     return new LexerTest();
   }

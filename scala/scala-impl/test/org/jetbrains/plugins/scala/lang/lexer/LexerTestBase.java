@@ -16,7 +16,22 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
     }
 
     @NotNull
-    protected abstract Lexer createLexer();
+    protected Lexer createLexer() {
+        return new ScalaLexer();
+    }
+
+    protected void onToken(@NotNull Lexer lexer,
+                           @NotNull IElementType tokenType,
+                           @NotNull StringBuilder builder) {
+        builder.append(tokenType.toString());
+        printTokenRange(lexer.getTokenStart(), lexer.getTokenEnd(), builder);
+        printTokenText(lexer.getTokenText(), builder);
+        builder.append('\n');
+    }
+
+    protected void onEof(@NotNull Lexer lexer,
+                         @NotNull StringBuilder builder) {
+    }
 
     protected void printTokenRange(int tokenStart, int tokenEnd,
                                    @NotNull StringBuilder builder) {
@@ -37,15 +52,13 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
 
         IElementType tokenType = lexer.getTokenType();
         while (tokenType != null) {
-            builder.append(tokenType.toString());
-            printTokenRange(lexer.getTokenStart(), lexer.getTokenEnd(), builder);
-            printTokenText(lexer.getTokenText(), builder);
-            builder.append('\n');
+            onToken(lexer, tokenType, builder);
 
             lexer.advance();
             tokenType = lexer.getTokenType();
         }
 
+        onEof(lexer, builder);
         return builder.toString();
     }
 
