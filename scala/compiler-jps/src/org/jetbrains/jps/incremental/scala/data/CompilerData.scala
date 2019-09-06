@@ -38,7 +38,7 @@ object CompilerData extends CompilerDataFactory {
 
               Left(s"$messagePrefix '$kind*$JarExtension'$messageInfix in Scala compiler classpath in Scala SDK ${sdk.getName}")
           }, {
-            case jars@CompilerJars(library, compiler, extra) =>
+            case jars @ CompilerJars(library, compiler, extra) =>
               val absentJars = for {
                 file <- library +: compiler +: extra
                 if !file.exists
@@ -104,11 +104,11 @@ object CompilerData extends CompilerDataFactory {
     }
   }
 
-  private def compilerJarsIn(module: JpsModule) =
+  private def compilerJarsIn(module: JpsModule): Option[CompilerJars] =
     SettingsManager.getScalaSdk(module)
       .flatMap(compilerJarsInSdk(_).toOption)
 
-  private def compilerJarsInSdk(sdk: JpsLibrary) = {
+  private def compilerJarsInSdk(sdk: JpsLibrary): Either[(String, Seq[JarFileWithName]), CompilerJars] = {
     val files = sdk.getProperties match {
       case settings: model.LibrarySettings =>
         for {
@@ -116,7 +116,8 @@ object CompilerData extends CompilerDataFactory {
           name = file.getName
           if name.endsWith(JarExtension)
         } yield JarFileWithName(file, name)
-      case _ => Seq.empty
+      case _ =>
+        Seq.empty
     }
 
     for {
@@ -139,21 +140,24 @@ object CompilerData extends CompilerDataFactory {
     )
   }
 
-  private def find(files: Seq[JarFileWithName], kind: String): Either[(String, Seq[JarFileWithName]), JarFileWithName] =
-    files.filter(_.name.startsWith(kind)) match {
-      case Seq(file) => Right(file)
+  private def find(files: Seq[JarFileWithName], kind: String): Either[(String, Seq[JarFileWithName]), JarFileWithName] = {
+    val filesOfKind = files.filter(_.name.startsWith(kind)).distinct
+    filesOfKind match {
+      case Seq(file)  => Right(file)
       case duplicates => Left(kind, duplicates)
     }
+  }
 
   // TODO implement a better version comparison
   private def versionIn(compiler: File,
-                        versions: String*) = readProperty(
+                        versions: String*) =
+    compilerVersion(compiler).exists { version => versions.exists(version.startsWith) }
+
+  private def compilerVersion(compiler: File): Option[String] = readProperty(
     compiler,
     "compiler.properties",
     "version.number"
-  ).exists { version =>
-    versions.exists(version.startsWith)
-  }
+  )
 
   private def hasDotty(extra: Seq[File]) = extra.exists(_.getName.startsWith("dotty"))
 }
