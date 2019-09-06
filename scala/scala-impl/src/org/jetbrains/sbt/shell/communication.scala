@@ -68,7 +68,8 @@ class SbtShellCommunication(project: Project) extends ProjectComponent {
 
   private def nextQueuedCommand(timeout: Duration): Unit = {
     // TODO exception handling
-    if (shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)) {
+    val acquired = shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)
+    if (acquired) {
       val next = commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
         val (cmd, listener) = next
@@ -85,7 +86,9 @@ class SbtShellCommunication(project: Project) extends ProjectComponent {
         listener.future.onComplete { _ =>
           handler.removeProcessListener(listener)
         }
-      } else shellQueueReady.release()
+      } else {
+        shellQueueReady.release()
+      }
     }
   }
 
