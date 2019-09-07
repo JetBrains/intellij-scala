@@ -146,8 +146,11 @@ object TestNodeProvider {
     } else None
   }
 
+  // TODO: refactor usage of these, it looks ugly, many code duplications, error-prone, probably non-efficient
+  //ScalaTest < 3.0.3 does not support scala 2.13, no need du duplicate param clauses with `immutable`
   private val scMethodCallDefaultArg = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List("void"))
-  private val scMethodCallDefaultArgScalaTest3 = Seq(List("java.lang.String", "scala.collection.immutable.Seq<org.scalatest.Tag>"), List("java.lang.Object"))
+  private val scMethodCallDefaultArgScalaTest3_v1 = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List("java.lang.Object")) // scala < 2.13
+  private val scMethodCallDefaultArgScalaTest3_v2 = Seq(List("java.lang.String", "scala.collection.immutable.Seq<org.scalatest.Tag>"), List("java.lang.Object")) // scala >= 2.13
 
   private def getMethodCallTestName(expr: ScMethodCall) =
   //TODO: this is horrible
@@ -341,16 +344,19 @@ object TestNodeProvider {
     }  else None
   }
 
-  private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project):
-  Option[Test] = {
+  private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project): Option[Test] = {
     if (entry.canIgnore && (checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*) ||
-      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3: _*))) {
+      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v1: _*) ||
+      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v2: _*)))
+    {
       Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else if (entry.canPend && checkMethodCallPending(expr)) {
       Some(pendingScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else if (checkScMethodCall(expr, entry.funName, entry.args: _*) ||
       checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*) ||
-      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3:_*)) {
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v1:_*) ||
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v2:_*)
+    ) {
       Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
     } else None
   }
@@ -390,7 +396,8 @@ object TestNodeProvider {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFunSpec, project)
     extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void")),
       project).orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3:_*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project)).
       orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*), project))
   }
 
@@ -398,17 +405,20 @@ object TestNodeProvider {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFeatureSpec, project)
     extractScMethodCall(expr, ExtractEntry("feature", true, false, _ => children, List("java.lang.String"), List("void")), project).
       orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArg:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3:_*), project))
+      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
   }
 
   private def extractPropSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg: _*), project).
-      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3: _*), project))
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v1: _*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v2: _*), project))
   }
 
   private def extractFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
     extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project).
-      orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3:_*), project))
+      orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
   }
 
   //-----Specs2-----
