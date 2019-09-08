@@ -147,6 +147,15 @@ object CachedMacroUtil {
        """
   }
 
+  def withClassName(name: AnyRef)(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    val enclosingName = c.enclosingClass match {
+      case df: c.universe.DefTreeApi => df.name.toString
+      case _ => "________"
+    }
+    q"${enclosingName + "." + name.toString}"
+  }
+
   def box(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {
