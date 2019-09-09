@@ -18,46 +18,37 @@ package org.jetbrains.plugins.scala.highlighter;
 import com.intellij.lang.StdLanguages;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.ex.util.LayerDescriptor;
 import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter;
-import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.highlighter.ScalaDocSyntaxHighlighter;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
-
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
 
 
 /**
  * @author ilyas
  */
-public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
+public final class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
 
-  public ScalaEditorHighlighter(Project project, VirtualFile virtualFile, EditorColorsScheme scheme) {
-    super(createSyntaxHighlighter(project), scheme);
+  public ScalaEditorHighlighter(@NotNull EditorColorsScheme scheme) {
+    super(new ScalaSyntaxHighlighter(), scheme);
 
     //Register XML highlighter
-    final SyntaxHighlighter xmlHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, project, virtualFile);
+    LayerDescriptor xmlLayer = new LayerDescriptor(
+            SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, null, null),
+            "\n",
+            HighlighterColors.TEXT
+    );
+    registerLayer(ScalaTokenTypesEx.SCALA_XML_CONTENT, xmlLayer);
 
-    final LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", HighlighterColors.TEXT);
-    registerLayer(SCALA_XML_CONTENT, xmlLayer);
-
-    final SyntaxHighlighter scaladocHighlighter = new ScalaDocSyntaxHighlighter();
-    final LayerDescriptor scaladocLayer = new LayerDescriptor(scaladocHighlighter, "\n", DefaultHighlighter.DOC_COMMENT);
+    LayerDescriptor scaladocLayer = new LayerDescriptor(
+            new ScalaDocSyntaxHighlighter(),
+            "\n",
+            DefaultHighlighter.DOC_COMMENT
+    );
     registerLayer(ScalaDocElementTypes.SCALA_DOC_COMMENT, scaladocLayer);
-  }
-
-  private static ScalaSyntaxHighlighter createSyntaxHighlighter(Project project) {
-    boolean treatDocCommentAsBlockComment =
-            project != null && ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment();
-    return new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment);
   }
 
   // workaround for an apparent bug in IntelliJ platform which applies

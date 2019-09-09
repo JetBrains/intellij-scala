@@ -1,26 +1,27 @@
 package org.jetbrains.sbt.shell.action
 
 import java.awt.event.{InputEvent, KeyEvent}
-import java.util.concurrent.Future
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
+import com.intellij.debugger.impl.DebuggerSession
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleView
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.impl.ExecutionManagerImpl
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
-import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager}
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.{DumbAwareAction, Project}
-import com.intellij.openapi.wm.ToolWindowManager
 import javax.swing.{Icon, KeyStroke}
-import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
@@ -43,11 +44,13 @@ class StartAction(project: Project) extends DumbAwareAction {
   templatePresentation.setText("Start sbt shell") // TODO i18n / language-bundle
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    val twm = ToolWindowManager.getInstance(project)
-    val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
-    toolWindow.getContentManager.removeAllContents(true)
+    SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+      toolWindow.getContentManager.removeAllContents(true)
 
-    runAsync(SbtProcessManager.forProject(e.getProject).restartProcess())
+      executeOnPooledThread {
+        SbtProcessManager.forProject(e.getProject).restartProcess()
+      }
+    }
   }
 
   override def update(e: AnActionEvent): Unit = {
@@ -57,7 +60,7 @@ class StartAction(project: Project) extends DumbAwareAction {
       presentation.setText("Restart sbt shell")
     } else {
       presentation.setIcon(AllIcons.Actions.Execute)
-      templatePresentation.setText("Start sbt shell")
+      presentation.setText("Start sbt shell")
     }
   }
 
@@ -71,8 +74,11 @@ class StopAction(project: Project) extends DumbAwareAction {
   templatePresentation.setDescription(null)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    if (isEnabled)
-      runAsync(SbtProcessManager.forProject(e.getProject).destroyProcess())
+    if (isEnabled) {
+      executeOnPooledThread {
+        SbtProcessManager.forProject(e.getProject).destroyProcess()
+      }
+    }
   }
 
   override def update(e: AnActionEvent): Unit = {
@@ -169,25 +175,29 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
     val executionManager = ExecutionManager.getInstance(project)
     val descriptors = executionManager.getContentManager.getAllDescriptors
 
-    // this finds the process handler by name and type. This is pretty hacky.
-    // is there a cleaner way to handle the detaching?
+    // This is pretty hacky, is there a cleaner way to handle the detaching?
     for {
-      desc <- descriptors.asScala.find { d => d.getDisplayName == configName }
-      proc <- Option(desc.getProcessHandler)
-      if proc.isInstanceOf[RemoteDebugProcessHandler]
-      if !(proc.isProcessTerminated || proc.isProcessTerminating)
+      proc <- findProcessHandlerByNameAndType(descriptors.asScala)
     } ExecutionManagerImpl.stopProcess(proc)
   }
 
-  private def findRunConfig = {
+  private def findProcessHandlerByNameAndType(descriptors: Seq[RunContentDescriptor]): Option[ProcessHandler] =
+    for {
+      desc <- descriptors.find(_.getDisplayName == configName)
+      proc <- Option(desc.getProcessHandler)
+      if proc.isInstanceOf[RemoteDebugProcessHandler]
+      if !(proc.isProcessTerminated || proc.isProcessTerminating)
+    } yield proc
+
+
+  private def findRunConfig: Option[RunnerAndConfigurationSettings] = {
     val runManager = RunManager.getInstance(project)
     Option(runManager.findConfigurationByTypeAndName(configType.getId,  configName))
   }
 
-  private def findSession = {
+  private def findSession: Option[DebuggerSession] = {
     val sessions = DebuggerManagerEx.getInstanceEx(project).getSessions
-    sessions.asScala
-      .find { session => session.getSessionName == configName }
+    sessions.asScala.find(_.getSessionName == configName)
   }
 
   override def update(e: AnActionEvent): Unit = {
@@ -195,11 +205,8 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
   }
 
   private def isEnabled: Boolean = remoteConnection.isDefined && shellAlive(project)
-
 }
 
-object SbtShellActionUtil {
+private object SbtShellActionUtil {
   def shellAlive(project: Project): Boolean = SbtProcessManager.forProject(project).isAlive
-
-  def runAsync[T](f: =>T): Future[T] = PooledThreadExecutor.INSTANCE.submit(() => f)
 }

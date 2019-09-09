@@ -15,11 +15,8 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import com.intellij.lexer.Lexer;
-import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -28,46 +25,19 @@ import org.junit.runners.AllTests;
  * @author ilyas
  */
 @RunWith(AllTests.class)
-public class LexerTest extends BaseScalaFileSetTestCase {
-
-  @NonNls
-  private static final String DATA_PATH = "/lexer/data";
+public class LexerTest extends LexerTestBase {
 
   public LexerTest() {
-    super(System.getProperty("path") != null ?
-        System.getProperty("path") :
-        TestUtils.getTestDataPath() + DATA_PATH
-    );
+    super(TestUtils.getTestDataPath() + "/lexer/data");
   }
 
-
-  public String transform(String testName, String[] data) throws Exception {
-    String fileText = data[0];
-
-    Lexer lexer = new ScalaLexer();
-    lexer.start(fileText);
-
-    StringBuilder buffer = new StringBuilder();
-
-    IElementType type;
-    while ((type = lexer.getTokenType()) != null) {
-      CharSequence s = lexer.getBufferSequence();
-      s = s.subSequence(lexer.getTokenStart(), lexer.getTokenEnd());
-      buffer.append(type.toString()).append(" {").append(s).append("}");
-      lexer.advance();
-      if (lexer.getTokenType() != null) {
-        buffer.append("\n");
-      }
-    }
-
-
-    return buffer.toString();
-
+  @Override
+  protected void printTokenRange(int tokenStart, int tokenEnd,
+                                 @NotNull StringBuilder builder) {
   }
 
+  @NotNull
   public static Test suite() {
     return new LexerTest();
   }
-
-
 }

@@ -47,7 +47,7 @@ public class AttachIntellijSourcesAction extends AnAction {
     private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
 
     private static final Predicate<String> JAR_PATTERN = Pattern.compile("^sources\\.(zip|jar)$").asPredicate();
-    private static final Predicate<String> DIRECTORY_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$").asPredicate();
+    private static final Predicate<String> DIRECTORY_PATTERN = Pattern.compile("^\\d+\\.\\d+(\\.\\d+)?$").asPredicate();
 
 
     public static void attachIJSources(@NotNull Project project) {

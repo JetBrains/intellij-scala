@@ -7,7 +7,7 @@ package expressions
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
-import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -60,7 +60,7 @@ object Expr1 {
             builder error ErrMsg("condition.expected")
         }
 
-        ParserPatcher getSuitablePatcher builder parse builder
+        builder.skipExternalToken()
 
         if (!Expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")

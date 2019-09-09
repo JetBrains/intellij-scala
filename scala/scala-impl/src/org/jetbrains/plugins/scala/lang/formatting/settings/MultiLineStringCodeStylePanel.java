@@ -80,9 +80,10 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     protected void prepareForReformat(PsiFile psiFile) {
     }
 
+    @NotNull
     @Override
-    protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
-        return new ScalaEditorHighlighter(null, null, scheme);
+    protected EditorHighlighter createHighlighter(@NotNull EditorColorsScheme scheme) {
+        return new ScalaEditorHighlighter(scheme);
     }
 
     @NotNull

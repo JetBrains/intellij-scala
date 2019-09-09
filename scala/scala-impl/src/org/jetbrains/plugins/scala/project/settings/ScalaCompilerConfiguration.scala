@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.project.settings
+package org.jetbrains.plugins.scala
+package project
+package settings
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -7,10 +9,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker}
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
-import org.jetbrains.plugins.scala.project.IncrementalityType
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 
 /**
   * @author Pavel Fatin
@@ -20,6 +20,9 @@ import scala.collection.JavaConverters._
   storages = Array(new Storage("scala_compiler.xml"))
 )
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
+
+  import collection.JavaConverters._
+
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
@@ -33,20 +36,19 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   def allCompilerPlugins: Seq[String] = (defaultProfile +: customProfiles).map(_.getSettings).flatMap(_.plugins)
 
-  def hasSettingForHighlighting(module: Module, hasSetting: ScalaCompilerSettings => Boolean): Boolean =
-    settingForHighlighting(module, hasSetting).getOrElse(false)
+  def hasSettingForHighlighting(module: Module)
+                               (hasSetting: ScalaCompilerSettings => Boolean): Boolean =
+    settingsForHighlighting(module).exists(hasSetting)
 
   //currently we cannot rely on compiler options for shared source modules
-  def settingForHighlighting[T](module: Module, hasSetting: ScalaCompilerSettings => T): Option[T] = {
-    def isSharedSources(module: Module) = module.getModuleTypeName == "SHARED_SOURCES_MODULE"
-
-    def dependentModules =
-      ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala
-
-    val modules = if (isSharedSources(module)) dependentModules else Seq(module)
+  def settingsForHighlighting(module: Module): Seq[ScalaCompilerSettings] = {
+    val modules = module.getModuleTypeName match{
+      case "SHARED_SOURCES_MODULE" =>
+        ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala
+      case _ => Seq(module)
+    }
 
     modules.map(getSettingsForModule)
-      .collectFirst { case s => hasSetting(s) }
   }
 
   def configureSettingsForModule(module: Module, source: String, options: Seq[String]) {

@@ -5,16 +5,15 @@ import java.awt.{Component, Container, FocusTraversalPolicy}
 
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import javax.swing.KeyStroke
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.sbt.shell
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -23,26 +22,27 @@ import scala.concurrent.Future
   */
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
+  // called once per project open
+  @TraceWithLogger
   override def init(toolWindow: ToolWindow): Unit = {
-    toolWindow.setStripeTitle(SbtShellToolWindowFactory.title)
+    toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
     toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
 
-    val toolwindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
-    val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolwindowId)
+    val toolWindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
+    val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolWindowId)
 
     addShortcuts(actionId)
   }
 
+  // called once per project open, is not called during sbt shell restart OR close/open etc...
+  @TraceWithLogger
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
-
+    // focus sbt shell input when opening toolWindow with shortcut. #SCL-13225
     val defaultFocusPolicy = toolWindow.getComponent.getFocusTraversalPolicy
     val focusPolicy = new shell.SbtShellToolWindowFactory.TraversalPolicy(project, defaultFocusPolicy)
     toolWindow.getComponent.setFocusTraversalPolicy(focusPolicy)
 
-    val pm = SbtProcessManager.forProject(project)
-
-    Future(pm.acquireShellRunner)
-      .foreach(_.openShell(true))
+    SbtProcessManager.forProject(project).initAndRunAsync()
   }
 
   // don't auto-activate because starting sbt shell is super heavy weight
@@ -64,10 +64,27 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 }
 
 object SbtShellToolWindowFactory {
-  val title = "sbt shell"
+
+  private val Log = Logger.getInstance(getClass)
+
+  val Title = "sbt shell"
   val ID = "sbt-shell-toolwindow"
 
-  class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
+  // TODO: we could pass ToolWindow directly to ProcessManager ans SbtShellRunner
+  def instance(implicit project: Project): Option[ToolWindow] = {
+    val result = for {
+      manager <- Option(ToolWindowManager.getInstance(project))
+      window <- Option(manager.getToolWindow(ID))
+    } yield window
+
+    if (result.isEmpty) {
+      Log.error(s"Failed to create sbt shell toolwindow content for $project.")
+    }
+
+    result
+  }
+
+  private class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
     override def getComponentAfter(aContainer: Container, aComponent: Component): Component =
       defaultPolicy.getComponentAfter(aContainer, aComponent)
 
@@ -82,9 +99,12 @@ object SbtShellToolWindowFactory {
 
     override def getDefaultComponent(aContainer: Container): Component = {
       // default implementation focuses the toolwindow frame, but we want the editor to be directly focused to edit it directly
-      val pm = SbtProcessManager.forProject(project)
-      if (pm.isAlive) pm.acquireShellRunner.getConsoleView.getConsoleEditor.getContentComponent
-      else defaultPolicy.getDefaultComponent(aContainer)
+      val sbtManager = SbtProcessManager.forProject(project)
+      val shellComponent = for {
+        shellRunner <- sbtManager.shellRunner
+        if sbtManager.isAlive
+      } yield shellRunner.getConsoleView.getConsoleEditor.getContentComponent
+      shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
     }
   }
 }

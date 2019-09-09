@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package lang.lexer
+package lang
+package lexer
 
 import com.intellij.openapi.editor.ex.util.{LexerEditorHighlighter, SegmentArrayWithData}
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -100,7 +101,7 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
 
   /**
     * That relates straight to incremental highlighting - see SCL-8958 itself and comment to
-    * [[org.jetbrains.plugins.scala.lang.lexer.ScalaLexer#previousToken]]
+    * [[ScalaLexer#previousToken]]
     */
   def testScl8958(): Unit = {
     val before =

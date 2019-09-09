@@ -91,8 +91,7 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
 
   override protected def getRightMargin: Int = 0
 
-  override protected def createHighlighter(scheme: EditorColorsScheme): ScalaEditorHighlighter =
-    new ScalaEditorHighlighter(null, null, scheme)
+  override protected def createHighlighter(scheme: EditorColorsScheme) = new ScalaEditorHighlighter(scheme)
 
   override protected def getFileType: FileType = ScalaFileType.INSTANCE
 

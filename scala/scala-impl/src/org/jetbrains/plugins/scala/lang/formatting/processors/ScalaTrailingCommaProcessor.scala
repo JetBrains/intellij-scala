@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScTupl
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.util.ScalaUtil.isTrailingCommasEnabled
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
 class ScalaTrailingCommaProcessor extends PostFormatProcessor {
   override def processElement(source: PsiElement, settings: CodeStyleSettings): PsiElement = {
@@ -66,7 +66,7 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
   private def skipElement(source: PsiFile): Boolean = {
     scalaSettings.TRAILING_COMMA_MODE == TrailingCommaMode.TRAILING_COMMA_KEEP ||
       scalaSettings.USE_SCALAFMT_FORMATTER ||
-      !isTrailingCommasEnabled(source)
+      !source.isTrailingCommasEnabled
   }
 
   override def visitArgumentExprList(args: ScArgumentExprList): Unit = {

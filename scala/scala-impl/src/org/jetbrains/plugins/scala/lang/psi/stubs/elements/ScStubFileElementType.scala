@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
 
 //noinspection TypeAnnotation
 class ScStubFileElementType(override val getExternalId: String,
-                            language: Language = ScalaLanguage.INSTANCE)
+                            language: Language)
   extends tree.IStubFileElementType[ScFileStub]("FILE", language) {
 
   override final def getStubVersion: Int =

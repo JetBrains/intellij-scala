@@ -14,8 +14,8 @@ import com.intellij.util.Processor
 import scala.annotation.tailrec
 
 final class ScClsFileViewProvider(file: VirtualFile, decompilationResult: ScalaDecompilationResult, eventSystemEnabled: Boolean)
-                                 (implicit manager: PsiManager)
-  extends ScFileViewProvider(file, eventSystemEnabled) {
+                                 (manager: PsiManager, language: Language)
+  extends ScFileViewProvider(file, eventSystemEnabled)(manager, language) {
 
   private def sourceName: String = decompilationResult.sourceName
 
@@ -24,7 +24,7 @@ final class ScClsFileViewProvider(file: VirtualFile, decompilationResult: ScalaD
   override def createFile(language: Language) = new ScClsFileViewProvider.ScClsFileImpl(this)
 
   override def createCopy(file: VirtualFile): ScClsFileViewProvider =
-    new ScClsFileViewProvider(file, decompilationResult, eventSystemEnabled = false)
+    new ScClsFileViewProvider(file, decompilationResult, eventSystemEnabled = false)(getManager, getBaseLanguage)
 }
 
 object ScClsFileViewProvider {

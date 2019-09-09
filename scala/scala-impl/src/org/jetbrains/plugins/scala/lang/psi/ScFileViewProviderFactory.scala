@@ -8,9 +8,7 @@ import com.intellij.psi.{FileViewProviderFactory, PsiManager}
 
 final class ScFileViewProviderFactory extends FileViewProviderFactory {
 
-  override def createFileViewProvider(file: VirtualFile,
-                                      language: Language,
-                                      manager: PsiManager,
-                                      eventSystemEnabled: Boolean) =
-    new ScFileViewProvider(file, eventSystemEnabled)(manager)
+  override def createFileViewProvider(file: VirtualFile, language: Language,
+                                      manager: PsiManager, eventSystemEnabled: Boolean) =
+    new ScFileViewProvider(file, eventSystemEnabled)(manager, language)
 }

@@ -7,7 +7,6 @@ package xml
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,13 +24,11 @@ object AttrValue {
   
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val attrValueMarker = builder.mark()
-    val patcher = ParserPatcher.getSuitablePatcher(builder)
-    
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER =>
         builder.advanceLexer()
         var patched = false
-        while (VALID_ATTRIBUTE_TOKENS.contains(builder.getTokenType) || {patched = patcher parse builder; patched}) {
+        while (VALID_ATTRIBUTE_TOKENS.contains(builder.getTokenType) || {patched = builder.skipExternalToken(); patched}) {
           if (!patched) builder.advanceLexer() else patched = false
         }
         builder.getTokenType match {
@@ -39,7 +36,8 @@ object AttrValue {
           case _ => builder error ErrMsg("xml.attribute.end.expected")
         }
       case _ =>
-        if (!ScalaExpr.parse(builder) && !patcher.parse(builder)) {
+        if (ScalaExpr.parse(builder) || builder.skipExternalToken()) {
+        } else {
           attrValueMarker.drop()
           return false
         }

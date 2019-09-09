@@ -6,7 +6,7 @@ package compiled
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
+import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, compiled, stubs}
 import com.intellij.util.indexing.FileContent
 
 final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
@@ -19,20 +19,13 @@ final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   override def createFileViewProvider(file: VirtualFile,
                                       manager: PsiManager,
-                                      eventSystemEnabled: Boolean): SingleRootFileViewProvider =
-    ScClassFileDecompiler.createFileViewProvider(file, eventSystemEnabled)(manager)
+                                      eventSystemEnabled: Boolean): ScFileViewProvider =
+    createFileViewProviderImpl(file, eventSystemEnabled)(manager, ScalaLanguage.INSTANCE)
 }
 
 object ScClassFileDecompiler {
 
-  def createFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
-                            (implicit manager: PsiManager): ScFileViewProvider =
-    DecompilationResult.tryDecompile(file) match {
-      case Some(decompilationResult) =>
-        new ScClsFileViewProvider(file, decompilationResult, eventSystemEnabled)
-      case _ =>
-        new NonScalaClassFileViewProvider(file, eventSystemEnabled)
-    }
+  import DecompilationResult._
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
@@ -42,7 +35,7 @@ object ScClassFileDecompiler {
       case ScClsStubBuilder(scalaFile) =>
         LanguageParserDefinitions.INSTANCE
           .forLanguage(ScalaLanguage.INSTANCE)
-          .asInstanceOf[lang.parser.ScalaParserDefinition]
+          .asInstanceOf[parser.ScalaParserDefinitionBase]
           .getFileNodeType
           .getBuilder
           .buildStubTree(scalaFile)
@@ -51,7 +44,7 @@ object ScClassFileDecompiler {
 
     private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
       case original if isTopLevelScalaClass(original) =>
-        DecompilationResult.sourceNameAndText(original, content.getContent).map {
+        sourceNameAndText(original, content.getContent).map {
           case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
             sourceName,
             ScalaLanguage.INSTANCE,
@@ -66,16 +59,25 @@ object ScClassFileDecompiler {
     }
   }
 
-  private final class NonScalaClassFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
-                                                   (implicit manager: PsiManager)
-    extends ScFileViewProvider(file, eventSystemEnabled) {
+  private def createFileViewProviderImpl(file: VirtualFile, eventSystemEnabled: Boolean)
+                                        (manager: PsiManager, language: Language) =
+    tryDecompile(file) match {
+      case Some(decompilationResult) =>
+        new ScClsFileViewProvider(file, decompilationResult, eventSystemEnabled)(manager, language)
+      case _ =>
+        new NonScalaClassFileViewProvider(file, eventSystemEnabled)(manager, language)
+    }
+
+  private[this] final class NonScalaClassFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
+                                                         (manager: PsiManager, language: Language)
+    extends ScFileViewProvider(file, eventSystemEnabled)(manager, language) {
 
     override def createFile(language: Language): Null = null
 
     override def getContents = ""
 
     override def createCopy(file: VirtualFile) =
-      new NonScalaClassFileViewProvider(file, eventSystemEnabled)
+      new NonScalaClassFileViewProvider(file, eventSystemEnabled = false)(getManager, getBaseLanguage)
   }
 
   private def isTopLevelScalaClass(file: VirtualFile): Boolean = topLevelScalaClassFor(file).contains(file.getNameWithoutExtension)
@@ -92,7 +94,7 @@ object ScClassFileDecompiler {
             def hasDecompilableChild(nameWithoutExtension: String) =
               directory.findChild(nameWithoutExtension + '.' + classFileExtension) match {
                 case null => false
-                case child => DecompilationResult.tryDecompile(child).isDefined
+                case child => tryDecompile(child).isDefined
               }
 
             val fileName = file.getNameWithoutExtension

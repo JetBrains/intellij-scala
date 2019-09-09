@@ -65,7 +65,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     val project = file.getProject
     val document = editor.getDocument
-    document.commit(project)
+    document.commit(project) // TODO: AVOID COMMITTING DOCUMENTS ON TYPING!
 
     val caretModel = editor.getCaretModel
     val offset = caretModel.getOffset
@@ -186,7 +186,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           forceIndent(caretOffset + 1, quotesIndent, marginCharOpt)
         }
 
-        document.commit(project)
+        document.commit(project) // TODO: AVOID COMMITTING DOCUMENTS ON TYPING!
 
         if (settings.insertMargin) {
           for {

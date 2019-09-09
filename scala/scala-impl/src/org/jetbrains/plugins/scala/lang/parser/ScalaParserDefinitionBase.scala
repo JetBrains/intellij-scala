@@ -3,21 +3,24 @@ package lang
 package parser
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
-import com.intellij.lang.{ASTNode, ParserDefinition}
+import com.intellij.lang.{ASTNode, Language, ParserDefinition}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{getInstance => ScalaProjectSettings}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 //noinspection TypeAnnotation
-abstract class ScalaParserDefinitionBase(override val getFileNodeType: ScStubFileElementType) extends ParserDefinition {
+abstract class ScalaParserDefinitionBase private(override val getFileNodeType: ScStubFileElementType)
+  extends ParserDefinition {
+
+  protected def this(externalId: String, language: Language) =
+    this(new ScStubFileElementType(externalId, language))
 
   override def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = ScalaProjectSettings(project).isTreatDocCommentAsBlockComment
+    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
     new lexer.ScalaLexer(treatDocCommentAsBlockComment)
   }
 
@@ -31,9 +34,9 @@ abstract class ScalaParserDefinitionBase(override val getFileNodeType: ScStubFil
 
   override def createFile(viewProvider: FileViewProvider): ScalaFile
 
-  import lexer.ScalaTokenTypes.{COMMENTS_TOKEN_SET, STRING_LITERAL_TOKEN_SET, WHITES_SPACES_TOKEN_SET, kIMPORT => Import, tWHITE_SPACE_IN_LINE => WS}
+  import lexer.ScalaTokenTypes._
 
-  override def getCommentTokens: TokenSet = COMMENTS_TOKEN_SET
+  override def getCommentTokens = COMMENTS_TOKEN_SET
 
   override def getStringLiteralElements = STRING_LITERAL_TOKEN_SET
 
@@ -47,9 +50,9 @@ abstract class ScalaParserDefinitionBase(override val getFileNodeType: ScStubFil
 
     import ParserDefinition.SpaceRequirements._
     rightNode.getElementType match {
-      case WS if rightNode.getText.contains('\n') => MAY
+      case `tWHITE_SPACE_IN_LINE` if rightNode.getText.contains('\n') => MAY
       case _ if isNeighbour => MUST_LINE_BREAK
-      case Import => MUST_LINE_BREAK
+      case `kIMPORT` => MUST_LINE_BREAK
       case _ => MAY
     }
   }

@@ -25,7 +25,7 @@ abstract class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: Stri
 trait SbtShellBuildEvent extends MessageEvent {
 
   override def getNavigatable(project: Project): Navigatable = {
-    val shell = SbtProcessManager.forProject(project).acquireShellRunner
+    val shell = SbtProcessManager.forProject(project).acquireShellRunner()
     SbtShellNavigatable(shell) // TODO pass some kind of position info
   }
 }

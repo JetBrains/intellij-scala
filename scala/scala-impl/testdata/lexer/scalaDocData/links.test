@@ -1,0 +1,150 @@
+/**
+  * [[simple.code.Link]]
+  * [[http://google.com http link]]
+  * [[code.link.with.Some#`Non letters`]]
+  * [[http://scala-lang.org loooooooooooooooooooong multi line
+  * http link to official scala lang site]]
+  * {@code [[illegal.code.Link.in.Tag]]}
+  * {@link [[http://google.ocm illegal http link in tag]]}
+  * [[code.Link with many bad characters]]
+  * @see [[valid.code.Link.inTag]]
+  * @see [[http://test.com valid http link in tag]]
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+identifier {simple}
+. {.}
+identifier {code}
+. {.}
+identifier {Link}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_COMMENT_DATA {http://google.com http link}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+identifier {code}
+. {.}
+identifier {link}
+. {.}
+identifier {with}
+. {.}
+identifier {Some}
+DOC_COMMENT_BAD_CHARACTER {#}
+DOC_COMMENT_BAD_CHARACTER {`}
+DOC_COMMENT_BAD_CHARACTER {N}
+DOC_COMMENT_BAD_CHARACTER {o}
+DOC_COMMENT_BAD_CHARACTER {n}
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER {l}
+DOC_COMMENT_BAD_CHARACTER {e}
+DOC_COMMENT_BAD_CHARACTER {t}
+DOC_COMMENT_BAD_CHARACTER {t}
+DOC_COMMENT_BAD_CHARACTER {e}
+DOC_COMMENT_BAD_CHARACTER {r}
+DOC_COMMENT_BAD_CHARACTER {s}
+DOC_COMMENT_BAD_CHARACTER {`}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_COMMENT_DATA {http://scala-lang.org loooooooooooooooooooong multi line}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {http link to official scala lang site}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@code}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {[[illegal.code.Link.in.Tag]]}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {[[http://google.ocm illegal http link in tag]]}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+identifier {code}
+. {.}
+identifier {Link}
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER {w}
+DOC_COMMENT_BAD_CHARACTER {i}
+DOC_COMMENT_BAD_CHARACTER {t}
+DOC_COMMENT_BAD_CHARACTER {h}
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER {m}
+DOC_COMMENT_BAD_CHARACTER {a}
+DOC_COMMENT_BAD_CHARACTER {n}
+DOC_COMMENT_BAD_CHARACTER {y}
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER {b}
+DOC_COMMENT_BAD_CHARACTER {a}
+DOC_COMMENT_BAD_CHARACTER {d}
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER {c}
+DOC_COMMENT_BAD_CHARACTER {h}
+DOC_COMMENT_BAD_CHARACTER {a}
+DOC_COMMENT_BAD_CHARACTER {r}
+DOC_COMMENT_BAD_CHARACTER {a}
+DOC_COMMENT_BAD_CHARACTER {c}
+DOC_COMMENT_BAD_CHARACTER {t}
+DOC_COMMENT_BAD_CHARACTER {e}
+DOC_COMMENT_BAD_CHARACTER {r}
+DOC_COMMENT_BAD_CHARACTER {s}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+identifier {valid}
+. {.}
+identifier {code}
+. {.}
+identifier {Link}
+. {.}
+identifier {inTag}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_COMMENT_DATA {http://test.com valid http link in tag}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}
