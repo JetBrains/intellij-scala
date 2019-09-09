@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package daemon
 
+import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import org.junit.Assert.assertFalse
 
 class ScalaAnnotatorHighlighterVisitorTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
@@ -34,7 +35,7 @@ class ScalaAnnotatorHighlighterVisitorTest extends base.ScalaLightCodeInsightFix
    * @param fileName the name of the file (which is used to determine the file type based on the registered filename patterns).
    */
   private def doTest(fileText: String, fileName: String): Unit = {
-    myFixture.configureByText(fileName, fileText)
+    myFixture.configureByText(fileName, convertLineSeparators(fileText))
     assertFalse(myFixture.doHighlighting().isEmpty)
   }
 }
