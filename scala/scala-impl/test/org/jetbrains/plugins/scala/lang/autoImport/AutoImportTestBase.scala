@@ -4,6 +4,7 @@ package autoImport
 
 import java.io.File
 
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -30,6 +31,9 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
 
   protected override def sourceRootPath: String = folderPath
 
+  // file type to run the test with (to be able to run same tests as Worksheet files)
+  protected def fileType: FileType = ScalaFileType.INSTANCE
+
   import ScalaImportTypeFix._
   import org.junit.Assert._
 
@@ -41,11 +45,10 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val offset = fileText.indexOf(refMarker)
     fileText = fileText.replace(refMarker, "")
 
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    configureFromFileTextAdapter(getTestName(false) + "." + fileType.getDefaultExtension, fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     assert(offset != -1, "Not specified ref marker in test case. Use /*ref*/ in scala file for this.")
-    val ref: ScReference = PsiTreeUtil.
-            getParentOfType(scalaFile.findElementAt(offset), classOf[ScReference])
+    val ref: ScReference = PsiTreeUtil.getParentOfType(scalaFile.findElementAt(offset), classOf[ScReference])
     assert(ref != null, "Not specified reference at marker.")
 
     ref.resolve() match {
