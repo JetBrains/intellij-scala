@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.lang.lexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LexerState;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import com.intellij.psi.xml.XmlTokenType;
@@ -26,6 +27,7 @@ import com.intellij.util.text.CharArrayUtil;
 import gnu.trove.TIntStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -65,11 +67,17 @@ public class ScalaLexer extends Lexer {
   private IElementType previousToken = null;
 
   public ScalaLexer() {
-    this(false);
+    this(false, false);
   }
 
-  public ScalaLexer(boolean treatDocCommentAsBlockComment) {
-    myScalaPlainLexer = new ScalaPlainLexer(treatDocCommentAsBlockComment);
+  public ScalaLexer(boolean isScala3,
+                    @NotNull Project project) {
+    this(isScala3, ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment());
+  }
+
+  private ScalaLexer(boolean isScala3,
+                     boolean treatDocCommentAsBlockComment) {
+    myScalaPlainLexer = new ScalaPlainLexer(isScala3, treatDocCommentAsBlockComment);
     myXmlLexer = new ScalaXmlLexer();
     myCurrentLexer = myScalaPlainLexer;
   }

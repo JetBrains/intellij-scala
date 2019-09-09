@@ -9,15 +9,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 //noinspection TypeAnnotation
 abstract class ScalaParserDefinitionBase extends ParserDefinition {
 
-  override def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
-    new lexer.ScalaLexer(treatDocCommentAsBlockComment)
-  }
+  override def createLexer(project: Project) =
+    new lexer.ScalaLexer(false, project)
 
   override def createParser(project: Project) = new ScalaParser
 
