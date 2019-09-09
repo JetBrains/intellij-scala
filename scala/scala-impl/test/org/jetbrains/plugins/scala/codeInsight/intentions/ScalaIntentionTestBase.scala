@@ -5,6 +5,7 @@ package intentions
 import org.jetbrains.plugins.scala.editor._
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.EditorTestUtil
@@ -14,10 +15,6 @@ import org.junit.Assert.{assertFalse, assertTrue}
 
 import scala.collection.JavaConverters._
 
-/**
-  * @author Ksenia.Sautina
-  * @since 4/11/12
-  */
 abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
@@ -26,11 +23,16 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
 
   def caretTag: String = EditorTestUtil.CARET_TAG
 
-  protected def doTest(text: String, resultText: String, expectedIntentionText: Option[String] = None): Unit = {
+  def fileType: FileType = ScalaFileType.INSTANCE
+
+  protected def doTest(text: String,
+                       resultText: String,
+                       expectedIntentionText: Option[String] = None,
+                       fileType: FileType = fileType): Unit = {
     import org.junit.Assert._
     implicit val project: Project = getProject
 
-    findIntention(text) match {
+    findIntention(text, fileType) match {
       case Some(action) =>
 
         expectedIntentionText.foreach { expectedText =>
@@ -40,7 +42,8 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
         executeWriteActionCommand("Test Intention") {
           action.invoke(project, getEditor, getFile)
         }
-      case None => fail("Intention is not found")
+      case None =>
+        fail("Intention is not found")
     }
 
     executeWriteActionCommand("Test Intention Formatting") {
@@ -58,8 +61,11 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
   protected def checkIntentionIsAvailable(text: String): Unit =
     assertTrue("Intention is not found", intentionIsAvailable(text))
 
-  private def findIntention(text: String): Option[IntentionAction] = {
-    getFixture.configureByText(ScalaFileType.INSTANCE, normalize(text))
+  private def findIntention(text: String): Option[IntentionAction] =
+    findIntention(text, fileType)
+
+  private def findIntention(text: String, fileType: FileType): Option[IntentionAction] = {
+    getFixture.configureByText(fileType, normalize(text))
     getFixture.getAvailableIntentions.asScala
       .find(_.getFamilyName == familyName)
   }

@@ -1,0 +1,6 @@
+package org.jetbrains.plugins.scala.lang.autoImport.generated.worksheet
+
+import org.jetbrains.plugins.scala.lang.autoImport.AutoImportWorksheetTestBase
+import org.jetbrains.plugins.scala.lang.autoImport.generated.AutoImportImportIfExistTest
+
+class AutoImportImportIfExistWorksheetTest extends AutoImportImportIfExistTest with AutoImportWorksheetTestBase

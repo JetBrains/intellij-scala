@@ -1,0 +1,6 @@
+package org.jetbrains.plugins.scala.lang.autoImport.generated.worksheet
+
+import org.jetbrains.plugins.scala.lang.autoImport.AutoImportWorksheetTestBase
+import org.jetbrains.plugins.scala.lang.autoImport.generated.AutoImportFixingImportTest
+
+class AutoImportFixingWorksheetImportTest extends AutoImportFixingImportTest  with AutoImportWorksheetTestBase
