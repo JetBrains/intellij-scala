@@ -1,24 +1,26 @@
 package org.jetbrains.plugins.scala.lang.lexer.core;
 
 import com.intellij.lexer.FlexLexer;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.containers.Stack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
+import static com.intellij.openapi.util.text.StringUtil.endsWith;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 %%
 
 %class _ScalaCoreLexer
-%implements FlexLexer, ScalaTokenTypesEx
+%implements FlexLexer
 %unicode
 %public
 
 %function advance
 %type IElementType
 
-%eof{ 
+%eof{
   return;
 %eof}
 
@@ -29,26 +31,26 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 %{
     private static abstract class InterpolatedStringLevel {
       private int value = 0;
-      
+
       public int get() {
         return value;
       }
-      
+
       public boolean isZero() {
         return value == 0;
       }
-      
+
       public void increase() {
         ++value;
       }
-      
+
       public void decrease() {
         --value;
       }
       
       public abstract int getState();
     }
-    
+
     private static class RegularLevel extends InterpolatedStringLevel { 
       public int getState() {
         return INSIDE_INTERPOLATED_STRING;
@@ -68,26 +70,31 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
     private Stack<InterpolatedStringLevel> nestedString = new Stack<>();
     
     public boolean isInterpolatedStringState() {
-        return shouldProcessBracesForInterpolated()    || haveIdInString || haveIdInMultilineString || 
-               yystate() == INSIDE_INTERPOLATED_STRING || yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
+        return shouldProcessBracesForInterpolated() ||
+               haveIdInString ||
+               haveIdInMultilineString ||
+               yystate() == INSIDE_INTERPOLATED_STRING ||
+               yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
     }
     
     private boolean shouldProcessBracesForInterpolated() {
       return !nestedString.empty();
     }
     
-    private void changeStringLevel() {
-      if (!nestedString.isEmpty()) nestedString.pop();
+    @NotNull
+    private IElementType processOutsideString() {
+      if (!shouldProcessBracesForInterpolated()) nestedString.pop();
       yybegin(COMMON_STATE);
+      return process(tINTERPOLATED_STRING_END);
     }
 
-    private IElementType process(IElementType type){
-      if ((type == tIDENTIFIER || type == kTHIS) && (haveIdInString || haveIdInMultilineString)) {
-
+    @NotNull
+    private IElementType process(@NotNull IElementType type){
+      if ((type == tIDENTIFIER || type == kTHIS)) {
         if (haveIdInString) {
           haveIdInString = false;
           yybegin(INSIDE_INTERPOLATED_STRING);
-        } else {
+        } else if (haveIdInMultilineString) {
           haveIdInMultilineString = false;
           yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
         }
@@ -100,15 +107,20 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
       return type;
     }
     
-    
-    private void splitInjection() {
-      CharSequence seq = yytext();
-      for (int i = 1; i < seq.length(); ++i) {
-        if (seq.charAt(i) == '$') {
-          yypushback(seq.length() - i);
-          return;
+    @NotNull
+    private IElementType processInsideString(boolean isInsideMultiline) {
+        boolean isEscape = yycharat(1) == '$';
+        if (!isEscape) {
+            if (isInsideMultiline) {
+                haveIdInMultilineString = true;
+            } else {
+                haveIdInString = true;
+            }
+            yybegin(INJ_COMMON_STATE);
         }
-      }
+
+        yypushback(yylength() - 1 - (isEscape ? 1 : 0));
+        return process(isEscape ? tINTERPOLATED_STRING_ESCAPE : tINTERPOLATED_STRING_INJECTION);
     }
 %}
 
@@ -244,8 +256,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 <YYINITIAL>{
 
 {XML_BEGIN}                             {   yybegin(COMMON_STATE);
-                                            yypushback(yytext().length());
-                                            return SCALA_XML_CONTENT_START;
+                                            yypushback(yylength());
+                                            return ScalaTokenTypesEx.SCALA_XML_CONTENT_START;
                                         }
 }
 
@@ -256,8 +268,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {
   yybegin(WAIT_FOR_INTERPOLATED_STRING);
-  if (StringUtil.endsWith(yytext(), "\"\"")) yypushback(2);
-  return haveIdInString || haveIdInMultilineString ? process(tIDENTIFIER) : process(tINTERPOLATED_STRING_ID) ;
+  if (endsWith(yytext(), "\"\"")) yypushback(2);
+  return process(haveIdInString || haveIdInMultilineString ? tIDENTIFIER : tINTERPOLATED_STRING_ID);
 }
 
 <WAIT_FOR_INTERPOLATED_STRING> {
@@ -275,9 +287,18 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 }
 
 <INJ_COMMON_STATE> {identifier} {
-  splitInjection();
-  if ("this".contentEquals(yytext())) return process(kTHIS); 
-  return process(tIDENTIFIER);
+    int length = yylength();
+    int number = length;
+    for (int i = 1; i < length; i++) {
+      if (yycharat(i) == '$') {
+        number = i;
+        break;
+      }
+    }
+    
+    yypushback(length - number);
+    boolean isThis = "this".contentEquals(yytext());
+    return process(isThis ? kTHIS : tIDENTIFIER);
 }
 
 <INJ_COMMON_STATE> [^] {
@@ -294,20 +315,11 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   "$"{identifier} {
-    if (yycharat(1) != '$') {
-      haveIdInString = true;
-      yybegin(INJ_COMMON_STATE);
-      yypushback(yytext().length() - 1);
-      return process(tINTERPOLATED_STRING_INJECTION);
-    } else {
-      yypushback(yytext().length() - 2);
-      return process(tINTERPOLATED_STRING_ESCAPE);
-    }
+    return processInsideString(false);
   }
 
   \" {
-    changeStringLevel();
-    return process(tINTERPOLATED_STRING_END);
+    return processOutsideString();
   }
 
   "$" / "{" {
@@ -339,25 +351,16 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   "$"{identifier} {
-    if (yycharat(1) != '$') {
-      haveIdInMultilineString = true;
-      yybegin(INJ_COMMON_STATE);
-      yypushback(yytext().length() - 1);
-      return process(tINTERPOLATED_STRING_INJECTION);
-    } else {
-      yypushback(yytext().length() - 2);
-      return process(tINTERPOLATED_STRING_ESCAPE);
-    }
+    return processInsideString(true);
   }
 
   \"\"\" (\")+ {
-    yypushback(yytext().length() - 1);
+    yypushback(yylength() - 1);
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
 
   \"\"\" {
-      changeStringLevel();
-      return process(tINTERPOLATED_STRING_END);
+      return processOutsideString();
   }
 
   "$" / "{" {
@@ -409,7 +412,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                               nestedString.peek().increase();
                                             }
                                             
-                                            yypushback(yytext().length() - 1);
+                                            yypushback(yylength() - 1);
                                             yybegin(YYINITIAL);
                                             return process(tLBRACE); }
 
@@ -425,7 +428,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 "("                                     {   return process(tLPARENTHESIS); }
 
-"("{XML_BEGIN}                          {   yypushback(yytext().length() - 1);
+"("{XML_BEGIN}                          {   yypushback(yylength() - 1);
                                             yybegin(YYINITIAL);
                                             return process(tLPARENTHESIS); }
 ")"                                     {   return process(tRPARENTHESIS); }
