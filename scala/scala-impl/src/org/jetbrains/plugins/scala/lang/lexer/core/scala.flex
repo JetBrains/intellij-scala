@@ -29,6 +29,11 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %{
+    public _ScalaCoreLexer(boolean isScala3) {
+      this((java.io.Reader) null);
+      this.isScala3 = isScala3;
+    }
+
     private static abstract class InterpolatedStringLevel {
       private int value = 0;
 
@@ -47,28 +52,29 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
       public void decrease() {
         --value;
       }
-      
+
       public abstract int getState();
     }
 
-    private static class RegularLevel extends InterpolatedStringLevel { 
+    private static class RegularLevel extends InterpolatedStringLevel {
       public int getState() {
         return INSIDE_INTERPOLATED_STRING;
       }
     }
-    
-    private static class MultilineLevel extends InterpolatedStringLevel { 
+
+    private static class MultilineLevel extends InterpolatedStringLevel {
       public int getState() {
         return INSIDE_MULTI_LINE_INTERPOLATED_STRING;
       }
     }
 
+    private boolean isScala3;
     //to get id after $ in interpolated String
     private boolean haveIdInString = false;
     private boolean haveIdInMultilineString = false;
     // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String
     private Stack<InterpolatedStringLevel> nestedString = new Stack<>();
-    
+
     public boolean isInterpolatedStringState() {
         return shouldProcessBracesForInterpolated() ||
                haveIdInString ||
@@ -76,11 +82,11 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
                yystate() == INSIDE_INTERPOLATED_STRING ||
                yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
     }
-    
+
     private boolean shouldProcessBracesForInterpolated() {
       return !nestedString.isEmpty();
     }
-    
+
     @NotNull
     private IElementType processOutsideString() {
       if (shouldProcessBracesForInterpolated()) nestedString.pop();
@@ -99,7 +105,7 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
           yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
         }
       }
-      
+
       if (yystate() == YYINITIAL && type != tWHITE_SPACE_IN_LINE && type != tLBRACE && type != tLPARENTHESIS) {
         yybegin(COMMON_STATE);
       }
@@ -121,6 +127,10 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
         yypushback(yylength() - 1 - (isEscape ? 1 : 0));
         return process(isEscape ? tINTERPOLATED_STRING_ESCAPE : tINTERPOLATED_STRING_INJECTION);
+    }
+
+    private IElementType processScala3(@NotNull IElementType type) {
+        return process(isScala3 ? type : tIDENTIFIER);
     }
 %}
 
@@ -288,17 +298,17 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 <INJ_COMMON_STATE> {identifier} {
     int length = yylength();
-    int number = length;
-    for (int i = 1; i < length; i++) {
-      if (yycharat(i) == '$') {
-        number = i;
-        break;
-      }
+  int number = length;
+  for (int i = 1; i < length; i++) {
+    if (yycharat(i) == '$') {
+      number = i;
+      break;
     }
-    
-    yypushback(length - number);
-    boolean isThis = "this".contentEquals(yytext());
-    return process(isThis ? kTHIS : tIDENTIFIER);
+  }
+
+  yypushback(length - number);
+  boolean isThis = "this".contentEquals(yytext());
+  return process(isThis ? kTHIS : tIDENTIFIER);
 }
 
 <INJ_COMMON_STATE> [^] {
@@ -448,12 +458,15 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "def"                                   {   return process(kDEF); }
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
+"enum"                                  {   return processScala3(Enum()); }
+"export"                                {   return processScala3(Export()); }
 "extends"                               {   return process(kEXTENDS); }
 "false"                                 {   return process(kFALSE); }
 "final"                                 {   return process(kFINAL); }
 "finally"                               {   return process(kFINALLY); }
 "for"                                   {   return process(kFOR); }
 "forSome"                               {   return process(kFOR_SOME); }
+"given"                                 {   return processScala3(Given()); }
 "if"                                    {   return process(kIF); }
 "implicit"                              {   return process(kIMPLICIT); }
 "import"                                {   return process(kIMPORT); }
@@ -469,6 +482,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "return"                                {   return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
+"then"                                  {   return processScala3(Then()); }
 "this"                                  {   return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
 "trait"                                 {   return process(kTRAIT); }
