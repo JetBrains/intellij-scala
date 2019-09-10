@@ -6,15 +6,14 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.testFramework.PlatformTestUtil;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
 public class LexerPerformanceTest extends LexerTestBase {
 
-    protected LexerPerformanceTest() {
-        super(TestUtils.getTestDataPath() + "/lexer/performance");
+    public LexerPerformanceTest() {
+        super("/lexer/performance");
     }
 
     @NotNull

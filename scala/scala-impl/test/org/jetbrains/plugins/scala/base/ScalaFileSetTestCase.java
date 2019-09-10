@@ -13,19 +13,18 @@
  * limitations under the License.
  */
 
-package org.jetbrains.plugins.scala.testcases;
+package org.jetbrains.plugins.scala.base;
 
 import com.intellij.application.options.CodeStyle;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.TestSuite;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.ScalaLoader;
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
-import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +35,8 @@ import java.util.stream.Stream;
 
 import static com.intellij.openapi.util.io.FileUtil.loadFileText;
 import static com.intellij.openapi.util.text.StringUtil.*;
+import static org.jetbrains.plugins.scala.util.TestUtils.disableTimerThread;
+import static org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath;
 import static org.junit.Assert.*;
 
 /**
@@ -43,13 +44,18 @@ import static org.junit.Assert.*;
  * Date: 01.11.2006
  * Time: 15:51:24
  */
-public abstract class BaseScalaFileSetTestCase extends TestSuite {
+public abstract class ScalaFileSetTestCase extends TestSuite {
 
-    protected BaseScalaFileSetTestCase(@NotNull String path) {
+    protected ScalaFileSetTestCase(@NotNull @NonNls String path) {
         super();
 
-        findFiles(new File(path))
-                .filter(BaseScalaFileSetTestCase::isTestFile)
+        String pathProperty = System.getProperty("path");
+        String customOrPropertyPath = pathProperty != null ?
+                pathProperty :
+                getTestDataPath() + path;
+
+        findFiles(new File(customOrPropertyPath))
+                .filter(ScalaFileSetTestCase::isTestFile)
                 .map(ActualTest::new)
                 .forEach(this::addTest);
     }
@@ -151,8 +157,8 @@ public abstract class BaseScalaFileSetTestCase extends TestSuite {
         protected void setUp() throws Exception {
             try {
                 super.setUp();
-                BaseScalaFileSetTestCase.this.setUp(getProject());
-                TestUtils.disableTimerThread();
+                ScalaFileSetTestCase.this.setUp(getProject());
+                disableTimerThread();
             } catch (Exception e) {
                 try {
                     tearDown();
@@ -164,7 +170,7 @@ public abstract class BaseScalaFileSetTestCase extends TestSuite {
 
         @Override
         public void tearDown() {
-            BaseScalaFileSetTestCase.this.tearDown(getProject());
+            ScalaFileSetTestCase.this.tearDown(getProject());
             try {
                 super.tearDown();
             } catch (IllegalArgumentException ignored) {
@@ -174,7 +180,7 @@ public abstract class BaseScalaFileSetTestCase extends TestSuite {
         @Override
         protected void runTest() throws Throwable {
             String fileText = new String(loadFileText(myTestFile, "UTF-8"));
-            BaseScalaFileSetTestCase.this.runTest(
+            ScalaFileSetTestCase.this.runTest(
                     myTestFile.getName(),
                     convertLineSeparators(fileText),
                     getProject()

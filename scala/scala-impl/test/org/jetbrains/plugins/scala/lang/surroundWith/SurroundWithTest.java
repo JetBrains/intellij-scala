@@ -11,8 +11,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors$;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -24,16 +24,14 @@ import scala.Tuple4;
  */
 @SuppressWarnings({"ConstantConditions"})
 @RunWith(AllTests.class)
-public class SurroundWithTest extends BaseScalaFileSetTestCase{
-  private static final String DATA_PATH = "/surroundWith/data/";
+public class SurroundWithTest extends ScalaFileSetTestCase {
 
-
-  private SurroundWithTest(String path) {
-    super(path);
+  public SurroundWithTest() {
+    super("/surroundWith/data/");
   }
 
   public static Test suite() {
-    return new SurroundWithTest(TestUtils.getTestDataPath() + DATA_PATH);
+    return new SurroundWithTest();
   }
 
   private void doSurround(final Project project, final PsiFile file,

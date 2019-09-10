@@ -6,23 +6,18 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.formatter.FormatterTest;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
-import java.io.File;
-import java.io.IOException;
-
 @RunWith(AllTests.class)
 public class MultiLineStringFormatterAlignQuotesTest extends FormatterTest {
-  private final static String DATA_PATH = "/formatter/multiLineStringDataAlignQuotes/";
 
-  public static Test suite() throws IOException {
+  public static Test suite() {
     return new MultiLineStringFormatterAlignQuotesTest();
   }
 
-  public MultiLineStringFormatterAlignQuotesTest() throws IOException {
-    super((new File(TestUtils.getTestDataPath() + DATA_PATH)).getCanonicalPath());
+  public MultiLineStringFormatterAlignQuotesTest() {
+    super("/formatter/multiLineStringDataAlignQuotes/");
   }
 
   @Override

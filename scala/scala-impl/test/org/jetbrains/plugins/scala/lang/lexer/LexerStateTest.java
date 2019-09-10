@@ -4,7 +4,6 @@ import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -24,7 +23,7 @@ import org.junit.runners.AllTests;
 public class LexerStateTest extends LexerTestBase {
 
     public LexerStateTest() {
-        super(TestUtils.getTestDataPath() + "/lexer/state");
+        super("/lexer/state");
     }
 
     @Override

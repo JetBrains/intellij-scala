@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -28,7 +27,7 @@ import org.junit.runners.AllTests;
 public class LexerTest extends LexerTestBase {
 
   public LexerTest() {
-    super(TestUtils.getTestDataPath() + "/lexer/data");
+    super("/lexer/data");
   }
 
   @Override

@@ -4,16 +4,16 @@ import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 
 /**
  * User: Dmitry Naidanov
  * Date: 11/21/11
  */
-abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
+abstract public class LexerTestBase extends ScalaFileSetTestCase {
 
     protected LexerTestBase(@NotNull String dataPath) {
-        super(customOrPropertyPath(dataPath));
+        super(dataPath);
     }
 
     @NotNull
@@ -63,13 +63,6 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
 
         onEof(lexer, builder);
         return builder.toString();
-    }
-
-    private static String customOrPropertyPath(@NotNull String dataPath) {
-        String pathProperty = System.getProperty("path");
-        return pathProperty != null ?
-                pathProperty :
-                dataPath;
     }
 
     private static void printTokenText(@NotNull String tokenText,

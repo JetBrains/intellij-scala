@@ -24,13 +24,11 @@ import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 
 /**
@@ -39,19 +37,9 @@ import java.util.Collections;
  */
 
 @RunWith(AllTests.class)
-public class FormatterTest extends BaseScalaFileSetTestCase {
-  @NonNls
-  private static final String DATA_PATH = "/formatter/data/";
+public class FormatterTest extends ScalaFileSetTestCase {
 
-  public FormatterTest() throws IOException {
-    super(
-        System.getProperty("path") != null
-            ? System.getProperty("path")
-            : (new File(TestUtils.getTestDataPath() + DATA_PATH)).getCanonicalPath()
-    );
-  }
-
-  public FormatterTest(String path) {
+  protected FormatterTest(@NotNull @NonNls String path) {
     super(path);
   }
 
@@ -80,8 +68,8 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     return psiFile.getText();
   }
 
-  public static Test suite() throws IOException {
-    return new FormatterTest();
+  public static Test suite() {
+    return new FormatterTest("/formatter/data/");
   }
 
 }

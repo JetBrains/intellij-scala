@@ -12,12 +12,10 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.util.containers.ContainerUtil;
 import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -26,17 +24,11 @@ import org.junit.runners.AllTests;
  * @author ilyas
  */
 @RunWith(AllTests.class)
-public class DragSearchTest extends BaseScalaFileSetTestCase {
+public class DragSearchTest extends ScalaFileSetTestCase {
   private static final int MAX_ROLLBACKS = 30;
 
-  @NonNls
-  private static final String DATA_PATH = "/parser/stress/data/";
-
   public DragSearchTest() {
-    super(System.getProperty("path") != null ?
-            System.getProperty("path") :
-        TestUtils.getTestDataPath() + DATA_PATH
-    );
+    super("/parser/stress/data/");
   }
 
   @Override

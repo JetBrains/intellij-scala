@@ -15,9 +15,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{g
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.util.TestUtils._
 
-abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends ActionTestBase(
-  Option(System.getProperty("path")).getOrElse(s"""$getTestDataPath/introduceVariable/validator/$kind""")
-) {
+abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
+  extends ActionTestBase("/introduceVariable/validator/" + kind) {
   protected var myEditor: Editor = _
   protected var fileEditorManager: FileEditorManager = _
   protected var myFile: PsiFile = _

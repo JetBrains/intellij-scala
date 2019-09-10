@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -16,13 +17,8 @@ import java.io.IOException;
 abstract public class AbstractActionTestBase extends ActionTestBase {
   private Editor myEditor;
 
-  public AbstractActionTestBase(String dataPath) {
-    super(baseTestPath() + dataPath);
-  }
-
-  private static String baseTestPath() {
-    String systemPath = System.getProperty("path");
-    return systemPath != null ? systemPath : TestUtils.getTestDataPath();
+  protected AbstractActionTestBase(@NotNull @NonNls String dataPath) {
+    super(dataPath);
   }
 
   protected abstract EditorActionHandler getMyHandler();

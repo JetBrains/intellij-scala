@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
@@ -30,8 +31,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings;
 import org.junit.Assert;
 import scala.Option;
 import scala.Tuple2;
-
-import java.io.IOException;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -55,11 +54,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
   protected boolean replaceCompanionObjOccurrences = false;
   protected boolean replaceOccurrencesFromInheritors = false;
 
-  public AbstractIntroduceVariableTestBase(String DATA_PATH) {
-    super(System.getProperty("path") != null ?
-            System.getProperty("path") :
-            DATA_PATH
-    );
+  public AbstractIntroduceVariableTestBase(@NotNull @NonNls String path) {
+    super(path);
     replaceAllOccurences = System.getProperty("replaceAll") != null &&
             Boolean.parseBoolean(System.getProperty("path"));
     replaceCompanionObjOccurrences = System.getProperty("replaceCompanion") != null &&

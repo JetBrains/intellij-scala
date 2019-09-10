@@ -4,13 +4,13 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase;
-import org.junit.Assert;
 
 abstract public class AbstractEnterActionTestBase extends AbstractActionTestBase {
-  public AbstractEnterActionTestBase(String dataPath) {
+
+  public AbstractEnterActionTestBase(@NotNull @NonNls String dataPath) {
     super(dataPath);
   }
 
