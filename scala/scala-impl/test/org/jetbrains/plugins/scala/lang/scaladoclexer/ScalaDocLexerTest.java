@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.scaladoclexer;
 
+import com.intellij.openapi.project.Project;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.LexerTestBase;
@@ -16,7 +17,7 @@ public class ScalaDocLexerTest extends LexerTestBase {
 
     @NotNull
     @Override
-    protected ScalaDocLexer createLexer() {
+    protected ScalaDocLexer createLexer(@NotNull Project project) {
         return new ScalaDocLexer();
     }
 
