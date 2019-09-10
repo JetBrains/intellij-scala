@@ -57,7 +57,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
-    file.findAnyScalaFile.foreach {
+    file.findScalaLikeFile.foreach {
       scalaFile =>
         afterExpressionChoosing(scalaFile, REFACTORING_NAME) {
           invoke(scalaFile, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)

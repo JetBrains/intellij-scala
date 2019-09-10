@@ -30,7 +30,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
-    val scalaFile = file.findAnyScalaFile.orNull
+    val scalaFile = file.findScalaLikeFile.orNull
     if (scalaFile == null) return
 
     trimSpacesAndComments(editor, scalaFile)

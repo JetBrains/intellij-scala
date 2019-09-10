@@ -47,7 +47,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     Stats.trigger(FeatureKey.extractMethod)
 
-    file.findAnyScalaFile.foreach { scalaFile =>
+    file.findScalaLikeFile.foreach { scalaFile =>
       afterExpressionChoosing(scalaFile, REFACTORING_NAME) {
         invokeOnEditor(scalaFile)
       }
