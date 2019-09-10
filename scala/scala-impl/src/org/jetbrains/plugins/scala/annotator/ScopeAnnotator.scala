@@ -42,10 +42,10 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
                    (implicit holder: AnnotationHolder): Unit = {
     if (!isScope(element)) return
 
-    //don't annotate clashing definitions on top level of worksheet files and non-scala files with parallel scala psi
+    //don't annotate clashing definitions on top level of worksheet files and scala files that explicitly allow multiple declarations
     element match {
       case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile => return 
-      case parTreeFile: ScalaFile if parTreeFile.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => return
+      case multDeclAllowedFile: ScalaFile if multDeclAllowedFile.isMultipleDeclarationsAllowed => return
       case _ => 
     }
 
