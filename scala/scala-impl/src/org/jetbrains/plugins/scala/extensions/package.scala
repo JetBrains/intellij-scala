@@ -136,6 +136,9 @@ package object extensions {
     def findAnyScalaFile: Option[ScalaFile] =
       findScalaFile[ScalaFile]
 
+    def findScalaLikeFile: Option[PsiFile] =
+      if (file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) Option(file) else findAnyScalaFile
+
     private def viewProvider = file.getViewProvider
   }
 

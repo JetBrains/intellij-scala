@@ -53,7 +53,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
               holder: HighlightInfoHolder,
               analyze: Runnable): Boolean = {
 //    val time = System.currentTimeMillis()
-    val scalaFile = file.findAnyScalaFile.orNull
+    val scalaFile = file.findScalaLikeFile.orNull
     if (scalaFile == null) return true
 
     clearDirtyAnnotatorHintsIn(scalaFile)
