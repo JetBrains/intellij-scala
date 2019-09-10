@@ -20,6 +20,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object MultilineStringUtil {
   val MultilineQuotes = "\"\"\""
+  val DefaultMarginChar = '|'
 
   private val escaper = Pattern.compile("([^a-zA-z0-9])")
 
@@ -109,7 +110,7 @@ object MultilineStringUtil {
 
   def insertStripMargin(document: Document, literal: ScLiteral, marginChar: Char) {
     if (needAddStripMargin(literal, "" + marginChar)) {
-      val stripText = if (marginChar == '|') ".stripMargin"
+      val stripText = if (marginChar == DefaultMarginChar) ".stripMargin"
       else s".stripMargin('$marginChar')"
       document.insertString(literal.getTextRange.getEndOffset, stripText)
     }
@@ -117,9 +118,11 @@ object MultilineStringUtil {
 
   def getMarginChar(element: PsiElement): Char = findAllMethodCallsOnMLString(element, "stripMargin") match {
     case Array(Array(literals.ScCharLiteral(value), _*), _*) => value
-    case _ => CodeStyle.getSettings(element.getProject)
-      .getCustomSettings(classOf[ScalaCodeStyleSettings])
-      .getMarginChar
+    case Array(Array(), _*)                                  => DefaultMarginChar
+    case _                                                   =>
+      CodeStyle.getSettings(element.getProject)
+        .getCustomSettings(classOf[ScalaCodeStyleSettings])
+        .getMarginChar
   }
 
   def findAllMethodCallsOnMLString(stringElement: PsiElement, methodName: String): Array[Array[ScExpression]] = {

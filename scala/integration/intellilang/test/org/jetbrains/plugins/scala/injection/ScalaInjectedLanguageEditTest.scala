@@ -34,7 +34,30 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
     checkGeneratedTextAfterEnter(before, after)
   }
 
-  def testInsertMarginCharOnEnterInsideInjectedFileInMultilineIntepolatedString(): Unit = {
+  def testInsertMarginCharOnEnterInsideInjectedFileInMultilineStringWithNonDefaultMargin(): Unit = {
+    val before =
+      s"""val x =
+         |  //language=JSON
+         |  $Quotes{
+         |    #  "a" : 42,$Caret
+         |    #  "b" : 23
+         |    #}$Quotes.stripMargin('#')
+         |"""
+
+    val after =
+      s"""val x =
+         |  //language=JSON
+         |  $Quotes{
+         |    #  "a" : 42,
+         |    #  $Caret
+         |    #  "b" : 23
+         |    #}$Quotes.stripMargin('#')
+         |"""
+
+    checkGeneratedTextAfterEnter(before, after)
+  }
+
+  def testInsertMarginCharOnEnterInsideInjectedFileInMultilineInterpolatedString(): Unit = {
     val before =
       s"""val x =
          |  //language=JSON
@@ -52,6 +75,29 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |     |  $Caret
          |     |  "b" : 23
          |     |}$Quotes.stripMargin
+         |"""
+
+    checkGeneratedTextAfterEnter(before, after)
+  }
+
+  def testInsertMarginCharOnEnterInsideInjectedFileInMultilineInterpolatedStringWithNonDefaultMargin(): Unit = {
+    val before =
+      s"""val x =
+         |  //language=JSON
+         |  s$Quotes{
+         |     #  "a" : 42,$Caret
+         |     #  "b" : 23
+         |     #}$Quotes.stripMargin('#')
+         |"""
+
+    val after =
+      s"""val x =
+         |  //language=JSON
+         |  s$Quotes{
+         |     #  "a" : 42,
+         |     #  $Caret
+         |     #  "b" : 23
+         |     #}$Quotes.stripMargin('#')
          |"""
 
     checkGeneratedTextAfterEnter(before, after)

@@ -71,12 +71,45 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
     doTest(JsonLangId, body, expected)
   }
 
-  def testCommentInjection_MultilineWithMargins(): Unit = {
+  def testCommentInjection_Multiline_WithMargins(): Unit = {
     val body =
       s"""//language=JSON
          |$Quotes{
          |  |  "a" : 42$Caret
          |  |}$Quotes.stripMargin
+         |""".stripMargin
+
+    val expected =
+      """{
+        |  "a" : 42
+        |}""".stripMargin
+
+    doTestInBody(JsonLangId, body, expected)
+  }
+
+  def testCommentInjection_Multiline_WithDefaultMargins_NonDefaultMarginInSettings(): Unit = {
+    getScalaSettings.MULTILINE_STRING_MARGIN_CHAR = "%"
+    val body =
+      s"""//language=JSON
+         |$Quotes{
+         |  |  "a" : 42$Caret
+         |  |}$Quotes.stripMargin
+         |""".stripMargin
+
+    val expected =
+      """{
+        |  "a" : 42
+        |}""".stripMargin
+
+    doTestInBody(JsonLangId, body, expected)
+  }
+
+  def testCommentInjection_Multiline_WithNonDefaultMargins(): Unit = {
+    val body =
+      s"""//language=JSON
+         |$Quotes{
+         |  #  "a" : 42$Caret
+         |  #}$Quotes.stripMargin('#')
          |""".stripMargin
 
     val expected =
