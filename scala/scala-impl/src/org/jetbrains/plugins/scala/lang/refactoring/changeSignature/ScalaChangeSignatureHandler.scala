@@ -99,7 +99,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
 
-    val element = file.findAnyScalaFile.flatMap(
+    val element = file.findScalaLikeFile.flatMap(
       scalaFile => Option(findTargetMember(scalaFile, editor))
     ).getOrElse(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
 
