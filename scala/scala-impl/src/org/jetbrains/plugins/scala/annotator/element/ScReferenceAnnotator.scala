@@ -369,14 +369,14 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     
     //don't highlight ambiguous definitions, if they are resolved to multiple top-level declarations
     //needed for worksheet and scala notebook files (e.g. zeppelin)
-    val isTopLevelResolve =
+    def isTopLevelResolve =
       resolve.length > 1 && resolve.headOption.map(_.element).filter(isOnTopLevel).exists {
         firstElement => 
           val fFile = firstElement.getContainingFile
           resolve.tail.map(_.element).forall(nextEl => nextEl.getContainingFile == fFile && isOnTopLevel(nextEl))
       }
     
-    if (typeAware && resolve.length != 1 && !isTopLevelResolve) {
+    if (typeAware && resolve.length != 1 && !(refElement.containingScalaFile.exists(_.isMultipleDeclarationsAllowed) && isTopLevelResolve)) {
       val parent = refElement.getParent
       def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
