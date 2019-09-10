@@ -108,6 +108,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     case _ => false
   }
 
+  override def isMultipleDeclarationsAllowed: Boolean = false
+
   override def isWorksheetFile: Boolean = ScFile.VirtualFile.unapply(this).exists {
     worksheet.WorksheetFileType.isWorksheetFile(_)()(getProject)
   }

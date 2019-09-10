@@ -20,6 +20,8 @@ trait ScalaFile extends ScalaPsiElement
 
   def isScriptFile: Boolean
 
+  def isMultipleDeclarationsAllowed: Boolean
+
   def isWorksheetFile: Boolean
 
   def allowsForwardReferences: Boolean
