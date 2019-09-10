@@ -18,12 +18,12 @@ package org.jetbrains.plugins.scala.lang.formatter;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
@@ -31,6 +31,7 @@ import org.junit.runners.AllTests;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,24 +61,22 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     getScalaSettings().USE_SCALADOC2_FORMATTING = true;
   }
 
-  protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
-    TextRange myTextRange = file.getTextRange();
-    CodeStyleManager.getInstance(project).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
-  }
-
+  @NotNull
   @Override
-  public String transform(String testName, String[] data) {
-    String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
+  protected String transform(@NotNull String testName,
+                             @NotNull String fileText,
+                             @NotNull Project project) {
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
     Runnable runnable = () -> ApplicationManager.getApplication().runWriteAction(() -> {
           try {
-            performFormatting(getProject(), psiFile);
+            CodeStyleManager.getInstance(project)
+                    .reformatText(psiFile, Collections.singletonList(psiFile.getTextRange()));
           } catch (IncorrectOperationException e) {
             e.printStackTrace();
           }
         }
     );
-    CommandProcessor.getInstance().executeCommand(getProject(), runnable, null, null);
+    CommandProcessor.getInstance().executeCommand(project, runnable, null, null);
     return psiFile.getText();
   }
 

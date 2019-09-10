@@ -5,7 +5,6 @@ import java.io.{File, FileNotFoundException}
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.testFramework.LightPlatformTestCase
 import junit.framework.TestSuite
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -15,7 +14,7 @@ import scala.collection.JavaConverters._
 abstract class FileSetTestCase(val path: String) extends TestSuite {
   var myProject: Project = _
   val myFiles: Array[File] =
-    try FileScanner.scan(path, getSearchPattern, false).asScala.toArray
+    try FileScanner.scan(path, "(.*)\\.test", false).asScala.toArray
     catch {
       case e: FileNotFoundException =>
         Array.empty
@@ -40,18 +39,16 @@ abstract class FileSetTestCase(val path: String) extends TestSuite {
   }
   override def getName: String = getClass.getName
 
-  def getSearchPattern: String = FileSetTestCase.TEST_FILE_PATTERN
-
   protected def addFileTest(file: File): Unit = if (!StringUtil.startsWithChar(file.getName, '_') && !("CVS" == file.getName)) {
     val t = new ActualTest(file)
     addTest(t)
   }
 
   @throws[Throwable]
-  protected def runTest(file: File): Unit
+  protected def runTest(file: File, project: Project): Unit
 
+  private class ActualTest(testFile: File) extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  private class ActualTest(var myTestFile: File) extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     override protected def getTestName(lowercaseFirstLetter: Boolean) = ""
 
     @throws[Exception]
@@ -79,20 +76,17 @@ abstract class FileSetTestCase(val path: String) extends TestSuite {
     }
 
     @throws[Throwable]
-    override protected def runTest(): Unit = FileSetTestCase.this.runTest(myTestFile)
+    override protected def runTest(): Unit =
+      FileSetTestCase.this.runTest(testFile, getProject)
 
     override def countTestCases = 1
 
-    override def toString: String = myTestFile.getAbsolutePath + " "
+    override def toString: String = getName + " "
 
     override protected def resetAllFields(): Unit = {
       // Do nothing otherwise myTestFile will be nulled out before getName() is called.
     }
 
-    override def getName: String = myTestFile.getAbsolutePath
+    override def getName: String = testFile.getAbsolutePath
   }
-}
-
-object FileSetTestCase {
-  protected val TEST_FILE_PATTERN = "(.*)\\.test"
 }

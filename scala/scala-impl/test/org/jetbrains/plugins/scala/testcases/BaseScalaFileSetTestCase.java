@@ -15,116 +15,124 @@
 
 package org.jetbrains.plugins.scala.testcases;
 
+import com.intellij.application.options.CodeStyle;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaLanguage;
+import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
+import static com.intellij.openapi.util.text.StringUtil.startsWithChar;
+import static org.junit.Assert.*;
+
 /**
  * Author: Ilya Sergey
  * Date: 01.11.2006
  * Time: 15:51:24
  */
+public abstract class BaseScalaFileSetTestCase extends FileSetTestCase {
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import org.junit.Assert;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-//import java.nio.file.FileSystems;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-
-public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
-  public BaseScalaFileSetTestCase(String path) {
-    super(path);
-  }
-
-  public abstract String transform(String testName, String[] data) throws Exception;
-  
-  private static final String BEFORE_AND_AFTER_SEPARATOR = "-----";
-  private static final String UNCHANGED_TAG = "<unchanged>";
-
-  public void runTest(final File myTestFile) throws Throwable {
-    String content = new String(FileUtil.loadFileText(myTestFile, "UTF-8"));
-    Assert.assertNotNull(content);
-
-    List<String> input = new ArrayList<>();
-
-    int separatorIndex;
-    content = StringUtil.replace(content, "\r", ""); // for MACs
-
-    // Adding input  before -----
-    while ((separatorIndex = content.indexOf(BEFORE_AND_AFTER_SEPARATOR)) >= 0) {
-      input.add(content.substring(0, separatorIndex - 1));
-      content = content.substring(separatorIndex);
-      while (StringUtil.startsWithChar(content, '-') ||
-          StringUtil.startsWithChar(content, '\n')) {
-        content = content.substring(1);
-      }
+    protected BaseScalaFileSetTestCase(String path) {
+        super(path);
     }
 
-    // Result - after -----
-    String result = content;
-    while (StringUtil.startsWithChar(result, '-') ||
-        StringUtil.startsWithChar(result, '\n') ||
-        StringUtil.startsWithChar(result, '\r')) {
-      result = result.substring(1);
+    @Override
+    public void setUp(Project project) {
+        super.setUp(project);
+        ScalaLoader.loadScala();
+        setSettings();
     }
 
-    if (result.trim().toLowerCase().equals("UNCHANGED_TAG")) {
-      Assert.assertEquals("Unchenged expected result expects only 1 input enty", 1, input.size());
-      result = input.get(0);
+    @NotNull
+    private CodeStyleSettings getSettings() {
+        return CodeStyle.getSettings(getProject());
     }
 
-    Assert.assertTrue("No data found in source file", input.size() > 0);
-    Assert.assertNotNull(result);
-    Assert.assertNotNull(input);
-
-
-    final String transformed;
-    String testName = myTestFile.getName();
-    final int dotIdx = testName.indexOf('.');
-    if (dotIdx >= 0) {
-      testName = testName.substring(0, dotIdx);
+    @NotNull
+    protected final ScalaCodeStyleSettings getScalaSettings() {
+        return getSettings().getCustomSettings(ScalaCodeStyleSettings.class);
     }
 
-    String temp = transform(testName, input.toArray(new String[0]));
-    transformed = StringUtil.replace(temp, "\r", "");
-
-    if (shouldPass()) {
-      Assert.assertEquals(result.trim(), transformed.trim());
-    } else {
-      Assert.assertNotEquals(result.trim(), transformed.trim());
+    @NotNull
+    protected final CommonCodeStyleSettings getCommonSettings() {
+        return getSettings().getCommonSettings(ScalaLanguage.INSTANCE);
     }
 
-    //fixTestData(..., input, transformed)
-  }
+    protected void setSettings() {
+        CommonCodeStyleSettings.IndentOptions indentOptions = getCommonSettings().getIndentOptions();
+        assertNotNull(indentOptions);
 
-  protected boolean shouldPass() {
-    return true;
-  }
+        indentOptions.INDENT_SIZE = 2;
+        indentOptions.CONTINUATION_INDENT_SIZE = 2;
+        indentOptions.TAB_SIZE = 2;
+    }
 
-  //creates directory on dataPath1 with new fixed testData
-  /*private void fixTestData(String dataPath, String[] input, String result) {
-    String newDataPath = dataPath + "1";
-    Path relPath = FileSystems.getDefault().getPath(dataPath).relativize(myFile.toPath());
-    File newFile = FileSystems.getDefault().getPath(newDataPath).resolve(relPath).toFile();
-    File parentDir = newFile.getParentFile();
-    try {
-      if (!parentDir.exists()) {
-        Files.createDirectories(parentDir.toPath());
-      }
-      if (!newFile.exists()) {
-        Files.createFile(newFile.toPath());
-      }
-      BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(newFile));
-      for (String s: input) {
-        bos.write(s.getBytes());
-      }
-      bos.write("\n-----\n".getBytes());
-      bos.write(result.getBytes());
-      bos.close();
-    } catch (IOException e) {}
-  }*/
+    @NotNull
+    protected abstract String transform(@NotNull String testName,
+                                        @NotNull String fileText,
+                                        @NotNull Project project) throws IOException;
 
+    public void runTest(@NotNull File testFile,
+                        @NotNull Project project) throws IOException {
+        String content = convertLineSeparators(new String(FileUtil.loadFileText(testFile, "UTF-8")));
 
+        final List<String> input = new ArrayList<>();
+
+        int separatorIndex;
+        // Adding input  before -----
+        while ((separatorIndex = content.indexOf("-----")) >= 0) {
+            input.add(content.substring(0, separatorIndex - 1));
+            content = content.substring(separatorIndex);
+            while (startsWithChar(content, '-') ||
+                    startsWithChar(content, '\n')) {
+                content = content.substring(1);
+            }
+        }
+
+        // Result - after -----
+        String result = content;
+        while (startsWithChar(result, '-') ||
+                startsWithChar(result, '\n') ||
+                startsWithChar(result, '\r')) {
+            result = result.substring(1);
+        }
+
+        if (result.trim().toLowerCase().equals("UNCHANGED_TAG")) {
+            assertEquals("Unchenged expected result expects only 1 input enty", 1, input.size());
+            result = input.get(0);
+        }
+
+        assertFalse("No data found in source file", input.isEmpty());
+        assertNotNull(result);
+
+        String testName = testFile.getName();
+        final int dotIdx = testName.indexOf('.');
+        if (dotIdx >= 0) {
+            testName = testName.substring(0, dotIdx);
+        }
+
+        String temp = transform(testName, input.get(0), project);
+        result = result.trim();
+
+        final String transformed = convertLineSeparators(temp).trim();
+
+        if (shouldPass()) {
+            assertEquals(result, transformed);
+        } else {
+            assertNotEquals(result, transformed);
+        }
+    }
+
+    protected boolean shouldPass() {
+        return true;
+    }
 }

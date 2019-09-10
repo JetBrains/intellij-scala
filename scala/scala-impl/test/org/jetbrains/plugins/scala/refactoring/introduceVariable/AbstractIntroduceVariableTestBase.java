@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
@@ -80,11 +81,12 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     return fileText.substring(0, begin) + fileText.substring(fileText.indexOf("\n", begin) + 1);
   }
 
-  private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-    Project project = getProject();
-    Object oldSettings = ScalaCodeStyleSettings.getInstance(getProject()).clone();
+  @NotNull
+  private String processFile(@NotNull PsiFile file,
+                             @NotNull Project project) throws IncorrectOperationException, InvalidDataException {
+    Object oldSettings = ScalaCodeStyleSettings.getInstance(project).clone();
 
-    TypeAnnotationSettings.set(getProject(), TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject())));
+    TypeAnnotationSettings.set(project, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(project)));
 
     final SyntheticClasses syntheticClasses = project.getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
@@ -182,7 +184,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           result = removeTypenameComment(myEditor.getDocument().getText());
         }
       } else {
-        Assert.assertTrue("Element should be typeElement or Expression", false);
+        Assert.fail("Element should be typeElement or Expression");
       }
 
       //int caretOffset = myEditor.getCaretModel().getOffset();
@@ -192,20 +194,20 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       myEditor = null;
     }
 
-    TypeAnnotationSettings.set(getProject(), ((ScalaCodeStyleSettings) oldSettings));
+    TypeAnnotationSettings.set(project, ((ScalaCodeStyleSettings) oldSettings));
     return result;
   }
 
 
-  public String transform(String testName, String[] data) throws Exception {
-    setSettings();
-    String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-
-    return processFile(psiFile);
+  @NotNull
+  protected String transform(@NotNull String testName,
+                             @NotNull String fileText,
+                             @NotNull Project project) {
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    return processFile(psiFile, project);
   }
 
-  protected String removeMarker(String text, String marker) {
+  private String removeMarker(String text, String marker) {
     int index = text.indexOf(marker);
     myOffset = index - 1;
     return text.substring(0, index) + text.substring(index + marker.length());

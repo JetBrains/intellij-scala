@@ -24,41 +24,37 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
 
   import AbstractIntroduceVariableValidatorTestBase._
 
-  override def transform(testName: String, data: Array[String]): String = {
-    setSettings()
-    val fileText = data(0)
-    processTestFile(fileText)
-  }
-
   protected def removeAllMarker(text: String): String = {
     val index = text.indexOf(ALL_MARKER)
     myOffset = index - 1
     text.substring(0, index) + text.substring(index + ALL_MARKER.length)
   }
 
-  private def processTestFile(testFileText: String): String = {
-    var replaceAllOccurrences = false
-    var fileText = testFileText
-    var startOffset = fileText.indexOf(BEGIN_MARKER)
+  protected override def transform(testName: String,
+                                   fileText: String,
+                                   project: Project): String = {
+     var replaceAllOccurrences = false
+    var testFileText = fileText
+    var startOffset = testFileText.indexOf(BEGIN_MARKER)
     if (startOffset < 0) {
-      startOffset = fileText.indexOf(ALL_MARKER)
+      startOffset = testFileText.indexOf(ALL_MARKER)
       replaceAllOccurrences = true
-      fileText = removeAllMarker(fileText)
+      testFileText = removeAllMarker(testFileText)
     }
     else {
       replaceAllOccurrences = false
-      fileText = removeBeginMarker(fileText)
+      testFileText = removeBeginMarker(testFileText)
     }
-    val endOffset = fileText.indexOf(END_MARKER)
-    fileText = removeEndMarker(fileText)
+    val endOffset = testFileText.indexOf(END_MARKER)
+    testFileText = removeEndMarker(testFileText)
 
-    myFile = createPseudoPhysicalScalaFile(getProject, fileText)
-    fileEditorManager = FileEditorManager.getInstance(getProject)
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject, myFile.getVirtualFile, 0), false)
+    myFile = createPseudoPhysicalScalaFile(project, testFileText)
+    fileEditorManager = FileEditorManager.getInstance(project)
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile, 0), false)
     myEditor.getSelectionModel.setSelection(startOffset, endOffset)
 
     try {
-      doTest(replaceAllOccurrences, fileText)
+      doTest(replaceAllOccurrences, testFileText)
     } finally {
       fileEditorManager.closeFile(myFile.getVirtualFile)
       myEditor = null

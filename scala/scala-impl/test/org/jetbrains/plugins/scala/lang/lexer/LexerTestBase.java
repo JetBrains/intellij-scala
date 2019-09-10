@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
@@ -44,9 +45,11 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
 
     @NotNull
     @Override
-    public String transform(@NotNull String testName, @NotNull String[] data) {
+    protected String transform(@NotNull String testName,
+                               @NotNull String fileText,
+                               @NotNull Project project) {
         Lexer lexer = createLexer();
-        lexer.start(data[0]);
+        lexer.start(fileText);
 
         StringBuilder builder = new StringBuilder();
 

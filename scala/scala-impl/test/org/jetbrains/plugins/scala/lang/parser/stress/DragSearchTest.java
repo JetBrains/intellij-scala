@@ -8,15 +8,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.util.containers.ContainerUtil;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
@@ -26,7 +24,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 /**
  * @author ilyas
@@ -37,8 +38,6 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
   @NonNls
   private static final String DATA_PATH = "/parser/stress/data/";
-  private static final String TEST_FILE_PATTERN = "(.*)\\.test";
-
 
   public DragSearchTest() {
     super(System.getProperty("path") != null ?
@@ -47,34 +46,17 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     );
   }
 
-  public String transform(String testName, String[] data) {
-    return null;
+  @Override
+  public void runTest(@NotNull File testFile,
+                      @NotNull Project project) throws IOException {
+    String content = convertLineSeparators(new String(FileUtil.loadFileText(testFile)));
+    transform(testFile.getName(), content, project);
   }
 
-  public void runTest(final File myTestFile) throws Throwable {
-
-    String content = new String(FileUtil.loadFileText(myTestFile));
-    Assert.assertNotNull(content);
-
-    content = StringUtil.replace(content, "\r", ""); // for MACs
-    transform(content);
-
-//    Assert.assertFalse(testName, transformed.contains("PsiErrorElement"));
-  }
-
-  public String getSearchPattern() {
-    return TEST_FILE_PATTERN;
-  }
-
-
-  public String transform(String fileText) {
-    Project project = getProject();
-    JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
-    PsiElementFactory psiElementFactory = facade.getElementFactory();
-    Assert.assertNotNull(psiElementFactory);
-    Assert.assertNotNull(TEMP_FILE);
-    Assert.assertNotNull(fileText);
-
+  @NotNull
+  protected String transform(@NotNull String testName,
+                             @NotNull String fileText,
+                             @NotNull Project project) {
     ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaLanguage.INSTANCE);
     PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(
             parserDefinition,
@@ -87,8 +69,11 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     Pair<TextRange, Integer>[] dragInfo = dragBuilder.getDragInfo();
     exploreForDrags(dragInfo);
 
-    PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(TEMP_FILE,
-            ScalaFileType.INSTANCE, fileText);
+    PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(
+            "temp.scala",
+            ScalaFileType.INSTANCE,
+            fileText
+    );
     return DebugUtil.psiToString(psiFile, false);
   }
 
@@ -115,6 +100,4 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
   public static Test suite() {
     return new DragSearchTest();
   }
-
-
 }

@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import junit.framework.Test;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors$;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -27,7 +28,7 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
   private static final String DATA_PATH = "/surroundWith/data/";
 
 
-  public SurroundWithTest(String path) {
+  private SurroundWithTest(String path) {
     super(path);
   }
 
@@ -39,7 +40,7 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
                           Surrounder surrounder, int startSelection, int endSelection) {
     FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
     try {
-      Editor editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), file.getVirtualFile(), 0), false);
+      Editor editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, file.getVirtualFile(), 0), false);
       editor.getSelectionModel().setSelection(startSelection, endSelection);
       SurroundWithHandler.invoke(project, editor, file, surrounder);
     } catch (Exception e) {
@@ -49,24 +50,22 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
     }
   }
 
-  public String transform(String testName, String[] data) throws Exception {
-    Tuple4<String, Integer, Integer, Integer> res = SurroundWithTestUtil.prepareFile(data[0]);
-    String fileText = res._1();
-    final int startSelection = res._2();
-    final int endSelection = res._3();
-    final int surroundType = res._4();
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-
+  @NotNull
+  protected String transform(@NotNull String testName,
+                             @NotNull String fileText,
+                             @NotNull Project project) {
+    Tuple4<String, Integer, Integer, Integer> res = SurroundWithTestUtil.prepareFile(fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, res._1());
     final Surrounder[] surrounder = ScalaSurroundDescriptors$.MODULE$.getSurroundDescriptors()[0].getSurrounders();
-    CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            doSurround(getProject(), psiFile, surrounder[surroundType], startSelection, endSelection);
-          }
-        });
-      }
-    }, null, null);
+
+    CommandProcessor.getInstance().executeCommand(
+            project,
+            () -> ApplicationManager.getApplication().runWriteAction(
+                    () -> doSurround(project, psiFile, surrounder[res._4()], res._2(), res._3())
+            ),
+            null,
+            null
+    );
 
     return psiFile.getText();
   }

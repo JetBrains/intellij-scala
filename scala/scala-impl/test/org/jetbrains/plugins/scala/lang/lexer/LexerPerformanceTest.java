@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.testFramework.PlatformTestUtil;
 import junit.framework.Test;
@@ -18,13 +19,15 @@ public class LexerPerformanceTest extends LexerTestBase {
 
     @NotNull
     @Override
-    public String transform(@NotNull String testName, @NotNull String[] data) {
+    protected String transform(@NotNull String testName,
+                               @NotNull String fileText,
+                               @NotNull Project project) {
         String[] result = new String[1];
 
         PlatformTestUtil.assertTiming(
                 "Lexer performance test",
                 1000,
-                () -> result[0] = LexerPerformanceTest.super.transform(testName, data)
+                () -> result[0] = LexerPerformanceTest.super.transform(testName, fileText, project)
         );
 
         return result[0];
