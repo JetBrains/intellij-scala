@@ -56,9 +56,9 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
   }
 
   @Override
-  protected void setSettings() {
-    super.setSettings();
-    getScalaSettings().USE_SCALADOC2_FORMATTING = true;
+  protected void setSettings(@NotNull Project project) {
+    super.setSettings(project);
+    getScalaSettings(project).USE_SCALADOC2_FORMATTING = true;
   }
 
   @NotNull

@@ -7,7 +7,6 @@ import com.intellij.lang.PsiBuilderFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.DebugUtil;
@@ -22,12 +21,6 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 /**
  * @author ilyas
@@ -47,10 +40,10 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
   }
 
   @Override
-  public void runTest(@NotNull File testFile,
-                      @NotNull Project project) throws IOException {
-    String content = convertLineSeparators(new String(FileUtil.loadFileText(testFile)));
-    transform(testFile.getName(), content, project);
+  protected void runTest(@NotNull String testName,
+                         @NotNull String content,
+                         @NotNull Project project) {
+    transform(testName, content, project);
   }
 
   @NotNull
@@ -79,9 +72,9 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
   private static void exploreForDrags(Pair<TextRange, Integer>[] dragInfo) {
     int ourMaximum = max(dragInfo);
-    List<Pair<TextRange, Integer>> penals = ContainerUtil.findAll(dragInfo, pair -> pair.getSecond() >= MAX_ROLLBACKS);
+    boolean notFound = ContainerUtil.findAll(dragInfo, pair -> pair.getSecond() >= MAX_ROLLBACKS).isEmpty();
 
-    if (penals.size() > 0) {
+    if (!notFound) {
       Assert.assertTrue("Too much rollbacks: " + ourMaximum, ourMaximum < MAX_ROLLBACKS);
     }
 

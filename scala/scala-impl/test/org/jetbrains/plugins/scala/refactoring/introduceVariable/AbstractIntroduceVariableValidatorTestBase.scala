@@ -54,15 +54,16 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
     myEditor.getSelectionModel.setSelection(startOffset, endOffset)
 
     try {
-      doTest(replaceAllOccurrences, testFileText)
+      doTest(replaceAllOccurrences, testFileText, project)
     } finally {
       fileEditorManager.closeFile(myFile.getVirtualFile)
       myEditor = null
     }
   }
 
-  protected def doTest(replaceAllOccurrences: Boolean, fileText: String): String = {
-    val maybeValidator = getValidator(myFile)(getProject, myEditor)
+  protected def doTest(replaceAllOccurrences: Boolean, fileText: String,
+                       project: Project): String = {
+    val maybeValidator = getValidator(myFile)(project, myEditor)
     maybeValidator.toSeq
       .flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
       .map(_._2)
