@@ -466,7 +466,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
-  def testDoNotHandleIfEditorHasSomeSelection(): Unit ={
+  def testIfEditorHasSomeSelectionInsideLiteralContent(): Unit ={
     val from =
       s"""s'''${Start}first line
          |    second line$End
@@ -478,7 +478,26 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |""".stripMargin
     val after =
       s"""s'''first line
-         |    second line$Caret
+         |   |    second line$Caret
+         |   | '''.stripMargin
+         |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testDoNotHandleIfEditorHasSomeSelectionOutsideLiteralContent(): Unit ={
+    val from =
+      s"""s'''${Start}first line
+         |    second line$End
+         |   '''.stripMargin
+         |""".stripMargin
+    val to =
+      s"""s''$Start'green yellow$End
+         |   | $Caret'''.stripMargin
+         |""".stripMargin
+    // indention is strange due to it actually becomes a broken string (quote is included with selection)
+    val after =
+      s"""s''first line
+         |  second line$Caret
          |   | '''.stripMargin
          |""".stripMargin
     doTestMultiline(from, to, after)

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Document, Editor, RawText}
+import com.intellij.openapi.editor.{Document, Editor, RawText, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
@@ -38,10 +38,11 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
     val result: Option[String] = for {
       f <- Option(file)
       if requiresMarginProcess(f)
-      if !editor.getSelectionModel.hasSelection
       offset = editor.getCaretModel.getOffset
       element = file.findElementAt(offset)
       literal <- findMultilineStringParent(element)
+      selection = editor.getSelectionModel
+      if literal.contentRange.containsRange(selection.getSelectionStart, selection.getSelectionEnd)
     } yield {
       val isOneLine = !literal.textContains('\n')
       if (isOneLine && settings(file).MULTILINE_STRING_INSERT_MARGIN_ON_ENTER) {
