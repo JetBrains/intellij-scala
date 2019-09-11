@@ -5,8 +5,10 @@ package parser
 import com.intellij.psi.FileViewProvider
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
-final class Scala3ParserDefinition
-  extends ScalaParserDefinitionBase("scala3.file", Scala3Language.INSTANCE) {
+final class Scala3ParserDefinition extends ScalaParserDefinitionBase {
+
+  //noinspection TypeAnnotation
+  override def getFileNodeType = ScalaElementType.Scala3File
 
   override def createFile(viewProvider: FileViewProvider) = new ScalaFileImpl(viewProvider)
 }
