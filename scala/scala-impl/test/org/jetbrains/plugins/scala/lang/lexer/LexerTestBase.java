@@ -5,6 +5,7 @@ import com.intellij.lang.LanguageParserDefinitions;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
  */
 abstract public class LexerTestBase extends ScalaFileSetTestCase {
 
-    protected LexerTestBase(@NotNull String dataPath) {
+    protected LexerTestBase(@NotNull @NonNls String dataPath) {
         super(dataPath);
     }
 
