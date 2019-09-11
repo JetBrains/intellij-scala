@@ -24,7 +24,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
   private var myRefCountHolder: ScalaRefCountHolder = _
   private var myAnnotationHolder: AnnotationHolderImpl = _
 
-  override def suitableForFile(file: PsiFile): Boolean = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) != null
+  override def suitableForFile(file: PsiFile): Boolean = file.hasScalaPsi
 
   def visit(element: PsiElement): Unit = {
     if (DumbService.getInstance(project).isDumb) return

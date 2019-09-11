@@ -143,7 +143,7 @@ package object extensions {
   }
 
   implicit class ViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
-    def hasScalaPsi: Boolean = viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
+    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
   }
 
   implicit class TraversableExt[CC[X] <: Traversable[X], A](private val value: CC[A]) extends AnyVal {
