@@ -137,15 +137,13 @@ package object extensions {
       findScalaFile[ScalaFile]
 
     def findScalaLikeFile: Option[PsiFile] =
-      if (file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) Some(file)
-      else findAnyScalaFile
+      if (file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) Option(file) else findAnyScalaFile
 
     private def viewProvider = file.getViewProvider
   }
 
-  implicit class FileViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
-
-    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE)
+  implicit class ViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
+    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
 
     def findScalaPsi: Option[PsiFile] =
       if (hasScalaPsi) Option(viewProvider.getPsi(ScalaLanguage.INSTANCE))
