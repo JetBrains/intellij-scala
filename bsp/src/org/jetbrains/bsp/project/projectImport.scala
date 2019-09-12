@@ -17,8 +17,11 @@ import javax.swing.Icon
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
 
-class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, BspImportControlFactory, BSP.ProjectSystemId) {
+class BspProjectImportBuilder
+  extends AbstractExternalProjectImportBuilder[BspImportControl](
+    ProjectDataManager.getInstance(),
+    BspImportControlFactory,
+    BSP.ProjectSystemId) {
 
   override def doPrepare(context: WizardContext): Unit = {}
   override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
@@ -45,8 +48,10 @@ object BspImportControlFactory extends NotNullFactory[BspImportControl] {
   override def create(): BspImportControl = new BspImportControl
 }
 
-class BspProjectImportProvider(builder: BspProjectImportBuilder)
-  extends AbstractExternalProjectImportProvider(builder, BSP.ProjectSystemId) {
+class BspProjectImportProvider
+  extends AbstractExternalProjectImportProvider(
+    ProjectImportBuilder.EXTENSIONS_POINT_NAME.findExtensionOrFail(classOf[BspProjectImportBuilder]),
+    BSP.ProjectSystemId) {
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
     super.canImport(fileOrDirectory, project)

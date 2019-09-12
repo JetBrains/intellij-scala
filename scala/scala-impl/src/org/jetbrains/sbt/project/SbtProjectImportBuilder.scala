@@ -15,8 +15,8 @@ import org.jetbrains.sbt.project.SbtImportControl.SbtImportControlFactory
 /**
  * @author Pavel Fatin
  */
-class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[SbtImportControl](projectDataManager, SbtImportControlFactory, SbtProjectSystem.Id) {
+class SbtProjectImportBuilder
+  extends AbstractExternalProjectImportBuilder[SbtImportControl](ProjectDataManager.getInstance(), SbtImportControlFactory, SbtProjectSystem.Id) {
 
   def getName: String = Sbt.Name
 

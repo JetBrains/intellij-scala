@@ -12,6 +12,10 @@ import javax.swing.Icon
 final class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
   extends AbstractExternalProjectImportProvider(builder, SbtProjectSystem.Id) {
 
+  def this() = {
+    this(new SbtProjectImportBuilder())
+  }
+
   override def getId: String = Sbt.Name
 
   override def getName: String = Sbt.Name

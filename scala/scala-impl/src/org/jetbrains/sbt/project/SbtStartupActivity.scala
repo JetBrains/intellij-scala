@@ -38,9 +38,7 @@ class SbtStartupActivity extends StartupActivity {
     override protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent): Unit = {
       notification.expire()
       if (ImportDescription == e.getDescription) {
-        val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-        val sbtProjectImportBuilder = new SbtProjectImportBuilder(projectDataManager)
-        val sbtProjectImportProvider = new SbtProjectImportProvider(sbtProjectImportBuilder)
+        val sbtProjectImportProvider = new SbtProjectImportProvider()
         val wizard = new AddModuleWizard(project, project.getBasePath, sbtProjectImportProvider)
 
         if (wizard.getStepCount <= 0 || wizard.showAndGet)
