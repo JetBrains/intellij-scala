@@ -4,12 +4,12 @@ import com.intellij.application.options.CodeStyleAbstractPanel;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeEditorHighlighterProviders;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 abstract public class ScalaCodeStylePanelBase extends CodeStyleAbstractPanel {
 
@@ -34,8 +34,11 @@ abstract public class ScalaCodeStylePanelBase extends CodeStyleAbstractPanel {
 
     @NotNull
     @Override
-    protected final EditorHighlighter createHighlighter(@NotNull EditorColorsScheme scheme) {
-        return new ScalaEditorHighlighter(scheme);
+    protected final EditorHighlighter createHighlighter(@NotNull EditorColorsScheme colors) {
+        FileType fileType = getFileType();
+        return FileTypeEditorHighlighterProviders.INSTANCE
+                .forFileType(fileType)
+                .getEditorHighlighter(null, fileType, null, colors);
     }
 
     @NotNull
