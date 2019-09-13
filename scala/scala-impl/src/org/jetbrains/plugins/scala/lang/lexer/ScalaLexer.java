@@ -67,17 +67,15 @@ public class ScalaLexer extends Lexer {
   private IElementType previousToken = null;
 
   public ScalaLexer() {
-    this(false, false);
+    this(false, null);
   }
 
   public ScalaLexer(boolean isScala3,
-                    @NotNull Project project) {
-    this(isScala3, ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment());
-  }
-
-  private ScalaLexer(boolean isScala3,
-                     boolean treatDocCommentAsBlockComment) {
-    myScalaPlainLexer = new ScalaPlainLexer(isScala3, treatDocCommentAsBlockComment);
+                    @Nullable Project project) {
+    myScalaPlainLexer = new ScalaPlainLexer(
+            isScala3,
+            project != null && ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment()
+    );
     myXmlLexer = new ScalaXmlLexer();
     myCurrentLexer = myScalaPlainLexer;
   }

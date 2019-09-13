@@ -14,7 +14,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.io.JarUtil._
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -257,6 +257,16 @@ package object project {
         }
       }
     }
+  }
+
+  implicit class VirtualFileExt(private val file: VirtualFile) extends AnyVal {
+
+    def isScala3(implicit project: Project): Boolean =
+      LanguageSubstitutors.getInstance.substituteLanguage(
+        ScalaLanguage.INSTANCE,
+        file,
+        project
+      ) != ScalaLanguage.INSTANCE
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {

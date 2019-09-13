@@ -6,6 +6,7 @@ import java.{util => ju}
 import com.intellij.lexer.{HtmlHighlightingLexer, LayeredLexer, Lexer, StringLiteralLexer}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.{FileTypeManager, SyntaxHighlighterBase}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
@@ -13,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, Scal
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-final class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
+final class ScalaSyntaxHighlighter(baseLexer: Lexer) extends SyntaxHighlighterBase {
 
   import ScalaSyntaxHighlighter._
 
   override def getHighlightingLexer: LayeredLexer =
-    new CompoundLexer(new CustomScalaLexer)
+    new CompoundLexer(baseLexer)
 
   override def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] =
     SyntaxHighlighterBase.pack(
@@ -29,9 +30,9 @@ final class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
 object ScalaSyntaxHighlighter {
 
+  import ScalaDocTokenType._
   import ScalaTokenTypes._
   import ScalaXmlTokenTypes._
-  import ScalaDocTokenType._
 
   // Comments
   private val tLINE_COMMENTS = TokenSet.create(tLINE_COMMENT)
@@ -229,7 +230,9 @@ object ScalaSyntaxHighlighter {
     )
   }
 
-  private class CustomScalaLexer extends ScalaLexer {
+  private[highlighter] class CustomScalaLexer(isScala3: Boolean)
+                                             (implicit project: Project)
+    extends ScalaLexer(isScala3, project) {
 
     private var openingTags: ju.Stack[String] = new ju.Stack
     private var tagMatch: Boolean = false

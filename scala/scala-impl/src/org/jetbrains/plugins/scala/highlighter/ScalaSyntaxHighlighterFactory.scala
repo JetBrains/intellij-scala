@@ -7,5 +7,15 @@ import com.intellij.openapi.vfs.VirtualFile
 
 final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 
-  override def getSyntaxHighlighter(project: Project, file: VirtualFile) = new ScalaSyntaxHighlighter
+  import project._
+
+  override def getSyntaxHighlighter(project: Project, file: VirtualFile): ScalaSyntaxHighlighter = {
+    val isScala3 = if (project != null && file != null)
+      file.isScala3(project)
+    else
+      false
+
+    val scalaLexer = new ScalaSyntaxHighlighter.CustomScalaLexer(isScala3)(project)
+    new ScalaSyntaxHighlighter(scalaLexer)
+  }
 }
