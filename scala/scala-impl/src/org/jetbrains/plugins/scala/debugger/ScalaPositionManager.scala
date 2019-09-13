@@ -4,6 +4,7 @@ package debugger
 import java.{util => ju}
 
 import com.intellij.debugger.engine._
+import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
@@ -266,7 +267,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
     def samePackage(refType: ReferenceType) = {
-      val name = refType.name()
+      val fullName = refType.name()
+      //name can be SomeClass$$Lambda$1.1836643189
+      val firstDol = fullName.indexOf('$')
+      val name  = if (firstDol < 0) fullName else fullName.substring(0, firstDol)
       val lastDot = name.lastIndexOf('.')
       val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
       packageName.isEmpty || packageName.contains(refTypePackageName)
