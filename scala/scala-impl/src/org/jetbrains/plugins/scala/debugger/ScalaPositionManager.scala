@@ -266,7 +266,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
     def samePackage(refType: ReferenceType) = {
-      val name = refType.name()
+      val fullName = refType.name()
+      //name can be SomeClass$$Lambda$1.1836643189
+      val lastDol = fullName.lastIndexOf('$')
+      val name  = if (lastDol < 0) fullName else fullName.substring(0, lastDol)
       val lastDot = name.lastIndexOf('.')
       val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
       packageName.isEmpty || packageName.contains(refTypePackageName)
