@@ -12,12 +12,12 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
   import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
 
-  protected val myFileType: FileType = ScalaFileType.INSTANCE
+  protected def fileType: FileType = ScalaFileType.INSTANCE
 
   protected def configureByText(text: String, stripTrailingSpaces: Boolean = false): Unit = {
     val (actual, actualOffset) = findCaretOffset(text, stripTrailingSpaces)
 
-    getFixture.configureByText(myFileType, actual)
+    getFixture.configureByText(fileType, actual)
     getFixture.getEditor.getCaretModel.moveToOffset(actualOffset)
   }
 
