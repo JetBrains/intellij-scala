@@ -16,30 +16,45 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.StdLanguages;
+import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.ex.util.LayerDescriptor;
 import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.EditorHighlighterProvider;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
+import com.intellij.openapi.fileTypes.SyntaxHighlighter;
+import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scala.lang.scaladoc.highlighter.ScalaDocSyntaxHighlighter;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter;
 
 public final class ScalaEditorHighlighterProvider implements EditorHighlighterProvider {
 
     @Override
-    public EditorHighlighter getEditorHighlighter(@Nullable Project project,
-                                                  @NotNull FileType fileType,
-                                                  @Nullable VirtualFile virtualFile,
-                                                  @NotNull EditorColorsScheme colors) {
-        return new ScalaEditorHighlighter(colors);
+    public ScalaEditorHighlighter getEditorHighlighter(@Nullable Project project,
+                                                       @NotNull FileType fileType,
+                                                       @Nullable VirtualFile virtualFile,
+                                                       @NotNull EditorColorsScheme colors) {
+        return new ScalaEditorHighlighter(
+                getSyntaxHighlighter(ScalaLanguage.INSTANCE, project, virtualFile),
+                getSyntaxHighlighter(StdLanguages.XML, project, virtualFile),
+                ScalaDocSyntaxHighlighter.INSTANCE,
+                colors
+        );
     }
 
     /**
@@ -47,23 +62,21 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
      */
     private static final class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
 
-        private ScalaEditorHighlighter(@NotNull EditorColorsScheme colors) {
-            super(new ScalaSyntaxHighlighter(), colors);
+        private ScalaEditorHighlighter(@NotNull SyntaxHighlighter scalaHighlighter,
+                                       @NotNull SyntaxHighlighter xmlHighlighter,
+                                       @NotNull SyntaxHighlighter scalaDocHighlighter,
+                                       @NotNull EditorColorsScheme colors) {
+            super(scalaHighlighter, colors);
 
-            //Register XML highlighter
-            LayerDescriptor xmlLayer = new LayerDescriptor(
-                    SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, null, null),
-                    "\n",
-                    HighlighterColors.TEXT
+            registerLayer(
+                    ScalaTokenTypesEx.SCALA_XML_CONTENT,
+                    new LayerDescriptor(xmlHighlighter, "\n", HighlighterColors.TEXT)
             );
-            registerLayer(ScalaTokenTypesEx.SCALA_XML_CONTENT, xmlLayer);
 
-            LayerDescriptor scaladocLayer = new LayerDescriptor(
-                    new ScalaDocSyntaxHighlighter(),
-                    "\n",
-                    DefaultHighlighter.DOC_COMMENT
+            registerLayer(
+                    ScalaDocElementTypes.SCALA_DOC_COMMENT,
+                    new LayerDescriptor(scalaDocHighlighter, "\n", DefaultHighlighter.DOC_COMMENT)
             );
-            registerLayer(ScalaDocElementTypes.SCALA_DOC_COMMENT, scaladocLayer);
         }
 
         // workaround for an apparent bug in IntelliJ platform which applies
@@ -78,5 +91,33 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
 //    TextAttributesKey[] reversed = ArrayUtil.reverseArray(keys);
 //    return super.convertAttributes(reversed);
 //  }
+    }
+
+    /**
+     * User: Alexander Podkhalyuzin
+     * Date: 23.07.2008
+     */
+    private static final class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase {
+
+        @NotNull
+        public static final ScalaDocSyntaxHighlighter INSTANCE = new ScalaDocSyntaxHighlighter();
+
+        private ScalaDocSyntaxHighlighter() {
+            super();
+        }
+
+        @NotNull
+        private static final Map<IElementType, TextAttributesKey> ATTRIBUTES =
+                Collections.singletonMap(ScalaDocTokenType.DOC_TAG_NAME, DefaultHighlighter.SCALA_DOC_TAG);
+
+        @NotNull
+        public Lexer getHighlightingLexer() {
+            return new ScalaDocLexer();
+        }
+
+        @NotNull
+        public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
+            return pack(ATTRIBUTES.get(tokenType));
+        }
     }
 }
