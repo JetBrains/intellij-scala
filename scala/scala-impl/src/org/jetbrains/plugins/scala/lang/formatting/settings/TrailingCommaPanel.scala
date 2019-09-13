@@ -1,24 +1,24 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package settings
 
 import java.awt.Insets
 import java.lang.reflect.Field
 import java.util.Objects
 
-import com.intellij.application.options.CodeStyleAbstractPanel
-import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.TrailingCommaMode
-import org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel._
 
 import scala.collection.immutable.ListMap
 
-class TrailingCommaPanel(settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
+final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings) {
+
+  import ScalaCodeStyleSettings.TrailingCommaMode
+  import TrailingCommaPanel.ComboBoxItem
+
   private var innerPanel: JPanel = _
 
   private var trailingCommaModeSelector: JComboBox[ComboBoxItem[TrailingCommaMode]] = _
@@ -65,14 +65,6 @@ class TrailingCommaPanel(settings: CodeStyleSettings) extends CodeStyleAbstractP
       cb.setSelected(field.get(scalaSettings).asInstanceOf[Boolean])
     }
   }
-
-  override protected def createHighlighter(scheme: EditorColorsScheme) = new ScalaEditorHighlighter(scheme)
-
-  override protected def getFileType: FileType = ScalaFileType.INSTANCE
-
-  override protected def getPreviewText: String = null
-
-  override def getRightMargin: Int = 0
 
   override def getPanel: JPanel = {
     if (innerPanel == null) {
