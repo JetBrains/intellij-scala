@@ -268,8 +268,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     def samePackage(refType: ReferenceType) = {
       val fullName = refType.name()
       //name can be SomeClass$$Lambda$1.1836643189
-      val lastDol = fullName.lastIndexOf('$')
-      val name  = if (lastDol < 0) fullName else fullName.substring(0, lastDol)
+      val firstDol = fullName.indexOf('$')
+      val name  = if (firstDol < 0) fullName else fullName.substring(0, firstDol)
       val lastDot = name.lastIndexOf('.')
       val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
       packageName.isEmpty || packageName.contains(refTypePackageName)
