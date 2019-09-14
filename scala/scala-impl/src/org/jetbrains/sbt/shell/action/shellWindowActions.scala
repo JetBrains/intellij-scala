@@ -122,6 +122,15 @@ class EOFAction(project: Project) extends DumbAwareAction {
   }
 }
 
+class SigIntAction(project: Project) extends DumbAwareAction {
+
+  setShortcutSet(new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK)))
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    SbtShellCommunication.forProject(project).sendSigInt()
+  }
+}
+
 class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
 
   private val templatePresentation: Presentation = getTemplatePresentation

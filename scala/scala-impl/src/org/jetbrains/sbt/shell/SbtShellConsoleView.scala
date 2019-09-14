@@ -31,6 +31,7 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     val debugShellAction = new DebugShellAction(project, debugConnection)
     val scrollToTheEndToolbarAction = new SbtShellScrollToTheEndToolbarAction(getEditor)
     val eofAction = new EOFAction(project)
+    val sigIntAction = new SigIntAction(project)
 
     val allActions: Array[AnAction] = Array(
       startAction,
@@ -39,7 +40,8 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
       scrollToTheEndToolbarAction,
       toggleSoftWrapsAction,
       clearAllAction,
-      eofAction
+      eofAction,
+      sigIntAction
     )
 
     allActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }

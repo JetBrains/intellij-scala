@@ -183,6 +183,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
 
     val pty = createPtyCommandLine(commandLine)
     val cpty = new ColoredProcessHandler(pty)
+    cpty.setShouldKillProcessSoftly(true)
     patchWindowSize(cpty.getProcess)
 
     (cpty, debugConnection)
@@ -425,6 +426,8 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
       case None => // nothing to do
     }
   }
+
+  def sendSigInt(): Unit = processData.foreach(_.processHandler.destroyProcess())
 
   override def projectClosed(): Unit = {
     destroyProcess()
