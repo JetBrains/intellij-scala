@@ -130,7 +130,6 @@
                 implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
       <editorHighlighterProvider filetype="Scala"
                                  implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
-        <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
         <highlightErrorFilter implementation="org.jetbrains.plugins.scala.annotator.ScaladocHighlightErrorFilter"/>
       <lang.syntaxHighlighterFactory language="Scala"
                                      implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>

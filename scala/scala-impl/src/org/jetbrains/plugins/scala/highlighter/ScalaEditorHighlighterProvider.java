@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.StdLanguages;
-import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -97,7 +96,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
      * User: Alexander Podkhalyuzin
      * Date: 23.07.2008
      */
-    private static final class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase {
+    static final class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase {
 
         @NotNull
         public static final ScalaDocSyntaxHighlighter INSTANCE = new ScalaDocSyntaxHighlighter();
@@ -111,7 +110,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
                 Collections.singletonMap(ScalaDocTokenType.DOC_TAG_NAME, DefaultHighlighter.SCALA_DOC_TAG);
 
         @NotNull
-        public Lexer getHighlightingLexer() {
+        public ScalaDocLexer getHighlightingLexer() {
             return new ScalaDocLexer();
         }
 
