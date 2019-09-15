@@ -30,7 +30,7 @@ equivalent for the scala plugin itself at the moment but any of your questions
 are welcome on [intellij-scala gitter](https://gitter.im/JetBrains/intellij-scala)
 and we will be glad to answer them.
 
-[PSI Viewer](https://www.jetbrains.com/help/idea/viewing-psi-structure.html) is an essential tool to
+[PSI Viewer](https://www.jetbrains.com/help/idea/psi-viewer.html) is an essential tool to
 dig into the structure of a source code.
 
 Some guidelines for code, commits and pull requests:
