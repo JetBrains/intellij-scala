@@ -39,7 +39,7 @@ In order to take part in Scala plugin development, you need:
   ```
 
 2. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
-the directory where Scala plugin repository is and then import it as sbt project.
+the directory where Scala plugin repository is and then import it as sbt project. On the sbt settings page, select the use sbt shell for build and import option and click OK.
 
 3. In the next step, select JDK 11 as project JDK (create it from an installed JDK if necessary).
 
