@@ -1,0 +1,22 @@
+UFile (package = )
+    UClass (name = A)
+        UAnnotation (fqName = Test)
+    UClass (name = Test)
+    UClass (name = MyAnnotation)
+        UField (name = text)
+    UClass (name = B)
+        UAnnotation (fqName = MyAnnotation)
+            UUnnamedExpression
+                ULiteralExpression (value = "class")
+        UClass (name = InB)
+            UAnnotation (fqName = MyAnnotation)
+                UUnnamedExpression
+                    ULiteralExpression (value = "inB class")
+    UClass (name = B$)
+        UAnnotation (fqName = MyAnnotation)
+            UUnnamedExpression
+                ULiteralExpression (value = "companion")
+    UClass (name = Obj$)
+        UAnnotation (fqName = MyAnnotation)
+            UUnnamedExpression
+                ULiteralExpression (value = "object")

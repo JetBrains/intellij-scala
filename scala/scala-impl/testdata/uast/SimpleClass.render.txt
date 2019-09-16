@@ -1,0 +1,15 @@
+public annotation SimpleAnnotation : scala.annotation.StaticAnnotation {
+}
+
+@SimpleAnnotation
+public class SimpleClass {
+    private final var field: int = 1
+    private final var another: int = 1
+    @java.lang.Deprecated
+    public fun foo() : java.lang.Object {
+        return int2Integer(field)
+    }
+    public fun bar(param: int) : java.lang.String {
+        return "abc$field$param"
+    }
+}

@@ -1,0 +1,8 @@
+public abstract interface Foo {
+    public fun bar() : java.lang.String {
+        return "Hello!"
+    }
+}
+
+public class Baz : Foo {
+}

@@ -1,0 +1,10 @@
+public final class Test$ {
+    public static fun global(a: int, b: float) : void {
+    }
+    public static fun withDefault(c: int, d: java.lang.String) : void {
+    }
+    public static fun call() : void {
+        global(b = 2.2, a = 2)
+        withDefault(d = "bbb")
+    }
+}

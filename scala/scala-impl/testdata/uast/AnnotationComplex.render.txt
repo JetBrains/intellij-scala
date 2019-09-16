@@ -1,0 +1,27 @@
+public annotation Annotation : scala.annotation.StaticAnnotation {
+    public final var strings: java.lang.String
+}
+
+@Annotation
+public class A {
+}
+
+public annotation AnnotationInner : scala.annotation.StaticAnnotation {
+    public final var value: Annotation
+}
+
+@AnnotationArray(null = Annotation())
+public class B1 {
+}
+
+@AnnotationArray(value = Annotation("sv1", "sv2"))
+public class B2 {
+}
+
+public annotation AnnotationArray : scala.annotation.StaticAnnotation {
+    public final var value: Annotation
+}
+
+@AnnotationArray(null = Annotation(strings = Array("sar1", "sar2") as java.lang.String[]))
+public class C {
+}

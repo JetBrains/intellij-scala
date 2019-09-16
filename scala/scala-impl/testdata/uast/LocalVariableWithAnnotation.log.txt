@@ -1,0 +1,26 @@
+UFile (package = )
+    UClass (name = TestAnnotation)
+    UClass (name = Test$)
+        UMethod (name = foo)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = bar)
+                        UAnnotation (fqName = TestAnnotation)
+                        ULiteralExpression (value = "lorem ipsum")
+                UDeclarationsExpression
+                    ULocalVariable (name = a)
+                        ULiteralExpression (value = 1)
+                    ULocalVariable (name = b)
+                        ULiteralExpression (value = 1)
+                    ULocalVariable (name = c)
+                        ULiteralExpression (value = 1)
+                UDeclarationsExpression
+                    ULocalVariable (name = x)
+                        UAnnotation (fqName = TestAnnotation)
+                        ULiteralExpression (value = 2)
+                    ULocalVariable (name = y)
+                        UAnnotation (fqName = TestAnnotation)
+                        ULiteralExpression (value = 2)
+                    ULocalVariable (name = z)
+                        UAnnotation (fqName = TestAnnotation)
+                        ULiteralExpression (value = 2)

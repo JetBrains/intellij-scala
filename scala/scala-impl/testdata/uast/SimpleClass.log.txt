@@ -1,0 +1,20 @@
+UFile (package = )
+    UClass (name = SimpleAnnotation)
+    UClass (name = SimpleClass)
+        UAnnotation (fqName = SimpleAnnotation)
+        UField (name = field)
+            ULiteralExpression (value = 1)
+        UField (name = another)
+            ULiteralExpression (value = 1)
+        UMethod (name = foo)
+            UAnnotation (fqName = java.lang.Deprecated)
+            UBlockExpression
+                UReturnExpression
+                    UMethodCall(name = int2Integer)
+                        UIdentifier (Identifier (int2Integer))
+                        USimpleNameReferenceExpression (identifier = field)
+        UMethod (name = bar)
+            UParameter (name = param)
+            UBlockExpression
+                UReturnExpression
+                    ULiteralExpression (value = "abc$field$param")

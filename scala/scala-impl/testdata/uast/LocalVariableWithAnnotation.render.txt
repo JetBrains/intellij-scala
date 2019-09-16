@@ -1,0 +1,14 @@
+public annotation TestAnnotation : scala.annotation.StaticAnnotation {
+}
+
+public final class Test$ {
+    public static fun foo() : void {
+        @TestAnnotation final var bar: java.lang.String = "lorem ipsum"
+        final var a: int = 1
+        final var b: int = 1
+        final var c: int = 1
+        @TestAnnotation final var x: int = 2
+        @TestAnnotation final var y: int = 2
+        @TestAnnotation final var z: int = 2
+    }
+}

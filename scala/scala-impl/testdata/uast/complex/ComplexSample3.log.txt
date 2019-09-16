@@ -1,0 +1,275 @@
+UFile (package = )
+    UImportStatement (isOnDemand = true)
+    UImportStatement (isOnDemand = false)
+    UImportStatement (isOnDemand = false)
+    UClass (name = RandomClient$)
+        UMethod (name = main)
+            UParameter (name = args)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = filter)
+                        UTryExpression
+                            UBlockExpression
+                                USwitchExpression
+                                    UQualifiedReferenceExpression
+                                        USimpleNameReferenceExpression (identifier = Integer)
+                                        UMethodCall(name = parseInt)
+                                            UIdentifier (Identifier (parseInt))
+                                            UMethodCall(name = args)
+                                                UIdentifier (Identifier (args))
+                                                ULiteralExpression (value = 0)
+                                    UExpressionList (match)
+                                        USwitchClauseExpressionWithBody
+                                            UastEmptyExpression
+                                            UExpressionList (case_clause)
+                                                x: Int => x % 2 != 0
+                                                    UParameter (name = x)
+                                                    UBlockExpression
+                                                        UReturnExpression
+                                                            UBinaryExpression (operator = !=)
+                                                                UBinaryExpression (operator = %)
+                                                                    USimpleNameReferenceExpression (identifier = x)
+                                                                    ULiteralExpression (value = 2)
+                                                                ULiteralExpression (value = 0)
+                                        USwitchClauseExpressionWithBody
+                                            UastEmptyExpression
+                                            UExpressionList (case_clause)
+                                                x: Int => x % 2 == 0
+                                                    UParameter (name = x)
+                                                    UBlockExpression
+                                                        UReturnExpression
+                                                            UBinaryExpression (operator = ==)
+                                                                UBinaryExpression (operator = %)
+                                                                    USimpleNameReferenceExpression (identifier = x)
+                                                                    ULiteralExpression (value = 2)
+                                                                ULiteralExpression (value = 0)
+                                        USwitchClauseExpressionWithBody
+                                            UastEmptyExpression
+                                            UExpressionList (case_clause)
+                                                x: Int => x != 0
+                                                    UParameter (name = x)
+                                                    UBlockExpression
+                                                        UReturnExpression
+                                                            UBinaryExpression (operator = !=)
+                                                                USimpleNameReferenceExpression (identifier = x)
+                                                                ULiteralExpression (value = 0)
+                            UCatchClause
+                                UBlockExpression
+                                    x: Int => x < 100
+                                        UParameter (name = x)
+                                        UBlockExpression
+                                            UReturnExpression
+                                                UBinaryExpression (operator = <)
+                                                    USimpleNameReferenceExpression (identifier = x)
+                                                    ULiteralExpression (value = 100)
+                UTryExpression
+                    UBlockExpression
+                        UDeclarationsExpression
+                            ULocalVariable (name = ia)
+                                UQualifiedReferenceExpression
+                                    USimpleNameReferenceExpression (identifier = InetAddress)
+                                    UMethodCall(name = getByName)
+                                        UIdentifier (Identifier (getByName))
+                                        ULiteralExpression (value = "localhost")
+                        UDeclarationsExpression
+                            ULocalVariable (name = socket)
+                                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 2))
+                                    USimpleNameReferenceExpression (identifier = Socket)
+                                    USimpleNameReferenceExpression (identifier = ia)
+                                    ULiteralExpression (value = 9999)
+                        UDeclarationsExpression
+                            ULocalVariable (name = out)
+                                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                    USimpleNameReferenceExpression (identifier = ObjectOutputStream)
+                                    UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                        USimpleNameReferenceExpression (identifier = DataOutputStream)
+                                        UQualifiedReferenceExpression
+                                            USimpleNameReferenceExpression (identifier = socket)
+                                            UMethodCall(name = getOutputStream)
+                                                UIdentifier (Identifier (getOutputStream))
+                        UDeclarationsExpression
+                            ULocalVariable (name = in)
+                                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                    USimpleNameReferenceExpression (identifier = DataInputStream)
+                                    UQualifiedReferenceExpression
+                                        USimpleNameReferenceExpression (identifier = socket)
+                                        UMethodCall(name = getInputStream)
+                                            UIdentifier (Identifier (getInputStream))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = out)
+                            UMethodCall(name = writeObject)
+                                UIdentifier (Identifier (writeObject))
+                                USimpleNameReferenceExpression (identifier = filter)
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = out)
+                            UMethodCall(name = flush)
+                                UIdentifier (Identifier (flush))
+                        UWhileExpression
+                            ULiteralExpression (value = true)
+                            UBlockExpression
+                                UDeclarationsExpression
+                                    ULocalVariable (name = x)
+                                        UQualifiedReferenceExpression
+                                            USimpleNameReferenceExpression (identifier = in)
+                                            UMethodCall(name = readInt)
+                                                UIdentifier (Identifier (readInt))
+                                UMethodCall(name = println)
+                                    UIdentifier (Identifier (println))
+                                    UBinaryExpression (operator = +)
+                                        ULiteralExpression (value = "x = ")
+                                        USimpleNameReferenceExpression (identifier = x)
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = out)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = in)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = socket)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                    UCatchClause
+                        UBlockExpression
+                            UQualifiedReferenceExpression
+                                USimpleNameReferenceExpression (identifier = e)
+                                UMethodCall(name = printStackTrace)
+                                    UIdentifier (Identifier (printStackTrace))
+    UClass (name = RandomServer$)
+        UMethod (name = main)
+            UParameter (name = args)
+            UBlockExpression
+                UTryExpression
+                    UBlockExpression
+                        UDeclarationsExpression
+                            ULocalVariable (name = listener)
+                                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                    USimpleNameReferenceExpression (identifier = ServerSocket)
+                                    ULiteralExpression (value = 9999)
+                        UWhileExpression
+                            ULiteralExpression (value = true)
+                            UQualifiedReferenceExpression
+                                UMethodCall(name = ServerThread)
+                                    UIdentifier (Identifier (ServerThread))
+                                    UQualifiedReferenceExpression
+                                        USimpleNameReferenceExpression (identifier = listener)
+                                        UMethodCall(name = accept)
+                                            UIdentifier (Identifier (accept))
+                                UMethodCall(name = start)
+                                    UIdentifier (Identifier (start))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = listener)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                    UCatchClause
+                        UBlockExpression
+                            UQualifiedReferenceExpression
+                                UQualifiedReferenceExpression
+                                    USimpleNameReferenceExpression (identifier = System)
+                                    USimpleNameReferenceExpression (identifier = err)
+                                UMethodCall(name = println)
+                                    UIdentifier (Identifier (println))
+                                    ULiteralExpression (value = "Could not listen on port: 9999.")
+                            UQualifiedReferenceExpression
+                                USimpleNameReferenceExpression (identifier = System)
+                                UMethodCall(name = exit)
+                                    UIdentifier (Identifier (exit))
+                                    UPrefixExpression (operator = -)
+                                        ULiteralExpression (value = 1)
+    UClass (name = ServerThread)
+        UField (name = socket)
+        UMethod (name = run)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = rand)
+                        UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                            USimpleNameReferenceExpression (identifier = Random)
+                            UQualifiedReferenceExpression
+                                USimpleNameReferenceExpression (identifier = System)
+                                UMethodCall(name = currentTimeMillis)
+                                    UIdentifier (Identifier (currentTimeMillis))
+                UTryExpression
+                    UBlockExpression
+                        UDeclarationsExpression
+                            ULocalVariable (name = out)
+                                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                    USimpleNameReferenceExpression (identifier = DataOutputStream)
+                                    UQualifiedReferenceExpression
+                                        USimpleNameReferenceExpression (identifier = socket)
+                                        UMethodCall(name = getOutputStream)
+                                            UIdentifier (Identifier (getOutputStream))
+                        UDeclarationsExpression
+                            ULocalVariable (name = in)
+                                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                    USimpleNameReferenceExpression (identifier = ObjectInputStream)
+                                    UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                                        USimpleNameReferenceExpression (identifier = DataInputStream)
+                                        UQualifiedReferenceExpression
+                                            USimpleNameReferenceExpression (identifier = socket)
+                                            UMethodCall(name = getInputStream)
+                                                UIdentifier (Identifier (getInputStream))
+                        UDeclarationsExpression
+                            ULocalVariable (name = filter)
+                                UQualifiedReferenceExpression
+                                    UQualifiedReferenceExpression
+                                        USimpleNameReferenceExpression (identifier = in)
+                                        UMethodCall(name = readObject)
+                                            UIdentifier (Identifier (readObject))
+                                    UMethodCall(name = asInstanceOf)
+                                        UIdentifier (Identifier (asInstanceOf))
+                        UWhileExpression
+                            ULiteralExpression (value = true)
+                            UBlockExpression
+                                UDeclarationsExpression
+                                    ULocalVariable (name = succeeded)
+                                        ULiteralExpression (value = false)
+                                UDoWhileExpression
+                                    UPrefixExpression (operator = !)
+                                        USimpleNameReferenceExpression (identifier = succeeded)
+                                    UBlockExpression
+                                        UDeclarationsExpression
+                                            ULocalVariable (name = x)
+                                                UQualifiedReferenceExpression
+                                                    USimpleNameReferenceExpression (identifier = rand)
+                                                    UMethodCall(name = nextInt)
+                                                        UIdentifier (Identifier (nextInt))
+                                                        ULiteralExpression (value = 1000)
+                                        UBinaryExpression (operator = =)
+                                            USimpleNameReferenceExpression (identifier = succeeded)
+                                            UMethodCall(name = filter)
+                                                UIdentifier (Identifier (filter))
+                                                USimpleNameReferenceExpression (identifier = x)
+                                        UIfExpression
+                                            USimpleNameReferenceExpression (identifier = succeeded)
+                                            UQualifiedReferenceExpression
+                                                USimpleNameReferenceExpression (identifier = out)
+                                                UMethodCall(name = writeInt)
+                                                    UIdentifier (Identifier (writeInt))
+                                                    USimpleNameReferenceExpression (identifier = x)
+                                            UastEmptyExpression
+                                UQualifiedReferenceExpression
+                                    USimpleNameReferenceExpression (identifier = Thread)
+                                    UMethodCall(name = sleep)
+                                        UIdentifier (Identifier (sleep))
+                                        ULiteralExpression (value = 100)
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = out)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = in)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = socket)
+                            UMethodCall(name = close)
+                                UIdentifier (Identifier (close))
+                    UCatchClause
+                        UBlockExpression
+                    UCatchClause
+                        UBlockExpression
+                            UQualifiedReferenceExpression
+                                USimpleNameReferenceExpression (identifier = e)
+                                UMethodCall(name = printStackTrace)
+                                    UIdentifier (Identifier (printStackTrace))

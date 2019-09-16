@@ -1,0 +1,71 @@
+UFile (package = )
+    UClass (name = IntRange)
+        UField (name = from)
+        UField (name = to)
+    UClass (name = RequiresPermission)
+        UField (name = anyOf)
+    UClass (name = RequiresStrPermission)
+        UField (name = strs)
+    UClass (name = WithDefaultValue)
+        UField (name = value)
+            ULiteralExpression (value = 42)
+    UClass (name = SuppressLint)
+        UField (name = value)
+    UClass (name = Annotations$)
+        UMethod (name = foo)
+            UAnnotation (fqName = RequiresPermission)
+                UNamedExpression (name = anyOf)
+                    UMethodCall(name = Array)
+                        UIdentifier (Identifier (Array))
+                        ULiteralExpression (value = 1)
+                        ULiteralExpression (value = 2)
+                        ULiteralExpression (value = 3)
+            UAnnotation (fqName = IntRange)
+                UNamedExpression (name = from)
+                    ULiteralExpression (value = 10)
+                UNamedExpression (name = to)
+                    ULiteralExpression (value = 0)
+            UAnnotation (fqName = WithDefaultValue)
+            UAnnotation (fqName = SuppressLint)
+                UUnnamedExpression
+                    ULiteralExpression (value = "Lorem")
+            UBlockExpression
+                UReturnExpression
+                    ULiteralExpression (value = 5)
+        UMethod (name = bar)
+            UAnnotation (fqName = IntRange)
+                UUnnamedExpression
+                    ULiteralExpression (value = 0)
+                UUnnamedExpression
+                    ULiteralExpression (value = 100)
+            UAnnotation (fqName = SuppressLint)
+                UUnnamedExpression
+                    ULiteralExpression (value = "Lorem")
+                UUnnamedExpression
+                    ULiteralExpression (value = "Ipsum")
+                UUnnamedExpression
+                    ULiteralExpression (value = "Dolor")
+            UBlockExpression
+                UastEmptyExpression
+        UMethod (name = fooWithArrLiteral)
+            UAnnotation (fqName = RequiresPermission)
+                UNamedExpression (name = anyOf)
+                    UMethodCall(name = Array)
+                        UIdentifier (Identifier (Array))
+                        ULiteralExpression (value = 1)
+                        ULiteralExpression (value = 2)
+                        ULiteralExpression (value = 3)
+            UBlockExpression
+                UReturnExpression
+                    ULiteralExpression (value = 5)
+        UMethod (name = fooWithStrArrLiteral)
+            UAnnotation (fqName = RequiresStrPermission)
+                UNamedExpression (name = strs)
+                    UMethodCall(name = Array)
+                        UIdentifier (Identifier (Array))
+                        ULiteralExpression (value = "a")
+                        ULiteralExpression (value = "b")
+                        ULiteralExpression (value = "c")
+            UBlockExpression
+                UReturnExpression
+                    ULiteralExpression (value = 3)

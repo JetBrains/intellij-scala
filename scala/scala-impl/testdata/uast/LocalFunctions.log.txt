@@ -1,0 +1,180 @@
+UFile (package = )
+    UImportStatement (isOnDemand = false)
+    UClass (name = Tape)
+        UField (name = left)
+        UField (name = cell)
+        UField (name = right)
+        UMethod (name = isZero)
+            UBlockExpression
+                UReturnExpression
+                    UMethodCall(name = ???)
+                        UIdentifier (Identifier (???))
+        UMethod (name = execute)
+            UParameter (name = ch)
+            UBlockExpression
+                UReturnExpression
+                    UMethodCall(name = ???)
+                        UIdentifier (Identifier (???))
+    UClass (name = Brainfuck)
+        UMethod (name = execute)
+            UParameter (name = p)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = prog)
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = p)
+                            UMethodCall(name = replaceAll)
+                                UIdentifier (Identifier (replaceAll))
+                                ULiteralExpression (value = "[^\\+\\-\\[\\]\\.\\,\\>\\<]")
+                                ULiteralExpression (value = "")
+                UDeclarationsExpression
+                    ULocalVariable (name = braceMatcher)
+                        @tailrec def braceMatcher(pos: Int, stack: List[Int], o2c: Map[Int, Int]): Map[Int,Int] =
+      if(pos == prog.length) o2c else prog(pos) match {
+        case '[' => braceMatcher(pos + 1, pos :: stack, o2c)
+        case ']' => braceMatcher(pos + 1, stack.tail, o2c + (stack.head -> pos))
+        case _ => braceMatcher(pos + 1, stack, o2c)
+      }
+                            UAnnotation (fqName = scala.annotation.tailrec)
+                            UParameter (name = pos)
+                            UParameter (name = stack)
+                            UParameter (name = o2c)
+                            UBlockExpression
+                                UReturnExpression
+                                    UIfExpression
+                                        UBinaryExpression (operator = ==)
+                                            USimpleNameReferenceExpression (identifier = pos)
+                                            UQualifiedReferenceExpression
+                                                USimpleNameReferenceExpression (identifier = prog)
+                                                UMethodCall(name = length)
+                                                    UIdentifier (Identifier (length))
+                                        USimpleNameReferenceExpression (identifier = o2c)
+                                        USwitchExpression
+                                            UMethodCall(name = prog)
+                                                UIdentifier (Identifier (prog))
+                                                USimpleNameReferenceExpression (identifier = pos)
+                                            UExpressionList (match)
+                                                USwitchClauseExpressionWithBody
+                                                    UastEmptyExpression
+                                                    UExpressionList (case_clause)
+                                                        UMethodCall(name = braceMatcher)
+                                                            UIdentifier (Identifier (braceMatcher))
+                                                            UBinaryExpression (operator = +)
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                                ULiteralExpression (value = 1)
+                                                            UBinaryExpression (operator = ::)
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                                USimpleNameReferenceExpression (identifier = stack)
+                                                            USimpleNameReferenceExpression (identifier = o2c)
+                                                USwitchClauseExpressionWithBody
+                                                    UastEmptyExpression
+                                                    UExpressionList (case_clause)
+                                                        UMethodCall(name = braceMatcher)
+                                                            UIdentifier (Identifier (braceMatcher))
+                                                            UBinaryExpression (operator = +)
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                                ULiteralExpression (value = 1)
+                                                            UQualifiedReferenceExpression
+                                                                USimpleNameReferenceExpression (identifier = stack)
+                                                                UMethodCall(name = tail)
+                                                                    UIdentifier (Identifier (tail))
+                                                            UBinaryExpression (operator = +)
+                                                                USimpleNameReferenceExpression (identifier = o2c)
+                                                                UParenthesizedExpression
+                                                                    UBinaryExpression (operator = ->)
+                                                                        UQualifiedReferenceExpression
+                                                                            USimpleNameReferenceExpression (identifier = stack)
+                                                                            UMethodCall(name = head)
+                                                                                UIdentifier (Identifier (head))
+                                                                        USimpleNameReferenceExpression (identifier = pos)
+                                                USwitchClauseExpressionWithBody
+                                                    UastEmptyExpression
+                                                    UExpressionList (case_clause)
+                                                        UMethodCall(name = braceMatcher)
+                                                            UIdentifier (Identifier (braceMatcher))
+                                                            UBinaryExpression (operator = +)
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                                ULiteralExpression (value = 1)
+                                                            USimpleNameReferenceExpression (identifier = stack)
+                                                            USimpleNameReferenceExpression (identifier = o2c)
+                UDeclarationsExpression
+                    ULocalVariable (name = open2close)
+                        UMethodCall(name = braceMatcher)
+                            UIdentifier (Identifier (braceMatcher))
+                            ULiteralExpression (value = 0)
+                            USimpleNameReferenceExpression (identifier = Nil)
+                            UMethodCall(name = Map)
+                                UIdentifier (Identifier (Map))
+                UDeclarationsExpression
+                    ULocalVariable (name = close2open)
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = open2close)
+                            UMethodCall(name = map)
+                                UIdentifier (Identifier (map))
+                                it => it.swap
+                                    UParameter (name = it)
+                                    UBlockExpression
+                                        UReturnExpression
+                                            UQualifiedReferenceExpression
+                                                USimpleNameReferenceExpression (identifier = it)
+                                                UMethodCall(name = swap)
+                                                    UIdentifier (Identifier (swap))
+                UDeclarationsExpression
+                    ULocalVariable (name = ex)
+                        @tailrec def ex(pos:Int, tape:Tape[T]): Unit =
+      if(pos < prog.length) ex(prog(pos) match {
+        case '[' if tape.isZero => open2close(pos)
+        case ']' if ! tape.isZero => close2open(pos)
+        case _ => pos + 1
+      }, tape.execute(prog(pos)))
+                            UAnnotation (fqName = scala.annotation.tailrec)
+                            UParameter (name = pos)
+                            UParameter (name = tape)
+                            UBlockExpression
+                                UReturnExpression
+                                    UIfExpression
+                                        UBinaryExpression (operator = <)
+                                            USimpleNameReferenceExpression (identifier = pos)
+                                            UQualifiedReferenceExpression
+                                                USimpleNameReferenceExpression (identifier = prog)
+                                                UMethodCall(name = length)
+                                                    UIdentifier (Identifier (length))
+                                        UMethodCall(name = ex)
+                                            UIdentifier (Identifier (ex))
+                                            USwitchExpression
+                                                UMethodCall(name = prog)
+                                                    UIdentifier (Identifier (prog))
+                                                    USimpleNameReferenceExpression (identifier = pos)
+                                                UExpressionList (match)
+                                                    USwitchClauseExpressionWithBody
+                                                        UastEmptyExpression
+                                                        UExpressionList (case_clause)
+                                                            UMethodCall(name = open2close)
+                                                                UIdentifier (Identifier (open2close))
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                    USwitchClauseExpressionWithBody
+                                                        UastEmptyExpression
+                                                        UExpressionList (case_clause)
+                                                            UMethodCall(name = close2open)
+                                                                UIdentifier (Identifier (close2open))
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                    USwitchClauseExpressionWithBody
+                                                        UastEmptyExpression
+                                                        UExpressionList (case_clause)
+                                                            UBinaryExpression (operator = +)
+                                                                USimpleNameReferenceExpression (identifier = pos)
+                                                                ULiteralExpression (value = 1)
+                                            UQualifiedReferenceExpression
+                                                USimpleNameReferenceExpression (identifier = tape)
+                                                UMethodCall(name = execute)
+                                                    UIdentifier (Identifier (execute))
+                                                    UMethodCall(name = prog)
+                                                        UIdentifier (Identifier (prog))
+                                                        USimpleNameReferenceExpression (identifier = pos)
+                                        UastEmptyExpression
+                UMethodCall(name = println)
+                    UIdentifier (Identifier (println))
+                    ULiteralExpression (value = "---running---")
+                UMethodCall(name = println)
+                    UIdentifier (Identifier (println))
+                    ULiteralExpression (value = "\n---done---")

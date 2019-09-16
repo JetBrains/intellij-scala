@@ -1,0 +1,61 @@
+public final class Lambdas$ {
+    public static fun lambdasUsage() : void {
+        final var seq: scala.collection.Seq<java.lang.Object> = Seq.empty()
+        final var lambda: scala.Function1<java.lang.Object,java.lang.Object> = { public var x: int ->
+            {
+                return x + 1
+            }
+        }
+        seq.map(lambda)
+        seq.map(UastEmptyExpression)
+        seq.map({ final var _$0: int ->
+            {
+                return lambda(_)
+            }
+        })
+        seq.map({ public var x: int ->
+            {
+                return x + 1
+            }
+        })
+        seq.map({ public var x: int ->
+            {
+                return x - 1
+            }
+        })
+        seq.map({ final var _$0: int ->
+            {
+                return _ + 1
+            }
+        })
+        seq.map({ final var _$0: int ->
+            {
+                return _ - 1
+            }
+        })
+        seq.map({ final var _$0: int ->
+            {
+                return _.toString()
+            }
+        })
+        seq.map({ final var _$0: int ->
+            {
+                return _.hashCode()
+            }
+        })
+        seq.collect({ final var <anonymous>: int ->
+            {
+                return     UastEmptyExpression -> {
+                        1
+                    }
+            }
+        })
+        seq.foreach(::println)
+        seq.foreach({ final var _$0: int ->
+            {
+                return println(_)
+            }
+        })
+        seq.foreach(::println)
+    }
+}

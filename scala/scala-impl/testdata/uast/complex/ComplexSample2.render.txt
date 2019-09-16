@@ -1,0 +1,120 @@
+import scala.annotation
+
+public abstract interface Func {
+    public abstract fun inc(t: T) : T = UastEmptyExpression
+    public abstract fun dec(t: T) : T = UastEmptyExpression
+    public abstract fun in() : T = UastEmptyExpression
+    public abstract fun out(t: T) : void = UastEmptyExpression
+}
+
+public final class ByteFunc$ {
+    public final var zero: byte = 0
+    public static fun inc(t: byte) : byte {
+        return ((t + 1) & 255).toByte()
+    }
+    public static fun dec(t: byte) : byte {
+        return ((t - 1) & 255).toByte()
+    }
+    public static fun in() : byte {
+        return scala.io.StdIn.readByte
+    }
+    public static fun out(t: byte) : void {
+        print(t.toChar())
+    }
+}
+
+public class Tape {
+    public var left: scala.collection.immutable.List<T>
+    public var cell: T
+    public var right: scala.collection.immutable.List<T>
+    public fun headOf(list: scala.collection.immutable.List<T>) : T {
+        return if (list.isEmpty()) func.zero else list.head()
+    }
+    public fun tailOf(list: scala.collection.immutable.List<T>) : scala.collection.immutable.List<T> {
+        return if (list.isEmpty()) Nil else list.tail()
+    }
+    public fun isZero() : boolean {
+        return cell == func.zero
+    }
+    public fun execute(ch: char) : Tape<T> {
+        return switch (ch)
+            UastEmptyExpression -> {
+                copy(cell = func.inc(cell))
+            }
+            UastEmptyExpression -> {
+                copy(cell = func.dec(cell))
+            }
+            UastEmptyExpression -> {
+                Tape(tailOf(left), headOf(left), cell :: right)
+            }
+            UastEmptyExpression -> {
+                Tape(cell :: left, headOf(right), tailOf(right))
+            }
+            UastEmptyExpression -> {
+                func.out(cell)
+                this
+            }
+            UastEmptyExpression -> {
+                copy(cell = func.in())
+            }
+            UastEmptyExpression -> {
+                this
+            }
+            UastEmptyExpression -> {
+                sys.error("Unexpected token: " + ch)
+            }
+
+    }
+}
+
+public final class Tape$ {
+    public static fun empty(func: Func<T>) : Tape<T> {
+        return <noref>(func)
+    }
+}
+
+public class Brainfuck {
+    private var prog: java.lang.String = _
+    private var open2close: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = _
+    private var close2open: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = _
+    @scala.annotation.tailrec
+    public fun braceMatcher(pos: int, stack: scala.collection.immutable.List<java.lang.Object>, o2c: scala.collection.immutable.Map<java.lang.Object,java.lang.Object>) : scala.collection.immutable.Map<java.lang.Object,java.lang.Object> {
+        return if (pos == prog.length()) o2c else switch (prog(pos))
+            UastEmptyExpression -> {
+                braceMatcher(pos + 1, pos :: stack, o2c)
+            }
+            UastEmptyExpression -> {
+                braceMatcher(pos + 1, stack.tail(), o2c + (stack.head() -> pos))
+            }
+            UastEmptyExpression -> {
+                braceMatcher(pos + 1, stack, o2c)
+            }
+
+    }
+    @scala.annotation.tailrec
+    public fun ex(pos: int, tape: Tape<T>) : void {
+        if (pos < prog.length()) ex(switch (prog(pos))
+            UastEmptyExpression -> {
+                open2close(pos)
+            }
+            UastEmptyExpression -> {
+                close2open(pos)
+            }
+            UastEmptyExpression -> {
+                pos + 1
+            }
+        , tape.execute(prog(pos)))
+    }
+    public fun execute(p: java.lang.String) : void {
+        prog = p.replaceAll("[^\\+\\-\\[\\]\\.\\,\\>\\<]", "")
+        open2close = braceMatcher(0, Nil, Map())
+        close2open = open2close.map({ public var it: scala.Tuple2<java.lang.Object,java.lang.Object> ->
+            {
+                return it.swap()
+            }
+        })
+        println("---running---")
+        ex(0, Tape.empty(func))
+        println("\n---done---")
+    }
+}

@@ -1,0 +1,57 @@
+import scala.annotation.tailrec
+
+public class Tape {
+    public var left: scala.collection.immutable.List<T>
+    public var cell: T
+    public var right: scala.collection.immutable.List<T>
+    public fun isZero() : boolean {
+        return ???()
+    }
+    public fun execute(ch: char) : Tape<T> {
+        return ???()
+    }
+}
+
+public class Brainfuck {
+    public fun execute(p: java.lang.String) : void {
+        final var prog: java.lang.String = p.replaceAll("[^\\+\\-\\[\\]\\.\\,\\>\\<]", "")
+        final var braceMatcher: scala.Function3<java.lang.Object,scala.collection.immutable.List<java.lang.Object>,scala.collection.immutable.Map<java.lang.Object,java.lang.Object>,scala.collection.immutable.Map<java.lang.Object,java.lang.Object>> = { public var pos: int, public var stack: scala.collection.immutable.List<java.lang.Object>, public var o2c: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> ->
+            {
+                return if (pos == prog.length()) o2c else switch (prog(pos))
+                    UastEmptyExpression -> {
+                        braceMatcher(pos + 1, pos :: stack, o2c)
+                    }
+                    UastEmptyExpression -> {
+                        braceMatcher(pos + 1, stack.tail(), o2c + (stack.head() -> pos))
+                    }
+                    UastEmptyExpression -> {
+                        braceMatcher(pos + 1, stack, o2c)
+                    }
+
+            }
+        }
+        final var open2close: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = braceMatcher(0, Nil, Map())
+        final var close2open: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = open2close.map({ public var it: scala.Tuple2<java.lang.Object,java.lang.Object> ->
+            {
+                return it.swap()
+            }
+        })
+        final var ex: scala.Function2<java.lang.Object,Tape<T>,scala.runtime.BoxedUnit> = { public var pos: int, public var tape: Tape<T> ->
+            {
+                return if (pos < prog.length()) ex(switch (prog(pos))
+                    UastEmptyExpression -> {
+                        open2close(pos)
+                    }
+                    UastEmptyExpression -> {
+                        close2open(pos)
+                    }
+                    UastEmptyExpression -> {
+                        pos + 1
+                    }
+                , tape.execute(prog(pos)))
+            }
+        }
+        println("---running---")
+        println("\n---done---")
+    }
+}

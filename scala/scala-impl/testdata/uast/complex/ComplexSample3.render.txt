@@ -1,0 +1,106 @@
+import java.io
+import imports_list InetAddress : ServerSocket : Socket : SocketException
+import java.util.Random
+
+public final class RandomClient$ {
+    public static fun main(args: java.lang.String[]) : void {
+        final var filter: scala.Function1<java.lang.Object,java.lang.Object> = try {
+            switch (Integer.parseInt(args(0)))
+                UastEmptyExpression -> {
+                    { public var x: int ->
+                        {
+                            return x % 2 != 0
+                        }
+                    }
+                }
+                UastEmptyExpression -> {
+                    { public var x: int ->
+                        {
+                            return x % 2 == 0
+                        }
+                    }
+                }
+                UastEmptyExpression -> {
+                    { public var x: int ->
+                        {
+                            return x != 0
+                        }
+                    }
+                }
+
+        }
+        catch (e) {
+            { public var x: int ->
+                {
+                    return x < 100
+                }
+            }
+        }
+
+        try {
+            final var ia: java.net.InetAddress = InetAddress.getByName("localhost")
+            final var socket: java.net.Socket = Socket(ia, 9999)
+            final var out: java.io.ObjectOutputStream = ObjectOutputStream(DataOutputStream(socket.getOutputStream()))
+            final var in: java.io.DataInputStream = DataInputStream(socket.getInputStream())
+            out.writeObject(filter)
+            out.flush()
+            while (true) {
+                final var x: int = in.readInt()
+                println("x = " + x)
+            }
+            out.close()
+            in.close()
+            socket.close()
+        }
+        catch (e) {
+            e.printStackTrace()
+        }
+
+    }
+}
+
+public final class RandomServer$ {
+    public static fun main(args: java.lang.String[]) : void {
+        try {
+            final var listener: java.net.ServerSocket = ServerSocket(9999)
+            while (true) ServerThread(listener.accept()).start()
+            listener.close()
+        }
+        catch (e) {
+            System.err.println("Could not listen on port: 9999.")
+            System.exit(-1)
+        }
+
+    }
+}
+
+public class ServerThread : java.lang.Thread {
+    public var socket: java.net.Socket
+    public fun run() : void {
+        final var rand: java.util.Random = Random(System.currentTimeMillis())
+        try {
+            final var out: java.io.DataOutputStream = DataOutputStream(socket.getOutputStream())
+            final var in: java.io.ObjectInputStream = ObjectInputStream(DataInputStream(socket.getInputStream()))
+            final var filter: scala.Function1<java.lang.Object,java.lang.Object> = in.readObject().asInstanceOf()
+            while (true) {
+                var succeeded: boolean = false
+                do {
+                    final var x: int = rand.nextInt(1000)
+                    succeeded = filter(x)
+                    if (succeeded) out.writeInt(x)
+                }while (!succeeded)
+
+                Thread.sleep(100)
+            }
+            out.close()
+            in.close()
+            socket.close()
+        }
+        catch (e) {
+        }
+        catch (e) {
+            e.printStackTrace()
+        }
+
+    }
+}

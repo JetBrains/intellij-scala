@@ -1,0 +1,145 @@
+public final class SimpleInterpreter$ {
+    public final var term0: SimpleInterpreter.App = App(Lam("x", Add(Var("x"), Var("x"))), Add(Con(10), Con(11)))
+    public final var term1: SimpleInterpreter.App = App(Con(1), Con(2))
+    public static fun unitM(a: A) : SimpleInterpreter.M<A> {
+        return M(a)
+    }
+    public static fun showM(m: SimpleInterpreter.M<SimpleInterpreter.Value>) : java.lang.String {
+        return m.value.toString()
+    }
+    @scala.annotation.tailrec
+    public static fun lookup(x: java.lang.String, e: scala.collection.immutable.List<scala.Tuple2<java.lang.String,SimpleInterpreter.Value>>) : SimpleInterpreter.M<SimpleInterpreter.Value> {
+        return switch (e)
+            UastEmptyExpression -> {
+                unitM(Wrong)
+            }
+            UastEmptyExpression -> {
+                if (x == y) unitM(b) else lookup(x, e1)
+            }
+
+    }
+    public static fun add(a: SimpleInterpreter.Value, b: SimpleInterpreter.Value) : SimpleInterpreter.M<SimpleInterpreter.Value> {
+        return switch (UastEmptyExpression)
+            UastEmptyExpression -> {
+                unitM(Num(m + n))
+            }
+            UastEmptyExpression -> {
+                unitM(Wrong)
+            }
+
+    }
+    public static fun apply(a: SimpleInterpreter.Value, b: SimpleInterpreter.Value) : SimpleInterpreter.M<SimpleInterpreter.Value> {
+        return switch (a)
+            UastEmptyExpression -> {
+                k(b)
+            }
+            UastEmptyExpression -> {
+                unitM(Wrong)
+            }
+
+    }
+    public static fun interp(t: SimpleInterpreter.Term, e: scala.collection.immutable.List<scala.Tuple2<java.lang.String,SimpleInterpreter.Value>>) : SimpleInterpreter.M<SimpleInterpreter.Value> {
+        return switch (t)
+            UastEmptyExpression -> {
+                lookup(x, e)
+            }
+            UastEmptyExpression -> {
+                unitM(Num(n))
+            }
+            UastEmptyExpression -> {
+                interp(l, e) >>= ({ public var a: SimpleInterpreter.Value ->
+                    {
+                        return interp(r, e) >>= ({ public var b: SimpleInterpreter.Value ->
+                            {
+                                return add(a, b)
+                            }
+                        })
+                    }
+                })
+            }
+            UastEmptyExpression -> {
+                unitM(Fun({ public var a: SimpleInterpreter.Value ->
+                    {
+                        return interp(t, UastEmptyExpression :: e)
+                    }
+                }))
+            }
+            UastEmptyExpression -> {
+                interp(f, e) >>= ({ public var a: SimpleInterpreter.Value ->
+                    {
+                        return interp(t, e) >>= ({ public var b: SimpleInterpreter.Value ->
+                            {
+                                return apply(a, b)
+                            }
+                        })
+                    }
+                })
+            }
+
+    }
+    public static fun test(t: SimpleInterpreter.Term) : java.lang.String {
+        return showM(interp(t, List()))
+    }
+    public static fun main(args: java.lang.String[]) : void {
+        println(test(term0))
+        println(test(term1))
+    }
+    public static class M {
+        public var value: A
+        public fun bind(k: scala.Function1<A,SimpleInterpreter.M<B>>) : SimpleInterpreter.M<B> {
+            return k(value)
+        }
+        public fun $greater$greater$eq(k: scala.Function1<A,SimpleInterpreter.M<B>>) : SimpleInterpreter.M<B> {
+            return bind(k)
+        }
+        public fun map(f: scala.Function1<A,B>) : SimpleInterpreter.M<B> {
+            return bind({ public var x: A ->
+                {
+                    return unitM(f(x))
+                }
+            })
+        }
+        public fun flatMap(f: scala.Function1<A,SimpleInterpreter.M<B>>) : SimpleInterpreter.M<B> {
+            return bind(f)
+        }
+    }
+    public static abstract interface Term {
+    }
+    public static class Var : SimpleInterpreter.Term {
+        public var x: java.lang.String
+    }
+    public static class Con : SimpleInterpreter.Term {
+        public var n: int
+    }
+    public static class Add : SimpleInterpreter.Term {
+        public var l: SimpleInterpreter.Term
+        public var r: SimpleInterpreter.Term
+    }
+    public static class Lam : SimpleInterpreter.Term {
+        public var x: java.lang.String
+        public var body: SimpleInterpreter.Term
+    }
+    public static class App : SimpleInterpreter.Term {
+        public var fun: SimpleInterpreter.Term
+        public var arg: SimpleInterpreter.Term
+    }
+    public static abstract interface Value {
+    }
+    public static final class Wrong$ : SimpleInterpreter.Value {
+        public static fun toString() : java.lang.String {
+            return "wrong"
+        }
+    }
+    public static class Num : SimpleInterpreter.Value {
+        public var n: int
+        public fun toString() : java.lang.String {
+            return n.toString()
+        }
+    }
+    public static class Fun : SimpleInterpreter.Value {
+        public var f: scala.Function1<SimpleInterpreter.Value,SimpleInterpreter.M<SimpleInterpreter.Value>>
+        public fun toString() : java.lang.String {
+            return "<function>"
+        }
+    }
+}

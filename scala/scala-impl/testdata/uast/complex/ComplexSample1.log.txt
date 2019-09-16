@@ -1,0 +1,314 @@
+UFile (package = )
+    UClass (name = SimpleInterpreter$)
+        UField (name = term0)
+            UMethodCall(name = App)
+                UIdentifier (Identifier (App))
+                UMethodCall(name = Lam)
+                    UIdentifier (Identifier (Lam))
+                    ULiteralExpression (value = "x")
+                    UMethodCall(name = Add)
+                        UIdentifier (Identifier (Add))
+                        UMethodCall(name = Var)
+                            UIdentifier (Identifier (Var))
+                            ULiteralExpression (value = "x")
+                        UMethodCall(name = Var)
+                            UIdentifier (Identifier (Var))
+                            ULiteralExpression (value = "x")
+                UMethodCall(name = Add)
+                    UIdentifier (Identifier (Add))
+                    UMethodCall(name = Con)
+                        UIdentifier (Identifier (Con))
+                        ULiteralExpression (value = 10)
+                    UMethodCall(name = Con)
+                        UIdentifier (Identifier (Con))
+                        ULiteralExpression (value = 11)
+        UField (name = term1)
+            UMethodCall(name = App)
+                UIdentifier (Identifier (App))
+                UMethodCall(name = Con)
+                    UIdentifier (Identifier (Con))
+                    ULiteralExpression (value = 1)
+                UMethodCall(name = Con)
+                    UIdentifier (Identifier (Con))
+                    ULiteralExpression (value = 2)
+        UMethod (name = unitM)
+            UParameter (name = a)
+            UBlockExpression
+                UReturnExpression
+                    UMethodCall(name = M)
+                        UIdentifier (Identifier (M))
+                        USimpleNameReferenceExpression (identifier = a)
+        UMethod (name = showM)
+            UParameter (name = m)
+            UBlockExpression
+                UReturnExpression
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = m)
+                            USimpleNameReferenceExpression (identifier = value)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+        UMethod (name = lookup)
+            UAnnotation (fqName = scala.annotation.tailrec)
+            UParameter (name = x)
+            UParameter (name = e)
+            UBlockExpression
+                UReturnExpression
+                    USwitchExpression
+                        USimpleNameReferenceExpression (identifier = e)
+                        UExpressionList (match)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = unitM)
+                                        UIdentifier (Identifier (unitM))
+                                        USimpleNameReferenceExpression (identifier = Wrong)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UIfExpression
+                                        UBinaryExpression (operator = ==)
+                                            USimpleNameReferenceExpression (identifier = x)
+                                            USimpleNameReferenceExpression (identifier = y)
+                                        UMethodCall(name = unitM)
+                                            UIdentifier (Identifier (unitM))
+                                            USimpleNameReferenceExpression (identifier = b)
+                                        UMethodCall(name = lookup)
+                                            UIdentifier (Identifier (lookup))
+                                            USimpleNameReferenceExpression (identifier = x)
+                                            USimpleNameReferenceExpression (identifier = e1)
+        UMethod (name = add)
+            UParameter (name = a)
+            UParameter (name = b)
+            UBlockExpression
+                UReturnExpression
+                    USwitchExpression
+                        UastEmptyExpression
+                        UExpressionList (match)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = unitM)
+                                        UIdentifier (Identifier (unitM))
+                                        UMethodCall(name = Num)
+                                            UIdentifier (Identifier (Num))
+                                            UBinaryExpression (operator = +)
+                                                USimpleNameReferenceExpression (identifier = m)
+                                                USimpleNameReferenceExpression (identifier = n)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = unitM)
+                                        UIdentifier (Identifier (unitM))
+                                        USimpleNameReferenceExpression (identifier = Wrong)
+        UMethod (name = apply)
+            UParameter (name = a)
+            UParameter (name = b)
+            UBlockExpression
+                UReturnExpression
+                    USwitchExpression
+                        USimpleNameReferenceExpression (identifier = a)
+                        UExpressionList (match)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = k)
+                                        UIdentifier (Identifier (k))
+                                        USimpleNameReferenceExpression (identifier = b)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = unitM)
+                                        UIdentifier (Identifier (unitM))
+                                        USimpleNameReferenceExpression (identifier = Wrong)
+        UMethod (name = interp)
+            UParameter (name = t)
+            UParameter (name = e)
+            UBlockExpression
+                UReturnExpression
+                    USwitchExpression
+                        USimpleNameReferenceExpression (identifier = t)
+                        UExpressionList (match)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = lookup)
+                                        UIdentifier (Identifier (lookup))
+                                        USimpleNameReferenceExpression (identifier = x)
+                                        USimpleNameReferenceExpression (identifier = e)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = unitM)
+                                        UIdentifier (Identifier (unitM))
+                                        UMethodCall(name = Num)
+                                            UIdentifier (Identifier (Num))
+                                            USimpleNameReferenceExpression (identifier = n)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UBinaryExpression (operator = >>=)
+                                        UMethodCall(name = interp)
+                                            UIdentifier (Identifier (interp))
+                                            USimpleNameReferenceExpression (identifier = l)
+                                            USimpleNameReferenceExpression (identifier = e)
+                                        UParenthesizedExpression
+                                            a => interp(r, e) >>= (b => add(a, b))
+                                                UParameter (name = a)
+                                                UBlockExpression
+                                                    UReturnExpression
+                                                        UBinaryExpression (operator = >>=)
+                                                            UMethodCall(name = interp)
+                                                                UIdentifier (Identifier (interp))
+                                                                USimpleNameReferenceExpression (identifier = r)
+                                                                USimpleNameReferenceExpression (identifier = e)
+                                                            UParenthesizedExpression
+                                                                b => add(a, b)
+                                                                    UParameter (name = b)
+                                                                    UBlockExpression
+                                                                        UReturnExpression
+                                                                            UMethodCall(name = add)
+                                                                                UIdentifier (Identifier (add))
+                                                                                USimpleNameReferenceExpression (identifier = a)
+                                                                                USimpleNameReferenceExpression (identifier = b)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UMethodCall(name = unitM)
+                                        UIdentifier (Identifier (unitM))
+                                        UMethodCall(name = Fun)
+                                            UIdentifier (Identifier (Fun))
+                                            a => interp(t, (x, a) :: e)
+                                                UParameter (name = a)
+                                                UBlockExpression
+                                                    UReturnExpression
+                                                        UMethodCall(name = interp)
+                                                            UIdentifier (Identifier (interp))
+                                                            USimpleNameReferenceExpression (identifier = t)
+                                                            UBinaryExpression (operator = ::)
+                                                                UastEmptyExpression
+                                                                USimpleNameReferenceExpression (identifier = e)
+                            USwitchClauseExpressionWithBody
+                                UastEmptyExpression
+                                UExpressionList (case_clause)
+                                    UBinaryExpression (operator = >>=)
+                                        UMethodCall(name = interp)
+                                            UIdentifier (Identifier (interp))
+                                            USimpleNameReferenceExpression (identifier = f)
+                                            USimpleNameReferenceExpression (identifier = e)
+                                        UParenthesizedExpression
+                                            a => interp(t, e) >>= (b => apply(a, b))
+                                                UParameter (name = a)
+                                                UBlockExpression
+                                                    UReturnExpression
+                                                        UBinaryExpression (operator = >>=)
+                                                            UMethodCall(name = interp)
+                                                                UIdentifier (Identifier (interp))
+                                                                USimpleNameReferenceExpression (identifier = t)
+                                                                USimpleNameReferenceExpression (identifier = e)
+                                                            UParenthesizedExpression
+                                                                b => apply(a, b)
+                                                                    UParameter (name = b)
+                                                                    UBlockExpression
+                                                                        UReturnExpression
+                                                                            UMethodCall(name = apply)
+                                                                                UIdentifier (Identifier (apply))
+                                                                                USimpleNameReferenceExpression (identifier = a)
+                                                                                USimpleNameReferenceExpression (identifier = b)
+        UMethod (name = test)
+            UParameter (name = t)
+            UBlockExpression
+                UReturnExpression
+                    UMethodCall(name = showM)
+                        UIdentifier (Identifier (showM))
+                        UMethodCall(name = interp)
+                            UIdentifier (Identifier (interp))
+                            USimpleNameReferenceExpression (identifier = t)
+                            UMethodCall(name = List)
+                                UIdentifier (Identifier (List))
+        UMethod (name = main)
+            UParameter (name = args)
+            UBlockExpression
+                UMethodCall(name = println)
+                    UIdentifier (Identifier (println))
+                    UMethodCall(name = test)
+                        UIdentifier (Identifier (test))
+                        USimpleNameReferenceExpression (identifier = term0)
+                UMethodCall(name = println)
+                    UIdentifier (Identifier (println))
+                    UMethodCall(name = test)
+                        UIdentifier (Identifier (test))
+                        USimpleNameReferenceExpression (identifier = term1)
+        UClass (name = M)
+            UField (name = value)
+            UMethod (name = bind)
+                UParameter (name = k)
+                UBlockExpression
+                    UReturnExpression
+                        UMethodCall(name = k)
+                            UIdentifier (Identifier (k))
+                            USimpleNameReferenceExpression (identifier = value)
+            UMethod (name = $greater$greater$eq)
+                UParameter (name = k)
+                UBlockExpression
+                    UReturnExpression
+                        UMethodCall(name = bind)
+                            UIdentifier (Identifier (bind))
+                            USimpleNameReferenceExpression (identifier = k)
+            UMethod (name = map)
+                UParameter (name = f)
+                UBlockExpression
+                    UReturnExpression
+                        UMethodCall(name = bind)
+                            UIdentifier (Identifier (bind))
+                            x => unitM(f(x))
+                                UParameter (name = x)
+                                UBlockExpression
+                                    UReturnExpression
+                                        UMethodCall(name = unitM)
+                                            UIdentifier (Identifier (unitM))
+                                            UMethodCall(name = f)
+                                                UIdentifier (Identifier (f))
+                                                USimpleNameReferenceExpression (identifier = x)
+            UMethod (name = flatMap)
+                UParameter (name = f)
+                UBlockExpression
+                    UReturnExpression
+                        UMethodCall(name = bind)
+                            UIdentifier (Identifier (bind))
+                            USimpleNameReferenceExpression (identifier = f)
+        UClass (name = Term)
+        UClass (name = Var)
+            UField (name = x)
+        UClass (name = Con)
+            UField (name = n)
+        UClass (name = Add)
+            UField (name = l)
+            UField (name = r)
+        UClass (name = Lam)
+            UField (name = x)
+            UField (name = body)
+        UClass (name = App)
+            UField (name = fun)
+            UField (name = arg)
+        UClass (name = Value)
+        UClass (name = Wrong$)
+            UMethod (name = toString)
+                UBlockExpression
+                    UReturnExpression
+                        ULiteralExpression (value = "wrong")
+        UClass (name = Num)
+            UField (name = n)
+            UMethod (name = toString)
+                UBlockExpression
+                    UReturnExpression
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = n)
+                            UMethodCall(name = toString)
+                                UIdentifier (Identifier (toString))
+        UClass (name = Fun)
+            UField (name = f)
+            UMethod (name = toString)
+                UBlockExpression
+                    UReturnExpression
+                        ULiteralExpression (value = "<function>")

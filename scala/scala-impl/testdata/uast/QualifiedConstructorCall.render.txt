@@ -1,0 +1,18 @@
+package A.B.C
+
+public class Foo {
+}
+
+public class FooWithParam {
+    public final var num: int = 5
+}
+
+public class Bar {
+    public fun getFoo() : A.B.C.Foo {
+        FooWithParam()
+        FooWithParam(4)
+        FooWithParam(num = 8)
+        A.B.C.Foo()
+        return Foo()
+    }
+}

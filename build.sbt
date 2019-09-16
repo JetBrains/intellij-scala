@@ -64,8 +64,6 @@ lazy val uast = newProject(
   file("scala/uast")
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
-).settings(
-  packageMethod := PackagingMethod.Skip()
 )
 
 lazy val worksheet = newProject(

@@ -1,0 +1,25 @@
+@Test
+public class A {
+}
+
+public annotation Test : scala.annotation.StaticAnnotation {
+}
+
+public annotation MyAnnotation : scala.annotation.StaticAnnotation {
+    public final var text: java.lang.String
+}
+
+@MyAnnotation(null = "class")
+public class B {
+    @MyAnnotation(null = "inB class")
+    public class InB {
+    }
+}
+
+@MyAnnotation(null = "companion")
+public final class B$ {
+}
+
+@MyAnnotation(null = "object")
+public final class Obj$ {
+}

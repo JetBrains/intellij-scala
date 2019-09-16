@@ -1,0 +1,10 @@
+public annotation MyAnnotation : scala.annotation.StaticAnnotation {
+}
+
+@MyAnnotation(null = "abc")
+public class A1 {
+}
+
+@MyAnnotation(value = "ghi", name = "myName", count = 123, cls = null)
+public class A3 {
+}
