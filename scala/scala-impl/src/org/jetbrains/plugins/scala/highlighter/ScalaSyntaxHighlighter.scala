@@ -6,7 +6,6 @@ import java.{util => ju}
 import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
-import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, Scal
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-final class ScalaSyntaxHighlighter(scalaLexer: ScalaLexer,
+final class ScalaSyntaxHighlighter(scalaLexer: Lexer,
                                    scalaDocHighlighter: SyntaxHighlighter,
                                    htmlHighlighter: SyntaxHighlighter) extends SyntaxHighlighterBase {
 
@@ -204,7 +203,7 @@ object ScalaSyntaxHighlighter {
     } yield typ -> key
   }
 
-  private class CompoundLexer(scalaLexer: ScalaLexer,
+  private class CompoundLexer(scalaLexer: Lexer,
                               scalaDocLexer: Lexer,
                               htmlLexer: Lexer) extends LayeredLexer(scalaLexer) {
 
@@ -241,25 +240,19 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  private[highlighter] class CustomScalaLexer(isScala3: Boolean)
-                                             (implicit project: Project)
-    extends ScalaLexer(isScala3, project) {
+  private[highlighter] class CustomScalaLexer(delegate: ScalaLexer)
+    extends DelegateLexer(delegate) {
 
-    private var openingTags: ju.Stack[String] = new ju.Stack
-    private var tagMatch: Boolean = false
-    private var isInClosingTag: Boolean = false
-    private var afterStartTagStart: Boolean = false
-    private var nameIndex: Int = 0
+    private var openingTags = new ju.Stack[String]
+    private var tagMatch = false
+    private var isInClosingTag = false
+    private var afterStartTagStart = false
+    private var nameIndex = 0
 
     override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
-      setScalaLexer()
-      myCurrentLexer.start(buffer, startOffset, endOffset, initialState)
-      myBraceStack.clear()
-      myLayeredTagStack.clear()
-      myXmlState = 0
-      myBuffer = buffer
-      myBufferEnd = endOffset
-      myTokenType = null
+      super.start(buffer, startOffset, endOffset, initialState) // TODO is it correct???
+
+      // TODO State class
       openingTags = new ju.Stack[String]
       tagMatch = false
       isInClosingTag = false

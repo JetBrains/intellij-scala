@@ -36,27 +36,27 @@ import java.util.List;
 /**
  * @author ilyas
  */
-public class ScalaLexer extends Lexer {
+public final class ScalaLexer extends Lexer {
+
+  private static final String XML_BEGIN_PATTERN = "<\\w";
+  private static final int MASK = 0x3F;
+  private static final int XML_SHIFT = 6;
 
   private final ScalaPlainLexer myScalaPlainLexer;
   private final ScalaXmlLexer myXmlLexer;
 
-  protected Lexer myCurrentLexer;
+  private Lexer myCurrentLexer;
 
-  protected static final int MASK = 0x3F;
-  protected static final int XML_SHIFT = 6;
-  protected TIntStack myBraceStack = new TIntStack();
-  protected Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<Stack<MyOpenXmlTag>>();
+  private TIntStack myBraceStack = new TIntStack();
+  private Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<>();
 
-  protected int myBufferEnd;
-  protected int myBufferStart;
-  protected CharSequence myBuffer;
-  protected int myXmlState;
+  private int myBufferEnd;
+  private CharSequence myBuffer;
+  private int myXmlState;
   private int myTokenStart;
   private int myTokenEnd;
   private boolean inCdata = false;
-  protected IElementType myTokenType;
-  public final String XML_BEGIN_PATTERN = "<\\w";
+  private IElementType myTokenType;
   private int xmlSteps = -1;
 
   /* We need to store it as in some cases (e.g. when we have uninterrupted xml elements sequence like '<a></a>')
@@ -80,7 +80,7 @@ public class ScalaLexer extends Lexer {
     myCurrentLexer = myScalaPlainLexer;
   }
 
-  protected final void setScalaLexer() {
+  private void setScalaLexer() {
     myCurrentLexer = myScalaPlainLexer;
   }
 
@@ -93,7 +93,6 @@ public class ScalaLexer extends Lexer {
     inCdata = false;
     xmlSteps = -1;
     myBuffer = buffer;
-    myBufferStart = startOffset;
     myBufferEnd = endOffset;
     myTokenType = null;
   }
@@ -392,7 +391,7 @@ public class ScalaLexer extends Lexer {
     }
   }
 
-  protected enum TAG_STATE {
+  private enum TAG_STATE {
     UNDEFINED, EMPTY, NONEMPTY
   }
 
