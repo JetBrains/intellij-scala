@@ -5,23 +5,27 @@ import java.{util => ju}
 
 import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.fileTypes.SyntaxHighlighterBase
+import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
 final class ScalaSyntaxHighlighter(scalaLexer: ScalaLexer,
-                                   scalaDocLexer: ScalaDocLexer,
-                                   htmlLexer: BaseHtmlLexer) extends SyntaxHighlighterBase {
+                                   scalaDocHighlighter: SyntaxHighlighter,
+                                   htmlHighlighter: SyntaxHighlighter) extends SyntaxHighlighterBase {
 
   import ScalaSyntaxHighlighter._
 
   override def getHighlightingLexer: LayeredLexer =
-    new CompoundLexer(scalaLexer, scalaDocLexer, htmlLexer)
+    new CompoundLexer(
+      scalaLexer,
+      scalaDocHighlighter.getHighlightingLexer,
+      htmlHighlighter.getHighlightingLexer
+    )
 
   override def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] =
     SyntaxHighlighterBase.pack(
@@ -201,8 +205,8 @@ object ScalaSyntaxHighlighter {
   }
 
   private class CompoundLexer(scalaLexer: ScalaLexer,
-                              scalaDocLexer: ScalaDocLexer,
-                              htmlLexer: BaseHtmlLexer) extends LayeredLexer(scalaLexer) {
+                              scalaDocLexer: Lexer,
+                              htmlLexer: Lexer) extends LayeredLexer(scalaLexer) {
 
     registerSelfStoppingLayer(
       new StringLiteralLexer('\"', tSTRING),
@@ -320,7 +324,7 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  private class ScalaHtmlHighlightingLexerWrapper(delegate: BaseHtmlLexer) extends DelegateLexer(delegate) {
+  private class ScalaHtmlHighlightingLexerWrapper(delegate: Lexer) extends DelegateLexer(delegate) {
 
     override def getTokenType: IElementType = {
       val htmlTokenType: IElementType = ScalaXmlLexer.ScalaXmlTokenType(super.getTokenType)
@@ -342,7 +346,7 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  private class ScalaDocLexerHighlightingWrapper(delegate: ScalaDocLexer) extends DelegateLexer(delegate) {
+  private class ScalaDocLexerHighlightingWrapper(delegate: Lexer) extends DelegateLexer(delegate) {
 
     import ScalaDocLexerHighlightingWrapper._
 

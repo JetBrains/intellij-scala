@@ -20,7 +20,6 @@ abstract class ScalaParserDefinitionBase extends ParserDefinition {
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case creator: SelfPsiCreator => creator.createElement(node)
-    case elementType: scaladoc.lexer.ScalaDocElementType => scaladoc.psi.ScalaDocPsiCreator.createElement(node, elementType)
     case _ => new ASTWrapperPsiElement(node)
   }
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.parser;
+package org.jetbrains.plugins.scalaDoc.lang.parser;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
  * Date: 22.07.2008
  */
 public class ScalaDocParser implements PsiParser {
+
   @NotNull
-  public ASTNode parse(IElementType root, PsiBuilder builder) {
+  public ASTNode parse(@NotNull IElementType root, @NotNull PsiBuilder builder) {
     PsiBuilder.Marker rootMarker = builder.mark();
     new MyScaladocParsing(builder).parse();
     rootMarker.done(root);

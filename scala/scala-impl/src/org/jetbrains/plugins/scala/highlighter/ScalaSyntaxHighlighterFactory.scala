@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package highlighter
 
 import com.intellij.lang.StdLanguages
-import com.intellij.lexer.BaseHtmlLexer
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage
 
 final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 
+  import SyntaxHighlighterFactory.{getSyntaxHighlighter => findByLanguage}
   import project._
 
   override def getSyntaxHighlighter(project: Project, file: VirtualFile): ScalaSyntaxHighlighter = {
@@ -17,18 +18,10 @@ final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
     else
       false
 
-    val scalaLexer = new ScalaSyntaxHighlighter.CustomScalaLexer(isScala3)(project)
-
-    val scalaDocLexer = ScalaEditorHighlighterProvider
-      .ScalaDocSyntaxHighlighter
-      .INSTANCE
-      .getHighlightingLexer
-
-    val htmlLexer = SyntaxHighlighterFactory
-      .getSyntaxHighlighter(StdLanguages.HTML, project, file)
-      .getHighlightingLexer
-      .asInstanceOf[BaseHtmlLexer]
-
-    new ScalaSyntaxHighlighter(scalaLexer, scalaDocLexer, htmlLexer)
+    new ScalaSyntaxHighlighter(
+      new ScalaSyntaxHighlighter.CustomScalaLexer(isScala3)(project),
+      findByLanguage(ScalaDocLanguage.INSTANCE, project, file),
+      findByLanguage(StdLanguages.HTML, project, file)
+    )
   }
 }
