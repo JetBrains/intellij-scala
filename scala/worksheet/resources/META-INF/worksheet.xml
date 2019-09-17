@@ -9,6 +9,6 @@
         <lang.parserDefinition language="Scala Worksheet"
                                implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.fileViewProviderFactory language="Scala Worksheet"
-                                      implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
+                                      implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
     </extensions>
 </idea-plugin>
