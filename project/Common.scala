@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import org.jetbrains.sbtidea.Keys._
+import org.jetbrains.sbtidea.packaging.PackagingKeys._
 
 import scala.language.implicitConversions
 import scala.language.postfixOps
