@@ -1,15 +1,16 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala
+package annotator
+package gutter
 
 import java.io.File
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.markup.SeparatorPlacement
-import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
-import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
@@ -42,23 +43,21 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
     myFixture.asInstanceOf[JavaCodeInsightTestFixtureImpl].doHighlighting()
 
     val expected = getSeparatorsFrom(input)
-    val actual = getSeparatorsFrom(myFixture.getEditor, myFixture.getProject)
+    val actual = getSeparatorsFrom(getEditor.getDocument).sortWith(_ < _)
     assertEquals(expected.mkString(", "), actual.mkString(", "))
   }
 
-  def getSeparatorsFrom(text: String) = {
-    for{(line, i) <- text.split("\n").zipWithIndex
-      if line.contains(marker)} yield i + 1
-  }
+  def getSeparatorsFrom(text: String) = for {
+    (line, i) <- text.split("\n").zipWithIndex
+    if line.contains(marker)
+  } yield i + 1
 
-  def getSeparatorsFrom(editor: Editor, project: Project) = {
-    val separators =
-      for{
-        each <- DaemonCodeAnalyzerImpl.getLineMarkers(editor.getDocument, project).asScala
-        if each.separatorPlacement == SeparatorPlacement.TOP
-        index = editor.getDocument.getLineNumber(each.getElement.getTextRange.getStartOffset)
-      } yield index + 1
-
-    separators.sortWith(_ < _)
-  }
+  def getSeparatorsFrom(document: Document) = for {
+    each <- DaemonCodeAnalyzerImpl.getLineMarkers(document, getProject).asScala
+    if each.separatorPlacement == SeparatorPlacement.TOP
+    offset = each.getElement
+      .asInstanceOf[PsiElement]
+      .getTextRange
+      .getStartOffset
+  } yield document.getLineNumber(offset) + 1
 }

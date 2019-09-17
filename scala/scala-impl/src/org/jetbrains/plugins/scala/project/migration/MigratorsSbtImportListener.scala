@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.project.migration
+package org.jetbrains.plugins.scala
+package project
+package migration
 
 import com.intellij.openapi.externalSystem.model.task._
 
@@ -11,16 +13,14 @@ class MigratorsSbtImportListener extends ExternalSystemTaskNotificationListenerA
   import MigratorsSbtImportListener._
 
   override def onSuccess(id: ExternalSystemTaskId): Unit =
-    onCodeStoreComponent(id) { component =>
-      component.notifyImportFinished()
+    onCodeStoreComponent(id) {
+      _.notifyImportFinished()
     }
 
-  override def onStart(id: ExternalSystemTaskId): Unit =
-    onCodeStoreComponent(id) { component =>
-      component.onImportAboutToStart()
+  override def onStart(id: ExternalSystemTaskId, workingDir: String): Unit =
+    onCodeStoreComponent(id) {
+      _.onImportAboutToStart()
     }
-
-  override def onQueued(id: ExternalSystemTaskId, workingDir: String): Unit = onStart(id)
 }
 
 object MigratorsSbtImportListener {

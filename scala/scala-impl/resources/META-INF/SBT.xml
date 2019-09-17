@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
-
     <module-components>
         <component>
             <implementation-class>org.jetbrains.sbt.project.module.SbtModule</implementation-class>

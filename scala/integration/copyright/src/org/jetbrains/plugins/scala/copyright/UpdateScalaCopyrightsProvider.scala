@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package copyright
 
+import com.intellij.copyright.UpdateJavaFileCopyright
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -15,8 +16,6 @@ import scala.annotation.tailrec
   * @author Alexander Podkhalyuzin
   */
 final class UpdateScalaCopyrightsProvider extends psi.UpdateCopyrightsProvider {
-
-  import psi.UpdateJavaFileCopyright
 
   def createInstance(project: Project,
                      module: Module,
