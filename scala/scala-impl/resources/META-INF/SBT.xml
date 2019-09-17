@@ -35,7 +35,7 @@
         <applicationInitializedListener implementation="org.jetbrains.sbt.settings.StartupRoutine"/>
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
-                                      implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
+                                      implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
         <fileType name="sbt" language="sbt" extensions="sbt"
                   implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
         <fileType name="sbtShell" language="sbtShell" extensions="sbts"
