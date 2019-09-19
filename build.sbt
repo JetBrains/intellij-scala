@@ -1,7 +1,6 @@
 import Common._
 import Dependencies.sbtStructureExtractor
 import org.jetbrains.sbtidea.Keys._
-import org.jetbrains.sbtidea.tasks.packaging.ShadePattern
 import sbtide.Keys.ideSkipProject
 
 // Global build settings
@@ -103,8 +102,8 @@ lazy val scalaImpl: sbt.Project =
         "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
         "junit"
       ),
-      ideaInternalPluginsJars :=
-        ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
+      ideaPluginJars :=
+        ideaPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
@@ -225,7 +224,7 @@ lazy val androidIntegration =
         "android",
         "smali", // required by Android
         "gradle", // required by Android
-        "groovy", // required by Gradle
+        "Groovy", // required by Gradle
         "properties") // required by Gradle
     )
 
@@ -242,7 +241,7 @@ lazy val gradleIntegration =
     .settings(
       ideaInternalPlugins ++= Seq(
         "gradle",
-        "groovy",     // required by Gradle
+        "Groovy",     // required by Gradle
         "properties") // required by Gradle
     )
 

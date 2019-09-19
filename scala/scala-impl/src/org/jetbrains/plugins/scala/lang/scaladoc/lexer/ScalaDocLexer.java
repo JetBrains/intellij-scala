@@ -5,19 +5,22 @@ import com.intellij.lexer.MergingLexerAdapter;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.util.text.CharArrayUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+
+import static org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType.*;
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.07.2008
  */
-
-public class ScalaDocLexer extends MergingLexerAdapter {
+public final class ScalaDocLexer extends MergingLexerAdapter {
+  
   private static final TokenSet TOKENS_TO_MERGE = TokenSet.create(
-    ScalaDocTokenType.DOC_COMMENT_DATA,
-    ScalaDocTokenType.DOC_WHITESPACE,
-    ScalaDocTokenType.DOC_INNER_CODE
+          DOC_COMMENT_DATA,
+          DOC_WHITESPACE,
+          DOC_INNER_CODE
   );
 
   public ScalaDocLexer() {
@@ -39,21 +42,17 @@ public class ScalaDocLexer extends MergingLexerAdapter {
     private boolean needCorrectAfterItalic;
     private boolean hasPreviousBold;
 
-    public AsteriskStripperLexer(final _ScalaDocLexer flex) {
+    AsteriskStripperLexer(final _ScalaDocLexer flex) {
       myFlex = flex;
     }
 
-    public final void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+    public final void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
       myBuffer = buffer;
       myBufferIndex =  startOffset;
       myBufferEndOffset = endOffset;
       myTokenType = null;
       myTokenEndOffset = startOffset;
       myFlex.reset(myBuffer, startOffset, endOffset, initialState);
-    }
-
-    public final void start(char[] buffer, int startOffset, int endOffset, int initialState) {
-      start(new String(buffer), startOffset, endOffset);
     }
 
     public int getState() {
@@ -64,6 +63,7 @@ public class ScalaDocLexer extends MergingLexerAdapter {
       return CharArrayUtil.fromSequence(myBuffer);
     }
 
+    @NotNull
     public CharSequence getBufferSequence() {
       return myBuffer;
     }
@@ -92,11 +92,11 @@ public class ScalaDocLexer extends MergingLexerAdapter {
       myTokenType = null;
     }
 
-    protected final void locateToken() {
+    final void locateToken() {
       if (myTokenType != null) return;
       _locateToken();
 
-      if (myTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+      if (myTokenType == DOC_WHITESPACE) {
         myAfterLineBreak = CharArrayUtil.containLineBreaks(myBuffer, getTokenStart(), getTokenEnd());
       }
     }
@@ -118,7 +118,7 @@ public class ScalaDocLexer extends MergingLexerAdapter {
         if (myTokenEndOffset < myBufferEndOffset && myBuffer.charAt(myTokenEndOffset) == '*'
             && (myTokenEndOffset + 1 >= myBufferEndOffset || myBuffer.charAt(myTokenEndOffset + 1) != '/')) {
           myTokenEndOffset++;
-          myTokenType = ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS;
+          myTokenType = DOC_COMMENT_LEADING_ASTERISKS;
           return;
         }
       }
@@ -144,11 +144,11 @@ public class ScalaDocLexer extends MergingLexerAdapter {
           myTokenType = lf || state == _ScalaDocLexer.PARAM_TAG_SPACE || state == _ScalaDocLexer.TAG_DOC_SPACE || 
               state == _ScalaDocLexer.INLINE_TAG_NAME || state == _ScalaDocLexer.DOC_TAG_VALUE_IN_PAREN ||
               hasWhitespacesOnly(myBuffer, myBufferIndex, myTokenEndOffset - 1)
-                        ? ScalaDocTokenType.DOC_WHITESPACE
-                        : ScalaDocTokenType.DOC_COMMENT_DATA;
+                  ? DOC_WHITESPACE
+                  : DOC_COMMENT_DATA;
 
           if (!lf && state == _ScalaDocLexer.COMMENT_INNER_CODE) {
-            myTokenType = ScalaDocTokenType.DOC_INNER_CODE;
+            myTokenType = DOC_INNER_CODE;
           }
 
           return;
@@ -161,7 +161,7 @@ public class ScalaDocLexer extends MergingLexerAdapter {
     private void flexLocateToken() {
       try {
         if (needItalic) {
-          myTokenType = ScalaDocTokenType.DOC_ITALIC_TAG;
+          myTokenType = DOC_ITALIC_TAG;
           --myBufferIndex;
           myTokenEndOffset = myBufferIndex + 2;
           needItalic = false;
@@ -177,15 +177,15 @@ public class ScalaDocLexer extends MergingLexerAdapter {
         myTokenType = myFlex.advance();
         myTokenEndOffset = myFlex.getTokenEnd();
 
-        if (myTokenType == ScalaDocTokenType.DOC_BOLD_TAG && myTokenEndOffset < myBufferEndOffset - 1
+        if (myTokenType == DOC_BOLD_TAG && myTokenEndOffset < myBufferEndOffset - 1
             && myBuffer.charAt(myTokenEndOffset) == '\'' && myBuffer.charAt(myTokenEndOffset + 1) != '\'') {
           needItalic = true;
-          myTokenType = ScalaDocTokenType.DOC_ITALIC_TAG;
+          myTokenType = DOC_ITALIC_TAG;
           --myTokenEndOffset;
         }
-        if (myTokenType == ScalaDocTokenType.DOC_BOLD_TAG) {
+        if (myTokenType == DOC_BOLD_TAG) {
           hasPreviousBold = true;
-        } else if (myTokenType == ScalaDocTokenType.DOC_ITALIC_TAG && hasPreviousBold) {
+        } else if (myTokenType == DOC_ITALIC_TAG && hasPreviousBold) {
           hasPreviousBold = false;
 
         }

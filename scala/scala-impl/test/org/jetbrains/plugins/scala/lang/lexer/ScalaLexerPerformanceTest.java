@@ -1,30 +1,31 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.testFramework.PlatformTestUtil;
-import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-public class LexerPerformanceTest extends LexerTestBase {
+public class ScalaLexerPerformanceTest extends ScalaLexerTestBase {
 
-    protected LexerPerformanceTest() {
-        super(TestUtils.getTestDataPath() + "/lexer/performance");
+    public ScalaLexerPerformanceTest() {
+        super("/lexer/performance");
     }
 
     @NotNull
     @Override
-    public String transform(@NotNull String testName, @NotNull String[] data) {
+    protected String transform(@NotNull String testName,
+                               @NotNull String fileText,
+                               @NotNull Project project) {
         String[] result = new String[1];
 
         PlatformTestUtil.assertTiming(
                 "Lexer performance test",
                 1000,
-                () -> result[0] = LexerPerformanceTest.super.transform(testName, data)
+                () -> result[0] = ScalaLexerPerformanceTest.super.transform(testName, fileText, project)
         );
 
         return result[0];
@@ -37,7 +38,7 @@ public class LexerPerformanceTest extends LexerTestBase {
     }
 
     @NotNull
-    public static Test suite() {
-        return new LexerPerformanceTest();
+    public static ScalaLexerPerformanceTest suite() {
+        return new ScalaLexerPerformanceTest();
     }
 }

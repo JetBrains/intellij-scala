@@ -4,6 +4,7 @@ import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.openapi.project.Project;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -20,20 +21,20 @@ public class EnterActionTest extends AbstractEnterActionTestBase {
   }
 
   @Override
-  public void setUp(Project project) {
+  protected void setUp(@NotNull Project project) {
     super.setUp(project);
 
     CodeInsightSettings.getInstance().JAVADOC_STUB_ON_ENTER = false; //No, we don't need it.
   }
 
   @Override
-  protected void setSettings() {
-    super.setSettings();
-    getScalaSettings().USE_SCALADOC2_FORMATTING = true;
+  protected void setSettings(@NotNull Project project) {
+    super.setSettings(project);
+    getScalaSettings(project).USE_SCALADOC2_FORMATTING = true;
   }
 
   @Override
-  public void tearDown(Project project) {
+  public void tearDown(@NotNull Project project) {
     CodeInsightSettings.getInstance().JAVADOC_STUB_ON_ENTER = true;
 
     super.tearDown(project);

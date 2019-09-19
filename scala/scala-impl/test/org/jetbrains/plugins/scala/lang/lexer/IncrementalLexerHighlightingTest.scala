@@ -38,7 +38,7 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
     }
     val actualSegments = segments()
 
-    myFixture.configureByText(myFileType, myFixture.getFile.getText)
+    myFixture.configureByText(fileType, myFixture.getFile.getText)
     val expectedSegments = segments()
 
     assertEquals(actualSegments.getSegmentCount, expectedSegments.getSegmentCount)

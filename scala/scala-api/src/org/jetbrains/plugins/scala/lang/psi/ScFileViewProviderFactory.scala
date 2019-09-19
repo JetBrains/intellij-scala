@@ -10,5 +10,5 @@ final class ScFileViewProviderFactory extends FileViewProviderFactory {
 
   override def createFileViewProvider(file: VirtualFile, language: Language,
                                       manager: PsiManager, eventSystemEnabled: Boolean) =
-    new ScFileViewProvider(file, eventSystemEnabled)(manager, language)
+    new ScFileViewProvider(manager, file, eventSystemEnabled, language)
 }

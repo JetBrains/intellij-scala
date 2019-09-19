@@ -4,7 +4,6 @@ package introduceVariable
 
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
@@ -13,7 +12,7 @@ import org.junit.runners.AllTests
   * 25-Sep-17
   */
 @RunWith(classOf[AllTests])
-class IntroduceVariableTest extends AbstractIntroduceVariableTestBase(TestUtils.getTestDataPath + IntroduceVariableTest.DATA_PATH)
+class IntroduceVariableTest extends AbstractIntroduceVariableTestBase(IntroduceVariableTest.DATA_PATH)
   with ScalaSdkOwner {
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader())

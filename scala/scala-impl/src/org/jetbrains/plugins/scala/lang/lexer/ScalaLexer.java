@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.lang.lexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LexerState;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import com.intellij.psi.xml.XmlTokenType;
@@ -26,6 +27,7 @@ import com.intellij.util.text.CharArrayUtil;
 import gnu.trove.TIntStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -34,27 +36,27 @@ import java.util.List;
 /**
  * @author ilyas
  */
-public class ScalaLexer extends Lexer {
+public final class ScalaLexer extends Lexer {
+
+  private static final String XML_BEGIN_PATTERN = "<\\w";
+  private static final int MASK = 0x3F;
+  private static final int XML_SHIFT = 6;
 
   private final ScalaPlainLexer myScalaPlainLexer;
   private final ScalaXmlLexer myXmlLexer;
 
-  protected Lexer myCurrentLexer;
+  private Lexer myCurrentLexer;
 
-  protected static final int MASK = 0x3F;
-  protected static final int XML_SHIFT = 6;
-  protected TIntStack myBraceStack = new TIntStack();
-  protected Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<Stack<MyOpenXmlTag>>();
+  private TIntStack myBraceStack = new TIntStack();
+  private Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<>();
 
-  protected int myBufferEnd;
-  protected int myBufferStart;
-  protected CharSequence myBuffer;
-  protected int myXmlState;
+  private int myBufferEnd;
+  private CharSequence myBuffer;
+  private int myXmlState;
   private int myTokenStart;
   private int myTokenEnd;
   private boolean inCdata = false;
-  protected IElementType myTokenType;
-  public final String XML_BEGIN_PATTERN = "<\\w";
+  private IElementType myTokenType;
   private int xmlSteps = -1;
 
   /* We need to store it as in some cases (e.g. when we have uninterrupted xml elements sequence like '<a></a>')
@@ -65,16 +67,20 @@ public class ScalaLexer extends Lexer {
   private IElementType previousToken = null;
 
   public ScalaLexer() {
-    this(false);
+    this(false, null);
   }
 
-  public ScalaLexer(boolean treatDocCommentAsBlockComment) {
-    myScalaPlainLexer = new ScalaPlainLexer(treatDocCommentAsBlockComment);
+  public ScalaLexer(boolean isScala3,
+                    @Nullable Project project) {
+    myScalaPlainLexer = new ScalaPlainLexer(
+            isScala3,
+            project != null && ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment()
+    );
     myXmlLexer = new ScalaXmlLexer();
     myCurrentLexer = myScalaPlainLexer;
   }
 
-  protected final void setScalaLexer() {
+  private void setScalaLexer() {
     myCurrentLexer = myScalaPlainLexer;
   }
 
@@ -87,7 +93,6 @@ public class ScalaLexer extends Lexer {
     inCdata = false;
     xmlSteps = -1;
     myBuffer = buffer;
-    myBufferStart = startOffset;
     myBufferEnd = endOffset;
     myTokenType = null;
   }
@@ -386,7 +391,7 @@ public class ScalaLexer extends Lexer {
     }
   }
 
-  protected enum TAG_STATE {
+  private enum TAG_STATE {
     UNDEFINED, EMPTY, NONEMPTY
   }
 

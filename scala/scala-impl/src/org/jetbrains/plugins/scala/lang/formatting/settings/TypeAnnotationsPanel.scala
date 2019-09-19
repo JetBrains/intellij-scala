@@ -6,21 +6,20 @@ package settings
 import java.util
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.execution.ParametersListUtil
 import javax.swing._
 import org.jetbrains.plugins.scala.extensions.Binding
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter
-import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanel._
 
 /**
   * @author Pavel Fatin
   */
-class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsPanelBase(settings) {
+final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsPanelBase(settings) {
+
+  import TypeAnnotationsPanel._
+
   private def bindingsFor(settings: CodeStyleSettings): Seq[Binding[_]] = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
@@ -87,16 +86,6 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
     )
   }
 
-  override protected def getTabTitle: String = TypeAnnotationsPanel.Title
-
-  override protected def getRightMargin: Int = 0
-
-  override protected def createHighlighter(scheme: EditorColorsScheme) = new ScalaEditorHighlighter(scheme)
-
-  override protected def getFileType: FileType = ScalaFileType.INSTANCE
-
-  override protected def getPreviewText: String = null
-
   override protected def getPanel: JComponent = myContent
 
   override protected def isModified(settings: CodeStyleSettings): Boolean =
@@ -120,6 +109,4 @@ object TypeAnnotationsPanel {
 
   private def setElementsIn(field: TextFieldWithBrowseButton, elements: util.Set[String]): Unit =
     field.setText(ParametersListUtil.COLON_LINE_JOINER.fun(new util.ArrayList(elements)))
-
-  val Title = "Type Annotations"
 }

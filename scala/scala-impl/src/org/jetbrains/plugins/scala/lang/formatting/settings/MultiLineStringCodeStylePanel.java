@@ -1,18 +1,11 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.application.options.CodeStyleAbstractPanel;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +20,8 @@ import java.util.ResourceBundle;
  * Date: 4/23/12
  */
 @SuppressWarnings(value = "unchecked")
-public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
+public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase {
+
     private JPanel panel1;
     private JCheckBox openingQuotesOnNewCheckBox;
     private JCheckBox closingQuotesOnNewLine;
@@ -37,8 +31,9 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     private JSpinner marginIndentSpinner;
     private JCheckBox alignDanglingClosingQuotes;
 
-    protected MultiLineStringCodeStylePanel(CodeStyleSettings settings) {
-        super(settings);
+    protected MultiLineStringCodeStylePanel(@NotNull CodeStyleSettings settings) {
+        super(settings, ScalaBundle.message("multi.line.string.settings.panel"));
+
         ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
         marginIndentSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
         setSettings(scalaSettings);
@@ -64,37 +59,6 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
                 processMarginCheckBox.setEnabled(false);
             }
         });
-    }
-
-    @Override
-    protected int getRightMargin() {
-        return 0;
-    }
-
-    @Override
-    protected String getTabTitle() {
-        return ScalaBundle.message("multi.line.string.settings.panel");
-    }
-
-    @Override
-    protected void prepareForReformat(PsiFile psiFile) {
-    }
-
-    @NotNull
-    @Override
-    protected EditorHighlighter createHighlighter(@NotNull EditorColorsScheme scheme) {
-        return new ScalaEditorHighlighter(scheme);
-    }
-
-    @NotNull
-    @Override
-    protected FileType getFileType() {
-        return ScalaFileType.INSTANCE;
-    }
-
-    @Override
-    protected String getPreviewText() {
-        return null;
     }
 
     @Override

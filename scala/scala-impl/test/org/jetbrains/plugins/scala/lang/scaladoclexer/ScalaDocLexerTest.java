@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.scaladoclexer;
 
+import com.intellij.lang.Language;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.LexerTestBase;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
-import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -12,13 +12,13 @@ import org.junit.runners.AllTests;
 public class ScalaDocLexerTest extends LexerTestBase {
 
     public ScalaDocLexerTest() {
-        super(TestUtils.getTestDataPath() + "/lexer/scalaDocData");
+        super("/lexer/scalaDocData");
     }
 
     @NotNull
     @Override
-    protected ScalaDocLexer createLexer() {
-        return new ScalaDocLexer();
+    protected Language getLanguage() {
+        return ScalaDocLanguage.INSTANCE;
     }
 
     @Override

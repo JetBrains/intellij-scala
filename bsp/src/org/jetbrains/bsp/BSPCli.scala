@@ -34,8 +34,6 @@ import scala.language.postfixOps
 object BSPCli extends App {
 
   class DummyListener extends ExternalSystemTaskNotificationListener {
-    override def onQueued(externalSystemTaskId: ExternalSystemTaskId, s: String): Unit = {}
-
     override def onStart(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
 
     override def onStatusChange(externalSystemTaskNotificationEvent: ExternalSystemTaskNotificationEvent): Unit = {}

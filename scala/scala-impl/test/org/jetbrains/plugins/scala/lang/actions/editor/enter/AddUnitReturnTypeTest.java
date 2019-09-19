@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -17,12 +19,10 @@ public class AddUnitReturnTypeTest extends AbstractEnterActionTestBase {
   }
 
   @Override
-  protected void setSettings() {
-    super.setSettings();
+  protected void setSettings(@NotNull Project project) {
+    super.setSettings(project);
 
-    final CommonCodeStyleSettings settings = getCommonSettings();
-    final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
-    scalaSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
+    getScalaSettings(project).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
   }
 
   public static Test suite() {

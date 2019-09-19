@@ -15,9 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -25,19 +23,14 @@ import org.junit.runners.AllTests;
  * @author ilyas
  */
 @RunWith(AllTests.class)
-public class LexerTest extends LexerTestBase {
+public class ScalaLexerTest extends ScalaLexerTestBase {
 
-  public LexerTest() {
-    super(TestUtils.getTestDataPath() + "/lexer/data");
-  }
-
-  @Override
-  protected void printTokenRange(int tokenStart, int tokenEnd,
-                                 @NotNull StringBuilder builder) {
+  public ScalaLexerTest() {
+    super("/lexer/data");
   }
 
   @NotNull
-  public static Test suite() {
-    return new LexerTest();
+  public static ScalaLexerTest suite() {
+    return new ScalaLexerTest();
   }
 }

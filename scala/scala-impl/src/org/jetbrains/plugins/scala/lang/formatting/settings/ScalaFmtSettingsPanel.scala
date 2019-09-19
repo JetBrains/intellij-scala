@@ -1,23 +1,23 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package settings
 
 import java.awt._
 import java.awt.event.{FocusEvent, FocusListener}
 import java.io.File
 import java.util.Collections.emptyList
 
-import com.intellij.application.options.CodeStyleAbstractPanel
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter
-import com.intellij.openapi.editor.highlighter.EditorHighlighter
 import com.intellij.openapi.editor.{EditorFactory, EditorSettings}
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileTypes.{FileType, SyntaxHighlighterFactory}
+import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui._
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
@@ -29,7 +29,6 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
@@ -37,20 +36,11 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
 
-class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
+final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
+
   private val Log = Logger.getInstance(getClass)
 
   override val getEditor: EditorEx = createConfigEditor
-
-  override def getRightMargin = 0
-
-  protected override def getTabTitle: String = "Scalafmt"
-
-  override def createHighlighter(editorColorsScheme: EditorColorsScheme): EditorHighlighter = null
-
-  override def getFileType: FileType = ScalaFileType.INSTANCE
-
-  override def getPreviewText: String = null
 
   override def dispose(): Unit = {
     super.dispose()

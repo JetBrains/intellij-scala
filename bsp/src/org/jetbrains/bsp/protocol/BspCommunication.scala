@@ -170,11 +170,11 @@ object BspCommunication {
     val vfm = VirtualFileManager.getInstance()
 
     val compilerOutputDirFromConfig = for {
-      projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is redered with :// separator which findFileByUrl needs
+      projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is rendered with :// separator which findFileByUrl needs
       project <- Option(ProjectUtil.guessProjectForFile(projectDir))
       cpe = CompilerProjectExtension.getInstance(project)
-      output <- Option(cpe.getCompilerOutputUrl)
-    } yield new File(new URI(output))
+      output <- Option(cpe.getCompilerOutput)
+    } yield new File(output.getCanonicalPath)
 
     val compilerOutputDir = compilerOutputDirFromConfig
       .getOrElse(new File(base, "out"))

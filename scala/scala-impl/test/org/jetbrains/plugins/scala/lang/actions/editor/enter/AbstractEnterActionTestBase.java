@@ -3,22 +3,22 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase;
 
 abstract public class AbstractEnterActionTestBase extends AbstractActionTestBase {
-  public AbstractEnterActionTestBase(String dataPath) {
+
+  public AbstractEnterActionTestBase(@NotNull @NonNls String dataPath) {
     super(dataPath);
   }
 
   @Override
-  protected void setSettings() {
-    super.setSettings();
-    CommonCodeStyleSettings.IndentOptions indentOptions = getCommonSettings().getIndentOptions();
-    indentOptions.INDENT_SIZE = 2;
-    indentOptions.CONTINUATION_INDENT_SIZE = 2;
-    indentOptions.TAB_SIZE = 2;
-    getCommonSettings().INDENT_CASE_FROM_SWITCH = true;
+  protected void setSettings(@NotNull Project project) {
+    super.setSettings(project);
+
+    getCommonSettings(project).INDENT_CASE_FROM_SWITCH = true;
   }
 
   protected EditorActionHandler getMyHandler() {

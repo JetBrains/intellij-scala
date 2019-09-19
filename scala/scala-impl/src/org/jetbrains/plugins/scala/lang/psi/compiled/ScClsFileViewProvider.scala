@@ -6,25 +6,30 @@ package compiled
 import java.{util => ju}
 
 import com.intellij.lang.Language
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{OrderEntry, OrderRootType, ProjectRootManager, impl => rootsImpl}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFileSystemItem, PsiManager, search}
+import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFileSystemItem, PsiManager, SingleRootFileViewProvider, search}
 import com.intellij.util.Processor
 
 import scala.annotation.tailrec
 
-final class ScClsFileViewProvider(file: VirtualFile, decompilationResult: ScalaDecompilationResult, eventSystemEnabled: Boolean)
-                                 (manager: PsiManager, language: Language)
-  extends ScFileViewProvider(file, eventSystemEnabled)(manager, language) {
+final class ScClsFileViewProvider(decompilationResult: ScalaDecompilationResult)
+                                 (manager: PsiManager, file: VirtualFile, eventSystemEnabled: Boolean, language: Language)
+  extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, language) {
 
   private def sourceName: String = decompilationResult.sourceName
 
   override def getContents: String = decompilationResult.sourceText
 
-  override def createFile(language: Language) = new ScClsFileViewProvider.ScClsFileImpl(this)
+  override def createFile(project: Project,
+                          file: VirtualFile,
+                          fileType: FileType) =
+    new ScClsFileViewProvider.ScClsFileImpl(this)
 
-  override def createCopy(file: VirtualFile): ScClsFileViewProvider =
-    new ScClsFileViewProvider(file, decompilationResult, eventSystemEnabled = false)(getManager, getBaseLanguage)
+  override def createCopy(file: VirtualFile) =
+    new ScClsFileViewProvider(decompilationResult)(getManager, file, eventSystemEnabled = false, getBaseLanguage)
 }
 
 object ScClsFileViewProvider {

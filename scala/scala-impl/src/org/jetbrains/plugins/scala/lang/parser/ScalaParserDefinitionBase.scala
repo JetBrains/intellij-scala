@@ -3,32 +3,23 @@ package lang
 package parser
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
-import com.intellij.lang.{ASTNode, Language, ParserDefinition}
+import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 //noinspection TypeAnnotation
-abstract class ScalaParserDefinitionBase private(override val getFileNodeType: ScStubFileElementType)
-  extends ParserDefinition {
+abstract class ScalaParserDefinitionBase extends ParserDefinition {
 
-  protected def this(externalId: String, language: Language) =
-    this(new ScStubFileElementType(externalId, language))
-
-  override def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
-    new lexer.ScalaLexer(treatDocCommentAsBlockComment)
-  }
+  override def createLexer(project: Project) =
+    new lexer.ScalaLexer(false, project)
 
   override def createParser(project: Project) = new ScalaParser
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case creator: SelfPsiCreator => creator.createElement(node)
-    case elementType: scaladoc.lexer.ScalaDocElementType => scaladoc.psi.ScalaDocPsiCreator.createElement(node, elementType)
     case _ => new ASTWrapperPsiElement(node)
   }
 

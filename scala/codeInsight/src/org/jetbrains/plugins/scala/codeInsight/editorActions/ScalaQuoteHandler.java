@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.plugins.scala.lang.editor;
+package org.jetbrains.plugins.scala.codeInsight.editorActions;
 
 import com.intellij.codeInsight.editorActions.JavaLikeQuoteHandler;
 import com.intellij.openapi.editor.Editor;
@@ -22,9 +22,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
+
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
 /**
  * @author ilyas
@@ -34,23 +35,19 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
   public boolean isClosingQuote(HighlighterIterator iterator, int offset) {
     final IElementType tokenType = iterator.getTokenType();
 
-    if (tokenType == ScalaTokenTypes.tSTRING || tokenType == ScalaTokenTypes.tCHAR ||
-        tokenType == ScalaTokenTypes.tINTERPOLATED_STRING_END) {
-      int start = iterator.getStart();
-      int end = iterator.getEnd();
-      return end - start >= 1 && offset == end - 1;
-    }
-    return false;
+    return (tokenType == tSTRING ||
+            tokenType == tCHAR ||
+            tokenType == tINTERPOLATED_STRING_END) &&
+            offset - iterator.getStart() >= 0 &&
+            offset == iterator.getEnd() - 1;
   }
 
   public boolean isOpeningQuote(HighlighterIterator iterator, int offset) {
     final IElementType tokenType = iterator.getTokenType();
 
-    if (tokenType == ScalaTokenTypes.tWRONG_STRING || tokenType == ScalaTokenTypes.tINTERPOLATED_STRING) {
-      int start = iterator.getStart();
-      return offset == start;
-    }
-    return false;
+    return (tokenType == tWRONG_STRING ||
+            tokenType == tINTERPOLATED_STRING) &&
+            offset == iterator.getStart();
   }
 
   public boolean hasNonClosedLiteral(Editor editor, HighlighterIterator iterator, int offset) {
@@ -59,14 +56,16 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
 
   public boolean isInsideLiteral(HighlighterIterator iterator) {
     final IElementType tokenType = iterator.getTokenType();
-    return tokenType == ScalaTokenTypes.tSTRING ||
-        tokenType == ScalaTokenTypes.tCHAR ||
-        tokenType == ScalaTokenTypes.tMULTILINE_STRING ||
-        tokenType == ScalaTokenTypes.tINTERPOLATED_STRING;
+
+    return tokenType == tSTRING ||
+        tokenType == tCHAR ||
+        tokenType == tMULTILINE_STRING ||
+        tokenType == tINTERPOLATED_STRING;
   }
 
+  @NotNull
   public TokenSet getConcatenatableStringTokenTypes() {
-    return TokenSet.create(ScalaTokenTypes.tSTRING);
+    return TokenSet.create(tSTRING);
   }
 
   public String getStringConcatenationOperatorRepresentation() {
@@ -74,22 +73,24 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
   }
 
   public TokenSet getStringTokenTypes() {
-    return TokenSet.create(ScalaTokenTypes.tSTRING, ScalaTokenTypes.tINTERPOLATED_STRING);
+    return TokenSet.create(tSTRING, tINTERPOLATED_STRING);
   }
 
   public boolean isAppropriateElementTypeForLiteral(@NotNull IElementType tokenType) {
-    return tokenType == ScalaTokenTypes.tSEMICOLON
-        || tokenType == ScalaTokenTypes.tCOMMA
-        || tokenType == ScalaTokenTypes.tRPARENTHESIS
-        || tokenType == ScalaTokenTypes.tRSQBRACKET
-        || tokenType == ScalaTokenTypes.tRBRACE
-        || tokenType == ScalaTokenTypes.tSTRING
-        || tokenType == ScalaTokenTypes.tCHAR
-        || ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(tokenType)
-        || ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(tokenType);
+    return tokenType == tSEMICOLON
+        || tokenType == tCOMMA
+        || tokenType == tRPARENTHESIS
+        || tokenType == tRSQBRACKET
+        || tokenType == tRBRACE
+        || tokenType == tSTRING
+        || tokenType == tCHAR
+        || COMMENTS_TOKEN_SET.contains(tokenType)
+        || WHITES_SPACES_TOKEN_SET.contains(tokenType);
   }
 
   public boolean needParenthesesAroundConcatenation(PsiElement element) {
-    return element.getParent() instanceof ScLiteral && element.getParent().getParent() instanceof ScReferenceExpression;
+    PsiElement parent = element.getParent();
+    return parent instanceof ScLiteral &&
+            parent.getParent() instanceof ScReferenceExpression;
   }
 }

@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.application.options.CodeStyleAbstractPanel;
 import com.intellij.application.options.codeStyle.CommenterForm;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -12,9 +8,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +17,8 @@ import java.awt.*;
  * User: Dmitry.Naydanov
  * Date: 09.07.14.
  */
-public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
+public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
+
   private JCheckBox enforceFunctionalSyntaxForCheckBox;
   private JPanel contentPanel;
   private JCheckBox replaceWithUnicodeSymbolCheckBox;
@@ -51,34 +46,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   public void dispose() {
     super.dispose();
     Disposer.dispose(trailingCommaPanel);
-  }
-
-  @Override
-  protected String getTabTitle() {
-    return "Other";
-  }
-
-  @Override
-  protected int getRightMargin() {
-    return 0;
-  }
-
-  @NotNull
-  @Override
-  protected EditorHighlighter createHighlighter(@NotNull EditorColorsScheme scheme) {
-    return new ScalaEditorHighlighter(scheme);
-  }
-
-  @NotNull
-  @Override
-  protected FileType getFileType() {
-    return ScalaFileType.INSTANCE;
-  }
-
-  @Nullable
-  @Override
-  protected String getPreviewText() {
-    return null;
   }
 
   @Override

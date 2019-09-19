@@ -68,8 +68,6 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     });
   }
 
-  private static final String BASE_PATH = TestUtils.getTestDataPath() + "/psi/formatter";
-
   public List<TextRange> myTextRanges = new LinkedList<TextRange>();
 
   public CommonCodeStyleSettings getCommonSettings() {
@@ -176,7 +174,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   private static String loadFile(String name) throws Exception {
-    String fullName = BASE_PATH + File.separatorChar + name;
+    String fullName = (TestUtils.getTestDataPath() + "/psi/formatter") + File.separatorChar + name;
     String text = new String(FileUtil.loadFileText(new File(fullName)));
     text = StringUtil.convertLineSeparators(text);
     return text;

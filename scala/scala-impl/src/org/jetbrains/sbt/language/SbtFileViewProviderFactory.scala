@@ -11,6 +11,5 @@ final class SbtFileViewProviderFactory extends FileViewProviderFactory {
                                       language: Language,
                                       manager: PsiManager,
                                       eventSystemEnabled: Boolean): SingleRootFileViewProvider =
-    new SingleRootFileViewProvider(manager, file, eventSystemEnabled, SbtFileType) {}
+    new SingleRootFileViewProvider(manager, file, eventSystemEnabled, language) {}
 }
-

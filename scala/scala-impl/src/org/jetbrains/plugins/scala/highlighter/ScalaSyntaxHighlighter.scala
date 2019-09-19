@@ -3,22 +3,28 @@ package highlighter
 
 import java.{util => ju}
 
-import com.intellij.lexer.{HtmlHighlightingLexer, LayeredLexer, Lexer, StringLiteralLexer}
+import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.fileTypes.{FileTypeManager, SyntaxHighlighterBase}
+import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-final class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
+final class ScalaSyntaxHighlighter(scalaLexer: Lexer,
+                                   scalaDocHighlighter: SyntaxHighlighter,
+                                   htmlHighlighter: SyntaxHighlighter) extends SyntaxHighlighterBase {
 
   import ScalaSyntaxHighlighter._
 
   override def getHighlightingLexer: LayeredLexer =
-    new CompoundLexer(new CustomScalaLexer)
+    new CompoundLexer(
+      scalaLexer,
+      scalaDocHighlighter.getHighlightingLexer,
+      htmlHighlighter.getHighlightingLexer
+    )
 
   override def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] =
     SyntaxHighlighterBase.pack(
@@ -29,9 +35,10 @@ final class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
 object ScalaSyntaxHighlighter {
 
+  import ScalaDocElementTypes.SCALA_DOC_COMMENT
+  import ScalaDocTokenType._
   import ScalaTokenTypes._
   import ScalaXmlTokenTypes._
-  import ScalaDocTokenType._
 
   // Comments
   private val tLINE_COMMENTS = TokenSet.create(tLINE_COMMENT)
@@ -153,7 +160,7 @@ object ScalaSyntaxHighlighter {
     attributesMap(
       tLINE_COMMENTS -> LINE_COMMENT,
       tBLOCK_COMMENTS -> BLOCK_COMMENT,
-      TokenSet.create(ScalaDocElementTypes.SCALA_DOC_COMMENT) -> DOC_COMMENT,
+      TokenSet.create(SCALA_DOC_COMMENT) -> DOC_COMMENT,
       KEYWORDS -> KEYWORD,
       NUMBER_TOKEN_SET -> NUMBER,
       tVALID_STRING_ESCAPE -> VALID_STRING_ESCAPE,
@@ -196,17 +203,19 @@ object ScalaSyntaxHighlighter {
     } yield typ -> key
   }
 
-  private class CompoundLexer(baseLexer: Lexer) extends LayeredLexer(baseLexer) {
+  private class CompoundLexer(scalaLexer: Lexer,
+                              scalaDocLexer: Lexer,
+                              htmlLexer: Lexer) extends LayeredLexer(scalaLexer) {
 
     registerSelfStoppingLayer(
       new StringLiteralLexer('\"', tSTRING),
-      Array[IElementType](tSTRING),
+      Array(tSTRING),
       IElementType.EMPTY_ARRAY
     )
 
     registerSelfStoppingLayer(
       new StringLiteralLexer('\'', tSTRING),
-      Array[IElementType](tCHAR),
+      Array(tCHAR),
       IElementType.EMPTY_ARRAY
     )
 
@@ -216,36 +225,34 @@ object ScalaSyntaxHighlighter {
       tINTERPOLATED_STRING
     )
 
-    //scaladoc highlighting
-    val scalaDocLexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper)
-    scalaDocLexer.registerLayer(
-      new ScalaHtmlHighlightingLexerWrapper,
-      DOC_COMMENT_DATA
-    )
-    registerSelfStoppingLayer(
-      scalaDocLexer,
-      Array[IElementType](ScalaDocElementTypes.SCALA_DOC_COMMENT),
-      IElementType.EMPTY_ARRAY
-    )
+    {
+      //scalaDoc highlighting
+      val scalaDocLayer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper(scalaDocLexer))
+      scalaDocLayer.registerLayer(
+        new ScalaHtmlHighlightingLexerWrapper(htmlLexer),
+        DOC_COMMENT_DATA
+      )
+      registerSelfStoppingLayer(
+        scalaDocLayer,
+        Array[IElementType](SCALA_DOC_COMMENT),
+        IElementType.EMPTY_ARRAY
+      )
+    }
   }
 
-  private class CustomScalaLexer extends ScalaLexer {
+  private[highlighter] class CustomScalaLexer(delegate: ScalaLexer)
+    extends DelegateLexer(delegate) {
 
-    private var openingTags: ju.Stack[String] = new ju.Stack
-    private var tagMatch: Boolean = false
-    private var isInClosingTag: Boolean = false
-    private var afterStartTagStart: Boolean = false
-    private var nameIndex: Int = 0
+    private var openingTags = new ju.Stack[String]
+    private var tagMatch = false
+    private var isInClosingTag = false
+    private var afterStartTagStart = false
+    private var nameIndex = 0
 
     override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
-      setScalaLexer()
-      myCurrentLexer.start(buffer, startOffset, endOffset, initialState)
-      myBraceStack.clear()
-      myLayeredTagStack.clear()
-      myXmlState = 0
-      myBuffer = buffer
-      myBufferEnd = endOffset
-      myTokenType = null
+      super.start(buffer, startOffset, endOffset, initialState) // TODO is it correct???
+
+      // TODO State class
       openingTags = new ju.Stack[String]
       tagMatch = false
       isInClosingTag = false
@@ -310,8 +317,7 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  class ScalaHtmlHighlightingLexerWrapper private[highlighter]()
-    extends HtmlHighlightingLexer(FileTypeManager.getInstance.getStdFileType("CSS")) {
+  private class ScalaHtmlHighlightingLexerWrapper(delegate: Lexer) extends DelegateLexer(delegate) {
 
     override def getTokenType: IElementType = {
       val htmlTokenType: IElementType = ScalaXmlLexer.ScalaXmlTokenType(super.getTokenType)
@@ -333,20 +339,17 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  private class ScalaDocLexerHighlightingWrapper extends ScalaDocLexer {
+  private class ScalaDocLexerHighlightingWrapper(delegate: Lexer) extends DelegateLexer(delegate) {
+
+    import ScalaDocLexerHighlightingWrapper._
+
     private val elements = new ju.Stack[IElementType]
 
-    override def getTokenType: IElementType = {
-      val tokenType = super.getTokenType
-      tokenType match {
-        case `tDOT` | `tIDENTIFIER` =>
-          DOC_COMMENT_DATA
-        case _ if !elements.isEmpty && (elements.peek eq DOC_COMMON_CLOSE_WIKI_TAG) =>
-          DOC_COMMON_CLOSE_WIKI_TAG
-        case _ =>
-          tokenType
+    override def getTokenType: IElementType = super.getTokenType match {
+      case `tDOT` | `tIDENTIFIER` => DOC_COMMENT_DATA
+      case _ if isOnTop(DOC_COMMON_CLOSE_WIKI_TAG) => DOC_COMMON_CLOSE_WIKI_TAG
+      case tokenType => tokenType
       }
-    }
 
     override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
       elements.clear()
@@ -356,24 +359,30 @@ object ScalaSyntaxHighlighter {
     override def advance(): Unit = {
       super.advance()
 
-      if (!elements.isEmpty && (elements.peek eq DOC_COMMON_CLOSE_WIKI_TAG)) {
-        elements.pop
-        elements.pop //will never be empty there
+      if (isOnTop(DOC_COMMON_CLOSE_WIKI_TAG)) {
+        elements.pop()
+        elements.pop() //will never be empty there
       }
 
-      val token: IElementType = super.getTokenType
-      if (ScalaDocLexerHighlightingWrapper.SYNTAX_TO_SWAP.contains(token)) {
-        if (elements.isEmpty || (elements.peek ne token)) {
-          elements.push(token)
-        } else {
-          elements.push(DOC_COMMON_CLOSE_WIKI_TAG)
-        }
+      super.getTokenType match {
+        case tokenType if SyntaxToSwap.contains(tokenType) =>
+          val item = if (isOnTop(tokenType))
+            DOC_COMMON_CLOSE_WIKI_TAG
+          else
+            tokenType
+
+          elements.push(item)
+        case _ =>
       }
     }
+
+    private def isOnTop(tokenType: IElementType) =
+      !elements.isEmpty && (elements.peek eq tokenType)
   }
 
   private object ScalaDocLexerHighlightingWrapper {
-    private val SYNTAX_TO_SWAP = TokenSet.andNot(
+
+    private val SyntaxToSwap = TokenSet.andNot(
       tSCALADOC_WIKI_SYNTAX,
       TokenSet.create(
         DOC_LINK_TAG,

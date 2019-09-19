@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.plugins.scala
+package util
 
 import com.intellij.application.options.CodeStyleSchemesConfigurable
 import com.intellij.application.options.codeStyle.CodeStyleMainPanel
@@ -12,14 +13,13 @@ import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
+import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanelBase.TAB_TITLE
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.settings.annotations._
-import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
-import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanel
 
 /**
   * Created by kate on 7/14/16.
@@ -89,7 +89,7 @@ object TypeAnnotationUtil {
               val selectedPanel = panel.getSelectedPanel
               assert(selectedPanel != null)
               selectedPanel match {
-                case tab: ScalaTabbedCodeStylePanel => tab.changeTab(TypeAnnotationsPanel.Title)
+                case tab: ScalaTabbedCodeStylePanel => tab.changeTab(TAB_TITLE)
                 case _ =>
               }
             }

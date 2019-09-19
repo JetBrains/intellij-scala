@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.lexer
+package org.jetbrains.plugins.scala
+package lang
+package lexer
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -14,4 +16,14 @@ object ScalaTokenType {
   val Integer = new ScalaTokenType("integer")
   val Double = new ScalaTokenType("double")
   val Float = new ScalaTokenType("float")
+
+  val Enum = new ScalaTokenType("enum")
+  val Export = new ScalaTokenType("export")
+  val Given = new ScalaTokenType("given")
+  val Then = new ScalaTokenType("then")
+
+  val As = new ScalaTokenType("as")
+  val Derives = new ScalaTokenType("derives")
+  val Inline: ScalaModifierTokenType = ScalaTokenTypes.kINLINE
+  val Opaque = new ScalaTokenType("opaque")
 }
