@@ -18,6 +18,7 @@ import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -45,18 +46,22 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
   private var myOptimizeImportsRunnable: Runnable = _
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {
-    case scalaFile: ScalaFile if analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
-      val unusedImports = UsageTracker.getUnusedImports(scalaFile)
-      val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
+    case _ if analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
+      file.findScalaLikeFile match {
+        case Some(scalaFile: ScalaFile) =>
+          val unusedImports = UsageTracker.getUnusedImports(scalaFile)
+          val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(scalaFile)))
 
       val list = new ju.ArrayList[HighlightInfo](annotations.length)
       annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation))
 
       if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
-        myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(file, progress)
+        myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(scalaFile, progress)
       }
 
       myHighlights = list
+    case _=>
+      }
     case _: ScalaFile => myHighlights = ju.Collections.emptyList()
     case _ =>
   }
