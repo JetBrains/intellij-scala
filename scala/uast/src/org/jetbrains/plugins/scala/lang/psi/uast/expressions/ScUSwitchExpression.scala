@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{
   ScCaseClauses
 }
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScMatch}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUAnnotated,
   ScUElement,
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
 }
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.kinds.ScalaSpecialExpressionKinds
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -152,13 +151,13 @@ class ScUEmptyExpressionList(
   override def getJavaPsi: PsiElement = null
 
   override def getExpressions: util.List[UExpression] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 
   override def getKind: UastSpecialExpressionKind =
     ScalaSpecialExpressionKinds.EmptyList
 
   override def getUAnnotations: util.List[UAnnotation] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 }
 
 private object StringUtils {

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.uast.controlStructures
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScWhile
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUAnnotated,
   ScUExpression

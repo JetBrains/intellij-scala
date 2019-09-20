@@ -6,26 +6,13 @@ import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUMultiResolvable
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScUErrorClass
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.{
-  JavaCollectionsCommon,
-  ResolveCommon
-}
-import org.jetbrains.uast.{
-  UAnonymousClass,
-  UClass,
-  UExpression,
-  UObjectLiteralExpression,
-  UObjectLiteralExpressionAdapter,
-  UReferenceExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
+import org.jetbrains.uast.{UAnonymousClass, UClass, UExpression, UObjectLiteralExpression, UObjectLiteralExpressionAdapter, UReferenceExpression}
+
+import scala.collection.JavaConverters._
 
 /**
   * [[ScNewTemplateDefinition]] adapter for the [[UObjectLiteralExpression]]
@@ -66,7 +53,7 @@ class ScUObjectLiteralExpression(
   override def getTypeArguments: util.List[PsiType] =
     uConstructor
       .map(_.getTypeArguments)
-      .getOrElse(JavaCollectionsCommon.newEmptyJavaList)
+      .getOrElse(Seq.empty.asJava)
 
   override def getValueArgumentCount: Int =
     uConstructor.map(_.getValueArgumentCount).getOrElse(0)
@@ -74,7 +61,7 @@ class ScUObjectLiteralExpression(
   override def getValueArguments: util.List[UExpression] =
     uConstructor
       .map(_.getValueArguments)
-      .getOrElse(JavaCollectionsCommon.newEmptyJavaList)
+      .getOrElse(Seq.empty.asJava)
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression =

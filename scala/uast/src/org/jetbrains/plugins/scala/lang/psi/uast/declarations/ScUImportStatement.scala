@@ -6,14 +6,10 @@ import com.intellij.psi.{PsiElement, ResolveResult}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
 import org.jetbrains.plugins.scala.lang.psi.uast.kinds.ScalaSpecialExpressionKinds
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.{
-  JavaCollectionsCommon,
-  ResolveCommon
-}
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -121,5 +117,5 @@ class ScUImportsList(uExprList: Seq[UReferenceExpression],
     ScalaSpecialExpressionKinds.ImportsList
 
   override def getUAnnotations: util.List[UAnnotation] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 }

@@ -7,14 +7,13 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScTry}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUAnnotated,
   ScUElement,
   ScUExpression
 }
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -37,7 +36,7 @@ class ScUTryExpression(override protected val scExpression: ScTry,
           .flatMap(_.convertTo[UCatchClause](this))
           .toList
           .asJava
-      case None => JavaCollectionsCommon.newEmptyJavaList
+      case None => Seq.empty.asJava
     }
 
   @Nullable
@@ -55,7 +54,7 @@ class ScUTryExpression(override protected val scExpression: ScTry,
   override def getHasResources: Boolean = false
 
   override def getResourceVariables: util.List[UVariable] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 
   override def getTryClause: UExpression =
     scExpression.expression.convertToUExpressionOrEmpty(this)
@@ -84,8 +83,8 @@ class ScUCatchExpression(override protected val scElement: ScCaseClause,
     scElement.expr.convertToUExpressionOrEmpty(this)
 
   override def getParameters: util.List[UParameter] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 
   override def getTypeReferences: util.List[UTypeReferenceExpression] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 }

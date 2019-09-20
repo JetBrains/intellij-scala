@@ -5,28 +5,12 @@ import java.util
 import com.intellij.psi.util.PsiTypesUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.{
-  ScConstructorInvocation,
-  ScReference
-}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUMultiResolvable
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon._
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.ResolveCommon
-import org.jetbrains.uast.{
-  UCallExpression,
-  UCallExpressionAdapter,
-  UExpression,
-  UIdentifier,
-  UReferenceExpression,
-  UastCallKind
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUMultiResolvable}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
+import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
 import scala.collection.JavaConverters._
 
@@ -85,13 +69,9 @@ class ScUConstructorCallExpression(
 
   override def getTypeArguments: util.List[PsiType] =
     scElement.typeArgList
-      .map { lst =>
-        seqAsJavaList(
-          lst.typeArgs
-            .flatMap(_.`type`().map(_.toPsiType).toOption)
-        )
-      }
-      .getOrElse(newEmptyJavaList)
+      .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
+      .getOrElse(Seq.empty)
+      .asJava
 
   override def getValueArgumentCount: Int =
     scElement.arguments.map(_.exprs.size).sum

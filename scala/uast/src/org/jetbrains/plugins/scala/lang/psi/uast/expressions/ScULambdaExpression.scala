@@ -18,11 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUElement,
   ScUExpression
 }
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScULambdaParameter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
 import org.jetbrains.plugins.scala.util.SAMUtil._
 import org.jetbrains.uast.{
   UExpression,
@@ -53,7 +52,7 @@ trait ScUGenLambda
           )
       }
       .getOrElse(
-        BaseScala2UastConverter
+        Scala2UastConverter
           .createUEmptyExpression(element = null, parent = this)
       )
 
@@ -162,7 +161,7 @@ class ScUMethodValueLambdaExpression(
         )
         .toSeq
         .asJava
-    case _ => JavaCollectionsCommon.newEmptyJavaList
+    case _ => Seq.empty.asJava
   }
 }
 

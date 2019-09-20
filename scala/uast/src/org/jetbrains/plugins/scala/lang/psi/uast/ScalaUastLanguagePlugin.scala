@@ -1,22 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.uast
 
 import com.intellij.lang.Language
-import com.intellij.psi.{
-  PsiClassInitializer,
-  PsiElement,
-  PsiMethod,
-  PsiVariable
-}
+import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.{
-  NotNothing,
-  OptionExt,
-  ResolveCommon
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveCommon
+import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.uast._
 
 import scala.language.postfixOps
@@ -25,9 +17,6 @@ import scala.reflect.ClassTag
 
 /**
   * [[UastLanguagePlugin]] implementation for the Scala plugin.
-  *
-  * @note Nullability is inherited from Kotlin-based UAST interfaces,
-  *       so special care about nullable values should be kept (see [[OptionExt]]).
   */
 class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
@@ -44,7 +33,7 @@ class ScalaUastLanguagePlugin extends UastLanguagePlugin {
     @Nullable parent: UElement,
     @Nullable requiredType: Class[_ <: UElement]
   ): UElement =
-    BaseScala2UastConverter
+    Scala2UastConverter
       .convertTo(element, parent)(
         ClassTag[UElement](Option(requiredType).getOrElse(classOf[UElement])),
         implicitly[NotNothing[UElement]]
@@ -56,7 +45,7 @@ class ScalaUastLanguagePlugin extends UastLanguagePlugin {
     element: PsiElement,
     @Nullable requiredType: Class[_ <: UElement]
   ): UElement =
-    BaseScala2UastConverter
+    Scala2UastConverter
       .convertWithParentTo(element)(
         ClassTag[UElement](Option(requiredType).getOrElse(classOf[UElement])),
         implicitly[NotNothing[UElement]]

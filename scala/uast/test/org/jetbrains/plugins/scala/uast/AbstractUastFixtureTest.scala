@@ -5,8 +5,7 @@ import java.io.File
 
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.OptionExt._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.uast._
 import org.jetbrains.uast.test.common.RenderLogTestBase
 import org.jetbrains.uast.test.env.AbstractTestWithCoreEnvironmentKt
@@ -174,8 +173,8 @@ abstract class AbstractScalaRenderLogTest
             val uastAnchor = declaration.getUastAnchor
             Assert.assertEquals(
               s"should be appropriate sourcePsi for uastAnchor for ${node.getClass} [${node.getSourcePsi}] ",
-              node.getSourcePsi ?> (_.getContainingFile) orNull,
-              uastAnchor.getSourcePsi ?> (_.getContainingFile) orNull
+              Option(node.getSourcePsi).flatMap(s => Option(s.getContainingFile)).orNull,
+              Option(uastAnchor.getSourcePsi).flatMap(s => Option(s.getContainingFile)).orNull,
             )
           case _ =>
         }

@@ -18,9 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUAnnotated,
   ScUElement
 }
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -42,7 +41,7 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
           .flatMap(_.convertTo[UTypeReferenceExpression](this))
           .asJava
       )
-      .getOrElse(JavaCollectionsCommon.newEmptyJavaList)
+      .getOrElse(Seq.empty.asJava)
 
   def getUFields: Array[UField] = {
     val uFields = ArrayBuffer.empty[UField]
@@ -71,7 +70,7 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
   }
 
   def getUInitializers: Array[UClassInitializer] =
-    JavaCollectionsCommon.newEmptyArray // TODO: not implemented
+    Array.empty // TODO: not implemented
 
   def getUMethods: Array[UMethod] =
     scTemplate.functions // .getMethods
@@ -222,17 +221,15 @@ class ScUErrorClass(override protected val scElement: PsiClass,
   @Nullable
   override def getPsi: PsiClass = null
 
-  override def getUFields: Array[UField] = JavaCollectionsCommon.newEmptyArray
-  override def getUMethods: Array[UMethod] = JavaCollectionsCommon.newEmptyArray
-  override def getUInitializers: Array[UClassInitializer] =
-    JavaCollectionsCommon.newEmptyArray
-  override def getUInnerClasses: Array[UClass] =
-    JavaCollectionsCommon.newEmptyArray
+  override def getUFields: Array[UField] = Array.empty
+  override def getUMethods: Array[UMethod] = Array.empty
+  override def getUInitializers: Array[UClassInitializer] = Array.empty
+  override def getUInnerClasses: Array[UClass] = Array.empty
 
   override def getUastDeclarations: javacoll.List[UDeclaration] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
   override def getUastSuperTypes: javacoll.List[UTypeReferenceExpression] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 
   @Nullable
   override def getUastAnchor: UElement = createUIdentifier(scElement, this)

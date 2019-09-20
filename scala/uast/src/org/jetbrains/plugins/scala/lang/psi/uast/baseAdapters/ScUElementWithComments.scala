@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
 
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.uast.java.internal.JavaUElementWithComments
 import org.jetbrains.uast.{UComment, UElement, UExpression}
 
@@ -16,9 +15,9 @@ trait ScUElementWithComments extends UElement {
 
   override def getComments: java.util.List[UComment] = {
     val psi = getSourcePsi
-    if (psi == null) return JavaCollectionsCommon.newEmptyJavaList
+    if (psi == null) return Seq.empty.asJava
     val childrenComments = psi.getChildren.collect {
-      case pc: PsiComment => BaseScala2UastConverter.createUComment(pc, this)
+      case pc: PsiComment => Scala2UastConverter.createUComment(pc, this)
     }
 
     this match {
@@ -27,9 +26,9 @@ trait ScUElementWithComments extends UElement {
           .concat(
             childrenComments,
             nearestCommentSibling(psi, forward = true)
-              .map(BaseScala2UastConverter.createUComment(_, this)),
+              .map(Scala2UastConverter.createUComment(_, this)),
             nearestCommentSibling(psi, forward = false)
-              .map(BaseScala2UastConverter.createUComment(_, this))
+              .map(Scala2UastConverter.createUComment(_, this))
           )
           .asJava
       case _ => childrenComments.toSeq.asJava

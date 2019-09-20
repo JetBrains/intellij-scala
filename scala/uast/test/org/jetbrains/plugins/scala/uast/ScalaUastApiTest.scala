@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.uast
 
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.OptionExt._
 import org.jetbrains.plugins.scala.uast.AbstractUastFixtureTest._
 import org.jetbrains.uast.{UAnnotation, UFile, ULiteralExpression}
 import org.junit.Assert
@@ -8,9 +7,10 @@ import org.junit.Assert
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
 
-
 class ScalaUastApiTest extends AbstractUastFixtureTest {
   override def check(testName: String, file: UFile): Unit = {}
+
+  import ScalaUastApiTest._
 
   def testUastAnchors(): Unit =
     doTest("SimpleClass.scala") { (_, file) =>
@@ -40,4 +40,20 @@ class ScalaUastApiTest extends AbstractUastFixtureTest {
       Assert.assertFalse(literal2.isString)
       Assert.assertEquals(123, literal2.getValue)
     }
+}
+
+object ScalaUastApiTest {
+  // Kotlin null-propagation style improves readability
+  implicit class OptionOps[A](val o: Option[A]) extends AnyVal {
+    /**
+     * Imitates Kotlin `?.` safe call operator.
+     * Unlike {{{Option.map}}} method result of applying a transforming function
+     * can be null itself so it is wrapped into [[Option]] too.
+     */
+    def ?>[B](f: A => B): Option[B] = o.flatMap(v => Option(f(v)))
+  }
+
+  implicit class AutoOptionWrapper[A](val v: A) extends AnyVal {
+    def ?>[B](f: A => B): Option[B] = Option(v) ?> f
+  }
 }

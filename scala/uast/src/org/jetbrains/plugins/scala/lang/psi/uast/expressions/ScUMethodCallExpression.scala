@@ -7,26 +7,10 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUExpression,
-  ScUMultiResolvable
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon.newEmptyJavaList
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.{
-  JavaCollectionsCommon,
-  ResolveCommon
-}
-import org.jetbrains.uast.{
-  UCallExpression,
-  UCallExpressionAdapter,
-  UExpression,
-  UIdentifier,
-  UReferenceExpression,
-  UastCallKind
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression, ScUMultiResolvable}
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
+import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
 import scala.collection.JavaConverters._
 
@@ -79,13 +63,9 @@ trait ScUMethodCallCommon
 
   override def getTypeArguments: util.List[PsiType] =
     getTypeArgs
-      .map { lst =>
-        seqAsJavaList(
-          lst.typeArgs
-            .flatMap(_.`type`().map(_.toPsiType).toOption)
-        )
-      }
-      .getOrElse(newEmptyJavaList)
+      .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
+      .getOrElse(Seq.empty)
+      .asJava
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression = {
@@ -172,7 +152,7 @@ class ScUGenericCallExpression(
   override def getValueArgumentCount: Int = 0
 
   override def getValueArguments: util.List[UExpression] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression = null
@@ -202,5 +182,5 @@ class ScUReferenceCallExpression(
 
   override def getValueArgumentCount: Int = 0
   override def getValueArguments: util.List[UExpression] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 }

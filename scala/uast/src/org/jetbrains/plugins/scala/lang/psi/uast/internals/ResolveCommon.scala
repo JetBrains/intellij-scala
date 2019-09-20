@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.utils
+package org.jetbrains.plugins.scala.lang.psi.uast.internals
 
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference

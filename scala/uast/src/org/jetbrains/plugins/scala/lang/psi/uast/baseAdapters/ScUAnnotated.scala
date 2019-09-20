@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
 import java.util
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.{declarations, expressions}
 import org.jetbrains.uast.{UAnnotated, UAnnotation}
 
@@ -29,7 +28,7 @@ trait ScUAnnotated extends UAnnotated {
     annotatedElement match {
       case Some(holder) =>
         holder.annotations.flatMap(_.convertTo[UAnnotation](this)).asJava
-      case _ => JavaCollectionsCommon.newEmptyJavaList
+      case _ => Seq.empty.asJava //JavaCollectionsCommon.newEmptyJavaList
     }
   }
 }

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSuperReference
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{UIdentifier, USuperExpression, USuperExpressionAdapter}
 
@@ -29,7 +29,7 @@ class ScUSuperExpression(override protected val scExpression: ScSuperReference,
   @Nullable
   override def getLabelIdentifier: UIdentifier =
     Option(scExpression.findFirstChildByType(ScalaTokenTypes.kSUPER))
-      .map(BaseScala2UastConverter.createUIdentifier(_, this))
+      .map(Scala2UastConverter.createUIdentifier(_, this))
       .orNull
 
   @Nullable

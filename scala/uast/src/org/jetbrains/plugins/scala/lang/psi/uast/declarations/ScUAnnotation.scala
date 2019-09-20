@@ -4,34 +4,13 @@ import java.util
 
 import com.intellij.psi.{PsiAnnotation, PsiClass}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.{
-  ScAnnotation,
-  ScConstructorInvocation,
-  ScReference
-}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUElement,
-  ScUMultiResolvable
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{
-  ScUNamedExpression,
-  ScUUnnamedExpression
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.OptionExt.AutoUnwrap._
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.ResolveCommon
-import org.jetbrains.uast.{
-  UAnchorOwner,
-  UAnnotation,
-  UAnnotationAdapter,
-  UAnnotationEx,
-  UCallExpression,
-  UExpression,
-  UIdentifier,
-  UNamedExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUElement, ScUMultiResolvable}
+import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{ScUNamedExpression, ScUUnnamedExpression}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
+import org.jetbrains.uast.{UAnchorOwner, UAnnotation, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
 
 import scala.collection.JavaConverters._
 
@@ -88,7 +67,7 @@ class ScUAnnotation(override protected val scElement: ScAnnotation,
 
   @Nullable
   override def getUastAnchor: UIdentifier =
-    scReference.map(ref => createUIdentifier(ref.nameId, this))
+    scReference.map(ref => createUIdentifier(ref.nameId, this)).orNull
 
   final def uastAnchor: Option[UIdentifier] = Option(getUastAnchor)
 }

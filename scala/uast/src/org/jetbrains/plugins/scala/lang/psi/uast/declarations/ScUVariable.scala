@@ -29,11 +29,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{
   ScVariableDefinition
 }
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.psi.LightVariableWithGivenAnnotationsBuilder
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -151,7 +150,7 @@ object ScUVariable {
       containingTypeDef,
       modifiersList
         .map(_.getAnnotations)
-        .getOrElse(JavaCollectionsCommon.newEmptyArray),
+        .getOrElse(Array.empty),
       javaModifiers.toArray
     )
   }

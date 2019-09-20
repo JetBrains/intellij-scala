@@ -5,12 +5,11 @@ import java.{util => javacoll}
 import com.intellij.psi.{PsiComment, PsiFile, PsiRecursiveElementVisitor}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.ScalaUastLanguagePlugin
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.utils.JavaCollectionsCommon
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -61,7 +60,7 @@ class ScUFile(override protected val scElement: ScalaFile,
     val buf = ArrayBuffer.empty[UComment]
     scElement.accept(new PsiRecursiveElementVisitor() {
       override def visitComment(comment: PsiComment): Unit =
-        buf += BaseScala2UastConverter.createUComment(comment, thisFile)
+        buf += Scala2UastConverter.createUComment(comment, thisFile)
     })
     buf.asJava
   }
@@ -70,5 +69,5 @@ class ScUFile(override protected val scElement: ScalaFile,
 
   // Scala files cannot have annotations
   override def getUAnnotations: javacoll.List[UAnnotation] =
-    JavaCollectionsCommon.newEmptyJavaList
+    Seq.empty.asJava
 }

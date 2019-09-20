@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScThisReference
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{UIdentifier, UThisExpression, UThisExpressionAdapter}
 
@@ -29,7 +29,7 @@ class ScUThisExpression(override protected val scExpression: ScThisReference,
   @Nullable
   override def getLabelIdentifier: UIdentifier =
     Option(scExpression.findFirstChildByType(ScalaTokenTypes.kTHIS))
-      .map(BaseScala2UastConverter.createUIdentifier(_, this))
+      .map(Scala2UastConverter.createUIdentifier(_, this))
       .orNull
 
   @Nullable

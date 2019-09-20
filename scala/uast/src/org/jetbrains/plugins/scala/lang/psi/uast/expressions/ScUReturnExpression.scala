@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUElement,
   ScUExpression
 }
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.BaseScala2UastConverter._
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{
   UExpression,
