@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
 import org.jetbrains.plugins.scala.base.AssertMatches
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 
 /**
   * Created by Svyatoslav Ilinskiy on 24.07.16.
@@ -187,6 +188,13 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
 
     assertMatches(messages(text)) {
       case HighlightMessage("_", _) :: Nil =>
+    }
+  }
+
+  def testWorkSheet(): Unit = {
+    val text = "import scala.Seq"
+    assertMatches(messages(text, WorksheetFileType)) {
+      case HighlightMessage(`text`, _) :: Nil =>
     }
   }
 }
