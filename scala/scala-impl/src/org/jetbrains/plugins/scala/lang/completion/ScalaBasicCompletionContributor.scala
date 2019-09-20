@@ -203,12 +203,14 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 private val lookupStrings = mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
                 private val decorator = insertHandlerDecorator(s".asInstanceOf[$canonicalText]")
 
-                override protected val qualifierType = Some(qualifierCastType)
+                override protected val qualifierType: Some[ScType] = Some(qualifierCastType)
 
-                override protected def validLookupElements(result: ScalaResolveResult): Seq[LookupElement] =
-                  super.validLookupElements(result).collect {
-                    case ValidItem(item) if lookupStrings.add(item.getLookupString) =>
-                      LookupElementDecorator.withInsertHandler(item, decorator)
+                override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
+                  super.validLookupElement(result).filter {
+                    case ValidItem(item) => lookupStrings.add(item.getLookupString)
+                    case _ => false
+                  }.map {
+                    case item: ScalaLookupItem => LookupElementDecorator.withInsertHandler(item, decorator)
                   }
               }
             } {
@@ -249,10 +251,10 @@ object ScalaBasicCompletionContributor {
     def lookupElements: Seq[LookupElement] = lookupElements_
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
-      lookupElements_ ++= validLookupElements(resolveResult)
+      lookupElements_ ++= validLookupElement(resolveResult)
     }
 
-    protected def validLookupElements(result: ScalaResolveResult): Seq[LookupElement] =
+    protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
       result.getLookupElement(
         qualifierType = qualifierType,
         isInImport = isInImport,

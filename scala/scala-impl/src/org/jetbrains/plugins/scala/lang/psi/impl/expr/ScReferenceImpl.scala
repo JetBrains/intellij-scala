@@ -1,17 +1,18 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.expr
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor}
-import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 /**
   * Nikolay.Tropin
@@ -31,12 +32,11 @@ abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
 
   override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] = {
     val processor = new CompletionProcessor(getKinds(incomplete = true, completion = false), this)
-    doResolve(processor).flatMap(toLookupItems)
+    doResolve(processor).flatMap(toLookupItem)
   }
 
-  protected def toLookupItems(result: ScalaResolveResult): Seq[ScalaLookupItem] = {
+  protected def toLookupItem(result: ScalaResolveResult): Option[ScalaLookupItem] =
     result.getLookupElement(isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null)
-  }
 
   final def bind(): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()

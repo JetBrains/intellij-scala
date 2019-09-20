@@ -17,8 +17,6 @@ class CompletionBasicTest extends CompletionTestBase {
   
   def testPackageB = doTest()
 
-  def testSetter = doTest()
-
   def testToString = doTest()
 
   def testTuple = doTest()

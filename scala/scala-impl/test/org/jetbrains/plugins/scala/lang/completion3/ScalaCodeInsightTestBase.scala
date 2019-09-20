@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
@@ -126,7 +125,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
       case Some(item) =>
         lookup.finishLookup(char, item)
         checkResultByText(resultText)
-      case _ => fail()
+      case _ => fail("Lookup not found")
     }
   }
 

@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.JavaConverters
-
 /**
   * @author Nikolay.Tropin
   */
@@ -67,13 +65,12 @@ object ScalaPrefixPackageCompletionContributor {
         case _ =>
       }
 
-      val items = new ScalaResolveResult(pckg, prefixCompletion = true).getLookupElement(shouldImport = true)
-      items.foreach { le =>
-        le.elementToImport = Option(pckg)
-      }
-
-      import JavaConverters._
-      result.addAllElements(items.asJava)
+      new ScalaResolveResult(pckg, prefixCompletion = true)
+        .getLookupElement(shouldImport = true)
+        .foreach { item =>
+          item.elementToImport = Option(pckg)
+          result.addElement(item)
+        }
     }
 
     val prefixMatcher = result.getPrefixMatcher

@@ -1253,6 +1253,33 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
        |""".stripMargin,
     item = "charAt"
   )
+
+  def testGetter(): Unit = doCompletionTest(
+    fileText =
+      s"""def foo: Int = ???
+         |
+         |f$CARET""".stripMargin,
+    resultText =
+      s"""def foo: Int = ???
+         |
+         |foo$CARET""".stripMargin,
+    item = "foo"
+  )
+
+  def testSetter(): Unit = doRawCompletionTest(
+    fileText =
+      s"""def foo: Int = ???
+         |def foo_=(foo: Int): Unit = {}
+         |
+         |f$CARET""".stripMargin,
+    resultText =
+      s"""def foo: Int = ???
+         |def foo_=(foo: Int): Unit = {}
+         |
+         |foo = $CARET""".stripMargin
+  ) {
+    hasItemText(_, "foo")(tailText = " = (foo: Int)")
+  }
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {

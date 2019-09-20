@@ -309,11 +309,10 @@ object ScalaResolveResult {
                          isInStableCodeReference: Boolean = false,
                          containingClass: Option[PsiClass] = None,
                          isInSimpleString: Boolean = false,
-                         isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
+                         isInInterpolatedString: Boolean = false): Option[ScalaLookupItem] = {
       val ScalaResolveResult(element, substitutor) = resolveResult
 
-      if (!element.isValid)
-        return Seq.empty
+      if (!element.isValid) return None
 
       val isRenamed = resolveResult.isRenamed.filter(element.name != _)
 
@@ -349,39 +348,36 @@ object ScalaResolveResult {
         }
       }
 
-      val isDeprecated: Boolean = element match {
-        case doc: PsiDocCommentOwner if doc.isDeprecated => true
+      val isDeprecated = element match {
+        case doc: PsiDocCommentOwner => doc.isDeprecated
         case _ => false
       }
 
-      def lookupElement(name: String, isAssignment: Boolean = false): ScalaLookupItem = {
-        val result = new ScalaLookupItem(element, name, containingClass)
-        result.isClassName = isClassName
-        result.isNamedParameter = resolveResult.isNamedParameter
-        result.isDeprecated = isDeprecated
-        result.isOverloadedForClassName = isOverloadedForClassName
-        result.isRenamed = isRenamed
-        result.isUnderlined = resolveResult.implicitFunction.isDefined
-        result.isAssignment = isAssignment
-        result.isInImport = isInImport
-        result.bold = isCurrentClassMember
-        result.shouldImport = shouldImport
-        result.isInStableCodeReference = isInStableCodeReference
-        result.substitutor = substitutor
-        result.prefixCompletion = resolveResult.prefixCompletion
-        result.isInSimpleString = isInSimpleString
-        result
-      }
-
-      val name: String = isRenamed.getOrElse(element.name)
       val Setter = """(.*)_=""".r
-      val defaultItem = lookupElement(name)
-
-      name match {
-        case Setter(prefix) if !element.isInstanceOf[FakePsiMethod] => //if element is fake psi method, then this setter is already generated from var
-          Seq(lookupElement(prefix, isAssignment = true), defaultItem)
-        case _ => Seq(defaultItem)
+      val (name, isAssignment) = isRenamed.getOrElse(element.name) match {
+        case Setter(string) if !element.isInstanceOf[FakePsiMethod] => //if element is fake psi method, then this setter is already generated from var
+          (string, true)
+        case string =>
+          (string, false)
       }
+
+      val result = new ScalaLookupItem(element, name, containingClass)
+      result.isClassName = isClassName
+      result.isNamedParameter = resolveResult.isNamedParameter
+      result.isDeprecated = isDeprecated
+      result.isOverloadedForClassName = isOverloadedForClassName
+      result.isRenamed = isRenamed
+      result.isUnderlined = resolveResult.implicitFunction.isDefined
+      result.isAssignment = isAssignment
+      result.isInImport = isInImport
+      result.bold = isCurrentClassMember
+      result.shouldImport = shouldImport
+      result.isInStableCodeReference = isInStableCodeReference
+      result.substitutor = substitutor
+      result.prefixCompletion = resolveResult.prefixCompletion
+      result.isInSimpleString = isInSimpleString
+
+      Some(result)
     }
   }
 

@@ -207,7 +207,7 @@ final class ScalaInsertHandler extends InsertHandler[LookupElement] {
         case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
           context.setAddCompletionChar(false)
           insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
-        case _: PsiNamedElement if item.isNamedParameter => //some is impossible here
+        case _: PsiNamedElement if item.isNamedParameterOrAssignment => //some is impossible here
           val shouldAddEqualsSign = element.getParent match {
             case ref: ScReferenceExpression =>
               ref.getParent match {

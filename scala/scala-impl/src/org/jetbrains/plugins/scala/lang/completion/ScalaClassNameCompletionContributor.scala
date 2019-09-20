@@ -27,8 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
-import scala.collection.JavaConverters
-
 class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaClassNameCompletionContributor._
@@ -118,9 +116,9 @@ object ScalaClassNameCompletionContributor {
         case _ =>
       }
 
-      val lookups = (toImport, maybeExpectedTypes) match {
+      val maybeLookup = (toImport, maybeExpectedTypes) match {
         case (ClassToImport(clazz), Some(createLookups)) =>
-          Seq(createLookups(clazz, renamesMap))
+          Some(createLookups(clazz, renamesMap))
         case _ =>
           val renamed = renamesMap.get(name).collect {
             case (`element`, s) => s
@@ -134,8 +132,7 @@ object ScalaClassNameCompletionContributor {
           )
       }
 
-      import JavaConverters._
-      result.addAllElements(lookups.asJava)
+      maybeLookup.foreach(result.addElement)
     }
 
     val QualNameToType = StdTypes.instance.QualNameToType

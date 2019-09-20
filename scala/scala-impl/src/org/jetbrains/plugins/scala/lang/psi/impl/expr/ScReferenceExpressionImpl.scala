@@ -144,7 +144,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   override def getVariants: Array[Object] = completionVariants(implicits = true).toArray
 
   override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
-    getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItems)
+    getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItem)
 
   def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {
