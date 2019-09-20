@@ -1,12 +1,16 @@
-package org.jetbrains.plugins.scala.lang.imports.unused
+package org.jetbrains.plugins.scala
+package lang
+package imports
+package unused
 
-import org.jetbrains.plugins.scala.base.AssertMatches
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
+import com.intellij.openapi.fileTypes.LanguageFileType
+import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaLightCodeInsightFixtureTestAdapter}
 
 /**
-  * Created by Svyatoslav Ilinskiy on 24.07.16.
-  */
-class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
+ * Created by Svyatoslav Ilinskiy on 24.07.16.
+ */
+class UnusedImportTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertMatches {
+
   def testTwoUnusedSelectorsOnSameLine(): Unit = {
     val text =
       """
@@ -14,8 +18,9 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |
         |object Doo
       """.stripMargin
-    assertMatches(messages(text)) {
-      case HighlightMessage("import java.util.{Set, ArrayList}", _) :: Nil =>
+
+    doTest(text) {
+      case "import java.util.{Set, ArrayList}" :: Nil =>
     }
   }
 
@@ -37,21 +42,25 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |  }
         |}
       """.stripMargin
-    assertMatches(messages(text)) {
+
+    doTest(text) {
       case Nil =>
     }
   }
 
   def testMethodCallImplicitParameter(): Unit = {
-    val text = """import scala.concurrent.ExecutionContext
-      |import scala.concurrent.ExecutionContext.Implicits.global
-      |
-      |object Test {
-      |  def foo(implicit ec: ExecutionContext): Unit = {}
-      |
-      |  foo
-      |}""".stripMargin
-    assertMatches(messages(text)) {
+    val text =
+      """import scala.concurrent.ExecutionContext
+        |import scala.concurrent.ExecutionContext.Implicits.global
+        |
+        |object Test {
+        |  def foo(implicit ec: ExecutionContext): Unit = {}
+        |
+        |  foo
+        |}""".stripMargin
+
+
+    doTest(text) {
       case Nil =>
     }
   }
@@ -68,7 +77,10 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |
         |val x = new AppModel
       """.stripMargin
-    assert(messages(text).isEmpty)
+
+    doTest(text) {
+      case Nil =>
+    }
   }
 
   def testShadowAndWildcard(): Unit = {
@@ -84,7 +96,10 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |  new Y
         |}
       """.stripMargin
-    assert(messages(text).isEmpty)
+
+    doTest(text) {
+      case Nil =>
+    }
   }
 
   def testSelectorAndWildcard(): Unit = {
@@ -101,8 +116,8 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |}
       """.stripMargin
 
-    assertMatches(messages(text)) {
-      case HighlightMessage("X => Z", _) :: Nil =>
+    doTest(text) {
+      case "X => Z" :: Nil =>
     }
   }
 
@@ -121,8 +136,8 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |}
       """.stripMargin
 
-    assertMatches(messages(text)) {
-      case HighlightMessage("s => implicitString", _) :: Nil =>
+    doTest(text) {
+      case "s => implicitString" :: Nil =>
     }
   }
 
@@ -145,8 +160,8 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |}
       """.stripMargin
 
-    assertMatches(messages(text)) {
-      case HighlightMessage("X => Z", _) :: Nil =>
+    doTest(text) {
+      case "X => Z" :: Nil =>
     }
   }
 
@@ -165,7 +180,7 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |}
       """.stripMargin
 
-    assertMatches(messages(text)) {
+    doTest(text) {
       case Nil =>
     }
   }
@@ -186,15 +201,30 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
         |}
       """.stripMargin
 
-    assertMatches(messages(text)) {
-      case HighlightMessage("_", _) :: Nil =>
+    doTest(text) {
+      case "_" :: Nil =>
     }
   }
 
   def testWorkSheet(): Unit = {
     val text = "import scala.Seq"
-    assertMatches(messages(text, WorksheetFileType)) {
-      case HighlightMessage(`text`, _) :: Nil =>
+    doTest(text, worksheet.WorksheetFileType) {
+      case `text` :: Nil =>
     }
+  }
+
+  private def doTest(text: String,
+                     fileType: LanguageFileType = ScalaFileType.INSTANCE)
+                    (pattern: PartialFunction[List[String], Unit]): Unit = {
+    myFixture.configureByText(fileType, text)
+
+    import collection.JavaConverters._
+    val messages = myFixture.doHighlighting()
+      .asScala
+      .toList
+      .filterNot(_.getDescription == null)
+      .map(_.getText)
+
+    assertMatches(messages)(pattern)
   }
 }

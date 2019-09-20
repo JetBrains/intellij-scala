@@ -49,17 +49,20 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
     case _ if analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
       file.findScalaLikeFile match {
         case Some(scalaFile: ScalaFile) =>
-          val unusedImports = UsageTracker.getUnusedImports(scalaFile)
-          val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(scalaFile)))
-
-          val list = new ju.ArrayList[HighlightInfo](annotations.length)
-          annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation))
+          val infoes = for {
+            annotation <- collectAnnotations(
+              UsageTracker.getUnusedImports(scalaFile),
+              new AnnotationHolderImpl(new AnnotationSession(scalaFile))
+            )
+            info = HighlightInfo.fromAnnotation(annotation)
+          } yield info
 
           if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
             myOptimizeImportsRunnable = new ScalaImportOptimizer().processFile(scalaFile, progress)
           }
 
-          myHighlights = list
+          import collection.JavaConverters._
+          myHighlights = infoes.asJava
         case _ =>
       }
     case _: ScalaFile => myHighlights = ju.Collections.emptyList()
