@@ -44,8 +44,8 @@ class ScalaChainLookupElement(val prefix: ScalaLookupItem, val element: ScalaLoo
     val offsetForPrefix = caretModel.getOffset + (if (element.someSmartCompletion) 5 else 0) - element.getLookupString.length - 1
     element.handleInsert(context)
     val document = context.getDocument
-    val status = ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix)
-    val addParams = status._1 >= 0 && (status._1 > 0 || !status._3)
+    val (count, isAccessor) = ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.element)
+    val addParams = count >= 0 && !(count == 0 && isAccessor)
     if (addParams) {
       document.insertString(offsetForPrefix, "()")
       //      val offset = editor.getCaretModel.getOffset

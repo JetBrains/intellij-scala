@@ -13,14 +13,13 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 import scala.annotation.tailrec
 
@@ -29,327 +28,329 @@ import scala.annotation.tailrec
  * Date: 28.07.2008
  */
 object ScalaInsertHandler {
-  def getItemParametersAndAccessorStatus(item: ScalaLookupItem): (Int, String, Boolean) = {
-    item.element match {
+
+  def getItemParametersAndAccessorStatus(element: PsiNamedElement): (Int, Boolean) = element match {
       case fun: ScFunction =>
         val clauses = fun.paramClauses.clauses
-        if (clauses.isEmpty) (-1, null, false)
-        else if (clauses.head.isImplicit) (-1, null, false)
-        else (clauses.head.parameters.length, fun.name, false)
+        if (clauses.isEmpty) (-1, false)
+        else if (clauses.head.isImplicit) (-1, false)
+        else (clauses.head.parameters.length, false)
       case method: PsiMethod =>
         def isStringSpecialMethod: Boolean = {
           Set("hashCode", "length", "trim").contains(method.getName) &&
             method.containingClass != null &&
             method.containingClass.qualifiedName == "java.lang.String"
         }
-        (method.getParameterList.getParametersCount, method.name, method.isAccessor || isStringSpecialMethod)
+
+        (method.getParameterList.getParametersCount, method.isAccessor || isStringSpecialMethod)
       case fun: ScFun =>
-        if (fun.paramClauses.isEmpty) (-1, null, false)
-        else {
-          val clause = fun.paramClauses.head
-          (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
-        }
-      case _ => (0, item.element.name, true)
+        if (fun.paramClauses.isEmpty) (-1, false)
+        else (fun.paramClauses.head.length, false)
+      case _ => (0, true)
     }
-  }
 }
 
-class ScalaInsertHandler extends InsertHandler[LookupElement] {
-  import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler._
-  override def handleInsert(context: InsertionContext, _item: LookupElement) {
-    if (!_item.isInstanceOf[ScalaLookupItem]) return
-    val item = _item.asInstanceOf[ScalaLookupItem]
+final class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
-    val editor = context.getEditor
-    val document = editor.getDocument
+  import ScalaInsertHandler._
 
-    val contextStartOffset = context.getStartOffset
-    var (startOffset, lookupStringLength) =
-      if (item.isInSimpleString) {
-        val literal = context.getFile.findElementAt(contextStartOffset).getParent
-        val startOffset = contextStartOffset
-        val tailOffset = context.getTailOffset
-        val literalOffset = literal.getTextRange.getStartOffset
-        document.insertString(tailOffset, "}")
-        document.insertString(startOffset, "{")
-        document.insertString(literalOffset, "s")
-        context.commitDocument()
-        (startOffset + 2, tailOffset - startOffset)
-      } else if (item.isInInterpolatedString) {
-        context.getFile.findElementAt(contextStartOffset).getParent match {
-          case literal: ScInterpolated =>
-            ScalaBasicCompletionContributor.interpolatedStringBounds(literal, contextStartOffset, literal) match {
-              case Some((offset, _)) =>
-                val tailOffset = context.getTailOffset
-                document.insertString(tailOffset, "}")
-                document.insertString(offset + literal.getTextRange.getStartOffset, "{")
-                context.commitDocument()
-                (offset + 1, tailOffset - offset)
-              case _ => return
-            }
-          case _ => return
-        }
-      } else (contextStartOffset, context.getTailOffset - contextStartOffset)
-    var endOffset = startOffset + lookupStringLength
-    
+  override def handleInsert(context: InsertionContext, item: LookupElement): Unit = item match {
+    case item: ScalaLookupItem =>
 
-    val completionChar: Char = context.getCompletionChar
-    def disableParenthesesCompletionChar() {
-      if (completionChar == '(' || completionChar == '{') {
-        context.setAddCompletionChar(false)
-      }
-    }
+      val editor = context.getEditor
+      val model = editor.getCaretModel
+      val document = editor.getDocument
 
-    val some = item.someSmartCompletion
-    val someNum = if (some) 1 else 0
-    //val file = context.getFile //returns wrong file in evaluate expression in debugger (runtime type completion)
-    val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
-    val element =
-      if (completionChar == '\t') {
-        file.findElementAt(startOffset) match {
-          case elem if elem.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER && elem.getParent.isInstanceOf[ScReferenceExpression]
-            && elem.getParent.getParent.isInstanceOf[ScReferenceExpression] && item.getAllLookupStrings.size() > 1 =>
-            val ref = elem.getParent.asInstanceOf[ScReferenceExpression]
-            val newRefText = ref.getText
-            val newRef = createExpressionFromText(newRefText)(ref.getManager)
-            ref.getParent.replace(newRef).getFirstChild
-          case elem => elem
-        }
-      } else file.findElementAt(startOffset)
-    if (some) {
-      var elem = element
-      var parent = elem.getParent
-      while (parent match {
-        case _: ScStableCodeReference =>
-          parent.getParent match {
-            case _: ScThisReference | _: ScSuperReference => true
-            case _ => false
+      val contextStartOffset = context.getStartOffset
+      var (startOffset, lookupStringLength) =
+        if (item.isInSimpleString) {
+          val literal = context.getFile.findElementAt(contextStartOffset).getParent
+          val startOffset = contextStartOffset
+          val tailOffset = context.getTailOffset
+          val literalOffset = literal.getTextRange.getStartOffset
+          document.insertString(tailOffset, "}")
+          document.insertString(startOffset, "{")
+          document.insertString(literalOffset, "s")
+          context.commitDocument()
+          (startOffset + 2, tailOffset - startOffset)
+        } else if (item.isInInterpolatedString) {
+          context.getFile.findElementAt(contextStartOffset).getParent match {
+            case literal: ScInterpolated =>
+              ScalaBasicCompletionContributor.interpolatedStringBounds(literal, contextStartOffset, literal) match {
+                case Some((offset, _)) =>
+                  val tailOffset = context.getTailOffset
+                  document.insertString(tailOffset, "}")
+                  document.insertString(offset + literal.getTextRange.getStartOffset, "{")
+                  context.commitDocument()
+                  (offset + 1, tailOffset - offset)
+                case _ => return
+              }
+            case _ => return
           }
-        case _: ScReferenceExpression => true
-        case _: ScThisReference => true
-        case _: ScSuperReference => true
-        case inf: ScInfixExpr if elem == inf.operation => true
-        case pref: ScPrefixExpr if elem == pref.operation => true
-        case postf: ScPostfixExpr if elem == postf.operation => true
-        case _ => false
-      }) {
-        elem = parent
-        parent = parent.getParent
+        } else (contextStartOffset, context.getTailOffset - contextStartOffset)
+      var endOffset = startOffset + lookupStringLength
+
+
+      val completionChar: Char = context.getCompletionChar
+
+      def disableParenthesesCompletionChar() {
+        if (completionChar == '(' || completionChar == '{') {
+          context.setAddCompletionChar(false)
+        }
       }
 
-      val start = elem.getTextRange.getStartOffset
-      val end = elem.getTextRange.getEndOffset
-      document.insertString(end, ")")
-      document.insertString(start, "Some(")
-      startOffset += 5
-      endOffset += 5
-    }
-
-    def moveCaretIfNeeded() {
+      val some = item.someSmartCompletion
+      val someNum = if (some) 1 else 0
+      //val file = context.getFile //returns wrong file in evaluate expression in debugger (runtime type completion)
+      val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
+      val element =
+        if (completionChar == '\t') {
+          file.findElementAt(startOffset) match {
+            case elem if elem.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER && elem.getParent.isInstanceOf[ScReferenceExpression]
+              && elem.getParent.getParent.isInstanceOf[ScReferenceExpression] && item.getAllLookupStrings.size() > 1 =>
+              val ref = elem.getParent.asInstanceOf[ScReferenceExpression]
+              val newRefText = ref.getText
+              val newRef = createExpressionFromText(newRefText)(ref.getManager)
+              ref.getParent.replace(newRef).getFirstChild
+            case elem => elem
+          }
+        } else file.findElementAt(startOffset)
       if (some) {
-        editor.getCaretModel.moveToOffset(endOffset + 1)
-      }
-    }
+        var elem = element
+        var parent = elem.getParent
+        while (parent match {
+          case _: ScStableCodeReference =>
+            parent.getParent match {
+              case _: ScThisReference | _: ScSuperReference => true
+              case _ => false
+            }
+          case _: ScReferenceExpression => true
+          case _: ScThisReference => true
+          case _: ScSuperReference => true
+          case inf: ScInfixExpr if elem == inf.operation => true
+          case pref: ScPrefixExpr if elem == pref.operation => true
+          case postf: ScPostfixExpr if elem == postf.operation => true
+          case _ => false
+        }) {
+          elem = parent
+          parent = parent.getParent
+        }
 
-    /**
-     * insert parentheses in case if it's necessary
-     * @param placeInto "(<caret>)" if true
-     * @param openChar open char like '('
-     * @param closeChar close char like ')'
-     * @param withSpace add " ()" if true
-     * @param withSomeNum move caret with additional shift on some completion ending
-     */
-    @tailrec
-    def insertIfNeeded(placeInto: Boolean, openChar: Char, closeChar: Char, withSpace: Boolean, withSomeNum: Boolean) {
-      def shiftEndOffset(shift: Int, withSomeNum: Boolean = withSomeNum) {
-        endOffset += shift
-        editor.getCaretModel.moveToOffset(endOffset + (if (withSomeNum) someNum else 0))
+        val start = elem.getTextRange.getStartOffset
+        val end = elem.getTextRange.getEndOffset
+        document.insertString(end, ")")
+        document.insertString(start, "Some(")
+        startOffset += 5
+        endOffset += 5
       }
-      val documentText = document.getImmutableCharSequence
-      val nextChar: Char =
-        if (endOffset < document.getTextLength) documentText.charAt(endOffset)
-        else 0.toChar
-      if (!withSpace && nextChar != openChar) {
-        if (CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
-          document.insertString(endOffset, s"$openChar$closeChar")
+
+      def moveCaretIfNeeded() {
+        if (some) {
+          model.moveToOffset(endOffset + 1)
+        }
+      }
+
+      /**
+       * insert parentheses in case if it's necessary
+       *
+       * @param placeInto   "(<caret>)" if true
+       * @param openChar    open char like '('
+       * @param closeChar   close char like ')'
+       * @param withSpace   add " ()" if true
+       * @param withSomeNum move caret with additional shift on some completion ending
+       */
+      @tailrec
+      def insertIfNeeded(placeInto: Boolean, openChar: Char, closeChar: Char, withSpace: Boolean, withSomeNum: Boolean) {
+        def shiftEndOffset(shift: Int, withSomeNum: Boolean = withSomeNum) {
+          endOffset += shift
+          model.moveToOffset(endOffset + (if (withSomeNum) someNum else 0))
+        }
+
+        val documentText = document.getImmutableCharSequence
+        val nextChar: Char =
+          if (endOffset < document.getTextLength) documentText.charAt(endOffset)
+          else 0.toChar
+        if (!withSpace && nextChar != openChar) {
+          if (CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+            document.insertString(endOffset, s"$openChar$closeChar")
+            if (placeInto) {
+              shiftEndOffset(1)
+            } else {
+              shiftEndOffset(2)
+            }
+          } else {
+            document.insertString(endOffset, s"$openChar")
+            shiftEndOffset(1)
+          }
+        } else if (!withSpace && nextChar == openChar) {
           if (placeInto) {
             shiftEndOffset(1)
           } else {
-            shiftEndOffset(2)
-          }
-        } else {
-          document.insertString(endOffset, s"$openChar")
-          shiftEndOffset(1)
-        }
-      } else if (!withSpace && nextChar == openChar) {
-        if (placeInto) {
-          shiftEndOffset(1)
-        } else {
-          val nextNextChar = documentText.charAt(endOffset + 1)
-          if (nextNextChar == closeChar) {
-            shiftEndOffset(2)
-          } else {
-            shiftEndOffset(1)
-          }
-        }
-      } else if (withSpace && (nextChar != ' ' || documentText.charAt(endOffset + 1) != openChar)) {
-        document.insertString(endOffset, " ")
-        shiftEndOffset(1, withSomeNum = false)
-        insertIfNeeded(placeInto, openChar, closeChar, withSpace = false, withSomeNum = withSomeNum)
-      } else if (withSpace && nextChar == ' ') {
-        shiftEndOffset(1, withSomeNum = false)
-        insertIfNeeded(placeInto, openChar, closeChar, withSpace = false, withSomeNum = withSomeNum)
-      }
-    }
-
-    item.element match {
-      case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
-        context.setAddCompletionChar(false)
-        insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
-      case _: PsiNamedElement if item.isNamedParameter => //some is impossible here
-        val shouldAddEqualsSign = element.getParent match {
-          case ref: ScReferenceExpression =>
-            ref.getParent match {
-              case ass: ScAssignment if ass.leftExpression == ref =>
-                ass.getParent match {
-                  case _: ScArgumentExprList => false
-                  case _ => true
-                }
-              case _ => true
-            }
-          case _ => true //should be impossible
-        }
-        context.setAddCompletionChar(false)
-        if (shouldAddEqualsSign) {
-          document.insertString(endOffset, " = ")
-          endOffset += 3
-          editor.getCaretModel.moveToOffset(endOffset)
-        }
-        return
-      case _: PsiMethod if item.isInImport => moveCaretIfNeeded()
-      case _: ScFun if item.isInImport => moveCaretIfNeeded()
-      case fun: ScFunction if fun.name == "classOf" && fun.containingClass != null &&
-        fun.containingClass.qualifiedName == "scala.Predef" =>
-        context.setAddCompletionChar(false)
-        insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = true)
-      case _: PsiMethod | _: ScFun =>
-        if (context.getCompletionChar != '[') {
-          val (count, _, isAccessor) = getItemParametersAndAccessorStatus(item)
-          if (count == 0 && !isAccessor) {
-            disableParenthesesCompletionChar()
-            if (item.etaExpanded) {
-              document.insertString(endOffset, " _")
-              endOffset += 2
-              editor.getCaretModel.moveToOffset(endOffset)
+            val nextNextChar = documentText.charAt(endOffset + 1)
+            if (nextNextChar == closeChar) {
+              shiftEndOffset(2)
             } else {
-              insertIfNeeded(placeInto = context.getCompletionChar == '(', openChar = '(', closeChar = ')',
-                withSpace = false, withSomeNum = false)
+              shiftEndOffset(1)
             }
-          } else if (count > 0) {
-            import org.jetbrains.plugins.scala.extensions._
-            element.getParent match {
-              //case for infix expressions
-              case (ref: ScReferenceExpression) && Parent(inf: ScInfixExpr) if inf.operation == ref =>
-                if (count > 1) {
-                  disableParenthesesCompletionChar()
-                  if (!item.etaExpanded) {
-                    val openChar = if (context.getCompletionChar == '{') '{' else '('
-                    val closeChar = if (context.getCompletionChar == '{') '}' else ')'
-                    insertIfNeeded(placeInto = true, openChar = openChar, closeChar = closeChar, withSpace = true, withSomeNum = false)
-                  } else {
-                    document.insertString(endOffset, " _")
-                    endOffset += 2
-                    editor.getCaretModel.moveToOffset(endOffset)
-                  }
-                } else {
-                  if (context.getCompletionChar == '{') {
-                    insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
-                  } else {
-                    document.insertString(endOffset, " ")
-                    endOffset += 1
-                    editor.getCaretModel.moveToOffset(endOffset)
-                  }
-                }
-              //no braces for interpolated string id
-              case _: ScInterpolatedExpressionPrefix =>
+          }
+        } else if (withSpace && (nextChar != ' ' || documentText.charAt(endOffset + 1) != openChar)) {
+          document.insertString(endOffset, " ")
+          shiftEndOffset(1, withSomeNum = false)
+          insertIfNeeded(placeInto, openChar, closeChar, withSpace = false, withSomeNum = withSomeNum)
+        } else if (withSpace && nextChar == ' ') {
+          shiftEndOffset(1, withSomeNum = false)
+          insertIfNeeded(placeInto, openChar, closeChar, withSpace = false, withSomeNum = withSomeNum)
+        }
+      }
 
-              // for reference invocations
-              case _ =>
-                if (completionChar == ' ') {
-                  context.setAddCompletionChar(false)
-                  document.insertString(endOffset, " ")
-                  endOffset += 1
-                  editor.getCaretModel.moveToOffset(endOffset + someNum)
-                } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
-                  disableParenthesesCompletionChar()
-                  if (!item.etaExpanded) {
-                    if (context.getCompletionChar == '{') {
-                      if (ScalaPsiUtil.getSettings(context.getProject).SPACE_BEFORE_BRACE_METHOD_CALL) {
-                        insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
-                      } else {
-                        insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = false, withSomeNum = false)
-                      }
-                    } else {
-                      insertIfNeeded(placeInto = true, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
-                    }
-                  } else {
-                    document.insertString(endOffset, " _")
-                    endOffset += 2
-                    editor.getCaretModel.moveToOffset(endOffset)
-                  }
-                  AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
-                } else if (completionChar != ',') {
-                  editor.getCaretModel.moveToOffset(endOffset + 1 + someNum)
-                } else moveCaretIfNeeded()
-            }
-          } else moveCaretIfNeeded()
-        } else {
+      item.element match {
+        case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
           context.setAddCompletionChar(false)
           insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
-          //do not add () or {} in this case, use will choose what he want later
-        }
-      case _: ScTypeDefinition =>
-        if (context.getCompletionChar != '[') {
-          //add space between the added element and the '{' in extends block when necessary
-          val documentText = document.getImmutableCharSequence
-          val isInTemplateParents =
-            PsiTreeUtil.getParentOfType(element, classOf[ScTemplateParents], false, classOf[ScExtendsBlock]) != null
-          val lBraceAtCaret = endOffset < documentText.length() && documentText.charAt(endOffset) == '{'
-          if (lBraceAtCaret && isInTemplateParents) {
-            document.insertString(endOffset, " ")
-            endOffset += 1
-            editor.getCaretModel.moveToOffset(endOffset)
+        case _: PsiNamedElement if item.isNamedParameter => //some is impossible here
+          val shouldAddEqualsSign = element.getParent match {
+            case ref: ScReferenceExpression =>
+              ref.getParent match {
+                case ass: ScAssignment if ass.leftExpression == ref =>
+                  ass.getParent match {
+                    case _: ScArgumentExprList => false
+                    case _ => true
+                  }
+                case _ => true
+              }
+            case _ => true //should be impossible
           }
-        }
-        moveCaretIfNeeded()
-      case _ => moveCaretIfNeeded()
-    }
-
-    if (completionChar == ',') {
-      endOffset += someNum
-      context.setAddCompletionChar(false)
-      document.insertString(endOffset, ",")
-      endOffset += 1
-      editor.getCaretModel.moveToOffset(endOffset)
-    }
-
-    if (item.isInSimpleString) {
-      context.commitDocument()
-      val index = contextStartOffset + 2
-      val elem = context.getFile.findElementAt(index)
-      elem.getNode.getElementType match {
-        case ScalaTokenTypes.tIDENTIFIER =>
-          val reference = elem.getParent
-          reference.getParent match {
-            case block: ScBlock if RedundantBlockInspection.isRedundantBlock(block) =>
-              val blockEndOffset = block.getTextRange.getEndOffset
-              val blockStartOffset = block.getTextRange.getStartOffset
-              document.replaceString(blockEndOffset - 1, blockEndOffset, "")
-              document.replaceString(blockStartOffset, blockStartOffset + 1, "")
-              item.isInSimpleStringNoBraces = true
-            case _ =>
+          context.setAddCompletionChar(false)
+          if (shouldAddEqualsSign) {
+            document.insertString(endOffset, " = ")
+            endOffset += 3
+            model.moveToOffset(endOffset)
           }
+          return
+        case _: PsiMethod if item.isInImport => moveCaretIfNeeded()
+        case _: ScFun if item.isInImport => moveCaretIfNeeded()
+        case fun: ScFunction if fun.name == "classOf" && fun.containingClass != null &&
+          fun.containingClass.qualifiedName == "scala.Predef" =>
+          context.setAddCompletionChar(false)
+          insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = true)
+        case method@(_: PsiMethod | _: ScFun) =>
+          if (context.getCompletionChar != '[') {
+            val (count, isAccessor) = getItemParametersAndAccessorStatus(method)
+            if (count == 0 && !isAccessor) {
+              disableParenthesesCompletionChar()
+              if (item.etaExpanded) {
+                document.insertString(endOffset, " _")
+                endOffset += 2
+                model.moveToOffset(endOffset)
+              } else {
+                insertIfNeeded(placeInto = context.getCompletionChar == '(', openChar = '(', closeChar = ')',
+                  withSpace = false, withSomeNum = false)
+              }
+            } else if (count > 0) {
+              element.getParent match {
+                //case for infix expressions
+                case (ref: ScReferenceExpression) && Parent(inf: ScInfixExpr) if inf.operation == ref =>
+                  if (count > 1) {
+                    disableParenthesesCompletionChar()
+                    if (!item.etaExpanded) {
+                      val openChar = if (context.getCompletionChar == '{') '{' else '('
+                      val closeChar = if (context.getCompletionChar == '{') '}' else ')'
+                      insertIfNeeded(placeInto = true, openChar = openChar, closeChar = closeChar, withSpace = true, withSomeNum = false)
+                    } else {
+                      document.insertString(endOffset, " _")
+                      endOffset += 2
+                      model.moveToOffset(endOffset)
+                    }
+                  } else {
+                    if (context.getCompletionChar == '{') {
+                      insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
+                    } else {
+                      document.insertString(endOffset, " ")
+                      endOffset += 1
+                      model.moveToOffset(endOffset)
+                    }
+                  }
+                //no braces for interpolated string id
+                case _: ScInterpolatedExpressionPrefix =>
+
+                // for reference invocations
+                case _ =>
+                  if (completionChar == ' ') {
+                    context.setAddCompletionChar(false)
+                    document.insertString(endOffset, " ")
+                    endOffset += 1
+                    model.moveToOffset(endOffset + someNum)
+                  } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
+                    disableParenthesesCompletionChar()
+                    if (!item.etaExpanded) {
+                      if (context.getCompletionChar == '{') {
+                        if (ScalaPsiUtil.getSettings(context.getProject).SPACE_BEFORE_BRACE_METHOD_CALL) {
+                          insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
+                        } else {
+                          insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = false, withSomeNum = false)
+                        }
+                      } else {
+                        insertIfNeeded(placeInto = true, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
+                      }
+                    } else {
+                      document.insertString(endOffset, " _")
+                      endOffset += 2
+                      model.moveToOffset(endOffset)
+                    }
+                    AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
+                  } else if (completionChar != ',') {
+                    model.moveToOffset(endOffset + 1 + someNum)
+                  } else moveCaretIfNeeded()
+              }
+            } else moveCaretIfNeeded()
+          } else {
+            context.setAddCompletionChar(false)
+            insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
+            //do not add () or {} in this case, use will choose what he want later
+          }
+        case _: ScTypeDefinition =>
+          if (context.getCompletionChar != '[') {
+            //add space between the added element and the '{' in extends block when necessary
+            val documentText = document.getImmutableCharSequence
+            val isInTemplateParents =
+              PsiTreeUtil.getParentOfType(element, classOf[ScTemplateParents], false, classOf[ScExtendsBlock]) != null
+            val lBraceAtCaret = endOffset < documentText.length() && documentText.charAt(endOffset) == '{'
+            if (lBraceAtCaret && isInTemplateParents) {
+              document.insertString(endOffset, " ")
+              endOffset += 1
+              model.moveToOffset(endOffset)
+            }
+          }
+          moveCaretIfNeeded()
+        case _ => moveCaretIfNeeded()
       }
-    }
+
+      if (completionChar == ',') {
+        endOffset += someNum
+        context.setAddCompletionChar(false)
+        document.insertString(endOffset, ",")
+        endOffset += 1
+        model.moveToOffset(endOffset)
+      }
+
+      if (item.isInSimpleString) {
+        context.commitDocument()
+        val index = contextStartOffset + 2
+        val elem = context.getFile.findElementAt(index)
+        elem.getNode.getElementType match {
+          case ScalaTokenTypes.tIDENTIFIER =>
+            val reference = elem.getParent
+            reference.getParent match {
+              case block: ScBlock if RedundantBlockInspection.isRedundantBlock(block) =>
+                val blockEndOffset = block.getTextRange.getEndOffset
+                val blockStartOffset = block.getTextRange.getStartOffset
+                document.replaceString(blockEndOffset - 1, blockEndOffset, "")
+                document.replaceString(blockStartOffset, blockStartOffset + 1, "")
+                item.isInSimpleStringNoBraces = true
+              case _ =>
+            }
+        }
+      }
+    case _ =>
   }
 }
