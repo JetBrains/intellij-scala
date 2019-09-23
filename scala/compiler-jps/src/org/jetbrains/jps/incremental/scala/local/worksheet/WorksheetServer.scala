@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io._
 import java.net.URL
-import java.nio.ByteBuffer
+import java.nio.{Buffer, ByteBuffer}
 
 import org.jetbrains.annotations.NotNull
 import com.intellij.util.Base64Converter
@@ -95,8 +95,8 @@ object WorksheetServer {
         val copy = buffer.array().clone()
         capacity *= 2
         buffer = ByteBuffer.allocate(capacity)
-        buffer put copy
-        buffer put b.toByte
+        buffer.put(copy)
+        buffer.put(b.toByte)
       }
 
       if (b == '\n') flush()
@@ -109,7 +109,9 @@ object WorksheetServer {
     override def flush() {
       if (buffer.position() == 0) return
       val event = WorksheetOutputEvent(new String(buffer.array(), 0, buffer.position()))
-      buffer.clear()
+      // ATTENTION: do not delete this cast to Buffer!
+      // it is required to be run on JDK 8 in case plugin is built with JDK 11, see SCL-16277 for the details
+      buffer.asInstanceOf[Buffer].clear()
       val encode = Base64Converter.encode(event.toBytes)
       delegateOut.write(if (standalone && !encode.endsWith("=")) (encode + "=").getBytes else encode.getBytes)
     }
