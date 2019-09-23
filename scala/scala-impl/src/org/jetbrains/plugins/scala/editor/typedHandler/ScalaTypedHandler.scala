@@ -591,10 +591,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
         document.insertString(elementActualEndOffset, "\n}")
         document.commit(project)
 
-        CodeStyleManager.getInstance(project).reformatTextWithContext(file, ju.Arrays.asList(
+        val ranges = ju.Arrays.asList(
           TextRange.from(caretOffset, 1),
           TextRange.from(elementActualEndOffset, 3)
-        ))
+        )
+        CodeStyleManager.getInstance(project).reformatText(file, ranges)
       }
 
       Result.STOP
