@@ -1,6 +1,0 @@
-class MultipleBounds[M   <:   A   <%   B   <%   C   :   D   :  E]
-class OneBound[M   :  E]
-------
-class MultipleBounds[M <: A <% B <% C : D : E]
-
-class OneBound[M: E]

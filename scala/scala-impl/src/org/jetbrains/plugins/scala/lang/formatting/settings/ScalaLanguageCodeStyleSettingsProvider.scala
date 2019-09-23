@@ -294,6 +294,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       opt("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", "Before opening square bracket", GroupNames.SPACES_IN_TYPE_PARAMETERS)
 
+      opt("SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON", "Before context bound colon (leading)", GroupNames.SPACES_IN_TYPE_PARAMETERS)
+      opt("SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON_HK", "Before context bound colon (leading higher-kinded)", GroupNames.SPACES_IN_TYPE_PARAMETERS)
+      opt("SPACE_BEFORE_TYPE_PARAMETER_REST_CONTEXT_BOUND_COLONS", "Before context bound colon (rest)", GroupNames.SPACES_IN_TYPE_PARAMETERS)
+
       opt("SPACE_INSIDE_SELF_TYPE_BRACES", "Self type braces", GroupNames.SPACES_WITHIN)
       opt("SPACES_IN_IMPORTS", "Import braces", GroupNames.SPACES_WITHIN)
       opt("SPACES_IN_ONE_LINE_BLOCKS", "Simple one line block braces", GroupNames.SPACES_WITHIN)
@@ -373,7 +377,7 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |
       |class A {
       |
-      |  def foo[A](): Int = 42
+      |  def foo(): Int = 42
       |
       |  // `Within | Simple one line block braces` changes can only be visible if
       |  // `Wrapping and Braces | Keep when reformatting | Simple blocks/methods in one line` setting is enabled
@@ -449,6 +453,12 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |
       |  @inline def multiply(x: Int, y: Int): Int = x * y
       |
+      |  trait X1[F]
+      |  trait X2[F: T]
+      |  trait X4[F: T1 : T2]
+      |  trait X3[F[_] : T]
+      |  trait X5[F[_] : T1 : T2]
+      |  trait X6[F <: G : T1 : T2]
       |}
     """.stripMargin.withNormalizedSeparator
 

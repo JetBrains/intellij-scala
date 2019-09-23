@@ -148,6 +148,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, keepLineBreaks, 100)
     val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
 
+    def withSpacingIf(condition: Boolean) = if (condition) WITH_SPACING else WITHOUT_SPACING
+
     if (rightPsi.isInstanceOf[PsiComment] && settings.KEEP_FIRST_COLUMN_COMMENT)
       return Spacing.createKeepingFirstColumnSpacing(0, Integer.MAX_VALUE, true, settings.KEEP_BLANK_LINES_IN_CODE)
 
@@ -822,6 +824,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightPsi.isInstanceOf[ScDocComment] && leftElementType == ScalaTokenTypes.tLBRACE) return ON_NEW_LINE
     if (rightPsi.isInstanceOf[ScDocComment]) return DOUBLE_LINE
     if (rightPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiComment]) return COMMON_SPACING
+
     //; : . and , processing
     if (rightBlockString.startsWith(".") &&
       rightElementType != ScalaTokenType.Float &&
@@ -834,21 +837,36 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else WITHOUT_SPACING
     }
     if (rightElementType == ScalaTokenTypes.tCOLON) {
-      var left = leftNode
-      // For operations like
-      // var Object_!= : Symbol = _
-      if (scalaSettings.SPACE_BEFORE_TYPE_COLON) return WITH_SPACING //todo:
-      while (left != null && left.getLastChildNode != null) {
-        left = left.getLastChildNode
+      val result = rightPsiParent match {
+        case tp: ScTypeParam =>
+          val tpNode     = tp.nameId.getNode
+          val tpNodeNext = tpNode.getTreeNext
+
+          val isLeadingContextBound = tpNode.eq(leftNode)
+          val isLeadingContextBoundHK = tpNodeNext.eq(leftNode) &&
+            tpNodeNext != null && tpNodeNext.getElementType == ScalaElementType.TYPE_PARAM_CLAUSE
+
+          if (isLeadingContextBound) {
+            withSpacingIf(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON)
+          } else if (isLeadingContextBoundHK) {
+            withSpacingIf(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON_HK)
+          } else {
+            withSpacingIf(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_REST_CONTEXT_BOUND_COLONS)
+          }
+        case _ =>
+          if (scalaSettings.SPACE_BEFORE_TYPE_COLON) {
+            WITH_SPACING
+          } else {
+            // For operations like `var Object_!= : Symbol = _`
+            var left = leftNode
+            while (left != null && left.getLastChildNode != null) {
+              left = left.getLastChildNode
+            }
+            val colonCanStickToLeftIdentifier = left.getElementType == ScalaTokenTypes.tIDENTIFIER && isIdentifier(getText(left, fileText) + ":")
+            withSpacingIf(colonCanStickToLeftIdentifier)
+          }
       }
-      val tp = PsiTreeUtil.getParentOfType(left.getPsi, classOf[ScTypeParam])
-      if (tp != null) {
-        return if (tp.nameId.getNode eq left) WITHOUT_SPACING
-        else WITH_SPACING
-      }
-      val leftIsIdentifier = left.getElementType == ScalaTokenTypes.tIDENTIFIER && isIdentifier(getText(left, fileText) + ":")
-      return if (leftIsIdentifier) WITH_SPACING
-      else WITHOUT_SPACING
+      return result
     }
 
     val rightTreeParentIsFile = rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]

@@ -78,6 +78,10 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     return getSettings().getCustomSettings(ScalaCodeStyleSettings.class);
   }
 
+  public ScalaCodeStyleSettings scalaSettings() {
+    return getScalaSettings();
+  }
+
   public CodeStyleSettings getSettings() {
     return CodeStyleSettingsManager.getSettings(getProject());
   }

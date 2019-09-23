@@ -132,6 +132,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean KEEP_COMMENTS_ON_SAME_LINE = true;
   public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
 
+  // multiple versions created to preserve legacy formatting
+  public boolean SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON = false; // class A[M: T]
+  public boolean SPACE_BEFORE_TYPE_PARAMETER_LEADING_CONTEXT_BOUND_COLON_HK = true; // class A[M[_] : T]
+  public boolean SPACE_BEFORE_TYPE_PARAMETER_REST_CONTEXT_BOUND_COLONS = true; // class A[M: T1 : T2]
+
   public boolean INDENT_TYPE_ARGUMENTS = true;
   public boolean INDENT_TYPE_PARAMETERS = true;
 
@@ -146,7 +151,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //multiline strings support
   public boolean MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true;
   public boolean MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES = false;
-  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = true;
+  public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = false;
 
   /**
    * @deprecated This field is left for migration only. Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER}
