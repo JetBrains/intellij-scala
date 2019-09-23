@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.imports.worksheet
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaWorksheetIntentionTestBase
-import org.jetbrains.plugins.scala.codeInsight.intentions.imports.ImportStableMemberIntentionTest
+import org.jetbrains.plugins.scala.codeInsight.intentions.imports.ImportStableMemberIntentionBaseTest
 
-class ImportStableMemberInWorksheetIntentionTest extends ImportStableMemberIntentionTest with ScalaWorksheetIntentionTestBase {
+class ImportStableMemberInWorksheetIntentionTest extends ImportStableMemberIntentionBaseTest with ScalaWorksheetIntentionTestBase {
 
   def testParameterizedDef_TopLevelStatement(): Unit = doTest(
     """scala.Option.<caret>empty[Int]
       |""".stripMargin,
-    """import scala.Option.empty
+    """<caret>import scala.Option.empty
       |
-      |<caret>empty[Int]"""
+      |empty[Int]"""
       .stripMargin
   )
 }
