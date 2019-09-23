@@ -9,6 +9,7 @@ import java.io.File
 import java.util.Collections.emptyList
 
 import com.intellij.icons.AllIcons
+import com.intellij.lang.Language
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
@@ -17,7 +18,7 @@ import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter
 import com.intellij.openapi.editor.{EditorFactory, EditorSettings}
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
+import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui._
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
@@ -37,6 +38,8 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotification
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
 
 final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
+
+  import ScalaFmtSettingsPanel._
 
   private val Log = Logger.getInstance(getClass)
 
@@ -289,7 +292,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       constraint(4, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
     val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
-    noConfigLabel = new JLabel(ScalaFmtSettingsPanel.NoConfigSpecifiedText)
+    noConfigLabel = new JLabel(NoConfigSpecifiedText)
     configEditorPanel.add(noConfigLabel)
     noConfigLabel.setVisible(false)
     previewPanel = new JPanel()
@@ -372,40 +375,6 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private def projectConfigFile(configPath: String): Option[VirtualFile] =
     projectOpt.flatMap(ScalafmtDynamicConfigManager.scalafmtProjectConfigFile(_, configPath))
 
-  //copied from CodeStyleAbstractPanel
-  //using non-null getPreviewText breaks setting saving (!!!)
-  private def createConfigEditor: EditorEx = {
-    val editorFactory = EditorFactory.getInstance
-    val editorDocument = editorFactory.createDocument("")
-    val editor = editorFactory.createEditor(editorDocument).asInstanceOf[EditorEx]
-    fillEditorSettings(editor.getSettings)
-    attachHighlighter(editor)
-    editor
-  }
-
-  private def fillEditorSettings(editorSettings: EditorSettings): Unit = {
-    editorSettings.setWhitespacesShown(true)
-    editorSettings.setLineMarkerAreaShown(false)
-    editorSettings.setIndentGuidesShown(false)
-    editorSettings.setLineNumbersShown(false)
-    editorSettings.setFoldingOutlineShown(false)
-    editorSettings.setAdditionalColumnsCount(0)
-    editorSettings.setAdditionalLinesCount(1)
-    editorSettings.setUseSoftWraps(false)
-    editorSettings.setSoftMargins(emptyList[Integer])
-  }
-
-  private def attachHighlighter(editor: EditorEx): Unit = {
-    LanguageExt.findLanguageByIdIgnoreCase("hocon") match {
-      case Some(lang) =>
-        editor.getSettings.setLanguage(lang)
-        val syntaxHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(lang, null, null)
-        val highlighter = new LayeredLexerEditorHighlighter(syntaxHighlighter, new DefaultColorsScheme())
-        editor.setHighlighter(highlighter)
-      case _ =>
-    }
-  }
-
   private var isPanelEnabled: Boolean = false
   private var projectOpt: Option[Project] = None
   private var configText: Option[CharSequence] = None
@@ -423,5 +392,43 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 }
 
 object ScalaFmtSettingsPanel {
+
   private val NoConfigSpecifiedText = "No configuration found under specified path, using default IntelliJ configuration"
+
+  //copied from CodeStyleAbstractPanel
+  //using non-null getPreviewText breaks setting saving (!!!)
+  private def createConfigEditor: EditorEx = {
+    val editorFactory = EditorFactory.getInstance
+    val editorDocument = editorFactory.createDocument("")
+    val editor = editorFactory.createEditor(editorDocument)
+      .asInstanceOf[EditorEx]
+
+    val hoconLanguage = Language.findLanguageByID("HOCON")
+    fillEditorSettings(editor.getSettings, hoconLanguage)
+
+    if (hoconLanguage != null) {
+      val highlighter = new LayeredLexerEditorHighlighter(
+        getSyntaxHighlighter(hoconLanguage, null, null),
+        new DefaultColorsScheme
+      )
+      editor.setHighlighter(highlighter)
+    }
+
+    editor
+  }
+
+  private[this] def fillEditorSettings(settings: EditorSettings,
+                                       language: Language): Unit = {
+    settings.setLanguage(language)
+    settings.setWhitespacesShown(true)
+    settings.setLineMarkerAreaShown(false)
+    settings.setIndentGuidesShown(false)
+    settings.setLineNumbersShown(false)
+    settings.setFoldingOutlineShown(false)
+    settings.setAdditionalColumnsCount(0)
+    settings.setAdditionalLinesCount(1)
+    settings.setUseSoftWraps(false)
+    settings.setSoftMargins(emptyList[Integer])
+  }
+
 }

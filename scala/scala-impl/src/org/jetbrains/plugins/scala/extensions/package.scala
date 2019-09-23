@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
-import com.intellij.lang.Language
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
@@ -975,14 +974,6 @@ package object extensions {
   implicit class ThrowableExt(private val ex: Throwable) extends AnyVal {
 
     def stackTraceText: String = ExceptionUtil.getThrowableText(ex).replace("\r", "")
-  }
-
-  object LanguageExt {
-    def findLanguageByIdIgnoreCase(ID: String): Option[Language] = {
-      import scala.collection.JavaConverters._
-      val registeredLanguages = Language.getRegisteredLanguages.asScala
-      registeredLanguages.find(_.getID.compareToIgnoreCase(ID) == 0)
-    }
   }
 
   import scala.language.implicitConversions
