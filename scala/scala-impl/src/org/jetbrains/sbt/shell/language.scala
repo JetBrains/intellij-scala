@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package shell
 
 import com.intellij.extapi.psi.PsiFileBase
-import com.intellij.lang.{ASTNode, Language, ParserDefinition, PsiParser}
+import com.intellij.lang._
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IElementType, IFileElementType, TokenSet}
@@ -11,7 +11,7 @@ import javax.swing.Icon
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.LanguageFileTypeBase
 
-object SbtShellLanguage extends Language("sbtShell") {
+object SbtShellLanguage extends Language("sbtShell") with DependentLanguage {
   override def isCaseSensitive: Boolean = true
 }
 
