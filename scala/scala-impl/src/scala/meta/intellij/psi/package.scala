@@ -1,68 +1,15 @@
 package scala.meta
 package intellij
 
-import java.io.File
-import java.util.jar.Attributes.{Name => AttributeName}
-
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.ModificationTracker
-import com.intellij.openapi.util.io.JarUtil
-import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, CachedWithRecursionGuard, ModCount}
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 package object psi {
-
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
-  private[this] def isMetaParadiseJar(pathName: String): Boolean = {
-    import JarUtil._
-    new File(pathName) match {
-      case file if containsEntry(file, "scalac-plugin.xml") =>
-        def attribute(nameSuffix: String) =
-          getJarAttribute(file, new AttributeName(s"Specification-$nameSuffix"))
-
-        attribute("Vendor") == "org.scalameta" &&
-          attribute("Title") == "paradise"
-      case _ => false
-    }
-  }
-
-  private implicit class ScalaPsiElementExt(private val repr: PsiElement) extends AnyVal {
-
-    def isMetaEnabled: Boolean = repr.isValid &&
-      (repr.getContainingFile match {
-        case file: ScalaFile if !file.isCompiled => file.isMetaEnabled(repr.getProject)
-        case _ => false
-      })
-  }
-
-  implicit class PsiFileExt(private val repr: PsiFile) extends AnyVal {
-
-    def isMetaEnabled(implicit project: Project): Boolean =
-      !ScStubElementType.Processing &&
-        !DumbService.isDumb(project) &&
-        (ApplicationManager.getApplication.isUnitTestMode || hasMetaParadiseJar)
-
-    private def hasMetaParadiseJar(implicit project: Project) =
-      ModuleUtilCore.findModuleForFile(repr.getOriginalFile) match {
-        case null => false
-        case module =>
-          ScalaCompilerConfiguration.instanceIn(project)
-            .getSettingsForModule(module)
-            .plugins
-            .exists(isMetaParadiseJar)
-      }
-  }
 
   implicit class AnnotationExt(private val repr: ScAnnotation) extends AnyVal {
 

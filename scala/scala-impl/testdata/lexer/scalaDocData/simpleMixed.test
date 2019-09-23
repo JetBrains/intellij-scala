@@ -1,0 +1,61 @@
+/**
+  * This is class MyClass.
+  * It should be used __properly__. ^ANd this is superscripted^.
+  * @author Author
+  * @see [[scala.collections.mutable.HashMap]]
+  * @see [[http://scala-lang.org see this site]]
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {This is class MyClass.}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {It should be used }
+DOC_UNDERLINE_TAG 4 {__}
+DOC_COMMENT_DATA {properly}
+DOC_UNDERLINE_TAG 4 {__}
+DOC_COMMENT_DATA {. }
+DOC_SUPERSCRIPT_TAG 16 {^}
+DOC_COMMENT_DATA {ANd this is superscripted}
+DOC_SUPERSCRIPT_TAG 16 {^}
+DOC_COMMENT_DATA {.}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@author}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {Author}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+identifier {scala}
+. {.}
+identifier {collections}
+. {.}
+identifier {mutable}
+. {.}
+identifier {HashMap}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_COMMENT_DATA {http://scala-lang.org see this site}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}

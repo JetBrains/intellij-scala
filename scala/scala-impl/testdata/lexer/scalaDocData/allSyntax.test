@@ -1,0 +1,130 @@
+/**
+  * =header1==
+  * __This is underlined and '''bold text'''.__ And this is plain text
+  * This is ,,subscripted and ''italic text'',, [[some.code.Link  badText]]
+  * [[http://scala-lang.org very looooooooooooooooooooooooooooooooooooooooooooooooooooooong
+  * http link]]
+  * ===sub-header===
+  * code example: {{{
+  *   class A(private var field1: String) {
+  *     def f() {
+  *       field1 += field1
+  *     }
+  *
+  *     def getField = field1
+  *   }
+  * }}}
+  *
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+VALID_DOC_HEADER 256 {=}
+DOC_COMMENT_DATA {header1}
+DOC_HEADER 256 {==}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_UNDERLINE_TAG 4 {__}
+DOC_COMMENT_DATA {This is underlined and }
+DOC_BOLD_TAG 1 {'''}
+DOC_COMMENT_DATA {bold text}
+DOC_BOLD_TAG 1 {'''}
+DOC_COMMENT_DATA {.}
+DOC_UNDERLINE_TAG 4 {__}
+DOC_COMMENT_DATA { And this is plain text}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {This is }
+DOC_SUBSCRIPT_TAG 32 {,,}
+DOC_COMMENT_DATA {subscripted and }
+DOC_ITALIC_TAG 2 {''}
+DOC_COMMENT_DATA {italic text}
+DOC_ITALIC_TAG 2 {''}
+DOC_SUBSCRIPT_TAG 32 {,,}
+DOC_COMMENT_DATA { }
+DOC_LINK_TAG 64 {[[}
+identifier {some}
+. {.}
+identifier {code}
+. {.}
+identifier {Link}
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER { }
+DOC_COMMENT_BAD_CHARACTER {b}
+DOC_COMMENT_BAD_CHARACTER {a}
+DOC_COMMENT_BAD_CHARACTER {d}
+DOC_COMMENT_BAD_CHARACTER {T}
+DOC_COMMENT_BAD_CHARACTER {e}
+DOC_COMMENT_BAD_CHARACTER {x}
+DOC_COMMENT_BAD_CHARACTER {t}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_COMMENT_DATA {http://scala-lang.org very looooooooooooooooooooooooooooooooooooooooooooooooooooooong}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {http link}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+VALID_DOC_HEADER 256 {===}
+DOC_COMMENT_DATA {sub-header}
+DOC_HEADER 256 {===}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {code example: }
+DOC_INNER_CODE_TAG {{{{}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {   class A(private var field1: String) {}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {     def f() {}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {       field1 += field1}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {     }}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {     def getField = field1}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {   }}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE { }
+DOC_INNER_CLOSE_CODE_TAG {}}}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}

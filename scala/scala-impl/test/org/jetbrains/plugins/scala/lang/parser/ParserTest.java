@@ -15,36 +15,35 @@
 
 package org.jetbrains.plugins.scala.lang.parser;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import junit.framework.Test;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 import static org.jetbrains.plugins.scala.util.TestUtils.createPseudoPhysicalScalaFile;
-import static org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath;
 
 @RunWith(AllTests.class)
-public class ParserTest extends BaseScalaFileSetTestCase {
+public class ParserTest extends ScalaFileSetTestCase {
 
     public ParserTest() {
-        super(findPath());
+        super("/parser/data");
     }
 
-    public String transform(String testName, String[] data) {
-        PsiFile psiFile = createPseudoPhysicalScalaFile(getProject(), data[0]);
+    @NotNull
+    protected String transform(@NotNull String testName,
+                               @NotNull String fileText,
+                               @NotNull Project project) {
+        PsiFile psiFile = createPseudoPhysicalScalaFile(project, fileText);
         return DebugUtil.psiToString(psiFile, false)
                 .replace(": " + psiFile.getName(), "");
     }
 
     public static Test suite() {
         return new ParserTest();
-    }
-
-    private static String findPath() {
-        String path = System.getProperty("path");
-        return path == null ? getTestDataPath() + "/parser/data" : path;
     }
 }
 

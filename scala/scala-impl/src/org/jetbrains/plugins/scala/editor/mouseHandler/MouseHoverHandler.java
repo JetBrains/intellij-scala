@@ -583,7 +583,7 @@ public class MouseHoverHandler implements ProjectComponent {
           }
         }
       };
-      Ref<Consumer<String>> newTextConsumerRef = new Ref<>();
+      Ref<Consumer<? super String>> newTextConsumerRef = new Ref<>();
       JComponent label = HintUtil.createInformationLabel(docInfo.text, hyperlinkListener, mouseListener, newTextConsumerRef);
       Consumer<? super String> newTextConsumer = newTextConsumerRef.get();
       QuickDocInfoPane quickDocPane = null;

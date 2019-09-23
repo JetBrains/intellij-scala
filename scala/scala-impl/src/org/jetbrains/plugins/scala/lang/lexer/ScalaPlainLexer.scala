@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer.ScalaSplittingLaye
 
 // NB Standard LayeredLexer is not apt for the task (because it doesn't propagate state in layers
 // (and here we have main Scala lexer as a layer, so incremental highlighting would be completely broken).
-final class ScalaPlainLexer(treatDocCommentAsBlockComment: Boolean)
+final class ScalaPlainLexer(isScala3: Boolean,
+                            treatDocCommentAsBlockComment: Boolean)
   extends LayeredLexer(ScalaSplittingLayerLexer(treatDocCommentAsBlockComment)) {
 
   import ScalaPlainLexer._
@@ -19,7 +20,7 @@ final class ScalaPlainLexer(treatDocCommentAsBlockComment: Boolean)
     IsDisabled() = false
 
     registerSelfStoppingLayer(
-      ScalaLayerLexer(),
+      ScalaLayerLexer(isScala3),
       Array(ScalaTokenTypesEx.SCALA_PLAIN_CONTENT),
       IElementType.EMPTY_ARRAY
     )
@@ -58,8 +59,8 @@ object ScalaPlainLexer {
       tINTERPOLATED_STRING_INJECTION
     )
 
-    def apply() = new MergingLexerAdapter(
-      new ScalaFlexLexer,
+    def apply(isScala3: Boolean) = new MergingLexerAdapter(
+      new ScalaFlexLexer(isScala3),
       TokensToMerge
     )
   }
@@ -78,8 +79,8 @@ object ScalaPlainLexer {
     )
   }
 
-  private[this] final class ScalaFlexLexer
-    extends FlexAdapter(new ScalaCoreLexer(null)) {
+  private[this] final class ScalaFlexLexer(isScala3: Boolean)
+    extends FlexAdapter(new ScalaCoreLexer(isScala3)) {
 
     override def getFlex: ScalaCoreLexer = super.getFlex.asInstanceOf[ScalaCoreLexer]
 

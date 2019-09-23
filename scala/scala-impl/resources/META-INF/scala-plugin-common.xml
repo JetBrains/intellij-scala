@@ -3,7 +3,6 @@
     <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
     <extensionPoints>
-        <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
         <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier"/>
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
@@ -129,16 +128,24 @@
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
       <fileType name="Scala" language="Scala" extensions="scala"
                 implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
-        <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
+      <editorHighlighterProvider filetype="Scala"
+                                 implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
         <highlightErrorFilter implementation="org.jetbrains.plugins.scala.annotator.ScaladocHighlightErrorFilter"/>
-        <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
-        <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
+      <lang.syntaxHighlighterFactory language="Scala"
+                                     implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
+      <lang.syntaxHighlighter language="ScalaDoc"
+                              implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
+      <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
       <lang.fileViewProviderFactory language="Scala"
                                     implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
+        <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
+      <lang.parserDefinition language="ScalaDoc"
+                             implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
+        <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder"/>
@@ -162,6 +169,7 @@
         Another solution is to move PackageSplitSmartEnterProcessor logic into ScalaSmartEnterProcessor -->
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitSmartEnterProcessor"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor"/>
+        <lineIndentProvider implementation="org.jetbrains.plugins.scala.editor.ScalaLineIndentProvider"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
@@ -412,7 +420,7 @@
 
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
-        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType"/>
+      <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
         <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
@@ -462,7 +470,6 @@
 
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
-        <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>

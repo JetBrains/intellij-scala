@@ -30,11 +30,6 @@ abstract class SbtCompletionTestBase extends {
 
   override def setUp(): Unit = {
     super.setUp()
-    inWriteAction {
-      StartupManager.getInstance(getProjectAdapter) match {
-        case manager: StartupManagerImpl => manager.startCacheUpdate()
-      }
-    }
     cleanIndices()
   }
 

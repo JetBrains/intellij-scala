@@ -10,20 +10,19 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-
-import java.io.IOException;
+import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 
 /**
  * @author Ilya.Sergey
  */
-public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
+public abstract class ActionTestBase extends ScalaFileSetTestCase {
 
   protected static final String CARET_MARKER = "<caret>";
   protected int myOffset;
 
-  public ActionTestBase(String path) {
+  protected ActionTestBase(@NotNull @NonNls String path) {
     super(path);
   }
 
@@ -37,7 +36,7 @@ public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
   /**
    * Returns context for action performing
    */
-  protected MyDataContext getDataContext(PsiFile file) throws InvalidDataException, IOException {
+  protected MyDataContext getDataContext(PsiFile file) throws InvalidDataException {
     return new MyDataContext(file);
   }
 

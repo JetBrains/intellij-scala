@@ -103,7 +103,10 @@ object SbtShellToolWindowFactory {
       val shellComponent = for {
         shellRunner <- sbtManager.shellRunner
         if sbtManager.isAlive
-      } yield shellRunner.getConsoleView.getConsoleEditor.getContentComponent
+        view <- Option(shellRunner.getConsoleView)
+        editor <- Option(view.getConsoleEditor)
+      } yield editor.getContentComponent
+      
       shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
     }
   }

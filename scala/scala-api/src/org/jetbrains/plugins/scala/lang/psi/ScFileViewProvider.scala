@@ -6,21 +6,17 @@ import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiManager, SingleRootFileViewProvider}
-import org.jetbrains.plugins.scala.lang.psi.api.ScFile
+import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
 
-class ScFileViewProvider(file: VirtualFile, eventSystemEnabled: Boolean)
-                        (implicit manager: PsiManager)
-  extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE) {
+final class ScFileViewProvider(manager: PsiManager, file: VirtualFile,
+                               eventSystemEnabled: Boolean, language: Language)
+  extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, language) {
 
-  override final def createFile(project: Project,
-                                file: VirtualFile,
-                                fileType: FileType): ScFile =
+  override def createFile(project: Project,
+                          file: VirtualFile,
+                          fileType: FileType): PsiFile =
     createFile(getBaseLanguage)
 
-  override def createFile(language: Language): ScFile =
-    super.createFile(language).asInstanceOf[ScFile]
-
-  override def createCopy(copy: VirtualFile): ScFileViewProvider =
-    new ScFileViewProvider(copy, eventSystemEnabled = false)
+  override def createCopy(copy: VirtualFile) =
+    new ScFileViewProvider(getManager, copy, eventSystemEnabled = false, getBaseLanguage)
 }

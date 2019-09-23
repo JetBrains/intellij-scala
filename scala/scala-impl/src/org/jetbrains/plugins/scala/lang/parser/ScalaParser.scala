@@ -8,17 +8,18 @@ import com.intellij.psi.tree.IElementType
 final class ScalaParser extends PsiParser {
 
   import parsing._
+  import builder._
 
-  override def parse(root: IElementType, delegate: PsiBuilder): ASTNode = {
-    val builderImpl = new builder.ScalaPsiBuilderImpl(delegate)
+  override def parse(rootElementType: IElementType, delegate: PsiBuilder): ASTNode = {
+    implicit val builder: ScalaPsiBuilder = new ScalaPsiBuilderImpl(delegate)
 
-    root match {
+    rootElementType match {
       case ScCodeBlockElementType.BlockExpression =>
-        expressions.BlockExpr.parse(builderImpl)
+        expressions.BlockExpr.parse(builder)
       case _ =>
-        val rootMarker = delegate.mark
-        Program.parse(builderImpl)
-        rootMarker.done(root)
+        val rootMarker = delegate.mark()
+        CompilationUnit.parse()
+        rootMarker.done(rootElementType)
     }
 
     delegate.getTreeBuilt

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.application.options.CodeStyleAbstractPanel;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
@@ -9,6 +8,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.execution.ParametersListUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -19,7 +19,12 @@ import java.awt.event.ActionListener;
 /**
  * @author Pavel Fatin
  */
-abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
+public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
+
+  @NotNull
+  @NonNls
+  public static final String TAB_TITLE = "Type Annotations";
+
   protected JCheckBox myPublicMember;
   protected JCheckBox myProtectedMember;
   protected JCheckBox myPrivateMember;
@@ -41,7 +46,7 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
   protected JCheckBox myStructuralType;
 
   protected TypeAnnotationsPanelBase(@NotNull CodeStyleSettings settings) {
-    super(settings);
+    super(settings, TAB_TITLE);
   }
 
   private void createUIComponents() {

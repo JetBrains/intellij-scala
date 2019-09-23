@@ -6,7 +6,7 @@ package keyword
 import java.io.File
 
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
-import com.intellij.codeInsight.lookup.LookupManager
+import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupManager}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
@@ -14,7 +14,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLightKeyword
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
@@ -50,8 +50,11 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
     val items = LookupManager.getActiveLookup(editor) match {
       case impl: LookupImpl =>
         import JavaConverters._
-        impl.getItems.asScala.collect {
-          case item if item.getObject.isInstanceOf[ScalaLightKeyword] => item.getLookupString
+        impl.getItems.asScala.filter {
+          case item: LookupElementBuilder => item.getInsertHandler.isInstanceOf[KeywordInsertHandler]
+          case _ => false
+        }.map {
+          _.getLookupString
         }
       case _ => Seq.empty
     }

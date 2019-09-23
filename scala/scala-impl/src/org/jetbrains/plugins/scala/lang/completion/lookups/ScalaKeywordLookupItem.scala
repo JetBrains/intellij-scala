@@ -1,14 +1,15 @@
-package org.jetbrains.plugins.scala.lang.completion.lookups
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package lookups
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.util.ui.EmptyIcon
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /**
  * @author Alefas
@@ -16,17 +17,23 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
  */
 object ScalaKeywordLookupItem {
 
-  def getLookupElement(keyword: String)
-                      (implicit project: Project): LookupElement = {
-    LookupElementBuilder.create(ScalaLightKeyword(keyword), keyword)
+  def apply(keyword: String): LookupElement =
+    LookupElementBuilder.create(keyword)
       .withBoldness(true)
       .withIcon(EmptyIcon.create(16, 16))
       .withInsertHandler(new KeywordInsertHandler(keyword))
-  }
 
-  class KeywordInsertHandler(keyword: String) extends InsertHandler[LookupElement] {
+  def addFor(resultSet: CompletionResultSet,
+             keywords: String*): Unit = for {
+    keyword <- keywords
+    element = ScalaKeywordLookupItem(keyword)
+  } resultSet.addElement(element)
+
+  import ScalaKeyword._
+
+  final class KeywordInsertHandler(keyword: String) extends InsertHandler[LookupElement] {
+
     override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-      import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword._
       val parentheses = Set(IF, FOR, WHILE)
       val braces = Set(CATCH, ELSE, EXTENDS, FINALLY, FOR, FOR_SOME, NEW, TRY, DO, YIELD)
       val editor = context.getEditor

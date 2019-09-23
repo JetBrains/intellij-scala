@@ -16,8 +16,9 @@ import org.jetbrains.bsp.settings.BspExecutionSettings
 import scala.collection.mutable
 import scala.concurrent.duration._
 
-
 class BspCommunicationService extends Disposable {
+
+  import BspCommunicationService.projectPath
 
   { // init
     val app = ApplicationManager.getApplication
@@ -55,9 +56,10 @@ class BspCommunicationService extends Disposable {
       }
     )
 
-  def communicate(proj: Project): BspCommunication = communicate(
-    new File(ProjectUtil.guessProjectDir(proj).getCanonicalPath))
-
+  def communicate(implicit project: Project): BspCommunication =
+    projectPath.map(new File(_))
+      .map(communicate)
+      .orNull // TODO
 
   private def executionSettings(base: File): BspExecutionSettings =
     BspExecutionSettings.executionSettingsFor(base)
@@ -68,15 +70,21 @@ class BspCommunicationService extends Disposable {
   }
 
   private object MyProjectListener extends ProjectManagerListener {
-    override def projectClosed(project: Project): Unit = {
-      val projectDir = ProjectUtil.guessProjectDir(project)
-      val uri = Paths.get(projectDir.getCanonicalPath).toUri
-      comms.get(uri).foreach(_.closeSession())
-    }
+
+    override def projectClosed(project: Project): Unit = for {
+      path <- projectPath(project)
+      uri = Paths.get(path).toUri
+      session <- comms.get(uri)
+    } session.closeSession()
   }
 }
 
 object BspCommunicationService {
+
   def getInstance: BspCommunicationService =
     ServiceManager.getService(classOf[BspCommunicationService])
+
+  private def projectPath(implicit project: Project): Option[String] =
+    Option(ProjectUtil.guessProjectDir(project))
+      .map(_.getCanonicalPath)
 }

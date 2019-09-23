@@ -35,13 +35,14 @@
     </description>
     <version>VERSION</version>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="192.5118.30" until-build="193.0"/>
+    <idea-version since-build="193.0" until-build="194.0"/>
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
-    <depends optional="true" config-file="scala-gradle-integration.xml">org.jetbrains.plugins.gradle</depends>
+    <depends optional="true" config-file="scala-gradle-integration.xml">com.intellij.gradle</depends>
+    <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
     <depends optional="true" config-file="scala-devkit-integration.xml">DevKit</depends>
 

@@ -50,7 +50,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     }
   }
 
-  override def tearDown(): Unit = {
+  override protected def tearDown(): Unit = {
     disposeLibraries(getModule)
     super.tearDown()
   }

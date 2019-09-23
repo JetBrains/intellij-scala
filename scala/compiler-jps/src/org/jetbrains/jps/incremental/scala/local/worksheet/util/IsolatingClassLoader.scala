@@ -3,8 +3,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.util
 import java.io.InputStream
 import java.net.URL
 import java.util
-
-import sun.misc.CompoundEnumeration
+import java.util.Collections
 
 /**
  * Hides classes that satisfy `filter` from parent class-loader.
@@ -19,6 +18,7 @@ final class IsolatingClassLoader(parent: ClassLoader, filter: String => Boolean)
   override def loadClass(name: String, resolve: Boolean): Class[_] =
     apply(name)(super.loadClass(name, resolve)).orNull
 
+  @deprecated(since = "9")
   override def getPackage(name: String): Package =
     apply(name)(super.getPackage(name)).orNull
 
@@ -32,7 +32,7 @@ final class IsolatingClassLoader(parent: ClassLoader, filter: String => Boolean)
     apply(name)(super.getResourceAsStream(name)).orNull
 
   override def getResources(name: String): util.Enumeration[URL] =
-    apply(name)(super.getResources(name)).getOrElse(new CompoundEnumeration[URL](Array()))
+    apply(name)(super.getResources(name)).getOrElse(Collections.emptyEnumeration())
 
 
   @inline

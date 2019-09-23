@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.application.options.CodeStyleAbstractPanel;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.components.JBList;
@@ -12,8 +8,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil;
 import org.jetbrains.plugins.scala.util.JListCompatibility;
 
@@ -26,7 +20,8 @@ import java.util.Arrays;
  * @since 21/05/14.
  */
 @SuppressWarnings(value = "unchecked")
-public class ImportsPanel extends CodeStyleAbstractPanel {
+public final class ImportsPanel extends ScalaCodeStylePanelBase {
+
     private JPanel contentPanel;
     private JCheckBox addImportStatementInCheckBox;
     private JCheckBox addFullQualifiedImportsCheckBox;
@@ -48,7 +43,7 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     private DefaultListModel myImportLayoutModel;
 
     public ImportsPanel(@NotNull CodeStyleSettings settings) {
-        super(settings);
+        super(settings, "Imports");
         classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
 
         referencesWithPrefixList = new JBList();
@@ -77,34 +72,6 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
         ButtonGroup sortButtons = new ButtonGroup();
         sortButtons.add(sortLexicographicallyRb);
         sortButtons.add(sortScalastyleRb);
-    }
-
-    @Override
-    protected String getTabTitle() {
-        return "Imports";
-    }
-
-    @Override
-    protected int getRightMargin() {
-        return 0;
-    }
-
-    @Nullable
-    @Override
-    protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
-        return new ScalaEditorHighlighter(null, null, scheme);
-    }
-
-    @NotNull
-    @Override
-    protected FileType getFileType() {
-        return ScalaFileType.INSTANCE;
-    }
-
-    @Nullable
-    @Override
-    protected String getPreviewText() {
-        return null;
     }
 
     public String[] getPrefixPackages() {

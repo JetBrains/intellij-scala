@@ -21,10 +21,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Double;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Float;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 
 /**
  * @author ilyas
@@ -213,12 +210,15 @@ public interface ScalaTokenTypes {
             kDEF,
             kDO,
             kELSE,
+            Enum(),
+            Export(),
             kEXTENDS,
             kFALSE,
             kFINAL,
             kFINALLY,
             kFOR,
-            kFOR_SOME,
+            kFOR_SOME, // scala 2 only
+            Given(),
             kIF,
             kIMPLICIT,
             kIMPORT,
@@ -234,18 +234,19 @@ public interface ScalaTokenTypes {
             kRETURN,
             kSEALED,
             kSUPER,
-            kTHIS,
+            Then(),
+            kTHIS, // scala 2 only
             kTHROW,
             kTRAIT,
-            kTRY,
             kTRUE,
+            kTRY,
             kTYPE,
             kVAL,
             kVAR,
             kWHILE,
             kWITH,
             kYIELD,
-            kMACRO
+            kMACRO // scala 2 only
     );
 
     TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);

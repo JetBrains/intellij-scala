@@ -1,23 +1,28 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+import java.util.jar.Attributes
 
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleUtilCore}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.util.io.JarUtil._
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
@@ -89,6 +94,9 @@ package object project {
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def hasNewCollectionsFramework: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_13)
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isIdBindingEnabled: Boolean = scalaLanguageLevel.exists(_ >= Scala_2_12)
+
     def scalaSdk: Option[LibraryEx] = Option {
       ScalaSdkCache(module.getProject)(module)
     }
@@ -103,6 +111,13 @@ package object project {
         .forEachLibrary(collector)
 
       collector.getResults.asScala.toSet
+    }
+
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isTrailingCommasEnabled: Boolean = scalaSdk.flatMap {
+      _.compilerVersion
+    }.exists { presentation =>
+      Version(presentation) >= Version("2.12.2")
     }
 
     def scalaCompilerSettings: ScalaCompilerSettings =
@@ -120,7 +135,9 @@ package object project {
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def literalTypesEnabled: Boolean = scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
-      compilerConfiguration.hasSettingForHighlighting(module, _.literalTypes)
+      compilerConfiguration.hasSettingForHighlighting(module) {
+        _.additionalCompilerOptions.contains("-Yliteral-types")
+      }
 
     /**
      * @see https://github.com/non/kind-projector
@@ -130,14 +147,17 @@ package object project {
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def kindProjectorPlugin: Option[String] =
-      compilerConfiguration.settingForHighlighting(
-        module,
-        _.plugins.find(_.contains("kind-projector"))
-      ).flatten
+      compilerConfiguration.settingsForHighlighting(module).flatMap {
+        _.plugins
+      }.find {
+        _.contains("kind-projector")
+      }
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def betterMonadicForPluginEnabled: Boolean =
-      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("better-monadic-for")))
+      compilerConfiguration.hasSettingForHighlighting(module) {
+        _.plugins.exists(_.contains("better-monadic-for"))
+      }
 
     /**
      * Should we check if it's a Single Abstract Method?
@@ -150,19 +170,39 @@ package object project {
     def isSAMEnabled: Boolean = scalaLanguageLevel.exists {
       case lang if lang > Scala_2_11 => true // if scalaLanguageLevel is None, we treat it as Scala 2.12
       case lang if lang == Scala_2_11 =>
-        compilerConfiguration.hasSettingForHighlighting(module,
-          c => c.experimental || c.additionalCompilerOptions.contains("-Xexperimental")
-        )
+        compilerConfiguration.hasSettingForHighlighting(module) { settings =>
+          settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
+        }
       case _ => false
     }
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def isPartialUnificationEnabled: Boolean =
       scalaLanguageLevel.exists(_ >= Scala_2_13) ||
-        compilerConfiguration.hasSettingForHighlighting(module, _.partialUnification)
+        compilerConfiguration.hasSettingForHighlighting(module) {
+          _.additionalCompilerOptions.contains("-Ypartial-unification")
+        }
+
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isMetaEnabled: Boolean =
+      compilerConfiguration.hasSettingForHighlighting(module) {
+        _.plugins.exists(isMetaParadiseJar)
+      }
 
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
+
+    private[this] def isMetaParadiseJar(pathname: String): Boolean = new File(pathname) match {
+      case file if containsEntry(file, "scalac-plugin.xml") =>
+        def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
+          file,
+          new Attributes.Name(s"Specification-$nameSuffix")
+        ) == value
+
+        hasAttribute("Vendor", "org.scalameta") &&
+          hasAttribute("Title", "paradise")
+      case _ => false
+    }
   }
 
   implicit class ProjectExt(private val project: Project) extends AnyVal {
@@ -219,6 +259,39 @@ package object project {
     }
   }
 
+  implicit class VirtualFileExt(private val file: VirtualFile) extends AnyVal {
+
+    def isScala3(implicit project: Project): Boolean =
+      LanguageSubstitutors.getInstance.substituteLanguage(
+        ScalaLanguage.INSTANCE,
+        file,
+        project
+      ) != ScalaLanguage.INSTANCE
+  }
+
+  implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
+
+    def isMetaEnabled: Boolean =
+      !ScStubElementType.Processing &&
+        !DumbService.isDumb(file.getProject) &&
+        isEnabledIn(_.isMetaEnabled)
+
+    def isTrailingCommasEnabled: Boolean = {
+      import ScalaProjectSettings.TrailingCommasMode._
+      ScalaProjectSettings.getInstance(file.getProject).getTrailingCommasMode match {
+        case Enabled => true
+        case Disabled => false
+        case Auto => isEnabledIn(_.isTrailingCommasEnabled)
+      }
+    }
+
+    def isIdBindingEnabled: Boolean = isEnabledIn(_.isIdBindingEnabled)
+
+    private def isEnabledIn(predicate: Module => Boolean): Boolean =
+      applicationUnitTestModeEnabled ||
+        Option(ModuleUtilCore.findModuleForFile(file)).exists(predicate)
+  }
+
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
 
@@ -242,6 +315,12 @@ package object project {
     def partialUnificationEnabled: Boolean = isDefinedInModuleOrProject(_.isPartialUnificationEnabled)
 
     def newCollectionsFramework: Boolean = module.exists(_.hasNewCollectionsFramework)
+
+    def isMetaEnabled: Boolean =
+      element.isValid && (element.getContainingFile match {
+        case file: ScalaFile if !file.isCompiled => file.isMetaEnabled
+        case _ => false
+      })
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)

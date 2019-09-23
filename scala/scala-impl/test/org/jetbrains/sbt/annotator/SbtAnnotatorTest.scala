@@ -40,11 +40,6 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     setUpLibraries(module)
     addTestFileToModuleSources()
     setUpProjectSettings()
-    inWriteAction {
-      StartupManager.getInstance(getProject) match {
-        case manager: StartupManagerImpl => manager.startCacheUpdate()
-      }
-    }
   }
 
   override def tearDown(): Unit = {
