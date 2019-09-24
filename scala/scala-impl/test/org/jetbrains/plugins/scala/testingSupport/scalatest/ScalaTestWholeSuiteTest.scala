@@ -2,28 +2,44 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators._
 
-/**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
-trait ScalaTestWholeSuiteTest extends FeatureSpecGenerator with FlatSpecGenerator with FreeSpecGenerator
-with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpecGenerator {
-  val featureSpecTestPaths = List(List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A"),
+trait ScalaTestWholeSuiteTest extends FeatureSpecGenerator
+  with FlatSpecGenerator
+  with FreeSpecGenerator
+  with FunSpecGenerator
+  with FunSuiteGenerator
+  with PropSpecGenerator
+  with WordSpecGenerator {
+
+  val featureSpecTestPaths = List(
+    List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A"),
     List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B"),
-    List("[root]", featureSpecClassName, "Feature: Feature 2", "Scenario: Scenario C"))
-  val flatSpecTestPaths = List(List("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test"),
-    List("[root]", flatSpecClassName, "A FlatSpecTest", "should not run other tests"))
-  val freeSpecTestPaths = List(List("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests"),
-    List("[root]", freeSpecClassName, "A FreeSpecTest", "should not run tests that are not selected"))
-  val funSpecTestPaths = List(List("[root]", funSpecClassName, "FunSpecTest", "should launch single test"),
+    List("[root]", featureSpecClassName, "Feature: Feature 2", "Scenario: Scenario C")
+  )
+  val flatSpecTestPaths = List(
+    List("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test"),
+    List("[root]", flatSpecClassName, "A FlatSpecTest", "should not run other tests")
+  )
+  val freeSpecTestPaths = List(
+    List("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests"),
+    List("[root]", freeSpecClassName, "A FreeSpecTest", "should not run tests that are not selected")
+  )
+  val funSpecTestPaths = List(
+    List("[root]", funSpecClassName, "FunSpecTest", "should launch single test"),
     List("[root]", funSpecClassName, "FunSpecTest", "should not launch other tests"),
-    List("[root]", funSpecClassName, "OtherScope", "is here"))
-  val funSuiteTestPaths = List(List("[root]", funSuiteClassName, "should run single test"),
-    List("[root]", funSuiteClassName, "should not run other tests"))
-  val propSpecTestPaths = List(List("[root]", propSpecClassName, "Single tests should run"),
-    List("[root]", propSpecClassName, "other test should not run"))
-  val wordSpecTestPaths = List(List("[root]", wordSpecClassName, "WordSpecTest", "Run single test"),
-    List("[root]", wordSpecClassName, "WordSpecTest", "ignore other tests"), List("[root]", "WordSpecTest", "outer", "inner"))
+    List("[root]", funSpecClassName, "OtherScope", "is here")
+  )
+  val funSuiteTestPaths = List(
+    List("[root]", funSuiteClassName, "should run single test"),
+    List("[root]", funSuiteClassName, "should not run other tests")
+  )
+  val propSpecTestPaths = List(
+    List("[root]", propSpecClassName, "Single tests should run"),
+    List("[root]", propSpecClassName, "other test should not run")
+  )
+  val wordSpecTestPaths = List(
+    List("[root]", wordSpecClassName, "WordSpecTest", "Run single test"),
+    List("[root]", wordSpecClassName, "WordSpecTest", "ignore other tests"), List("[root]", "WordSpecTest", "outer", "inner")
+  )
 
   def testFeatureSpec() {
     runTestByLocation(2, 10, featureSpecFileName,

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_10.scalatest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest.ScalaTestSingleTestTest
 
-/**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
 class Scalatest2_10_1_9_2_SelectedTestsTest extends {
   override val featureSpecConfigTestName = "Feature 1 Scenario: Scenario A"
   override val featureSpecTestPath = List("[root]", "Feature 1 Scenario: Scenario A")
@@ -22,6 +18,7 @@ class Scalatest2_10_1_9_2_SelectedTestsTest extends {
   override val wordSpecTestPath = List("[root]", "WordSpecTest should Run single test")
   override val wordSpecTestTaggedPath = List("[root]", "tagged should be tagged")
 } with Scalatest2_10_1_9_2_Base with ScalaTestSingleTestTest {
+
   override def preprocessSingleFlatSpecExpectedPath(path: Seq[String]): Seq[String] = {
     path.splitAt(2) match {
       case (Seq(root, testClassName), remainingPath) =>

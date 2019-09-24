@@ -6,11 +6,8 @@ import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilter
 import org.junit.Assert._
 
-/**
- * @author Roman.Shein
- * @since 31.01.2015.
- */
 class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
+
   addSourceFile("FailureLocationTest.scala",
     """
       |import org.scalatest._
@@ -24,6 +21,7 @@ class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
       |
     """.stripMargin
   )
+
   def testFailureLocationHyperlink(): Unit = {
     val project = getProject
     val projectScope = ProjectScope.getProjectScope(project)

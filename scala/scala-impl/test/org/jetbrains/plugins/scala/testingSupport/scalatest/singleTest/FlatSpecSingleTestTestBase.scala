@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 import org.junit.Assert._
 
 trait FlatSpecSingleTestTestBase extends ScalaTestTestCase {
+
   protected def doTest(fileName: String, testClassName: String)
                       (lineNumber: Int, offset: Int)
                       (expectedTestName: String, expectedTestPath: Seq[String]): Unit = {

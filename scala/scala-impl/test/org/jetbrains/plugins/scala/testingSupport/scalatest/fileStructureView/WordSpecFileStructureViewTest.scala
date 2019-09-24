@@ -3,11 +3,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.fileStructureView
 import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
-  * @author Roman.Shein
-  * @since 21.04.2015.
-  */
 trait WordSpecFileStructureViewTest extends ScalaTestTestCase {
+
   private val className = "WordSpecViewTest"
 
   addSourceFile(className + ".scala",

@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
-  * @author Roman.Shein
-  * @since 10.02.2015.
-  */
 trait WordSpecGenerator extends ScalaTestTestCase {
+
   val wordSpecClassName = "WordSpecTest"
 
   val wordSpecFileName: String = wordSpecClassName + ".scala"

@@ -2,13 +2,9 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
-  * @author Roman.Shein
-  * @since 10.02.2015.
-  */
 trait FunSpecGenerator extends ScalaTestTestCase {
-  val funSpecClassName = "FunSpecTest"
 
+  val funSpecClassName = "FunSpecTest"
   val funSpecFileName: String = funSpecClassName + ".scala"
 
   addSourceFile(funSpecFileName,

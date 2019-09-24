@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
-/**
-  * @author Roman.Shein
-  * @since 19.04.2015.
-  */
 trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
 
   private val className = "FeatureSpecViewTest"

@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.PropSpecGenerator
 
-/**
- * @author Roman.Shein
- * @since 20.01.2015.
- */
 trait PropSpecSingleTestTest extends PropSpecGenerator {
+
   val propSpecTestPath = List("[root]", propSpecClassName, "Single tests should run")
   val propSpecTestTaggedPath = List("[root]", propSpecClassName, "tagged")
 

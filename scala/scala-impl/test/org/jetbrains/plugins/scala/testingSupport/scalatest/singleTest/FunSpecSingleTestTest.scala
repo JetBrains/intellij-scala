@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FunSpecGenerator
 
-/**
- * @author Roman.Shein
- * @since 20.01.2015.
- */
 trait FunSpecSingleTestTest extends FunSpecGenerator {
+
   val funSpecTestPath = List("[root]", funSpecClassName, "FunSpecTest", "should launch single test")
   val funSpecTaggedTestPath = List("[root]", funSpecClassName, "taggedScope", "is tagged")
 

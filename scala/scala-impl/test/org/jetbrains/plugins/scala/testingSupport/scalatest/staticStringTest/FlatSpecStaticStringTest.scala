@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
- * @author Roman.Shein
- * @since 26.06.2015.
- */
 trait FlatSpecStaticStringTest extends ScalaTestTestCase {
+
   val flatSpecClassName = "FlatSpecStringTest"
   val flatSpecFileName = flatSpecClassName + ".scala"
 

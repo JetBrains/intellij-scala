@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
-import org.jetbrains.plugins.scala.testingSupport.scalatest.scopeTest.{FeatureSpecScopeTest, FlatSpecScopeTest, FreeSpecScopeTest, FunSpecScopeTest, WordSpecScopeTest}
+import org.jetbrains.plugins.scala.testingSupport.scalatest.scopeTest._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest.tagged.{FlatSpecTaggedSingleTestTest, FreeSpecTaggedSingleTestTest}
 
-/**
- * @author Roman.Shein
- * @since 22.01.2015.
- */
 trait ScalaTestSelectedTests
   extends ScalaTestSingleTestTest
     with Spec2SingleTestTest

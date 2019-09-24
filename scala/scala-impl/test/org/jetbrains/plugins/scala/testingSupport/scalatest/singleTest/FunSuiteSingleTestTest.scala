@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FunSuiteGenerator
 
-/**
- * @author Roman.Shein
- * @since 20.01.2015.
- */
 trait FunSuiteSingleTestTest extends FunSuiteGenerator {
+
   val funSuiteTestPath = List("[root]", funSuiteClassName, "should run single test")
   val funSuiteTaggedTestPath = List("[root]", funSuiteClassName, "tagged")
 

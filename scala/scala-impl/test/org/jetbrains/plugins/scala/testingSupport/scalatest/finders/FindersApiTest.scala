@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTra
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.scalatest.finders.Selection
 
-/**
-  * @author Roman.Shein
-  * @since 10.02.2015.
-  */
 trait FindersApiTest
   extends FeatureSpecGenerator
     with FlatSpecGenerator

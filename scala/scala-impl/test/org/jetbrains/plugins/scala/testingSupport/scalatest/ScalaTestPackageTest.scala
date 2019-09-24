@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-/**
-  * @author Roman.Shein
-  * @since 04.09.2015.
-  */
 trait ScalaTestPackageTest extends ScalaTestTestCase {
   private val packageName = "myPackage"
   private val secondPackageName = "secondPackage"

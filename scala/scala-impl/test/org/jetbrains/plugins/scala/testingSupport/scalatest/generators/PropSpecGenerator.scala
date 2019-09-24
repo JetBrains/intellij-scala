@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
-  * @author Roman.Shein
-  * @since 10.02.2015.
-  */
 trait PropSpecGenerator extends ScalaTestTestCase {
+
   val propSpecClassName = "PropSpecTest"
   val propSpecFileName = propSpecClassName + ".scala"
 

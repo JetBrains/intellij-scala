@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest.tagged
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecGenerator
 
-/**
-  * @author Roman.Shein
-  *         Date: 09.11.2016
-  */
 trait FreeSpecTaggedSingleTestTest extends FreeSpecGenerator {
   val freeSpecTaggedTestPath = List("[root]", freeSpecClassName, "A FreeSpecTest", "can be tagged")
 

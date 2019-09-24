@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecPathGenerator
 
-/**
- * @author Roman.Shein
- * @since 20.01.2015.
- */
 trait FreeSpecPathSingleTestTest extends FreeSpecPathGenerator {
+
   val freeSpecPathTestPath = List("[root]", freeSpecPathClassName, "A FreeSpecTest", "should be able to run single test")
 
   def testFreeSpecPath() {

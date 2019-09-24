@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.scopeTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecGenerator
 
-/**
- * @author Roman.Shein
- * @since 05.05.2015.
- */
 trait FreeSpecScopeTest extends FreeSpecGenerator {
+
   def testFreeSpecEmptyScope() {
     assertConfigAndSettings(createTestFromLocation(31, 7, complexFreeSpecFileName), complexFreeSpecClassName)
   }

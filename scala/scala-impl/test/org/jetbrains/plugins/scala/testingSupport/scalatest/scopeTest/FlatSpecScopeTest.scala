@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 import org.junit.Assert._
 
 trait FlatSpecScopeTest extends ScalaTestTestCase {
+
   private val flatSpecScopeTestClassName = "FlatSpecScopeTest"
   private val className = flatSpecScopeTestClassName
   private val fileName = s"$flatSpecScopeTestClassName.scala"

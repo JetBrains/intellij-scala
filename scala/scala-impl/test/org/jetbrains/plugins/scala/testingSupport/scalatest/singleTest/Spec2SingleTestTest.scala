@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
- * @author Roman.Shein
- * @since 22.01.2015.
- */
 trait Spec2SingleTestTest extends ScalaTestTestCase {
+
   //TODO: stop ignoring this test once finders API is functioning
   addSourceFile("Spec.scala",
     """

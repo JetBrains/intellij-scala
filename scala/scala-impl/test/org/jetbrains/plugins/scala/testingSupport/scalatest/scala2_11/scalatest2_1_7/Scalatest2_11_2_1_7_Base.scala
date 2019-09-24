@@ -7,10 +7,6 @@ package scalatest2_1_7
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 
-/**
- * @author Roman.Shein
- * @since 22.01.2015
- */
 abstract class Scalatest2_11_2_1_7_Base extends ScalaTestTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
@@ -20,5 +16,4 @@ abstract class Scalatest2_11_2_1_7_Base extends ScalaTestTestCase {
       "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
       "org.scalatest" %% "scalatest" % "2.1.7",
     ) :: Nil
-
 }

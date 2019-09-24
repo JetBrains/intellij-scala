@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
-  * @author Roman.Shein
-  * @since 24.06.2015.
-  */
 trait FeatureSpecStaticStringTest extends ScalaTestTestCase {
+
   val featureSpecClassName = "FeatureSpecStringTest"
   val featureSpecFileName = featureSpecClassName + ".scala"
 
@@ -37,22 +34,22 @@ trait FeatureSpecStaticStringTest extends ScalaTestTestCase {
     """.stripMargin.trim()
   )
 
-  def testFeatureSpecSumString() = {
+  def testFeatureSpecSumString(): Unit = {
     assertConfigAndSettings(createTestFromLocation(6, 7, featureSpecFileName), featureSpecClassName,
       "Feature: Feature 1 Scenario: Scenario A")
   }
 
-  def testFeatureSpecValSumString() = {
+  def testFeatureSpecValSumString(): Unit = {
     assertConfigAndSettings(createTestFromLocation(8, 7, featureSpecFileName), featureSpecClassName,
       "Feature: Feature 1 Scenario: Scenario B")
   }
 
-  def testFeatureSpecValString() = {
+  def testFeatureSpecValString(): Unit = {
     assertConfigAndSettings(createTestFromLocation(15, 7, featureSpecFileName), featureSpecClassName,
       "Feature: C Scenario: other")
   }
 
-  def testFeatureSpecNonConst() = {
+  def testFeatureSpecNonConst(): Unit = {
     assertConfigAndSettings(createTestFromLocation(13, 7, featureSpecFileName), featureSpecClassName,
       "Feature: C Scenario: other")
     assertConfigAndSettings(createTestFromLocation(19, 7, featureSpecFileName), featureSpecClassName)

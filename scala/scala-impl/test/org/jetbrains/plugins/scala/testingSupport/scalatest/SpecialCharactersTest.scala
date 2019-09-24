@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-/**
-  * @author Roman.Shein
-  * @since 18.01.2015.
-  */
 trait SpecialCharactersTest extends ScalaTestTestCase {
 
   val className = "SpecialCharachersTest"

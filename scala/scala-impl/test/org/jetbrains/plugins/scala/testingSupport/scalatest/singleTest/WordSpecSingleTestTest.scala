@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.WordSpecGenerator
 
-/**
- * @author Roman.Shein
- * @since 20.01.2015.
- */
 trait WordSpecSingleTestTest extends WordSpecGenerator {
+
   val wordSpecTestPath = List("[root]", wordSpecClassName, "WordSpecTest", "Run single test")
   val wordSpecTestTaggedPath = List("[root]", wordSpecClassName, "tagged", "be tagged")
 

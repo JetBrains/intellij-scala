@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.fileStructureView
 import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
-/**
-  * @author Roman.Shein
-  * @since 20.04.2015.
-  */
 trait FunSpecFileStructureViewTest extends ScalaTestTestCase {
   private val className = "FunSpecViewTest"
 

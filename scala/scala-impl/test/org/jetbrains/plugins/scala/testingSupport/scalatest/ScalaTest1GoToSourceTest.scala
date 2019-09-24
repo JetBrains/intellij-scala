@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-/**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
 trait ScalaTest1GoToSourceTest extends ScalaTestGoToSourceTest {
   def getSuccessfulTestPath: List[String] = List("[root]", "Successful test should run fine")
   def getPendingTestPath: List[String] = List("[root]", "pending test should be pending")

@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-/**
-  * @author Roman.Shein
-  * @since 22.01.2015.
-  */
 trait IgnoredSpecTest extends ScalaTestTestCase {
   def ignoredTestPath: List[String] = List("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should be ignored and have proper suffix !!! IGNORED !!!")
   def succeededTestPath: List[String] = List("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should run tests")

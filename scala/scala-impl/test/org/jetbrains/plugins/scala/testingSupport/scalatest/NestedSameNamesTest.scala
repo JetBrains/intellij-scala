@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-/**
-  * @author Roman.Shein
-  * @since 28.01.2015.
-  */
 trait NestedSameNamesTest extends ScalaTestTestCase {
+
   val testPath = List("[root]", "FunSpecTest", "FunSpecTest", "FunSpecTest", "FunSpecTest")
 
   addSourceFile("FunSpecTest.scala",

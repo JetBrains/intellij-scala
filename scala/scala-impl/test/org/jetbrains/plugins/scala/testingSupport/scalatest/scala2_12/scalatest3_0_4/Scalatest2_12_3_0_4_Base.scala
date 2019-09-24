@@ -6,10 +6,6 @@ package scala2_12.scalatest3_0_4
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 
-/**
- * @author Roman.Shein
- * @since 10.03.2017
- */
 abstract class Scalatest2_12_3_0_4_Base extends ScalaTestTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
