@@ -212,4 +212,21 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
          |foo{case x => x.toString}""".stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testInspectionTypeParameterCapture(): Unit = checkTextHasNoErrors(
+    """
+      |object Foo {
+      |  type Opt[T] = Option[T]
+      |
+      |  // This doesn't show any warnings, as expected
+      |  val options: Seq[Option[_]] = Seq()
+      |  options map { case o: Option[t] => Unit }
+      |
+      |  // This warns "Unnecessary partial function", but removing the `case` keyword
+      |  // means we can no longer match on the anonymous type parameter `t`
+      |  val opts: Seq[Opt[_]] = Seq()
+      |  opts map { case o: Opt[t] => Unit }
+      |}
+      |""".stripMargin
+  )
 }
