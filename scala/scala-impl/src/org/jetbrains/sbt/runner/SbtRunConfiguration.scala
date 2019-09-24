@@ -4,6 +4,7 @@ import java.io.File
 import java.util
 import java.util.jar.JarFile
 
+import com.intellij.diagnostic.PluginException
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ProcessEvent
@@ -137,7 +138,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
         case _ => // do nothing
       }
     } catch {
-      case _: NoClassDefFoundError => // no android plugin, do nothing
+      case _: NoClassDefFoundError |  _: PluginException=> // no android plugin, do nothing
     }
     
     params.setWorkingDirectory(configuration.getWorkingDir)

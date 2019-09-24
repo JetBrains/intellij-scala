@@ -3,6 +3,7 @@ package project
 
 import java.io.File
 
+import com.intellij.diagnostic.PluginException
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
@@ -164,6 +165,7 @@ object SbtExternalSystemManager {
         try {
           sdk.getSdkType.isInstanceOf[AndroidSdkType].option(Map("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath))
         } catch {
+          case _ : PluginException => None
           case _ : NoClassDefFoundError => None
         }
       }.getOrElse(Map.empty)

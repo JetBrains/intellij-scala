@@ -3,6 +3,7 @@ package org.jetbrains.sbt.resolvers
 import java.io.File
 import java.util.regex.Pattern
 
+import com.intellij.diagnostic.PluginException
 import com.intellij.openapi.project.Project
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.idea.maven.indices.MavenIndicesManager
@@ -45,9 +46,11 @@ class SbtMavenResolver @PropertyMapping(Array("name", "root")) (
       MavenIndicesManager.getInstance()
       Some(new MavenProxyIndex(root, name, project))
     } catch {
-      case e:NoClassDefFoundError if e.getMessage.contains("MavenIndicesManager") =>
-        Some(new FakeMavenIndex(root, name, project))
-    }
+    case _: PluginException =>
+      Some(new FakeMavenIndex(root, name, project))
+    case e: NoClassDefFoundError if e.getMessage.contains("MavenIndicesManager") =>
+      Some(new FakeMavenIndex(root, name, project))
+  }
 
   override def toString = s"$root|maven|$name"
 }
