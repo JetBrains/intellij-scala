@@ -56,7 +56,7 @@ private object TypeMismatchHints {
           navigatable = tpe.flatMap(_.extractClass))
     }
     TypeDiff.forActual(expected, actual)
-      .flattenTo(maxChars = ScalaCodeInsightSettings.getInstance.presentationLength, groupLength = foldedString.length)
+      .flattenTo(TypeDiff.lengthOf(groupLength = foldedString.length), maxLength = ScalaCodeInsightSettings.getInstance.presentationLength)
       .map(toText)
       .map(_.copy(errorTooltip = Some(message)))
   }

@@ -18,38 +18,37 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 // TODO Separate Tree implementation from Match / Mismatch?
 // TODO First parse the trees and then compare them? (but how to balance placeholders?)
 sealed trait TypeDiff {
-  def flatten: Seq[TypeDiff] = flattenTo(maxChars = Int.MaxValue, groupLength = 0)
+  def flatten: Seq[TypeDiff] = flattenTo(TypeDiff.lengthOf(groupLength = 0), maxLength = Int.MaxValue)
 
-  def flattenTo(maxChars: Int, groupLength: Int): Seq[TypeDiff] = flattenTo0(maxChars, groupLength)._1
+  def flattenTo(lengthOf: TypeDiff => Int, maxLength: Int): Seq[TypeDiff] = flattenTo0(lengthOf, maxLength)._1
 
-  protected def flattenTo0(maxChars: Int, groupLength: Int) = (Seq(this), length(groupLength))
-
-  protected def length(groupLength: Int): Int
+  protected def flattenTo0(lengthOf: TypeDiff => Int, maxLength: Int): (Seq[TypeDiff], Int) = (Seq(this), lengthOf(this))
 
   def text: String
 }
 
 object TypeDiff {
   final case class Group(diffs: TypeDiff*) extends TypeDiff {
-    override def flattenTo0(maxChars: Int, groupLength: Int): (Seq[TypeDiff], Int) = {
-      val (xs, length) = diffs.reverse.foldlr(0, (Vector.empty[TypeDiff], 0))((l, x) => l + x.length(groupLength)) { case (l, x, (acc, r)) =>
-        val (xs, length) = x.flattenTo0(maxChars - l - r, groupLength)
+    protected override def flattenTo0(lenghtOf: TypeDiff => Int, maxLength: Int): (Seq[TypeDiff], Int) = {
+      val (xs, length) = diffs.reverse.foldlr(0, (Vector.empty[TypeDiff], 0))((l, x) => l + lenghtOf(x)) { case (l, x, (acc, r)) =>
+        val (xs, length) = x.flattenTo0(lenghtOf, maxLength - l - r)
         (acc ++ xs, length + r)
       }
-      if (length <= maxChars.max(groupLength)) (xs, length) else (Seq(Group(xs: _*)), groupLength)
+      val groupLength = lenghtOf(this)
+      if (length <= maxLength.max(groupLength)) (xs, length) else (Seq(Group(xs: _*)), groupLength)
     }
-
-    override protected def length(groupLength: Int): Int = groupLength
 
     override def text: String = diffs.view.map(_.text).mkString
   }
 
-  final case class Match(override val text: String, tpe: Option[ScType] = None) extends TypeDiff {
-    override protected def length(groupLength: Int): Int = text.length
-  }
+  final case class Match(override val text: String, tpe: Option[ScType] = None) extends TypeDiff
 
-  final case class Mismatch(override val text: String, tpe: Option[ScType] = None) extends TypeDiff {
-    override protected def length(groupLength: Int): Int = text.length
+  final case class Mismatch(override val text: String, tpe: Option[ScType] = None) extends TypeDiff
+
+  def lengthOf(groupLength: Int)(diff: TypeDiff) = diff match {
+    case Match(text, _) => text.length
+    case Mismatch(text, _) => text.length
+    case Group(_ @_*) => groupLength
   }
 
   // To display a type hint

@@ -71,7 +71,7 @@ class TypeDiffFlattenTest extends TestCase {
   }
 
   private def assertFlattenedTo(maxChars: Int, elements: String, expectedElements: String, groupLength: Int = 0): Unit = {
-    val result = group.parse("(" + elements + ")").get.value.flattenTo(maxChars, groupLength)
+    val result = group.parse("(" + elements + ")").get.value.flattenTo(TypeDiff.lengthOf(groupLength), maxChars)
     assertEquals(expectedElements, result.map(asString).mkString(", "))
   }
 

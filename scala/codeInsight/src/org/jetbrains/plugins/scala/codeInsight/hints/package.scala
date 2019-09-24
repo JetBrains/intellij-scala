@@ -50,7 +50,7 @@ package object hints {
           navigatable = tpe.flatMap(_.extractClass))
     }
     TypeDiff.parse(tpe)
-      .flattenTo(maxChars, groupLength = foldedString.length)
+      .flattenTo(TypeDiff.lengthOf(groupLength = foldedString.length), maxChars)
       .map(toText)
   }
 
