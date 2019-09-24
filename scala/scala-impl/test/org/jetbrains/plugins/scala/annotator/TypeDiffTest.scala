@@ -3,8 +3,8 @@ package annotator
 
 import com.intellij.psi.PsiFileFactory
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match, Mismatch}
+import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
+import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -547,9 +547,9 @@ class TypeDiffTest extends ScalaFixtureTestCase {
   // TODO FunctionN vs A => B
 
   private def assertParsedAs(context: String, tpe: String, structure: String): Unit = {
-    def asString(diff: TypeDiff): String = diff match {
-      case Match(text, _) => text
-      case Group(diffs @_*) => "<" + diffs.map(asString).mkString + ">"
+    def asString(diff: Tree[TypeDiff]): String = diff match {
+      case Leaf(Match(text, _)) => text
+      case Node(diffs @_*) => "<" + diffs.map(asString).mkString + ">"
     }
     assertEquals(structure, asString(TypeDiff.parse(typesIn(context, tpe).head)))
   }
@@ -595,10 +595,10 @@ class TypeDiffTest extends ScalaFixtureTestCase {
 
   private def clean(diff: String) = diff.replaceAll("~", "")
 
-  private def asString(diff: TypeDiff) = {
+  private def asString(diff: Tree[TypeDiff]) = {
     val parts = diff.flatten.map {
-      case Match(text, _) => text
-      case Mismatch(text, _) => s"~$text~"
+      case Leaf(Match(text, _)) => text
+      case Leaf(Mismatch(text, _)) => s"~$text~"
     }
     parts.mkString
   }

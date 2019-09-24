@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInsight
 
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import org.jetbrains.plugins.scala.annotator.TypeDiff
-import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match}
+import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
+import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
+import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -39,18 +40,18 @@ package object hints {
   }
 
   private[hints] def textPartsOf(tpe: ScType, maxChars: Int)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
-    def toText(diff: TypeDiff): Text = diff match {
-      case Group(diffs @_*) =>
+    def toText(diff: Tree[TypeDiff]): Text = diff match {
+      case Node(diffs @_*) =>
         Text(foldedString,
           foldedAttributes(error = false),
           expansion = Some(() => diffs.map(toText)))
-      case Match(text, tpe) =>
+      case Leaf(Match(text, tpe)) =>
         Text(text,
           tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
     }
     TypeDiff.parse(tpe)
-      .flattenTo(TypeDiff.lengthOf(groupLength = foldedString.length), maxChars)
+      .flattenTo(TypeDiff.lengthOf(nodeLength = foldedString.length), maxChars)
       .map(toText)
   }
 

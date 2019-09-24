@@ -5,7 +5,8 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.TypeDiff.{Group, Match, Mismatch}
+import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
+import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
@@ -40,32 +41,32 @@ private object TypeMismatchHints {
   }
 
   private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
-    def toText(diff: TypeDiff): Text = diff match {
-      case Group(diffs @_*) =>
+    def toText(diff: Tree[TypeDiff]): Text = diff match {
+      case Node(diffs @_*) =>
         Text(foldedString,
           foldedAttributes(diff.flatten.exists(_.is[Mismatch])),
           expansion = Some(() => diffs.map(toText)))
-      case Match(text, tpe) =>
+      case Leaf(Match(text, tpe)) =>
         Text(text,
           tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
-      case Mismatch(text, tpe) =>
+      case Leaf(Mismatch(text, tpe)) =>
         Text(text,
           attributes = Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)),
           tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
     }
     TypeDiff.forActual(expected, actual)
-      .flattenTo(TypeDiff.lengthOf(groupLength = foldedString.length), maxLength = ScalaCodeInsightSettings.getInstance.presentationLength)
+      .flattenTo(TypeDiff.lengthOf(nodeLength = foldedString.length), maxLength = ScalaCodeInsightSettings.getInstance.presentationLength)
       .map(toText)
       .map(_.copy(errorTooltip = Some(message)))
   }
 
   def tooltipFor(expectedType: ScType, actualType: ScType)(implicit context: TypePresentationContext): String = {
-    def format(diff: TypeDiff, f: String => String) = {
+    def format(diff: Tree[TypeDiff], f: String => String) = {
       val parts = diff.flatten.map {
-        case Match(text, _) => text
-        case Mismatch(text, _) => f(text)
+        case Leaf(Match(text, _)) => text
+        case Leaf(Mismatch(text, _)) => f(text)
       } map {
         "<td style=\"text-align:center\">" + _ + "</td>"
       }
