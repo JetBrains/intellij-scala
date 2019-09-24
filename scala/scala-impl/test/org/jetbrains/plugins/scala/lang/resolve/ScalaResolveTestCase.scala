@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.plugins.scala.lang.resolve;
+package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -25,8 +25,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
 import java.io.File
 
-import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
-
 /**
  * @author ilyas
  */
@@ -35,29 +33,28 @@ abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCas
   def folderPath: String = {
     TestUtils.getTestDataPath + "/"
   }
-  
-  protected def findReferenceAtCaret(): PsiReference = {
-    getFileAdapter.findReferenceAt(getEditorAdapter.getCaretModel.getOffset);
-  }
+
+  protected def findReferenceAtCaret(): PsiReference =
+    getFileAdapter.findReferenceAt(getEditorAdapter.getCaretModel.getOffset)
 
   override def setUp(): Unit = {
-    super.setUp();
+    super.setUp()
 
-    var extention = ".scala";
-    var fileName = getTestName(false);
+    var extention = ".scala"
+    var fileName = getTestName(false)
     if (fileName.startsWith("JavaFileWithName")) {
-      extention = ".java";
-      fileName = fileName.substring("JavaFileWithName".length());
+      extention = ".java"
+      fileName = fileName.substring("JavaFileWithName".length())
     }
-    val filePath = folderPath + File.separator + fileName + extention;
-    val ioFile = new File(filePath);
-    val fileTextRaw = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8);
-    val fileText = StringUtil.convertLineSeparators(fileTextRaw);
-    val offset = fileText.indexOf("<ref>");
-    val fileTextWithoutRef = fileText.replace("<ref>", "");
-    configureFromFileTextAdapter(ioFile.getName, fileTextWithoutRef);
+    val filePath = folderPath + File.separator + fileName + extention
+    val ioFile = new File(filePath)
+    val fileTextRaw = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
+    val fileText = StringUtil.convertLineSeparators(fileTextRaw)
+    val offset = fileText.indexOf("<ref>")
+    val fileTextWithoutRef = fileText.replace("<ref>", "")
+    configureFromFileTextAdapter(ioFile.getName, fileTextWithoutRef)
     if (offset != -1) {
-      getEditor.getCaretModel.moveToOffset(offset);
+      getEditor.getCaretModel.moveToOffset(offset)
     }
   }
 }
