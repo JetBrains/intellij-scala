@@ -1,15 +1,27 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.index
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package index
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndex
+import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-trait ImplicitIndex extends StubIndexExt[String, ScMember] {
+trait ImplicitIndex {
+
+  protected val indexKey: StubIndexKey[String, ScMember]
+
+  protected def occurrence(sink: IndexSink, name: String): Unit =
+    sink.occurrence(indexKey, name)
+
+  def occurrences(sink: IndexSink, names: Array[String]): Unit =
+    names.foreach(occurrence(sink, _))
 
   def forClassFqn(qName: String, scope: GlobalSearchScope, project: Project): Seq[ScMember] = {
     val collectProcessor = new CollectProcessor
@@ -25,7 +37,6 @@ trait ImplicitIndex extends StubIndexExt[String, ScMember] {
     collectProcessor.buffer
   }
 }
-
 
 private class CollectProcessor extends Processor[ScMember] {
   val buffer: ArrayBuffer[ScMember] = ArrayBuffer.empty

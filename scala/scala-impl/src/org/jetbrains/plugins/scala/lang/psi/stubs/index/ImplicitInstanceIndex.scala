@@ -1,13 +1,19 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.index
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package index
 
-import com.intellij.psi.stubs.StubIndexKey
-import com.intellij.psi.stubs.StubIndexKey.createIndexKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
-class ImplicitInstanceIndex extends ScStringStubIndexExtension[ScMember]  {
-  def getKey: StubIndexKey[String, ScMember] = ImplicitInstanceIndex.indexKey
+final class ImplicitInstanceIndex extends ScStringStubIndexExtension[ScMember] {
+
+  //noinspection TypeAnnotation
+  override def getKey = ImplicitInstanceIndex.indexKey
 }
 
 object ImplicitInstanceIndex extends ImplicitIndex {
-  val indexKey: StubIndexKey[String, ScMember] = createIndexKey("sc.implicit.instance")
+
+  //noinspection TypeAnnotation
+  override protected val indexKey = ScalaIndexKeys.IMPLICIT_INSTANCE_KEY
 }
