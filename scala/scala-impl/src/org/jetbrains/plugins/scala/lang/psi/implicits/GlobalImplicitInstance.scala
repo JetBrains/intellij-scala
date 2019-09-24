@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.psi.implicits
+package org.jetbrains.plugins.scala.lang
+package psi
+package implicits
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
@@ -13,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
 

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 
 /**
   * @author adkozlov
