@@ -183,7 +183,7 @@ object Compatibility {
 
     //optimization:
     val hasRepeated = parameters.exists(_.isRepeated)
-    val maxParams: Int = if(hasRepeated) scala.Int.MaxValue else parameters.length
+    val maxParams: Int = if (hasRepeated) scala.Int.MaxValue else parameters.length
 
     val excess = exprs.length - maxParams
 
@@ -434,7 +434,7 @@ object Compatibility {
 
         checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
       case fun: ScFunction =>
-        if(!fun.hasParameterClause && argClauses.nonEmpty)
+        if (!fun.hasParameterClause && argClauses.nonEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
@@ -444,10 +444,10 @@ object Compatibility {
 
         val parameters =
           fun.effectiveParameterClauses
-          .headOption
-          .toList
-          .flatMap(_.effectiveParameters)
-          .map(toParameter(_, substitutor))
+             .headOption
+             .toList
+             .flatMap(_.effectiveParameters)
+             .map(toParameter(_, substitutor))
 
         checkParameterListConformance(checkNames = true, parameters, firstArgumentListArgs)
       case constructor: ScPrimaryConstructor =>

@@ -216,8 +216,8 @@ object MethodResolveProcessor {
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
-      case fun: PsiMethod => fun.getTypeParameters.map(TypeParameter(_)).toSeq
-      case _ => Seq.empty
+      case fun: PsiMethod  => fun.getTypeParameters.map(TypeParameter(_)).toSeq
+      case _               => Seq.empty
     })
 
     def addExpectedTypeProblems(eOption: Option[ScType] = expectedOption(), result: Option[ConformanceExtResult] = None): ConformanceExtResult = {
@@ -243,10 +243,10 @@ object MethodResolveProcessor {
       }
       result match {
         case Some(aResult) =>
-          val substitutor =
+          val constraints =
             if (expected.equiv(api.Unit)) aResult.constraints
-            else aResult.constraints + conformance.constraints
-          aResult.copy(problems, substitutor)
+            else                          aResult.constraints + conformance.constraints
+          aResult.copy(problems, constraints)
         case None => ConformanceExtResult(problems, conformance.constraints)
       }
     }
@@ -340,18 +340,59 @@ object MethodResolveProcessor {
       constructorCompatibility(constr, classTypeParmeters)
     }
 
+    def checkSimpleApplication(
+      e:          PsiNamedElement,
+      typeParams: Seq[PsiTypeParameter]
+    ): ConformanceExtResult = {
+      val typeArgCount   = typeArgElements.length
+      val typeParamCount = typeParams.length
+
+      if (typeArgCount > 0 && typeArgCount != typeParamCount) {
+        if (typeParamCount == 0) problems += DoesNotTakeTypeParameters
+        else if (typeParamCount < typeArgCount)
+          problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
+        else
+          problems ++= typeParams
+            .drop(typeArgCount)
+            .map(ptp => MissedTypeParameter(TypeParameter(ptp)))
+
+        addExpectedTypeProblems()
+      } else {
+        val args                 = argumentClauses.headOption.toList
+        val expectedTypeProblems = addExpectedTypeProblems()
+
+        val expectedTypeSubst =
+          expectedTypeProblems.constraints.substitutionBounds(canThrowSCE = false)
+
+        val substitutorWithExpected =
+          expectedTypeSubst.fold(substitutor)(bounds => substitutor.followed(bounds.substitutor))
+
+        val argsConformance =
+          Compatibility.compatible(
+            e,
+            substitutorWithExpected,
+            args,
+            checkWithImplicits,
+            ref.resolveScope,
+            isShapeResolve,
+            ref
+          )
+
+        problems ++= argsConformance.problems
+        argsConformance.copy(problems = problems)
+      }
+    }
+
     val result = element match {
       //objects
       case obj: ScObject =>
         if (argumentClauses.isEmpty) {
           expectedOption().map(_.removeAbstracts) match {
-            case Some(FunctionType(_, params)) =>
-              problems += ExpectedTypeMismatch
+            case Some(FunctionType(_, _)) => problems += ExpectedTypeMismatch
             case Some(tp: ScType) if obj.isSAMEnabled =>
               SAMUtil.toSAMType(tp, obj) match {
-                case Some(FunctionType(_, params)) =>
-                  problems += ExpectedTypeMismatch
-                case _ =>
+                case Some(FunctionType(_, _)) => problems += ExpectedTypeMismatch
+                case _                        => ()
               }
             case _ =>
           }
@@ -384,47 +425,8 @@ object MethodResolveProcessor {
             typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
         checkFunction(fun, fun.getTypeParameters.nonEmpty)
       //simple application including empty application
-      case tp: ScTypeParametersOwner with PsiNamedElement =>
-        val args = argumentClauses.headOption.toList
-
-        val typeArgCount = typeArgElements.length
-        val typeParamCount = tp.typeParameters.length
-        if (typeArgCount > 0 && typeArgCount != typeParamCount) {
-          if (typeParamCount == 0) {
-            problems += DoesNotTakeTypeParameters
-          } else if (typeParamCount < typeArgCount) {
-            problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
-          } else {
-            problems ++= tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
-          }
-          addExpectedTypeProblems()
-        } else {
-          val result =
-            Compatibility.compatible(tp, substitutor, args, checkWithImplicits,
-              ref.resolveScope, isShapeResolve, ref)
-          problems ++= result.problems
-          addExpectedTypeProblems(result = Some(result))
-        }
-      case tp: PsiTypeParameterListOwner with PsiNamedElement =>
-        val typeArgCount = typeArgElements.length
-        val typeParamCount = tp.getTypeParameters.length
-        if (typeArgCount > 0 && typeArgCount != typeParamCount) {
-          if (typeParamCount == 0) {
-            problems += DoesNotTakeTypeParameters
-          } else if (typeParamCount < typeArgCount) {
-            problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
-          } else {
-            problems ++= tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
-          }
-          addExpectedTypeProblems()
-        } else {
-          val args = argumentClauses.headOption.toList
-          val result =
-            Compatibility.compatible(tp, substitutor, args, checkWithImplicits,
-              ref.resolveScope, isShapeResolve)
-          problems ++= result.problems
-          addExpectedTypeProblems(result = Some(result))
-        }
+      case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner, tpOwner.typeParameters)
+      case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner, tpOwner.getTypeParameters)
       case _ =>
         if (typeArgElements.nonEmpty) problems += DoesNotTakeTypeParameters
         if (argumentClauses.nonEmpty) problems += new DoesNotTakeParameters
@@ -463,7 +465,7 @@ object MethodResolveProcessor {
 
           uSubst match {
             case ConstraintSystem(_) => Some(result)
-            case _ => None
+            case _                   => None
           }
         case _ => None
       }
@@ -676,7 +678,7 @@ object MethodResolveProcessor {
       if (filtered.size == 1) return filtered
       MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered, hasTypeParametersCall = typeArgElements.nonEmpty) match {
         case Some(r) => Set(r)
-        case None => filtered
+        case None    => filtered
       }
     }
   }

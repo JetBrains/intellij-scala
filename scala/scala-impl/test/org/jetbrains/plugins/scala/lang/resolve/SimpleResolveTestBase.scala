@@ -46,7 +46,7 @@ trait SimpleResolveTestBase {
   protected def doResolveTest(target: PsiElement, sources: (String, String)*): Unit =
     doResolveTest(target = Some(target), shouldResolve = true, sources: _*)
 
-  private def doResolveTest(target: Option[PsiElement], shouldResolve: Boolean, sources: (String, String)*): Unit = {
+  protected def setupResolveTest(target: Option[PsiElement], sources: (String, String)*): (ScReference, PsiElement) = {
     var src: ScReference = null
     var tgt: PsiElement = target.orNull
 
@@ -67,31 +67,24 @@ trait SimpleResolveTestBase {
     }
 
     Assert.assertNotNull("Failed to locate source element", src)
+    (src, tgt)
+  }
+
+  private def doResolveTest(target: Option[PsiElement], shouldResolve: Boolean, sources: (String, String)*): Unit = {
+    val (src, tgt) = setupResolveTest(target, sources: _*)
     val result = src.resolve()
     if (shouldPass) {
-      if (shouldResolve) {
-        Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
-      }
-      else {
-        Assert.assertNull("Reference '${src.getText}' must not resolve", result)
-      }
-    }
-    else if (result == null) {
-      if (!shouldResolve) {
-        Assert.fail(failingPassed + ": failed to resolve element")
-      }
-      else {
-        return
-      }
+      if (shouldResolve) Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
+      else               Assert.assertNull("Reference '${src.getText}' must not resolve", result)
+    } else if (result == null) {
+      if (!shouldResolve) Assert.fail(failingPassed + ": failed to resolve element")
+      else                return
     }
 
     // we might want to check if reference simply resolves to something
     if (tgt != null)
-      if (shouldPass) {
-        Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
-      } else {
-        Assert.assertFalse(failingPassed, tgt == result)
-      }
+      if (shouldPass) Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
+       else           Assert.assertFalse(failingPassed, tgt == result)
   }
 
   protected def testNoResolve(sources: (String, String)*) = doResolveTest(None, shouldResolve = false, sources: _*)
