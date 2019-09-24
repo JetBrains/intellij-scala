@@ -41,9 +41,11 @@ object TypeDiff {
     override def text: String = diffs.view.map(_.text).mkString
   }
 
-  final case class Match(override val text: String, tpe: Option[ScType] = None) extends TypeDiff
+  sealed trait Diff
 
-  final case class Mismatch(override val text: String, tpe: Option[ScType] = None) extends TypeDiff
+  final case class Match(override val text: String, tpe: Option[ScType] = None) extends TypeDiff with Diff
+
+  final case class Mismatch(override val text: String, tpe: Option[ScType] = None) extends TypeDiff with Diff
 
   def lengthOf(groupLength: Int)(diff: TypeDiff) = diff match {
     case Match(text, _) => text.length
