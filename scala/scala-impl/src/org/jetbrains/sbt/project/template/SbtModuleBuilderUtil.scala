@@ -2,18 +2,19 @@ package org.jetbrains.sbt.project.template
 
 import java.io.File
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
+import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
+import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalProjectSettings, ExternalSystemSettingsListener}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
@@ -54,23 +55,25 @@ object SbtModuleBuilderUtil {
     val project = model.getProject
     val settings =
       ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id)
-        .asInstanceOf[
-        AbstractExternalSystemSettings[
-          _ <: AbstractExternalSystemSettings[_, SbtProjectSettings, _],
-          SbtProjectSettings,
-          _ <: ExternalSystemSettingsListener[SbtProjectSettings]]
-        ]
+        .asInstanceOf[AbstractExternalSystemSettings[_, SbtProjectSettings, _]]
 
     externalProjectSettings.setExternalProjectPath(contentRootDir.getAbsolutePath)
     settings.linkProject(externalProjectSettings)
 
     if (!externalProjectSettings.isUseAutoImport) {
       FileDocumentManager.getInstance.saveAllDocuments()
-      ApplicationManager.getApplication.invokeLater(() => ExternalSystemUtil.refreshProjects(
-        new ImportSpecBuilder(project, SbtProjectSystem.Id)
-          .forceWhenUptodate()
-          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-      ))
+
+      /** simmilar code is also called inside [[com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity.runActivity]]
+       * In case the refresh below is not finished yet another refresh is cancelled in
+       * `com.intellij.openapi.externalSystem.util.ExternalSystemUtil`*/
+      invokeLater {
+        ExternalProjectsManagerImpl.getInstance(project).init()
+        ExternalSystemUtil.refreshProjects(
+          new ImportSpecBuilder(project, SbtProjectSystem.Id)
+            .forceWhenUptodate()
+            .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+        )
+      }
     }
   }
 
