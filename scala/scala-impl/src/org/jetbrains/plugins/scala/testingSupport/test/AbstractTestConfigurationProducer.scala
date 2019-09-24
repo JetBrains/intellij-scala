@@ -100,7 +100,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     configuration.setGeneratedName(displayName)
 
     val testDataOld = configuration.testConfigurationData
-    val testDataNew = AllInPackageTestData(configuration, testPackage.getQualifiedName)
+    val testDataNew = AllInPackageTestData(configuration, sanitize(testPackage.getQualifiedName))
     copyTestData(testDataOld, testDataNew)
     testDataNew.initWorkingDir()
 
@@ -113,12 +113,15 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     }
 
     val testDataOld = configuration.testConfigurationData
-    val testDataNew = ClassTestData(configuration, testClass.qualifiedName, testName)
+    val testDataNew = ClassTestData(configuration, sanitize(testClass.qualifiedName), testName)
     copyTestData(testDataOld, testDataNew)
     testDataNew.initWorkingDir()
 
     configuration.testConfigurationData = testDataNew
   }
+
+  // do not display backticks in test class/package name
+  private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
 
   private final def createConfigurationByElement(location: Location[_ <: PsiElement],
                                                  context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {

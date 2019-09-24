@@ -10,6 +10,12 @@ trait SpecialCharactersTest extends ScalaTestTestCase {
   def tildeTestPath = List("[root]", className, "tilde ~ test", "should contain ~")
   def backtickTestPath = List("[root]", className, "backtick ` test", "should contain `")
 
+  val className1 = "ClassInPackageWithReservedKeywordsTest"
+  val packageName1 = "myPackage.type.implicit"
+  val classFullName1 = packageName1 + s".$className1"
+  val classFilePath1 = packageName1.replace(".", "/") + s"/$className1.scala"
+  def classTestTreePath1 = List("[root]", className1, "test", "should work")
+
   addSourceFile(s"$className.scala",
     s"""|import org.scalatest._
         |
@@ -28,6 +34,17 @@ trait SpecialCharactersTest extends ScalaTestTestCase {
         |
         | "tilde ~ test" should "contain ~" in {
         | }
+        |}""".stripMargin
+  )
+
+  addSourceFile(classFilePath1,
+    s"""|package myPackage.`type`.`implicit`
+        |
+        |import org.scalatest._
+        |
+        |class $className1 extends FlatSpec {
+        |
+        |  "test" should "work" in {}
         |}""".stripMargin
   )
 
@@ -66,4 +83,10 @@ trait SpecialCharactersTest extends ScalaTestTestCase {
     )
   }
 
+  def testClassInPackageWithReservedKeywordInName(): Unit = {
+    runTestByLocation(6, 10, classFilePath1,
+      checkConfigAndSettings(_, classFullName1, "test should work"),
+      root => checkResultTreeHasExactNamedPath(root, classTestTreePath1: _*)
+    )
+  }
 }

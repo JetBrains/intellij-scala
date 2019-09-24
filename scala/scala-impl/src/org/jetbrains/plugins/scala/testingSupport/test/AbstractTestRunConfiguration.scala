@@ -268,13 +268,16 @@ abstract class AbstractTestRunConfiguration(project: Project,
   def addClassesAndTests(classToTests: Map[String, Set[String]], add: String => Unit): Unit = {
     for ((className, tests) <- classToTests) {
       add(classKey)
-      add(className)
+      add(sanitize(className))
       for (test <- tests if test != "") {
         add(testNameKey)
         add(test)
       }
     }
   }
+
+  // ScalaTest does not understand backticks in class/package qualified names, it will fail to run
+  private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
 
   protected def escapeTestName(test: String): String = {
     if (test.contains(" ")) s""""$test""""
@@ -298,10 +301,15 @@ abstract class AbstractTestRunConfiguration(project: Project,
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
+    //noinspection TypeAnnotation
     val state = new JavaCommandLineState(env) with AbstractTestRunConfiguration.TestCommandLinePatcher {
       private def suitesToTestsMap: Map[String, Set[String]] = {
         val failedTests = getFailedTests.groupBy(_._1).map { case (aClass, tests) => (aClass, tests.map(_._2).toSet) }.filter(_._2.nonEmpty)
-        if (failedTests.nonEmpty) failedTests else testConfigurationData.getTestMap
+        if (failedTests.nonEmpty) {
+          failedTests
+        } else {
+          testConfigurationData.getTestMap
+        }
       }
 
       override val getClasses: Seq[String] = testConfigurationData.getTestMap.keys.toSeq
@@ -335,7 +343,9 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
         params.getClassPath.addRunners()
         //a workaround to add jars for integration tests
-        if (addIntegrationTestsClasspath) params.getClassPath.addRunners()
+        if (addIntegrationTestsClasspath) {
+          params.getClassPath.addRunners()
+        }
 
         ManagingFS.getInstance match {
           case fs: PersistentFSImpl => fs.incStructuralModificationCount()

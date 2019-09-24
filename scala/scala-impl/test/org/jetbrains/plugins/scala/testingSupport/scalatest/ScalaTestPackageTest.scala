@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
 trait ScalaTestPackageTest extends ScalaTestTestCase {
+
   private val packageName = "myPackage"
   private val secondPackageName = "secondPackage"
+  private val packageNameWithReservedKeyword = "type"
 
   addSourceFile(packageName + "/Test1.scala",
     """
@@ -42,6 +44,18 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
       |}
     """.stripMargin.trim())
 
+  addSourceFile(packageNameWithReservedKeyword + "/Test3.scala",
+    """
+      |package `type`
+      |
+      |import org.scalatest._
+      |
+      |class Test3 extends FunSuite {
+      |
+      |  test("some test name") {}
+      |}
+    """.stripMargin.trim())
+
   def testPackageTestRun(): Unit = {
     runTestByConfig(createTestFromPackage(packageName), checkPackageConfigAndSettings(_, packageName),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "Test1") &&
@@ -49,12 +63,21 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
         checkResultTreeDoesNotHaveNodes(root, "SecondTest"))
   }
 
+  def testPackageTestRun_WithReservedKeywordInName(): Unit = {
+    runTestByConfig(
+      createTestFromPackage(packageNameWithReservedKeyword),
+      checkPackageConfigAndSettings(_, packageNameWithReservedKeyword),
+      root => checkResultTreeHasExactNamedPath(root, "[root]", "Test3", "some test name")
+    )
+  }
+
   def testModuleTestRun(): Unit = {
     runTestByConfig(createTestFromModule(testClassName),
       checkPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "Test1") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "Test2") &&
-        checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "SecondTest")
+        checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "SecondTest") &&
+        checkResultTreeHasExactNamedPath(root, "[root]", "Test3", "some test name")
     )
   }
 }
