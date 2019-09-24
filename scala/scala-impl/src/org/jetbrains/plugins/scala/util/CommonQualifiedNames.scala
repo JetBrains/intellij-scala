@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package util
 
-import com.intellij.psi.CommonClassNames
+import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 
 object CommonQualifiedNames {
 
   private final val Root = "_root_."
   private final val Scala = "scala."
 
-  final val JavaObjectCanonical = Root + CommonClassNames.JAVA_LANG_OBJECT
+  final val JavaObjectFqn = JAVA_LANG_OBJECT
+  final val JavaObjectCanonical = Root + JavaObjectFqn
 
   final val ProductFqn = Scala + "Product"
   final val ProductCanonical = Root + ProductFqn

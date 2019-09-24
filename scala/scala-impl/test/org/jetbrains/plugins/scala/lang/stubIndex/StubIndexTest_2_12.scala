@@ -220,7 +220,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
     assertContains(all, "scala.Predef.ArrowAssoc")
 
     def forClassFqn(fqn: String): Set[String] =
-      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibraries, getProject).flatMap(_.qualifiedNameOpt).toSet
+      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
 
     Assert.assertEquals(forClassFqn("scala.math.Ordering.Ops"),
       Set(
@@ -233,7 +233,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testImplicitInstance(): Unit = {
     def forClassFqn(fqn: String): Set[String] =
-      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries, getProject).flatMap(_.qualifiedNameOpt).toSet
+      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
 
     val orderings = forClassFqn("scala.math.Ordering")
     Assert.assertEquals(13, orderings.size)

@@ -22,15 +22,15 @@ case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunc
 object GlobalImplicitConversion {
 
   private[implicits] def collectIn(elementScope: ElementScope): Iterable[GlobalImplicitConversion] = {
-    val ElementScope(project, scope) = elementScope
-    val manager = ScalaPsiManager.instance(project)
+    implicit val ElementScope(project, scope) = elementScope
 
     def containingObjects(function: ScFunction): Set[ScObject] =
-      Option(function.containingClass)
-        .fold(Set.empty[ScObject])(manager.inheritorOrThisObjects)
+      Option(function.containingClass).fold(Set.empty[ScObject]) {
+        ScalaPsiManager.instance.inheritorOrThisObjects(_)
+      }
 
     for {
-      member <- ImplicitConversionIndex.allElements(scope)(project)
+      member <- ImplicitConversionIndex.allElements(scope)
 
       function <- member match {
         case f: ScFunction => f :: Nil

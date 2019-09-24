@@ -5,7 +5,6 @@ package implicits
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 
 case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
 
@@ -24,15 +24,16 @@ case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) 
   }
 
   def possiblyUndefinedType: ScType = {
-    val fullSubstitor = member match {
-      case f: ScFunction => substitutor.followed(ScalaPsiUtil.undefineMethodTypeParams(f))
-      case _ => substitutor
+    val substitutor = MixinNodes.asSeenFromSubstitutor(containingObject, member.containingClass)
+
+    val (maybeType, fullSubstitutor) = member match {
+      case f: ScFunction =>
+        (f.returnType, substitutor.followed(ScalaPsiUtil.undefineMethodTypeParams(f)))
+      case t: Typeable =>
+        (t.`type`(), substitutor)
     }
-    val tpe = member match {
-      case f: ScFunction => f.returnType.getOrNothing
-      case t: Typeable   => t.`type`().getOrNothing
-    }
-    fullSubstitor(tpe)
+
+    fullSubstitutor(maybeType.getOrNothing)
   }
 
   def qualifiedName: String = containingObject.qualifiedName + "." + named.name
@@ -44,56 +45,39 @@ case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) 
     case _ => false
   }
 
-  private def substitutor =
-    MixinNodes.asSeenFromSubstitutor(containingObject, member.containingClass)
-
-  override def toString: String = s"GlobalImplicitInstance($qualifiedName)"
+  override def toString: String = "GlobalImplicitInstance(" + qualifiedName + ")"
 }
 
 object GlobalImplicitInstance {
-  //these types are too broad to search implicits for them
-  private val ignoredClasses: Set[String] = Set("scala.AnyRef", "scala.Any", "java.lang.Object")
 
-  def exactClassCandidates(clazz: PsiClass, scope: GlobalSearchScope, project: Project): Seq[ScMember] = {
-    val qName = clazz.qualifiedName
+  private[this] def allCandidates(clazz: PsiClass, scope: GlobalSearchScope)
+                                 (implicit project: Project): Set[ScMember] = for {
+    psiClass <- ScalaInheritors.withStableScalaInheritors(clazz)
 
-    if (ignoredClasses.contains(qName))
-      Seq.empty
-    else
-      ImplicitInstanceIndex.forClassFqn(qName, scope, project)
-  }
+    qualifiedName = psiClass.qualifiedName
+    if qualifiedName != AnyRefFqn &&
+      qualifiedName != AnyFqn &&
+      qualifiedName != JavaObjectFqn
 
-  def allCandidates(clazz: PsiClass, scope: GlobalSearchScope): Set[ScMember] = {
-    val project = clazz.getProject
+    candidate <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)
+  } yield candidate
+
+  private[this] def globalInstances(member: ScMember)
+                                   (implicit project: Project): Set[GlobalImplicitInstance] = for {
+    containingClass <- Option(member.containingClass).toSet[ScTemplateDefinition]
+    containingObject <- ScalaPsiManager.instance.inheritorOrThisObjects(containingClass)
+  } yield GlobalImplicitInstance(containingObject, member)
+
+  def compatibleInstances(`type`: ScType, elementScope: ElementScope): Set[GlobalImplicitInstance] = {
+    implicit val ElementScope(project, scope) = elementScope
 
     for {
-      psiClass  <- ScalaInheritors.withStableScalaInheritors(clazz)
-      candidate <- exactClassCandidates(psiClass, scope, project)
-    } yield {
-      candidate
-    }
-  }
+      clazz <- `type`.extractClass.toSet[PsiClass]
+      candidate <- allCandidates(clazz, scope)
 
-  def globalInstances(member: ScMember): Set[GlobalImplicitInstance] =
-    for {
-      containingClass <- member.containingClass.toOption.toSet[ScTemplateDefinition]
-      objectToImport  <- ScalaPsiManager.instance(member).inheritorOrThisObjects(containingClass)
-    } yield {
-      GlobalImplicitInstance(objectToImport, member)
-    }
-
-  def compatibleInstances(tp: ScType, elementScope: ElementScope): Set[GlobalImplicitInstance] = {
-    for {
-      clazz     <- tp.extractClass.toSet[PsiClass]
-      candidate <- allCandidates(clazz, elementScope.scope)
-
-      global    <- globalInstances(candidate)
-
-      if global.possiblyUndefinedType.conforms(tp)
-
-    } yield {
-      global
-    }
+      global <- globalInstances(candidate)
+      if global.possiblyUndefinedType.conforms(`type`)
+    } yield global
   }
 
 }
