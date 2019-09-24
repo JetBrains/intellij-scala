@@ -4,6 +4,7 @@ package element
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.annotator.Tree.Leaf
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -52,7 +53,8 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
     if (asString(diff) == expected.getText) { // make sure that presentations match
       val (ranges, _) =  diff.flatten.foldLeft((Seq.empty[TextRange], expected.getTextOffset)) { case ((acc, offset), x) =>
         val length = asString(x).length
-        (if (x.is[Mismatch]) TextRange.create(offset, offset + length) +: acc else acc, offset + length)
+        val isMismatch: Tree[TypeDiff] => Boolean = { case Leaf(Mismatch(_, _)) => true; case _ => false }
+        (if (isMismatch(x)) TextRange.create(offset, offset + length) +: acc else acc, offset + length)
       }
       ranges
     } else {
