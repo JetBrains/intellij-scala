@@ -289,7 +289,7 @@ package object project {
 
     private def isEnabledIn(predicate: Module => Boolean): Boolean =
       applicationUnitTestModeEnabled ||
-        Option(ModuleUtilCore.findModuleForFile(file)).exists(predicate)
+        file.module.exists(predicate)
   }
 
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
