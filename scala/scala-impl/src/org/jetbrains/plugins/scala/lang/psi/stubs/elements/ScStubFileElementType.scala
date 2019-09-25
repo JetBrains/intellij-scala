@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
 //noinspection TypeAnnotation
 class ScStubFileElementType(override val getExternalId: String,
                             language: Language)
-  extends tree.IStubFileElementType[ScFileStub]("FILE", language) {
+  extends tree.IStubFileElementType[ScFileStub](getExternalId, language) {
 
   override final def getStubVersion: Int =
     super.getStubVersion + compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
@@ -59,3 +59,10 @@ class ScStubFileElementType(override val getExternalId: String,
 
 }
 
+object ScStubFileElementType {
+
+  def apply(language: Language) = new ScStubFileElementType(
+    s"${language.getDisplayName.toLowerCase} FILE".replace(' ', '.'),
+    language
+  )
+}

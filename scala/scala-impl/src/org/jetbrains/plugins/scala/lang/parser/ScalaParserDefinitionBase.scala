@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 //noinspection TypeAnnotation
-abstract class ScalaParserDefinitionBase extends ParserDefinition {
+abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
 
   override def createLexer(project: Project) =
     new lexer.ScalaLexer(false, project)

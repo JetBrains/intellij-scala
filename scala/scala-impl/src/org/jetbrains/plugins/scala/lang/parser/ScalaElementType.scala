@@ -33,9 +33,6 @@ object ScalaElementType {
 
   //Stub element types
 
-  private[parser] val ScalaFile = new ScStubFileElementType("scala.file", ScalaLanguage.INSTANCE)
-  private[parser] val Scala3File = new ScStubFileElementType("scala3.file", Scala3Language.INSTANCE)
-
   val IDENTIFIER_LIST = new ScIdListElementType
   val FIELD_ID = new ScFieldIdElementType
   val IMPORT_SELECTOR = new ScImportSelectorElementType
