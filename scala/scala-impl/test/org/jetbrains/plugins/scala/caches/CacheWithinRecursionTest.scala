@@ -217,11 +217,10 @@ class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter w
     a ~> c
 
     // d is locally cached when inside the recursion of c but is not cached outside of it
-    val cInOnlyB = "c(@@b(#a+c(#b)+@@c(#b)))"
-    val expectA = s"a(b(#a+c(#b)+@@c(#b))+$cInOnlyB)"
+    val expectA = s"a(b(#a+c(#b)+@@c(#b))+c(@@b(#a+c(#b)+@@c(#b))))"
     assertEquals(expectA, a())
-    val expectB = s"b(@$expectA+@$cInOnlyB+@$cInOnlyB)"
+    val expectB = s"b(@$expectA+c(#b)+@@c(#b))"
     assertEquals(expectB, b())
-    assertEquals(s"c($expectB)", c())
+    assertEquals(s"c(@$expectB)", c())
   }
 }
