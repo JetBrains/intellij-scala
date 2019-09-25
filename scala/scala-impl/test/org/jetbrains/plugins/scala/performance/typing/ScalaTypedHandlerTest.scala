@@ -8,6 +8,8 @@ import org.junit.experimental.categories.Category
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
+// Also see tests in `org.jetbrains.plugins.scala.lang.actions.editor` package
+// TODO: unify tests and move to a common package
 @Category(Array(classOf[PerfCycleTests]))
 class ScalaTypedHandlerTest extends TypingTestWithPerformanceTestBase {
   implicit val typingTimeout: Duration = 150 milliseconds
