@@ -14,6 +14,7 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.junit.Assert.fail
 
 /**
  * User: Dmitry Naydanov
@@ -117,10 +118,31 @@ object ScalaLightCodeInsightFixtureTestAdapter {
     }
 
   def findCaretOffset(text: String, stripTrailingSpaces: Boolean): (String, Int) = {
+    val (textActual, caretOffsets) = findCaretOffsets(text, stripTrailingSpaces)
+    caretOffsets.toList match {
+      case head :: Nil => (textActual, head)
+      case Nil         => (textActual, -1)
+      case offsets     => fail(s"single caret expected but found: ${offsets.size}").asInstanceOf[Nothing]
+    }
+  }
+
+  def findCaretOffsets(text: String, stripTrailingSpaces: Boolean): (String, Seq[Int]) = {
     import EditorTestUtil.CARET_TAG
 
-    val normalized = normalize(text, stripTrailingSpaces)
-    (normalized.replace(CARET_TAG, ""), normalized.indexOf(CARET_TAG))
+    val textNormalized = normalize(text, stripTrailingSpaces)
+
+    var caretTagIndices = Seq[Int]()
+    var idx = textNormalized.indexOf(CARET_TAG)
+    while (idx >= 0) {
+      caretTagIndices :+= idx
+      idx = textNormalized.indexOf(CARET_TAG, idx + 1)
+    }
+
+    val caretIndices = caretTagIndices.zipWithIndex.map { case (caretIdx, idx) => caretIdx - idx * CARET_TAG.length }
+    (
+      textNormalized.replace(CARET_TAG, ""),
+      caretIndices
+    )
   }
 
   implicit class Ext(private val adapter: ScalaLightCodeInsightFixtureTestAdapter) extends AnyVal {
