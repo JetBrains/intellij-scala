@@ -142,8 +142,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     val offset = editor.offset
     val prevElement = file.findElementAt(offset - 1)
     val element = file.findElementAt(offset)
-    if (element == null)
-      return beforeCharTypedForEmptyElementAtOffset(c, offset, prevElement, None)
+    if (element == null) return Result.CONTINUE
 
     val elementType = element.getNode.getElementType
 
@@ -182,44 +181,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element)
     } else {
-      beforeCharTypedForEmptyElementAtOffset(c, offset, prevElement, Some(elementType))
-    }
-  }
-
-  /**
-   * Handles cases when no elements were found at the caret position.
-   * This can happen, for example, when you are typing in an empty file and the caret is in the very end if the file.
-   *
-   * @see [[beforeCharTyped]]
-   */
-  private def beforeCharTypedForEmptyElementAtOffset(c: Char, offset: Int, prevElement: PsiElement, elementType: Option[IElementType])
-                                                    (implicit editor: Editor, project: Project): Result = {
-    if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance.INSERT_MULTILINE_QUOTES) {
-      tryCompleteMultiline(offset, prevElement, elementType)
       Result.CONTINUE
-    } else {
-      Result.CONTINUE
-    }
-  }
-
-  private def tryCompleteMultiline(offset: Int, prevElement: PsiElement, elementType: Option[IElementType])
-                                  (implicit editor: Editor, project: Project): Unit = {
-    val prevType = prevElement.getNode.getElementType
-
-    def prevParentText = prevElement.getParent.getText
-
-    def shouldCompleteToMultiline: Boolean =
-      prevType == ScalaTokenTypes.tSTRING &&
-        prevParentText == "\"\"" &&
-        !elementType.contains(ScalaTokenTypes.tSTRING)
-
-    def shouldCompleteToInterpolatedMultiline: Boolean =
-      prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
-        Set("f\"\"", "s\"\"", "q\"\"").contains(prevParentText) &&
-        !elementType.contains(ScalaTokenTypes.tINTERPOLATED_STRING_END)
-
-    if (shouldCompleteToMultiline || shouldCompleteToInterpolatedMultiline) {
-      completeMultilineString(offset, editor, project)
     }
   }
 
@@ -326,11 +288,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       insertAndCommit(offset, "\"\"", document, project)
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
-  }
-
-  private def completeMultilineString(offset: Int, editor: Editor, project: Project) {
-    val document = editor.getDocument
-    insertAndCommit(offset, "\"\"\"", document, project)
   }
 
   private def insertAndCommit(offset: Int, text: String, document: Document, project: Project) {
