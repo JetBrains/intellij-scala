@@ -267,13 +267,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
     def samePackage(refType: ReferenceType) = {
-      val fullName = refType.name()
-      //fullname can be SomeClass$$Lambda$1.1836643189
-      val name = DebuggerUtilsEx.getLambdaBaseClassName(fullName) match {
-        case null => fullName
-        case name => name
-      }
-
+      val name = nonLambdaName(refType)
       val lastDot = name.lastIndexOf('.')
       val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
       packageName.isEmpty || packageName.contains(refTypePackageName)
@@ -444,7 +438,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
       val scriptFile = findScriptFile(refType)
       val file = scriptFile.getOrElse {
-        val originalQName = NameTransformer.decode(refType.name)
+        val originalQName = NameTransformer.decode(nonLambdaName(refType))
 
         val clazz = withDollarTestName(originalQName)
           .flatMap(tryToFindClass)
@@ -621,13 +615,34 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       vm.classesByName(s)
     }
 
-    val name = NameTransformer.decode(refType.name())
-    val index = name.lastIndexOf("$$")
-    if (index < 0) return None
+    val fullName = refType.name()
+    val containingClassName = DebuggerUtilsEx.getLambdaBaseClassName(fullName) match {
+      case baseClassName: String => Some(baseClassName)
+      case null =>
+        val decoded = NameTransformer.decode(fullName)
+        val index = decoded.lastIndexOf("$$")
+
+        if (index < 0) None
+        else Some(NameTransformer.encode(decoded.substring(0, index)))
+    }
 
     import JavaConverters._
-    val containingName = NameTransformer.encode(name.substring(0, index))
-    classesByName(containingName).asScala.headOption.flatMap(findElementByReferenceType)
+
+    for {
+      name  <- containingClassName
+      clazz <- classesByName(name).asScala.headOption
+      elem  <- findElementByReferenceType(clazz)
+    }
+      yield elem
+  }
+
+  private def nonLambdaName(refType: ReferenceType): String = {
+    val fullName = refType.name()
+    //typeName can be SomeClass$$Lambda$1.1836643189
+    DebuggerUtilsEx.getLambdaBaseClassName(fullName) match {
+      case null => fullName
+      case name => name
+    }
   }
 
   /**
