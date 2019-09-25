@@ -55,7 +55,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
   import caches._
 
-  implicit val scope: ElementScope = ElementScope(debugProcess.getProject, debugProcess.getSearchScope)
+  private val debugProcessScope: ElementScope = ElementScope(debugProcess.getProject, debugProcess.getSearchScope)
 
   ScalaPositionManager.cacheInstance(this)
 
@@ -432,8 +432,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
       }
       def tryToFindClass(name: String) = {
-        findClassByQName(name, isScalaObject = false)
-          .orElse(findClassByQName(name, isScalaObject = true))
+        val classes = findClassesByQName(name, debugProcessScope, fallbackToProjectScope = true)
+
+        classes.find(!_.isInstanceOf[ScObject])
+          .orElse(classes.headOption)
       }
 
       val scriptFile = findScriptFile(refType)
@@ -485,7 +487,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
     import JavaConverters._
 
-    val byName = findPsiClassByQName(refType) orElse findByShortName(refType)
+    val byName = findPsiClassByQName(refType, debugProcessScope) orElse findByShortName(refType)
     if (byName.isDefined) return byName
 
     val project = debugProcess.getProject

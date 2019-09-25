@@ -84,7 +84,7 @@ object ScalaRuntimeTypeEvaluator {
   private def findPsiClass(jdiType: Type)(implicit elementScope: ElementScope): Option[PsiClass] = {
     jdiType match {
       case refType: ReferenceType =>
-        inReadAction(DebuggerUtil.findPsiClassByQName(refType))
+        inReadAction(DebuggerUtil.findPsiClassByQName(refType, elementScope))
       case _ =>
         None
     }

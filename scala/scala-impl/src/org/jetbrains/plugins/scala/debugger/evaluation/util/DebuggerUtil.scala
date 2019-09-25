@@ -7,6 +7,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi._
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.{Field, ObjectReference, ReferenceType, Value}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
@@ -504,27 +505,23 @@ object DebuggerUtil {
     }
   }
 
-  def findClassByQName(qName: String, isScalaObject: Boolean)(implicit elementScope: ElementScope): Option[PsiClass] = {
-    val project = elementScope.project
+  def findClassesByQName(qName: String, elementScope: ElementScope, fallbackToProjectScope: Boolean): Seq[PsiClass] = {
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(elementScope.project)
 
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
-    val classes =
+    def classesInScope(scope: GlobalSearchScope): Seq[PsiClass] =
       if (qName.endsWith(packageSuffix))
-        cacheManager.findPackageObjectByName(qName.stripSuffix(packageSuffix), elementScope.scope).toSeq
+        cacheManager.findPackageObjectByName(qName.stripSuffix(packageSuffix), scope).toSeq
       else
-        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), elementScope.scope)
+        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), scope)
 
-    val clazz =
-      if (classes.length == 1) classes.headOption
-      else if (classes.length >= 2) {
-        if (isScalaObject) classes.find(_.isInstanceOf[ScObject])
-        else classes.find(!_.isInstanceOf[ScObject])
-      }
-      else None
-    clazz.filter(_.isValid)
+    val classes = classesInScope(elementScope.scope) match {
+      case Seq() if fallbackToProjectScope => classesInScope(GlobalSearchScope.allScope(elementScope.project))
+      case classes                         => classes
+    }
+    classes.filter(_.isValid)
   }
 
-  def findPsiClassByQName(refType: ReferenceType)(implicit elementScope: ElementScope): Option[PsiClass] = {
+  def findPsiClassByQName(refType: ReferenceType, elementScope: ElementScope): Option[PsiClass] = {
     val originalQName = NameTransformer.decode(refType.name)
     val endsWithPackageSuffix = originalQName.endsWith(packageSuffix)
     val withoutSuffix =
@@ -533,6 +530,12 @@ object DebuggerUtil {
     val withDots = withoutSuffix.replace(packageSuffix, ".").replace('$', '.')
     val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
 
-    findClassByQName(transformed, originalQName.endsWith("$"))
+    val isScalaObject = originalQName.endsWith("$")
+    val predicate: PsiClass => Boolean = c => isScalaObject && c.isInstanceOf[ScObject]
+
+    val classes = findClassesByQName(transformed, elementScope, fallbackToProjectScope = true)
+
+    classes.find(predicate)
+      .orElse(classes.headOption)
   }
 }
