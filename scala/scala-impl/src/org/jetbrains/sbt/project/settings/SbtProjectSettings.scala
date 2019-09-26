@@ -39,17 +39,13 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var resolveJavadocs: Boolean = false
 
   @BeanProperty
-  @deprecated(message = "use separate import/build settings", "2018.2")
-  var useSbtShell: Boolean = false
-
-  @BeanProperty
   var useSbtShellForImport: Boolean = false
 
   @BeanProperty
   var useSbtShellForBuild: Boolean = false
 
   @BeanProperty
-  var enableDebugSbtShell: Boolean = true
+  var enableDebugSbtShell: Boolean = false
 
   @BeanProperty
   var allowSbtVersionOverride = true
@@ -58,9 +54,9 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var sbtVersion: String = _
 
-  def buildWithShell: Boolean = useSbtShellForBuild || useSbtShell
+  def buildWithShell: Boolean = useSbtShellForBuild
 
-  def importWithShell: Boolean = useSbtShellForImport || useSbtShell
+  def importWithShell: Boolean = useSbtShellForImport
 
   override def clone(): SbtProjectSettings = {
     val result = new SbtProjectSettings()
@@ -70,7 +66,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.resolveJavadocs = resolveJavadocs
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion
-    result.useSbtShell = useSbtShell
     result.useSbtShellForImport = useSbtShellForImport
     result.useSbtShellForBuild = useSbtShellForBuild
     result.enableDebugSbtShell = enableDebugSbtShell
