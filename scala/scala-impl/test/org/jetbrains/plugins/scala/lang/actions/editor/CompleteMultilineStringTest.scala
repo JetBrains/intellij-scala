@@ -1,55 +1,48 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
+class CompleteMultilineStringTest  extends EditorTypeActionTestBase {
 
-class CompleteMultilineStringTest extends EditorActionTestBase {
-
-  private val Quote: String = "\""
-  private val Quotes: String = "\"\"\""
-
-  private def doTest(before: String, after: String): Unit = {
-    checkGeneratedTextAfterTyping(before, after, '\"')
-  }
+  override protected def typedChar: Char = '"'
 
   def testComplete(): Unit = {
     val before =
       s"""class A {
-         |  \"\"$CARET
+         |  $qq$CARET
          |}
          |""".stripMargin
     val after =
       s"""class A {
-         |  $Quotes$CARET$Quotes
+         |  $qqq$CARET$qqq
          |}
          |""".stripMargin
     doTest(before, after)
   }
 
   def testCompleteInEmptyFile(): Unit = {
-    val before = s"""\"\"$CARET""".stripMargin
-    val after = s"""$Quotes$CARET$Quotes""".stripMargin
-    doTest(before, after)
+    val before = s"""$qq$CARET""".stripMargin
+    val after = s"""$qqq$CARET$qqq""".stripMargin
+    doTestWithEmptyLastLine(before, after)
   }
 
   def testCompleteInEmptyFile_1(): Unit = {
-    val before = s"""   \"\"$CARET""".stripMargin
-    val after = s"""   $Quotes$CARET$Quotes""".stripMargin
-    doTest(before, after)
+    val before = s"""   $qq$CARET""".stripMargin
+    val after = s"""   $qqq$CARET$qqq""".stripMargin
+    doTestWithEmptyLastLine(before, after)
   }
 
   def testCompleteInEmptyFile_2(): Unit = {
-    val before = s"""\"\"$CARET    """.stripMargin
-    val after = s"""$Quotes$CARET$Quotes    """.stripMargin
-    doTest(before, after)
+    val before = s"""$qq$CARET    """.stripMargin
+    val after = s"""$qqq$CARET$qqq    """.stripMargin
+    doTestWithEmptyLastLine(before, after)
   }
 
   def testCompleteAtTheFileBeginning(): Unit = {
     val before =
-      s"""\"\"$CARET
+      s"""$qq$CARET
          |val x = 42
          |""".stripMargin
     val after =
-      s"""$Quotes$CARET$Quotes
+      s"""$qqq$CARET$qqq
          |val x = 42
          |""".stripMargin
     doTest(before, after)
@@ -57,11 +50,11 @@ class CompleteMultilineStringTest extends EditorActionTestBase {
 
   def testCompleteAtTheFileBeginning_1(): Unit = {
     val before =
-      s"""  \"\"$CARET
+      s"""  $qq$CARET
          |val x = 42
          |""".stripMargin
     val after =
-      s"""  $Quotes$CARET$Quotes
+      s"""  $qqq$CARET$qqq
          |val x = 42
          |""".stripMargin
     doTest(before, after)
@@ -70,11 +63,11 @@ class CompleteMultilineStringTest extends EditorActionTestBase {
   def testCompleteAtTheFileEnding(): Unit = {
     val before =
       s"""val x = 42
-         |\"\"$CARET
+         |$qq$CARET
          |""".stripMargin
     val after =
       s"""val x = 42
-         |$Quotes$CARET$Quotes
+         |$qqq$CARET$qqq
          |""".stripMargin
     doTest(before, after)
   }
@@ -82,11 +75,11 @@ class CompleteMultilineStringTest extends EditorActionTestBase {
   def testCompleteAtTheFileEnding_1(): Unit = {
     val before =
       s"""val x = 42
-         |    \"\"$CARET
+         |    $qq$CARET
          |""".stripMargin
     val after =
       s"""val x = 42
-         |    $Quotes$CARET$Quotes
+         |    $qqq$CARET$qqq
          |""".stripMargin
     doTest(before, after)
   }
@@ -94,150 +87,93 @@ class CompleteMultilineStringTest extends EditorActionTestBase {
   def testCompleteAtTheFileEnding_2(): Unit = {
     val before =
       s"""val x = 42
-         |\"\"$CARET""".stripMargin
+         |$qq$CARET""".stripMargin
     val after =
       s"""val x = 42
-         |$Quotes$CARET$Quotes""".stripMargin
+         |$qqq$CARET$qqq""".stripMargin
     doTest(before, after)
   }
 
-  def testCompleteMultiCaret(): Unit = {
-    val before =
-      s"""Some($CARET)
-         |Some($CARET)
-         |Some($CARET)
-         |""".stripMargin
-    val afterTyped1 =
-      s"""Some($Quote$CARET$Quote)
-         |Some($Quote$CARET$Quote)
-         |Some($Quote$CARET$Quote)
-         |""".stripMargin
-    val afterTyped2 =
-      s"""Some($Quote$Quote$CARET)
-         |Some($Quote$Quote$CARET)
-         |Some($Quote$Quote$CARET)
-         |""".stripMargin
-    val afterTyped3 =
-      s"""Some($Quotes$CARET$Quotes)
-         |Some($Quotes$CARET$Quotes)
-         |Some($Quotes$CARET$Quotes)
-         |""".stripMargin
-    doTest(before, afterTyped1)
-    doTest(afterTyped1, afterTyped2)
-    doTest(afterTyped2, afterTyped3)
-  }
+  def testCompleteMultiCaret(): Unit = doRepetitiveTypingTest(
+    s"""Some($CARET)
+       |Some($CARET)
+       |Some($CARET)
+       |""".stripMargin,
+    s"""Some($q$CARET$q)
+       |Some($q$CARET$q)
+       |Some($q$CARET$q)
+       |""".stripMargin,
+    s"""Some($q$q$CARET)
+       |Some($q$q$CARET)
+       |Some($q$q$CARET)
+       |""".stripMargin,
+    s"""Some($qqq$CARET$qqq)
+       |Some($qqq$CARET$qqq)
+       |Some($qqq$CARET$qqq)
+       |""".stripMargin
+  )
 
-  def testCompleteMultiCaret_InPresenceOfAnotherMultilineString(): Unit = {
-    val before =
-      s"""Some($CARET)
-         |Some($Quotes$Quotes)
-         |""".stripMargin
-    val afterTyped1 =
-      s"""Some($Quote$CARET$Quote)
-         |Some($Quotes$Quotes)
-         |""".stripMargin
-    val afterTyped2 =
-      s"""Some($Quote$Quote$CARET)
-         |Some($Quotes$Quotes)
-         |""".stripMargin
-    val afterTyped3 =
-      s"""Some($Quotes$CARET$Quotes)
-         |Some($Quotes$Quotes)
-         |""".stripMargin
-    doTest(before, afterTyped1)
-    doTest(afterTyped1, afterTyped2)
-    doTest(afterTyped2, afterTyped3)
-  }
+  def testCompleteMultiCaret_InPresenceOfAnotherMultilineString(): Unit = doRepetitiveTypingTest(
+    s"""Some($CARET)
+       |Some($qqq$qqq)
+       |""".stripMargin,
+    s"""Some($q$CARET$q)
+       |Some($qqq$qqq)
+       |""".stripMargin,
+    s"""Some($q$q$CARET)
+       |Some($qqq$qqq)
+       |""".stripMargin,
+    s"""Some($qqq$CARET$qqq)
+       |Some($qqq$qqq)
+       |""".stripMargin
+  )
 
-  def testCompleteMultiCaret_Interpolated(): Unit = {
-    val before =
+  def testCompleteMultiCaret_Interpolated(): Unit = doRepetitiveTypingTest(
       s"""Some(s$CARET)
          |Some(s$CARET)
          |Some(s$CARET)
+         |""".stripMargin,
+      s"""Some(s$q$CARET$q)
+         |Some(s$q$CARET$q)
+         |Some(s$q$CARET$q)
+         |""".stripMargin,
+      s"""Some(s$q$q$CARET)
+         |Some(s$q$q$CARET)
+         |Some(s$q$q$CARET)
+         |""".stripMargin,
+      s"""Some(s$qqq$CARET$qqq)
+         |Some(s$qqq$CARET$qqq)
+         |Some(s$qqq$CARET$qqq)
          |""".stripMargin
-    val afterTyped1 =
-      s"""Some(s$Quote$CARET$Quote)
-         |Some(s$Quote$CARET$Quote)
-         |Some(s$Quote$CARET$Quote)
-         |""".stripMargin
-    val afterTyped2 =
-      s"""Some(s$Quote$Quote$CARET)
-         |Some(s$Quote$Quote$CARET)
-         |Some(s$Quote$Quote$CARET)
-         |""".stripMargin
-    val afterTyped3 =
-      s"""Some(s$Quotes$CARET$Quotes)
-         |Some(s$Quotes$CARET$Quotes)
-         |Some(s$Quotes$CARET$Quotes)
-         |""".stripMargin
-    doTest(before, afterTyped1)
-    doTest(afterTyped1, afterTyped2)
-    doTest(afterTyped2, afterTyped3)
-  }
+  )
 
-  def testCompleteMultiCaret_EmptyFile(): Unit = {
-    val before =
-      s"""$CARET
-         |$CARET
-         |$CARET""".stripMargin
-    val afterTyped1 =
-      s"""$Quote$CARET$Quote
-         |$Quote$CARET$Quote
-         |$Quote$CARET$Quote""".stripMargin
-    val afterTyped2 =
-      s"""$Quote$Quote$CARET
-         |$Quote$Quote$CARET
-         |$Quote$Quote$CARET""".stripMargin
-    val afterTyped3 =
-      s"""$Quotes$CARET$Quotes
-         |$Quotes$CARET$Quotes
-         |$Quotes$CARET$Quotes""".stripMargin
-    doTest(before, afterTyped1)
-    doTest(afterTyped1, afterTyped2)
-    doTest(afterTyped2, afterTyped3)
-  }
+  def testCompleteMultiCaret_EmptyFile(): Unit = doRepetitiveTypingTest(
+    s"""$CARET
+       |$CARET
+       |$CARET""".stripMargin,
+    s"""$q$CARET$q
+       |$q$CARET$q
+       |$q$CARET$q""".stripMargin,
+    s"""$q$q$CARET
+       |$q$q$CARET
+       |$q$q$CARET""".stripMargin,
+    s"""$qqq$CARET$qqq
+       |$qqq$CARET$qqq
+       |$qqq$CARET$qqq""".stripMargin
+  )
 
-  def testCompleteMultiCaret_EmptyFileWithEmptyEndLine(): Unit = {
-    val before =
-      s"""$CARET
-         |$CARET
-         |""".stripMargin
-    val afterTyped1 =
-      s"""$Quote$CARET$Quote
-         |$Quote$CARET$Quote
-         |""".stripMargin
-    val afterTyped2 =
-      s"""$Quote$Quote$CARET
-         |$Quote$Quote$CARET
-         |""".stripMargin
-    val afterTyped3 =
-      s"""$Quotes$CARET$Quotes
-         |$Quotes$CARET$Quotes
-         |""".stripMargin
-    doTest(before, afterTyped1)
-    doTest(afterTyped1, afterTyped2)
-    doTest(afterTyped2, afterTyped3)
-  }
-
-  def testCompleteMultiCaret_Interpolated_EmptyFile(): Unit = {
-    val before =
-      s"""s$CARET
-         |s$CARET
-         |s$CARET""".stripMargin
-    val afterTyped1 =
-      s"""s$Quote$CARET$Quote
-         |s$Quote$CARET$Quote
-         |s$Quote$CARET$Quote""".stripMargin
-    val afterTyped2 =
-      s"""s$Quote$Quote$CARET
-         |s$Quote$Quote$CARET
-         |s$Quote$Quote$CARET""".stripMargin
-    val afterTyped3 =
-      s"""s$Quotes$CARET$Quotes
-         |s$Quotes$CARET$Quotes
-         |s$Quotes$CARET$Quotes""".stripMargin
-    doTest(before, afterTyped1)
-    doTest(afterTyped1, afterTyped2)
-    doTest(afterTyped2, afterTyped3)
-  }
+  def testCompleteMultiCaret_Interpolated_EmptyFile(): Unit = doRepetitiveTypingTest(
+    s"""s$CARET
+       |s$CARET
+       |s$CARET""".stripMargin,
+    s"""s$q$CARET$q
+       |s$q$CARET$q
+       |s$q$CARET$q""".stripMargin,
+    s"""s$q$q$CARET
+       |s$q$q$CARET
+       |s$q$q$CARET""".stripMargin,
+    s"""s$qqq$CARET$qqq
+       |s$qqq$CARET$qqq
+       |s$qqq$CARET$qqq""".stripMargin
+  )
 }

@@ -13,14 +13,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 
+// TODO: autoinsert single quote like in Java
 class ScalaQuoteHandler extends JavaLikeQuoteHandler with MultiCharQuoteHandler {
 
   override def isClosingQuote(iterator: HighlighterIterator, offset: Int): Boolean =
     iterator.getTokenType match {
-      case `tSTRING` | `tCHAR` | `tINTERPOLATED_STRING_END` =>
-        iterator.getStart <= offset && offset == iterator.getEnd - 1
-      case _ =>
-        false
+      case `tSTRING` | `tCHAR`        => iterator.getStart <= offset && offset == iterator.getEnd - 1
+      case `tMULTILINE_STRING`        => iterator.getEnd - offset <= 3
+      case `tINTERPOLATED_STRING_END` => true
+      case _                          => false
     }
 
   override def isOpeningQuote(iterator: HighlighterIterator, offset: Int): Boolean =

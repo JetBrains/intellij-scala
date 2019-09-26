@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
@@ -50,5 +51,10 @@ package object editor {
         false
       }
     }
+  }
+
+  implicit class HighlighterIteratorExt(private val hiterator: HighlighterIterator) extends AnyVal {
+
+    @inline def tokenLength: Int = hiterator.getEnd - hiterator.getStart
   }
 }

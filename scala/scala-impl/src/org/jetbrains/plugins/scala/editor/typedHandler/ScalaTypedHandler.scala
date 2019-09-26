@@ -154,10 +154,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
 
-    if (c == '"' && isClosingScalaString(offset, element, elementType)) {
-      moveCaret()
-      Result.STOP
-    } else if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
+    if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
       insertClosingScaladocTag(offset, element)
       moveCaret()
       Result.STOP
@@ -183,12 +180,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else {
       Result.CONTINUE
     }
-  }
-
-  @inline
-  private def isClosingScalaString(offset: Int, element: PsiElement, elementType: IElementType): Boolean = {
-    Set(ScalaTokenTypes.tMULTILINE_STRING, ScalaTokenTypes.tINTERPOLATED_STRING_END).contains(elementType) &&
-      element.getTextOffset + element.getTextLength - offset <= 3
   }
 
   @inline

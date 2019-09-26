@@ -4,13 +4,11 @@ package lang.xml
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/5/12
- */
 class XmlAttributeQuotesTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
+
+  // Typing tests
 
   def testQuotesAfterFirstAttribute(): Unit = {
     val text = "class A { val xml = <aaa attr" + CARET_MARKER + "\n}"
@@ -39,6 +37,8 @@ class XmlAttributeQuotesTypingTest extends EditorActionTestBase {
 
     checkGeneratedTextAfterTyping(text, assumedStub, '\"')
   }
+
+  // Backspace tests
 
   def testDeleteFirstQuote1(): Unit = {
     val text = "class A { val xml = <aaa attr=\"" + CARET_MARKER + "\"   }"

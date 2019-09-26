@@ -19,7 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import scala.collection.mutable.ArrayBuffer
 
 object MultilineStringUtil {
+
   val MultilineQuotes = "\"\"\""
+  val MultilineQuotesLength: Int = MultilineQuotes.length
   val DefaultMarginChar = '|'
 
   private val escaper = Pattern.compile("([^a-zA-z0-9])")
