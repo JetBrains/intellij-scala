@@ -119,10 +119,10 @@ object ScalaLightCodeInsightFixtureTestAdapter {
 
   def findCaretOffset(text: String, stripTrailingSpaces: Boolean): (String, Int) = {
     val (textActual, caretOffsets) = findCaretOffsets(text, stripTrailingSpaces)
-    caretOffsets.toList match {
-      case head :: Nil => (textActual, head)
-      case Nil         => (textActual, -1)
-      case offsets     => fail(s"single caret expected but found: ${offsets.size}").asInstanceOf[Nothing]
+    caretOffsets match {
+      case Seq(caretIdx) => (textActual, caretIdx)
+      case Seq()         => (textActual, -1)
+      case _             => fail(s"single caret expected but found: ${caretOffsets.size}").asInstanceOf[Nothing]
     }
   }
 
@@ -131,17 +131,20 @@ object ScalaLightCodeInsightFixtureTestAdapter {
 
     val textNormalized = normalize(text, stripTrailingSpaces)
 
-    var caretTagIndices = Seq[Int]()
-    var idx = textNormalized.indexOf(CARET_TAG)
-    while (idx >= 0) {
-      caretTagIndices :+= idx
-      idx = textNormalized.indexOf(CARET_TAG, idx + 1)
-    }
+    def caretIndex(offset: Int) = textNormalized.indexOf(CARET_TAG, offset)
 
-    val caretIndices = caretTagIndices.zipWithIndex.map { case (caretIdx, idx) => caretIdx - idx * CARET_TAG.length }
+    @scala.annotation.tailrec
+    def collectCaretIndices(idx: Int)(indices: Seq[Int]): Seq[Int] =
+      if (idx < 0) indices else {
+        val nextIdx = caretIndex(idx + 1)
+        collectCaretIndices(nextIdx)(indices :+ idx)
+      }
+
+    val caretIndices = collectCaretIndices(caretIndex(0))(Seq[Int]())
+    val caretIndicesNormalized = caretIndices.zipWithIndex.map { case (caretIdx, idx) => caretIdx - idx * CARET_TAG.length }
     (
       textNormalized.replace(CARET_TAG, ""),
-      caretIndices
+      caretIndicesNormalized
     )
   }
 
