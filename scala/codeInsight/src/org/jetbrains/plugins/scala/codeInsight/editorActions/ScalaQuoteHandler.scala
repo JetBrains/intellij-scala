@@ -78,18 +78,19 @@ class ScalaQuoteHandler extends JavaLikeQuoteHandler with MultiCharQuoteHandler 
   }
 
   private def startsWithMultilineQuotes(iterator: HighlighterIterator, offset: Int): Boolean = {
+    if (offset < 0) return false
 
-    def startsWithQuotes = offset >= 0 &&
-      iterator.getDocument.getText(new TextRange(offset, offset + Quotes.length)) == Quotes
+    def startsWithQuotes = iterator.getDocument.getText(new TextRange(offset, offset + Quotes.length)) == Quotes
 
     iterator.getTokenType match {
-      case `tINTERPOLATED_MULTILINE_STRING` =>
+      case `tINTERPOLATED_MULTILINE_STRING` | `tMULTILINE_STRING` =>
         startsWithQuotes
       case _ =>
+        // hack with optional retreat before WRONG_STRING check is required cause highlighter behaves awkwardly
+        // in case of empty file (see CompleteMultilineStringTest.testCompleteMultiCaret_EmptyFileWithEmptyEndLine)
         // TODO: simplify when parsing of incomplete multiline strings is unified for interpolated and non-interpolated strings
-        //  to understand what is happening here just try to open psi stree viewer and see how incomplete `s"""` or `"""` are parsed
-        iterator.retreat()
-        if (iterator.getTokenType == tWRONG_STRING) {
+        //  to understand what is happening here just try to open psi tree viewer and see how incomplete `s"""` or `"""` are parsed
+        if (iterator.getTokenType == tWRONG_STRING || { iterator.retreat(); iterator.getTokenType == tWRONG_STRING } ) {
           iterator.retreat()
           iterator.getTokenType == tSTRING && startsWithQuotes
         } else {

@@ -37,7 +37,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
     testBody()
 
-    val (expected, _) = findCaretOffset(textAfter, stripTrailingSpaces)
+    val (expected, _) = findCaretOffsets(textAfter, stripTrailingSpaces)
     getFixture.checkResult(expected, stripTrailingSpaces)
   }
 
