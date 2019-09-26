@@ -134,7 +134,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForImport = useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
     settings.allowSbtVersionOverride = allowSbtVersionOverride.isSelected
-    settings.useSbtShell = false
 
     val useSbtShellForBuildSettingChanged =
       settings.useSbtShellForBuild != useSbtShellForBuildCheckBox.isSelected
