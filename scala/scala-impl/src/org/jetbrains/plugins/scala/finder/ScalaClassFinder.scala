@@ -6,6 +6,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
@@ -28,14 +29,17 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
       }
     }
 
-    val x: Seq[Option[PsiClass]] = cacheManager.getClassesByFQName(qualifiedName, scope).collect {
-      case o: ScObject if !o.isPackageObject =>
-        o.fakeCompanionClass
-    }
+    val x: Seq[Option[PsiClass]] = classesWoSuffix("").collect {
+      case o: ScObject if o.isPackageObject => None
+      case o: ScObject                      => o.fakeCompanionClass
+      case td: ScTypeDefinition             => Some(td)
+    }.distinct
+
     val x$: Seq[Option[PsiClass]] = classesWoSuffix("$").collect {
-      case c: ScTypeDefinition =>
-        c.fakeCompanionModule
-    }
+      case o: ScObject         => Some(o)
+      case c: ScTypeDefinition => ScalaPsiUtil.getCompanionModule(c)
+    }.distinct
+
     val x$class: Seq[Option[PsiClass]] = classesWoSuffix("$class").collect {
       case c: ScTrait =>
         Option(c.fakeCompanionClass)
