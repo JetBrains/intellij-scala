@@ -2,31 +2,28 @@ package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
 import java.util.regex.{Matcher, Pattern}
 
-import com.intellij.execution.process.{ProcessHandler, ProcessOutputTypes}
-import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.execution.process.ProcessHandler
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ShellEvent, TaskComplete, TaskStart}
 
-/**
-  * @author Roman.Shein
-  *         Date: 20.02.2017
-  */
-class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[ShellEvent, Unit] {
+final class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[ShellEvent, Unit] {
+
   private var currentId = 0
   private var idStack = List[Int](0)
   private var testCount = 0
 
-  protected def report(message: String): Unit = {
-    processHandler.notifyTextAvailable(message, SbtTestEventHandler.processOutputType)
-//    println(message)
-  }
+  private val tsReporter = new TeamcityReporter(processHandler)
+  import tsReporter._
 
   protected def openScope(matcher: Matcher, isSuite: Boolean): Unit = {
     import TestRunnerUtil.escapeString
     currentId += 1
-    report(s"\n##teamcity[testSuiteStarted name='${escapeString(matcher.group(if (isSuite) 1 else 2))}' " +
-      s"nodeId='$currentId' parentNodeId='${idStack.head}' captureStandardOutput='true']\n")
+    reportTestStarted(
+      name = escapeString(matcher.group(if (isSuite) 1 else 2)),
+      nodeId = currentId,
+      parentNodeId = idStack.head
+    )
     idStack = currentId :: idStack
   }
 
@@ -34,9 +31,12 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
     import TestRunnerUtil.escapeString
     val suiteId = idStack.head
     idStack = idStack.tail
-    report(s"\n##teamcity[testSuiteFinished name='${escapeString(matcher.group(if (isSuite) 1 else 2))}' " +
-      s"nodeId='$suiteId' parentNodeId='${idStack.head}'" +
-      (if (isSuite) s" duration='${SbtTestEventHandler.getDuration(matcher.group(2))}'" else "") + "]\n")
+    reportTestFinished(
+      name = escapeString(matcher.group(if (isSuite) 1 else 2)),
+      nodeId = suiteId,
+      parentNodeId = idStack.head,
+      duration = if (isSuite) Some(SbtTestEventHandler.extractDurationMs(matcher.group(2))) else None
+    )
   }
 
   def closeRoot(): Unit = processHandler.destroyProcess()
@@ -48,9 +48,10 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
     case SbtShellCommunication.Output(output) =>
       import SbtTestEventHandler._
       import TestRunnerUtil._
-      val infoIdx = output.indexOf(sbtInfo)
+      val infoIdx = output.indexOf(SbtInfo)
       if (infoIdx == -1) return
       val info = output.substring(infoIdx).trim
+
       for (regex <- regexes) {
         val matcher = regex.matcher(info)
         if (matcher.matches) {
@@ -58,35 +59,49 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
             case `testStartRegex` =>
               currentId += 1
               testCount += 1
-              report(s"\n##teamcity[testStarted name='${escapeString(matcher.group(2))}' nodeId='$currentId' " +
-                s"parentNodeId='${idStack.head}' captureStandardOutput='true']\n")
+              reportTestStarted(
+                name = escapeString(matcher.group(2)),
+                nodeId = currentId,
+                parentNodeId = idStack.head
+              )
             case `testSuccessfulRegex` =>
-              report(s"\n##teamcity[testFinished name='${escapeString(matcher.group(2))}' nodeId='$currentId' " +
-                s"parentNodeId='${idStack.head}' duration='${getDuration(matcher.group(3))}']\n")
+              reportTestFinished(
+                name = escapeString(matcher.group(2)),
+                nodeId = currentId,
+                parentNodeId = idStack.head,
+                duration = Some(extractDurationMs(matcher.group(3)))
+              )
             case `testFailedRegex` =>
               //TODO: add duration here
               //TODO: add message here
               val reasonAndDuration = matcher.group(3)
               val durationIndex = reasonAndDuration.lastIndexOf('(')
               val failedMessage = reasonAndDuration.substring(0, durationIndex - 1)
-              report(s"\n##teamcity[testFailed name='${escapeString(matcher.group(2))}' nodeId='$currentId' " +
-                s"parentNodeId='${idStack.head}' message='${escapeString(failedMessage)}'" +
-                s"${actualExpectedAttrsScalaTest(failedMessage)}" +
-                s"duration='${getDuration(reasonAndDuration.substring(durationIndex + 1, reasonAndDuration.length - 1))}']\n")
+              reportTestFailure(
+                name = escapeString(matcher.group(2)),
+                nodeId = currentId,
+                parentNodeId = idStack.head,
+                duration = Some(extractDurationMs(reasonAndDuration.substring(durationIndex + 1, reasonAndDuration.length - 1))),
+                message = escapeString(failedMessage),
+                extraAttrs = actualExpectedAttrsScalaTest(failedMessage)
+              )
             case `suiteStartRegex` =>
               openScope(matcher, isSuite = true)
             case `suiteFinishedRegex` =>
               closeScope(matcher, isSuite = true)
             case `testPendingRegex` =>
-              report(s"\n##teamcity[testIgnored name='${escapeString(matcher.group(2))}' nodeId='$currentId' " +
-                s"parentNodeId='${idStack.head}' message='${escapeString("Test Pending")}']\n")
+              reportTestIgnored(
+                name = escapeString(matcher.group(2)),
+                nodeId = currentId,
+                parentNodeId = idStack.head,
+                message = escapeString("Test Pending")
+              )
             case `testIgnoredRegex` =>
               currentId += 1
               val testName = escapeString(matcher.group(2) + " !!! IGNORED !!!")
-              report(s"\n##teamcity[testStarted name='$testName' nodeId='$currentId' parentNodeId='${idStack.head}']\n")
+              reportTestStarted(testName, currentId, idStack.head)
               //TODO add message here
-              report(s"\n##teamcity[testIgnored name='$testName' nodeId='$currentId' parentNodeId='${idStack.head}' " +
-                s"message='${TestRunnerUtil.escapeString("Test Ignored")}']\n")
+              reportTestIgnored(testName, currentId, idStack.head, TestRunnerUtil.escapeString("Test Ignored"))
             case `scopeOpenedRegex` =>
               openScope(matcher, isSuite = false)
             case `scopeClosedRegex` =>
@@ -98,36 +113,42 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
 }
 
 object SbtTestEventHandler {
-  val timePattern: Pattern = Pattern.compile("((\\d+) hour(s?), )?((\\d+) minute(s?), )?((\\d+) second(s?), )?(\\d+) millisecond(s?)")
 
-  val testStartRegex: Pattern = Pattern.compile("\\[info\\] Test Starting - ([^:]+): (.+)")
-  val testSuccessfulRegex: Pattern = Pattern.compile("\\[info\\] Test Succeeded - ([^:]+): ([^\\(]+) \\(([^\\)]+)\\)")
-  val testFailedRegex: Pattern = Pattern.compile("\\[info\\] TEST FAILED - ([^:]+): ([^:]+): (.+)")
-  val suiteStartRegex: Pattern = Pattern.compile("\\[info\\] Suite Starting - (.+)")
-  val suiteFinishedRegex: Pattern = Pattern.compile("\\[info\\] Suite Completed - ([^\\(]+) \\(([^\\)]+)\\)")
-  val scopeOpenedRegex: Pattern = Pattern.compile("\\[info\\] Scope Opened - ([^:]+): (.+)")
-  val scopeClosedRegex: Pattern = Pattern.compile("\\[info\\] Scope Closed - ([^:]+): (.+)")
-  val testPendingRegex: Pattern = Pattern.compile("\\[info\\] Test Pending - ([^:]+): (.+)")
-  val testIgnoredRegex: Pattern = Pattern.compile("\\[info\\] Test Ignored - ([^:]+): (.+)")
+  private val SbtInfo = "[info]"
+
+  private val timePattern        : Pattern = Pattern.compile("""((\d+) hour(s?), )?((\d+) minute(s?), )?((\d+) second(s?), )?(\d+) millisecond(s?)""")
+  private val testStartRegex     : Pattern = Pattern.compile("""\[info\] Test Starting - ([^:]+): (.+)""")
+  private val testSuccessfulRegex: Pattern = Pattern.compile("""\[info\] Test Succeeded - ([^:]+): ([^\(]+) \(([^\)]+)\)""")
+  private val testFailedRegex    : Pattern = Pattern.compile("""\[info\] TEST FAILED - ([^:]+): ([^:]+): (.+)""")
+  private val suiteStartRegex    : Pattern = Pattern.compile("""\[info\] Suite Starting - (.+)""")
+  private val suiteFinishedRegex : Pattern = Pattern.compile("""\[info\] Suite Completed - ([^\(]+) \(([^\)]+)\)""")
+  private val scopeOpenedRegex   : Pattern = Pattern.compile("""\[info\] Scope Opened - ([^:]+): (.+)""")
+  private val scopeClosedRegex   : Pattern = Pattern.compile("""\[info\] Scope Closed - ([^:]+): (.+)""")
+  private val testPendingRegex   : Pattern = Pattern.compile("""\[info\] Test Pending - ([^:]+): (.+)""")
+  private val testIgnoredRegex   : Pattern = Pattern.compile("""\[info\] Test Ignored - ([^:]+): (.+)""")
 
 // TODO maybe parse failed test location later (info from sbt output is not enough anyway)
 //  def failedLocationRegex(failureMessage: String): Pattern = Pattern.compile(s"\\[info\\] ([\\s]+)$failureMessage \\(([^\\)]+)\\)")
 
-  val regexes: List[Pattern] = List(testStartRegex, testSuccessfulRegex, testFailedRegex, suiteStartRegex,
-    suiteFinishedRegex, scopeOpenedRegex, scopeClosedRegex, testPendingRegex, testIgnoredRegex)
+  private val regexes: List[Pattern] = List(
+    testStartRegex, testSuccessfulRegex, testFailedRegex,
+    suiteStartRegex, suiteFinishedRegex,
+    scopeOpenedRegex, scopeClosedRegex,
+    testPendingRegex, testIgnoredRegex
+  )
 
-  val consoleViewContentType = ConsoleViewContentType.NORMAL_OUTPUT
-  val processOutputType = ProcessOutputTypes.STDOUT
-
-  def getDuration(duration: String): Long = {
+  private def extractDurationMs(duration: String): Long = {
     val durationMatcher = timePattern.matcher(duration)
-    if (!durationMatcher.matches()) return 0
-    durationMatcher.group(10).toLong + 1000 *
-      (opt(durationMatcher.group(8)) + 60 *
-        (opt(durationMatcher.group(5)) + 60 * opt(durationMatcher.group(2))))
+    if (durationMatcher.matches()) {
+      val milliseconds = durationMatcher.group(10).toLong
+      val seconds      = opt(durationMatcher.group(8))
+      val minutes      = opt(durationMatcher.group(5))
+      val hours        = opt(durationMatcher.group(2))
+      milliseconds + 1000 * (seconds + 60 * (minutes + 60 * hours))
+    } else {
+      0
+    }
   }
 
-  def opt(string: String): Long = Option(string).map(_.toLong).getOrElse(0L)
-
-  val sbtInfo = "[info]"
+  private def opt(string: String): Long = Option(string).fold(0L)(_.toLong)
 }
