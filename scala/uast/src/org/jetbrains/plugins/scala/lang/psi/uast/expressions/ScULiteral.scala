@@ -14,7 +14,7 @@ import org.jetbrains.uast.{ULiteralExpression, ULiteralExpressionAdapter}
   *
   * @param scExpression Scala PSI element representing literal expression
   */
-class ScULiteral(override protected val scExpression: ScLiteral,
+final class ScULiteral(override protected val scExpression: ScLiteral,
                  override protected val parent: LazyUElement)
     extends ULiteralExpressionAdapter
     with ScUExpression

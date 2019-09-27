@@ -5,10 +5,10 @@ import java.{util => javacoll}
 import com.intellij.psi.{PsiComment, PsiFile, PsiRecursiveElementVisitor}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.ScalaUastLanguagePlugin
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
@@ -21,8 +21,8 @@ import scala.collection.mutable.ArrayBuffer
   * @param scElement      Scala PSI element representing Scala file
   * @param languagePlugin Instance of [[ScalaUastLanguagePlugin]]
   */
-class ScUFile(override protected val scElement: ScalaFile,
-              languagePlugin: UastLanguagePlugin)
+final class ScUFile(override protected val scElement: ScalaFile,
+                    languagePlugin: UastLanguagePlugin)
     extends UFileAdapter
     with ScUElement {
   thisFile =>

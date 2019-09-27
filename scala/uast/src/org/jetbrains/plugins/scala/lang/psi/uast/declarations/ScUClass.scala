@@ -104,8 +104,8 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
   * @param scElement Scala PSI element representing type definition
   *                  (e.g. class, object, trait)
   */
-class ScUClass(override protected val scElement: ScTypeDefinition,
-               override protected val parent: LazyUElement)
+final class ScUClass(override protected val scElement: ScTypeDefinition,
+                     override protected val parent: LazyUElement)
     extends UClassAdapter(scElement)
     with ScUClassCommon
     with ScUElement
@@ -129,8 +129,8 @@ class ScUClass(override protected val scElement: ScTypeDefinition,
   * @param scAnonDefinition Scala PSI expression representing anonymous class
   *                         definition
   */
-class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
-                        override protected val parent: LazyUElement)
+final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
+                              override protected val parent: LazyUElement)
     extends UClassAdapter(scAnonDefinition)
     with ScUClassCommon
     with ScUElement
@@ -209,8 +209,8 @@ class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
   *
   * @param scElement Scala PSI element implementing [[PsiClass]]
   */
-class ScUErrorClass(override protected val scElement: PsiClass,
-                    override protected val parent: LazyUElement)
+final class ScUErrorClass(override protected val scElement: PsiClass,
+                          override protected val parent: LazyUElement)
     extends UClassAdapter(scElement)
     with ScUElement {
 

@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.declarations
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package declarations
 
 import java.util
 
@@ -35,8 +39,8 @@ import scala.collection.JavaConverters.seqAsJavaList
   *
   * @param scElement Scala PSI element representing function (e.g. method, secondary constructors)
   */
-class ScUMethod(override protected val scElement: ScMethodLike,
-                override protected val parent: LazyUElement)
+final class ScUMethod(override protected val scElement: ScMethodLike,
+                      override protected val parent: LazyUElement)
     extends UMethodAdapter(scElement)
     with ScUElement
     with UAnchorOwner

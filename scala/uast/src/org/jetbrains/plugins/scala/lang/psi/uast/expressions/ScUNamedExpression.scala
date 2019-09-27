@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.PsiType
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUAnnotated,
   ScUExpression
 }
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{
   UExpression,
@@ -26,9 +26,10 @@ import org.jetbrains.uast.{
   * @param scExpression Scala PSI element representing named expression (e.g. named argument)
   * @see [[ScUUnnamedExpression]]
   */
-class ScUNamedExpression(override protected val scExpression: ScAssignment,
-                         override protected val parent: LazyUElement)
-    extends UNamedExpressionAdapter
+final class ScUNamedExpression(
+  override protected val scExpression: ScAssignment,
+  override protected val parent: LazyUElement
+) extends UNamedExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
 

@@ -3,9 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.PsiMethod
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPrefixExpr
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUAnnotated,
+  ScUExpression
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
 import org.jetbrains.uast._
 
 /**
@@ -13,9 +17,10 @@ import org.jetbrains.uast._
   *
   * @param scExpression Scala PSI element representing prefix expression (e.g. `+1`)
   */
-class ScUPrefixExpression(override protected val scExpression: ScPrefixExpr,
-                          override protected val parent: LazyUElement)
-    extends UPrefixExpressionAdapter
+final class ScUPrefixExpression(
+  override protected val scExpression: ScPrefixExpr,
+  override protected val parent: LazyUElement
+) extends UPrefixExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
 
@@ -32,5 +37,5 @@ class ScUPrefixExpression(override protected val scExpression: ScPrefixExpr,
 
   @Nullable
   override def resolveOperator(): PsiMethod =
-    ResolveCommon.resolveNullable[PsiMethod](scExpression.operation)
+    scExpression.operation.resolveTo[PsiMethod]()
 }

@@ -4,19 +4,27 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSuperReference
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUAnnotated,
+  ScUExpression
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{UIdentifier, USuperExpression, USuperExpressionAdapter}
+import org.jetbrains.uast.{
+  UIdentifier,
+  USuperExpression,
+  USuperExpressionAdapter
+}
 
 /**
   * [[ScSuperReference]] adapter for the [[USuperExpression]]
   *
   * @param scExpression Scala PSI element representing `super` reference
   */
-class ScUSuperExpression(override protected val scExpression: ScSuperReference,
-                         override protected val parent: LazyUElement)
-    extends USuperExpressionAdapter
+final class ScUSuperExpression(
+  override protected val scExpression: ScSuperReference,
+  override protected val parent: LazyUElement
+) extends USuperExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
 

@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.expressions
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package expressions
 
 import java.util
 
@@ -57,7 +61,7 @@ trait ScUGenLambda
       )
 
   // TODO: remove
-  override def asLogString(): String = toString
+  override def asLogString: String = toString
 
   override def toString: String =
     Option(scElement).flatMap(e => Option(e.getText)).orNull
@@ -85,9 +89,10 @@ trait ScULambdaCommon extends ScUGenLambda with ScUExpression {
   * @param scExpression Scala PSI element representing explicit
   *                     lambda expression (e.g. `x => x + 1`)
   */
-class ScULambdaExpression(override protected val scExpression: ScFunctionExpr,
-                          override protected val parent: LazyUElement)
-    extends ScULambdaCommon {
+final class ScULambdaExpression(
+  override protected val scExpression: ScFunctionExpr,
+  override protected val parent: LazyUElement
+) extends ScULambdaCommon {
 
   override protected def body: Option[PsiElement] = scExpression.result
   override protected def isExplicitLambda: Boolean = true
@@ -108,9 +113,10 @@ class ScULambdaExpression(override protected val scExpression: ScFunctionExpr,
   *                       }
   *                     }}}
   */
-class ScUPartialLambdaExpression(override protected val scExpression: ScBlock,
-                                 override protected val parent: LazyUElement)
-    extends ScULambdaCommon {
+final class ScUPartialLambdaExpression(
+  override protected val scExpression: ScBlock,
+  override protected val parent: LazyUElement
+) extends ScULambdaCommon {
 
   override protected def body: Option[PsiElement] =
     scExpression.getChildren.collectFirst { case cc: ScCaseClauses => cc }
@@ -142,7 +148,7 @@ class ScUPartialLambdaExpression(override protected val scExpression: ScBlock,
   * @param scExpression Scala PSI expression representing
   *                     method value expression
   */
-class ScUMethodValueLambdaExpression(
+final class ScUMethodValueLambdaExpression(
   override protected val scExpression: ScExpression,
   override protected val parent: LazyUElement
 ) extends ScULambdaCommon {
@@ -171,7 +177,7 @@ class ScUMethodValueLambdaExpression(
   * @param scExpression Scala PSI expression representing
   *                     lambda with underscore sections
   */
-class ScUUnderscoreLambdaExpression(
+final class ScUUnderscoreLambdaExpression(
   override protected val scExpression: ScExpression,
   override protected val parent: LazyUElement
 ) extends ScULambdaCommon {

@@ -1,5 +1,6 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.internals
+package org.jetbrains.plugins.scala.lang.psi.uast.converter
 
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.UElement
 
 trait Free[U <: UElement] {

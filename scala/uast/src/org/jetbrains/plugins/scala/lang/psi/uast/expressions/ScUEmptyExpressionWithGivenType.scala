@@ -10,19 +10,18 @@ import org.jetbrains.uast.UastEmptyExpression
 /**
   * Mock for some unsupported expressions which at least have some type information
   *
-  * @param psiType specified type of this expression
+  * @param getExpressionType specified type of this expression
   */
-class ScUEmptyExpressionWithGivenType(@Nullable psiType: PsiType,
-                                      parentProvider: LazyUElement)
-    extends UastEmptyExpression(parentProvider.force)
+final class ScUEmptyExpressionWithGivenType(
+  @Nullable override val getExpressionType: PsiType,
+  parentProvider: LazyUElement
+) extends UastEmptyExpression(parentProvider.force)
     with ScUAnnotated {
 
   def this(scExpression: ScExpression, parentProvider: LazyUElement) =
     this(scExpression.`type`().map(_.toPsiType).getOrElse(null), parentProvider)
 
-  @Nullable
-  override def getExpressionType: PsiType = psiType
-
-  override def asRenderString(): String = asLogString()
-  override def asLogString(): String = s"UastEmptyExpression(type = $psiType)"
+  override def asRenderString: String = asLogString()
+  override def asLogString: String =
+    s"UastEmptyExpression(type = $getExpressionType)"
 }

@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.controlStructures._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUBlockExpression._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions._
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.{Free, LazyUElement}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast._

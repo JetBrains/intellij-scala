@@ -1,21 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import _root_.java.util
+import java.util
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{
-  ScCaseClause,
-  ScCaseClauses
-}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScMatch}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUExpression
-}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.kinds.ScalaSpecialExpressionKinds
 import org.jetbrains.uast._
@@ -27,8 +20,8 @@ import scala.collection.JavaConverters._
   *
   * @param scExpression Scala PSI element representing `match` block
   */
-class ScUSwitchExpression(override protected val scExpression: ScMatch,
-                          override protected val parent: LazyUElement)
+final class ScUSwitchExpression(override protected val scExpression: ScMatch,
+                                override protected val parent: LazyUElement)
     extends USwitchExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
@@ -37,7 +30,10 @@ class ScUSwitchExpression(override protected val scExpression: ScMatch,
     scExpression.caseClauses
       .convertTo[UExpressionList](this)
       .getOrElse(
-        new ScUEmptyExpressionList(scExpression.caseClauses, LazyUElement.just(this))
+        new ScUEmptyExpressionList(
+          scExpression.caseClauses,
+          LazyUElement.just(this)
+        )
       )
 
   @Nullable
@@ -56,17 +52,17 @@ class ScUSwitchExpression(override protected val scExpression: ScMatch,
   *
   * @param scElement Scala PSI element representing case clauses block
   */
-class ScUCaseClausesList(override protected val scElement: ScCaseClauses,
-                         override protected val parent: LazyUElement)
+final class ScUCaseClausesList(override protected val scElement: ScCaseClauses,
+                               override protected val parent: LazyUElement)
     extends UExpressionListAdapter
     with ScUElement
     with ScUAnnotated {
 
-  import StringUtils._
+  import RenderUtils._
 
   override type PsiFacade = PsiElement
 
-  def expressions: Seq[UExpression] =
+  private def expressions: Seq[UExpression] =
     scElement.caseClauses.map(_.convertToUExpressionOrEmpty(this))
 
   override def getExpressions: util.List[UExpression] = expressions.asJava
@@ -75,7 +71,7 @@ class ScUCaseClausesList(override protected val scElement: ScCaseClauses,
     ScalaSpecialExpressionKinds.Match
 
   override def asRenderString: String =
-    expressions.map(_.asRenderString.withMargin("    ")).mkString("\n")
+    expressions.asBlock(margin = "    ", inBrackets = false)
 }
 
 /**
@@ -83,8 +79,8 @@ class ScUCaseClausesList(override protected val scElement: ScCaseClauses,
   *
   * @param scElement Scala PSI element representing case clause
   */
-class ScUCaseClause(override protected val scElement: ScCaseClause,
-                    override protected val parent: LazyUElement)
+final class ScUCaseClause(override protected val scElement: ScCaseClause,
+                          override protected val parent: LazyUElement)
     extends USwitchClauseExpressionWithBodyAdapter
     with ScUElement
     with ScUAnnotated {
@@ -107,18 +103,17 @@ class ScUCaseClause(override protected val scElement: ScCaseClause,
   *
   * @param scElement Scala PSI element representing body of the case clause
   */
-class ScUCaseClauseBodyList(
-  override protected val scElement: ScBlock,
-  override protected val parent: LazyUElement
-) extends UExpressionListAdapter
+final class ScUCaseClauseBodyList(override protected val scElement: ScBlock,
+                                  override protected val parent: LazyUElement)
+    extends UExpressionListAdapter
     with ScUElement
     with ScUAnnotated {
 
-  import StringUtils._
+  import RenderUtils._
 
   override type PsiFacade = PsiElement
 
-  def expressions: Seq[UExpression] =
+  private def expressions: Seq[UExpression] =
     scElement.statements.map(_.convertToUExpressionOrEmpty(this))
 
   override def getExpressions: util.List[UExpression] = expressions.asJava
@@ -126,10 +121,7 @@ class ScUCaseClauseBodyList(
   override def getKind: UastSpecialExpressionKind =
     ScalaSpecialExpressionKinds.CaseClause
 
-  override def asRenderString: String =
-    s"""{
-       |${expressions.map(_.asRenderString.withMargin("    ")).mkString("\n")}
-       |}""".stripMargin
+  override def asRenderString: String = expressions.asBlock(margin = "    ")
 }
 
 /**
@@ -139,10 +131,9 @@ class ScUCaseClauseBodyList(
   * @param scElement Scala PSI element representing source element which
   *                  cannot be converted properly
   */
-class ScUEmptyExpressionList(
-  override protected val scElement: PsiElement,
-  override protected val parent: LazyUElement
-) extends UExpressionListAdapter
+final class ScUEmptyExpressionList(override protected val scElement: PsiElement,
+                                   override protected val parent: LazyUElement)
+    extends UExpressionListAdapter
     with ScUElement {
 
   override type PsiFacade = PsiElement
@@ -160,9 +151,16 @@ class ScUEmptyExpressionList(
     Seq.empty.asJava
 }
 
-private object StringUtils {
-  implicit class StringOps(s: String) {
-    def withMargin(margin: String): String =
-      s.lines.map(margin + _).mkString("\n")
+private object RenderUtils {
+  implicit class RenderExt(private val exprs: Seq[UExpression]) extends AnyVal {
+    def asBlock(margin: String = "", inBrackets: Boolean = true): String = {
+      val content = exprs
+        .flatMap(_.asRenderString().linesIterator)
+        .map(margin + _)
+        .mkString("\n")
+
+      if (inBrackets) s"{\n$content\n}"
+      else content
+    }
   }
 }

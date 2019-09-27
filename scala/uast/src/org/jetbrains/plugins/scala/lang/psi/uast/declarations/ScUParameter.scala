@@ -29,8 +29,8 @@ import scala.collection.JavaConverters._
   *
   * @param scElement Scala PSI element representing parameter (e.g. of class or function)
   */
-class ScUParameter(override protected val scElement: ScParameter,
-                   override protected val parent: LazyUElement)
+final class ScUParameter(override protected val scElement: ScParameter,
+                         override protected val parent: LazyUElement)
     extends UParameterAdapter(scElement)
     with ScUElement
     with ScUAnchorOwner
@@ -60,9 +60,9 @@ class ScUParameter(override protected val scElement: ScParameter,
   * It is primarily used for Scala lambdas without explicitly specified
   * parameters (e.g. for underscore lambdas).
   */
-class ScULambdaParameter(private val psiParameter: PsiParameter,
-                         sourcePsi: Option[PsiElement],
-                         override protected val parent: LazyUElement)
+final class ScULambdaParameter(private val psiParameter: PsiParameter,
+                               sourcePsi: Option[PsiElement],
+                               override protected val parent: LazyUElement)
     extends UParameterAdapter(psiParameter)
     with ScUElement {
 

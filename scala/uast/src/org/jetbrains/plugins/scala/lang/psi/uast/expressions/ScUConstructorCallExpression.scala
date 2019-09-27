@@ -5,12 +5,27 @@ import java.util
 import com.intellij.psi.util.PsiTypesUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{
+  ScConstructorInvocation,
+  ScReference
+}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUAnnotated,
+  ScUElement,
+  ScUMultiResolvable
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUMultiResolvable}
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
-import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
+import org.jetbrains.uast.{
+  UCallExpression,
+  UCallExpressionAdapter,
+  UExpression,
+  UIdentifier,
+  UReferenceExpression,
+  UastCallKind
+}
 
 import scala.collection.JavaConverters._
 
@@ -20,7 +35,7 @@ import scala.collection.JavaConverters._
   *
   * @param scElement Scala PSI element representing constructor invocation
   */
-class ScUConstructorCallExpression(
+final class ScUConstructorCallExpression(
   override protected val scElement: ScConstructorInvocation,
   override protected val parent: LazyUElement
 ) extends UCallExpressionAdapter
@@ -91,7 +106,7 @@ class ScUConstructorCallExpression(
 
   @Nullable
   override def resolve(): PsiMethod =
-    ResolveCommon.resolveNullable[PsiMethod](scReference)
+    scReference.map(_.resolveTo[PsiMethod]()).orNull
 
   override protected def scReference: Option[ScReference] = scElement.reference
 

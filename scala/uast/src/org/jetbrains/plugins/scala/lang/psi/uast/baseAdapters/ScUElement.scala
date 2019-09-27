@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package baseAdapters
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.{declarations, expressions}
 import org.jetbrains.uast.UElement
 
 /**

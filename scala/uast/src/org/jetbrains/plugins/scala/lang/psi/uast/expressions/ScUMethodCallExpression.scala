@@ -7,10 +7,22 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression, ScUMultiResolvable}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUAnnotated,
+  ScUExpression,
+  ScUMultiResolvable
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
-import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
+import org.jetbrains.uast.{
+  UCallExpression,
+  UCallExpressionAdapter,
+  UExpression,
+  UIdentifier,
+  UReferenceExpression,
+  UastCallKind
+}
 
 import scala.collection.JavaConverters._
 
@@ -76,9 +88,9 @@ trait ScUMethodCallCommon
 
   @Nullable
   override def resolve(): PsiMethod =
-    ResolveCommon.resolveNullable[PsiMethod](scReference)
+    scReference.map(_.resolveTo[PsiMethod]()).orNull
 
-  override def asLogString(): String = s"UMethodCall(name = $getMethodName)"
+  override def asLogString: String = s"UMethodCall(name = $getMethodName)"
 }
 
 /**
@@ -87,11 +99,11 @@ trait ScUMethodCallCommon
   *
   * @param scExpression Scala PSI element representing method invocation
   */
-class ScUMethodCallExpression(override protected val scExpression: ScMethodCall,
-                              override protected val parent: LazyUElement,
-                              @Nullable override val getSourcePsi: PsiElement =
-                                null)
-    extends UCallExpressionAdapter
+final class ScUMethodCallExpression(
+  override protected val scExpression: ScMethodCall,
+  override protected val parent: LazyUElement,
+  @Nullable override val getSourcePsi: PsiElement = null
+) extends UCallExpressionAdapter
     with ScUMethodCallCommon {
 
   override protected def getReferencedExpr: Option[ScExpression] =
@@ -137,7 +149,7 @@ class ScUMethodCallExpression(override protected val scExpression: ScMethodCall,
   *
   * @param scExpression Scala PSI element representing generic call
   */
-class ScUGenericCallExpression(
+final class ScUGenericCallExpression(
   override protected val scExpression: ScGenericCall,
   override protected val parent: LazyUElement,
   @Nullable override val getSourcePsi: PsiElement = null
@@ -168,7 +180,7 @@ class ScUGenericCallExpression(
   * @param scExpression Scala PSI element representing paren-less call
   *                     (e.g. `obj.toString`)
   */
-class ScUReferenceCallExpression(
+final class ScUReferenceCallExpression(
   override protected val scExpression: ScReferenceExpression,
   override protected val parent: LazyUElement,
   @Nullable override val getSourcePsi: PsiElement = null

@@ -7,12 +7,12 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScTry}
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUAnnotated,
   ScUElement,
   ScUExpression
 }
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
@@ -23,8 +23,8 @@ import scala.collection.JavaConverters._
   *
   * @param scExpression Scala PSI element representing `try {} catch {} [finally {}]` block
   */
-class ScUTryExpression(override protected val scExpression: ScTry,
-                       override protected val parent: LazyUElement)
+final class ScUTryExpression(override protected val scExpression: ScTry,
+                             override protected val parent: LazyUElement)
     extends UTryExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
@@ -72,8 +72,8 @@ class ScUTryExpression(override protected val scExpression: ScTry,
   * @param scElement Scala PSI element representing case clause
   *                  inside catch block
   */
-class ScUCatchExpression(override protected val scElement: ScCaseClause,
-                         override protected val parent: LazyUElement)
+final class ScUCatchExpression(override protected val scElement: ScCaseClause,
+                               override protected val parent: LazyUElement)
     extends UCatchExpressionAdapter
     with ScUElement {
 

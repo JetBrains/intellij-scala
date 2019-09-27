@@ -13,7 +13,7 @@ class ScalaUastApiTest extends AbstractUastFixtureTest {
   import ScalaUastApiTest._
 
   def testUastAnchors(): Unit =
-    doTest("SimpleClass.scala") { (_, file) =>
+    doTest("SimpleClass", { (_, file) =>
       val uClass = file.getClasses.asScala.filter(_.getQualifiedName == "SimpleClass").ensuring(_.size == 1).head
       Assert.assertEquals("SimpleClass", uClass.getUastAnchor ?> (_.getSourcePsi) ?> (_.getText) orNull)
 
@@ -22,16 +22,16 @@ class ScalaUastApiTest extends AbstractUastFixtureTest {
 
       val uParameter = uMethod.getUastParameters.asScala.filter(_.getName == "param").ensuring(_.length == 1).head
       Assert.assertEquals("param", uParameter.getUastAnchor ?> (_.getSourcePsi) ?> (_.getText) orNull)
-    }
+    })
 
   def testAnnotationAnchor(): Unit =
-    doTest("SimpleClass.scala") { (_, file) =>
+    doTest("SimpleClass",  { (_, file) =>
       val uAnnotation = findElementByText[UAnnotation](file, "@java.lang.Deprecated")
       Assert.assertEquals("Deprecated", uAnnotation.getUastAnchor ?> (_.getSourcePsi) ?> (_.getText) orNull)
-    }
+    })
 
   def testStringLiteral(): Unit =
-    doTest("Annotations.scala") { (_, file) =>
+    doTest("Annotations", { (_, file) =>
       val literal1 = findElementByTextFromPsi[ULiteralExpression](file, "\"abc\"")
       Assert.assertTrue(literal1.isString)
       Assert.assertEquals("abc", literal1.getValue)
@@ -39,7 +39,7 @@ class ScalaUastApiTest extends AbstractUastFixtureTest {
       val literal2 = findElementByTextFromPsi[ULiteralExpression](file, "123")
       Assert.assertFalse(literal2.isString)
       Assert.assertEquals(123, literal2.getValue)
-    }
+    })
 }
 
 object ScalaUastApiTest {

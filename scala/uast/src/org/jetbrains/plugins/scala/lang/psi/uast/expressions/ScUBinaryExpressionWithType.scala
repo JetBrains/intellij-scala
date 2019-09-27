@@ -16,7 +16,7 @@ import org.jetbrains.uast._
   *
   * @param scExpression Scala PSI element representing typed expression (e.g. `42: Int`)
   */
-class ScUBinaryExpressionWithType(
+final class ScUBinaryExpressionWithType(
   override protected val scExpression: ScTypedExpression,
   override protected val parent: LazyUElement
 ) extends UBinaryExpressionWithTypeAdapter

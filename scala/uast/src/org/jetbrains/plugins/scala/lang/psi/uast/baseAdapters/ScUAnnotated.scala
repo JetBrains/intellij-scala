@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package baseAdapters
 
 import java.util
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.{declarations, expressions}
 import org.jetbrains.uast.{UAnnotated, UAnnotation}
 
 import scala.collection.JavaConverters._
@@ -19,16 +22,11 @@ import scala.collection.JavaConverters._
   */
 trait ScUAnnotated extends UAnnotated {
 
-  override def getUAnnotations: util.List[UAnnotation] = {
-    val annotatedElement = getSourcePsi match {
-      case holder: ScAnnotationsHolder => Some(holder)
-      case _                           => None
-    }
-
-    annotatedElement match {
-      case Some(holder) =>
-        holder.annotations.flatMap(_.convertTo[UAnnotation](this)).asJava
-      case _ => Seq.empty.asJava //JavaCollectionsCommon.newEmptyJavaList
-    }
+  override def getUAnnotations: util.List[UAnnotation] = getSourcePsi match {
+    case holder: ScAnnotationsHolder =>
+      holder.annotations
+        .flatMap(_.convertTo[UAnnotation](parent = this))
+        .asJava
+    case _ => Seq.empty.asJava
   }
 }

@@ -29,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{
   ScVariableDefinition
 }
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.psi.LightVariableWithGivenAnnotationsBuilder
 import org.jetbrains.uast._
@@ -70,12 +70,12 @@ trait ScUVariableCommon extends ScUElement with UAnchorOwner with UAnnotated {
   * @param lightVariable Psi field adapter of the field-like class member
   * @param nameId        Psi anchor representing name id
   */
-class ScUField(override protected val lightVariable: PsiField,
-               @Nullable sourcePsi: PsiElement,
-               override protected val nameId: PsiElement,
-               override protected val typeElem: Option[ScTypeElement],
-               override protected val initializer: Option[ScExpression],
-               override protected val parent: LazyUElement)
+final class ScUField(override protected val lightVariable: PsiField,
+                     @Nullable sourcePsi: PsiElement,
+                     override protected val nameId: PsiElement,
+                     override protected val typeElem: Option[ScTypeElement],
+                     override protected val initializer: Option[ScExpression],
+                     override protected val parent: LazyUElement)
     extends UFieldAdapter(lightVariable)
     with ScUVariableCommon {
 
@@ -93,13 +93,14 @@ class ScUField(override protected val lightVariable: PsiField,
   * @param lightVariable Psi local variable adapter
   * @param nameId        Psi anchor representing name id
   */
-class ScULocalVariable(override protected val lightVariable: PsiLocalVariable,
-                       @Nullable sourcePsi: PsiElement,
-                       override protected val nameId: PsiElement,
-                       override protected val typeElem: Option[ScTypeElement],
-                       override protected val initializer: Option[ScExpression],
-                       override protected val parent: LazyUElement)
-    extends ULocalVariableAdapter(lightVariable)
+final class ScULocalVariable(
+  override protected val lightVariable: PsiLocalVariable,
+  @Nullable sourcePsi: PsiElement,
+  override protected val nameId: PsiElement,
+  override protected val typeElem: Option[ScTypeElement],
+  override protected val initializer: Option[ScExpression],
+  override protected val parent: LazyUElement
+) extends ULocalVariableAdapter(lightVariable)
     with ScUVariableCommon {
 
   override type PsiFacade = PsiLocalVariable

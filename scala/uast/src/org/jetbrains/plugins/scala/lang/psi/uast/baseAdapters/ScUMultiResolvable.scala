@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package baseAdapters
 
 import java.lang
 
 import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.uast.{declarations, expressions}
 import org.jetbrains.uast.{UMultiResolvable, UResolvable}
 
 import scala.collection.JavaConverters._

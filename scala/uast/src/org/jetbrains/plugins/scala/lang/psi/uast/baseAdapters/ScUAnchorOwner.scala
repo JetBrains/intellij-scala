@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package baseAdapters
 
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
-import org.jetbrains.plugins.scala.lang.psi.uast.{declarations, expressions}
 import org.jetbrains.uast.{UAnchorOwner, UIdentifier}
 
 /**
@@ -18,6 +21,6 @@ trait ScUAnchorOwner extends UAnchorOwner {
   protected val namedElement: ScNamedElement
 
   @Nullable
-  override def getUastAnchor: UIdentifier =
+  final override def getUastAnchor: UIdentifier =
     Scala2UastConverter.createUIdentifier(namedElement.getNameIdentifier, this)
 }

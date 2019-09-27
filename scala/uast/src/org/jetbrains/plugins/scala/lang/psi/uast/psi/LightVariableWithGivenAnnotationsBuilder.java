@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class LightVariableWithGivenAnnotationsBuilder extends LightFieldBuilder implements PsiLocalVariable {
     private final PsiAnnotation[] myAnnotations;
     private volatile LightModifierList myModifierList;
-
+    
     /**
      * @param annotations Annotations array that result light field will contain
      */
@@ -35,60 +35,63 @@ public class LightVariableWithGivenAnnotationsBuilder extends LightFieldBuilder 
         setContainingClass(containingClass);
         setModifiers(modifiers);
     }
-
+    
     //region Wraps modifier list into LightModifiersListWithGivenAnnotations
     @Override
     @NotNull
     public PsiModifierList getModifierList() {
         return myModifierList;
     }
-
+    
     @Override
     public LightFieldBuilder setModifiers(String... modifiers) {
-        myModifierList = new LightModifiersListWithGivenAnnotations(getManager(), getLanguage(), modifiers);
+        myModifierList = new LightModifiersListWithGivenAnnotations(getManager(), getLanguage(), myAnnotations, modifiers);
         return this;
     }
-
+    
     @Override
     public boolean hasModifierProperty(@NonNls @NotNull String name) {
         return myModifierList.hasModifierProperty(name);
     }
     //endregion
-
+    
     @Override
     public PsiFile getContainingFile() {
         PsiClass containingClass = getContainingClass();
         return (containingClass == null) ? null : containingClass.getContainingFile();
     }
-
+    
     @NotNull
     @Override
     public PsiTypeElement getTypeElement() {
         return new LightTypeElement(getManager(), getType());
     }
-
+    
     /**
      * Overrides {@link LightModifierList} which does not support annotations
      * to provide annotations given to {@link LightVariableWithGivenAnnotationsBuilder}.
      */
-    private class LightModifiersListWithGivenAnnotations extends LightModifierList {
-        LightModifiersListWithGivenAnnotations(PsiManager manager, final Language language, String... modifiers) {
+    private static class LightModifiersListWithGivenAnnotations extends LightModifierList {
+        private final PsiAnnotation[] myAnnotations;
+        
+        LightModifiersListWithGivenAnnotations(PsiManager manager,
+                                               Language language,
+                                               PsiAnnotation[] annotations,
+                                               String... modifiers) {
             super(manager, language, modifiers);
+            this.myAnnotations = annotations;
         }
-
+        
         @Override
         @NotNull
         public PsiAnnotation[] getAnnotations() {
             return myAnnotations;
         }
-
+        
         @Override
         public PsiAnnotation findAnnotation(@NotNull String qualifiedName) {
             return Arrays.stream(myAnnotations)
-                    .filter(a -> {
-                        String aFqn = a.getQualifiedName();
-                        return aFqn != null && aFqn.equals(qualifiedName);
-                    })
+                    .filter(annotation -> qualifiedName.equals(annotation.getQualifiedName()))
                     .findFirst()
                     .orElse(null);
         }

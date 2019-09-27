@@ -55,7 +55,7 @@ trait ScUCommonReferenceExpression
   *
   * @param scElement Scala PSI element representing simple unqualified reference
   */
-class ScUSimpleNameReferenceExpression(
+final class ScUSimpleNameReferenceExpression(
   override protected val scElement: ScReference,
   override protected val typeProvider: Option[Typeable],
   override protected val parent: LazyUElement
@@ -71,7 +71,7 @@ class ScUSimpleNameReferenceExpression(
   * @param scElement    Scala PSI element representing qualified reference
   * @param typeProvider Optional type that will be represented by this instance
   */
-class ScUQualifiedReferenceExpression(
+final class ScUQualifiedReferenceExpression(
   override protected val scElement: ScReference,
   override protected val typeProvider: Option[Typeable],
   @Nullable sourcePsi: PsiElement,
@@ -134,7 +134,7 @@ class ScUQualifiedReferenceExpression(
   * @param scElement    Scala PSI element representing reference to some type
   * @param typeProvider Type that will be represented by this instance
   */
-class ScUTypeReferenceExpression(
+final class ScUTypeReferenceExpression(
   override protected val scElement: ScReference,
   override protected val typeProvider: Option[Typeable],
   @Nullable sourcePsi: PsiElement,
@@ -167,7 +167,7 @@ class ScUTypeReferenceExpression(
   *                       Seq().foreach(println _)
   *                     }}}
   */
-class ScUCallableReferenceExpression(
+final class ScUCallableReferenceExpression(
   override protected val scElement: ScReference,
   override protected val parent: LazyUElement
 ) extends UCallableReferenceExpressionAdapter

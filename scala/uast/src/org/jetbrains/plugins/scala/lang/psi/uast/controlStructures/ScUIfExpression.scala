@@ -3,8 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.uast.controlStructures
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUAnnotated,
+  ScUExpression
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
@@ -13,8 +16,8 @@ import org.jetbrains.uast._
   *
   * @param scExpression Scala PSI element representing `if [else]` expression
   */
-class ScUIfExpression(override protected val scExpression: ScIf,
-                      override protected val parent: LazyUElement)
+final class ScUIfExpression(override protected val scExpression: ScIf,
+                            override protected val parent: LazyUElement)
     extends UIfExpressionAdapter
     with ScUExpression
     with ScUAnnotated {

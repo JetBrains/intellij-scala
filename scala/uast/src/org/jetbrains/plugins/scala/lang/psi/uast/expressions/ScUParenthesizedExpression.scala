@@ -18,7 +18,7 @@ import org.jetbrains.uast.{
   *
   * @param scExpression Scala PSI element representing parenthesized expression (e.g. `(4 + 2)`)
   */
-class ScUParenthesizedExpression(
+final class ScUParenthesizedExpression(
   override protected val scExpression: ScParenthesisedExpr,
   override protected val parent: LazyUElement
 ) extends UParenthesizedExpressionAdapter

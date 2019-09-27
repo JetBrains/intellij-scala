@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package uast
+package baseAdapters
 
 import com.intellij.psi.{PsiElement, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import org.jetbrains.uast.UExpression
 
 /**

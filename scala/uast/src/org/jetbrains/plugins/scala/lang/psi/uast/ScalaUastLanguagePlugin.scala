@@ -1,31 +1,41 @@
 package org.jetbrains.plugins.scala.lang.psi.uast
 
 import com.intellij.lang.Language
-import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
+import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
+import com.intellij.psi.{
+  PsiClassInitializer,
+  PsiElement,
+  PsiMethod,
+  PsiVariable
+}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveCommon
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.uast._
 
 import scala.language.postfixOps
-import scala.meta.trees.UnimplementedException
 import scala.reflect.ClassTag
 
 /**
   * [[UastLanguagePlugin]] implementation for the Scala plugin.
   */
-class ScalaUastLanguagePlugin extends UastLanguagePlugin {
+final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
   override def getLanguage: Language = ScalaLanguage.INSTANCE
 
   override def getPriority: Int = 10
 
+  private val fileNameMatcher =
+    new ExtensionFileNameMatcher(
+      getLanguage.getAssociatedFileType.getDefaultExtension
+    )
+
   override def isFileSupported(s: String): Boolean =
-    s.endsWith(".scala") || s.endsWith(".sc")
+    fileNameMatcher.acceptsCharSequence(s)
 
   @Nullable
   override def convertElement(
@@ -67,10 +77,10 @@ class ScalaUastLanguagePlugin extends UastLanguagePlugin {
             .exists(_.canonicalText == fqName) =>
         val resolvedConstructor =
           for {
-            callExpression <- Option(convertElementWithParent(element, null))
-              .collect { case c: UCallExpression => c }
-            constructorMethod <- ResolveCommon.resolve[PsiMethod](
-              constructorCall.reference
+            callExpression <- Scala2UastConverter
+              .convertWithParentTo[UCallExpression](element)
+            constructorMethod <- constructorCall.reference.map(
+              _.resolveTo[PsiMethod]()
             )
             containingClass <- Option(constructorMethod.getContainingClass)
             if containingClass.getQualifiedName == fqName
@@ -133,5 +143,5 @@ class ScalaUastLanguagePlugin extends UastLanguagePlugin {
     }
 
   override def isExpressionValueUsed(uExpression: UExpression): Boolean =
-    throw new UnimplementedException("") // TODO: not implemented
+    throw new NotImplementedError("") // TODO: not implemented
 }

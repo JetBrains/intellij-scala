@@ -21,7 +21,7 @@ import scala.collection.JavaConverters._
   *
   * @param scElement Scala PSI element representing local val/var declaration
   */
-class ScUDeclarationsExpression(
+final class ScUDeclarationsExpression(
   override protected val scElement: ScValueOrVariable,
   override protected val parent: LazyUElement
 ) extends UDeclarationsExpressionAdapter

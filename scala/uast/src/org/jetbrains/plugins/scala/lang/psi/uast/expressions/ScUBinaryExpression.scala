@@ -3,9 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.PsiMethod
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUAnnotated,
+  ScUExpression
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
 import org.jetbrains.uast._
 
 /**
@@ -13,9 +17,10 @@ import org.jetbrains.uast._
   *
   * @param scExpression Scala PSI element representing binary expression (e.g. `4 + 2`)
   */
-class ScUBinaryExpression(override protected val scExpression: ScInfixExpr,
-                          override protected val parent: LazyUElement)
-    extends UBinaryExpressionAdapter
+final class ScUBinaryExpression(
+  override protected val scExpression: ScInfixExpr,
+  override protected val parent: LazyUElement
+) extends UBinaryExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
 
@@ -31,7 +36,7 @@ class ScUBinaryExpression(override protected val scExpression: ScInfixExpr,
 
   @Nullable
   override def resolveOperator(): PsiMethod =
-    ResolveCommon.resolveNullable[PsiMethod](scExpression.operation)
+    scExpression.operation.resolveTo[PsiMethod]()
 
   // TODO: not implemented properly
   override def getOperator: UastBinaryOperator =

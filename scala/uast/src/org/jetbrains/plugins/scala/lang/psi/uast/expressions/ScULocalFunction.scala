@@ -56,7 +56,7 @@ import scala.collection.JavaConverters._
   *
   * @param scElement Scala PSI element representing local function definition
   */
-class ScULocalFunctionDeclarationExpression(
+final class ScULocalFunctionDeclarationExpression(
   override protected val scElement: ScFunctionDefinition,
   containingTypeDef: ScTemplateDefinition,
   override protected val parent: LazyUElement
@@ -83,7 +83,7 @@ class ScULocalFunctionDeclarationExpression(
   *
   * @param funDef Scala PSI element representing local function definition
   */
-class ScULocalFunction(funDef: ScFunctionDefinition,
+final class ScULocalFunction(funDef: ScFunctionDefinition,
                        containingTypeDef: ScTemplateDefinition,
                        override protected val parent: LazyUElement)
     extends {
@@ -132,7 +132,7 @@ object ScULocalFunction {
   *
   * @param scElement Scala PSI expression representing local function definition
   */
-class ScULocalFunctionLambdaExpression(
+final class ScULocalFunctionLambdaExpression(
   override protected val scElement: ScFunctionDefinition,
   override protected val parent: LazyUElement
 ) extends ScUGenLambda {

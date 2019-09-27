@@ -15,7 +15,7 @@ import org.jetbrains.uast._
   *
   * @param scExpression   Scala PSI element representing `do {} while()` cycle
   */
-class ScUDoWhileExpression(
+final class ScUDoWhileExpression(
   override protected val scExpression: ScDo,
   override protected val parent: LazyUElement
 ) extends UDoWhileExpressionAdapter

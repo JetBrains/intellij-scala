@@ -21,8 +21,8 @@ import org.jetbrains.uast.{
   *
   * @param scExpression Scala PSI element representing `return` expression
   */
-class ScUReturnExpression(override protected val scExpression: ScReturn,
-                          override protected val parent: LazyUElement)
+final class ScUReturnExpression(override protected val scExpression: ScReturn,
+                                override protected val parent: LazyUElement)
     extends UReturnExpressionAdapter
     with ScUExpression
     with ScUAnnotated {
@@ -36,10 +36,11 @@ class ScUReturnExpression(override protected val scExpression: ScReturn,
 /**
   * Implicit return for result statements in blocks.
   */
-class ScUImplicitReturnExpression(returnedElement: PsiElement,
-                                  override protected val parent: LazyUElement,
-                                  convertLambdas: Boolean = true)
-    extends UReturnExpressionAdapter
+final class ScUImplicitReturnExpression(
+  returnedElement: PsiElement,
+  override protected val parent: LazyUElement,
+  convertLambdas: Boolean = true
+) extends UReturnExpressionAdapter
     with ScUElement
     with UExpression
     with ScUAnnotated {

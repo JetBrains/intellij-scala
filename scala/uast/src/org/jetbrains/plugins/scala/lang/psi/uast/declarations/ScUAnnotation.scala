@@ -4,13 +4,33 @@ import java.util
 
 import com.intellij.psi.{PsiAnnotation, PsiClass}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{
+  ScAnnotation,
+  ScConstructorInvocation,
+  ScReference
+}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
+  ScUElement,
+  ScUMultiResolvable
+}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUElement, ScUMultiResolvable}
-import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{ScUNamedExpression, ScUUnnamedExpression}
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.{LazyUElement, ResolveCommon}
-import org.jetbrains.uast.{UAnchorOwner, UAnnotation, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
+import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{
+  ScUNamedExpression,
+  ScUUnnamedExpression
+}
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
+import org.jetbrains.uast.{
+  UAnchorOwner,
+  UAnnotation,
+  UAnnotationAdapter,
+  UAnnotationEx,
+  UCallExpression,
+  UExpression,
+  UIdentifier,
+  UNamedExpression
+}
 
 import scala.collection.JavaConverters._
 
@@ -19,8 +39,8 @@ import scala.collection.JavaConverters._
   *
   * @param scElement Scala PSI element representing annotation
   */
-class ScUAnnotation(override protected val scElement: ScAnnotation,
-                    override protected val parent: LazyUElement)
+final class ScUAnnotation(override protected val scElement: ScAnnotation,
+                          override protected val parent: LazyUElement)
     extends UAnnotationAdapter
     with ScUElement
     with UAnchorOwner
@@ -39,7 +59,8 @@ class ScUAnnotation(override protected val scElement: ScAnnotation,
         .map {
           case namedArg: ScAssignment =>
             new ScUNamedExpression(namedArg, LazyUElement.just(this))
-          case unnamedArg => new ScUUnnamedExpression(unnamedArg, LazyUElement.just(this))
+          case unnamedArg =>
+            new ScUUnnamedExpression(unnamedArg, LazyUElement.just(this))
         }
     )
 
@@ -60,7 +81,7 @@ class ScUAnnotation(override protected val scElement: ScAnnotation,
 
   @Nullable
   override def resolve(): PsiClass =
-    ResolveCommon.resolveNullable[PsiClass](scReference)
+    scReference.map(_.resolveTo[PsiClass]()).orNull
 
   override protected def scReference: Option[ScReference] =
     scElement.constructorInvocation.reference
@@ -69,7 +90,7 @@ class ScUAnnotation(override protected val scElement: ScAnnotation,
   override def getUastAnchor: UIdentifier =
     scReference.map(ref => createUIdentifier(ref.nameId, this)).orNull
 
-  final def uastAnchor: Option[UIdentifier] = Option(getUastAnchor)
+  def uastAnchor: Option[UIdentifier] = Option(getUastAnchor)
 }
 
 object ScUAnnotation {
@@ -80,5 +101,4 @@ object ScUAnnotation {
         .flatMap(annotationExpr => Option(annotationExpr.getParent))
         .collect { case a: ScAnnotation => a }
   }
-
 }

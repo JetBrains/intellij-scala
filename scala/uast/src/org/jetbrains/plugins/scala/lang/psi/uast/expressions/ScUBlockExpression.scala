@@ -60,7 +60,7 @@ trait ScUBlockCommon
   *
   * @param scExpression Scala PSI element representing block expression
   */
-class ScUBlockExpression(override protected val scExpression: ScBlock,
+final class ScUBlockExpression(override protected val scExpression: ScBlock,
                          override protected val parent: LazyUElement)
     extends ScUBlockCommon
     with ScUExpression {
@@ -146,7 +146,7 @@ object ScUBlockExpression {
 
 // See KT-23557
 /** Implicit block for methods and lambdas expression bodies */
-class ScUImplicitBlockExpression(private val statement: PsiElement,
+final class ScUImplicitBlockExpression(private val statement: PsiElement,
                                  override protected val parent: LazyUElement,
                                  convertLambdas: Boolean)
     extends UBlockExpressionAdapter
