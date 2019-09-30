@@ -48,17 +48,17 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   static {
     ACTIONS.put(Action.REFORMAT, new TestFormatAction() {
       public void run(PsiFile psiFile, int startOffset, int endOffset) {
-        CodeStyleManager.getInstance(getProject()).reformatText(psiFile, startOffset, endOffset);
+        CodeStyleManager.getInstance(psiFile.getProject()).reformatText(psiFile, startOffset, endOffset);
       }
 
       @Override
       public void run(PsiFile psiFile, List<TextRange> formatRanges) {
-        CodeStyleManager.getInstance(getProject()).reformatText(psiFile, formatRanges);
+        CodeStyleManager.getInstance(psiFile.getProject()).reformatText(psiFile, formatRanges);
       }
     });
     ACTIONS.put(Action.INDENT, new TestFormatAction() {
       public void run(PsiFile psiFile, int startOffset, int endOffset) {
-        CodeStyleManager.getInstance(getProject()).adjustLineIndent(psiFile, startOffset);
+        CodeStyleManager.getInstance(psiFile.getProject()).adjustLineIndent(psiFile, startOffset);
       }
 
       @Override
@@ -68,8 +68,6 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     });
   }
 
-  private static final String BASE_PATH = TestUtils.getTestDataPath() + "/psi/formatter";
-
   public List<TextRange> myTextRanges = new LinkedList<TextRange>();
 
   public CommonCodeStyleSettings getCommonSettings() {
@@ -78,6 +76,10 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   public ScalaCodeStyleSettings getScalaSettings() {
     return getSettings().getCustomSettings(ScalaCodeStyleSettings.class);
+  }
+
+  public ScalaCodeStyleSettings scalaSettings() {
+    return getScalaSettings();
   }
 
   public CodeStyleSettings getSettings() {
@@ -159,7 +161,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   @NotNull
-  private static String prepareText(@NotNull String actual) {
+  private String prepareText(@NotNull String actual) {
     if (actual.startsWith("\n")) {
       actual = actual.substring(1);
     }
@@ -176,7 +178,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   private static String loadFile(String name) throws Exception {
-    String fullName = BASE_PATH + File.separatorChar + name;
+    String fullName = (TestUtils.getTestDataPath() + "/psi/formatter") + File.separatorChar + name;
     String text = new String(FileUtil.loadFileText(new File(fullName)));
     text = StringUtil.convertLineSeparators(text);
     return text;
@@ -188,7 +190,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     TestUtils.disableTimerThread();
   }
 
-  private static void runCommandInWriteAction(final Runnable runnable,
+  private void runCommandInWriteAction(final Runnable runnable,
                                        final String name,
                                        final String groupId) {
     Runnable writableRunnable = () -> ApplicationManager.getApplication().runWriteAction(runnable);;

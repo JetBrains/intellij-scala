@@ -4,6 +4,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -62,13 +63,13 @@ public class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapte
     int offset = text.indexOf(CARET_MARKER);
     text = removeMarker(text);
 
-    myFile = createFile(fileName, text);
+    PsiFile file = createFile(fileName, text);
 
     filePath = filePath.replaceFirst("[.][s][c][a][l][a]", ".test");
     final VirtualFile answerFile = LocalFileSystem.getInstance().findFileByPath(filePath.
         replace(File.separatorChar, '/'));
     assertNotNull("file " + filePath + " not found", answerFile);
     String resText = StringUtil.convertLineSeparators(VfsUtil.loadText(answerFile), "\n");
-    assertEquals(resText, SuperMethodTestUtil.transform(myFile, offset));
+    assertEquals(resText, SuperMethodTestUtil.transform(file, offset));
   }
 }

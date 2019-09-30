@@ -39,13 +39,13 @@ abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCa
     val actionId =
       if (moveLeft) IdeActions.MOVE_ELEMENT_LEFT
       else IdeActions.MOVE_ELEMENT_RIGHT
-    LightPlatformCodeInsightTestCase.executeAction(actionId)
+    executeAction(actionId)
     checkResultByText(after)
   }
 
   private def configureEditor(fileText: String) {
     val fileName = s"${getTestName(false)}.scala"
-    LightPlatformCodeInsightTestCase.configureFromFileText(fileName, fileText)
+    configureFromFileText(fileName, fileText)
   }
 
   override def setUp(): Unit = {
