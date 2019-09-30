@@ -142,7 +142,7 @@ package object extensions {
     private def viewProvider = file.getViewProvider
   }
 
-  implicit class ViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
+  implicit class FileViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
     def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
 
     def findScalaPsi: Option[PsiFile] =
