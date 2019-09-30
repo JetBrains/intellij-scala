@@ -59,7 +59,7 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
                                   projectName: Option[String] = None): Unit = {
     val handler = SettingQueryHandler(settingName, taskName, projectUri, projectName, comm)
     val res = Await.result(
-      comm.command(commandBefore, showShell = false).flatMap { _ => handler.getSettingValue() },
+      comm.command(commandBefore, showShell = false).flatMap { _ => handler.fetchSettingValue() },
       Duration(timeoutSeconds, TimeUnit.SECONDS))
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
@@ -72,7 +72,7 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
                                  projectUri: Option[String] = None, projectName: Option[String] = None): Unit = {
     val setHandler = SettingQueryHandler(settingName, setTaskName, projectUri, projectName, comm)
     val handler = SettingQueryHandler(settingName, taskName, projectUri, projectName, comm)
-    val res = Await.result(setHandler.setSettingValue(expectedValue).flatMap { _ => handler.getSettingValue() },
+    val res = Await.result(setHandler.setSettingValue(expectedValue).flatMap { _ => handler.fetchSettingValue() },
       Duration(timeoutSeconds, "second"))
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
@@ -89,7 +89,7 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
     val res = Await.result(comm.command(setCommand, showShell = false).flatMap {
       _ => addHandler.addToSettingValue(addValue)
     }.flatMap {
-      _ => handler.getSettingValue()
+      _ => handler.fetchSettingValue()
     }, Duration(timeoutSeconds, "second")).trim
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
