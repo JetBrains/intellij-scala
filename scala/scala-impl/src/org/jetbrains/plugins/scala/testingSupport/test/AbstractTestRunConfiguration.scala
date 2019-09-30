@@ -298,8 +298,13 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
-      if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
-      else for (test <- tests) yield sbtClassKey + escapeClassAndTest(aClass + sbtTestNameKey + escapeTestName(test))
+      if (tests.isEmpty) {
+        Seq(sanitize(s"$sbtClassKey$aClass"))
+      } else {
+        for (test <- tests) yield {
+          sbtClassKey + sanitize(escapeClassAndTest(aClass + sbtTestNameKey + escapeTestName(test)))
+        }
+      }
     }).flatten.toSeq
   }
 
