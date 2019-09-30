@@ -5,8 +5,9 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
-import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
+import com.intellij.openapi.vfs.{StandardFileSystems, VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.vcsUtil.VcsUtil
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
@@ -256,35 +257,39 @@ object ScalafmtDynamicConfigManager {
                                   vFileModificationTimestamp: Long,
                                   docModificationTimestamp: Long)
 
-  def scalafmtProjectConfigFile(project: Project, configPath: String): Option[VirtualFile] =
-    if (configPath.isEmpty) {
-      defaultConfigurationFile(project)
-    } else {
-      absolutePathFromConfigPath(project, configPath).flatMap { path =>
-        StandardFileSystems.local.findFileByPath(path).toOption
-      }
-    }
-
-  private def defaultConfigurationFile(project: Project): Option[VirtualFile] = {
-    if (project.isDefault) {
-      None
-    } else {
-      ProjectUtil.guessProjectDir(project).toOption
-        .flatMap(_.findChild(DefaultConfigurationFileName).toOption)
-    }
+  def scalafmtProjectConfigFile(project: Project, configPath: String): Option[VirtualFile] = {
+    val configPathActual = if (configPath.nonEmpty) configPath else DefaultConfigurationFileName
+    scalafmtProjectConfigFileNonEmpty(project, configPathActual)
   }
 
-  def absolutePathFromConfigPath(project: Project, path: String): Option[String] = {
-    val isRelativePath = path.startsWith(".")
+  private def scalafmtProjectConfigFileNonEmpty(project: Project, configPath: String): Option[VirtualFile] =
+    absolutePathFromConfigPath(project, configPath).flatMap { path =>
+      StandardFileSystems.local.findFileByPath(path).toOption
+    }
+
+  def absolutePathFromConfigPath(project: Project, configPath: String): Option[String] = {
+    val isRelativePath = configPath.startsWith(".")
     if (project.isDefault) {
       if (isRelativePath) None
-      else Some(path)
+      else Some(configPath)
     } else {
-      ProjectUtil.guessProjectDir(project).toOption.map { baseDir =>
-        val prefix =
-          if (isRelativePath) baseDir.getCanonicalPath + "/"
-          else ""
-        prefix + path
+      def absolutePath(baseDir: VirtualFile): String = {
+        val prefix = if (isRelativePath) baseDir.getCanonicalPath + "/" else ""
+        prefix + configPath
+      }
+
+      def exists(path: String): Boolean = StandardFileSystems.local.findFileByPath(path) != null
+
+      val projectRoot = ProjectUtil.guessProjectDir(project).toOption
+      projectRoot.flatMap { baseDir =>
+        val result = absolutePath(baseDir)
+        if (exists(result) || !isRelativePath) {
+          Some(result)
+        } else {
+          val vcsRoot = VcsUtil.getVcsRootFor(project, baseDir).toOption
+          val vcsResult = vcsRoot.map(absolutePath).filter(exists)
+          vcsResult.orElse(Some(result))
+        }
       }
     }
   }
