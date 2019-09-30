@@ -43,6 +43,8 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
 
   def testInBlockAnonymousFunction() = doTest()
 
+  def testTopLevelFunction() = doTest()
+
   //TODO
 //  def testTypeAliasInput = doTest
 }
