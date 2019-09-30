@@ -1,8 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
 import com.intellij.execution.process.{ProcessHandler, ProcessOutputTypes}
-import com.intellij.execution.ui.ConsoleViewContentType
 
+/**
+ * Required in order IDEA can capture teamcity-notation message to draw a test tree in UI
+ *
+ * @see [[com.intellij.execution.testframework.sm.runner.OutputEventSplitter]]
+ */
 class TeamcityReporter(processHandler: ProcessHandler) {
 
   private def reportWithSpaces(message: String): Unit = {
@@ -28,6 +32,5 @@ class TeamcityReporter(processHandler: ProcessHandler) {
 
 object TeamcityReporter {
 
-  private val processOutputType      = ProcessOutputTypes.STDOUT
-  private val consoleViewContentType = ConsoleViewContentType.NORMAL_OUTPUT
+  private val processOutputType = ProcessOutputTypes.STDOUT
 }
