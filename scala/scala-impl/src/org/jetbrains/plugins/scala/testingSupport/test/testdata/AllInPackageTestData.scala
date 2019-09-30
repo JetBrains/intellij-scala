@@ -64,7 +64,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
     val scope = getScope(withDependencies = false)
 
-    if (pack == null) config.classNotFoundError
+    if (pack == null) throw config.classNotFoundError
 
     def getClasses(pack: ScPackage): Seq[PsiClass] = {
       val buffer = new ArrayBuffer[PsiClass]
@@ -73,11 +73,11 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
       for (p <- pack.getSubPackages) {
         buffer ++= getClasses(ScPackageImpl(p))
       }
-      if (config.configurationFactory.getType.isInstanceOf[UTestConfigurationType])
-        buffer.filter {
-          _.isInstanceOf[ScObject]
-        }
-      else buffer
+      if (config.configurationFactory.getType.isInstanceOf[UTestConfigurationType]) {
+        buffer.filter(_.isInstanceOf[ScObject])
+      } else {
+        buffer
+      }
     }
 
     for (cl <- getClasses(pack)) {
