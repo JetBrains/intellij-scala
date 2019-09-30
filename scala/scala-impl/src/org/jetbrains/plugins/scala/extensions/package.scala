@@ -122,6 +122,16 @@ package object extensions {
 
     def hasScalaPsi: Boolean = viewProvider.hasScalaPsi
 
+    def findScalaFile[F <: ScalaFile : ClassTag]: Option[F] =
+      viewProvider.getPsi(ScalaLanguage.INSTANCE).asOptionOf[F]
+
+    def findAnyScalaFile: Option[ScalaFile] =
+      findScalaFile[ScalaFile]
+
+    def findScalaLikeFile: Option[PsiFile] =
+      if (file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) Some(file)
+      else findAnyScalaFile
+
     private def viewProvider = file.getViewProvider
   }
 
