@@ -44,12 +44,13 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-    if (!file.isInstanceOf[ScalaFile]) return
 
     Stats.trigger(FeatureKey.extractMethod)
 
-    afterExpressionChoosing(file, REFACTORING_NAME) {
-      invokeOnEditor(file)
+    file.findAnyScalaFile.foreach { scalaFile =>
+      afterExpressionChoosing(scalaFile, REFACTORING_NAME) {
+        invokeOnEditor(scalaFile)
+      }
     }
   }
 
@@ -150,7 +151,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     var parent = element.getParent
     while (isParentOk(parent)) {
       parent match {
-        case file: ScalaFile if file.isScriptFile => res += prev
+        case file: ScalaFile if file.isScriptFile || file.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => res += prev
         case _: ScBlock => res += prev
         case _: ScTemplateBody => res += prev
         case _ =>

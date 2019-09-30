@@ -39,7 +39,8 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val offset: Int = editor.getCaretModel.getOffset
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-    val element: PsiElement = file.findElementAt(offset)
+    val element: PsiElement = file.findAnyScalaFile.map(_.findElementAt(offset)).orNull
+    if (element == null) return
     val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
     invokeOnClass(clazz, project, editor)
   }

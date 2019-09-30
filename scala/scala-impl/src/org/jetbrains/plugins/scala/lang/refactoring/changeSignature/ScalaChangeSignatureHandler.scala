@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.annotation.tailrec
@@ -97,8 +98,10 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-    val element = Option(findTargetMember(file, editor))
-            .getOrElse(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
+
+    val element = file.findAnyScalaFile.flatMap(
+      scalaFile => Option(findTargetMember(scalaFile, editor))
+    ).getOrElse(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
 
     invokeOnElement(element)
   }
