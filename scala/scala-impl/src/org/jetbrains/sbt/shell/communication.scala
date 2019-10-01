@@ -202,21 +202,21 @@ class SbtShellReadyListener(whenReady: => Unit, whenWorking: => Unit) extends Li
 
 private[shell] object SbtProcessUtil {
 
-  private val IDEA_PROMPT_MARKER = "[IJ]"
+  private val IDEA_PROMPT_MARKER = "[IJ]>"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  // 1) line can contain several lines actually, e.g:
+  // line can contain several lines actually, e.g:
   //   line1: [IJ]>
   //   line2: Process finished with exit code 1
-  // 2) line can start with [IJ]> but contain some content, thus not being a "ready" line:
+  // line can start with [IJ]> but contain some content, thus not being a "ready" line:
   //   line1: [IJ]> show {file:/folder/}project/test:parallelExecution
-  // 3) line can contain some other content before prompt end (by default in sbt 1.x):
-  //   line1: [IJ]sbt:project_name>
-  // 4) build.sbt can change the prompt the way he wants, it can even don't have '>':
-  //   shellPrompt := { state => "!!!" }
-  //   line1: [IJ]!!!
-  def promptReady(line: String): Boolean =
-    line.trim.startsWith(IDEA_PROMPT_MARKER)
+  def promptReady(line: String): Boolean = {
+    val firstLine = line.indexOf("\n") match {
+      case -1  => line
+      case idx => line.substring(0, idx)
+    }
+    firstLine.trim == IDEA_PROMPT_MARKER
+  }
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")
