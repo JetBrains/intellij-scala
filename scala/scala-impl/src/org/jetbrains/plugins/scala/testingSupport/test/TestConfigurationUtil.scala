@@ -19,12 +19,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Configuratio
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.AllInPackageTestData
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
-/**
- * @author Ksenia.Sautina
- * @since 5/22/12
- */
-
 object TestConfigurationUtil {
+
+  // TODO: are these intended to be created by Plugin, not by Platform?
+  val specs2ConfigurationProducer = new Specs2ConfigurationProducer
+  val uTestConfigurationProducer = new UTestConfigurationProducer
+  val scalaTestConfigurationProducer = new ScalaTestConfigurationProducer
 
   def isPackageConfiguration(element: PsiElement, configuration: RunConfiguration): Boolean = {
     val pack: PsiPackage = element match {
@@ -206,8 +206,4 @@ object TestConfigurationUtil {
       // we DO need to escape \r because on Windows e.g. scalatest also use \r in test names in case ofm multiline strings
       .replace("\r", "\\r")
   }
-
-  val specs2ConfigurationProducer = new Specs2ConfigurationProducer
-  val uTestConfigurationProducer = new UTestConfigurationProducer
-  val scalaTestConfigurationProducer = new ScalaTestConfigurationProducer
 }
