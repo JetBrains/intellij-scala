@@ -15,14 +15,14 @@ import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PathMacroManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JdkUtil, ProjectJdkTable}
-import com.intellij.openapi.util.Getter
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Computable, Getter}
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.psi._
@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{Log, PropertiesExtension, SettingEntry, SettingMap}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.actions.AbstractTestRerunFailedTestsAction
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
@@ -50,6 +50,7 @@ import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, Settin
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -178,69 +179,57 @@ abstract class AbstractTestRunConfiguration(project: Project,
                               showTaskName: String,
                               setTaskName: String,
                               value: String,
+                              comm: SbtShellCommunication,
                               modificationCondition: String => Boolean,
                               shouldSet: Boolean = false,
-                              shouldRevert: Boolean = true)
-                             (comm: SbtShellCommunication): Future[SettingMap] = {
+                              shouldRevert: Boolean = true): Future[SettingMap] = {
     val (projectUri, projectId) = getSbtProjectUriAndId
     val showHandler = SettingQueryHandler(setting, Some(showTaskName), projectUri, projectId, comm)
-    val setHandler = if (showTaskName == setTaskName) {
-      showHandler
-    } else {
+    val setHandler = if (showTaskName == setTaskName) showHandler else
       SettingQueryHandler(setting, Some(setTaskName), projectUri, projectId, comm)
+    showHandler.getSettingValue().flatMap {
+      opts =>
+        (if (modificationCondition(opts))
+          if (shouldSet) setHandler.setSettingValue(value) else setHandler.addToSettingValue(value)
+        else Future(true)).flatMap { success =>
+          //TODO check 'opts.nonEmpty()' is required so that we don't try to mess up settings if nothing was read
+          if (success && shouldRevert && opts.nonEmpty && modificationCondition(opts))
+            Future(settings + (SettingEntry(setting, Some(setTaskName), projectUri, projectId) -> opts))
+          else if (success) Future(settings)
+          else Future.failed[SettingMap](new RuntimeException("Failed to modify sbt project settings"))
+          //TODO: meaningful report if settings were not set correctly
+        }
     }
-
-    def updateOldValue(oldValue: String): Future[Boolean] = if (modificationCondition(oldValue)) {
-      if (shouldSet) {
-        setHandler.setSettingValue(value)
-      } else {
-        setHandler.addToSettingValue(value)
-      }
-    } else {
-      Future.successful(true)
-    }
-
-    //TODO check 'opts.nonEmpty()' is required so that we don't try to mess up settings if nothing was read
-    //TODO: meaningful report if settings were not set correctly
-    def resultSettingMap(oldValue: String, updatedSuccessfully: Boolean): Future[SettingMap] = if (updatedSuccessfully) {
-      val res = if (shouldRevert && oldValue.nonEmpty && modificationCondition(oldValue)) {
-        settings + (SettingEntry(setting, Some(setTaskName), projectUri, projectId) -> oldValue)
-      } else {
-        settings
-      }
-      Future.successful(res)
-    } else {
-      Future.failed(new RuntimeException("Failed to modify sbt project settings"))
-    }
-
-    for {
-      oldValue <- showHandler.fetchSettingValue()
-      success  <- updateOldValue(oldValue)
-      result   <- resultSettingMap(oldValue, success)
-    } yield result
   }
 
   protected def resetSbtSettingsForUi(comm: SbtShellCommunication, oldSettings: SettingMap): Future[Boolean] = {
-    val futures = for ((settingEntry, value) <- oldSettings) yield {
+    Future.sequence(for ((settingEntry, value) <- oldSettings) yield {
       SettingQueryHandler(settingEntry, comm).setSettingValue(value)
-    }
-    val results = Future.sequence(futures)
-    results.map(_.forall(identity))
-  }
-
-  override def getModules: Array[Module] = inReadAction {
-    val module = getModule
-    testConfigurationData.searchTest match {
-      case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if module != null => module +: moduleDependencies(module)
-      case SearchForTest.IN_SINGLE_MODULE if module != null            => Array(module)
-      case SearchForTest.IN_WHOLE_PROJECT                              => ModuleManager.getInstance(getProject).getModules
-      case _                                                           => Array.empty
+    }) map {
+      _.forall(identity)
     }
   }
 
-  private def moduleDependencies(module: Module): Array[Module] = {
-    val manager = ModuleManager.getInstance(getProject)
-    manager.getModules.filter(manager.isModuleDependent(module, _))
+  override def getModules: Array[Module] = {
+    ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
+      @SuppressWarnings(Array("ConstantConditions"))
+      def compute: Array[Module] = {
+        testConfigurationData.searchTest match {
+          case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
+            val buffer = new ArrayBuffer[Module]()
+            buffer += getModule
+            for (module <- ModuleManager.getInstance(getProject).getModules) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(getModule, module)) {
+                buffer += module
+              }
+            }
+            buffer.toArray
+          case SearchForTest.IN_SINGLE_MODULE if getModule != null => Array(getModule)
+          case SearchForTest.IN_WHOLE_PROJECT => ModuleManager.getInstance(getProject).getModules
+          case _ => Array.empty
+        }
+      }
+    })
   }
 
   protected[test] def getSuiteClass: Either[RuntimeConfigurationException, PsiClass] = {
@@ -262,7 +251,8 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
     val group: SettingsEditorGroup[AbstractTestRunConfiguration] = new SettingsEditorGroup
-    group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new AbstractTestRunConfigurationEditor(project, this))
+    group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"),
+      new AbstractTestRunConfigurationEditor(project, this))
     JavaRunConfigurationExtensionManager.getInstance.appendEditors(this, group)
     group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel[AbstractTestRunConfiguration])
     group
@@ -308,8 +298,9 @@ abstract class AbstractTestRunConfiguration(project: Project,
     }).flatten.toSeq
   }
 
-  protected[test] def classNotFoundError: ExecutionException =
-    new ExecutionException(s"Test class not found: $getTestClassPath")
+  protected[test] def classNotFoundError: Nothing = {
+    throw new ExecutionException(s"Test class not found: $getTestClassPath")
+  }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val module = getModule
@@ -457,14 +448,11 @@ abstract class AbstractTestRunConfiguration(project: Project,
           val console = new ConsoleViewImpl(project, true)
           console.attachToProcess(processHandler)
           console
-        } else {
-          SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
-        }
+        } else SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
 
-        val executionResult = new DefaultExecutionResult(
+        val res = new DefaultExecutionResult(
           consoleView, processHandler,
-          createActions(consoleView, processHandler, executor): _*
-        )
+          createActions(consoleView, processHandler, executor): _*)
 
         consoleView match {
           case testConsole: BaseTestsOutputConsoleView =>
@@ -475,60 +463,42 @@ abstract class AbstractTestRunConfiguration(project: Project,
                 testConsole.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
               }
             })
-            executionResult.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction() {
+            res.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction() {
               override def isDelayApplicable: Boolean = false
 
               override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
             })
           case _ =>
         }
-
         if (testConfigurationData.useSbt) {
           Stats.trigger(FeatureKey.sbtShellTestRunConfig)
 
-          val commands: Seq[String] = {
-            val sbtCommands = buildSbtParams(suitesToTestsMap)
-            val (uri, project) = SbtUtil.getSbtProjectIdSeparated(getModule)
-            val projectIdPrefix = SettingQueryHandler.getProjectIdPrefix(uri, project)
-            sbtCommands
-              .map("testOnly" + _)
-              .map(projectIdPrefix + _)
-          }
-
-          val communication = SbtShellCommunication.forProject(project)
+          val commands = buildSbtParams(suitesToTestsMap).
+            map(SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(getModule)) + "testOnly" + _)
+          val comm = SbtShellCommunication.forProject(project)
           val handler = new SbtTestEventHandler(processHandler)
 
-          Log.debug("sbt commands:")
-          commands.foreach(c => Log.debug(s"    $c"))
 
-          val sbtRun: Future[Boolean] = {
-            def fetchOldSettings: Future[SettingMap] = if (testConfigurationData.useUiWithSbt) {
+          val sbtRun = {
+            lazy val oldSettings = if (testConfigurationData.useUiWithSbt)
               for {
-                _   <- initialize(communication)
-                mod <- modifySbtSettingsForUi(communication)
+                _ <- initialize(comm)
+                mod <- modifySbtSettingsForUi(comm)
               } yield mod
-            } else {
-              Future.successful(SettingMap())
-            }
+            else Future.successful(SettingMap())
 
+            lazy val cmdF = commands.map(
+              comm.command(_, {}, SbtShellCommunication.listenerAggregator(handler), showShell = false)
+            )
             for {
-              old   <- fetchOldSettings
-              _     = Log.debug(s"old sbt settings: $old")
-              _     <- Future.traverse(commands) { command =>
-                communication.command(command, {}, SbtShellCommunication.listenerAggregator(handler), showShell = false)
-              }
-              reset <- resetSbtSettingsForUi(communication, old)
+              old <- oldSettings
+              _ <- Future.sequence(cmdF)
+              reset <- resetSbtSettingsForUi(comm, old)
             } yield reset
           }
-
-          sbtRun.onComplete { result =>
-            Log.debug("sbt commands run completed")
-            handler.closeRoot()
-            result
-          }
+          sbtRun.onComplete(_ => handler.closeRoot())
         }
-
-        executionResult
+        res
       }
     }
     state
@@ -584,8 +554,6 @@ trait SuiteValidityChecker {
 }
 
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
-
-  private val Log = Logger.getInstance(classOf[AbstractTestRunConfiguration])
 
   case class SettingEntry(settingName: String, task: Option[String], sbtProjectUri: Option[String], sbtProjectId: Option[String])
 
