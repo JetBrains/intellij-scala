@@ -16,31 +16,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
 
-/**
- * @author Ksenia.Sautina
- * @since 5/18/12
- */
-
 abstract class AbstractTestFramework extends JavaTestFramework {
   override def isTestMethod(element: PsiElement): Boolean = false
 
-  def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
+  override def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 
-  def getTearDownMethodFileTemplateDescriptor: FileTemplateDescriptor = null
+  override def getTearDownMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 
-  def getSetUpMethodFileTemplateDescriptor: FileTemplateDescriptor = null
+  override def getSetUpMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 
   override def getLibraryPath: String = null
 
-  def getIcon: Icon = Icons.SCALA_TEST
+  override def getIcon: Icon = Icons.SCALA_TEST
 
-  def findOrCreateSetUpMethod(clazz: PsiClass): PsiMethod = null
+  override def findOrCreateSetUpMethod(clazz: PsiClass): PsiMethod = null
 
-  def findTearDownMethod(clazz: PsiClass): PsiMethod = null
+  override def findTearDownMethod(clazz: PsiClass): PsiMethod = null
 
-  def findSetUpMethod(clazz: PsiClass): PsiMethod = null
+  override def findSetUpMethod(clazz: PsiClass): PsiMethod = null
 
-  def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
+  override def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
     val newClazz = clazz match {
       case PsiClassWrapper(definition) => definition
       case _ => clazz
@@ -52,8 +47,10 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     val elementScope = ElementScope(clazz.getProject)
 
     elementScope.getCachedClass(getMarkerClassFQName).isDefined &&
-      getSuitePaths.flatMap(elementScope.getCachedClass)
-        .exists(isInheritorDeep(parent, _))
+      getSuitePaths.exists { path =>
+        val cachedClass = elementScope.getCachedClass(path)
+        cachedClass.exists(isInheritorDeep(parent, _))
+      }
   }
 
   override def getLanguage: Language = ScalaLanguage.INSTANCE
@@ -72,7 +69,8 @@ abstract class AbstractTestFramework extends JavaTestFramework {
       case Some(scalaSdk) =>
         val compilerVersion = scalaSdk.compilerVersion
         (getLibraryDependencies(compilerVersion), getLibraryResolvers(compilerVersion), getAdditionalBuildCommands(compilerVersion))
-      case None => throw new RuntimeException("Failed to download test library jars: scala SDK is not specified to module" + module.getName)
+      case None =>
+        throw new RuntimeException("Failed to download test library jars: scala SDK is not specified to module" + module.getName)
     }
     val modifier = new SimpleBuildFileModifier(libraries, resolvers, options)
     modifier.modify(module, needPreviewChanges = true)
