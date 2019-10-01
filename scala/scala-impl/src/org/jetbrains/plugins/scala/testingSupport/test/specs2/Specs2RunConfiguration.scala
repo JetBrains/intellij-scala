@@ -43,11 +43,10 @@ class Specs2RunConfiguration(project: Project,
   //TODO temporarily disabled
   override def allowsSbtUiRun: Boolean = false
 
-  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] = {
-    val file = ScalaUtil.runnersPath().replace("\\", "\\\\")
-    val value = s"""Attributed(new File("$file"))(AttributeMap.empty)"""
-    modifySetting(SettingMap(), "fullClasspath", "test", "Test", value, !_.contains("runners.jar"), shouldRevert = false)(comm)
-  }
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
+    modifySetting(SettingMap(), "fullClasspath", "test", "Test",
+      "Attributed(new File(\"" + ScalaUtil.runnersPath().replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
+      comm, !_.contains("runners.jar"), shouldRevert = false)
 
   override def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     testConfigurationData match {

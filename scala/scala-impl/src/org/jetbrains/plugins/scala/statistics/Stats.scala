@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.statistics
 
-// TODO: fix/remove/rewrite! This is not doing anything currently!
 object Stats {
   private def enabled: Boolean = false
 
