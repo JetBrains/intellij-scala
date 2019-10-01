@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitInstanceIndex}
-import org.junit.Assert
+import org.junit.Assert._
 
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
@@ -35,11 +35,11 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private def checkFQNamesFromIndex[Key, Psi <: PsiMember : ClassTag](indexKey: StubIndexKey[Key, Psi], key: Key)
                                                                      (expected: String*): Unit = {
-    Assert.assertEquals(expected.mkString("\n"), fqnsInScalaLibrary(key, indexKey).mkString("\n"))
+    assertEquals(expected.mkString("\n"), fqnsInScalaLibrary(key, indexKey).mkString("\n"))
   }
 
-  private def assertContains[T](set: Set[T], element: T): Unit = {
-    Assert.assertTrue(s"$element not found", set.contains(element))
+  private def assertContains[T](set: collection.Set[T], element: T): Unit = {
+    assertTrue(s"$element not found", set.contains(element))
   }
 
   def testAllClassNames(): Unit = {
@@ -81,7 +81,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testPackageFQN(): Unit = {
     val packagings = elementsInScalaLibrary(intKey("scala.math"), PACKAGE_FQN_KEY)
-    Assert.assertEquals("Wrong number of packagings found: ", 14, packagings.size)
+    assertEquals("Wrong number of packagings found: ", 14, packagings.size)
   }
 
   def testMethodName(): Unit = {
@@ -153,7 +153,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   def testAnnotatedMembers(): Unit = {
     val annotations = elementsInScalaLibrary("implicitNotFound", ANNOTATED_MEMBER_KEY)
     val annotated = annotations.map(PsiTreeUtil.getParentOfType(_, classOf[ScMember])).flatMap(_.qualifiedNameOpt).toSet
-    Assert.assertEquals(14, annotated.size)
+    assertEquals(14, annotated.size)
     assertContains(annotated, "scala.reflect.ClassTag")
     assertContains(annotated, "scala.Predef.=:=")
     assertContains(annotated, "scala.Function1")
@@ -196,54 +196,54 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
     def classFQN(extendsBlock: ScExtendsBlock) = extendsBlock.getParent.asInstanceOf[ScTypeDefinition].qualifiedName
 
     val optionInheritors = elementsInScalaLibrary("Option", SUPER_CLASS_NAME_KEY).map(classFQN).sorted
-    Assert.assertEquals(optionInheritors, Seq("scala.None", "scala.Some"))
+    assertEquals(optionInheritors, Seq("scala.None", "scala.Some"))
 
     val function2Inheritors = elementsInScalaLibrary("Function2", SUPER_CLASS_NAME_KEY).map(classFQN).sorted
-    Assert.assertEquals(function2Inheritors, Seq("scala.runtime.AbstractFunction2"))
+    assertEquals(function2Inheritors, Seq("scala.runtime.AbstractFunction2"))
 
-    Assert.assertTrue(elementsInScalaLibrary("AnyRef", SUPER_CLASS_NAME_KEY).size > 1000)
-    Assert.assertTrue(elementsInScalaLibrary("Object", SUPER_CLASS_NAME_KEY).size > 1000)
+    assertTrue(elementsInScalaLibrary("AnyRef", SUPER_CLASS_NAME_KEY).size > 1000)
+    assertTrue(elementsInScalaLibrary("Object", SUPER_CLASS_NAME_KEY).size > 1000)
   }
 
   def testSelfType(): Unit = {
     val elements = elementsInScalaLibrary("Runnable", SELF_TYPE_CLASS_NAME_KEY)
     val containingClass = elements.map(PsiTreeUtil.getParentOfType(_, classOf[ScTypeDefinition])).map(_.qualifiedName)
-    Assert.assertEquals(Seq("scala.concurrent.OnCompleteRunnable"), containingClass)
+    assertEquals(Seq("scala.concurrent.OnCompleteRunnable"), containingClass)
   }
 
   def testImplicitConversion(): Unit = {
     val all = ImplicitConversionIndex.allElements(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
-    Assert.assertEquals(286, all.size)
+    assertEquals(286, all.size)
     assertContains(all, "scala.math.Ordering.mkOrderingOps")
     assertContains(all, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")
     assertContains(all, "scala.Predef.augmentString")
     assertContains(all, "scala.Predef.ArrowAssoc")
 
-    def forClassFqn(fqn: String): Set[String] =
+    def forClassFqn(fqn: String) =
       ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
 
-    Assert.assertEquals(forClassFqn("scala.math.Ordering.Ops"),
+    assertEquals(forClassFqn("scala.math.Ordering.Ops"),
       Set(
         "scala.math.Ordering.ExtraImplicits.infixOrderingOps",
         "scala.math.Numeric.ExtraImplicits.infixNumericOps"
       )
     )
-    Assert.assertEquals(forClassFqn("scala.Predef.ArrowAssoc"), Set("scala.Predef.ArrowAssoc"))
+    assertEquals(forClassFqn("scala.Predef.ArrowAssoc"), Set("scala.Predef.ArrowAssoc"))
   }
 
   def testImplicitInstance(): Unit = {
-    def forClassFqn(fqn: String): Set[String] =
+    def forClassFqn(fqn: String) =
       ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
 
     val orderings = forClassFqn("scala.math.Ordering")
-    Assert.assertEquals(13, orderings.size)
+    assertEquals(13, orderings.size)
     assertContains(orderings, "scala.math.LowPriorityOrderingImplicits.ordered")
     assertContains(orderings, "scala.math.Ordering.ExtraImplicits.seqDerivedOrdering")
 
     val booleanOrdering = forClassFqn("scala.math.Ordering.BooleanOrdering")
-    Assert.assertEquals(Set("scala.math.Ordering.Boolean"), booleanOrdering)
+    assertEquals(Set("scala.math.Ordering.Boolean"), booleanOrdering)
 
     val executionContext = forClassFqn("scala.concurrent.ExecutionContext")
-    Assert.assertEquals(Set("scala.concurrent.ExecutionContext.Implicits.global"), executionContext)
+    assertEquals(Set("scala.concurrent.ExecutionContext.Implicits.global"), executionContext)
   }
 }

@@ -4,6 +4,8 @@ package psi
 package stubs
 package index
 
+import java.{util => ju}
+
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
@@ -22,9 +24,9 @@ trait ImplicitIndex {
     names.foreach(occurrence(sink, _))
 
   def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
-                 (implicit project: Project): Set[ScMember] = {
+                 (implicit project: Project): collection.Set[ScMember] = {
     val stubIndex = StubIndex.getInstance
-    val collectProcessor = new CollectUniquesProcessor[ScMember]
+    val collectProcessor = new CollectMembersProcessor
 
     for {
       segments <- ScalaNamesUtil.splitName(qualifiedName).tails
@@ -40,6 +42,18 @@ trait ImplicitIndex {
       collectProcessor
     )
 
-    Set(collectProcessor.toArray(Array.empty): _*)
+    collectProcessor.results
+  }
+
+  //noinspection TypeAnnotation
+  private final class CollectMembersProcessor extends CollectUniquesProcessor[ScMember] {
+
+    def results = {
+      import collection.JavaConverters._
+      getResults.asScala
+    }
+
+    override def getResults =
+      super.getResults.asInstanceOf[ju.Set[ScMember]]
   }
 }
