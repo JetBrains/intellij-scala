@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
+import org.jetbrains.plugins.scala.extensions.IteratorExt
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 
 class UTestTestFramework extends AbstractTestFramework {
@@ -26,4 +30,13 @@ class UTestTestFramework extends AbstractTestFramework {
   }
 
   override protected def getLibraryResolvers(scalaVersion: Option[String]): Seq[String] = Seq()
+
+  // overridden cause UTest now has 2 marker classes which are equal to suitePathes
+  override protected def isTestClass(definition: ScTemplateDefinition): Boolean = {
+    if (!definition.isInstanceOf[ScObject]) return false
+
+    val elementScope = ElementScope(definition.getProject)
+    val cachedClass = getSuitePaths.iterator.flatMap(elementScope.getCachedClass).headOption
+    cachedClass.exists(isInheritorDeep(definition, _))
+  }
 }

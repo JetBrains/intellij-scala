@@ -8,14 +8,14 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.testIntegration.JavaTestFramework
 import javax.swing.Icon
 import org.jetbrains.concurrency.{Promise, Promises}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
 
+// TODO: rename to something with `Scala`
 abstract class AbstractTestFramework extends JavaTestFramework {
   override def isTestMethod(element: PsiElement): Boolean = false
 
@@ -29,6 +29,8 @@ abstract class AbstractTestFramework extends JavaTestFramework {
 
   override def getIcon: Icon = Icons.SCALA_TEST
 
+  override def getLanguage: Language = ScalaLanguage.INSTANCE
+
   override def findOrCreateSetUpMethod(clazz: PsiClass): PsiMethod = null
 
   override def findTearDownMethod(clazz: PsiClass): PsiMethod = null
@@ -36,24 +38,23 @@ abstract class AbstractTestFramework extends JavaTestFramework {
   override def findSetUpMethod(clazz: PsiClass): PsiMethod = null
 
   override def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
-    val newClazz = clazz match {
-      case PsiClassWrapper(definition) => definition
-      case _ => clazz
+    val definition: ScTemplateDefinition = clazz match {
+      case PsiClassWrapper(definition)  => definition
+      case definition: ScTypeDefinition => definition
+      case _                            => return false
     }
 
-    val parent = newClazz.parentOfType(classOf[ScTypeDefinition], strict = false)
-      .getOrElse(return false)
+    isTestClass(definition)
+  }
 
-    val elementScope = ElementScope(clazz.getProject)
-
+  protected def isTestClass(definition: ScTemplateDefinition): Boolean = {
+    val elementScope = ElementScope(definition.getProject)
     elementScope.getCachedClass(getMarkerClassFQName).isDefined &&
       getSuitePaths.exists { path =>
         val cachedClass = elementScope.getCachedClass(path)
-        cachedClass.exists(isInheritorDeep(parent, _))
+        cachedClass.exists(isInheritorDeep(definition, _))
       }
   }
-
-  override def getLanguage: Language = ScalaLanguage.INSTANCE
 
   def getTestFileTemplateName: String
 
@@ -68,7 +69,11 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     val (libraries, resolvers, options) = module.scalaSdk match {
       case Some(scalaSdk) =>
         val compilerVersion = scalaSdk.compilerVersion
-        (getLibraryDependencies(compilerVersion), getLibraryResolvers(compilerVersion), getAdditionalBuildCommands(compilerVersion))
+
+        val dependencies  = getLibraryDependencies(compilerVersion)
+        val resolvers     = getLibraryResolvers(compilerVersion)
+        val buildCommands = getAdditionalBuildCommands(compilerVersion)
+        (dependencies, resolvers, buildCommands)
       case None =>
         throw new RuntimeException("Failed to download test library jars: scala SDK is not specified to module" + module.getName)
     }

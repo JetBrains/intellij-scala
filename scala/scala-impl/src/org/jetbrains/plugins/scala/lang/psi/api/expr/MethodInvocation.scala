@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
     * For Infix, Postfix and Prefix expressions
-    * it's refernce expression for operation
+    * it's reference expression for operation
     *
     * @return method reference or invoked expression for calls
     */
