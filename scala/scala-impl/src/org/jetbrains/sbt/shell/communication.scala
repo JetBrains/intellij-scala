@@ -202,21 +202,11 @@ class SbtShellReadyListener(whenReady: => Unit, whenWorking: => Unit) extends Li
 
 private[shell] object SbtProcessUtil {
 
-  private val IDEA_PROMPT_MARKER = "[IJ]>"
+  val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  // line can contain several lines actually, e.g:
-  //   line1: [IJ]>
-  //   line2: Process finished with exit code 1
-  // line can start with [IJ]> but contain some content, thus not being a "ready" line:
-  //   line1: [IJ]> show {file:/folder/}project/test:parallelExecution
-  def promptReady(line: String): Boolean = {
-    val firstLine = line.indexOf("\n") match {
-      case -1  => line
-      case idx => line.substring(0, idx)
-    }
-    firstLine.trim == IDEA_PROMPT_MARKER
-  }
+  def promptReady(line: String): Boolean =
+    line.trim.startsWith(IDEA_PROMPT_MARKER)
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")
