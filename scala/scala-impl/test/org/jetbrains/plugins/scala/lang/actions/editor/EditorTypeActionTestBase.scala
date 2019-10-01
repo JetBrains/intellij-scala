@@ -10,10 +10,10 @@ abstract class EditorTypeActionTestBase extends EditorActionTestBase {
 
   protected def typedChar: Char
 
-  protected def doTest(before: String, after: String): Unit =
+  protected def doTest(before: String, after: String, fileName: String = defaultFileName): Unit =
     checkGeneratedTextAfterTyping(before, after, typedChar)
 
-  protected  def doTestWithEmptyLastLine(before: String, after: String): Unit = {
+  protected  def doTestWithEmptyLastLine(before: String, after: String, fileName: String = defaultFileName): Unit = {
     doTest(before, after)
     doTest(before + "\n", after + "\n")
   }

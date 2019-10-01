@@ -176,4 +176,16 @@ class CompleteMultilineStringTest  extends EditorTypeActionTestBase {
        |s$qqq$CARET$qqq
        |s$qqq$CARET$qqq""".stripMargin
   )
+
+  def testCompleteStringInSbtFile(): Unit = doTest(
+    s"""name := $CARET""",
+    s"""name := $q$CARET$q""",
+    "build.sbt"
+  )
+
+  def testCompleteStringInWorksheetFile(): Unit = doTest(
+    s"""val foo = $CARET""",
+    s"""val foo = $q$CARET$q""",
+    "worksheet.sc"
+  )
 }

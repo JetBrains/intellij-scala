@@ -5,20 +5,24 @@ import com.intellij.openapi.editor.CaretState
 import com.intellij.openapi.fileTypes.FileType
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.startCommand
+import org.junit.Assert._
 
 import scala.collection.JavaConverters
-import org.junit.Assert._
 
 /**
   * @author adkozlov
   */
 abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, findCaretOffsets}
+  import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffsets
 
   protected def fileType: FileType = ScalaFileType.INSTANCE
 
-  protected def configureByText(text: String, stripTrailingSpaces: Boolean = false): Unit = {
+  protected def defaultFileName: String = s"aaa.${fileType.getDefaultExtension}"
+
+  protected def configureByText(text: String,
+                                fileName: String = defaultFileName,
+                                stripTrailingSpaces: Boolean = false): Unit = {
     val (textActual, caretOffsets) = findCaretOffsets(text, stripTrailingSpaces)
 
     assertTrue("expected at least one caret", caretOffsets.nonEmpty)
@@ -30,10 +34,11 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     editor.getCaretModel.setCaretsAndSelections(JavaConverters.seqAsJavaList(caretStates))
   }
 
-  protected def performTest(textBefore: String, textAfter: String)
+  protected def performTest(textBefore: String, textAfter: String,
+                            fileName: String = defaultFileName)
                            (testBody: () => Unit): Unit = {
     val stripTrailingSpaces = false
-    configureByText(textBefore, stripTrailingSpaces)
+    configureByText(textBefore, fileName, stripTrailingSpaces)
 
     testBody()
 
@@ -44,8 +49,9 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
   protected def performTypingAction(charTyped: Char): Unit =
     getFixture.`type`(charTyped)
 
-  protected def checkGeneratedTextAfterTyping(textBefore: String, textAfter: String, charTyped: Char): Unit =
-    performTest(textBefore, textAfter) { () =>
+  protected def checkGeneratedTextAfterTyping(textBefore: String, textAfter: String, charTyped: Char,
+                                              fileName: String = defaultFileName): Unit =
+    performTest(textBefore, textAfter, fileName) { () =>
       performTypingAction(charTyped)
     }
 
