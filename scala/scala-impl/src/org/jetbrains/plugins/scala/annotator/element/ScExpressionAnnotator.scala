@@ -51,32 +51,35 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
         case b: ScBlockExpr                      => isInArgumentPosition(b)
         case p: ScParenthesisedExpr              => isInArgumentPosition(p)
         case t: ScTuple                          => isInArgumentPosition(t)
-        case i: ScIf                         => isInArgumentPosition(i)
-        case m: ScMatch                      => isInArgumentPosition(m)
+        case ScIf(Some(`expr`), _, _)            => false
+        case i: ScIf                             => isInArgumentPosition(i)
+        case m: ScMatch                          => isInArgumentPosition(m)
         case _                                   => false
       }
 
     // TODO rename (it's not about size, but about inner / outer expressions)
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
-      case _: ScMatch                            => true
+      case _: ScMatch                                => true
       case bl: ScBlock if bl.lastStatement.isDefined => true
       case i: ScIf if i.elseExpression.isDefined     => true
       case _: ScFunctionExpr                         => expr.getTextRange.getLength > 20 || expr.textContains('\n')
-      case _: ScTry                              => true
+      case _: ScTry                                  => true
       case _                                         => false
     }
 
     def shouldNotHighlight(expr: ScExpression): Boolean = expr.getContext match {
       case a: ScAssignment if a.rightExpression.contains(expr) && a.isDynamicNamedAssignment => true
-      case t: ScTypedExpression if t.isSequenceArg                                                => true
-      case param: ScParameter if !param.isDefaultParam                                      => true //performance optimization
-      case param: ScParameter                                                               =>
+      case t: ScTypedExpression if t.isSequenceArg                                           => true
+      case param: ScParameter if !param.isDefaultParam                                       => true //performance optimization
+      case param: ScParameter =>
         param.getRealParameterType match {
-          case Right(paramType) if paramType.extractClass.isDefined => false //do not check generic types. See SCL-3508
-          case _                                                    => true
+          case Right(paramType) if paramType.extractClass.isDefined =>
+            false //do not check generic types. See SCL-3508
+          case _ => true
         }
-      case ass: ScAssignment if ass.isNamedParameter                                        => true //that's checked in application annotator
-      case _                                                                                => false
+      case ass: ScAssignment if ass.isNamedParameter =>
+        true //that's checked in application annotator
+      case _ => false
     }
 
     def checkExpressionTypeInner(fromUnderscore: Boolean) {
