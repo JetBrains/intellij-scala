@@ -52,7 +52,12 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
 }
 
 object StringToMultilineStringIntention {
+
   val FAMILY_NAME = "Regular/Multi-line String conversion"
+
+  private val Quote = "\""
+
+  import MultilineStringUtil.{MultilineQuotes => Quotes, MultilineQuotesEscaped => QuotesEscaped}
 
   private def literalParent(element: PsiElement): Option[ScLiteral] =
     element.parentOfType(classOf[ScLiteral], strict = false)
@@ -75,14 +80,14 @@ object StringToMultilineStringIntention {
       }
     }
 
-    def addMargins(literalReplaced: PsiElement, interpolatorLength: Int): Unit = {
+    def addMargins(literalReplaced: PsiElement, interpolatorLength: Int, extraCaretOffset: Int = 0): Unit = {
       val caretShiftFromQuoteStart = caretOffset - literalRange.getStartOffset - interpolatorLength
       if (caretShiftFromQuoteStart > 0) {
         val textBeforeCaret = documentText.subSequence(literalRange.getStartOffset, caretOffset)
         val newLinesBeforeCaret = StringUtils.countMatches(textBeforeCaret, "\\n")
         // +2 extra quotes
         // each new line sequence ("\\n") is replaced with a single new line char ('\n') after converting to multiline
-        fixCaretPosition(caretOffset + 2 - newLinesBeforeCaret)
+        fixCaretPosition(caretOffset + 2 - newLinesBeforeCaret + extraCaretOffset)
       }
 
       val caretShift = MultilineStringUtil.addMarginsAndFormatMLString(literalReplaced, document, caretModel.getOffset)
@@ -91,7 +96,6 @@ object StringToMultilineStringIntention {
       }
     }
 
-    val Quotes = "\"\"\""
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.referenceName
@@ -103,11 +107,17 @@ object StringToMultilineStringIntention {
         addMargins(replaced, prefix.length)
 
       case LiteralValue(s: String) =>
-        val content = s.replace("\r", "")
-        val newLiteralText = s"$Quotes$content$Quotes"
+        val contentWithoutR = s.replace("\r", "")
+        val (prefix, content) = if (s.contains(Quotes)) {
+          // non-interpolated multiline string can not contain tripple quotes, see https://github.com/scala/bug/issues/6476
+          ("s", contentWithoutR.replace("$", "$$").replace(Quotes, QuotesEscaped))
+        } else {
+          ("", contentWithoutR)
+        }
+        val newLiteralText = s"$prefix$Quotes$content$Quotes"
         val newLiteral = createExpressionFromText(newLiteralText)
         val replaced = literal.replace(newLiteral)
-        addMargins(replaced, 0)
+        addMargins(replaced, 0, prefix.length)
 
       case _ =>
     }
@@ -148,7 +158,6 @@ object StringToMultilineStringIntention {
       }
     }
 
-    val Quote = "\""
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.referenceName

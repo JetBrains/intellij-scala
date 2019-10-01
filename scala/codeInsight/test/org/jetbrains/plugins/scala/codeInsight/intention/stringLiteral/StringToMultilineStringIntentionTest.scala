@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
 
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions
 
 class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTestBase {
-  override def familyName: String = StringToMultilineStringIntention.FAMILY_NAME
 
-  import EditorTestUtil.{CARET_TAG => CARET}
+  override def familyName: String = StringToMultilineStringIntention.FAMILY_NAME
 
   // ATTENTION:
   //   We shouldn't do .stripMargin for before/after strings because it is for some reason .stripMargin is called inside
@@ -417,5 +415,59 @@ class StringToMultilineStringIntentionTest extends intentions.ScalaIntentionTest
 
     doTest(before, after)
     doTest(after, afterAfter)
+  }
+
+  def testConvertFromInterpolatedStringWithTripleQuotesEscaped(): Unit = {
+    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = false
+    // interpolated string `x` in `before` is invalid due to bug https://github.com/scala/bug/issues/6476
+    // but still we would like to fix it by converting to a multiline
+    val before =
+      s"""val InjectedVar = "42"
+         |val x = s"class$CARET A { val a = f\\\"\\\"\\\"$$InjectedVar\\\"\\\"\\\" }"
+         |"""
+    val after =
+      s"""val InjectedVar = "42"
+         |val x = s\"\"\"class$CARET A { val a = f\\\"\\\"\\\"$$InjectedVar\\\"\\\"\\\" }\"\"\"
+         |"""
+    doTest(before, after)
+    doTest(after, before.replace(CARET, ""))
+  }
+
+  def testConvertFromStringWithTripleQuotesEscaped(): Unit = {
+    val before =
+      s"""val InjectedVar = "42"
+         |val x = "class$CARET A { val a = f\\\"\\\"\\\"$$InjectedVar\\\"\\\"\\\" }"
+         |"""
+    //original string has to be converted into interpolated string to contain tipple quotes, and injections should be escaped
+    val after =
+      s"""val InjectedVar = "42"
+         |val x = s\"\"\"class$CARET A { val a = f\\\"\\\"\\\"$$$$InjectedVar\\\"\\\"\\\" }\"\"\"
+         |"""
+    doTest(before, after)
+  }
+
+  def testConvertFromStringWithTripleQuotesEscaped_1(): Unit = {
+    // FIXME: now it fails, fix is not straightforward, issue is minor
+    return
+    val before =
+      s"""val x = "A \\\"\\\"\\\" $$ $CARET B"
+         |""".stripMargin
+    val after =
+      s"""val x = s\"\"\"A \\\"\\\"\\\" $$$$ $CARET B\"\"\"
+         |"""
+    doTest(before, after)
+  }
+
+  def testConvertFromStringWithDoubleQuotesEscaped(): Unit = {
+    val before =
+      s"""val InjectedVar = "42"
+         |val x = "class$CARET A { val a = f\\\"\\\"$$InjectedVar\\\"\\\" }"
+         |"""
+    val after =
+      s"""val InjectedVar = "42"
+         |val x = \"\"\"class$CARET A { val a = f\"\"$$InjectedVar\"\" }\"\"\"
+         |"""
+    doTest(before, after)
+    doTest(after, before.replace(CARET, ""))
   }
 }

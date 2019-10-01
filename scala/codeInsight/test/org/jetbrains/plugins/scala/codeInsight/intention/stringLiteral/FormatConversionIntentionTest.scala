@@ -4,9 +4,8 @@ import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions
 
 class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
-  override def familyName: String = FormatConversionIntention.ConvertToStringConcat
 
-  import EditorTestUtil.{CARET_TAG => CARET}
+  override def familyName: String = FormatConversionIntention.ConvertToStringConcat
 
   def testInterpolatedToConcatenation() {
     val before =

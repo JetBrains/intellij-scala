@@ -21,6 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 object MultilineStringUtil {
 
   val MultilineQuotes = "\"\"\""
+  val MultilineQuotesEscaped = "\\\"\\\"\\\""
   val MultilineQuotesLength: Int = MultilineQuotes.length
   val DefaultMarginChar = '|'
 

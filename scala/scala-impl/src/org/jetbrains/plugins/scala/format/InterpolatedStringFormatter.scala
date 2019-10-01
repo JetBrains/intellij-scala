@@ -4,6 +4,7 @@ package format
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes, MultilineQuotesEscaped}
 
 /**
  * Pavel Fatin
@@ -27,13 +28,14 @@ object InterpolatedStringFormatter extends StringFormatter {
       else "s"
     }
     val content = formatContent(parts, toMultiline, needPrefix = prefix.nonEmpty)
-    val quote = if (toMultiline) "\"\"\"" else "\""
+    val quote = if (toMultiline) MultilineQuotes else "\""
     s"$prefix$quote$content$quote"
   }
 
   def formatContent(parts: Seq[StringPart], toMultiline: Boolean = false, needPrefix: Boolean = true): String = {
     val strings = parts.collect {
-      case Text(s) => escapePlainText(s, toMultiline, escapeDollar = needPrefix)
+      case Text(s) =>
+        escapePlainText(s, toMultiline, escapeDollar = needPrefix)
       case it: Injection =>
         val text = it.value
         if (injectByValue(it)) text
@@ -51,8 +53,11 @@ object InterpolatedStringFormatter extends StringFormatter {
   private def escapePlainText(s: String, toMultiline: Boolean, escapeDollar: Boolean): String = {
     val s1 = if (escapeDollar) s.replaceAll("\\$", "\\$\\$") else s
 
-    if (toMultiline) s1.replace("\r", "")
-    else StringUtil.escapeStringCharacters(s1)
+    if (toMultiline) {
+      s1.replace("\r", "").replace(MultilineQuotes, MultilineQuotesEscaped)
+    } else {
+      StringUtil.escapeStringCharacters(s1.replace(MultilineQuotesEscaped, MultilineQuotes))
+    }
   }
 
   private def noBraces(parts: Seq[StringPart], it: Injection): Boolean =  {
