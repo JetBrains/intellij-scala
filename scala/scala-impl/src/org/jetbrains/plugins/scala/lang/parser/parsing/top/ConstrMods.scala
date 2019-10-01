@@ -6,17 +6,17 @@ package top
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 
 /**
- * [[ConstrMods]] ::= { [[Annotation]] } [ [[AccessModifier]] ]
+ * [[ConstrMods]] ::= [[Annotations]] [ [[AccessModifier]] ]
  *
  * @author adkozlov
  */
 object ConstrMods extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    annotations()
+    Annotations.parseOnTheSameLine()
 
     val modifiersMarker = builder.mark()
     if (!builder.newlineBeforeCurrentToken) {
@@ -26,13 +26,4 @@ object ConstrMods extends ParsingRule {
 
     true
   }
-
-  private def annotations()(implicit builder: ScalaPsiBuilder): Unit = {
-    val modifierMarker = builder.mark()
-    if (!builder.newlineBeforeCurrentToken) {
-      while (Annotation.parse(builder)) {}
-    }
-    modifierMarker.done(ScalaElementType.ANNOTATIONS)
-  }
-
 }

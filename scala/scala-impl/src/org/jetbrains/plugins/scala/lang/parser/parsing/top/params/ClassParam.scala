@@ -2,29 +2,28 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 package parsing
-package top.params
+package top
+package params
 
-import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
 /**
+ * [[ClassParam]] ::= [[Annotations]] [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
+ *
 * @author Alexander Podkhalyuzin
 * Date: 08.02.2008
 */
-
-/*
- * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
- */
 object ClassParam {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
-    val annotationsMarker = builder.mark
-    while (Annotation.parse(builder)) {}
-    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
+
+    Annotations()(builder)
+
     //parse modifiers
     val modifierMarker = builder.mark
     var isModifier = false

@@ -7,19 +7,17 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
-
-/*
- * Dcl ::= [{Annotation} {Modifier}]
+ * [[Dcl]] ::= [ [[Annotations]] {Modifier}]
  *          ('val' ValDcl
  *         | 'var' VarDcl
  *         | 'def' FunDcl
  *         | 'type' {nl} TypeDcl)
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 11.02.2008
  */
 object Dcl {
 
@@ -27,10 +25,8 @@ object Dcl {
     val dclMarker = builder.mark
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     if (isMod) {
-      val annotationsMarker = builder.mark
-      while (Annotation.parse(builder)) {}
-      annotationsMarker.done(ScalaElementType.ANNOTATIONS)
-      annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
+      Annotations.parseAndBindToLeft()(builder)
+
       //parse modifiers
       val modifierMarker = builder.mark
       while (Modifier.parse(builder)) {}

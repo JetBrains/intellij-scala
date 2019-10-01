@@ -7,10 +7,10 @@ package top
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 
 /**
- * [[TmplDef]] ::= { [[Annotation]] } { [[Modifier]] }
+ * [[TmplDef]] ::= [[Annotations]] { [[Modifier]] }
  * [`case`] `class` [[ClassDef]]
  * | [`case`] `object` [[ObjectDef]]
  * | `trait` [[TraitDef]]
@@ -27,11 +27,7 @@ object TmplDef extends ParsingRule {
     val templateMarker = builder.mark()
     templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 
-    val annotationsMarker = builder.mark()
-    while (Annotation.parse(builder)) {
-    }
-    annotationsMarker.done(ANNOTATIONS)
-    annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
+    Annotations.parseAndBindToLeft()
 
     val modifierMarker = builder.mark()
     while (Modifier.parse(builder)) {

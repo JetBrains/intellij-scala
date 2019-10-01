@@ -7,21 +7,20 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
-
-/*
- * Def ::= [{Annotation} {Modifier}]
+ *
+ * [[Def]] ::= [ [[Annotations]] {Modifier}]
  *          ('val' ValDef
  *         | 'var' VarDef
  *         | 'def' FunDef
  *         | 'def' MacroDef
  *         | 'type' {nl} TypeDef)
+ *
+ * @author Alexander Podkhalyuzin
+ *         Date: 11.02.2008
  */
 object Def {
 
@@ -31,10 +30,8 @@ object Def {
     val defMarker = builder.mark
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     if (isMod || isImplicit) {
-      val annotationsMarker = builder.mark
-      while (Annotation.parse(builder)) {}
-      annotationsMarker.done(ScalaElementType.ANNOTATIONS)
-      annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
+      Annotations.parseAndBindToLeft()(builder)
+
       //parse modifiers
       val modifierMarker = builder.mark
       if (isMod) {

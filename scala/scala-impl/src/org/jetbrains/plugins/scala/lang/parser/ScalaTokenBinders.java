@@ -9,12 +9,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import java.util.List;
 
 public class ScalaTokenBinders {
-  public static final WhitespacesAndCommentsBinder DEFAULT_LEFT_EDGE_BINDER = new WhitespacesAndCommentsBinder() {
-    @Override
-    public int getEdgePosition(final List<IElementType> tokens, final boolean atStreamEdge, final TokenTextGetter getter) {
-      return tokens.size();
-    }
-  };
 
   public static final WhitespacesAndCommentsBinder PRECEDING_COMMENTS_TOKEN = new WhitespacesAndCommentsBinder() {
     @Override
