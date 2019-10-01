@@ -4,35 +4,36 @@ package parsing
 package top
 
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kWITH
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
-/**
-  * @author adkozlov
-  */
-sealed abstract class Parents {
+sealed abstract class Parents extends ParsingRule {
 
-  protected def parseFirstParent(builder: ScalaPsiBuilder): Boolean
+  protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
+    parseSimpleType()
 
-  def parse(implicit builder: ScalaPsiBuilder): Boolean =
-    builder.build(ScalaElementType.TEMPLATE_PARENTS) { builder =>
-      parseFirstParent(builder) && {
-        var continue = true
-        while (continue && builder.getTokenType == ScalaTokenTypes.kWITH) {
-          builder.advanceLexer() // Ate with
-          continue = Parents.parseSimpleType(builder)
-        }
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val marker = builder.mark()
 
-        true
-      }
+    parseSimpleTypes(continue = parseFirstParent())
+
+    marker.done(ScalaElementType.TEMPLATE_PARENTS)
+    true
+  }
+
+  @annotation.tailrec
+  private def parseSimpleTypes(continue: Boolean)
+                              (implicit builder: ScalaPsiBuilder): Unit =
+    builder.getTokenType match {
+      case `kWITH` if continue =>
+        builder.advanceLexer() // Ate with
+        parseSimpleTypes(continue = parseSimpleType())
+      case _ =>
     }
-}
 
-object Parents {
-
-  private[top] def parseSimpleType(builder: ScalaPsiBuilder) = {
+  private def parseSimpleType()(implicit builder: ScalaPsiBuilder): Boolean = {
     val result = AnnotType.parse(builder, isPattern = false)
 
     if (!result) {
@@ -43,20 +44,16 @@ object Parents {
   }
 }
 
-/*
- *  TemplateParents ::= Constr {`with' AnnotType}
+/**
+ * [[ClassParents]] ::= [[Constructor]] { 'with' [[AnnotType]] }
  */
 object ClassParents extends Parents {
 
-  override protected def parseFirstParent(builder: ScalaPsiBuilder): Boolean =
+  override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
     Constructor.parse(builder)
 }
 
-/*
- * MixinParents ::= AnnotType {`with' AnnotType}
+/**
+ * [[MixinParents]] ::= [[AnnotType]] { 'with' [[AnnotType]] }
  */
-object MixinParents extends Parents {
-
-  override protected def parseFirstParent(builder: ScalaPsiBuilder): Boolean =
-    Parents.parseSimpleType(builder)
-}
+object MixinParents extends Parents
