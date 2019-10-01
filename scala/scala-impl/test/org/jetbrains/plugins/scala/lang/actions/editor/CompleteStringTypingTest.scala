@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-class CompleteMultilineStringTest  extends EditorTypeActionTestBase {
+class CompleteStringTypingTest  extends EditorTypeActionTestBase {
 
   override protected def typedChar: Char = '"'
 
