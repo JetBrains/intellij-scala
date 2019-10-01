@@ -28,8 +28,8 @@ final class ScalaSourceRootFinder extends JavaSourceRootDetector {
 object ScalaSourceRootFinder {
 
   import StringUtil._
-  import lang.lexer.{ScalaLexer, ScalaTokenTypes}
-  import ScalaTokenTypes.{WHITES_SPACES_AND_COMMENTS_TOKEN_SET, kOBJECT => Object, kPACKAGE => Package, tDOT => Dot, tIDENTIFIER => Identifier, tLBRACE => LeftBrace}
+  import lang.lexer.{ScalaLexer, ScalaTokenType, ScalaTokenTypes}
+  import ScalaTokenTypes._
 
   def packageStatement(buf: CharSequence): String = {
     implicit val lexer: ScalaLexer = new ScalaLexer
@@ -47,22 +47,23 @@ object ScalaSourceRootFinder {
     }
   }
 
+  @tailrec
   private def readPackage(firstTime: Boolean = false)
                          (append: Boolean => Unit)
                          (implicit lexer: ScalaLexer): Unit = {
     skipWhiteSpaceAndComments(advance = false)
 
     lexer.getTokenType match {
-      case Package =>
+      case `kPACKAGE` =>
         if (!firstTime) append(true)
         skipWhiteSpaceAndComments()
 
         lexer.getTokenType match {
-          case Object =>
+          case ScalaTokenType.ObjectKeyword =>
             skipWhiteSpaceAndComments()
 
             lexer.getTokenType match {
-              case Identifier => append(false)
+              case `tIDENTIFIER` => append(false)
               case _ =>
             }
           case _ =>
@@ -77,19 +78,19 @@ object ScalaSourceRootFinder {
   private[this] def appendPackageStatement(append: Boolean => Unit)
                                           (implicit lexer: ScalaLexer): Unit =
     lexer.getTokenType match {
-      case Identifier =>
+      case `tIDENTIFIER` =>
         append(false)
         skipWhiteSpaceAndComments()
 
         lexer.getTokenType match {
-          case Dot =>
+          case `tDOT` =>
             append(true)
             skipWhiteSpaceAndComments()
             appendPackageStatement(append)
-          case LeftBrace => skipWhiteSpaceAndComments()
+          case `tLBRACE` => skipWhiteSpaceAndComments()
           case _ =>
         }
-      case LeftBrace => skipWhiteSpaceAndComments()
+      case `tLBRACE` => skipWhiteSpaceAndComments()
       case _ =>
     }
 

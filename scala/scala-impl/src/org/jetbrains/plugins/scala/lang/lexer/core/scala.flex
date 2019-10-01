@@ -454,7 +454,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "case"                                  {   return process(kCASE); }
                                             
 "catch"                                 {   return process(kCATCH); }
-"class"                                 {   return process(kCLASS); }
+"class"                                 {   return process(ClassKeyword()); }
 "def"                                   {   return process(kDEF); }
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
@@ -472,9 +472,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "import"                                {   return process(kIMPORT); }
 "lazy"                                  {   return process(kLAZY); }
 "match"                                 {   return process(kMATCH); }
-"new"                                   {   return process(kNEW); }
+"new"                                   {   return process(NewKeyword()); }
 "null"                                  {   return process(kNULL); }
-"object"                                {   return process(kOBJECT); }
+"object"                                {   return process(ObjectKeyword()); }
 "override"                              {   return process(kOVERRIDE); }
 "package"                               {   return process(kPACKAGE); }
 "private"                               {   return process(kPRIVATE); }
@@ -485,7 +485,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "then"                                  {   return processScala3(Then()); }
 "this"                                  {   return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
-"trait"                                 {   return process(kTRAIT); }
+"trait"                                 {   return process(TraitKeyword()); }
 "try"                                   {   return process(kTRY); }
 "true"                                  {   return process(kTRUE); }
 "type"                                  {   return process(kTYPE); }

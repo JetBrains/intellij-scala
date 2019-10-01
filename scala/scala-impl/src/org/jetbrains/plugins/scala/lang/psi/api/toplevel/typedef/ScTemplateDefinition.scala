@@ -7,6 +7,7 @@ package typedef
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
@@ -44,6 +45,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def isDesugared: Boolean = originalElement.isDefined
 
   def desugaredElement: Option[ScTemplateDefinition] = None
+
+  def targetToken: LeafPsiElement
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull

@@ -4,7 +4,6 @@ package parser
 package parsing
 package statements
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
@@ -23,6 +22,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *         Date: 11.02.2008
  */
 object Def {
+
+  import lexer.ScalaTokenType._
+  import lexer.ScalaTokenTypes
 
   def parse(builder: ScalaPsiBuilder,
             isMod: Boolean = true,
@@ -98,8 +100,7 @@ object Def {
           defMarker.rollbackTo()
           false
         }
-      case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
-           | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT =>
+      case ScalaTokenTypes.kCASE | IsTemplateDefinition() =>
         defMarker.rollbackTo()
         TmplDef.parse(builder)
       case _ =>

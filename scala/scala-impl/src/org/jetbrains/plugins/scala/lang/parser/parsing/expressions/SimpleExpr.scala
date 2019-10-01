@@ -5,7 +5,6 @@ package parsing
 package expressions
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
@@ -35,14 +34,17 @@ import scala.annotation.tailrec
  *               | SimpleExpr1 ArgumentExprs
  *               | XmlExpr
  */
-object SimpleExpr extends ScalaTokenTypes {
+object SimpleExpr {
+
+  import lexer.ScalaTokenType._
+  import lexer.ScalaTokenTypes._
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark
     var newMarker: PsiBuilder.Marker = null
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
     builder.getTokenType match {
-      case ScalaTokenTypes.kNEW =>
+      case NewKeyword =>
         builder.advanceLexer() //Ate new
         if (!ClassTemplate.parse(builder)) {
           builder error ErrMsg("identifier.expected")
@@ -51,24 +53,24 @@ object SimpleExpr extends ScalaTokenTypes {
         }
         newMarker = simpleMarker.precede
         simpleMarker.done(ScalaElementType.NEW_TEMPLATE)
-      case ScalaTokenTypes.tLBRACE =>
+      case `tLBRACE` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
         if (!BlockExpr.parse(builder)) {
           newMarker.drop()
           return false
         }
-      case ScalaTokenTypes.tUNDER =>
+      case `tUNDER` =>
         state = true
         builder.advanceLexer() //Ate _
         newMarker = simpleMarker.precede
         simpleMarker.done(ScalaElementType.PLACEHOLDER_EXPR)
-      case ScalaTokenTypes.tLPARENTHESIS =>
+      case `tLPARENTHESIS` =>
         state = true
         builder.advanceLexer()
         builder.disableNewlines()
         builder.getTokenType match {
-          case ScalaTokenTypes.tRPARENTHESIS =>
+          case `tRPARENTHESIS` =>
             builder.advanceLexer()
             builder.restoreNewlinesState()
             newMarker = simpleMarker.precede
@@ -81,19 +83,19 @@ object SimpleExpr extends ScalaTokenTypes {
               simpleMarker.done(ScalaElementType.UNIT_EXPR)
             } else {
               var isTuple = false
-              while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
-                !builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
+              while (builder.getTokenType == tCOMMA &&
+                !builder.lookAhead(tCOMMA, tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer()
                 if (!Expr.parse(builder)) {
                   builder error ErrMsg("wrong.expression")
                 }
               }
-              if (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
+              if (builder.getTokenType == tCOMMA && !builder.consumeTrailingComma(tRPARENTHESIS)) {
                 builder.advanceLexer()
                 isTuple = true
               }
-              if (builder.getTokenType != ScalaTokenTypes.tRPARENTHESIS) {
+              if (builder.getTokenType != tRPARENTHESIS) {
                 builder error ErrMsg("rparenthesis.expected")
               } else {
                 builder.advanceLexer()
@@ -119,7 +121,7 @@ object SimpleExpr extends ScalaTokenTypes {
     @tailrec
     def subparse(marker: PsiBuilder.Marker) {
       builder.getTokenType match {
-        case ScalaTokenTypes.tUNDER if !builder.newlineBeforeCurrentToken =>
+        case `tUNDER` if !builder.newlineBeforeCurrentToken =>
           if (state) {
             builder.advanceLexer()
             val tMarker = marker.precede
@@ -129,11 +131,11 @@ object SimpleExpr extends ScalaTokenTypes {
           else {
             marker.drop()
           }
-        case ScalaTokenTypes.tDOT =>
+        case `tDOT` =>
           state = true
           builder.advanceLexer() //Ate .
           builder.getTokenType match {
-            case ScalaTokenTypes.tIDENTIFIER =>
+            case `tIDENTIFIER` =>
               builder.advanceLexer() //Ate id
             val tMarker = marker.precede
               marker.done(ScalaElementType.REFERENCE_EXPRESSION)
@@ -142,8 +144,8 @@ object SimpleExpr extends ScalaTokenTypes {
               builder error ScalaBundle.message("identifier.expected")
               marker.drop()
           }
-        case ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLBRACE if
-        builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
+        case `tLPARENTHESIS` | `tLBRACE` if
+        builder.getTokenType != tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
           if (state && ArgumentExprs.parse(builder)) {
             val tMarker = marker.precede
             marker.done(ScalaElementType.METHOD_CALL)
@@ -152,13 +154,13 @@ object SimpleExpr extends ScalaTokenTypes {
           else {
             marker.drop()
           }
-        case ScalaTokenTypes.tLSQBRACKET =>
+        case `tLSQBRACKET` =>
           state = true
           TypeArgs.parse(builder, isPattern = false)
           val tMarker = marker.precede
           marker.done(ScalaElementType.GENERIC_CALL)
           subparse(tMarker)
-        case ScalaTokenTypes.kDEF | ScalaTokenTypes.kPRIVATE | ScalaTokenTypes.kPROTECTED | ScalaTokenTypes.kIMPLICIT if ParserUtils.hasTextBefore(builder, "inline") =>
+        case `kDEF` | `kPRIVATE` | `kPROTECTED` | `kIMPLICIT` if ParserUtils.hasTextBefore(builder, "inline") =>
           //This is kinda hack for cases when we have to build stubs for sources, that use meta and contain inline keyword
           //Without this we would get different count of stub elements and ast nodes (and exception as the result)  
           marker.drop()

@@ -5,8 +5,6 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
@@ -24,8 +22,4 @@ trait ScClass extends ScTypeDefinition with ScConstructorOwner {
   def tooBigForUnapply: Boolean = constructor.exists(_.parameters.length > 22)
 
   def getSyntheticImplicitMethod: Option[ScFunction]
-
-  def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
-
-  def getObjectClassOrTraitToken: PsiElement = getClassToken
 }

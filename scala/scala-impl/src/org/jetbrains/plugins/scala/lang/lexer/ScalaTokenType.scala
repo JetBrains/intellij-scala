@@ -2,15 +2,24 @@ package org.jetbrains.plugins.scala
 package lang
 package lexer
 
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.ScalaLanguage
+import com.intellij.psi.tree.{IElementType, TokenSet}
 
 class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLanguage.INSTANCE) {
 
-  override def isLeftBound: Boolean = true
+  final def text: String = toString
+
+  override final def toString: String = super.toString
+
+  override final def isLeftBound: Boolean = true
 }
 
 object ScalaTokenType {
+
+  val ClassKeyword = new ScalaTokenType("class")
+  val TraitKeyword = new ScalaTokenType("trait")
+  val ObjectKeyword = new ScalaTokenType("object")
+
+  val NewKeyword = new ScalaTokenType("new")
 
   val Long = new ScalaTokenType("long")
   val Integer = new ScalaTokenType("integer")
@@ -26,4 +35,16 @@ object ScalaTokenType {
   val Derives = new ScalaTokenType("derives")
   val Inline: ScalaModifierTokenType = ScalaTokenTypes.kINLINE
   val Opaque = new ScalaTokenType("opaque")
+
+  object IsTemplateDefinition {
+
+    private[this] val tokenSet = TokenSet.create(
+      ClassKeyword,
+      TraitKeyword,
+      ObjectKeyword
+    )
+
+    def unapply(elementType: IElementType): Boolean =
+      tokenSet.contains(elementType)
+  }
 }

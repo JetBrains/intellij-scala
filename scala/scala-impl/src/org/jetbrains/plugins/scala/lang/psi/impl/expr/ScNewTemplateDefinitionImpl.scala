@@ -13,6 +13,7 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -38,6 +39,8 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
   extends ScTemplateDefinitionImpl(stub, nodeType, node) with ScNewTemplateDefinition {
 
   override def toString: String = "NewTemplateDefinition"
+
+  override protected def targetTokenType: ScalaTokenType = ScalaTokenType.NewKeyword
 
   override def getIcon(flags: Int): Icon = Icons.CLASS
 

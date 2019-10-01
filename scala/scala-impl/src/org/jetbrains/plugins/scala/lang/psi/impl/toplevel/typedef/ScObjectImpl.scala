@@ -16,7 +16,7 @@ import com.intellij.psi.util.PsiUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -39,6 +39,8 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                    nodeType: ScTemplateDefinitionElementType[ScObject],
                    node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScObject {
+
+  override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ObjectKeyword
 
   override def additionalClassJavaName: Option[String] =
     if (baseCompanionModule.isEmpty) Option(getName).map(_.stripSuffix("$")) else None

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.highlighter.usages
+package org.jetbrains.plugins.scala
+package highlighter
+package usages
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactory}
@@ -8,7 +10,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -23,7 +25,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * User: Alexander Podkhalyuzin
  * Date: 22.12.2009
  */
-class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
+final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
+
+  import ScalaTokenType._
+  import ScalaTokenTypes._
+
   def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
     if (!file.isInstanceOf[ScalaFile]) return null
     val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
@@ -33,28 +39,28 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
     }
     if (element == null || element.getNode == null) return null
     element.getNode.getElementType match {
-      case ScalaTokenTypes.kRETURN =>
+      case `kRETURN` =>
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
         if (fun != null) return new ScalaHighlightExitPointsHandler(fun, editor, file, element)
-      case ScalaTokenTypes.kDEF =>
+      case `kDEF` =>
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunction])
         fun match {
           case d: ScFunctionDefinition => return new ScalaHighlightExitPointsHandler(d, editor, file, element)
           case _ =>
         }
-      case ScalaTokenTypes.kVAL =>
+      case `kVAL` =>
         PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition]) match {
           case pattern@ScPatternDefinition.expr(expr) if pattern.pList.simplePatterns && pattern.pList.patterns.length == 1 =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
-      case ScalaTokenTypes.kVAR =>
+      case `kVAR` =>
         PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition]) match {
           case pattern@ScVariableDefinition.expr(expr) if pattern.pList.simplePatterns && pattern.pList.patterns.length == 1 =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
-      case ScalaTokenTypes.kCASE =>
+      case `kCASE` =>
         val cc = PsiTreeUtil.getParentOfType(element, classOf[ScCaseClause])
         if (cc != null) {
           cc.expr match {
@@ -63,17 +69,17 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
             case _ =>
           }
         }
-      case ScalaTokenTypes.kMATCH =>
+      case `kMATCH` =>
         val matchStmt = PsiTreeUtil.getParentOfType(element, classOf[ScMatch])
         if (matchStmt != null) {
           return new ScalaHighlightExprResultHandler(matchStmt, editor, file, element)
         }
-      case ScalaTokenTypes.kTRY =>
+      case `kTRY` =>
         val tryStmt = PsiTreeUtil.getParentOfType(element, classOf[ScTry])
         if (tryStmt != null) {
           return new ScalaHighlightExprResultHandler(tryStmt, editor, file, element)
         }
-      case ScalaTokenTypes.kFOR =>
+      case `kFOR` =>
         val forStmt = PsiTreeUtil.getParentOfType(element, classOf[ScFor])
         if (forStmt != null && forStmt.isYield) {
           forStmt.body match {
@@ -82,12 +88,12 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
             case _ =>
           }
         }
-      case ScalaTokenTypes.kIF =>
+      case `kIF` =>
         val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIf])
         if (ifStmt != null) {
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
-      case ScalaTokenTypes.tFUNTYPE =>
+      case `tFUNTYPE` =>
         val funcExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr])
         if (funcExpr != null) {
           funcExpr.result match {
@@ -96,12 +102,12 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
             case _ =>
           }
         }
-      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
+      case IsTemplateDefinition() =>
         val templateDef = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
         if (templateDef != null) {
           return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
         }
-      case ScalaTokenTypes.tIDENTIFIER =>
+      case `tIDENTIFIER` =>
         element.getParent match {
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
           case ref: ScReference => return implicitHighlighter(editor, file, ref)
@@ -109,7 +115,7 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
         }
 
       //to highlight usages of implicit parameter from context bound
-      case ScalaTokenTypes.tCOLON =>
+      case `tCOLON` =>
         (element.getParent, element.getNextSiblingNotWhitespaceComment) match {
           case (tp: ScTypeParam, te: ScTypeElement) => return implicitHighlighter(editor, file, (tp, te))
           case _ =>

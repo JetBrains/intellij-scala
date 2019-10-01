@@ -3,7 +3,6 @@ package lang
 package parser
 package parsing
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -19,6 +18,8 @@ import scala.annotation.tailrec
 object CompilationUnit {
 
   import ParserState._
+  import lexer.ScalaTokenType.ObjectKeyword
+  import lexer.ScalaTokenTypes._
 
   def parse()(implicit builder: ScalaPsiBuilder): Int = {
     var parseState = EMPTY_STATE
@@ -60,7 +61,7 @@ object CompilationUnit {
             }
 
             builder.getTokenType match {
-              case `kPACKAGE` if !builder.lookAhead(kPACKAGE, kOBJECT) =>
+              case `kPACKAGE` if !builder.lookAhead(kPACKAGE, ObjectKeyword) =>
                 // Parse package statement
                 val newMarker = builder.mark
                 builder.advanceLexer() // Ate package

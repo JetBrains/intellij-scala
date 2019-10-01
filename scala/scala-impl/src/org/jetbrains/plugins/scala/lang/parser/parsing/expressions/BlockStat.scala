@@ -4,7 +4,6 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, EmptyDcl}
@@ -22,6 +21,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *             | Expr1
  */
 object BlockStat {
+
+  import lexer.ScalaTokenType._
+  import lexer.ScalaTokenTypes
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
@@ -42,7 +44,7 @@ object BlockStat {
             return true
           }
         }
-      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
+      case IsTemplateDefinition() =>
         return TmplDef.parse(builder)
       case _ if builder.skipExternalToken() => parse(builder)
       case _ =>

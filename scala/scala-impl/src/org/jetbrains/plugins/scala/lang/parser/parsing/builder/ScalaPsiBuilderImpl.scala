@@ -14,8 +14,9 @@ import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
 class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delegate)
   with ScalaPsiBuilder {
 
-  import project._
+  import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes._
+  import project._
 
   private val newlinesEnabled = new collection.mutable.Stack[Boolean]
 
@@ -101,7 +102,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
     case `kCASE` =>
       this.predict {
         _.getTokenType match {
-          case `kOBJECT` | `kCLASS` => true
+          case ObjectKeyword | ClassKeyword => true
           case _ => false
         }
       }

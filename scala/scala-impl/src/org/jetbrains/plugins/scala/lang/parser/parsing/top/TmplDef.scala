@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 object TmplDef extends ParsingRule {
 
   import ScalaElementType._
-  import lexer.ScalaTokenTypes._
+  import lexer.ScalaTokenType._
+  import lexer.ScalaTokenTypes.kCASE
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()
@@ -58,7 +59,7 @@ object TmplDef extends ParsingRule {
         builder.advanceLexer() // Ate case
 
         builder.getTokenType match {
-          case `kTRAIT` =>
+          case TraitKeyword =>
             caseMarker.rollbackTo()
             builder.error(ScalaBundle.message("wrong.case.modifier"))
             builder.advanceLexer() // Ate case
@@ -76,9 +77,9 @@ object TmplDef extends ParsingRule {
   private def templateParser(caseState: Boolean)
                             (implicit builder: ScalaPsiBuilder): Option[(ParsingRule, IElementType)] =
     builder.getTokenType match {
-      case `kCLASS` => Some(ClassDef, CLASS_DEFINITION)
-      case `kOBJECT` => Some(ObjectDef, OBJECT_DEFINITION)
-      case `kTRAIT` => Some(
+      case ClassKeyword => Some(ClassDef, CLASS_DEFINITION)
+      case ObjectKeyword => Some(ObjectDef, OBJECT_DEFINITION)
+      case TraitKeyword => Some(
         if (caseState) ParsingRule.AlwaysTrue else TraitDef,
         TRAIT_DEFINITION
       )

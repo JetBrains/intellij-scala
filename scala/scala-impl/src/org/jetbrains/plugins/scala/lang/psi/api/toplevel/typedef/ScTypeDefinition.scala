@@ -53,8 +53,6 @@ trait ScTypeDefinition extends ScTemplateDefinition
     visitor.visitTypeDefinition(this)
   }
 
-  def getObjectClassOrTraitToken: PsiElement
-
   def getSourceMirrorClass: PsiClass
 
   override def isEquivalentTo(another: PsiElement): Boolean = {

@@ -14,6 +14,7 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -40,6 +41,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     with ScTypeParametersOwner {
 
   override def toString: String = "ScClass: " + ifReadAllowed(name)("")
+
+  override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ClassKeyword
 
   override protected final def baseIcon: Icon =
     if (this.hasAbstractModifier) Icons.ABSTRACT_CLASS

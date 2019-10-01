@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -33,6 +34,8 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor
+
+  override protected def targetTokenType: ScalaTokenType = ScalaTokenType.TraitKeyword
 
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                                   state: ResolveState,

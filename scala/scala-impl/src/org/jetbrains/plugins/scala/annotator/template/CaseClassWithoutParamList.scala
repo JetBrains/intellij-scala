@@ -8,6 +8,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -56,7 +57,7 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
     }
 }
 
-class ConvertToObjectFix(c: ScClass) extends IntentionAction {
+final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
   override def getText: String = "Convert to object"
 
   override def getFamilyName: String = getText
@@ -67,12 +68,14 @@ class ConvertToObjectFix(c: ScClass) extends IntentionAction {
     c.isValid && c.getManager.isInProject(file)
 
   override def invoke(project: Project, editor: Editor, file: PsiFile) {
-    val classKeywordTextRange = c.getClassToken.getTextRange
-    val classTextRange = c.getTextRange
-    val start = classKeywordTextRange.getStartOffset - classTextRange.getStartOffset
-    val charsToReplace = classKeywordTextRange.getLength
-    val classText = c.getText
-    val objectText = classText.patch(start, "object", charsToReplace)
+    val classKeywordTextRange = c.targetToken.getTextRange
+
+    val objectText = c.getText.patch(
+      classKeywordTextRange.getStartOffset - c.getTextRange.getStartOffset,
+      ObjectKeyword.text,
+      classKeywordTextRange.getLength
+    )
+
     val objectElement = ScalaPsiElementFactory.createObjectWithContext(objectText, c.getContext, c)
     c.replace(objectElement)
     // TODO update references to class.

@@ -3,7 +3,6 @@ package lang
 package parser
 package parsing
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
@@ -23,16 +22,18 @@ import scala.annotation.tailrec
 */
 object TopStat {
 
+  import lexer.ScalaTokenType._
+  import lexer.ScalaTokenTypes._
+
   @tailrec
-  final def parse(builder: ScalaPsiBuilder, state: Int): Int = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.kIMPORT =>
+  final def parse(builder: ScalaPsiBuilder, state: Int): Int = builder.getTokenType match {
+    case `kIMPORT` =>
         Import parse builder
         ParserState.ADDITIONAL_STATE
-      case ScalaTokenTypes.kPACKAGE =>
+    case `kPACKAGE` =>
         if (state == 2) ParserState.EMPTY_STATE
         else {
-          if (builder.lookAhead(ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
+          if (builder.lookAhead(kPACKAGE, ObjectKeyword)) {
             if (PackageObject parse builder) ParserState.FILE_STATE
             else ParserState.EMPTY_STATE
           } else {
@@ -54,5 +55,4 @@ object TopStat {
           else ParserState.SCRIPT_STATE
         }
     }
-  }
 }

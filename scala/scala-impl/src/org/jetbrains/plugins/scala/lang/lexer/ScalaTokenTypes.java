@@ -110,7 +110,6 @@ public interface ScalaTokenTypes {
 
 
     IElementType kCATCH = new ScalaTokenType("catch");
-    IElementType kCLASS = new ScalaTokenType("class");
     IElementType kDEF = new ScalaTokenType("def");
     IElementType kDO = new ScalaTokenType("do");
     IElementType kELSE = new ScalaTokenType("else");
@@ -122,16 +121,13 @@ public interface ScalaTokenTypes {
     IElementType kIF = new ScalaTokenType("if");
     IElementType kIMPORT = new ScalaTokenType("import");
     IElementType kMATCH = new ScalaTokenType("match");
-    IElementType kNEW = new ScalaTokenType("new");
     IElementType kNULL = new ScalaTokenType("null");
-    IElementType kOBJECT = new ScalaTokenType("object");
     IElementType kPACKAGE = new ScalaTokenType("package");
 
     IElementType kRETURN = new ScalaTokenType("return");
     IElementType kSUPER = new ScalaTokenType("super");
     IElementType kTHIS = new ScalaTokenType("this");
     IElementType kTHROW = new ScalaTokenType("throw");
-    IElementType kTRAIT = new ScalaTokenType("trait");
     IElementType kTRY = new ScalaTokenType("try");
     IElementType kTRUE = new ScalaTokenType("true");
     IElementType kTYPE = new ScalaTokenType("type");
@@ -206,7 +202,7 @@ public interface ScalaTokenTypes {
             kABSTRACT,
             kCASE,
             kCATCH,
-            kCLASS,
+            ClassKeyword(),
             kDEF,
             kDO,
             kELSE,
@@ -224,9 +220,9 @@ public interface ScalaTokenTypes {
             kIMPORT,
             kLAZY,
             kMATCH,
-            kNEW,
+            NewKeyword(),
             kNULL,
-            kOBJECT,
+            ObjectKeyword(),
             kOVERRIDE,
             kPACKAGE,
             kPRIVATE,
@@ -237,7 +233,7 @@ public interface ScalaTokenTypes {
             Then(),
             kTHIS, // scala 2 only
             kTHROW,
-            kTRAIT,
+            TraitKeyword(),
             kTRUE,
             kTRY,
             kTYPE,

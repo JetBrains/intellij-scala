@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.{Pair => JBPair}
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
@@ -20,6 +21,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -47,6 +49,10 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   import PsiTreeUtil.isContextAncestor
   import ScTemplateDefinitionImpl._
   import TypeDefinitionMembers._
+
+  protected def targetTokenType: ScalaTokenType
+
+  override final def targetToken: LeafPsiElement = findChildByType[LeafPsiElement](targetTokenType)
 
   override final def allTypeSignatures: Iterator[TypeSignature] =
     getTypes(this).allSignatures
