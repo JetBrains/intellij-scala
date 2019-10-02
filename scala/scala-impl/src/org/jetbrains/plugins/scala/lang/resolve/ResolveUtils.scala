@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
@@ -234,14 +234,20 @@ object ResolveUtils {
                   case file: ScalaFile if file.isScriptFile =>
                     PsiTreeUtil.isContextAncestor(file, place, false)
                   case _ =>
-                    getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile]) match {
-                      case null => false // not Scala
-                      case placeEnclosing =>
-                        def packaging(element: PsiElement) = Option(element).collect {
-                          case packaging: ScPackaging => packaging
-                        }.map {
-                          _.fullPackageName
-                        }.getOrElse("")
+                    place.contexts.find {
+                      case _: ScPackaging | _: ScalaFile => true
+                      case o: ScObject if o.isPackageObject => true
+                      case _ => false
+                    } match {
+                      case None => false // not Scala
+                      case Some(placeEnclosing) =>
+                        def packaging(element: PsiElement) = element match {
+                          case p: ScPackaging => p.fullPackageName
+                          case o: ScObject =>
+                            val packageName = o.getParent.asOptionOf[ScPackaging].map(_.fullPackageName).mkString
+                            s"$packageName.${o.name}"
+                          case _ => ""
+                        }
 
                         packageContains(packaging(enclosing), packaging(placeEnclosing))
                     }
