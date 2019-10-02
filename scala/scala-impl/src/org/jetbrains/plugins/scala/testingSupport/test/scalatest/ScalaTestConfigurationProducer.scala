@@ -7,7 +7,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScReferenceExpression}
@@ -16,9 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
+import org.scalatest.finders.Selection
 
 class ScalaTestConfigurationProducer extends {
   val confType = new ScalaTestConfigurationType
@@ -56,6 +57,7 @@ class ScalaTestConfigurationProducer extends {
     }
   }
 
+  @Measure
   override def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
 
@@ -72,9 +74,12 @@ class ScalaTestConfigurationProducer extends {
     }
 
     if (clazz == null) return (null, null)
+
     val templateBody: ScTemplateBody = clazz.extendsBlock.templateBody.orNull
-    while (PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true) != null) {
-      clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
+
+    clazz = PsiTreeUtil.getTopmostParentOfType(clazz, classOf[ScTypeDefinition]) match {
+      case null   => clazz
+      case parent => parent
     }
 
     clazz match {
@@ -82,6 +87,32 @@ class ScalaTestConfigurationProducer extends {
       case _ => return (null, null)
     }
 
+    val selection = ScalaTestAstTransformer.testSelection(location)
+    if (selection != null) {
+      getTestClassWithTestNameForSelection(location, clazz, selection)
+    } else {
+      getTestClassWithTestNameOld(element, clazz, templateBody)
+    }
+  }
+
+  private def getTestClassWithTestNameForSelection(location: Location[_ <: PsiElement], clazz: ScTypeDefinition, selection: Selection): (ScTypeDefinition, String) = {
+    if (selection.testNames.nonEmpty) {
+      val testNames = selection.testNames.toSeq.map(_.trim)
+      val testNamesConcat = testNames.mkString("\n")
+      (clazz, testNamesConcat)
+    } else {
+      location.getPsiElement.getParent match {
+        case null => null
+        case parent =>
+          val newLocation = new PsiLocation(location.getProject, parent)
+          getTestClassWithTestName(newLocation)
+      }
+    }
+  }
+
+  private def getTestClassWithTestNameOld(element: PsiElement,
+                                          clazz: ScTypeDefinition,
+                                          templateBody: ScTemplateBody): (ScTypeDefinition, String) = {
     sealed trait ReturnResult
     case class SuccessResult(invocation: MethodInvocation, testName: String, middleName: String) extends ReturnResult
     case object NotFoundResult extends ReturnResult
@@ -377,12 +408,12 @@ class ScalaTestConfigurationProducer extends {
         .orElse(checkFreeSpecInner(".ResultOfTaggedAsInvocationOnString"))
     }
 
-    val shouldFqn = "org.scalatest.verb.ShouldVerb.StringShouldWrapperForVerb"
-    val mustFqn = "org.scalatest.verb.MustVerb.StringMustWrapperForVerb"
-    val canFqn = "org.scalatest.verb.CanVerb.StringCanWrapperForVerb"
+    val shouldFqn  = "org.scalatest.verb.ShouldVerb.StringShouldWrapperForVerb"
+    val mustFqn    = "org.scalatest.verb.MustVerb.StringMustWrapperForVerb"
+    val canFqn     = "org.scalatest.verb.CanVerb.StringCanWrapperForVerb"
     val shouldFqn2 = "org.scalatest.words.ShouldVerb.StringShouldWrapperForVerb"
-    val mustFqn2 = "org.scalatest.words.MustVerb.StringMustWrapperForVerb"
-    val canFqn2 = "org.scalatest.words.CanVerb.StringCanWrapperForVerb"
+    val mustFqn2   = "org.scalatest.words.MustVerb.StringMustWrapperForVerb"
+    val canFqn2    = "org.scalatest.words.CanVerb.StringCanWrapperForVerb"
 
     def checkWordSpec(fqn: String): Option[String] = {
       if (!isInheritor(clazz, fqn)) return None
@@ -629,57 +660,40 @@ class ScalaTestConfigurationProducer extends {
       checkAnnotatedSuite(fqn, "org.testng.annotations.Test")
     }
 
-    def oldResult: (ScTypeDefinition, String) = {
-      import ScalaTestUtil._
+    import ScalaTestUtil._
 
-      implicit class OptionExt(x: Option[String]) {
-        def ++(s: => Option[String]): Option[String] = {
-          if (x.isDefined) x
-          else s
-        }
+    implicit class OptionExt(x: Option[String]) {
+      def ++(s: => Option[String]): Option[String] = {
+        if (x.isDefined) x
+        else s
       }
-
-      val testName: Option[String] = (
-        funSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).flatten ++
-          featureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).flatten ++
-          freeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).flatten ++
-          JUnit3SuiteBases.toStream.map(checkJUnit3Suite).find(_.isDefined).flatten ++
-          JUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).flatten ++
-          propSpecBases.toStream.map(checkPropSpec).find(_.isDefined).flatten ++
-
-          /**
-           * //TODO: actually implement checkSpec for scalatest 2.0 Spec
-           * checkSpec("org.scalatest.Spec") ++
-           * checkSpec("org.scalatest.SpecLike") ++
-           * checkSpec("org.scalatest.fixture.Spec") ++
-           * checkSpec("org.scalatest.fixture.SpecLike") ++
-           */
-          //this is intended for scalatest versions < 2.0
-          funSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).flatten ++
-          //this is intended for scalatest version 2.0
-          funSpecBasesPost2_0.toStream.map(checkFunSpec).find(_.isDefined).flatten ++
-          //---
-          testNGSuiteBases.toStream.map(checkTestNGSuite).find(_.isDefined).flatten ++
-          flatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).flatten ++
-          wordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).flatten
-        )
-      (clazz, testName.orNull)
     }
 
-    val selection = ScalaTestAstTransformer.testSelection(location)
+    val testName: Option[String] = (
+      funSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).flatten ++
+        featureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).flatten ++
+        freeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).flatten ++
+        JUnit3SuiteBases.toStream.map(checkJUnit3Suite).find(_.isDefined).flatten ++
+        JUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).flatten ++
+        propSpecBases.toStream.map(checkPropSpec).find(_.isDefined).flatten ++
 
-    if (selection != null) {
-      if (selection.testNames.nonEmpty) {
-        val testNames = selection.testNames.toSeq.map(_.trim)
-        val testNamesConcat = testNames.mkString("\n")
-        (clazz, testNamesConcat)
-      } else {
-        val parent = location.getPsiElement.getParent
-        if (parent != null) getTestClassWithTestName(new PsiLocation(location.getProject, parent))
-        else null
-      }
-    } else {
-      oldResult
-    }
+        /**
+         * //TODO: actually implement checkSpec for scalatest 2.0 Spec
+         * checkSpec("org.scalatest.Spec") ++
+         * checkSpec("org.scalatest.SpecLike") ++
+         * checkSpec("org.scalatest.fixture.Spec") ++
+         * checkSpec("org.scalatest.fixture.SpecLike") ++
+         */
+        //this is intended for scalatest versions < 2.0
+        funSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).flatten ++
+        //this is intended for scalatest version 2.0
+        funSpecBasesPost2_0.toStream.map(checkFunSpec).find(_.isDefined).flatten ++
+        //---
+        testNGSuiteBases.toStream.map(checkTestNGSuite).find(_.isDefined).flatten ++
+        flatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).flatten ++
+        wordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).flatten
+      )
+
+    (clazz, testName.orNull)
   }
 }
