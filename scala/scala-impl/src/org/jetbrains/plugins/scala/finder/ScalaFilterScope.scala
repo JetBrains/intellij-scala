@@ -47,11 +47,22 @@ final class ScalaFilterScope private(scope: GlobalSearchScope)
                                     (implicit project: Project)
   extends FilterScope(scope) {
 
-  import ScalaFilterScope._
-
   override protected def isValid(file: VirtualFile): Boolean =
-    (isInSourceContent(file) || ScratchFileService.isInScratchRoot(file)) && hasScalaPsi(file) ||
-      isInLibraryClasses(file) && isClassFile(file)
+    FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
+      case _: JavaClassFileType =>
+        isInLibraryClasses(file)
+      case fileType: LanguageFileType =>
+        substitutedLanguage(fileType, file).exists(_.isKindOf(ScalaLanguage.INSTANCE)) ||
+          ScalaLanguageDerivative.existsFor(fileType)
+      case _ => false
+    }
+
+  private def substitutedLanguage(fileType: LanguageFileType,
+                                  file: VirtualFile) = fileType match {
+    case _: ScratchFileType => Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
+    case _ if isInSourceContent(file) => Some(fileType.getLanguage)
+    case _ => None
+  }
 }
 
 object ScalaFilterScope {
@@ -76,25 +87,6 @@ object ScalaFilterScope {
     )
     case _ => scope
   }
-
-  private def hasScalaPsi(file: VirtualFile) =
-    FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
-      case fileType: LanguageFileType =>
-        val maybeLanguage = fileType match {
-          case _: ScratchFileType => Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
-          case _ => Some(fileType.getLanguage)
-        }
-
-        maybeLanguage.exists(_.isKindOf(ScalaLanguage.INSTANCE)) ||
-          ScalaLanguageDerivative.existsFor(fileType)
-      case _ => false
-    }
-
-  /** performance critical
-   * finding [[JavaClassFileType]] by [[VirtualFile]] should be avoided
-   */
-  private def isClassFile(file: VirtualFile) =
-    JavaClassFileType.INSTANCE.getDefaultExtension == file.getExtension
 }
 
 final class SourceFilterScope private(scope: GlobalSearchScope, fileTypes: Seq[FileType])
