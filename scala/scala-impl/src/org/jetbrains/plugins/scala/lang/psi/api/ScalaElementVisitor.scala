@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
 import scala.collection.mutable
@@ -124,7 +124,6 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitImportExpr(expr: ScImportExpr) {visitScalaElement(expr)}
   def visitSelfInvocation(self: ScSelfInvocation) {visitScalaElement(self)}
   def visitAnnotation(annotation: ScAnnotation) {visitScalaElement(annotation)}
-  def visitClass(cl: ScClass) {visitScalaElement(cl)}
   def visitTemplateParents(cp: ScTemplateParents) {visitScalaElement(cp)}
 
 

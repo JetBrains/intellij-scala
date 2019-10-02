@@ -98,11 +98,6 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
     case _ => super.visitScalaElement(v)
   }
 
-  override def visitClass(scClass: ScClass): Unit =
-    processEntry(
-      getEntryForRange(scClass.getParent, expandTextRangeToComment(scClass), getTokenType(scClass), scClass.getName, canArrange = true),
-      scClass, scClass.extendsBlock.templateBody.orNull)
-  
   override def visitValueDeclaration(v: ScValueDeclaration): Unit =
     processEntry(getEntryForRange(v.getParent, expandTextRangeToComment(v), getTokenType(v), v.getName, canArrange = true), v, null)
 
@@ -117,9 +112,11 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       varr, null)
 
   override def visitTypeDefinition(typedef: ScTypeDefinition) {
-    val textRange = expandTextRangeToComment(typedef)
-    val entry = getEntryForRange(typedef.getParent, textRange, getTokenType(typedef), typedef.getName, canArrange = true)
-    processEntry(entry, typedef, typedef.extendsBlock.templateBody.orNull)
+    processEntry(
+      getEntryForRange(typedef.getParent, expandTextRangeToComment(typedef), getTokenType(typedef), typedef.getName, canArrange = true),
+      typedef,
+      typedef.extendsBlock.templateBody.orNull
+    )
   }
 
   private def withinBounds(range: TextRange) = ranges.foldLeft(false)((acc: Boolean, current: TextRange) =>

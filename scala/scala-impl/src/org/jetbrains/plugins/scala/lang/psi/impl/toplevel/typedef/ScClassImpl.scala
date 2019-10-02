@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -47,8 +46,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   override protected final def baseIcon: Icon =
     if (this.hasAbstractModifier) Icons.ABSTRACT_CLASS
     else Icons.CLASS
-
-  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitClass(this)
 
   //do not use fakeCompanionModule, it will be used in Stubs.
   override def additionalClassJavaName: Option[String] =
