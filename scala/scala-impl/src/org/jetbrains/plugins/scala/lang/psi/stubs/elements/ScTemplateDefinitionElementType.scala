@@ -29,17 +29,17 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   override def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getQualifiedName)
+    dataStream.writeName(stub.getSourceFileName)
+    dataStream.writeName(stub.javaName)
     dataStream.writeName(stub.javaQualifiedName)
+    dataStream.writeOptionName(stub.additionalJavaName)
     dataStream.writeBoolean(stub.isPackageObject)
     dataStream.writeBoolean(stub.isScriptFileClass)
-    dataStream.writeName(stub.getSourceFileName)
     dataStream.writeBoolean(stub.isDeprecated)
-    dataStream.writeBoolean(stub.isImplicitObject)
-    dataStream.writeBoolean(stub.isImplicitClass)
-    dataStream.writeName(stub.javaName)
-    dataStream.writeOptionName(stub.additionalJavaName)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isVisibleInJava)
+    dataStream.writeBoolean(stub.isImplicitObject)
+    dataStream.writeBoolean(stub.isImplicitConversion)
     dataStream.writeNames(stub.implicitClassNames)
   }
 
@@ -48,45 +48,47 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     parentStub,
     this,
     nameRef = dataStream.readNameString,
-    qualifiedName = dataStream.readNameString,
+    getQualifiedName = dataStream.readNameString,
+    getSourceFileName = dataStream.readNameString,
+    javaName = dataStream.readNameString,
     javaQualifiedName = dataStream.readNameString,
+    additionalJavaName = dataStream.readOptionName,
     isPackageObject = dataStream.readBoolean,
     isScriptFileClass = dataStream.readBoolean,
-    sourceFileName = dataStream.readNameString,
     isDeprecated = dataStream.readBoolean,
-    isImplicitObject = dataStream.readBoolean,
-    isImplicitClass = dataStream.readBoolean,
-    javaName = dataStream.readNameString,
-    additionalJavaName = dataStream.readOptionName,
     isLocal = dataStream.readBoolean,
     isVisibleInJava = dataStream.readBoolean,
+    isImplicitObject = dataStream.readBoolean,
+    isImplicitConversion = dataStream.readBoolean,
     implicitClassNames = dataStream.readNames
   )
 
   override def createStubImpl(definition: TypeDef,
                               parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
-    val fileName = definition.containingVirtualFile
-      .map(_.getName).orNull
+    val fileName = definition.containingVirtualFile.map(_.getName).orNull
 
-    val maybeTypeDefinition = definition match {
-      case typeDefinition: ScTypeDefinition => Some(typeDefinition)
-      case _ => None
+    val (isDeprecated, additionalJavaName, isPackageObject) = definition match {
+      case typeDefinition: ScTypeDefinition =>
+        val annotations = definition.getModifierList match {
+          case null => Array.empty
+          case list => list.getAnnotations
+        }
+
+        val isScalaDeprecated = annotations.exists {
+          case annotation: ScAnnotation =>
+            val text = annotation.constructorInvocation.typeElement.getText
+            text == "deprecated" || text == "scala.deprecated"
+          case _ => false
+        }
+
+        (
+          isScalaDeprecated,
+          typeDefinition.additionalClassJavaName,
+          typeDefinition.isPackageObject
+        )
+      case _ =>
+        (false, None, false)
     }
-
-    val isDeprecated = maybeTypeDefinition.toSeq
-      .flatMap { definition =>
-        Option(definition.getModifierList)
-      }.flatMap {
-      _.getAnnotations
-    }.collect {
-      case a: ScAnnotation => a.constructorInvocation.typeElement.getText
-    }.exists {
-      case "deprecated" | "scala.deprecated" => true
-      case _ => false
-    }
-
-    val maybeAdditionalJavaName = maybeTypeDefinition
-      .flatMap(_.additionalClassJavaName)
 
     val isLocal = definition.containingClass == null &&
       PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
@@ -99,28 +101,28 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     val isImplicit = definition.hasModifierPropertyScala("implicit")
     val qualifiedName = definition.qualifiedName
 
-    val implicitClassNames = definition match {
-      case obj: ScObject if isImplicit => ScImplicitInstanceStub.superClassNames(obj)
-      case _: ScClass if isImplicit   => Array(qualifiedName)
-      case _ => EMPTY_STRING_ARRAY
+    val (isImplicitObject, isImplicitConversion, implicitClassNames) = definition match {
+      case obj: ScObject if isImplicit => (true, false, ScImplicitInstanceStub.superClassNames(obj))
+      case _: ScClass if isImplicit => (false, true, Array(qualifiedName))
+      case _ => (false, false, EMPTY_STRING_ARRAY)
     }
 
     new ScTemplateDefinitionStubImpl(
       parent,
       this,
       nameRef = definition.name,
-      qualifiedName = qualifiedName,
-      javaQualifiedName = definition.getQualifiedName,
-      isPackageObject = maybeTypeDefinition.exists(_.isPackageObject),
-      isScriptFileClass = definition.isScriptFileClass,
-      sourceFileName = fileName,
-      isDeprecated = isDeprecated,
-      isImplicitObject = definition.isInstanceOf[ScObject] && isImplicit,
-      isImplicitClass = definition.isInstanceOf[ScClass] && isImplicit,
+      getQualifiedName = definition.qualifiedName,
+      getSourceFileName = fileName,
       javaName = definition.getName,
-      additionalJavaName = maybeAdditionalJavaName,
+      javaQualifiedName = definition.getQualifiedName,
+      additionalJavaName = additionalJavaName,
+      isPackageObject = isPackageObject,
+      isScriptFileClass = definition.isScriptFileClass,
+      isDeprecated = isDeprecated,
       isLocal = isLocal,
       isVisibleInJava = isVisibleInJava,
+      isImplicitObject = isImplicitObject,
+      isImplicitConversion = isImplicitConversion,
       implicitClassNames = implicitClassNames
     )
   }

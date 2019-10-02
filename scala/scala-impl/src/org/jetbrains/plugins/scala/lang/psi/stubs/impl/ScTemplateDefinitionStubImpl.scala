@@ -15,25 +15,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](parent: StubElement[_ <: PsiElement],
                                                                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                                                                           nameRef: String,
-                                                                          val qualifiedName: String,
-                                                                          val javaQualifiedName: String,
-                                                                          val isPackageObject: Boolean,
-                                                                          val isScriptFileClass: Boolean,
-                                                                          val sourceFileName: String,
-                                                                          val isDeprecated: Boolean,
-                                                                          val isImplicitObject: Boolean,
-                                                                          val isImplicitClass: Boolean,
-                                                                          val javaName: String,
-                                                                          val additionalJavaName: Option[String],
-                                                                          val isLocal: Boolean,
-                                                                          val isVisibleInJava: Boolean,
-                                                                          val implicitClassNames: Array[String])
+                                                                          override val getQualifiedName: String,
+                                                                          override val getSourceFileName: String,
+                                                                          override val javaName: String,
+                                                                          override val javaQualifiedName: String,
+                                                                          override val additionalJavaName: Option[String],
+                                                                          override val isPackageObject: Boolean,
+                                                                          override val isScriptFileClass: Boolean,
+                                                                          override val isDeprecated: Boolean,
+                                                                          override val isLocal: Boolean,
+                                                                          override val isVisibleInJava: Boolean,
+                                                                          override val isImplicitObject: Boolean,
+                                                                          override val isImplicitConversion: Boolean,
+                                                                          override val implicitClassNames: Array[String])
   extends ScNamedStubBase[TypeDef](parent, elementType, nameRef)
     with ScTemplateDefinitionStub[TypeDef] {
-
-  override def getQualifiedName: String = qualifiedName
-
-  override def getSourceFileName: String = sourceFileName
 
   //todo PsiClassStub methods
   override def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
@@ -53,6 +49,4 @@ final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](parent
   override def isEnumConstantInitializer: Boolean = false
 
   override def getBaseClassReferenceText: String = null
-
-  override def isImplicitConversion: Boolean = isImplicitClass
 }

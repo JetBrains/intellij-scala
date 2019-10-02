@@ -24,8 +24,6 @@ trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
 
   def isImplicitObject: Boolean
 
-  def isImplicitClass: Boolean
-
   def additionalJavaName: Option[String]
 
   def javaName: String
