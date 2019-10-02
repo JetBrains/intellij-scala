@@ -662,38 +662,41 @@ class ScalaTestConfigurationProducer extends {
 
     import ScalaTestUtil._
 
-    implicit class OptionExt(x: Option[String]) {
-      def ++(s: => Option[String]): Option[String] = {
-        if (x.isDefined) x
-        else s
-      }
-    }
+    //noinspection ConvertibleToMethodValue
+    val suitsWithFinders: Seq[(Seq[String], String => Option[String])] = Seq(
+      (funSuiteBases, checkFunSuite _),
+      (featureSpecBases, checkFeatureSpec _),
+      (freeSpecBases, checkFreeSpec _),
+      (JUnit3SuiteBases, checkJUnit3Suite _),
+      (JUnitSuiteBases, checkJUnitSuite _),
+      (propSpecBases, checkPropSpec _),
+      /**
+       * //TODO: actually implement checkSpec for scalatest 2.0 Spec
+       * checkSpec("org.scalatest.Spec") ++
+       * checkSpec("org.scalatest.SpecLike") ++
+       * checkSpec("org.scalatest.fixture.Spec") ++
+       * checkSpec("org.scalatest.fixture.SpecLike") ++
+       */
+      //this is intended for scalatest versions < 2.0
+      (funSpecBasesPre2_0, checkFunSpec _),
+      //this is intended for scalatest version 2.0
+      (funSpecBasesPost2_0, checkFunSpec _),
+      //---
+      (testNGSuiteBases, checkTestNGSuite _),
+      (flatSpecBases, checkFlatSpec _),
+      (wordSpecBases, checkWordSpec _),
+    )
 
-    val testName: Option[String] = (
-      funSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).flatten ++
-        featureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).flatten ++
-        freeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).flatten ++
-        JUnit3SuiteBases.toStream.map(checkJUnit3Suite).find(_.isDefined).flatten ++
-        JUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).flatten ++
-        propSpecBases.toStream.map(checkPropSpec).find(_.isDefined).flatten ++
+    // use iterators, let the search be lazy
+    val searchResults: Iterator[(String, String)] =
+      for {
+        (suites, findTestName) <- suitsWithFinders.iterator
+        suite                  <- suites.iterator
+        testName               <- findTestName(suite)
+      } yield (suite, testName)
 
-        /**
-         * //TODO: actually implement checkSpec for scalatest 2.0 Spec
-         * checkSpec("org.scalatest.Spec") ++
-         * checkSpec("org.scalatest.SpecLike") ++
-         * checkSpec("org.scalatest.fixture.Spec") ++
-         * checkSpec("org.scalatest.fixture.SpecLike") ++
-         */
-        //this is intended for scalatest versions < 2.0
-        funSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).flatten ++
-        //this is intended for scalatest version 2.0
-        funSpecBasesPost2_0.toStream.map(checkFunSpec).find(_.isDefined).flatten ++
-        //---
-        testNGSuiteBases.toStream.map(checkTestNGSuite).find(_.isDefined).flatten ++
-        flatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).flatten ++
-        wordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).flatten
-      )
-
+    val suiteWithTestName = searchResults.headOption
+    val testName = suiteWithTestName.map(_._2)
     (clazz, testName.orNull)
   }
 }
