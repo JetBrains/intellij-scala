@@ -13,15 +13,12 @@ import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -46,174 +43,21 @@ object TypeDefinitionMembers {
       }
   }
 
-  //noinspection ScalaWrongMethodsUsage
-  private def isStaticJava(m: PsiMember): Boolean = !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
+  object TypeNodes extends MixinNodes[TypeSignature](TypesCollector)
 
-  object TypeNodes extends MixinNodes[TypeSignature] {
-    def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
-      case _: ScObject => true
-      case _: ScTypeDefinition | _: ScTypeAlias => false
-      case c: PsiClass => isStaticJava(c)
-      case _ => true
-    }
-
-
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
-      for (inner <- clazz.getInnerClasses) {
-        addToMap(TypeSignature(inner, subst), map)
-      }
-    }
-
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: TypeNodes.Map): Unit = {
-      for (member <- template.membersWithSynthetic.filterBy[ScNamedElement]) {
-        addToMap(TypeSignature(member, subst), map)
-      }
-    }
-
-    def processRefinement(cp: ScCompoundType, map: TypeNodes.Map): Unit = {
-      for ((_, aliasSig) <- cp.typesMap) {
-        addToMap(TypeSignature(aliasSig.typeAlias, aliasSig.substitutor), map)
-      }
-    }
-  }
-
-  object SignatureNodes extends SignatureNodes {
-    def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = td.membersWithSynthetic
-  }
+  object TermNodes extends MixinNodes[TermSignature](TermsCollector)
 
   //we need to have separate map for stable elements to avoid recursion processing declarations from imports
-  object StableNodes extends SignatureNodes {
+  object StableNodes extends MixinNodes[TermSignature](StableTermsCollector)
 
-    def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
-      (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
-        .filter(mayContainStable)
-    }
+  def getSignatures(clazz: PsiClass): TermNodes.Map =
+    ifValid(clazz)(_.TermNodesCache.cachedMap(clazz))
 
-    override def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
+  def getStableSignatures(clazz: PsiClass): StableNodes.Map =
+    ifValid(clazz)(_.StableNodesCache.cachedMap(clazz))
 
-    private def isStable(named: PsiNamedElement): Boolean = named match {
-      case _: ScObject => true
-      case t: ScTypedDefinition => t.isStable
-      case _ => false
-    }
-
-    private def mayContainStable(m: ScMember): Boolean = m match {
-      case _: ScTypeDefinition | _: ScValue | _: ScPrimaryConstructor => true
-      case _ => false
-    }
-  }
-
-  abstract class SignatureNodes extends MixinNodes[TermSignature] {
-
-    protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember]
-
-    def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
-      case f: ScFunction => f.isConstructor
-      case m: PsiMethod  => m.isConstructor || isStaticJava(m)
-      case m: PsiMember  => isStaticJava(m)
-      case _             => false
-    }
-
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
-      for (method <- clazz.getMethods) {
-        val phys = new PhysicalMethodSignature(method, subst)
-        addToMap(phys, map)
-      }
-
-      for (field <- clazz.getFields) {
-        val sig = TermSignature.withoutParams(field.getName, subst, field)
-        addToMap(sig, map)
-      }
-    }
-
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map): Unit = {
-      implicit val ctx: ProjectContext = template
-
-      def addSignature(s: TermSignature) {
-        addToMap(s, map)
-      }
-
-      if (template.qualifiedName == "scala.AnyVal") {
-        addAnyValObjectMethods(template, addSignature)
-      }
-
-      for (member <- relevantMembers(template)) {
-        member match {
-          case v: ScValueOrVariable =>
-            v.declaredElements
-              .foreach(addPropertySignatures(_, subst, addSignature))
-          case constr: ScPrimaryConstructor =>
-            constr.parameters
-              .foreach(addPropertySignatures(_, subst, addSignature))
-          case f: ScFunction =>
-            addSignature(new PhysicalMethodSignature(f, subst))
-          case o: ScObject =>
-            addSignature(TermSignature(o, subst))
-          case c: ScTypeDefinition =>
-            syntheticSignaturesFromInnerClass(c, subst)
-              .foreach(addSignature)
-          case _ =>
-        }
-      }
-    }
-
-    def processRefinement(cp: ScCompoundType, map: Map): Unit = {
-      for ((sign, _) <- cp.signatureMap) {
-        addToMap(sign, map)
-      }
-    }
-
-    private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: TermSignature => Unit): Unit = {
-      //some methods of java.lang.Object are available for value classes
-      val javaObject = ScalaPsiManager.instance(template.projectContext)
-        .getCachedClass(template.resolveScope, "java.lang.Object")
-
-      for (obj <- javaObject; method <- obj.getMethods) {
-        method.getName match {
-          case "equals" | "hashCode" | "toString" =>
-            addSignature(new PhysicalMethodSignature(method, ScSubstitutor.empty))
-          case _ =>
-        }
-      }
-    }
-
-    /**
-      * @param named is class parameter, or part of ScValue or ScVariable
-      * */
-    private def addPropertySignatures(named: ScTypedDefinition, subst: ScSubstitutor, addSignature: TermSignature => Unit): Unit = {
-      PropertyMethods.allRoles
-        .filter(isApplicable(_, named, noResolve = true))
-        .map(signature(named, subst, _))
-        .foreach(addSignature)
-    }
-    
-    private def signature(named: ScTypedDefinition, subst: ScSubstitutor, role: DefinitionRole): TermSignature = role match {
-      case SETTER | EQ => TermSignature.setter(methodName(named.name, role), named, subst)
-      case _           => TermSignature.withoutParams(methodName(named.name, role), subst, named)
-    }
-
-    private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[TermSignature] = {
-      val companionSig = td.fakeCompanionModule.map(TermSignature(_, subst))
-
-      val implicitClassFun = td match {
-        case c: ScClass if c.hasModifierProperty("implicit") =>
-          c.getSyntheticImplicitMethod.map(new PhysicalMethodSignature(_, subst))
-        case _ => None
-      }
-
-      companionSig.toList ::: implicitClassFun.toList
-    }
-  }
-
-  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
-  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
-  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-
-  def getSignatures(clazz: PsiClass): SMap       = ifValid(clazz)(_.SignatureNodesCache.cachedMap(clazz))
-
-  def getStableSignatures(clazz: PsiClass): PMap = ifValid(clazz)(_.StableNodesCache.cachedMap(clazz))
-
-  def getTypes(clazz: PsiClass): TMap            = ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz))
+  def getTypes(clazz: PsiClass): TypeNodes.Map =
+    ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz))
 
   private def ifValid[T <: Signature](clazz: PsiClass)
                                      (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
@@ -225,19 +69,19 @@ object TypeDefinitionMembers {
     }
   }
 
-  def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+  def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): StableNodes.Map = {
     ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp, compoundTypeThisType)
   }
 
-  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TypeNodes.Map = {
     ScalaPsiManager.instance(tp.projectContext).getTypes(tp, compoundTypeThisType)
   }
 
-  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TermNodes.Map = {
     ScalaPsiManager.instance(tp.projectContext).getSignatures(tp, compoundTypeThisType)
   }
 
-  def getSelfTypeSignatures(clazz: PsiClass): SMap = {
+  def getSelfTypeSignatures(clazz: PsiClass): TermNodes.Map = {
 
     clazz match {
       case td: ScTypeDefinition =>
@@ -258,7 +102,7 @@ object TypeDefinitionMembers {
     }
   }
 
-  def getSelfTypeTypes(clazz: PsiClass): TMap = {
+  def getSelfTypeTypes(clazz: PsiClass): TypeNodes.Map = {
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
@@ -531,7 +375,7 @@ object TypeDefinitionMembers {
     true
   }
 
-  private def signaturesFromCompanion(clazz: PsiClass): SignatureNodes.Map = {
+  private def signaturesFromCompanion(clazz: PsiClass): TermNodes.Map = {
     clazz match {
       case td: ScTypeDefinition =>
         getCompanionModule(td) match {

@@ -31,10 +31,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{SignatureNodes, StableNodes, TypeNodes}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{TermNodes, StableNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -94,13 +94,13 @@ class ScalaPsiManager(implicit val project: Project) {
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    if (dontCacheCompound) return SignatureNodes.build(tp, compoundTypeThisType)
+    if (dontCacheCompound) return TermNodes.build(tp, compoundTypeThisType)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    SignatureNodes.build(tp, compoundTypeThisType)
+    TermNodes.build(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
@@ -371,9 +371,9 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   }
 
-  object SignatureNodesCache extends SignatureCaches(SignatureNodes)
-  object StableNodesCache    extends SignatureCaches(StableNodes)
-  object TypeNodesCache      extends SignatureCaches(TypeNodes)
+  object TermNodesCache   extends SignatureCaches(TermNodes)
+  object StableNodesCache extends SignatureCaches(StableNodes)
+  object TypeNodesCache   extends SignatureCaches(TypeNodes)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @volatile

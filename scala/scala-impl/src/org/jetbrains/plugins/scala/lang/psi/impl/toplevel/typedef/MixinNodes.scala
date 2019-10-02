@@ -37,20 +37,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
-abstract class MixinNodes[T <: Signature] {
+abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
   type Map = MixinNodes.Map[T]
-  type Node = MixinNodes.Node[T]
-
-  def shouldSkip(t: T): Boolean
-
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map)
-
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map): Unit
-
-  def processRefinement(cp: ScCompoundType, map: Map): Unit
-
-  final def addToMap(t: T, m: Map): Unit =
-    if (!shouldSkip(t)) m.addToMap(t)
 
   def build(clazz: PsiClass): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
@@ -59,7 +47,7 @@ abstract class MixinNodes[T <: Signature] {
 
         val map = new Map
 
-        addAllFrom(clazz, ScSubstitutor.empty, map)
+        signatureCollector.processAll(clazz, ScSubstitutor.empty, map)
         map.thisFinished()
 
         addSuperSignatures(SuperTypesData(clazz), map)
@@ -71,7 +59,7 @@ abstract class MixinNodes[T <: Signature] {
   def build(cp: ScCompoundType, compoundThisType: Option[ScType] = None): Map = {
     val map = new Map
 
-    processRefinement(cp, map)
+    signatureCollector.processRefinement(cp, map)
     map.thisFinished()
 
     addSuperSignatures(SuperTypesData(cp, compoundThisType), map)
@@ -81,28 +69,13 @@ abstract class MixinNodes[T <: Signature] {
   private def addSuperSignatures(superTypesData: SuperTypesData, map: Map): Unit = {
 
     for ((superClass, subst) <- superTypesData.substitutors) {
-      addAllFrom(superClass, subst, map)
+      signatureCollector.processAll(superClass, subst, map)
     }
 
     for (compoundType <- superTypesData.refinements) {
-      processRefinement(compoundType, map)
+      signatureCollector.processRefinement(compoundType, map)
     }
   }
-
-  @tailrec
-  private def addAllFrom(clazz: PsiClass, substitutor: ScSubstitutor, map: Map): Unit = {
-    clazz match {
-      case null                     => ()
-      case syn: ScSyntheticClass    => addAllFrom(realClass(syn), substitutor, map)
-      case td: ScTemplateDefinition => processScala(td, substitutor, map)
-      case _                        => processJava(clazz, substitutor, map)
-    }
-  }
-
-  private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =
-    syn.elementScope.getCachedClass(syn.getQualifiedName)
-      .filterByType[ScTemplateDefinition].orNull
-
 }
 
 object MixinNodes {
@@ -185,7 +158,7 @@ object MixinNodes {
     def primarySuper: Option[Node[T]] = concreteSuper.orElse(supers.headOption)
   }
 
-  class Map[T <: Signature] {
+  class Map[T <: Signature] extends SignatureSink[T] {
 
     private val allNames: THashSet[String] = new THashSet[String]
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
@@ -215,7 +188,7 @@ object MixinNodes {
       fromSuper = true
     }
 
-    private[MixinNodes] def addToMap(signature: T) {
+    def put(signature: T) {
       val name = signature.name
       val buffer =
         if (fromSuper) supersSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
