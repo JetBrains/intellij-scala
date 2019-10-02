@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInspection.typeAnnotation
+package org.jetbrains.plugins.scala.codeInspection
+package typeAnnotation
 
 import java.{util => ju}
 
@@ -9,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention.complete
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.AddTypeAnnotationQuickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -23,7 +23,8 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {
-    complete(element)
+    val maybeEditor = getActiveEditor(element, project)
+    complete(element, strategy = new AddOnlyStrategy(maybeEditor))
   }
 
   override def applyFix(project: Project,

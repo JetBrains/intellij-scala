@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.psi.PsiClass
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -13,6 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, 
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object codeInspection {
+  private[codeInspection] def getActiveEditor(element: PsiElement): Option[Editor] = getActiveEditor(element, element.getProject)
+  private[codeInspection] def getActiveEditor(element: PsiElement, project: Project): Option[Editor] = for {
+    file <- element.getContainingFile.toOption
+    vfile <- file.getVirtualFile.toOption
+    textEditor <- FileEditorManager.getInstance(project).getSelectedEditor(vfile).asOptionOf[TextEditor]
+  } yield textEditor.getEditor
+
   private[codeInspection] def expressionResultIsNotUsed(expression: ScExpression): Boolean =
     isNonLastInBlock(expression) ||
       parents(expression).exists {

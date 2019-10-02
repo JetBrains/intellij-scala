@@ -2,8 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package typeAnnotation
 
+import java.util.regex.Pattern
+
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+import com.intellij.ui.{ChooserInterceptor, UiInterceptors}
+import scala.collection.JavaConverters._
 
 abstract class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
 
@@ -134,6 +138,93 @@ class TypeAnnotationInspectionFromSuperTest extends TypeAnnotationInspectionTest
          |  override val foo: Option[Int] = ???
          |}
         """.stripMargin
+  )
+
+  // SCL-16081
+  def testOverridingTypeAliasDef(): Unit = testQuickFix(
+    text =
+      s"""
+        |trait Receiver {
+        |  type Receive = PartialFunction[Any, Unit]
+        |  def receive: Receive
+        |}
+        |
+        |class MyReceiver extends Receiver {
+        |  override def ${START}receive$END = {
+        |    case _ =>
+        |  }
+        |}
+        |""".stripMargin,
+    expected =
+      s"""
+        |trait Receiver {
+        |  type Receive = PartialFunction[Any, Unit]
+        |  def receive: Receive
+        |}
+        |
+        |class MyReceiver extends Receiver {
+        |  override def receive: Receive = {
+        |    case _ =>
+        |  }
+        |}
+        |""".stripMargin
+  )
+
+  def testOverridingTypeAliasVal(): Unit = testQuickFix(
+    text =
+      s"""
+         |trait Receiver {
+         |  type Receive = PartialFunction[Any, Unit]
+         |  val receive: Receive
+         |}
+         |
+         |class MyReceiver extends Receiver {
+         |  override val ${START}receive$END = {
+         |    case _ =>
+         |  }
+         |}
+         |""".stripMargin,
+    expected =
+      s"""
+         |trait Receiver {
+         |  type Receive = PartialFunction[Any, Unit]
+         |  val receive: Receive
+         |}
+         |
+         |class MyReceiver extends Receiver {
+         |  override val receive: Receive = {
+         |    case _ =>
+         |  }
+         |}
+         |""".stripMargin
+  )
+
+  // opens a dialog and (here) selects first choice
+  def testOverridingWithNewTypeAlias(): Unit = testQuickFix(
+    text =
+      s"""
+         |trait Receiver {
+         |  type Receive = PartialFunction[Any, Unit]
+         |  def receive: Receive
+         |}
+         |
+         |class MyReceiver extends Receiver {
+         |  type MyReceive = PartialFunction[Any, Unit]
+         |  override def ${START}receive$END = null.asInstanceOf[MyReceive]
+         |}
+         |""".stripMargin,
+    expected =
+      s"""
+         |trait Receiver {
+         |  type Receive = PartialFunction[Any, Unit]
+         |  def receive: Receive
+         |}
+         |
+         |class MyReceiver extends Receiver {
+         |  type MyReceive = PartialFunction[Any, Unit]
+         |  override def receive: Receive = null.asInstanceOf[MyReceive]
+         |}
+         |""".stripMargin
   )
 
   override protected def createTestText(text: String): String = text

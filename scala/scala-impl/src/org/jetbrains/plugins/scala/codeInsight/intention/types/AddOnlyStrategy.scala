@@ -3,9 +3,15 @@ package codeInsight
 package intention
 package types
 
+import java.util.concurrent.CompletableFuture
+
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep
+import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
@@ -22,6 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignat
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
+
+import scala.collection.JavaConverters._
 
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
@@ -41,7 +49,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   override def underscoreSectionWithType(underscore: ScUnderscoreSection) = true
 
   override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
-    typeForMember(function).foreach {
+    selectTypeForMember(function).thenAccept {
       addTypeAnnotation(_, function, function.paramClauses)
     }
 
@@ -49,7 +57,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def valueWithoutType(value: ScPatternDefinition): Boolean = {
-    typeForMember(value).foreach {
+    selectTypeForMember(value).thenAccept {
       addTypeAnnotation(_, value, value.pList)
     }
 
@@ -57,7 +65,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def variableWithoutType(variable: ScVariableDefinition): Boolean = {
-    typeForMember(variable).foreach {
+    selectTypeForMember(variable).thenAccept {
       addTypeAnnotation(_, variable, variable.pList)
     }
 
@@ -137,7 +145,22 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
     }
   }
 
-  private def typeForMember(element: ScMember): Option[ScType] = {
+  private def selectTypeForMember(element: ScMember): CompletableFuture[ScType] = {
+    import CompletableFuture.completedFuture
+
+    typeForMember(element) match {
+      case Seq() => completedFuture(element.projectContext.stdTypes.Any)
+      case Seq(one) => completedFuture(one)
+      case multiple =>
+        editor.fold(
+          completedFuture(multiple.head)
+        )(
+          showTypeChooser(multiple, _)
+        )
+    }
+  }
+
+  private def typeForMember(element: ScMember): Seq[ScType] = {
 
     def signatureType(sign: TermSignature): Option[ScType] = {
       val substitutor = sign.substitutor
@@ -188,19 +211,49 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
         None
     }
 
-    val shouldTrySuperMember = computedType match {
-      case None => true
-      case Some(t) => t.isNothing || t.isAny
-    }
+    val typeFromSuper = superSignatures(element)
+      .iterator
+      .map(signatureType)
+      .find(_.nonEmpty)
+      .flatten
 
-    if (shouldTrySuperMember) {
-      val supers = superSignatures(element).iterator
-      supers
-        .map(signatureType)
-        .find(_.nonEmpty)
-        .flatten
+    typeFromSuper.toSeq ++ computedType match {
+      case Seq(st, t) if t.isNothing || t.isAny =>
+        // if the computed type is nothing or any, the super type can only be more expressive
+        Seq(st)
+      case Seq(st, t) if t.isAliasType.isEmpty && t.equiv(st) =>
+        // if both types are equivalent, use the super type, because it might be a type alias
+        // except, of course, the computed type is a type alias then better let the user choose
+        Seq(st)
+      case oneOrBoth => oneOrBoth
     }
-    else computedType
+  }
+
+  def showTypeChooser(multiple: Seq[ScType], editor: Editor): CompletableFuture[ScType] = {
+    implicit val project: Project = editor.getProject
+    val resultFuture = new CompletableFuture[ScType]()
+    val title = ScalaBundle.message("choose.inferred.or.super.type.popup.title")
+    val popup: BaseListPopupStep[ScType] = new BaseListPopupStep[ScType](title, multiple.asJava) {
+      override def getIconFor(value: ScType): Icon =
+        value.extractDesignated(expandAliases = false).map(_.getIcon(0)).orNull
+
+      override def getTextFor(value: ScType): String = {
+        value.presentableText
+      }
+
+      override def onChosen(selectedValue: ScType, finalChoice: Boolean): PopupStep[_] = {
+        if (selectedValue != null && finalChoice) {
+          executeWriteActionCommand("Add type annotation action") {
+            PsiDocumentManager.getInstance(project).commitAllDocuments()
+            resultFuture.complete(selectedValue)
+          }
+        }
+        PopupStep.FINAL_CHOICE
+      }
+    }
+    JBPopupFactory.getInstance.createListPopup(popup).showInBestPositionFor(editor)
+
+    resultFuture
   }
 }
 
