@@ -78,8 +78,10 @@ object ScalaFilterScope {
 
   private def hasScalaPsi(file: VirtualFile) =
     FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
-      case fileType: LanguageFileType if fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) => true
-      case fileType => ScalaLanguageDerivative.existsFor(fileType)
+      case fileType: LanguageFileType =>
+        fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) ||
+          ScalaLanguageDerivative.existsFor(fileType)
+      case _ => false
     }
 
   /** performance critical

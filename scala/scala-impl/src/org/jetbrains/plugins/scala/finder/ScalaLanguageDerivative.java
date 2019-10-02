@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.finder;
 
 import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.LanguageFileType;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,13 +14,11 @@ abstract public class ScalaLanguageDerivative {
             ExtensionPointName.create("org.intellij.scala.scalaLanguageDerivative");
 
     @NotNull
-    protected abstract FileType getFileType();
+    protected abstract LanguageFileType getFileType();
 
-    public static boolean existsFor(@NotNull FileType fileType) {
-        for (ScalaLanguageDerivative derivative : EP_NAME.getExtensionList()) {
-            if (derivative.getFileType().equals(fileType)) return true;
-        }
-
-        return false;
+    public static boolean existsFor(@NotNull LanguageFileType fileType) {
+        return EP_NAME.extensions()
+                .map(ScalaLanguageDerivative::getFileType)
+                .anyMatch(fileType::equals);
     }
 }
