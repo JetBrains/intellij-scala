@@ -53,6 +53,12 @@ final class ScalaTypeHintsConfigurable
       settings.alignExpressionChainSetter
     )
 
+    checkBox(
+      "Move Aligned type hints in expression chains to the right (Scala)",
+      settings.moveExpressionChainRightGetter,
+      settings.moveExpressionChainRightSetter
+    )
+
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
       settingsPanel.getPanel,
@@ -131,5 +137,10 @@ object ScalaTypeHintsConfigurable {
   class ToggleAlignExpressionChainAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.alignExpressionChainGetter,
     ScalaCodeInsightSettings.alignExpressionChainSetter
+  )
+
+  class ToggleMoveExpressionChainRightAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.moveExpressionChainRightGetter,
+    ScalaCodeInsightSettings.moveExpressionChainRightSetter
   )
 }

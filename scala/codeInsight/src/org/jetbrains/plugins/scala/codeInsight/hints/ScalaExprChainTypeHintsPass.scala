@@ -45,8 +45,10 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
         (longestExpr, maxLineWidth) = exprToLineOffset.maxBy(_._2)
         avgLineWidth = exprToLineOffset.map(_._2).sum.toFloat / exprToLineOffset.size
         minOffset = Math.min(Math.max(1, 8 - (maxLineWidth - avgLineWidth).toInt / 3), 6)  // todo: refactor this and make it more understandable
+        offset = if (moveExpressionChainRight) editor.getSettings.getRightMargin(root.getProject) - maxLineWidth + 1 else minOffset
         longestExprEndOffset = longestExpr.getTextRange.getEndOffset
-        longestLine = " " * minOffset + editor.getDocument.getCharsSequence.substring(longestExprEndOffset - maxLineWidth, longestExprEndOffset).reverse
+        longestLine = " " * offset +
+          editor.getDocument.getCharsSequence.substring(longestExprEndOffset - maxLineWidth, longestExprEndOffset).reverse
 
         (expr, ty) <-
           if (showIdenticalTypeInExpressionChain) exprs.zip(types)
