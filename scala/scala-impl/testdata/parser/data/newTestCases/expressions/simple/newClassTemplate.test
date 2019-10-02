@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        NewTemplateDefinition
+        ScNewTemplateDefinition: <anonymous>
           PsiElement(new)('new')
           PsiWhiteSpace(' ')
           ExtendsBlock

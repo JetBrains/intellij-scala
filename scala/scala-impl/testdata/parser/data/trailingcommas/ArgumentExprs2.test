@@ -100,7 +100,7 @@ ScalaFile
           ExtendsBlock
             <empty list>
         PsiWhiteSpace('\n  ')
-        NewTemplateDefinition
+        ScNewTemplateDefinition: <anonymous>
           PsiElement(new)('new')
           PsiWhiteSpace(' ')
           ExtendsBlock

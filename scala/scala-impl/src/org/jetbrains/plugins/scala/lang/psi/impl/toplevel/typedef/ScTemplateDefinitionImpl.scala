@@ -41,7 +41,8 @@ import scala.collection.{JavaConverters, mutable}
 
 abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl](stub: ScTemplateDefinitionStub[T],
                                                                                  nodeType: ScTemplateDefinitionElementType[T],
-                                                                                 node: ASTNode)
+                                                                                 node: ASTNode,
+                                                                                 debugName: String) // TODO to be moved to ScalaStubBasedElementImpl eventually
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with PsiClassFake
     with ScTemplateDefinition {
@@ -51,6 +52,8 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   import TypeDefinitionMembers._
 
   protected def targetTokenType: ScalaTokenType
+
+  override final def toString: String = debugName + extensions.ifReadAllowed(s": $name")("")
 
   override final def targetToken: LeafPsiElement = findChildByType[LeafPsiElement](targetTokenType)
 

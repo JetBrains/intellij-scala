@@ -34,12 +34,11 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
   */
 class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   nodeType: ScTemplateDefinitionElementType[ScClass],
-                  node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node)
+                  node: ASTNode,
+                  debugName: String)
+  extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScClass
     with ScTypeParametersOwner {
-
-  override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ClassKeyword
 

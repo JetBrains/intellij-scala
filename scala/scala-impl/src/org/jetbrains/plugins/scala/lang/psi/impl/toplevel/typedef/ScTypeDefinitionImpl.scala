@@ -47,8 +47,10 @@ import scala.annotation.tailrec
 
 abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
                                                                nodeType: ScTemplateDefinitionElementType[T],
-                                                               node: ASTNode)
-  extends ScTemplateDefinitionImpl(stub, nodeType, node) with ScTypeDefinition {
+                                                               node: ASTNode,
+                                                               debugName: String)
+  extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)
+    with ScTypeDefinition {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 

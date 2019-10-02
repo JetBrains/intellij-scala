@@ -2,7 +2,7 @@ new M() map[String] _.toString
 -----
 ScalaFile
   InfixExpression
-    NewTemplateDefinition
+    ScNewTemplateDefinition: <anonymous>
       PsiElement(new)('new')
       PsiWhiteSpace(' ')
       ExtendsBlock

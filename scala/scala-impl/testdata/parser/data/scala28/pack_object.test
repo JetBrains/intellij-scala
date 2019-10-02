@@ -1,9 +1,9 @@
 package object scala {
-  type List = collection.immuteble.List
+  type List = collection.immutable.List
 }
 -----
 ScalaFile
-  ScPackageObject: scala
+  ScObject: scala
     AnnotationsList
       <empty list>
     Modifiers
@@ -29,13 +29,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          SimpleType: collection.immuteble.List
-            CodeReferenceElement: collection.immuteble.List
-              CodeReferenceElement: collection.immuteble
+          SimpleType: collection.immutable.List
+            CodeReferenceElement: collection.immutable.List
+              CodeReferenceElement: collection.immutable
                 CodeReferenceElement: collection
                   PsiElement(identifier)('collection')
                 PsiElement(.)('.')
-                PsiElement(identifier)('immuteble')
+                PsiElement(identifier)('immutable')
               PsiElement(.)('.')
               PsiElement(identifier)('List')
         PsiWhiteSpace('\n')

@@ -178,30 +178,30 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   }
 }
 
-object ClassDefinition extends ScTemplateDefinitionElementType[ScClass]("class definition") {
+object ClassDefinition extends ScTemplateDefinitionElementType[ScClass]("ScClass") {
 
-  override def createElement(node: ASTNode) = new ScClassImpl(null, null, node)
+  override def createElement(node: ASTNode) = new ScClassImpl(null, null, node, toString)
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScClass]) = new ScClassImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScClass]) = new ScClassImpl(stub, this, null, toString)
 }
 
-object TraitDefinition extends ScTemplateDefinitionElementType[ScTrait]("trait definition") {
+object TraitDefinition extends ScTemplateDefinitionElementType[ScTrait]("ScTrait") {
 
-  override def createElement(node: ASTNode) = new ScTraitImpl(null, null, node)
+  override def createElement(node: ASTNode) = new ScTraitImpl(null, null, node, toString)
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]) = new ScTraitImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]) = new ScTraitImpl(stub, this, null, toString)
 }
 
-object ObjectDefinition extends ScTemplateDefinitionElementType[ScObject]("object definition") {
+object ObjectDefinition extends ScTemplateDefinitionElementType[ScObject]("ScObject") {
 
-  override def createElement(node: ASTNode) = new ScObjectImpl(null, null, node)
+  override def createElement(node: ASTNode) = new ScObjectImpl(null, null, node, toString)
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScObject]) = new ScObjectImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScObject]) = new ScObjectImpl(stub, this, null, toString)
 }
 
-object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("new template definition") {
+object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
 
-  override def createElement(node: ASTNode) = new ScNewTemplateDefinitionImpl(null, null, node)
+  override def createElement(node: ASTNode) = new ScNewTemplateDefinitionImpl(null, null, node, toString)
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition]) = new ScNewTemplateDefinitionImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition]) = new ScNewTemplateDefinitionImpl(stub, this, null, toString)
 }

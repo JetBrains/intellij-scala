@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
-package lang.navigation
+package lang
+package navigation
 
 import com.intellij.codeInsight.navigation.GotoImplementationHandler
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.junit.Assert.assertEquals
 
 /**
  * @author Alefas
  * @since 24.12.13
  */
-class GoToImplementationTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+class GoToImplementationTest extends GoToTestBase {
+
   def testTraitImplementation() {
     val fileText =
       """
@@ -20,10 +22,13 @@ class GoToImplementationTest extends ScalaLightPlatformCodeInsightTestCaseAdapte
         |}
         |case class c() extends b
         |case class d() extends b
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
+      """.stripMargin
+    configureFromFileText(fileText)
 
-    val targets = new GotoImplementationHandler().getSourceAndTargetElements(getEditorAdapter, getFileAdapter).targets
-    assert(targets.length == 1, s"Wrong number of targets: ${targets.length}")
+    val targetsCount = new GotoImplementationHandler()
+      .getSourceAndTargetElements(getEditor, getFile)
+      .targets
+      .length
+    assertEquals(s"Wrong number of targets: $targetsCount", 1, targetsCount)
   }
 }

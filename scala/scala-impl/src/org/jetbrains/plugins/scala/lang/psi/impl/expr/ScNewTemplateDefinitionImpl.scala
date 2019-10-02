@@ -35,10 +35,10 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 */
 final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
-                                                     node: ASTNode)
-  extends ScTemplateDefinitionImpl(stub, nodeType, node) with ScNewTemplateDefinition {
-
-  override def toString: String = "NewTemplateDefinition"
+                                                     node: ASTNode,
+                                                     debugName: String)
+  extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)
+    with ScNewTemplateDefinition {
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.NewKeyword
 

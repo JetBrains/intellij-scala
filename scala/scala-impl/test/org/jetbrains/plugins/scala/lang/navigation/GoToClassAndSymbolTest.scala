@@ -1,22 +1,23 @@
 package org.jetbrains.plugins.scala
-package lang.navigation
+package lang
+package navigation
 
 import com.intellij.ide.util.gotoByName._
 import com.intellij.openapi.application.ModalityState
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.concurrency.Semaphore
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.Assert
+import org.junit.Assert._
 
 import scala.collection.JavaConverters._
-
 
 /**
  * @author Alefas
  * @since 23.12.13
  */
-class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class GoToClassAndSymbolTest extends GoToTestBase {
+
+  import GoToClassAndSymbolTest._
 
   override protected def loadScalaLibrary = false
 
@@ -60,16 +61,18 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     result
   }
 
-  private def checkContainExpected(elements: Set[Any], expected: String*): Unit = {
-    val elementStrings = elements.map(_.toString)
-    expected.foreach { e =>
-      Assert.assertTrue(s"Element not found: $e, found: $elementStrings", elementStrings.contains(e))
-    }
-  }
+  private def checkContainExpected(elements: Set[Any],
+                                   expected: (Any => Boolean, String)*): Unit = for {
+    (predicate, expectedName) <- expected
 
-  private def checkSize(elements: Set[Any], expectedSize: Int) : Unit = {
-    Assert.assertEquals(s"Wrong number of elements found, found: ${elements.map(_.toString)}", expectedSize, elements.size)
-  }
+    if elements.find(predicate).forall(!hasExpectedName(_, expectedName))
+  } fail(s"Element not found: $expectedName, found: $elements")
+
+  private def checkSize(elements: Set[Any], expectedSize: Int): Unit = assertEquals(
+    s"Wrong number of elements found, found: $elements",
+    expectedSize,
+    elements.size
+  )
 
   def testTrait(): Unit = {
     getFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
@@ -77,7 +80,7 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val elements = gotoClassElements("GoToClassS")
 
     checkSize(elements, 1)
-    checkContainExpected(elements, "ScTrait: GoToClassSimpleTrait")
+    checkContainExpected(elements, (isTrait, "GoToClassSimpleTrait"))
   }
 
   def testTrait2(): Unit = {
@@ -86,7 +89,7 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val elements = gotoClassElements("GTCS")
 
     checkSize(elements, 1)
-    checkContainExpected(elements, "ScTrait: GoToClassSimpleTrait")
+    checkContainExpected(elements, (isTrait, "GoToClassSimpleTrait"))
   }
 
   def testObject(): Unit = {
@@ -95,7 +98,7 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val elements = gotoClassElements("GoToClassS")
 
     checkSize(elements, 1)
-    checkContainExpected(elements, "ScObject: GoToClassSimpleObject")
+    checkContainExpected(elements, (isObject, "GoToClassSimpleObject$"))
   }
 
   def testPackageObject(): Unit = {
@@ -108,7 +111,7 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val elements = gotoClassElements("someP")
 
     checkSize(elements, 1)
-    checkContainExpected(elements, "ScPackageObject: somePackageName")
+    checkContainExpected(elements, (isPackageObject, "foo.somePackageName.package$"))
   }
 
   def testGoToSymbol(): Unit = {
@@ -123,8 +126,12 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin)
 
     val elements = gotoSymbolElements("foo")
-    checkContainExpected(elements,
-      "ScClass: FooClass", "ScTrait: FooTrait", "ScFunctionDefinition: fooMethod", "ScFunctionDeclaration: fooMethod"
+    checkContainExpected(
+      elements,
+      (isClass, "FooClass"),
+      (isTrait, "FooTrait"),
+      (isFunction, "fooMethod"),
+      (isFunction, "fooMethod")
     )
   }
 
@@ -134,7 +141,7 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val elements = gotoClassElements("::")
 
     checkSize(elements, 1)
-    checkContainExpected(elements, "ScClass: :::")
+    checkContainExpected(elements, (isClass, Colon + Colon + Colon))
   }
 
   def testSymbol_:::(): Unit = {
@@ -143,6 +150,11 @@ class GoToClassAndSymbolTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val elements = gotoSymbolElements("::")
 
     checkSize(elements, 2)
-    checkContainExpected(elements, "ScClass: :::", "ScFunctionDefinition: :::")
+    checkContainExpected(elements, (isClass, Colon + Colon + Colon), (isFunction, Colon + Colon + Colon))
   }
+}
+
+object GoToClassAndSymbolTest {
+
+  private val Colon = "$colon"
 }

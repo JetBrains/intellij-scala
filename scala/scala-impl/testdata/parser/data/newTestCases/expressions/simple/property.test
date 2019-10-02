@@ -24,7 +24,7 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         ReferenceExpression: new {var a = 3}.a
-          NewTemplateDefinition
+          ScNewTemplateDefinition: <anonymous>
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock

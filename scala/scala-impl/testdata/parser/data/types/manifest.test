@@ -40,7 +40,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          NewTemplateDefinition
+          ScNewTemplateDefinition: <anonymous>
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
@@ -155,7 +155,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  NewTemplateDefinition
+                  ScNewTemplateDefinition: <anonymous>
                     PsiElement(new)('new')
                     PsiWhiteSpace(' ')
                     ExtendsBlock
@@ -166,7 +166,7 @@ ScalaFile
                               PsiElement(identifier)('BoxedByteArray')
                           ArgumentList
                             PsiElement(()('(')
-                            NewTemplateDefinition
+                            ScNewTemplateDefinition: <anonymous>
                               PsiElement(new)('new')
                               PsiWhiteSpace(' ')
                               ExtendsBlock
@@ -204,7 +204,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          NewTemplateDefinition
+          ScNewTemplateDefinition: <anonymous>
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
@@ -319,7 +319,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  NewTemplateDefinition
+                  ScNewTemplateDefinition: <anonymous>
                     PsiElement(new)('new')
                     PsiWhiteSpace(' ')
                     ExtendsBlock
@@ -330,7 +330,7 @@ ScalaFile
                               PsiElement(identifier)('BoxedShortArray')
                           ArgumentList
                             PsiElement(()('(')
-                            NewTemplateDefinition
+                            ScNewTemplateDefinition: <anonymous>
                               PsiElement(new)('new')
                               PsiWhiteSpace(' ')
                               ExtendsBlock

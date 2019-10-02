@@ -7,7 +7,6 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -23,14 +22,13 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 */
 final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
                                      nodeType: ScTemplateDefinitionElementType[ScTrait],
-                                     node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node)
+                                     node: ASTNode,
+                                     debugName: String)
+  extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScTrait
     with ScTypeParametersOwner {
 
   override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
-
-  override def toString: String = "ScTrait: " + ifReadAllowed(name)("")
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor

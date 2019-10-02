@@ -2,18 +2,16 @@ package org.jetbrains.plugins.scala
 package lang
 package navigation
 
-import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, ScalaLightPlatformCodeInsightTestCaseAdapter}
-import org.junit.Assert.assertEquals
+import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction.findAllTargetElements
+import com.intellij.psi.{PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Apply
+import org.junit.Assert._
 
 /**
   * Nikolay.Tropin
   * 08-Nov-17
   */
-class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
+class GoToDeclarationTest extends GoToTestBase {
 
   def testSyntheticApply(): Unit = doTest(
     s"""
@@ -23,7 +21,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  def apply(boolean: Boolean) = ${CARET}Test(0)
        |}
       """,
-    expected = "ScClass: Test"
+    expected = (isClass, "Test")
   )
 
   def testSyntheticUnapply(): Unit = doTest(
@@ -36,7 +34,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  }
        |}
       """,
-    expected = "ScClass: Test"
+    expected = (isClass, "Test")
   )
 
   def testSyntheticCopy(): Unit = doTest(
@@ -47,7 +45,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  Test(1).${CARET}copy(i = 2)
        |}
       """,
-    expected = "ScClass: Test"
+    expected = (isClass, "Test")
   )
 
   def testApply(): Unit = doTest(
@@ -60,7 +58,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  ${CARET}Test(false)
        |}
       """,
-    expected = "ScObject: Test", "ScFunctionDefinition: apply"
+    expected = (isObject, "Test$"), (isFunction, Apply)
   )
 
   def testPackageObjectOnly(): Unit = doTest(
@@ -73,7 +71,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |
        |import org.example.foo.b${CARET}ar.foo
      """,
-    expected = "ScPackageObject: bar"
+    expected = (isPackageObject, "org.example.foo.bar.package$")
   )
 
   def testPackageObjectAmbiguity(): Unit = doTest(
@@ -84,7 +82,8 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |
        |import org.example.foo.b${CARET}ar
      """,
-    expected = "ScPackageObject: bar", "PsiPackage:org.example.foo.bar"
+    expected = (isPackageObject, "org.example.foo.bar.package$"),
+    (_.isInstanceOf[PsiPackage], "org.example.foo.bar")
   )
 
   def testImportSelectorsMixed(): Unit = doTest(
@@ -101,7 +100,8 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |
        |import org.example.foo.ba${CARET}r.{Bar, baz}
      """,
-    expected = "PsiPackage:org.example.foo.bar", "ScPackageObject: bar"
+    expected = (_.isInstanceOf[PsiPackage], "org.example.foo.bar"),
+    (isPackageObject, "org.example.foo.bar.package$")
   )
 
   def testImportSelectorsExclusive(): Unit = doTest(
@@ -119,7 +119,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |
        |import org.example.foo.ba${CARET}r.{qux, baz}
      """,
-    expected = "ScPackageObject: bar"
+    expected = (isPackageObject, "org.example.foo.bar.package$")
   )
 
   def testGenerator_map(): Unit = doTest(
@@ -130,7 +130,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  } yield x
        |}
      """.stripMargin,
-    expected = "ScFunctionDefinition: map"
+    expected = (isFunction, "map")
   )
 
   def testGenerator_foreach(): Unit = doTest(
@@ -141,7 +141,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  } x
        |}
      """.stripMargin,
-    expected = "ScFunctionDefinition: foreach"
+    expected = (isFunction, "foreach")
   )
 
   def testGuard(): Unit = doTest(
@@ -153,7 +153,7 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  } x
        |}
      """.stripMargin,
-    expected = "ScFunctionDefinition: withFilter"
+    expected = (isFunction, "withFilter")
   )
 
   def testForBinding_none(): Unit = doTest(
@@ -177,22 +177,27 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
        |  } yield y
        |}
      """.stripMargin,
-    expected = "ScFunctionDefinition: map"
+    expected = (isFunction, "map")
   )
 
-  private def doTest(fileText: String, expected: String*): Unit = {
-    val text = ScalaLightCodeInsightFixtureTestAdapter.normalize(fileText)
-    configureFromFileTextAdapter("dummy.scala", text)
+  private def doTest(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
+    configureFromFileText(fileText)
 
-    val editor = getEditorAdapter
-    val targets = GotoDeclarationAction.findAllTargetElements(
-      getProjectAdapter,
+    val editor = getEditor
+    val targets = findAllTargetElements(
+      getProject,
       editor,
       editor.getCaretModel.getOffset
-    ).map(_.toString).toSet
+    ).toSet
 
     assertEquals("Wrong number of targets: ", expected.size, targets.size)
-    assertEquals("Wrong targets: ", expected.toSet, targets)
-  }
 
+    val wrongTargets = for {
+      (actualElement, (predicate, expectedName)) <- targets.zip(expected)
+
+      if !(predicate(actualElement) && hasExpectedName(actualElement, expectedName))
+    } yield actualElement
+
+    assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)
+  }
 }

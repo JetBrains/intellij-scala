@@ -2,7 +2,7 @@ new ASDGASDF()
 (x, timestamp)
 -----
 ScalaFile
-  NewTemplateDefinition
+  ScNewTemplateDefinition: <anonymous>
     PsiElement(new)('new')
     PsiWhiteSpace(' ')
     ExtendsBlock

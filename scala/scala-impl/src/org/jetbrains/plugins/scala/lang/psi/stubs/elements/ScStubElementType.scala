@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
-import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, SelfPsiCreator}
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, SelfPsiCreator}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isLocal
 
 import scala.annotation.tailrec
@@ -39,6 +39,8 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
   override def serialize(stub: S, dataStream: StubOutputStream): Unit = {}
 
   override final def isLeftBound = true
+
+  override final def toString: String = super.toString
 
   override def shouldCreateStub(node: ASTNode): Boolean = !isLocal(node)
 }

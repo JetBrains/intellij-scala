@@ -31,7 +31,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          NewTemplateDefinition
+          ScNewTemplateDefinition: <anonymous>
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock

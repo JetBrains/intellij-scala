@@ -116,7 +116,7 @@ ScalaFile
             ReferenceExpression: (new B(1)).f
               ExpressionInParenthesis
                 PsiElement(()('(')
-                NewTemplateDefinition
+                ScNewTemplateDefinition: <anonymous>
                   PsiElement(new)('new')
                   PsiWhiteSpace(' ')
                   ExtendsBlock

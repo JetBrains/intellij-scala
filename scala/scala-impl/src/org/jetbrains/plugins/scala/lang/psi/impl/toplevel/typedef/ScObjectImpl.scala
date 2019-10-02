@@ -13,8 +13,6 @@ import com.intellij.psi.PsiModifier._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
@@ -37,8 +35,10 @@ import scala.util.control.ControlThrowable
  */
 class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                    nodeType: ScTemplateDefinitionElementType[ScObject],
-                   node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScObject {
+                   node: ASTNode,
+                   debugName: String)
+  extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
+    with ScObject {
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ObjectKeyword
 
@@ -60,16 +60,12 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     else super.getContainingFile
   }
 
-  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + ifReadAllowed(name)("")
+  override def getName: String =
+    (if (isPackageObject) "package" else super.getName) + "$"
 
-  override def getName: String = {
-    if (isPackageObject) return "package$"
-    super.getName + "$"
-  }
-
-  override protected final def baseIcon: Icon =
-    if (isPackageObject) Icons.PACKAGE_OBJECT
-    else Icons.OBJECT
+  //noinspection TypeAnnotation
+  override protected final def baseIcon =
+    if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = name match {

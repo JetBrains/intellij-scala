@@ -3,7 +3,7 @@ new X[Int][String][Boolean]
 ScalaFile
   GenericCall
     GenericCall
-      NewTemplateDefinition
+      ScNewTemplateDefinition: <anonymous>
         PsiElement(new)('new')
         PsiWhiteSpace(' ')
         ExtendsBlock
