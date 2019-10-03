@@ -54,7 +54,8 @@ class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScRef
 
   def getFamilyName: String = ScalaBundle.message("import.class")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
+  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    file.isInstanceOf[ScalaFile] || file.findAnyScalaFile.isDefined
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     CommandProcessor.getInstance().runUndoTransparentAction(() => {
