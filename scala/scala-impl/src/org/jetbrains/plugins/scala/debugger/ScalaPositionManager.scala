@@ -61,7 +61,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
-    if (shouldSkip(location)) return null
+    if (debugProcess.getProject.isDisposedOrDisposeInProgress || shouldSkip(location)) return null
 
     val position =
       for {
