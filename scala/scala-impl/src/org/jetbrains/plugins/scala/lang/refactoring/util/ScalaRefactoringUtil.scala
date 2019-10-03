@@ -735,6 +735,13 @@ object ScalaRefactoringUtil {
     case _ => false
   }
 
+  def isLastInNonUnitBlock(expr: ScExpression): Boolean = {
+    expr.getParent match {
+      case b: ScBlock => b.resultExpression.contains(expr) && b.expectedType().exists(!_.isUnit)
+      case _          => false
+    }
+  }
+
   def afterExpressionChoosing(file: PsiFile,refactoringName: String)
                              (invokesNext: => Unit)
                              (implicit project: Project, editor: Editor): Unit =

@@ -1,0 +1,12 @@
+class a {
+  def foo(): Int = {
+    <begin>2<end>
+  }
+}
+------
+class a {
+  def foo(): Int = {
+    val value: Int = 2
+    value
+  }
+}

@@ -268,7 +268,7 @@ object IntroduceExpressions {
 
     val fastDefinition = selectedExpression(file, editor) match {
       case None       => false
-      case Some(expr) => occurrences.length == 1 && isBlockLike(expr.getParent)
+      case Some(expr) => occurrences.length == 1 && isBlockLike(expr.getParent) && !isLastInNonUnitBlock(expr)
     }
 
     //changes document directly
