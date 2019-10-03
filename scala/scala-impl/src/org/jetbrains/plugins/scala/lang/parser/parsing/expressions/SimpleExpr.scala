@@ -52,7 +52,7 @@ object SimpleExpr {
           return false
         }
         newMarker = simpleMarker.precede
-        simpleMarker.done(ScalaElementType.NEW_TEMPLATE)
+        simpleMarker.done(ScalaElementType.NewTemplate)
       case `tLBRACE` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()

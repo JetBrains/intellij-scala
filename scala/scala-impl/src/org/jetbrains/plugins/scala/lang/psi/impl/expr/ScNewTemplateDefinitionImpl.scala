@@ -33,10 +33,10 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
-                                                     nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
-                                                     node: ASTNode,
-                                                     debugName: String)
+final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
+                                        nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
+                                        node: ASTNode,
+                                        debugName: String)
   extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)
     with ScNewTemplateDefinition {
 

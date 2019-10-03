@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 object TokenSets {
 
   val TYPE_DEFINITIONS: TokenSet = TokenSet.create(
-    CLASS_DEFINITION,
-    TRAIT_DEFINITION,
-    OBJECT_DEFINITION
+    ClassDefinition,
+    TraitDefinition,
+    ObjectDefinition
   )
 
   val BINDING_PATTERNS: TokenSet = TokenSet.create(

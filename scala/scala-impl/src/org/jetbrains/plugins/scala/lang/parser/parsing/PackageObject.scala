@@ -39,7 +39,7 @@ object PackageObject {
     builder.advanceLexer()
 
     if (ObjectDef parse builder) {
-      marker.done(ScalaElementType.OBJECT_DEFINITION)
+      marker.done(ScalaElementType.ObjectDefinition)
     } else {
       marker.drop()
     }

@@ -77,11 +77,11 @@ object TmplDef extends ParsingRule {
   private def templateParser(caseState: Boolean)
                             (implicit builder: ScalaPsiBuilder): Option[(ParsingRule, IElementType)] =
     builder.getTokenType match {
-      case ClassKeyword => Some(ClassDef, CLASS_DEFINITION)
-      case ObjectKeyword => Some(ObjectDef, OBJECT_DEFINITION)
+      case ClassKeyword => Some(ClassDef, ClassDefinition)
+      case ObjectKeyword => Some(ObjectDef, ObjectDefinition)
       case TraitKeyword => Some(
         if (caseState) ParsingRule.AlwaysTrue else TraitDef,
-        TRAIT_DEFINITION
+        TraitDefinition
       )
       case _ => None
     }

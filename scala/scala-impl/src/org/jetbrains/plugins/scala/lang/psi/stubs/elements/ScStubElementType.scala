@@ -15,10 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isL
 import scala.annotation.tailrec
 
 /**
-  * @author ilyas
-  */
-abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String,
-                                                                       language: Language = ScalaLanguage.INSTANCE)
+ * @author ilyas
+ */
+abstract class ScStubElementType[
+  S <: StubElement[T],
+  T <: PsiElement
+](debugName: String,
+  language: Language = ScalaLanguage.INSTANCE)
   extends IStubElementType[S, T](debugName, language)
     with SelfPsiCreator {
 
@@ -46,6 +49,24 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
 }
 
 object ScStubElementType {
+
+  // TODO is supposed to be eliminated eventually
+  abstract class Impl[
+    S >: Null <: StubElement[T],
+    T <: PsiElement
+  ](debugName: String,
+    language: Language = ScalaLanguage.INSTANCE)
+    extends ScStubElementType[S, T](debugName, language) {
+
+    protected def createPsi(stub: S,
+                            nodeType: this.type,
+                            node: ASTNode,
+                            debugName: String): T
+
+    override final def createElement(node: ASTNode): T = createPsi(null, null, node, toString)
+
+    override final def createPsi(stub: S): T = createPsi(stub, this, null, toString)
+  }
 
   @tailrec
   private def isLocal(node: ASTNode): Boolean = node match {

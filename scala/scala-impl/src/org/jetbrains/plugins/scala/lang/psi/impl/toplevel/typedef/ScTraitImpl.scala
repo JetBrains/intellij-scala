@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
 */
-final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
-                                     nodeType: ScTemplateDefinitionElementType[ScTrait],
-                                     node: ASTNode,
-                                     debugName: String)
+final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
+                        nodeType: ScTemplateDefinitionElementType[ScTrait],
+                        node: ASTNode,
+                        debugName: String)
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScTrait
     with ScTypeParametersOwner {

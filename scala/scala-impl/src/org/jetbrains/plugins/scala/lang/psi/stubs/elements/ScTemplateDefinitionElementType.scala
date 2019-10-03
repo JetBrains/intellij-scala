@@ -4,7 +4,7 @@ package psi
 package stubs
 package elements
 
-import com.intellij.lang.{ASTNode, Language}
+import com.intellij.lang.Language
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
@@ -12,21 +12,18 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScObjectImpl, ScTraitImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
-  * @author ilyas, alefas
-  */
+ * @author ilyas, alefas
+ */
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String,
                                                                                 language: Language = ScalaLanguage.INSTANCE)
-  extends ScStubElementType[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language) {
+  extends ScStubElementType.Impl[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language) {
 
-  override def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
+  override final def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getQualifiedName)
     dataStream.writeName(stub.getSourceFileName)
@@ -43,8 +40,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeNames(stub.implicitClassNames)
   }
 
-  override def deserialize(dataStream: StubInputStream,
-                           parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
+  override final def deserialize(dataStream: StubInputStream,
+                                 parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
     parentStub,
     this,
     nameRef = dataStream.readNameString,
@@ -63,8 +60,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     implicitClassNames = dataStream.readNames
   )
 
-  override def createStubImpl(definition: TypeDef,
-                              parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
+  override final def createStubImpl(definition: TypeDef,
+                                    parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
     val fileName = definition.containingVirtualFile.map(_.getName).orNull
 
     val (isDeprecated, additionalJavaName, isPackageObject) = definition match {
@@ -127,7 +124,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     )
   }
 
-  override def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
+  override final def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
     import JavaStubIndexKeys._
     import index.ScalaIndexKeys._
 
@@ -176,32 +173,4 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
-}
-
-object ClassDefinition extends ScTemplateDefinitionElementType[ScClass]("ScClass") {
-
-  override def createElement(node: ASTNode) = new ScClassImpl(null, null, node, toString)
-
-  override def createPsi(stub: ScTemplateDefinitionStub[ScClass]) = new ScClassImpl(stub, this, null, toString)
-}
-
-object TraitDefinition extends ScTemplateDefinitionElementType[ScTrait]("ScTrait") {
-
-  override def createElement(node: ASTNode) = new ScTraitImpl(null, null, node, toString)
-
-  override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]) = new ScTraitImpl(stub, this, null, toString)
-}
-
-object ObjectDefinition extends ScTemplateDefinitionElementType[ScObject]("ScObject") {
-
-  override def createElement(node: ASTNode) = new ScObjectImpl(null, null, node, toString)
-
-  override def createPsi(stub: ScTemplateDefinitionStub[ScObject]) = new ScObjectImpl(stub, this, null, toString)
-}
-
-object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
-
-  override def createElement(node: ASTNode) = new ScNewTemplateDefinitionImpl(null, null, node, toString)
-
-  override def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition]) = new ScNewTemplateDefinitionImpl(stub, this, null, toString)
 }

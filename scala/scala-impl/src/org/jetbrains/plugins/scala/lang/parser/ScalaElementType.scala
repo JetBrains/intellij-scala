@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 
 sealed abstract class ScalaElementType(debugName: String,
@@ -29,6 +31,7 @@ sealed abstract class ScalaElementType(debugName: String,
   override final def toString: String = super.toString
 }
 
+//noinspection TypeAnnotation
 object ScalaElementType {
 
   //Stub element types
@@ -67,10 +70,41 @@ object ScalaElementType {
   val SELF_TYPE = new ScSelfTypeElementElementType
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 
-  val CLASS_DEFINITION: ScTemplateDefinitionElementType[ScClass] = ClassDefinition
-  val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
-  val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
-  val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
+  val ClassDefinition = new ScTemplateDefinitionElementType[ScClass]("ScClass") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScClassImpl(stub, nodeType, node, debugName)
+  }
+
+  val TraitDefinition = new ScTemplateDefinitionElementType[ScTrait]("ScTrait") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScTrait],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScTraitImpl(stub, nodeType, node, debugName)
+  }
+
+  val ObjectDefinition = new ScTemplateDefinitionElementType[ScObject]("ScObject") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScObject],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScObjectImpl(stub, nodeType, node, debugName)
+  }
+
+  val NewTemplate = new ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScNewTemplateDefinitionImpl(stub, nodeType, node, debugName)
+  }
 
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
   val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
