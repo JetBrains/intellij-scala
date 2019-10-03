@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +36,6 @@ import java.util.stream.Stream;
 
 import static com.intellij.openapi.util.io.FileUtil.loadFileText;
 import static com.intellij.openapi.util.text.StringUtil.*;
-import static org.jetbrains.plugins.scala.util.TestUtils.disableTimerThread;
-import static org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath;
 import static org.junit.Assert.*;
 
 /**
@@ -58,6 +57,8 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                 .filter(ScalaFileSetTestCase::isTestFile)
                 .map(ActualTest::new)
                 .forEach(this::addTest);
+
+        assertTrue("No tests found", testCount() > 0);
     }
 
     protected void setUp(@NotNull Project project) {
@@ -66,6 +67,11 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     }
 
     protected void tearDown(@NotNull Project project) {
+    }
+
+    @NotNull
+    protected String getTestDataPath() {
+        return TestUtils.getTestDataPath();
     }
 
     @NotNull
@@ -158,7 +164,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
             try {
                 super.setUp();
                 ScalaFileSetTestCase.this.setUp(getProject());
-                disableTimerThread();
+                TestUtils.disableTimerThread();
             } catch (Exception e) {
                 try {
                     tearDown();
