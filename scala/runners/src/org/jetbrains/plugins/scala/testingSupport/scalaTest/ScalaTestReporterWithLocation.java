@@ -25,31 +25,44 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTi
 public class ScalaTestReporterWithLocation implements Reporter {
     private TreeBuilder treeBuilder = new ParallelTreeBuilder();
 
+    private final static String SCAlA_TEST_URL_PREFIX = "scalatest://";
+
     private String getStackTraceString(Throwable throwable) {
         StringWriter writer = new StringWriter();
         throwable.printStackTrace(new PrintWriter(writer));
         return writer.getBuffer().toString();
     }
 
-    private String getLocationHint(Option<String> classNameOption, Option locationOption, String testName) {
+    private String getLocationHint(final Option<String> classNameOption,
+                                   final Option<? extends Location> locationOption,
+                                   final String testName) {
+        final String url = getLocationUrl(classNameOption, locationOption, testName);
+        return url != null ? " locationHint='" + url + "'" : "";
+    }
+
+    private String getLocationUrl(Option<String> classNameOption, Option<? extends Location> locationOption, String testName) {
+        String url = null;
         if (classNameOption instanceof Some && locationOption instanceof Some) {
-            String className = classNameOption.get();
             Object location = locationOption.get();
-            if (location instanceof TopOfClass)
-                return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + escapeString(testName) + "'";
-            else if (location instanceof TopOfMethod) {
+            if (location instanceof TopOfClass) {
+                String className = ((TopOfClass) location).className();
+                url = "TopOfClass:" + className +
+                        "TestName:" + escapeString(testName);
+            } else if (location instanceof TopOfMethod) {
                 TopOfMethod topOfMethod = (TopOfMethod) location;
                 String methodId = topOfMethod.methodId();
                 String methodName = methodId.substring(methodId.lastIndexOf('.') + 1, methodId.lastIndexOf('('));
-                return " locationHint='scalatest://TopOfMethod:" + topOfMethod.className() + ":" + methodName + "TestName:" + escapeString(testName) + "'";
+                String className = topOfMethod.className();
+                url = "TopOfMethod:" + className + ":" + methodName +
+                        "TestName:" + escapeString(testName);
             } else if (location instanceof LineInFile) {
                 LineInFile lineInFile = (LineInFile) location;
-                return " locationHint='scalatest://LineInFile:" + className + ":" + escapeString(lineInFile.fileName()) + ":" +
-                        lineInFile.lineNumber() + "TestName:" + escapeString(testName) + "'";
-            } else
-                return "";
-        } else
-            return "";
+                String className = classNameOption.get();
+                url =  "LineInFile:" + className + ":" + escapeString(lineInFile.fileName()) + ":" + lineInFile.lineNumber() +
+                        "TestName:" + escapeString(testName);
+            }
+        }
+        return url != null ? SCAlA_TEST_URL_PREFIX + url : null;
     }
 
     public void apply(Event event) {
@@ -236,10 +249,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
                         sendInfoProvided((InfoProvided) recordableEvent);
                     }
                 }
-            } catch (ClassNotFoundException ignore) {
-            } catch (NoSuchMethodException ignore) {
-            } catch (InvocationTargetException ignore) {
-            } catch (IllegalAccessException ignore) {
+            } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException ignore) {
             }
         }
     }
@@ -268,13 +278,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
             Class<?> nameTransformer = Class.forName("scala.reflect.NameTransformer");
             Method method = nameTransformer.getMethod("decode", String.class);
             output = (String) method.invoke(nameTransformer, input);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             if (output.equals("")) {
