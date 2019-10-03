@@ -16,27 +16,22 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("WeakerAccess")
 public class TestRunnerUtil {
+
   public static final PatternWithIndices SPECS_COMPARISON_PATTERN =
-    new PatternWithIndices(Pattern.compile("'(.+)' is not equal to '(.*)'", Pattern.MULTILINE | Pattern.DOTALL),
-      1, 2);
+    new PatternWithIndices(Pattern.compile("'(.+)' is not equal to '(.*)'", Pattern.MULTILINE | Pattern.DOTALL), 1, 2);
   public static final PatternWithIndices SCALATEST_COMPARISON_PATTERN_WAS =
-    new PatternWithIndices(Pattern.compile("(.+) was not equal to (.*)", Pattern.MULTILINE | Pattern.DOTALL),
-      1, 2);
+    new PatternWithIndices(Pattern.compile("(.+) was not equal to (.*)", Pattern.MULTILINE | Pattern.DOTALL), 1, 2);
   public static final PatternWithIndices SCALATEST_COMPARISON_PATTERN_WAS_NULL =
-    new PatternWithIndices(Pattern.compile("(.+) was not (null)", Pattern.MULTILINE | Pattern.DOTALL),
-      1, 2);
+    new PatternWithIndices(Pattern.compile("(.+) was not (null)", Pattern.MULTILINE | Pattern.DOTALL), 1, 2);
   public static final PatternWithIndices SCALATEST_COMPARISON_PATTERN_DID =
-    new PatternWithIndices(Pattern.compile("(.+) did not equal (.*)", Pattern.MULTILINE | Pattern.DOTALL),
-      1, 2);
+    new PatternWithIndices(Pattern.compile("(.+) did not equal (.*)", Pattern.MULTILINE | Pattern.DOTALL), 1, 2);
   public static final PatternWithIndices SCALATEST_PATTERN_SIZE =
-    new PatternWithIndices(Pattern.compile("(.+) had size (.+) instead of expected size (.+)",
-      Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
+    new PatternWithIndices(Pattern.compile("(.+) had size (.+) instead of expected size (.+)", Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
   public static final PatternWithIndices SCALATEST_PATTERN_LENGTH =
-    new PatternWithIndices(Pattern.compile("(.+) had length (.+) instead of expected length (.+)",
-      Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
+    new PatternWithIndices(Pattern.compile("(.+) had length (.+) instead of expected length (.+)", Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
   public static final PatternWithIndices SCALATEST_PATTERN_CLASSINSTANCE =
-    new PatternWithIndices(Pattern.compile("(.+) was not an instance of (.+), but an instance of (.+)",
-      Pattern.MULTILINE | Pattern.DOTALL), 3, 2);
+    new PatternWithIndices(Pattern.compile("(.+) was not an instance of (.+), but an instance of (.+)", Pattern.MULTILINE | Pattern.DOTALL), 3, 2);
+
   public static final Pattern LOCATION_PATTERN = Pattern.compile("(\\S+)( \\((.+)\\))?");
 
   // from ServiceMessage
