@@ -6,24 +6,25 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 
-/**
- * @author Ksenia.Sautina
- * @since 5/15/12
- */
-
 class ScalaTestTestFramework extends AbstractTestFramework {
 
-  def getDefaultSuperClass: String = {
+  override def getName: String = "ScalaTest"
+
+  override def getTestFileTemplateName = "ScalaTest Class"
+
+  override def getMnemonic: Char = 'c'
+
+  override def getMarkerClassFQName: String = "org.scalatest.Suite"
+
+  override def getDefaultSuperClass: String = {
     val project = CommonDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext())
     val scalaProjectSettings = ScalaProjectSettings.getInstance(project)
     scalaProjectSettings.getScalaTestDefaultSuperClass
   }
 
-  def getName: String = "ScalaTest"
+  override def getSuitePaths: Seq[String] = ScalaTestUtil.suitePaths
 
-  def getMarkerClassFQName: String = "org.scalatest.Suite"
-
-  def getMnemonic: Char = 'c'
+  override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq()
 
   override protected def getLibraryDependencies(scalaVersion: Option[String]): Seq[String] = scalaVersion match {
     case Some(v) if v.startsWith("2.11") => Seq(""""org.scalatest" % "scalatest_2.11" % "latest.integration" % "test"""")
@@ -33,10 +34,4 @@ class ScalaTestTestFramework extends AbstractTestFramework {
   }
 
   override protected def getLibraryResolvers(scalaVersion: Option[String]): Seq[String] = Seq()
-
-  override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq()
-
-  override def getSuitePaths: Seq[String] = ScalaTestUtil.suitePaths
-
-  override def getTestFileTemplateName = "ScalaTest Class"
 }
