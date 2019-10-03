@@ -240,8 +240,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]): Unit = {
       lazy val cachedFixes = fixes
       //todo remove when resolve of unqualified expression will be fully implemented
-      if (refElement.getManager.isInProject(refElement) &&
-          resolve.length == 0 &&
+      if ((refElement.getManager.isInProject(refElement) || refElement.containingScalaFile.exists(_.isWorksheetFile)) &&
+        resolve.isEmpty &&
           (cachedFixes.nonEmpty || countError)) {
         val error = ScalaBundle.message("cannot.resolve", refElement.refName)
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
