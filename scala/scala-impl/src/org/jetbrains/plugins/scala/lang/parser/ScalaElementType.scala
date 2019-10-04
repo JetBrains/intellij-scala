@@ -17,9 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportStmtImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImportStmtStub, ScTemplateDefinitionStub}
 
 sealed abstract class ScalaElementType(debugName: String,
                                        override val isLeftBound: Boolean = true)
@@ -41,7 +42,16 @@ object ScalaElementType {
   val IMPORT_SELECTOR = new ScImportSelectorElementType
   val IMPORT_SELECTORS = new ScImportSelectorsElementType
   val IMPORT_EXPR = new ScImportExprElementType
-  val IMPORT_STMT = new ScImportStmtElementType
+
+  val ImportStatement = new ScImportStmtElementType("ScImportStatement") {
+
+    override protected def createPsi(stub: ScImportStmtStub,
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScImportStmtImpl(stub, nodeType, node, debugName)
+  }
+
   val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
   val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
   val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration

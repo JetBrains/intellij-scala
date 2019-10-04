@@ -10,10 +10,10 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScImportStmtFactory
 import org.jetbrains.plugins.scala.editor.importOptimizer._
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_STMT
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -40,7 +40,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null)
-      stub.getChildrenByType(IMPORT_STMT, ScImportStmtFactory)
+      stub.getChildrenByType(ScalaElementType.ImportStatement, ScImportStmtFactory)
     else
       findChildrenByClassScala(classOf[ScImportStmt]).toSeq
   }

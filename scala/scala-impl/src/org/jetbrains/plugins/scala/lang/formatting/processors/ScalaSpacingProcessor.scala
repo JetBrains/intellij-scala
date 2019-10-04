@@ -41,11 +41,13 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import scala.annotation.tailrec
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
+
+  import ScalaElementType._
+
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
 
   private val BLOCK_ELEMENT_TYPES = {
     import ScCodeBlockElementType.BlockExpression
-    import ScalaElementType._
     TokenSet.create(BlockExpression, TEMPLATE_BODY, PACKAGING, MATCH_STMT, CATCH_BLOCK)
   }
 
@@ -1188,10 +1190,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaTokenTypes.tSEMICOLON, _, _) =>
         NO_SPACING
       //Imports
-      case (ScalaElementType.IMPORT_STMT, ScalaElementType.IMPORT_STMT, _, _) => IMPORT_BETWEEN_SPACING
-      case (ScalaElementType.IMPORT_STMT, _, _: ScStubFileElementType, _) => DOUBLE_LINE
-      case (ScalaElementType.IMPORT_STMT, _, ScalaElementType.PACKAGING, _) => DOUBLE_LINE
-      case (ScalaElementType.IMPORT_STMT, _, _, _) => IMPORT_BETWEEN_SPACING
+      case (ImportStatement, ImportStatement, _, _) => IMPORT_BETWEEN_SPACING
+      case (ImportStatement, _, _: ScStubFileElementType, _) => DOUBLE_LINE
+      case (ImportStatement, _, ScalaElementType.PACKAGING, _) => DOUBLE_LINE
+      case (ImportStatement, _, _, _) => IMPORT_BETWEEN_SPACING
       //Dot
       case (ScalaTokenTypes.tDOT, _, _, _) => NO_SPACING_WITH_NEWLINE
       case (_, ScalaTokenTypes.tDOT, _, _) => NO_SPACING
