@@ -426,7 +426,7 @@ object ScalaPsiUtil {
       e.startOffset == startOffset && e.endOffset <= endOffset
 
     val startElem = file.findElementAt(startOffset)
-    val allInRange = startElem.withParents.takeWhile(fit).toList.filterBy[T]
+    val allInRange = startElem.withParentsInFile.takeWhile(fit).toList.filterBy[T]
     if (allInRange.isEmpty) Seq.empty
     else {
       val maxEndOffset = allInRange.map(_.endOffset).max
