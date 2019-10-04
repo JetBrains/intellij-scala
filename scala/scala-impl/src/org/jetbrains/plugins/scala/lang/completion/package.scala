@@ -110,7 +110,7 @@ package object completion {
       } {
 
         //consistent local modification count in completion file
-        BlockModificationTracker.LocalCount.redirect(elementContext, originalContext)
+        BlockModificationTracker.redirect(elementContext, originalContext)
 
         //resolve should go to original file outside of context with stable type
         // + consistent block modification count

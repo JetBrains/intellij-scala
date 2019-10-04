@@ -409,7 +409,7 @@ class ScalaPsiManager(implicit val project: Project) {
           case null => TopLevelModificationTracker.incModificationCount()
           case _: ScalaCodeFragment | _: PsiComment => // do not update on changes in dummy file or comments
           case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
-            BlockModificationTracker.LocalCount.increment(owner)
+            BlockModificationTracker.incrementLocalCounter(owner)
           case _ => updateModificationCount(element.getContext)
         }
 

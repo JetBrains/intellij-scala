@@ -1,35 +1,14 @@
 package org.jetbrains.plugins.scala.caches
 
-import java.util.concurrent.atomic.AtomicLong
-
-import com.intellij.openapi.util.{Key, ModificationTracker}
+import com.intellij.openapi.util.{Key, ModificationTracker, SimpleModificationTracker}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker._
 import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 import scala.annotation.tailrec
-
-// TODO Rename to "ExpressionModificationTracker" - it's type annotation, not "block" that makes the difference.
-class BlockModificationTracker private (element: PsiElement) extends ModificationTracker {
-
-  private val topLevel = scalaTopLevelModTracker(element.getProject)
-
-  override def getModificationCount: Long = {
-    topLevel.getModificationCount + sumOfLocalCountsInContext(element)
-  }
-
-  @tailrec
-  private def sumOfLocalCountsInContext(element: PsiElement, acc: Long = 0L): Long =
-    contextWithStableType(element) match {
-      case Some(expr) => sumOfLocalCountsInContext(expr.getContext, acc + LocalCount(expr))
-      case None       => acc
-    }
-}
 
 object BlockModificationTracker {
 
@@ -43,34 +22,56 @@ object BlockModificationTracker {
    * */
   def hasStableType(expr: ScExpression): Boolean = !hasUnstableType(expr)
 
-  /**
-   * LocalCount is defined for expressions with stable type and incremented on every psi change inside.
-   */
-  object LocalCount {
-    private val key: Key[AtomicLong] = Key.create("local.modification.counter")
+  private val key: Key[ExpressionModificationTracker] = Key.create("local.modification.counter")
 
-    private def getOrCreate(expression: ScExpression): AtomicLong = {
+  def redirect(mirrorElement: ScExpression, originalElement: ScExpression): Unit = {
+    val originalCounter = ExpressionModificationTracker(originalElement)
+
+    assert(hasStableType(mirrorElement))
+
+    mirrorElement.putUserData(key, originalCounter)
+  }
+
+  private object ExpressionModificationTracker {
+    def apply(expression: ScExpression): ExpressionModificationTracker = {
       assert(hasStableType(expression))
 
-      expression.getOrUpdateUserData(key, new AtomicLong(0L))
-    }
-
-    def apply(expression: ScExpression): Long = getOrCreate(expression).get
-
-    def increment(expression: ScExpression): Unit = getOrCreate(expression).incrementAndGet()
-
-    def redirect(mirrorElement: ScExpression, originalElement: ScExpression): Unit = {
-      val originalCounter = getOrCreate(originalElement)
-
-      assert(hasStableType(mirrorElement))
-
-      mirrorElement.putUserData(key, originalCounter)
+      expression.getOrUpdateUserData(key, new ExpressionModificationTracker(expression))
     }
   }
 
+  /**
+   * ExpressionModificationTracker is defined for expressions with stable type.
+   * It has a local counter and a reference to the context modification tracker,
+   * both are updated on every change inside the expression.
+   *
+   * This way we have very fast `getModificationCount` and not-so-fast, but much more rare increment.
+   */
+  private class ExpressionModificationTracker(expression: ScExpression) extends SimpleModificationTracker {
+
+    private var contextTracker: ModificationTracker = BlockModificationTracker(expression.getContext)
+
+    def incrementLocalAndUpdateParent(): Unit = {
+      super.incModificationCount()
+      contextTracker = BlockModificationTracker(expression.getContext)
+    }
+
+    private def localModificationCount: Long = super.getModificationCount
+
+    override def getModificationCount: Long = contextTracker.getModificationCount + localModificationCount
+  }
+
+  def incrementLocalCounter(expression: ScExpression): Unit =
+    ExpressionModificationTracker(expression).incrementLocalAndUpdateParent()
+
   def apply(element: PsiElement): ModificationTracker =
-    if (!element.isValid) ModificationTracker.NEVER_CHANGED
-    else new BlockModificationTracker(element)
+    if (!element.isValid)
+      ModificationTracker.NEVER_CHANGED
+    else
+      contextWithStableType(element) match {
+        case Some(expr) => ExpressionModificationTracker(expr)
+        case None       => scalaTopLevelModTracker(element.getProject)
+      }
 
   @tailrec
   def contextWithStableType(element: PsiElement): Option[ScExpression] =
