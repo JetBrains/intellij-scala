@@ -28,7 +28,7 @@ object ScalaTokenType {
   val Double = new ScalaTokenType("double")
   val Float = new ScalaTokenType("float")
 
-  val Export = new ScalaTokenType("export")
+  val ExportKeyword = new ScalaTokenType("export")
   val Then = new ScalaTokenType("then")
 
   val As = new ScalaTokenType("as")

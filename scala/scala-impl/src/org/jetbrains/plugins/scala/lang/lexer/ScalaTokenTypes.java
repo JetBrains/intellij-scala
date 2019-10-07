@@ -211,7 +211,7 @@ public interface ScalaTokenTypes {
             kDO,
             kELSE,
             EnumKeyword(),
-            Export(),
+            ExportKeyword(),
             kEXTENDS,
             kFALSE,
             kFINAL,

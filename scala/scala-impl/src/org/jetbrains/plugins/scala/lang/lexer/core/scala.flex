@@ -459,7 +459,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
 "enum"                                  {   return processScala3(EnumKeyword()); }
-"export"                                {   return processScala3(Export()); }
+"export"                                {   return processScala3(ExportKeyword()); }
 "extends"                               {   return process(kEXTENDS); }
 "false"                                 {   return process(kFALSE); }
 "final"                                 {   return process(kFINAL); }
