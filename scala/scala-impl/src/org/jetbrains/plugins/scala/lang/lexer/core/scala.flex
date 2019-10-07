@@ -458,7 +458,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "def"                                   {   return process(kDEF); }
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
-"enum"                                  {   return processScala3(Enum()); }
+"enum"                                  {   return processScala3(EnumKeyword()); }
 "export"                                {   return processScala3(Export()); }
 "extends"                               {   return process(kEXTENDS); }
 "false"                                 {   return process(kFALSE); }
@@ -466,7 +466,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "finally"                               {   return process(kFINALLY); }
 "for"                                   {   return process(kFOR); }
 "forSome"                               {   return process(kFOR_SOME); }
-"given"                                 {   return processScala3(Given()); }
+"given"                                 {   return processScala3(GivenKeyword()); }
 "if"                                    {   return process(kIF); }
 "implicit"                              {   return process(kIMPLICIT); }
 "import"                                {   return process(kIMPORT); }

@@ -17,7 +17,9 @@ object ScalaTokenType {
 
   val ClassKeyword = new ScalaTokenType("class")
   val TraitKeyword = new ScalaTokenType("trait")
+  val EnumKeyword = new ScalaTokenType("enum")
   val ObjectKeyword = new ScalaTokenType("object")
+  val GivenKeyword = new ScalaTokenType("given")
 
   val NewKeyword = new ScalaTokenType("new")
 
@@ -26,9 +28,7 @@ object ScalaTokenType {
   val Double = new ScalaTokenType("double")
   val Float = new ScalaTokenType("float")
 
-  val Enum = new ScalaTokenType("enum")
   val Export = new ScalaTokenType("export")
-  val Given = new ScalaTokenType("given")
   val Then = new ScalaTokenType("then")
 
   val As = new ScalaTokenType("as")
@@ -41,6 +41,7 @@ object ScalaTokenType {
     private[this] val tokenSet = TokenSet.create(
       ClassKeyword,
       TraitKeyword,
+      EnumKeyword,
       ObjectKeyword
     )
 

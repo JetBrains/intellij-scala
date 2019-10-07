@@ -21,6 +21,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Double;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Float;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 
 /**
@@ -206,7 +210,7 @@ public interface ScalaTokenTypes {
             kDEF,
             kDO,
             kELSE,
-            Enum(),
+            EnumKeyword(),
             Export(),
             kEXTENDS,
             kFALSE,
@@ -214,7 +218,7 @@ public interface ScalaTokenTypes {
             kFINALLY,
             kFOR,
             kFOR_SOME, // scala 2 only
-            Given(),
+            GivenKeyword(),
             kIF,
             kIMPLICIT,
             kIMPORT,
