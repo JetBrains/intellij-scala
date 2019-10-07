@@ -22,14 +22,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-public class ParserTest extends ScalaFileSetTestCase {
+public class ScalaParserTest extends ScalaFileSetTestCase {
 
-    ParserTest() {
+    ScalaParserTest() {
         super("/parser/data");
     }
 
     @NotNull
     public static Test suite() {
-        return new ParserTest();
+        return new ScalaParserTest();
     }
 }

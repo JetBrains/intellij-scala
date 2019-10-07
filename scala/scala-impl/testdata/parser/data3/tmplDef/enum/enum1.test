@@ -1,0 +1,57 @@
+@deprecated
+enum CardinalDirection {
+    case NORTH, WEST, SOUTH, EAST
+}
+-----
+ScalaFile
+  ScEnum: CardinalDirection
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: deprecated
+              CodeReferenceElement: deprecated
+                PsiElement(identifier)('deprecated')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CardinalDirection')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: NORTH, WEST, SOUTH, EAST
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: NORTH
+              PsiElement(identifier)('NORTH')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            Field identifier: WEST
+              PsiElement(identifier)('WEST')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            Field identifier: SOUTH
+              PsiElement(identifier)('SOUTH')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            Field identifier: EAST
+              PsiElement(identifier)('EAST')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
