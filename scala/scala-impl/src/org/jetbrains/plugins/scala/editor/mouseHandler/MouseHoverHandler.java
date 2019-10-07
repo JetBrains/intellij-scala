@@ -105,11 +105,6 @@ public class MouseHoverHandler implements ProjectComponent {
   private final EditorMouseMotionListener myEditorMouseMotionListener = new EditorMouseMotionListener() {
     @Override
     public void mouseMoved(@NotNull final EditorMouseEvent e) {
-      if (myHint != null) {
-        HintManager.getInstance().hideAllHints();
-        myHint = null;
-      }
-
       if (e.isConsumed() || !myProject.isInitialized()) {
         return;
       }
@@ -121,6 +116,11 @@ public class MouseHoverHandler implements ProjectComponent {
         return;
       }
       myPrevMouseLocation = mouseEvent.getLocationOnScreen();
+
+      if (myHint != null) {
+        HintManager.getInstance().hideAllHints();
+        myHint = null;
+      }
 
       Editor editor = e.getEditor();
       if (editor.getProject() != null && editor.getProject() != myProject) return;
