@@ -1,20 +1,14 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.PerfCycleTests;
 import org.junit.experimental.categories.Category;
 
 @Category({PerfCycleTests.class})
-public class FailedLexerTest extends LexerTestBase {
+public class FailedLexerTest extends ScalaLexerTestBase {
 
-    public FailedLexerTest() {
+    FailedLexerTest() {
         super("/lexer/failed");
-    }
-
-    @Override
-    protected void printTokenRange(int tokenStart, int tokenEnd,
-                                   @NotNull StringBuilder builder) {
     }
 
     @Override
@@ -23,7 +17,7 @@ public class FailedLexerTest extends LexerTestBase {
     }
 
     @NotNull
-    public static Test suite() {
+    public static FailedLexerTest suite() {
         return new FailedLexerTest();
     }
 }

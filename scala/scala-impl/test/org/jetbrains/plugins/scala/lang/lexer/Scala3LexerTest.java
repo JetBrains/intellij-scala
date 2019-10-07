@@ -8,7 +8,7 @@ import org.junit.runners.AllTests;
 @RunWith(AllTests.class)
 public class Scala3LexerTest extends ScalaLexerTestBase {
 
-    public Scala3LexerTest() {
+    Scala3LexerTest() {
         super("/lexer/data3");
     }
 

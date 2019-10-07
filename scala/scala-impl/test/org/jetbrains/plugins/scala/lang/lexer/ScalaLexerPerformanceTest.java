@@ -11,7 +11,7 @@ import org.junit.runners.AllTests;
 @RunWith(AllTests.class)
 public class ScalaLexerPerformanceTest extends ScalaLexerTestBase {
 
-    public ScalaLexerPerformanceTest() {
+    ScalaLexerPerformanceTest() {
         super("/lexer/performance");
     }
 
