@@ -7,7 +7,7 @@ import com.intellij.execution.lineMarker.{ExecutorAction, RunLineMarkerContribut
 import com.intellij.execution.testframework.TestIconMapper
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import com.intellij.icons.AllIcons.RunConfigurations.TestState
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -16,7 +16,7 @@ import com.intellij.testIntegration.TestRunLineMarkerProvider
 import com.intellij.util.Function
 import javax.swing.Icon
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{inReadAction, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -153,27 +153,29 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     val modCount = CachesUtil.fileModCount(definition.getContainingFile)
     definition.putUserData(TestPositionsCalculationStateKey, Calculating(prevResults))
 
-    executeOnPooledThread {
-      val testLocations: Option[Seq[PsiElement]] =
-        for {
-          module <- inReadAction {
-            definition.module
+    val project = definition.getProject
+    DumbService.getInstance(project).runWhenSmart(() => {
+      executeOnPooledThread {
+        val testLocations: Option[Seq[PsiElement]] =
+          for {
+            module <- inReadAction {
+              definition.module
+            }
+            locations <- ScalaTestTestLocationsFinder.calculateTestLocations(definition, framework, module)
+          } yield locations
+
+        definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, modCount))
+
+        inReadAction {
+          val file = definition.getContainingFile
+          if(file != null && !project.isDisposed) {
+            // TODO: can we restart only a single highlighting pass (LineMarkersPass or even only TestRunLineMarkerProvider)?
+            // TODO: can we restart only for a single class?
+            DaemonCodeAnalyzer.getInstance(project).restart(file)
           }
-          locations <- ScalaTestTestLocationsFinder.calculateTestLocations(definition, framework, module)
-        } yield locations
-
-      definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, modCount))
-
-      inReadAction {
-        val file = definition.getContainingFile
-        val project = definition.getProject
-        if(file != null && !project.isDisposed) {
-          // TODO: can we restart only a single highlighting pass (LineMarkersPass or even only TestRunLineMarkerProvider)?
-          // TODO: can we restart only for a single class?
-          DaemonCodeAnalyzer.getInstance(project).restart(file)
         }
       }
-    }
+    })
   }
 
   private def scalaTestLineInfo(element: PsiElement, definition: ScTypeDefinition, testName: String): RunLineMarkerContributor.Info = {
