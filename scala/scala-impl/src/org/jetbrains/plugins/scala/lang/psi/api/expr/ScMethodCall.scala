@@ -6,18 +6,20 @@ package expr
 
 import com.intellij.psi.PsiElement
 
+import scala.annotation.tailrec
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
 trait ScMethodCall extends ScExpression with MethodInvocation {
-  def deepestInvokedExpr: ScExpression = {
+
+  @tailrec
+  final def deepestInvokedExpr: ScExpression =
     getEffectiveInvokedExpr match {
-      case call: ScMethodCall =>
-        call.deepestInvokedExpr
-      case expr => expr
+      case call: ScMethodCall => call.deepestInvokedExpr
+      case expr               => expr
     }
-  }
 
   def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
 

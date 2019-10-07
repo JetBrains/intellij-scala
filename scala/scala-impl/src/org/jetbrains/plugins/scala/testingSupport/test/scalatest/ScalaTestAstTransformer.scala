@@ -50,7 +50,7 @@ object ScalaTestAstTransformer {
     }
   }
 
-  private def getFinder(clazz: ScTypeDefinition, module: Module): Option[Finder] = {
+  def getFinder(clazz: ScTypeDefinition, module: Module): Option[Finder] = {
     val classes = MixinNodes.linearization(clazz).flatMap(_.extractClass.toSeq)
 
     for (clazz <- classes) {
