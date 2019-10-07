@@ -12,20 +12,19 @@ object ScalaTestTestLocationsFinder {
 
   type TestLocations = Seq[PsiElement]
 
+  /** should be called in a read action  */
   @Measure
-  def calculateTestLocations(definition: ScTypeDefinition, framework: ScalaTestTestFramework, module: Module): Option[TestLocations] = {
+  def calculateTestLocations(definition: ScTypeDefinition, module: Module): Option[TestLocations] = {
     //Thread.sleep(5000) // uncomment to test long resolve
-    inReadAction {
-      val finder = ScalaTestAstTransformer.getFinder(definition, module)
-      finder.flatMap(doCalculateScalaTestTestLocations(definition, _))
-    }
+    val finder = ScalaTestAstTransformer.getFinder(definition, module)
+    finder.flatMap(doCalculateScalaTestTestLocations(definition, _))
   }
 
-  // TODO 1:
+  // NOTE 1:
   //   ScalaTestAstTransformer.getFinder is only used to determine which scalatest style is used
   //   for simplicity we now place the logic of test locations search right here
-  //   when the implementation is stable we should merge this logic with org.scalatest.finders.Finder interface
-  // TODO 2: current implementation is very basic, it doesn't involve any resolve, it only analyses static names
+  //   when the implementation is stable we could merge this logic with org.scalatest.finders.Finder interface
+  // NOTE 2: current implementation is very basic, it doesn't involve any resolve, it only analyses static names
   //   see ScalaTestConfigurationProducer.getTestClassWithTestName
   private def doCalculateScalaTestTestLocations(definition: ScTypeDefinition, finder: Finder): Option[TestLocations] = {
     val body = definition.extendsBlock.templateBody match {
@@ -70,24 +69,23 @@ object ScalaTestTestLocationsFinder {
   private def collectTestLocations(
     body: ScTemplateBody,
     infixStyle: Boolean,
-    intermediateNodes: Set[String],
-    leafNodes: Set[String]
+    intermediateMethodNames: Set[String],
+    leafMethodNames: Set[String]
   ): TestLocations = {
 
     def inner(expressions: Seq[ScExpression]): Seq[ScReferenceExpression] = expressions.flatMap { expr =>
       val (methodCall, target) = expr match {
         case call: ScMethodInvocation if infixStyle => (call, call.getInvokedExpr)
-        case call: ScMethodCall                   => (call, call.deepestInvokedExpr)
-        case _                                    => return Seq.empty
+        case call: ScMethodCall                     => (call, call.deepestInvokedExpr)
+        case _                                      => return Seq.empty
       }
 
       target match {
         case ref: ScReferenceExpression =>
-          if (intermediateNodes.contains(ref.refName)) {
-            val seq = methodCall.argumentExpressions.collect { case block: ScBlockExpr => block.exprs }
-            val flatten = seq.flatten
-            Seq(ref) ++ inner(flatten)
-          } else if (leafNodes.contains(ref.refName)) {
+          if (intermediateMethodNames.contains(ref.refName)) {
+            val childExpressions = methodCall.argumentExpressions.collect { case block: ScBlockExpr => block.exprs }
+            Seq(ref) ++ inner(childExpressions.flatten)
+          } else if (leafMethodNames.contains(ref.refName)) {
             Seq(ref)
           } else {
             Seq.empty
@@ -102,17 +100,22 @@ object ScalaTestTestLocationsFinder {
   }
 
   private object SuiteMethodNames {
+
     val EmptySet: Set[String] = Set()
 
     val FunSuiteLeaves    = Set("test")
     val FlatSpecLeaves    = Set("in", "of")
+    val PropSpecLeaves    = Set("property")
+
     val FunSpecNodes      = Set("describe")
     val FunSpecLeaves     = Set("it", "they")
+
     val WordSpecNodes     = Set("when", "should", "must", "can", "which")
     val WordSpecLeaves    = Set("in")
+
     val FreeSpecNodes     = Set("-")
     val FreeSpecLeaves    = Set("in")
-    val PropSpecLeaves    = Set("property")
+
     val FeatureSpecNodes  = Set("feature")
     val FeatureSpecLeaves = Set("scenario")
   }

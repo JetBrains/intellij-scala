@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
+import java.util.concurrent.TimeUnit
+
 import com.intellij.codeInsight.TestFrameworks
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.execution.TestStateStorage
@@ -45,15 +47,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   @Measure
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info =
     element match {
-      case leaf: LeafPsiElement =>
-        import ScalaTokenTypes._
-        val elementType = leaf.getElementType
-        if (elementType == tIDENTIFIER || STRING_LITERAL_TOKEN_SET.contains(elementType)) {
-          infoForLeafElement(leaf).orNull
-        } else {
-          null
-        }
-      case _  =>
+      case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
+        infoForLeafElement(leaf).orNull
+      case _ =>
         null
     }
 
@@ -107,32 +103,31 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     val definition = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition])
     if (definition == null) return None
 
-    val framework: ScalaTestTestFramework = TestFrameworks.detectFramework(definition) match {
-      case f: ScalaTestTestFramework => f
+    TestFrameworks.detectFramework(definition) match {
+      case _: ScalaTestTestFramework =>
       case _ => return None
     }
 
-    // 1) per file or per test class?
-    //    if a single file contains several test classes then recalculation can run on some sibling classes modifications
-    // 2) what about debouncing on typing, recalculation, invalidation, etc...?
-    //    - debouncing is not under our control right now
-    //    - if test locations calculation is in process then no other/parallel calculation for the same class will be run
-    //    - if the class was modified during calculation then after calculation is finished CodeAnalyzer will restart
-    //      highlighting pass and calculation will be restarted because modification count will be increased
-    // 3) cancel the job if class was destroyed?
-    //    - there is no way to cancel the started calculation right now
+    /*
+     * - if a single file contains several test classes then recalculation will re-run on sibling classes modifications
+     * cause `fileModCount` is used to track changes
+     * - if test locations calculation is in process then no other/parallel calculation for the same class will be run
+     * - if the class was modified during calculation then after calculation is finished CodeAnalyzer will restart
+     * highlighting pass and calculation will be restarted because modification count will be increased
+     * - there is no way to cancel the started calculation right now
+     */
     val calculationState = definition.getUserData(TestPositionsCalculationStateKey)
     val testLocations: Option[TestLocations] = calculationState match {
       case null =>
-        calculateTestLocationsAndRestart(definition, framework, None)
+        calculateTestLocationsInBackgroundAndRestart(definition, None)
         None
       case Calculating(prevResult) =>
         prevResult
-      case Calculated(result, modCountCached)  =>
+      case Calculated(result, modCountCached, timestamp)  =>
         val modCountCurrent = CachesUtil.fileModCount(definition.getContainingFile)
         if (modCountCached != modCountCurrent) {
           //println(s"### recalculating test locations ($modCountCached -> $modCountCurrent) !")
-          calculateTestLocationsAndRestart(definition, framework, result)
+          calculateTestLocationsInBackgroundAndRestart(definition, result, timestamp)
         }
         result
     }
@@ -145,38 +140,59 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     }
   }
 
-  private def calculateTestLocationsAndRestart(
+  private def calculateTestLocationsInBackgroundAndRestart(
     definition: ScTypeDefinition,
-    framework: ScalaTestTestFramework,
-    prevResults: Option[Seq[PsiElement]]
+    prevResult: Option[Seq[PsiElement]],
+    prevResultsTimestamp: Long = 0L
   ): Unit = {
-    val modCount = CachesUtil.fileModCount(definition.getContainingFile)
-    definition.putUserData(TestPositionsCalculationStateKey, Calculating(prevResults))
+    definition.putUserData(TestPositionsCalculationStateKey, Calculating(prevResult))
 
-    val project = definition.getProject
-    DumbService.getInstance(project).runWhenSmart(() => {
-      executeOnPooledThread {
-        val testLocations: Option[Seq[PsiElement]] =
-          for {
-            module <- inReadAction {
-              definition.module
-            }
-            locations <- ScalaTestTestLocationsFinder.calculateTestLocations(definition, framework, module)
-          } yield locations
-
-        definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, modCount))
-
-        inReadAction {
-          val file = definition.getContainingFile
-          if(file != null && !project.isDisposed) {
-            // TODO: can we restart only a single highlighting pass (LineMarkersPass or even only TestRunLineMarkerProvider)?
-            // TODO: can we restart only for a single class?
-            DaemonCodeAnalyzer.getInstance(project).restart(file)
+    debounce(prevResultsTimestamp, Math.max(0, TestPositionsCalculationDebounceMs)) {
+      DumbService.getInstance(definition.getProject).runWhenSmart {
+        executeOnPooledThread {
+          inReadAction {
+            doCalculateTestLocationsAndRestart(definition)
           }
         }
       }
-    })
+    }
   }
+
+  private def debounce(prevResultsTimestamp: Long, debounceTime: Long)(body: => Unit): Unit = {
+    val currentTime             = System.currentTimeMillis()
+    val timePassed              = currentTime - prevResultsTimestamp
+    val timeUntilNextInvocation = Math.max(debounceTime - timePassed, 0)
+    if (timeUntilNextInvocation > 0) {
+      //println(s"### debounced $timeUntilNextInvocation")
+      scheduleOnPooledThread(timeUntilNextInvocation, TimeUnit.MILLISECONDS)(body)
+    } else {
+      body
+    }
+  }
+
+  private def doCalculateTestLocationsAndRestart(definition: ScTypeDefinition): Unit = try {
+    val modCount = CachesUtil.fileModCount(definition.getContainingFile)
+    val testLocations: Option[Seq[PsiElement]] =
+      for {
+        module    <- definition.module
+        locations <- ScalaTestTestLocationsFinder.calculateTestLocations(definition, module)
+      } yield locations
+
+    definition.putUserData(TestPositionsCalculationStateKey, Calculated(testLocations, modCount, System.currentTimeMillis()))
+
+    val file    = definition.getContainingFile
+    val project = definition.getProject
+    if (file != null && !project.isDisposed) {
+      // TODO: can we restart only a single highlighting pass (LineMarkersPass or even only TestRunLineMarkerProvider)?
+      // TODO: can we restart only for a single class?
+      DaemonCodeAnalyzer.getInstance(project).restart(file)
+    }
+  } catch {
+    case ex: Throwable =>
+      definition.putUserData(TestPositionsCalculationStateKey, null)
+      throw ex
+  }
+
 
   private def scalaTestLineInfo(element: PsiElement, definition: ScTypeDefinition, testName: String): RunLineMarkerContributor.Info = {
     val url = scalaTestLineUrl(element, definition, testName)
@@ -228,11 +244,12 @@ private object ScalaTestRunLineMarkerProvider {
   private val TooltipProvider: Function[PsiElement, String] = (_: PsiElement) => "Run Test"
 
   private val TestPositionsCalculationStateKey = new Key[TestLocationsCalculationState]("TestPositionsCalculationState")
+  private val TestPositionsCalculationDebounceMs: Long = 2000L
 
   private sealed trait TestLocationsCalculationState
   // prev results is saved just to show at least old gutters if test locations are being recalculated
   private case class Calculating(prevResult: Option[TestLocations]) extends TestLocationsCalculationState
-  private case class Calculated(result: Option[TestLocations], classModCount: Long) extends TestLocationsCalculationState
+  private case class Calculated(result: Option[TestLocations], classModCount: Long, timestamp: Long) extends TestLocationsCalculationState
 
   implicit final class PsiElementExt2(private val element: PsiElement) extends AnyVal {
 

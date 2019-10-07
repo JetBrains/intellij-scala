@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 
 import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
-import java.util.concurrent.Callable
 import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit}
 import java.util.regex.Pattern
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
@@ -24,6 +24,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -1051,6 +1052,9 @@ package object extensions {
 
   def executeOnPooledThread[T](body: => T): java.util.concurrent.Future[T] =
     ApplicationManager.getApplication.executeOnPooledThread(body)
+
+  def scheduleOnPooledThread[T](time: Long, unit: TimeUnit)(body: => T): ScheduledFuture[T] =
+    AppExecutorUtil.getAppScheduledExecutorService.schedule(body, time, unit)
 
   def withProgressSynchronously[T](title: String)(body: => T): T = {
     withProgressSynchronouslyTry[T](title)(_ => body) match {
