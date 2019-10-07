@@ -20,5 +20,6 @@ final class Scala3ParserDefinition extends ScalaParserDefinitionBase {
 
 object Scala3ParserDefinition {
 
-  private val FileNodeType = ScStubFileElementType(Scala3Language.INSTANCE)
+  //noinspection TypeAnnotation
+  val FileNodeType = ScStubFileElementType(Scala3Language.INSTANCE)
 }

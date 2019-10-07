@@ -19,11 +19,12 @@ final class WorksheetParserDefinition extends ScalaParserDefinitionBase {
 
 object WorksheetParserDefinition {
 
-  private val FileNodeType = ScStubFileElementType(WorksheetLanguage.INSTANCE)
+  //noinspection TypeAnnotation
+  val FileNodeType = ScStubFileElementType(WorksheetLanguage.INSTANCE)
 
   final class WorksheetScalaFile(viewProvider: FileViewProvider)
     extends ScalaFileImpl(viewProvider, WorksheetFileType) {
 
-    override def isWorksheetFile: Boolean = true
+    override def isWorksheetFile = true
   }
 }

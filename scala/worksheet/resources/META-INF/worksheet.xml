@@ -10,5 +10,7 @@
                                implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.fileViewProviderFactory language="Scala Worksheet"
                                       implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
+
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>
     </extensions>
 </idea-plugin>
