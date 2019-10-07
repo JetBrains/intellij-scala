@@ -5,7 +5,7 @@ package parsing
 package top
 package template
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr, Expr1}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
@@ -16,13 +16,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
  */
 sealed abstract class Stat extends ParsingRule {
 
+  import lexer.ScalaTokenType.ExportKeyword
   import lexer.ScalaTokenTypes.kIMPORT
 
   override final def apply()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
-      case `kIMPORT` =>
-        Import.parse(builder)
-        true
+      case `kIMPORT` => Import()
+      case ExportKeyword => Export()
       case _ =>
         parseDeclaration() ||
           EmptyDcl.parse(builder) ||
@@ -35,6 +35,7 @@ sealed abstract class Stat extends ParsingRule {
 
 /**
  * [[TemplateStat]] ::= [[Import]]
+ * | [[Export]]
  * | { [[Annotation]] [nl]} { [[Modifier]] } [[Def]]
  * | { [[Annotation]] [nl]} { [[Modifier]] } [[Dcl]]
  * | [[Expr]] // TODO [[Expr1]] in Scala 3

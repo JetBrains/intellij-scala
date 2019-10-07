@@ -21,6 +21,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -892,7 +893,7 @@ object ScalaPsiElementFactory {
     }
 
   def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt =
-    createElementWithContext[ScImportStmt](text, context, child)(parsingBase.Import.parse)
+    createElementWithContext[ScImportStmt](text, context, child)(Import()(_))
 
   def createTypeElementFromText(text: String)
                                (implicit ctx: ProjectContext): ScTypeElement =

@@ -4,31 +4,80 @@ package parser
 package parsing
 package base
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 08.02.2008
-*/
-
-/*
- *  Import ::= import ImportExpr { ,  ImportExpr}
+ * @author Alexander Podkhalyuzin
+ *         Date: 08.02.2008
  */
+trait Import extends ParsingRule {
 
-object Import {
-  def parse(builder: ScalaPsiBuilder) {
-    val importMarker = builder.mark()
+  import lexer.ScalaTokenTypes._
+
+  protected def keywordType: IElementType
+
+  protected def elementType: IElementType
+
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val marker = builder.mark()
+
+    parseKeyword(keywordType, isObligatory = true)
+    parseImportExpressions()
+
+    marker.done(elementType)
+
+    true
+  }
+
+  protected def parseKeyword(keywordType: IElementType,
+                             isObligatory: Boolean)
+                            (implicit builder: ScalaPsiBuilder): Unit =
     builder.getTokenType match {
-      case ScalaTokenTypes.kIMPORT =>
-        builder.advanceLexer() //Ate import
-      case _ => builder.error(ScalaBundle.message("unreachable.error"))
+      case `keywordType` => builder.advanceLexer() // Ate keyword
+      case _ if isObligatory => builder.error(ScalaBundle.message("unreachable.error"))
+      case _ =>
     }
+
+  @annotation.tailrec
+  private def parseImportExpressions()(implicit builder: ScalaPsiBuilder): Unit = {
     ImportExpr.parse(builder)
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer() //Ate ,
-      ImportExpr.parse(builder)
+    builder.getTokenType match {
+      case `tCOMMA` =>
+        builder.advanceLexer() // Ate ,
+        parseImportExpressions()
+      case _ =>
     }
-    importMarker.done(ScalaElementType.ImportStatement)
+  }
+}
+
+/**
+ * [[Import]] ::= 'import' [[ImportExpr]] { ','  [[ImportExpr]] }
+ */
+//noinspection TypeAnnotation
+object Import extends Import {
+
+  override protected def keywordType = lexer.ScalaTokenTypes.kIMPORT
+
+  override protected def elementType = ScalaElementType.ImportStatement
+}
+
+/**
+ * [[Export]] ::= 'export' [ 'given' ] [[ImportExpr]] { ',' [[ImportExpr]] }
+ */
+//noinspection TypeAnnotation
+object Export extends Import {
+
+  import lexer.ScalaTokenType._
+
+  override protected def keywordType = ExportKeyword
+
+  override protected def elementType = ScalaElementType.ExportStatement
+
+  override protected def parseKeyword(keywordType: IElementType,
+                                      isObligatory: Boolean)
+                                     (implicit builder: ScalaPsiBuilder): Unit = {
+    super.parseKeyword(keywordType, isObligatory)
+    super.parseKeyword(GivenKeyword, isObligatory = false)
   }
 }
