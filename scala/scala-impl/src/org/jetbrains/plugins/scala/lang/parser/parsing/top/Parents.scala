@@ -14,6 +14,9 @@ sealed abstract class Parents extends ParsingRule {
   protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
     parseSimpleType()
 
+  protected def parseParent()(implicit builder: ScalaPsiBuilder): Boolean =
+    AnnotType.parse(builder, isPattern = false)
+
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
@@ -34,7 +37,7 @@ sealed abstract class Parents extends ParsingRule {
     }
 
   private def parseSimpleType()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val result = AnnotType.parse(builder, isPattern = false)
+    val result = parseParent()
 
     if (!result) {
       builder.error(ScalaBundle.message("wrong.simple.type"))
@@ -57,3 +60,13 @@ object ClassParents extends Parents {
  * [[MixinParents]] ::= [[AnnotType]] { 'with' [[AnnotType]] }
  */
 object MixinParents extends Parents
+
+/**
+ * [[ConstrApps]] ::= [[ConstrApp]] { 'with' [[ConstrApp]] }
+ * | [[ConstrApp]] { ',' [[ConstrApp]] }
+ */
+object ConstrApps extends Parents {
+
+  override protected def parseParent()(implicit builder: ScalaPsiBuilder): Boolean =
+    Constructor.parse(builder)
+}

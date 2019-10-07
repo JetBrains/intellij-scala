@@ -12,7 +12,7 @@ sealed abstract class TemplateDef extends ParsingRule {
 
   protected def parseConstructor()(implicit builder: ScalaPsiBuilder): Unit = {}
 
-  protected def extendsBlockRule: TemplateOpt
+  protected def extendsBlockRule: Template
 
   override final def apply()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
@@ -30,31 +30,42 @@ sealed abstract class TemplateDef extends ParsingRule {
 }
 
 /**
- * * [[ClassDef]] ::= id [ [[ClassConstr]] ] [[ClassTemplateOpt]]
+ * * [[ClassDef]] ::= id [[ClassConstr]] [ [[ClassTemplate]] ]
  */
 object ClassDef extends TemplateDef {
 
   override protected def parseConstructor()(implicit builder: ScalaPsiBuilder): Unit =
     ClassConstr()
 
-  override protected def extendsBlockRule: ClassTemplateOpt.type = ClassTemplateOpt
+  override protected def extendsBlockRule: ClassTemplate.type = ClassTemplate
 }
 
 /**
- * [[TraitDef]] ::= id [ [[TypeParamClause]] ] [[TraitTemplateOpt]]
+ * [[TraitDef]] ::= id [ [[TypeParamClause]] ] [ [[TraitTemplate]] ]
  */
 object TraitDef extends TemplateDef {
 
   override protected def parseConstructor()(implicit builder: ScalaPsiBuilder): Unit =
     TypeParamClause.parse(builder)
 
-  override protected def extendsBlockRule: TraitTemplateOpt.type = TraitTemplateOpt
+  override protected def extendsBlockRule: TraitTemplate.type = TraitTemplate
 }
 
 /**
- * [[ObjectDef]] ::= id [[ClassTemplateOpt]]
+ * [[ObjectDef]] ::= id [ [[ClassTemplate]] ]
  */
 object ObjectDef extends TemplateDef {
 
-  override protected def extendsBlockRule: ClassTemplateOpt.type = ClassTemplateOpt
+  override protected def extendsBlockRule: ClassTemplate.type = ClassTemplate
+}
+
+/**
+ * [[EnumDef]] ::= id [[ClassConstr]] [[EnumTemplate]]
+ */
+object EnumDef extends TemplateDef {
+
+  override protected def parseConstructor()(implicit builder: ScalaPsiBuilder): Unit =
+    ClassConstr()
+
+  override protected def extendsBlockRule: EnumTemplate.type = EnumTemplate
 }

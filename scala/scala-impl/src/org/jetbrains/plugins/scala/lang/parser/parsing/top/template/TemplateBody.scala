@@ -2,71 +2,85 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 package parsing
-package top.template
+package top
+package template
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 
-import scala.annotation.tailrec
-
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 08.02.2008
-*/
-
-/*
- *  TemplateBody ::= '{' [SelfType] TemplateStat {semi TemplateStat} '}'
+/**
+ * @author Alexander Podkhalyuzin
+ *         Date: 08.02.2008
  */
-object TemplateBody {
+sealed abstract class Body extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder) {
-    val templateBodyMarker = builder.mark
-    //Look for {
+  import lexer.ScalaTokenTypes._
+
+  protected def statementRule: Stat
+
+  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val marker = builder.mark()
     builder.enableNewlines()
+
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE =>
-        builder.advanceLexer() //Ate {
-      case _ => builder error ScalaBundle.message("lbrace.expected")
+      case `tLBRACE` =>
+        builder.advanceLexer() // Ate {
+      case _ =>
+        builder.error(ScalaBundle.message("lbrace.expected"))
     }
-    SelfType parse builder
-    //this metod parse recursively TemplateStat {semi TemplateStat}
-    @tailrec
-    def subparse(): Boolean = {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tRBRACE =>
-          builder.advanceLexer() //Ate }
-          true
-        case null =>
-          builder error ScalaBundle.message("rbrace.expected")
-          true
-        case _ =>
-          if (TemplateStat parse builder) {
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE =>
-                builder.advanceLexer() //Ate }
-                true
-              case ScalaTokenTypes.tSEMICOLON =>
-                while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer()
-                subparse()
-              case _ =>
-                if (builder.newlineBeforeCurrentToken) subparse()
-                else {
-                  builder error ScalaBundle.message("semi.expected")
-                  builder.advanceLexer() //Ate something
-                  subparse()
-                }
-            }
-          }
-          else {
-            builder error ScalaBundle.message("def.dcl.expected")
-            builder.advanceLexer() //Ate something
-            subparse()
-          }
-      }
-    }
-    subparse()
+
+    SelfType.parse(builder)
+    parseStatements()
+
     builder.restoreNewlinesState()
-    templateBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
+    marker.done(ScalaElementType.TEMPLATE_BODY)
+
+    true
   }
+
+
+  /**
+   * [[Stat]] { semi [[Stat]] }
+   */
+  @annotation.tailrec
+  private def parseStatements()(implicit builder: ScalaPsiBuilder): Unit = builder.getTokenType match {
+    case null =>
+      builder.error(ScalaBundle.message("rbrace.expected"))
+    case `tRBRACE` =>
+      builder.advanceLexer() // Ate }
+    case _ if statementRule() =>
+      builder.getTokenType match {
+        case `tRBRACE` =>
+          builder.advanceLexer() // Ate }
+        case `tSEMICOLON` =>
+          while (builder.getTokenType == tSEMICOLON) {
+            builder.advanceLexer()
+          }
+          parseStatements()
+        case _ if builder.newlineBeforeCurrentToken =>
+          parseStatements()
+        case _ =>
+          builder.error(ScalaBundle.message("semi.expected"))
+          builder.advanceLexer() // Ate something
+          parseStatements()
+      }
+    case _ =>
+      builder.error(ScalaBundle.message("def.dcl.expected"))
+      builder.advanceLexer() // Ate something
+      parseStatements()
+  }
+}
+
+/**
+ * [[TemplateBody]] ::= [cnl] '{' [ [[SelfType]] ] [[TemplateStat]] { semi [[TemplateStat]] } '}'
+ */
+object TemplateBody extends Body {
+  override protected def statementRule: TemplateStat.type = TemplateStat
+}
+
+/**
+ * [[EnumBody]] ::= [cnl] '{' [ [[SelfType]] ] [[EnumStat]] { semi [[EnumStat]] } '}'
+ */
+object EnumBody extends Body {
+  override protected def statementRule: EnumStat.type = EnumStat
 }

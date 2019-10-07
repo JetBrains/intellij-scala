@@ -7,7 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplateBlock
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -46,7 +46,7 @@ object SimpleExpr {
     builder.getTokenType match {
       case NewKeyword =>
         builder.advanceLexer() //Ate new
-        if (!ClassTemplate.parse(builder)) {
+        if (!ClassTemplateBlock.parse(builder)) {
           builder error ErrMsg("identifier.expected")
           simpleMarker.drop()
           return false

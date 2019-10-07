@@ -102,7 +102,9 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder) extends PsiBuilderAdapter(delega
     case `kCASE` =>
       this.predict {
         _.getTokenType match {
-          case ObjectKeyword | ClassKeyword => true
+          case ObjectKeyword |
+               ClassKeyword |
+               `tIDENTIFIER` => true
           case _ => false
         }
       }

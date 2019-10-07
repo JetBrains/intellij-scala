@@ -9,16 +9,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 
 /**
+ * [[ClassTemplateBlock]] ::= [EarlyDefs] ClassParents [TemplateBody]
+ * | TemplateBody (for 'new' statement)
+ *
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 * Time: 9:31:16
 */
-
-/*
- * ClassTemplate ::= [EarlyDefs] ClassParents [TemplateBody]
- *                 | TemplateBody (for 'new' statement)
- */
-object ClassTemplate {
+object ClassTemplateBlock {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val extendsMarker = builder.mark

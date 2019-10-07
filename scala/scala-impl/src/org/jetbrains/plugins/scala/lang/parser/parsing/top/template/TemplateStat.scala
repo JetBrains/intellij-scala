@@ -2,38 +2,51 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 package parsing
-package top.template
+package top
+package template
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr, Expr1}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 13.02.2008
-*/
-
-/*
- *  TemplateStat ::= Import
- *              | {AttributeClause} {Modifier} Def
- *              | {AttributeClause} {Modifier} Dcl
- *              | Expr
+/**
+ * @author Alexander Podkhalyuzin
+ *         Date: 13.02.2008
  */
-object TemplateStat {
+sealed abstract class Stat extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  import lexer.ScalaTokenTypes.kIMPORT
+
+  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
-      case ScalaTokenTypes.kIMPORT =>
+      case `kIMPORT` =>
         Import.parse(builder)
         true
       case _ =>
-        if (Def.parse(builder)) true
-        else if (Dcl.parse(builder)) true
-        else if (EmptyDcl.parse(builder)) true
-        else if (Expr.parse(builder)) true
-        else false
+        parseDeclaration() ||
+          EmptyDcl.parse(builder) ||
+          Expr.parse(builder)
     }
-  }
+
+  protected def parseDeclaration()(implicit builder: ScalaPsiBuilder): Boolean =
+    Def.parse(builder) || Dcl.parse(builder)
+}
+
+/**
+ * [[TemplateStat]] ::= [[Import]]
+ * | { [[Annotation]] [nl]} { [[Modifier]] } [[Def]]
+ * | { [[Annotation]] [nl]} { [[Modifier]] } [[Dcl]]
+ * | [[Expr]] // TODO [[Expr1]] in Scala 3
+ */
+object TemplateStat extends Stat
+
+/**
+ * [[EnumStat]] ::= [[TemplateStat]]
+ * | { [[Annotation]] [nl]} { [[Modifier]] } [[EnumCase]]
+ */
+object EnumStat extends Stat {
+
+  override protected def parseDeclaration()(implicit builder: ScalaPsiBuilder): Boolean =
+    EnumCase() || super.parseDeclaration()
 }

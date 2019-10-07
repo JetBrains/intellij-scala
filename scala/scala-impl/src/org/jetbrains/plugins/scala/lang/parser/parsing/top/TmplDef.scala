@@ -11,9 +11,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 
 /**
  * [[TmplDef]] ::= [[Annotations]] { [[Modifier]] }
- * [`case`] `class` [[ClassDef]]
- * | [`case`] `object` [[ObjectDef]]
- * | `trait` [[TraitDef]]
+ * ['case'] 'class' [[ClassDef]]
+ * | ['case'] 'object' [[ObjectDef]]
+ * | 'trait' [[TraitDef]]
+ * | 'enum' [[EnumDef]]
+ * | 'given' [[GivenDef]]
  *
  * @author Alexander Podkhalyuzin
  *         Date: 05.02.2008
@@ -24,7 +26,7 @@ object TmplDef extends ParsingRule {
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes.kCASE
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()
     templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 
@@ -83,6 +85,8 @@ object TmplDef extends ParsingRule {
         if (caseState) ParsingRule.AlwaysTrue else TraitDef,
         TraitDefinition
       )
+      case EnumKeyword => Some(EnumDef, EnumDefinition)
+      case GivenKeyword => None // TODO
       case _ => None
     }
 }
