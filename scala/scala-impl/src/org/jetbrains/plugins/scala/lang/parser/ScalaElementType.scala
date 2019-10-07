@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumCaseImpl, ScEnumCasesImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportStmtImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
@@ -105,6 +106,28 @@ object ScalaElementType {
                                      node: ASTNode,
                                      debugName: String) =
       new ScObjectImpl(stub, nodeType, node, debugName)
+  }
+
+  val EnumDefinition = new ScTemplateDefinitionElementType[ScEnum]("ScEnum") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScEnum],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScEnumImpl(stub, nodeType, node, debugName)
+  }
+
+  val EnumCase = new ScTemplateDefinitionElementType[ScEnumCase]("ScEnumCase") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScEnumCase],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScEnumCaseImpl(stub, nodeType, node, debugName)
+  }
+
+  val EnumCases = new ScalaElementType("ScEnumCases") {
+    override def createElement(node: ASTNode) = new ScEnumCasesImpl(node, toString)
   }
 
   val NewTemplate = new ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {

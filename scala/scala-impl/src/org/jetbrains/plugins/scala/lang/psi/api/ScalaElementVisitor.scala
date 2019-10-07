@@ -126,6 +126,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitAnnotation(annotation: ScAnnotation) {visitScalaElement(annotation)}
   def visitTemplateParents(cp: ScTemplateParents) {visitScalaElement(cp)}
 
+  def visitEnumCases(cases: ScEnumCases): Unit = visitScalaElement(cases)
 
   // Expressions
   //Override also visitReferenceExpression!

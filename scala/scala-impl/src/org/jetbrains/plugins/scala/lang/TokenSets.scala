@@ -15,6 +15,7 @@ object TokenSets {
   val TYPE_DEFINITIONS: TokenSet = TokenSet.create(
     ClassDefinition,
     TraitDefinition,
+    EnumDefinition,
     ObjectDefinition
   )
 

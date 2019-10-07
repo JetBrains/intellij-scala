@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
+package typedef
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameters}
@@ -7,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParame
 /**
   * @author adkozlov
   */
-trait ScConstructorOwner extends ScParameterOwner with ScTemplateDefinition {
+trait ScConstructorOwner extends ScTypeDefinition
+  with ScParameterOwner {
+
   def constructor: Option[ScPrimaryConstructor] =
     findChild(classOf[ScPrimaryConstructor])
 
