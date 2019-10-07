@@ -12,7 +12,6 @@ import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -35,7 +34,7 @@ public abstract class RearrangerTest extends ScalaFileSetTestCase {
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,
                              @NotNull Project project) {
-    final PsiFile file = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    final PsiFile file = createLightFile(fileText, project);
     CommandProcessor.getInstance().executeCommand(
             project,
             () -> ApplicationManager.getApplication().runWriteAction(() -> {

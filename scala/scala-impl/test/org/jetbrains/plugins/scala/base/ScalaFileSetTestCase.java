@@ -16,7 +16,10 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.application.options.CodeStyle;
+import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.TestSuite;
@@ -28,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +38,7 @@ import java.util.stream.Stream;
 
 import static com.intellij.openapi.util.io.FileUtil.loadFileText;
 import static com.intellij.openapi.util.text.StringUtil.*;
+import static com.intellij.psi.impl.DebugUtil.psiToString;
 import static org.junit.Assert.*;
 
 /**
@@ -75,6 +78,11 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     }
 
     @NotNull
+    protected Language getLanguage() {
+        return ScalaLanguage.INSTANCE;
+    }
+
+    @NotNull
     @Override
     public final String getName() {
         return getClass().getName();
@@ -93,13 +101,18 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     }
 
     @NotNull
-    protected abstract String transform(@NotNull String testName,
-                                        @NotNull String fileText,
-                                        @NotNull Project project) throws IOException;
+    protected String transform(@NotNull String testName,
+                               @NotNull String fileText,
+                               @NotNull Project project) {
+        PsiFile lightFile = createLightFile(fileText, project);
+
+        return psiToString(lightFile, false)
+                .replace(": " + lightFile.getName(), "");
+    }
 
     protected void runTest(@NotNull String testName,
                            @NotNull String content,
-                           @NotNull Project project) throws IOException {
+                           @NotNull Project project) {
         final List<String> input = new ArrayList<>();
 
         int separatorIndex;
@@ -220,6 +233,15 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     @NotNull
     protected final CommonCodeStyleSettings getCommonSettings(@NotNull Project project) {
         return getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE);
+    }
+
+    protected final PsiFile createLightFile(@NotNull @NonNls String text,
+                                            @NotNull Project project) {
+        return PsiFileFactory.getInstance(project).createFileFromText(
+                "dummy.scala",
+                getLanguage(),
+                text
+        );
     }
 
     @NotNull

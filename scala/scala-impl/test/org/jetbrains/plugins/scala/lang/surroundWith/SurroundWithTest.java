@@ -13,7 +13,6 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors$;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 import scala.Tuple4;
@@ -53,7 +52,7 @@ public class SurroundWithTest extends ScalaFileSetTestCase {
                              @NotNull String fileText,
                              @NotNull Project project) {
     Tuple4<String, Integer, Integer, Integer> res = SurroundWithTestUtil.prepareFile(fileText);
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, res._1());
+    final PsiFile psiFile = createLightFile(res._1(), project);
     final Surrounder[] surrounder = ScalaSurroundDescriptors$.MODULE$.getSurroundDescriptors()[0].getSurrounders();
 
     CommandProcessor.getInstance().executeCommand(

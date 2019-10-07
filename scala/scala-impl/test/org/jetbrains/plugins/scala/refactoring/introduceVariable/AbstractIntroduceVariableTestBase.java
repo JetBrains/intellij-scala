@@ -118,7 +118,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
     int endOffset = fileText.indexOf(TestUtils.END_MARKER);
     fileText = TestUtils.removeEndMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    myFile = createLightFile(fileText, project);
     fileEditorManager = FileEditorManager.getInstance(project);
     VirtualFile virtualFile = myFile.getVirtualFile();
     assert virtualFile != null;
@@ -199,7 +199,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,
                              @NotNull Project project) {
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    final PsiFile psiFile = createLightFile(fileText, project);
     return processFile(psiFile, project);
   }
 

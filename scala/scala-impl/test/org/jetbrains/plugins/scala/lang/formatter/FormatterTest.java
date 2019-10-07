@@ -25,7 +25,6 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -54,7 +53,7 @@ public class FormatterTest extends ScalaFileSetTestCase {
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,
                              @NotNull Project project) {
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    final PsiFile psiFile = createLightFile(fileText, project);
     Runnable runnable = () -> ApplicationManager.getApplication().runWriteAction(() -> {
           try {
             CodeStyleManager.getInstance(project)

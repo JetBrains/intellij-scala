@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import com.intellij.lang.Language;
 import com.intellij.lang.LanguageParserDefinitions;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 
 /**
@@ -25,11 +23,6 @@ abstract public class LexerTestBase extends ScalaFileSetTestCase {
         return LanguageParserDefinitions.INSTANCE
                 .forLanguage(getLanguage())
                 .createLexer(project);
-    }
-
-    @NotNull
-    protected Language getLanguage() {
-        return ScalaLanguage.INSTANCE;
     }
 
     protected void onToken(@NotNull Lexer lexer,

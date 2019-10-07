@@ -7,14 +7,9 @@ import com.intellij.lang.PsiBuilderFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.impl.DebugUtil;
 import com.intellij.util.containers.ContainerUtil;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -42,7 +37,7 @@ public class DragSearchTest extends ScalaFileSetTestCase {
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,
                              @NotNull Project project) {
-    ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaLanguage.INSTANCE);
+    ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(getLanguage());
     PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(
             parserDefinition,
             parserDefinition.createLexer(project),
@@ -54,12 +49,7 @@ public class DragSearchTest extends ScalaFileSetTestCase {
     Pair<TextRange, Integer>[] dragInfo = dragBuilder.getDragInfo();
     exploreForDrags(dragInfo);
 
-    PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(
-            "temp.scala",
-            ScalaFileType.INSTANCE,
-            fileText
-    );
-    return DebugUtil.psiToString(psiFile, false);
+    return super.transform(testName, fileText, project);
   }
 
   private static void exploreForDrags(Pair<TextRange, Integer>[] dragInfo) {

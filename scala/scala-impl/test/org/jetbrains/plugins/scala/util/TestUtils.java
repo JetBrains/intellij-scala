@@ -17,15 +17,9 @@ package org.jetbrains.plugins.scala.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.testFramework.ThreadTracker;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.LocalTimeCounter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
 import org.junit.Assert;
@@ -46,17 +40,6 @@ public class TestUtils {
 
   public static final String BEGIN_MARKER = "<begin>";
   public static final String END_MARKER = "<end>";
-
-  public static PsiFile createPseudoPhysicalScalaFile(final Project project, final String text) throws IncorrectOperationException {
-    String TEMP_FILE = project.getBasePath() + "/temp.scala";
-    return PsiFileFactory.getInstance(project).createFileFromText(
-        TEMP_FILE,
-        FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
-        text,
-        LocalTimeCounter.currentTime(),
-            true
-    );
-  }
 
   private static String TEST_DATA_PATH = null;
 

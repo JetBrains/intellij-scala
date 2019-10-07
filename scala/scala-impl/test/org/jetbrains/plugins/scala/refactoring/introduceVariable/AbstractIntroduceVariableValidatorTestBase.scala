@@ -47,7 +47,7 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
     val endOffset = testFileText.indexOf(END_MARKER)
     testFileText = removeEndMarker(testFileText)
 
-    myFile = createPseudoPhysicalScalaFile(project, testFileText)
+    myFile = createLightFile(testFileText, project)
     fileEditorManager = FileEditorManager.getInstance(project)
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile, 0), false)
     myEditor.getSelectionModel.setSelection(startOffset, endOffset)

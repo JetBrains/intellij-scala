@@ -10,9 +10,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.util.TestUtils;
-
-import java.io.IOException;
 
 abstract public class AbstractActionTestBase extends ActionTestBase {
   private Editor myEditor;
@@ -25,14 +22,14 @@ abstract public class AbstractActionTestBase extends ActionTestBase {
 
   @NotNull
   private String processFile(@NotNull PsiFile file,
-                             @NotNull Project project) throws IncorrectOperationException, InvalidDataException, IOException {
+                             @NotNull Project project) throws IncorrectOperationException, InvalidDataException {
     final String result;
 
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
 
-    PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    PsiFile psiFile = createLightFile(fileText, project);
     FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
 
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, psiFile.getVirtualFile(), 0), false);
@@ -61,8 +58,8 @@ abstract public class AbstractActionTestBase extends ActionTestBase {
   @NotNull
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,
-                             @NotNull Project project) throws IOException {
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+                             @NotNull Project project) {
+    final PsiFile psiFile = createLightFile(fileText, project);
     return processFile(psiFile, project);
   }
 
