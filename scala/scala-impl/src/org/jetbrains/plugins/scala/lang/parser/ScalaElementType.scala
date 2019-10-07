@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumCaseImpl, ScEnumCasesImpl}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportStmtImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtImpl, ScImportStmtImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImportStmtStub, ScTemplateDefinitionStub}
@@ -51,6 +51,15 @@ object ScalaElementType {
                                      node: ASTNode,
                                      debugName: String) =
       new ScImportStmtImpl(stub, nodeType, node, debugName)
+  }
+
+  val ExportStatement = new ScImportStmtElementType("ScExportStatement") {
+
+    override protected def createPsi(stub: ScImportStmtStub,
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScExportStmtImpl(stub, nodeType, node, debugName)
   }
 
   val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
