@@ -1,1005 +1,1013 @@
-package org.jetbrains.plugins.scala.lang.overrideImplement
+package org.jetbrains.plugins.scala
+package lang
+package overrideImplement
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
+import com.intellij.testFramework.EditorTestUtil._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.invokeOverrideImplement
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
-  * @author Alefas
-  * @since 14.05.12
-  */
-class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+ * @author Alefas
+ * @since 14.05.12
+ */
+class ScalaOverrideImplementTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
-  private def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
-                      settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)),
-                      copyScalaDoc: Boolean = false): Unit = {
-    implicit val project: Project = getProjectAdapter
+  private def runTest(methodName: String,
+                      fileText: String,
+                      expectedText: String,
+                      isImplement: Boolean,
+                      settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)),
+                      copyScalaDoc: Boolean = false,
+                      fileName: String = "dummy.scala"): Unit = {
+    implicit val project: Project = getProject
 
-    configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
+    getFixture.configureByText(fileName, convertLineSeparators(fileText))
+
     val oldSettings = ScalaCodeStyleSettings.getInstance(project).clone()
     TypeAnnotationSettings.set(project, settings)
-    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProjectAdapter).defaultProfile
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val newSettings = defaultProfile.getSettings
     newSettings.plugins = newSettings.plugins :+ "kind-projector"
     defaultProfile.setSettings(newSettings)
 
-    implicit val editor: Editor = getEditorAdapter
-    ScalaApplicationSettings.getInstance().COPY_SCALADOC = copyScalaDoc
-    ScalaOIUtil.invokeOverrideImplement(getFileAdapter, isImplement, methodName)
+    implicit val editor: Editor = getEditor
+    ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDoc
+    invokeOverrideImplement(getFile, isImplement, methodName)
 
     TypeAnnotationSettings.set(project, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
-    checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
+    getFixture.checkResult(convertLineSeparators(expectedText))
   }
 
-  def testFoo() {
+  def testFoo(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  def foo(x: b): b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b): b
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  def foo(x: b): b = <selection>???</selection>
-        |}
-        |abstract class b {
-        |  def foo(x: b): b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  def foo(x: b): b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b): b
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testEmptyLinePos() {
+  def testEmptyLinePos(): Unit = {
     val fileText =
-      """
-        |package test
-        |class Empty extends b {
-        |  def foo(): Int = 3
-        |
-        |
-        |  <caret>
-        |
-        |
-        |}
-        |abstract class b {
-        |  def too: b
-        |}
-      """
+      s"""
+         |package test
+         |class Empty extends b {
+         |  def foo(): Int = 3
+         |
+         |
+         |  $CARET_TAG
+         |
+         |
+         |}
+         |abstract class b {
+         |  def too: b
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |class Empty extends b {
-        |  def foo(): Int = 3
-        |
-        |  def too: b = <selection>???</selection>
-        |}
-        |abstract class b {
-        |  def too: b
-        |}
-      """
+      s"""
+         |package test
+         |class Empty extends b {
+         |  def foo(): Int = 3
+         |
+         |  def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  def too: b
+         |}
+      """.stripMargin
     val methodName: String = "too"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testNewLineBetweenMethods() {
+  def testNewLineBetweenMethods(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class MethodsNewLine extends b {
-        |  def foo(): Int = 3<caret>
-        |}
-        |abstract class b {
-        |  def too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class MethodsNewLine extends b {
+         |  def foo(): Int = 3$CARET_TAG
+         |}
+         |abstract class b {
+         |  def too: b
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class MethodsNewLine extends b {
-        |  def foo(): Int = 3
-        |
-        |  def too: b = <selection>???</selection>
-        |}
-        |abstract class b {
-        |  def too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class MethodsNewLine extends b {
+         |  def foo(): Int = 3
+         |
+         |  def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  def too: b
+         |}
+      """.stripMargin
     val methodName: String = "too"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testNewLineUpper() {
+  def testNewLineUpper(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class UpperNewLine extends b {
-        |  <caret>
-        |  def foo(): Int = 3
-        |}
-        |abstract class b {
-        |  def too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class UpperNewLine extends b {
+         |  $CARET_TAG
+         |  def foo(): Int = 3
+         |}
+         |abstract class b {
+         |  def too: b
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class UpperNewLine extends b {
-        |
-        |  def too: b = <selection>???</selection>
-        |
-        |  def foo(): Int = 3
-        |}
-        |abstract class b {
-        |  def too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class UpperNewLine extends b {
+         |
+         |  def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |
+         |  def foo(): Int = 3
+         |}
+         |abstract class b {
+         |  def too: b
+         |}
+      """.stripMargin
     val methodName: String = "too"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testOverrideFunction() {
+  def testOverrideFunction(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class A {
-        |  def foo(): A = null
-        |}
-        |class FunctionOverride extends A {
-        |  val t = foo()
-        |
-        |
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class A {
+         |  def foo(): A = null
+         |}
+         |class FunctionOverride extends A {
+         |  val t = foo()
+         |
+         |
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class A {
-        |  def foo(): A = null
-        |}
-        |class FunctionOverride extends A {
-        |  val t = foo()
-        |
-        |  override def foo(): A = <selection>super.foo()</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class A {
+         |  def foo(): A = null
+         |}
+         |class FunctionOverride extends A {
+         |  val t = foo()
+         |
+         |  override def foo(): A = ${SELECTION_START_TAG}super.foo()$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testImplementTypeAlias() {
+  def testImplementTypeAlias(): Unit = {
     val fileText =
-      """
-        |package Y
-        |trait Aa {
-        |  type K
-        |}
-        |class TypeAlias extends Aa {
-        |  val t = foo()
-        |  <caret>
-        |  def y(): Int = 3
-        |}
-      """
+      s"""
+         |package Y
+         |trait Aa {
+         |  type K
+         |}
+         |class TypeAlias extends Aa {
+         |  val t = foo()
+         |  $CARET_TAG
+         |  def y(): Int = 3
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package Y
-        |trait Aa {
-        |  type K
-        |}
-        |class TypeAlias extends Aa {
-        |  val t = foo()
-        |
-        |  type K = <selection>this.type</selection>
-        |
-        |  def y(): Int = 3
-        |}
-      """
+      s"""
+         |package Y
+         |trait Aa {
+         |  type K
+         |}
+         |class TypeAlias extends Aa {
+         |  val t = foo()
+         |
+         |  type K = ${SELECTION_START_TAG}this.type$SELECTION_END_TAG
+         |
+         |  def y(): Int = 3
+         |}
+      """.stripMargin
     val methodName: String = "K"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testOverrideValue() {
+  def testOverrideValue(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class A {
-        |  val foo: A = new A
-        |}
-        |class OverrideValue extends A {
-        |  val t = foo()
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class A {
+         |  val foo: A = new A
+         |}
+         |class OverrideValue extends A {
+         |  val t = foo()
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class A {
-        |  val foo: A = new A
-        |}
-        |class OverrideValue extends A {
-        |  val t = foo()
-        |  override val foo: A = <selection>_</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class A {
+         |  val foo: A = new A
+         |}
+         |class OverrideValue extends A {
+         |  val t = foo()
+         |  override val foo: A = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testImplementVar() {
+  def testImplementVar(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |trait A {
-        |  var foo: A
-        |}
-        |class VarImplement extends A {
-        |  val t = foo()
-        |  <caret>
-        |  def y(): Int = 3
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait A {
+         |  var foo: A
+         |}
+         |class VarImplement extends A {
+         |  val t = foo()
+         |  $CARET_TAG
+         |  def y(): Int = 3
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |trait A {
-        |  var foo: A
-        |}
-        |class VarImplement extends A {
-        |  val t = foo()
-        |
-        |  var foo: A = <selection>_</selection>
-        |
-        |  def y(): Int = 3
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait A {
+         |  var foo: A
+         |}
+         |class VarImplement extends A {
+         |  val t = foo()
+         |
+         |  var foo: A = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |
+         |  def y(): Int = 3
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testImplementFromSelfType() {
+  def testImplementFromSelfType(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |trait A {
-        |  def foo: Int
-        |}
-        |trait B {
-        |  self: A =>
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait A {
+         |  def foo: Int
+         |}
+         |trait B {
+         |  self: A =>
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |trait A {
-        |  def foo: Int
-        |}
-        |trait B {
-        |  self: A =>
-        |  def foo: Int = <selection>???</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait A {
+         |  def foo: Int
+         |}
+         |trait B {
+         |  self: A =>
+         |  def foo: Int = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testOverrideFromSelfType() {
+  def testOverrideFromSelfType(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |trait A {
-        |  def foo: Int = 1
-        |}
-        |trait B {
-        |  self: A =>
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait A {
+         |  def foo: Int = 1
+         |}
+         |trait B {
+         |  self: A =>
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |trait A {
-        |  def foo: Int = 1
-        |}
-        |trait B {
-        |  self: A =>
-        |  override def foo = <selection>self.foo</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait A {
+         |  def foo: Int = 1
+         |}
+         |trait B {
+         |  self: A =>
+         |  override def foo = ${SELECTION_START_TAG}self.foo$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
 
-    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
     runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
-  def testTypeAlias() {
+  def testTypeAlias(): Unit = {
     val fileText =
-      """
-        |class ImplementTypeAlias extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  type L
-        |}
-      """
+      s"""
+         |class ImplementTypeAlias extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  type L
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class ImplementTypeAlias extends b {
-        |  type L = <selection>this.type</selection>
-        |}
-        |abstract class b {
-        |  type L
-        |}
-      """
+      s"""
+         |class ImplementTypeAlias extends b {
+         |  type L = ${SELECTION_START_TAG}this.type$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  type L
+         |}
+      """.stripMargin
     val methodName: String = "L"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testVal() {
+  def testVal(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Val extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  val too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Val extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  val too: b
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Val extends b {
-        |  val too: b = <selection>_</selection>
-        |}
-        |abstract class b {
-        |  val too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Val extends b {
+         |  val too: b = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  val too: b
+         |}
+      """.stripMargin
     val methodName: String = "too"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testVar() {
+  def testVar(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Var extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  var too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Var extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  var too: b
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Var extends b {
-        |  var too: b = <selection>_</selection>
-        |}
-        |abstract class b {
-        |  var too: b
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Var extends b {
+         |  var too: b = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  var too: b
+         |}
+      """.stripMargin
     val methodName: String = "too"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testClassTypeParam() {
+  def testClassTypeParam(): Unit = {
     val fileText =
-      """
-        |class A[T] {
-        |  def foo: T = new T
-        |}
-        |
-        |class ClassTypeParam extends A[Int] {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A[T] {
+         |  def foo: T = new T
+         |}
+         |
+         |class ClassTypeParam extends A[Int] {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A[T] {
-        |  def foo: T = new T
-        |}
-        |
-        |class ClassTypeParam extends A[Int] {
-        |  override def foo: Int = <selection>super.foo</selection>
-        |}
-      """
+      s"""
+         |class A[T] {
+         |  def foo: T = new T
+         |}
+         |
+         |class ClassTypeParam extends A[Int] {
+         |  override def foo: Int = ${SELECTION_START_TAG}super.foo$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testHardSubstituting() {
+  def testHardSubstituting(): Unit = {
     val fileText =
-      """
-        |class A[T] {
-        |  def foo(x: (T) => T, y: (T, Int) => T): Double = 1.0
-        |}
-        |
-        |class Substituting extends A[Float] {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A[T] {
+         |  def foo(x: (T) => T, y: (T, Int) => T): Double = 1.0
+         |}
+         |
+         |class Substituting extends A[Float] {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A[T] {
-        |  def foo(x: (T) => T, y: (T, Int) => T): Double = 1.0
-        |}
-        |
-        |class Substituting extends A[Float] {
-        |  override def foo(x: Float => Float, y: (Float, Int) => Float): Double = <selection>super.foo(x, y)</selection>
-        |}
-      """
+      s"""
+         |class A[T] {
+         |  def foo(x: (T) => T, y: (T, Int) => T): Double = 1.0
+         |}
+         |
+         |class Substituting extends A[Float] {
+         |  override def foo(x: Float => Float, y: (Float, Int) => Float): Double = ${SELECTION_START_TAG}super.foo(x, y)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSimpleTypeParam() {
+  def testSimpleTypeParam(): Unit = {
     val fileText =
-      """
-        |abstract class A {
-        |  def foo[T](x: T): T
-        |}
-        |class SimpleTypeParam extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |  def foo[T](x: T): T
+         |}
+         |class SimpleTypeParam extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |abstract class A {
-        |  def foo[T](x: T): T
-        |}
-        |class SimpleTypeParam extends A {
-        |  def foo[T](x: T): T = <selection>???</selection>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |  def foo[T](x: T): T
+         |}
+         |class SimpleTypeParam extends A {
+         |  def foo[T](x: T): T = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL1997() {
+  def testSCL1997(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |trait Foo {
-        |  def foo(a: Any*): Any
-        |}
-        |
-        |trait Sub extends Foo {
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait Foo {
+         |  def foo(a: Any*): Any
+         |}
+         |
+         |trait Sub extends Foo {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |trait Foo {
-        |  def foo(a: Any*): Any
-        |}
-        |
-        |trait Sub extends Foo {
-        |  def foo(a: Any*): Any = <selection>???</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait Foo {
+         |  def foo(a: Any*): Any
+         |}
+         |
+         |trait Sub extends Foo {
+         |  def foo(a: Any*): Any = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL1999() {
+  def testSCL1999(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |trait Parent {
-        |  def m(p: T forSome {type T <: Number})
-        |}
-        |
-        |class Child extends Parent {
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait Parent {
+         |  def m(p: T forSome {type T <: Number})
+         |}
+         |
+         |class Child extends Parent {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |trait Parent {
-        |  def m(p: T forSome {type T <: Number})
-        |}
-        |
-        |class Child extends Parent {
-        |  def m(p: (T) forSome {type T <: Number}): Unit = <selection>???</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |trait Parent {
+         |  def m(p: T forSome {type T <: Number})
+         |}
+         |
+         |class Child extends Parent {
+         |  def m(p: (T) forSome {type T <: Number}): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "m"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL2540() {
+  def testSCL2540(): Unit = {
     val fileText =
-      """
-        |class A {
-        |  def foo(x_ : Int) = 1
-        |}
-        |
-        |class B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A {
+         |  def foo(x_ : Int) = 1
+         |}
+         |
+         |class B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A {
-        |  def foo(x_ : Int) = 1
-        |}
-        |
-        |class B extends A {
-        |  override def foo(x_ : Int): Int = <selection>super.foo(x_)</selection>
-        |}
-      """
+      s"""
+         |class A {
+         |  def foo(x_ : Int) = 1
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x_ : Int): Int = ${SELECTION_START_TAG}super.foo(x_)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL2010() {
+  def testSCL2010(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Parent {
-        |  def doSmth(smth: => String) {}
-        |}
-        |
-        |class Child extends Parent {
-        | <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Parent {
+         |  def doSmth(smth: => String) {}
+         |}
+         |
+         |class Child extends Parent {
+         | $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Parent {
-        |  def doSmth(smth: => String) {}
-        |}
-        |
-        |class Child extends Parent {
-        |  override def doSmth(smth: => String): Unit = <selection>super.doSmth(smth)</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Parent {
+         |  def doSmth(smth: => String) {}
+         |}
+         |
+         |class Child extends Parent {
+         |  override def doSmth(smth: => String): Unit = ${SELECTION_START_TAG}super.doSmth(smth)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "doSmth"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL2052A() {
+  def testSCL2052A(): Unit = {
     val fileText =
-      """
-        |class A {
-        |  type ID[X] = X
-        |  def foo(in: ID[String]): ID[Int] = null
-        |}
-        |
-        |class B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A {
+         |  type ID[X] = X
+         |  def foo(in: ID[String]): ID[Int] = null
+         |}
+         |
+         |class B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A {
-        |  type ID[X] = X
-        |  def foo(in: ID[String]): ID[Int] = null
-        |}
-        |
-        |class B extends A {
-        |  override def foo(in: ID[String]): ID[Int] = <selection>super.foo(in)</selection>
-        |}
-      """
+      s"""
+         |class A {
+         |  type ID[X] = X
+         |  def foo(in: ID[String]): ID[Int] = null
+         |}
+         |
+         |class B extends A {
+         |  override def foo(in: ID[String]): ID[Int] = ${SELECTION_START_TAG}super.foo(in)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL2052B() {
+  def testSCL2052B(): Unit = {
     val fileText =
-      """
-        |class A {
-        |  type ID[X] = X
-        |  val foo: ID[Int] = null
-        |}
-        |
-        |class B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A {
+         |  type ID[X] = X
+         |  val foo: ID[Int] = null
+         |}
+         |
+         |class B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A {
-        |  type ID[X] = X
-        |  val foo: ID[Int] = null
-        |}
-        |
-        |class B extends A {
-        |  override val foo: ID[Int] = <selection>_</selection>
-        |}
-      """
+      s"""
+         |class A {
+         |  type ID[X] = X
+         |  val foo: ID[Int] = null
+         |}
+         |
+         |class B extends A {
+         |  override val foo: ID[Int] = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL2052C() {
+  def testSCL2052C(): Unit = {
     val fileText =
-      """
-        |class A {
-        |  type F = (Int => String)
-        |  def foo(f: F): Any = null
-        |}
-        |
-        |object B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A {
+         |  type F = (Int => String)
+         |  def foo(f: F): Any = null
+         |}
+         |
+         |object B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A {
-        |  type F = (Int => String)
-        |  def foo(f: F): Any = null
-        |}
-        |
-        |object B extends A {
-        |  override def foo(f: B.F): Any = <selection>super.foo(f)</selection>
-        |}
-      """
+      s"""
+         |class A {
+         |  type F = (Int => String)
+         |  def foo(f: F): Any = null
+         |}
+         |
+         |object B extends A {
+         |  override def foo(f: B.F): Any = ${SELECTION_START_TAG}super.foo(f)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL3808() {
+  def testSCL3808(): Unit = {
     val fileText =
-      """
-        |trait TC[_]
-        |
-        |class A {
-        |  def foo[M[X], N[X[_]]: TC]: String = ""
-        |}
-        |
-        |object B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |trait TC[_]
+         |
+         |class A {
+         |  def foo[M[X], N[X[_]]: TC]: String = ""
+         |}
+         |
+         |object B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |trait TC[_]
-        |
-        |class A {
-        |  def foo[M[X], N[X[_]]: TC]: String = ""
-        |}
-        |
-        |object B extends A {
-        |  override def foo[M[X], N[X[_]] : TC]: String = <selection>super.foo</selection>
-        |}
-      """
+      s"""
+         |trait TC[_]
+         |
+         |class A {
+         |  def foo[M[X], N[X[_]]: TC]: String = ""
+         |}
+         |
+         |object B extends A {
+         |  override def foo[M[X], N[X[_]] : TC]: String = ${SELECTION_START_TAG}super.foo$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testSCL3305() {
+  def testSCL3305(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |object A {
-        |
-        |  object Nested {
-        |
-        |    class Nested2
-        |
-        |  }
-        |
-        |}
-        |
-        |abstract class B {
-        |  def foo(v: A.Nested.Nested2)
-        |}
-        |
-        |class C extends B {
-        |  <caret>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |object A {
+         |
+         |  object Nested {
+         |
+         |    class Nested2
+         |
+         |  }
+         |
+         |}
+         |
+         |abstract class B {
+         |  def foo(v: A.Nested.Nested2)
+         |}
+         |
+         |class C extends B {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |import test.A.Nested
-        |
-        |object A {
-        |
-        |  object Nested {
-        |
-        |    class Nested2
-        |
-        |  }
-        |
-        |}
-        |
-        |abstract class B {
-        |  def foo(v: A.Nested.Nested2)
-        |}
-        |
-        |class C extends B {
-        |  def foo(v: Nested.Nested2): Unit = <selection>???</selection>
-        |}
-      """
+      s"""
+         |package test
+         |
+         |import test.A.Nested
+         |
+         |object A {
+         |
+         |  object Nested {
+         |
+         |    class Nested2
+         |
+         |  }
+         |
+         |}
+         |
+         |abstract class B {
+         |  def foo(v: A.Nested.Nested2)
+         |}
+         |
+         |class C extends B {
+         |  def foo(v: Nested.Nested2): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testUnitReturn() {
+  def testUnitReturn(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  def foo(x: b): Unit
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b): Unit
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  def foo(x: b): Unit = <selection>???</selection>
-        |}
-        |abstract class b {
-        |  def foo(x: b): Unit
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  def foo(x: b): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b): Unit
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testUnitInferredReturn() {
+  def testUnitInferredReturn(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  def foo(x: b) = ()
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b) = ()
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  override def foo(x: b): Unit = <selection>super.foo(x)</selection>
-        |}
-        |abstract class b {
-        |  def foo(x: b) = ()
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  override def foo(x: b): Unit = ${SELECTION_START_TAG}super.foo(x)$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b) = ()
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testInferredReturn() {
+  def testInferredReturn(): Unit = {
     val fileText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  <caret>
-        |}
-        |abstract class b {
-        |  def foo(x: b) = 1
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  $CARET_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b) = 1
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |package test
-        |
-        |class Foo extends b {
-        |  override def foo(x: b): Int = <selection>super.foo(x)</selection>
-        |}
-        |abstract class b {
-        |  def foo(x: b) = 1
-        |}
-      """
+      s"""
+         |package test
+         |
+         |class Foo extends b {
+         |  override def foo(x: b): Int = ${SELECTION_START_TAG}super.foo(x)$SELECTION_END_TAG
+         |}
+         |abstract class b {
+         |  def foo(x: b) = 1
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testNoExplicitReturn() {
+  def testNoExplicitReturn(): Unit = {
     val fileText =
-      """
-        |class A {
-        |  def foo(x : Int): Int = 1
-        |}
-        |
-        |class B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class A {
+         |  def foo(x : Int): Int = 1
+         |}
+         |
+         |class B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |class A {
-        |  def foo(x : Int): Int = 1
-        |}
-        |
-        |class B extends A {
-        |  override def foo(x: Int): Int = <selection>super.foo(x)</selection>
-        |}
-      """
+      s"""
+         |class A {
+         |  def foo(x : Int): Int = 1
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int): Int = ${SELECTION_START_TAG}super.foo(x)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
 
-    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
 
     runTest(methodName, fileText, expectedText, isImplement, settings)
   }
 
-  def testImplicitParams() {
+  def testImplicitParams(): Unit = {
     val fileText =
-      """
-        |trait A {
-        |  def foo(x : Int)(implicit name: String): Int = name + x
-        |}
-        |
-        |class B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |trait A {
+         |  def foo(x : Int)(implicit name: String): Int = name + x
+         |}
+         |
+         |class B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |trait A {
-        |  def foo(x : Int)(implicit name: String): Int = name + x
-        |}
-        |
-        |class B extends A {
-        |  override def foo(x: Int)(implicit name: String): Int = <selection>super.foo(x)</selection>
-        |}
-      """
+      s"""
+         |trait A {
+         |  def foo(x : Int)(implicit name: String): Int = name + x
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int)(implicit name: String): Int = ${SELECTION_START_TAG}super.foo(x)$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
   //don't add return type for protected
-  def testProtectedMethod() {
+  def testProtectedMethod(): Unit = {
     val fileText =
-      """
-        |abstract class A {
-        |  protected def foo(): Unit
-        |}
-        |
-        |class B extends A {
-        |  <caret>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |  protected def foo(): Unit
+         |}
+         |
+         |class B extends A {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |abstract class A {
-        |  protected def foo(): Unit
-        |}
-        |
-        |class B extends A {
-        |  protected def foo() = <selection>???</selection>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |  protected def foo(): Unit
+         |}
+         |
+         |class B extends A {
+         |  protected def foo() = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
 
-    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
 
     runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForProtected(settings))
   }
 
-  def testProtectedMethodNoBody() {
+  def testProtectedMethodNoBody(): Unit = {
     val fileText =
-      """
-        |abstract class A {
-        |  protected def foo(): Unit
-        |}
-        |
-        |class B<caret> extends A
-      """
+      s"""
+         |abstract class A {
+         |  protected def foo(): Unit
+         |}
+         |
+         |class B$CARET_TAG extends A
+      """.stripMargin
     val expectedText =
-      """
-        |abstract class A {
-        |  protected def foo(): Unit
-        |}
-        |
-        |class B extends A {
-        |  protected def foo(): Unit = <selection>???</selection>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |  protected def foo(): Unit
+         |}
+         |
+         |class B extends A {
+         |  protected def foo(): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testOverrideProtectedMethodNoBody() {
+  def testOverrideProtectedMethodNoBody(): Unit = {
     val fileText =
-      """
-        |abstract class A {
-        |  protected def foo(): Unit = {}
-        |}
-        |
-        |class B<caret> extends A
-      """
+      s"""
+         |abstract class A {
+         |  protected def foo(): Unit = {}
+         |}
+         |
+         |class B$CARET_TAG extends A
+      """.stripMargin
     val expectedText =
-      """
-        |abstract class A {
-        |  protected def foo(): Unit = {}
-        |}
-        |
-        |class B extends A {
-        |  override protected def foo(): Unit = <selection>super.foo()</selection>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |  protected def foo(): Unit = {}
+         |}
+         |
+         |class B extends A {
+         |  override protected def foo(): Unit = ${SELECTION_START_TAG}super.foo()$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
@@ -1008,40 +1016,40 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testCopyScalaDoc(): Unit = {
     val fileText =
-      """
-        |abstract class A {
-        |
-        |  /**
-        |   * qwerty
-        |   *
-        |   * @return
-        |   */
-        |  protected def foo(): Unit = {}
-        |}
-        |
-        |class B<caret> extends A
-      """
+      s"""
+         |abstract class A {
+         |
+         |  /**
+         |   * qwerty
+         |   *
+         |   * @return
+         |   */
+         |  protected def foo(): Unit = {}
+         |}
+         |
+         |class B$CARET_TAG extends A
+      """.stripMargin
     val expectedText =
-      """
-        |abstract class A {
-        |
-        |  /**
-        |   * qwerty
-        |   *
-        |   * @return
-        |   */
-        |  protected def foo(): Unit = {}
-        |}
-        |
-        |class B extends A {
-        |  /**
-        |   * qwerty
-        |   *
-        |   * @return
-        |   */
-        |  override protected def foo(): Unit = <selection>super.foo()</selection>
-        |}
-      """
+      s"""
+         |abstract class A {
+         |
+         |  /**
+         |   * qwerty
+         |   *
+         |   * @return
+         |   */
+         |  protected def foo(): Unit = {}
+         |}
+         |
+         |class B extends A {
+         |  /**
+         |   * qwerty
+         |   *
+         |   * @return
+         |   */
+         |  override protected def foo(): Unit = ${SELECTION_START_TAG}super.foo()$SELECTION_END_TAG
+         |}
+      """.stripMargin
     val methodName: String = "foo"
     val isImplement = false
     val copyScalaDoc = true
@@ -1050,29 +1058,29 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testNoImportScalaSeq(): Unit = {
     val fileText =
-      """
-        |import scala.collection.Seq
-        |
-        |class Test {
-        |  def foo: Seq[Int] = Seq(1)
-        |}
-        |
-        |class Test2 extends Test {
-        |<caret>
-        |}
-      """
+      s"""
+         |import scala.collection.Seq
+         |
+         |class Test {
+         |  def foo: Seq[Int] = Seq(1)
+         |}
+         |
+         |class Test2 extends Test {
+         |$CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |import scala.collection.Seq
-        |
-        |class Test {
-        |  def foo: Seq[Int] = Seq(1)
-        |}
-        |
-        |class Test2 extends Test {
-        |  override def foo: Seq[Int] = super.foo
-        |}
-      """
+      s"""
+         |import scala.collection.Seq
+         |
+         |class Test {
+         |  def foo: Seq[Int] = Seq(1)
+         |}
+         |
+         |class Test2 extends Test {
+         |  override def foo: Seq[Int] = super.foo
+         |}
+      """.stripMargin
 
     val methodName: String = "foo"
     val isImplement = false
@@ -1081,52 +1089,52 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testOverrideClassParam(): Unit = {
     val fileText =
-      """
-        |class Parent(val param1: Int, var param2: String)
-        |
-        |class Child extends Parent(4, "") {
-        |  <caret>
-        |}
-      """
+      s"""
+         |class Parent(val param1: Int, var param2: String)
+         |
+         |class Child extends Parent(4, "") {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
 
     val expectedText =
-      """
-        |class Parent(val param1: Int, var param2: String)
-        |
-        |class Child extends Parent(4, "") {
-        |  override val param1: Int = _
-        |}
-      """
+      s"""
+         |class Parent(val param1: Int, var param2: String)
+         |
+         |class Child extends Parent(4, "") {
+         |  override val param1: Int = _
+         |}
+      """.stripMargin
 
     runTest("param1", fileText, expectedText, isImplement = false)
   }
 
   def testDoNotSaveAnnotations(): Unit = {
     val fileText =
-      """
-        |trait Base {
-        |  @throws(classOf[Exception])
-        |  @deprecated
-        |  def annotFoo(int: Int): Int = 45
-        |}
-        |
-        |class Inheritor extends Base {
-        | <caret>
-        |}
-      """
+      s"""
+         |trait Base {
+         |  @throws(classOf[Exception])
+         |  @deprecated
+         |  def annotFoo(int: Int): Int = 45
+         |}
+         |
+         |class Inheritor extends Base {
+         | $CARET_TAG
+         |}
+      """.stripMargin
 
     val expectedText =
-      """
-        |trait Base {
-        |  @throws(classOf[Exception])
-        |  @deprecated
-        |  def annotFoo(int: Int): Int = 45
-        |}
-        |
-        |class Inheritor extends Base {
-        |  override def annotFoo(int: Int): Int = super.annotFoo(int)
-        |}
-      """
+      s"""
+         |trait Base {
+         |  @throws(classOf[Exception])
+         |  @deprecated
+         |  def annotFoo(int: Int): Int = 45
+         |}
+         |
+         |class Inheritor extends Base {
+         |  override def annotFoo(int: Int): Int = super.annotFoo(int)
+         |}
+      """.stripMargin
 
     val methodName: String = "annotFoo"
     val isImplement = false
@@ -1135,45 +1143,45 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testInfixTypeAlias(): Unit = {
     val fileText =
-      """
-        |import tag._
-        |
-        |object tag {
-        |  trait Tagged[U]
-        |  type @@[+T, U] = T with Tagged[U]
-        |}
-        |
-        |
-        |trait UserRepo {
-        |  sealed trait UserId // used for tagging
-        |
-        |  def deleteUser(userId: Int @@ UserId)
-        |}
-        |
-        |class UserRepoImpl extends UserRepo {
-        |  <caret>
-        |}
-      """
+      s"""
+         |import tag._
+         |
+         |object tag {
+         |  trait Tagged[U]
+         |  type @@[+T, U] = T with Tagged[U]
+         |}
+         |
+         |
+         |trait UserRepo {
+         |  sealed trait UserId // used for tagging
+         |
+         |  def deleteUser(userId: Int @@ UserId)
+         |}
+         |
+         |class UserRepoImpl extends UserRepo {
+         |  $CARET_TAG
+         |}
+      """.stripMargin
     val expectedText =
-      """
-        |import tag._
-        |
-        |object tag {
-        |  trait Tagged[U]
-        |  type @@[+T, U] = T with Tagged[U]
-        |}
-        |
-        |
-        |trait UserRepo {
-        |  sealed trait UserId // used for tagging
-        |
-        |  def deleteUser(userId: Int @@ UserId)
-        |}
-        |
-        |class UserRepoImpl extends UserRepo {
-        |  def deleteUser(userId: Int @@ UserId): Unit = ???
-        |}
-      """
+      s"""
+         |import tag._
+         |
+         |object tag {
+         |  trait Tagged[U]
+         |  type @@[+T, U] = T with Tagged[U]
+         |}
+         |
+         |
+         |trait UserRepo {
+         |  sealed trait UserId // used for tagging
+         |
+         |  def deleteUser(userId: Int @@ UserId)
+         |}
+         |
+         |class UserRepoImpl extends UserRepo {
+         |  def deleteUser(userId: Int @@ UserId): Unit = ???
+         |}
+      """.stripMargin
     val methodName = "deleteUser"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
@@ -1181,52 +1189,49 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testAbstractMethodModifier(): Unit = {
     val fileText =
-      """
-        |abstract class ClassToOverride {
-        |  abstract def methodToOverride(): Unit
-        |}
-        |
-        |class OverridingClass extends ClassToOverride {
-        |  <caret>
-        |}
-        |
-    """.stripMargin
+      s"""
+         |abstract class ClassToOverride {
+         |  abstract def methodToOverride(): Unit
+         |}
+         |
+         |class OverridingClass extends ClassToOverride {
+         |  $CARET_TAG
+         |}""".stripMargin
     val expectedResult =
-      """
-        |abstract class ClassToOverride {
-        |  abstract def methodToOverride(): Unit
-        |}
-        |
-        |class OverridingClass extends ClassToOverride {
-        |  def methodToOverride(): Unit = ???
-        |}
-      """.stripMargin
+      s"""
+         |abstract class ClassToOverride {
+         |  abstract def methodToOverride(): Unit
+         |}
+         |
+         |class OverridingClass extends ClassToOverride {
+         |  def methodToOverride(): Unit = ???
+         |}""".stripMargin
     val methodName = "methodToOverride"
     runTest(methodName, fileText, expectedResult, isImplement = true)
   }
 
   def testImplementKindProjectorLambdaInline(): Unit = {
     val text =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[Either[String, ?]] {
-        |  <caret>
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[Either[String, ?]] {
+         |  $CARET_TAG
+         |}
       """.stripMargin
     val expected =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[Either[String, ?]] {
-        |  def monad: Monad[Either[String, ?]] = ???
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[Either[String, ?]] {
+         |  def monad: Monad[Either[String, ?]] = ???
+         |}
       """.stripMargin
     val methodName = "monad"
     runTest(methodName, text, expected, isImplement = true)
@@ -1234,26 +1239,26 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testImplementKindProjectorLambdaFunctionSyntax(): Unit = {
     val text =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[Lambda[A => (A, A)]] {
-        |  <caret>
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[Lambda[A => (A, A)]] {
+         |  $CARET_TAG
+         |}
       """.stripMargin
     val expected =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[Lambda[A => (A, A)]] {
-        |  def monad: Monad[Lambda[A => (A, A)]] = ???
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[Lambda[A => (A, A)]] {
+         |  def monad: Monad[Lambda[A => (A, A)]] = ???
+         |}
       """.stripMargin
     val methodName = "monad"
     runTest(methodName, text, expected, isImplement = true)
@@ -1261,26 +1266,26 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testImplementKindProjectorLambdaWithVariance(): Unit = {
     val text =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
-        |  <caret>
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
+         |  $CARET_TAG
+         |}
       """.stripMargin
     val expected =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
-        |  def monad: Monad[Lambda[`+A` => Either[List[A], List[A]]]] = ???
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
+         |  def monad: Monad[Lambda[`+A` => Either[List[A], List[A]]]] = ???
+         |}
       """.stripMargin
     val methodName = "monad"
     runTest(methodName, text, expected, isImplement = true)
@@ -1288,24 +1293,24 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testImplementKindProjectorAppliedLambda(): Unit = {
     val text =
-      """
-        |trait Foo[F[_, _]] {
-        |  def foo: F[Double, String]
-        |}
-        |
-        |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
-        |  <caret>
-        |}
+      s"""
+         |trait Foo[F[_, _]] {
+         |  def foo: F[Double, String]
+         |}
+         |
+         |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
+         |  $CARET_TAG
+         |}
       """.stripMargin
     val expected =
-      """
-        |trait Foo[F[_, _]] {
-        |  def foo: F[Double, String]
-        |}
-        |
-        |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
-        |  def foo: (Double, Int) => String = ???
-        |}
+      s"""
+         |trait Foo[F[_, _]] {
+         |  def foo: F[Double, String]
+         |}
+         |
+         |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
+         |  def foo: (Double, Int) => String = ???
+         |}
       """.stripMargin
     val methodName = "foo"
     runTest(methodName, text, expected, isImplement = true)
@@ -1313,26 +1318,26 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testImplementPlainTypeLambda(): Unit = {
     val text =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
-        | <caret>
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
+         | $CARET_TAG
+         |}
       """.stripMargin
     val expected =
-      """
-        |trait Monad[F[_]]
-        |trait Foo[F[_]] {
-        |  def monad: Monad[F]
-        |}
-        |
-        |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
-        |  def monad: Monad[Lambda[A => List[(String, A)]]] = ???
-        |}
+      s"""
+         |trait Monad[F[_]]
+         |trait Foo[F[_]] {
+         |  def monad: Monad[F]
+         |}
+         |
+         |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
+         |  def monad: Monad[Lambda[A => List[(String, A)]]] = ???
+         |}
       """.stripMargin
     val methodName = "monad"
     runTest(methodName, text, expected, isImplement = true)
@@ -1340,20 +1345,20 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testImplementTypeLambdaInInfixType(): Unit = {
     val text =
-      """
-        |trait ~>[F[_], G[_]]
-        |trait Monad[F[_]]
-        |type ReaderT[F[_], A, B] = F
-        |
-        |trait Unlift[F[_], G[_]] {
-        |  self =>
-        |  def unlift: G[G ~> F]
-        |}
-        |
-        |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
-        |    new Unlift[F, ReaderT[F, R, ?]] {
-        |      <caret>
-        |    }
+      s"""
+         |trait ~>[F[_], G[_]]
+         |trait Monad[F[_]]
+         |type ReaderT[F[_], A, B] = F
+         |
+         |trait Unlift[F[_], G[_]] {
+         |  self =>
+         |  def unlift: G[G ~> F]
+         |}
+         |
+         |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
+         |    new Unlift[F, ReaderT[F, R, ?]] {
+         |      $CARET_TAG
+         |    }
       """.stripMargin
     val expected =
       """
@@ -1377,28 +1382,28 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def testImplementScopedVisibilityModifier(): Unit = {
     val text =
-      """
-        |object Foo {
-        |  sealed trait Bar {
-        |    private[Foo] def foo: Unit
-        |  }
-        |
-        |  class Baz extends Bar {
-        |    <caret>
-        |  }
-        |}
+      s"""
+         |object Foo {
+         |  sealed trait Bar {
+         |    private[Foo] def foo: Unit
+         |  }
+         |
+         |  class Baz extends Bar {
+         |    $CARET_TAG
+         |  }
+         |}
       """.stripMargin
     val expected =
-      """
-        |object Foo {
-        |  sealed trait Bar {
-        |    private[Foo] def foo: Unit
-        |  }
-        |
-        |  class Baz extends Bar {
-        |    private[Foo] def foo: Unit = ???
-        |  }
-        |}
+      s"""
+         |object Foo {
+         |  sealed trait Bar {
+         |    private[Foo] def foo: Unit
+         |  }
+         |
+         |  class Baz extends Bar {
+         |    private[Foo] def foo: Unit = ???
+         |  }
+         |}
       """.stripMargin
     val methodName = "foo"
     runTest(methodName, text, expected, isImplement = true)
