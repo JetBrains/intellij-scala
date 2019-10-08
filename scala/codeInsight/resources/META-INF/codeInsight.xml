@@ -312,9 +312,6 @@
             <action id="ToggleForAlignExpressionChains"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleAlignExpressionChainAction"
                     text="Align type hints of expression chains"/>
-            <action id="ToggleMoveExpressionChainsRight"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMoveExpressionChainRightAction"
-                    text="Move aligned expression chains to the right"/>
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"
