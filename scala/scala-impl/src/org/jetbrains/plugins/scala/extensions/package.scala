@@ -612,6 +612,8 @@ package object extensions {
           else inner(PsiTreeUtil.prevLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.prevLeaf(el))
+        case _ if el.getTextRange.isEmpty => // empty annotatins, modifiers, etc...
+          inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
       inner(PsiTreeUtil.prevLeaf(element))

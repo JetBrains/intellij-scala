@@ -121,21 +121,20 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_If_Then_SingleExpression(): Unit = {
+  def testRemove_If_Then_FollowedAfterAnotherIfStatement(): Unit = {
     val before =
-      s"""class A {
-         |  if (true) {$CARET
-         |    someMethod()
-         |  }
+      s"""val x =
+         |  if (false) 1 else 0
+         |val y = if (false) {$CARET
+         |  0
          |}
-      """.stripMargin
+         |""".stripMargin
     val after =
-      s"""class A {
-         |  if (true) $CARET
-         |    someMethod()
-         |}
-      """.stripMargin
-
+      s"""val x =
+         |  if (false) 1 else 0
+         |val y = if (false) $CARET
+         |  0
+         |""".stripMargin
     doTest(before, after)
   }
 
