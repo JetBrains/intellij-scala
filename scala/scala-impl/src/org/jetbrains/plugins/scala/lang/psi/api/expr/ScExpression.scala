@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
@@ -234,36 +234,45 @@ object ScExpression {
           case (Some(expType), Some(tp))
             if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
 
-            val samType = tryConvertToSAM(fromUnderscore, expType, tp)
+            synthesizePartialFunctionType(tp, expType)
+              .orElse(tryConvertToSAM(fromUnderscore, expType, tp))
+              .getOrElse {
+                if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
+                else {
+                  val functionType = FunctionType(expType, Seq(tp))
 
-            if (samType.nonEmpty) samType.get
-            else if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
-            else {
-              val functionType = FunctionType(expType, Seq(tp))
-              val implicitCollector = new ImplicitCollector(expr, functionType, functionType, None, isImplicitConversion = true)
-              val fromImplicit = implicitCollector.collect() match {
-                case Seq(res) =>
-                  extractImplicitParameterType(res).flatMap {
-                    case FunctionType(rt, Seq(_)) => Some(rt)
-                    case paramType =>
-                      expr.elementScope.cachedFunction1Type.flatMap { functionType =>
-                        paramType.conforms(functionType, ConstraintSystem.empty) match {
-                          case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
-                          case _ => None
-                        }
-                      }.filterNot {
-                        _.isInstanceOf[UndefinedType]
-                      }
-                  }.map(_ -> res)
-                case _ => None
+                  val implicitCollector = new ImplicitCollector(
+                    expr,
+                    functionType,
+                    functionType,
+                    None,
+                    isImplicitConversion = true
+                  )
+
+                  val fromImplicit = implicitCollector.collect() match {
+                    case Seq(res) =>
+                      extractImplicitParameterType(res).flatMap {
+                        case FunctionType(rt, Seq(_)) => Some(rt)
+                        case paramType =>
+                          expr.elementScope.cachedFunction1Type.flatMap { functionType =>
+                            paramType.conforms(functionType, ConstraintSystem.empty) match {
+                              case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
+                              case _ => None
+                            }
+                          }.filterNot {
+                            _.isInstanceOf[UndefinedType]
+                          }
+                      }.map(_ -> res)
+                    case _ => None
+                  }
+
+                  fromImplicit match {
+                    case Some((mr, result)) =>
+                      ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
+                    case _ => ExpressionTypeResult(tr)
+                  }
+                }
               }
-              fromImplicit match {
-                case Some((mr, result)) =>
-                  ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
-                case _ =>
-                  ExpressionTypeResult(tr)
-              }
-            }
           case _ => ExpressionTypeResult(tr)
         }
       }
@@ -289,17 +298,15 @@ object ScExpression {
               .unpackedType
 
             if (ignoreBaseType) Right(valueType)
-            else {
+            else
               expectedType match {
-                case None => Right(valueType)
+                case None                                                   => Right(valueType)
                 case Some(expected) if expected.removeAbstracts.equiv(Unit) => Right(Unit) //value discarding
-                case Some(expected) => numericWideningOrNarrowing(valueType, expected)
+                case Some(expected)                                         => numericWideningOrNarrowing(valueType, expected)
               }
-            }
           }
       }
     }
-
 
     //has side effect!
     private[ScExpression] def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
@@ -436,6 +443,55 @@ object ScExpression {
           checkForSAM(etaExpansionHappened = true)
         case _ => None
       }
+    }
+
+    /**
+     * https://github.com/scala/scala/pull/8172
+     *
+     * Adapt type of a function literal, if the expected type is
+     * PartialFunction with matching type arguments.
+     */
+    private final def synthesizePartialFunctionType(tpe: ScType, expectedTpe: ScType): Option[ExpressionTypeResult] = {
+      def flattenParamTypes(tpe: ScType): Seq[ScType] = tpe match {
+        case TupleType(comps) => comps
+        case _                => Seq(tpe)
+      }
+
+      def parameterTypesMatch(ptParams: ScType, paramTpes: Seq[ScType]): Boolean =
+        paramTpes.corresponds(flattenParamTypes(ptParams))(_.conforms(_)) ||
+          paramTpes.corresponds(Seq(ptParams))(_.conforms(_))
+
+      def checkExpectedPartialFunctionType(
+        pt:        ScType,
+        resTpe:    ScType,
+        paramTpes: Seq[ScType]
+      ): Option[ScType] = pt match {
+        case PartialFunctionType(ptRes, ptParams)
+            if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&
+              expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
+          val partialFunctionParamType =
+            if (paramTpes.size == 1) paramTpes.head
+            else                     TupleType(paramTpes)
+
+          PartialFunctionType((resTpe, partialFunctionParamType)).toOption
+        case _ => None
+      }
+
+      val maybeResTpe =
+          expr match {
+            case _: ScFunctionExpr =>
+              val FunctionType(rTpe, pTpes) = tpe
+              checkExpectedPartialFunctionType(expectedTpe, rTpe, pTpes)
+            case _ if ScUnderScoreSectionUtil.isUnderscoreFunction(expr) =>
+              tpe match {
+                case FunctionType(rTpe, pTpes) =>
+                  checkExpectedPartialFunctionType(expectedTpe, rTpe, pTpes)
+                case _ => None
+              }
+            case _ => None
+          }
+
+      maybeResTpe.map(t => ExpressionTypeResult(Right(t)))
     }
   }
 
