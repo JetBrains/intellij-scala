@@ -29,8 +29,8 @@ abstract class DelegatingProjectDescriptor(val delegate: LightProjectDescriptor)
   override def createSourcesRoot(module: Module): VirtualFile =
     delegate.createSourcesRoot(module)
 
-  override def getModuleType: ModuleType[_ <: ModuleBuilder] =
-    delegate.getModuleType
+  override def getModuleTypeId: String =
+    delegate.getModuleTypeId
 
   override def createMainModule(project: Project): Module =
     delegate.createMainModule(project)
