@@ -1,49 +1,40 @@
-package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.folding
+package org.jetbrains.plugins.scala
+package scalai18n
+package codeInspection
+package i18n
+package folding
 
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandlerBase
-import com.intellij.codeInspection.i18n.folding.EditPropertyValueAction
+import com.intellij.codeInspection.i18n.folding.EditPropertyValueAction.getEditableElement
 import com.intellij.lang.properties.references.PropertyReference
-import com.intellij.openapi.editor.{Editor, FoldRegion}
-import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
+import com.intellij.openapi.editor.Editor
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
 
-class ScalaI18nMessageGotoDeclarationHandler extends GotoDeclarationHandlerBase {
+final class ScalaI18nMessageGotoDeclarationHandler extends GotoDeclarationHandlerBase {
 
-  override def getGotoDeclarationTarget(myElement: PsiElement, editor: Editor): PsiElement = {
-    val element = myElement
-
-    val region: FoldRegion = editor.getFoldingModel.getCollapsedRegionAtOffset(element.getTextRange.getStartOffset)
-    if (region == null) return null
-
-    val editableElement: PsiElement = EditPropertyValueAction.getEditableElement(region)
-    if (editableElement.isInstanceOf[ScLiteral])
-      return resolve(editableElement)
-
-    editableElement match {
-      case methodCall: ScMethodCall =>
-        for (expression <- methodCall.args.exprsArray) {
-          expression match {
-            case literal: ScLiteral if ScalaI18nUtil.isI18nProperty(expression.getProject, literal) =>
-              return resolve(expression)
-            case _ =>
-          }
-        }
-      case _ =>
+  override def getGotoDeclarationTarget(element: PsiElement, editor: Editor): PsiElement =
+    editor.getFoldingModel
+      .getCollapsedRegionAtOffset(element.getTextRange.getStartOffset) match {
+      case null => null
+      case region => resolveReferenceIn(getEditableElement(region)).orNull
     }
-    null
-  }
 
-  @Nullable private def resolve(element: PsiElement): PsiElement = {
-    if (element == null) return null
-    val references: Array[PsiReference] = element.getReferences
-    if (references.length != 0) {
-      for (reference <- references) {
-        if (reference.isInstanceOf[PropertyReference]) return reference.resolve()
+  private def resolveReferenceIn(element: PsiElement) = element match {
+    case literal: ScLiteral => resolveFirstPropertyReference(literal)
+    case methodCall: ScMethodCall =>
+      methodCall.argumentExpressions.find {
+        case literal: ScLiteral => ScalaI18nUtil.isI18nProperty(literal.getProject, literal)
+        case _ => false
+      }.flatMap {
+        case literal: ScLiteral => resolveFirstPropertyReference(literal)
       }
-    }
-    null
+    case _ => None
   }
+
+  private def resolveFirstPropertyReference(literal: ScLiteral) =
+    literal.getReferences
+      .find(_.isInstanceOf[PropertyReference])
+      .map(_.resolve())
 }
