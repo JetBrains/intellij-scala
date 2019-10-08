@@ -91,6 +91,8 @@ public class MouseHoverHandler implements ProjectComponent {
   @Nullable
   private Point myPrevMouseLocation;
   @Nullable
+  private volatile Point myMouseLocationOnHintActivation;
+  @Nullable
   private LightweightHint myHint;
   private Project myProject;
 
@@ -110,7 +112,9 @@ public class MouseHoverHandler implements ProjectComponent {
       if (e.isConsumed() || !myProject.isInitialized()) {
         return;
       }
+
       MouseEvent mouseEvent = e.getMouseEvent();
+      Point mousePosition = new Point(mouseEvent.getPoint());
 
       if (isMouseOverTooltip(mouseEvent.getLocationOnScreen())
           || ScreenUtil.isMovementTowards(myPrevMouseLocation, mouseEvent.getLocationOnScreen(), getHintBounds())) {
@@ -119,9 +123,15 @@ public class MouseHoverHandler implements ProjectComponent {
       }
       myPrevMouseLocation = mouseEvent.getLocationOnScreen();
 
+      Point hintsMouseActivationLocation = myMouseLocationOnHintActivation;
+      if (hintsMouseActivationLocation != null && hintsMouseActivationLocation.distance(mousePosition) < 5) {
+        return;
+      }
+
       if (myHint != null) {
         HintManager.getInstance().hideAllHints();
         myHint = null;
+        myMouseLocationOnHintActivation = null;
       }
 
       Editor editor = e.getEditor();
@@ -136,9 +146,7 @@ public class MouseHoverHandler implements ProjectComponent {
           return;
       }
 
-      Point point = new Point(mouseEvent.getPoint());
-
-      final LogicalPosition pos = editor.xyToLogicalPosition(point);
+      final LogicalPosition pos = editor.xyToLogicalPosition(mousePosition);
       int offset = editor.logicalPositionToOffset(pos);
       int selStart = editor.getSelectionModel().getSelectionStart();
       int selEnd = editor.getSelectionModel().getSelectionEnd();
@@ -161,7 +169,7 @@ public class MouseHoverHandler implements ProjectComponent {
       myTooltipAlarm.addRequest(
         () -> {
           if (HintManager.getInstance().hasShownHintsThatWillHideByOtherHint(true)) return;
-          myTooltipProvider = new TooltipProvider(finalEditor, pos);
+          myTooltipProvider = new TooltipProvider(finalEditor, pos, mousePosition);
           myTooltipProvider.execute(browseMode);
         },
         ScalaCompileServerSettings.getInstance().SHOW_TYPE_TOOLTIP_DELAY
@@ -230,7 +238,10 @@ public class MouseHoverHandler implements ProjectComponent {
     if (hintComponent == null || !hintComponent.isShowing()) {
       return null;
     }
-    return new Rectangle(hintComponent.getLocationOnScreen(), hintComponent.getSize());
+    Rectangle bounds = new Rectangle(hintComponent.getLocationOnScreen(), hintComponent.getSize());
+    // grow the bounds so that it easier to stay on the tooltip
+    bounds.grow(13, 13);
+    return bounds;
   }
 
   private static BrowseMode getBrowseMode(@JdkConstants.InputEventMask int modifiers) {
@@ -487,12 +498,14 @@ public class MouseHoverHandler implements ProjectComponent {
   private class TooltipProvider {
     private final Editor myEditor;
     private final LogicalPosition myPosition;
+    private final Point myMousePosition;
     private BrowseMode myBrowseMode;
     private boolean myDisposed;
 
-    public TooltipProvider(Editor editor, LogicalPosition pos) {
+    public TooltipProvider(Editor editor, LogicalPosition pos, Point mousePosition) {
       myEditor = editor;
       myPosition = pos;
+      myMousePosition = mousePosition;
     }
 
     public void dispose() {
@@ -631,6 +644,7 @@ public class MouseHoverHandler implements ProjectComponent {
       hintManager.showEditorHint(hint, myEditor, p,
                                  HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING,
                                  0, false, HintManagerImpl.createHintHint(myEditor, p,  hint, HintManager.ABOVE).setContentActive(false));
+      myMouseLocationOnHintActivation = myMousePosition;
     }
   }
 
