@@ -8,9 +8,9 @@ import com.intellij.psi.PsiFile
   * @author adkozlov
   */
 trait ScalaCodeInsightActionHandler extends LanguageCodeInsightActionHandler {
+
   override def isValidFor(editor: Editor, file: PsiFile): Boolean =
-    (editor, file) match {
-      case (null, null) => false
-      case _ => file.getFileType == ScalaFileType.INSTANCE
-    }
+    editor != null &&
+      file != null &&
+      file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
 }

@@ -1408,4 +1408,32 @@ class ScalaOverrideImplementTest extends base.ScalaLightCodeInsightFixtureTestAd
     val methodName = "foo"
     runTest(methodName, text, expected, isImplement = true)
   }
+
+  def testWorksheet(): Unit = runTest(
+    "length",
+    fileText =
+      s"""sealed trait List {
+         |  def length: Int
+         |}
+         |
+         |final case class Cons(head: Int, tail: List) extends List {
+         |  $CARET_TAG
+         |}
+         |
+         |case object Nil extends List
+         |""".stripMargin,
+    expectedText =
+      s"""sealed trait List {
+         |  def length: Int
+         |}
+         |
+         |final case class Cons(head: Int, tail: List) extends List {
+         |  def length: Int = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |
+         |case object Nil extends List
+         |""".stripMargin,
+    isImplement = true,
+    fileName = "foo.sc"
+  )
 }
