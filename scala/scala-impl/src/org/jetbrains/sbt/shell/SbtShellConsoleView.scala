@@ -1,12 +1,13 @@
 package org.jetbrains.sbt
 package shell
 
+import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
-import com.intellij.execution.impl.ConsoleViewImpl.ClearAllAction
 import com.intellij.openapi.actionSystem.{AnAction, DefaultActionGroup}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.project.Project
@@ -23,8 +24,10 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
   def addConsoleActions(group: DefaultActionGroup): Unit = {
     // hackery because we can't construct those actions directly
     val defaultActions = super.createConsoleActions()
-    val toggleSoftWrapsAction = defaultActions.find { a => a.isInstanceOf[ToggleUseSoftWrapsToolbarAction] }.get
-    val clearAllAction = defaultActions.find { a => a.isInstanceOf[ClearAllAction] }.get
+    val toggleSoftWrapsAction = defaultActions.find(_.isInstanceOf[ToggleUseSoftWrapsToolbarAction])
+      .getOrElse(throw new RuntimeException("action of type `ToggleUseSoftWrapsToolbarAction` couldn't be found"))
+    val clearAllAction = defaultActions.find(_.isInstanceOf[ClearConsoleAction])
+      .getOrElse(throw new RuntimeException("action of type `ClearConsoleAction` couldn't be found"))
 
     val startAction = new StartAction(project)
     val stopAction = new StopAction(project)
@@ -44,14 +47,14 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
       sigIntAction
     )
 
-    allActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
+    allActions.foreach { act =>
+      act.registerCustomShortcutSet(act.getShortcutSet, this)
+    }
 
     group.addAll(startAction, stopAction, debugShellAction)
     group.addSeparator()
     group.addAll(scrollToTheEndToolbarAction, toggleSoftWrapsAction, clearAllAction)
-
   }
-
 }
 
 object SbtShellConsoleView {
