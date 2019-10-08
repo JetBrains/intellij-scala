@@ -88,14 +88,14 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
-      case b: ScBlockExpr if b.resultExpression.exists(_.isInstanceOf[ScFunctionExpr]) =>
+      case b: ScBlockExpr if b.resultExpression.exists(_.isInstanceOf[ScFunctionExpr]) || b.caseClauses.isDefined =>
         val indent = {
-          val nodeBeforeLast = b.resultExpression.get.getNode.getTreePrev
+          val nodeBeforeLast = b.resultExpression.orElse(b.caseClauses).get.getNode.getTreePrev
           val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
           val extraIndent =
             if (isLineBreak) getSubBlocks().size - newChildIndex
             else 0
-          val indentsCount = extraIndent + (if (!braceShifted) 1 else 0)
+          val indentsCount = extraIndent + (if (braceShifted) 0 else 1)
           Indent.getSpaceIndent(indentsCount * indentSize)
         }
         new ChildAttributes(indent, null)
@@ -104,9 +104,6 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         val indent =
           if (braceShifted) {
             Indent.getNoneIndent
-          } else if (isPrevChildCaseClauses(newChildIndex)) {
-            // NOTE: can't reproduce this branch, is it still actual?
-            Indent.getSpaceIndent(2 * indentSize)
           } else {
             Indent.getNormalIndent
           }
@@ -120,11 +117,10 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock =>
         val grandParent = parent.getParent
-        val indent =
-          if (grandParent != null && (grandParent.isInstanceOf[ScCaseClause] || grandParent.isInstanceOf[ScFunctionExpr]))
-            Indent.getNormalIndent
-          else
-            Indent.getNoneIndent
+        val indent = grandParent match {
+          case _: ScCaseClause | _: ScFunctionExpr => Indent.getNormalIndent
+          case _  => Indent.getNoneIndent
+        }
         new ChildAttributes(indent, null)
       case _: ScIf =>
         new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
@@ -168,13 +164,6 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       case _ =>
         new ChildAttributes(Indent.getNoneIndent, null)
     }
-  }
-
-  private def isPrevChildCaseClauses(newChildIndex: Int): Boolean = {
-    subBlocks != null && subBlocks.size >= newChildIndex && (subBlocks.get(newChildIndex - 1) match {
-      case b: ScalaBlock if b.getNode.getElementType == ScalaElementType.CASE_CLAUSES => true
-      case _ => false
-    })
   }
 
   private def isBlockOnlyScope(scope: PsiElement): Boolean = {

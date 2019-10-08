@@ -5,8 +5,6 @@ import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 class EnterActionCodeTest extends EditorActionTestBase {
 
-  import CodeInsightTestFixture.{CARET_MARKER => CARET}
-
   def testInsideEmptyParameterClauses(): Unit = {
     getScalaSettings.INDENT_FIRST_PARAMETER = false
 
@@ -79,4 +77,70 @@ class EnterActionCodeTest extends EditorActionTestBase {
     checkGeneratedTextAfterEnter(before, after)
   }
 
+  def testIndentAfterCaseClause(): Unit = checkGeneratedTextAfterEnter(
+    s"""1 match {
+       |   case 0 =>$CARET
+       |   case 1 =>
+       |}
+       |""".stripMargin,
+    s"""1 match {
+       |   case 0 =>
+       |     $CARET
+       |   case 1 =>
+       |}
+       |""".stripMargin
+  )
+
+  def testIndentAfterCaseClauseMultiCaret(): Unit = checkGeneratedTextAfterEnter(
+    s"""1 match {
+       |  case 0 =>$CARET
+       |  case 1 =>$CARET
+       |}
+       |""".stripMargin,
+    s"""1 match {
+       |  case 0 =>
+       |    $CARET
+       |  case 1 =>
+       |    $CARET
+       |}
+       |""".stripMargin
+  )
+
+  def testIndentInsideCaseClauseInPartialFunction(): Unit = checkGeneratedTextAfterEnter(
+    s"""Seq(1, 2, 3).collect {
+       |  case x: Int =>$CARET
+       |}
+       |""".stripMargin,
+    s"""Seq(1, 2, 3).collect {
+       |  case x: Int =>
+       |    $CARET
+       |}
+       |""".stripMargin
+  )
+
+  def testIndentInsideCaseClauseInPartialFunction_1(): Unit = checkGeneratedTextAfterEnter(
+    s"""Seq(1, 2, 3).collect {
+       |  case x: Int =>
+       |    val y = x + 1$CARET
+       |}
+       |""".stripMargin,
+    s"""Seq(1, 2, 3).collect {
+       |  case x: Int =>
+       |    val y = x + 1
+       |    $CARET
+       |}
+       |""".stripMargin
+  )
+
+  def testIndentInsideCaseClauseInPartialFunction_WithCaseOnPreviousLine(): Unit = checkGeneratedTextAfterEnter(
+    s"""Seq(1, 2, 3).collect { case x: Int =>
+       |  val y = x + 1$CARET
+       |}
+       |""".stripMargin,
+    s"""Seq(1, 2, 3).collect { case x: Int =>
+       |  val y = x + 1
+       |  $CARET
+       |}
+       |""".stripMargin
+  )
 }
