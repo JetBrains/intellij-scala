@@ -13,7 +13,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     s"""
        |List(1, 2, 3)
        |  .toSet$S: Set[Int]$E
-       |  .filter(_ > 2)
+       |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -23,7 +23,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     s"""
        |val x = List(1, 2, 3)
        |  .toSet$S: Set[Int]$E
-       |  .filter(_ > 2)
+       |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -34,7 +34,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |def getList(): List[Int] = ???
        |val x = getList()$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
-       |  .filter(_ > 2)
+       |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -44,7 +44,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     s"""
        |val x = List(1, 2, 3)
        |  .toSet$S: Set[Int]$E
-       |  .filter(_ > 2)
+       |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .toString + ""
      """.stripMargin
@@ -54,7 +54,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     s"""
        |(List(1, 2, 3)
        |  .toSet)$S: Set[Int]$E
-       |  .filter(_ > 2)
+       |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -64,7 +64,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
     s"""
        |(List(1, 2, 3)
        |  .toSet$S: Set[Int]$E
-       |  .filter(_ > 2)
+       |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
        |  .toString)$S: String$E
      """.stripMargin
@@ -76,8 +76,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .map(_ + "")$S: List[String]$E
        |  .toSet)$S: Set[String]$E
        |  .toSet$S: Set[String]$E
-     """.stripMargin,
-    options = settings.showIdenticalTypeInExpressionChainSetter() -> true
+     """.stripMargin
   )
 
   def testNoHintsWhenTurnedOf(): Unit = doTest(

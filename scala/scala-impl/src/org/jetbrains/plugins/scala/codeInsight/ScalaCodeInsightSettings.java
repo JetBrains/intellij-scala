@@ -28,7 +28,6 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showLocalVariableType = false;
     public boolean showExpressionChainType = true;
     public boolean showObviousTypesInExpressionChain = true;
-    public boolean showIdenticalTypeInExpressionChain = false;
     public boolean alignExpressionChain = false;
 
     public int presentationLength = 45;
@@ -73,14 +72,6 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Boolean> showObviousTypesInExpressionChainsSetter() {
         return value -> showObviousTypesInExpressionChain = value;
-    }
-
-    public Getter<Boolean> showIdenticalTypeInExpressionChainGetter() {
-        return () -> showIdenticalTypeInExpressionChain;
-    }
-
-    public Setter<Boolean> showIdenticalTypeInExpressionChainSetter() {
-        return value -> showIdenticalTypeInExpressionChain = value;
     }
 
     public Getter<Boolean> alignExpressionChainGetter() {

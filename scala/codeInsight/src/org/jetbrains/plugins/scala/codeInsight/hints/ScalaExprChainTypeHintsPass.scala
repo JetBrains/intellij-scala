@@ -48,9 +48,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
         longestExprEndOffset = longestExpr.getTextRange.getEndOffset
         longestLine = " " * minOffset + editor.getDocument.getCharsSequence.substring(longestExprEndOffset - maxLineWidth, longestExprEndOffset).reverse
 
-        (expr, ty) <-
-          if (showIdenticalTypeInExpressionChain) exprs.zip(types)
-          else removeConsecutiveDuplicates(exprs.zip(types))
+        (expr, ty) <- exprs.zip(types)
 
         if showObviousTypesInExpressionChain || !hasObviousType(expr, ty)
 
