@@ -43,11 +43,6 @@ final class ScalaTypeHintsConfigurable
       settings.showObviousTypesInExpressionChainsSetter
     )
     checkBox(
-      "Show identical types in expression chains (Scala)",
-      settings.showIdenticalTypeInExpressionChainGetter,
-      settings.showIdenticalTypeInExpressionChainSetter
-    )
-    checkBox(
       "Align type hints in expression chains (Scala)",
       settings.alignExpressionChainGetter,
       settings.alignExpressionChainSetter
@@ -121,11 +116,6 @@ object ScalaTypeHintsConfigurable {
   class ToggleObviousTypesInExpressionChainAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showObviousTypesInExpressionChainsGetter,
     ScalaCodeInsightSettings.showObviousTypesInExpressionChainsSetter
-  )
-
-  class ToggleIdenticalTypeInExpressionChainChainAction extends ToogleTypeAction(
-    ScalaCodeInsightSettings.showIdenticalTypeInExpressionChainGetter,
-    ScalaCodeInsightSettings.showIdenticalTypeInExpressionChainSetter
   )
 
   class ToggleAlignExpressionChainAction extends ToogleTypeAction(
