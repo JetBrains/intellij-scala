@@ -38,11 +38,6 @@ final class ScalaTypeHintsConfigurable
       settings.showExpressionChainTypeSetter
     )
     checkBox(
-      "Show obvious types in expression chains (Scala)",
-      settings.showObviousTypesInExpressionChainsGetter,
-      settings.showObviousTypesInExpressionChainsSetter
-    )
-    checkBox(
       "Align type hints in expression chains (Scala)",
       settings.alignExpressionChainGetter,
       settings.alignExpressionChainSetter
@@ -111,11 +106,6 @@ object ScalaTypeHintsConfigurable {
   class ToggleExpressionChainTypeAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showExpressionChainTypeGetter,
     ScalaCodeInsightSettings.showExpressionChainTypeSetter
-  )
-
-  class ToggleObviousTypesInExpressionChainAction extends ToogleTypeAction(
-    ScalaCodeInsightSettings.showObviousTypesInExpressionChainsGetter,
-    ScalaCodeInsightSettings.showObviousTypesInExpressionChainsSetter
   )
 
   class ToggleAlignExpressionChainAction extends ToogleTypeAction(
