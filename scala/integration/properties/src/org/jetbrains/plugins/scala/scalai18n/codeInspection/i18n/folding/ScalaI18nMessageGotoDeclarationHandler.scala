@@ -14,12 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 
 final class ScalaI18nMessageGotoDeclarationHandler extends GotoDeclarationHandlerBase {
 
-  override def getGotoDeclarationTarget(element: PsiElement, editor: Editor): PsiElement =
-    editor.getFoldingModel
-      .getCollapsedRegionAtOffset(element.getTextRange.getStartOffset) match {
+  override def getGotoDeclarationTarget(element: PsiElement, editor: Editor): PsiElement = {
+    if (element == null) return null
+
+    val offset = element.getTextRange.getStartOffset
+    editor.getFoldingModel.getCollapsedRegionAtOffset(offset) match {
       case null => null
       case region => resolveReferenceIn(getEditableElement(region)).orNull
     }
+  }
 
   private def resolveReferenceIn(element: PsiElement) = element match {
     case literal: ScLiteral => resolveFirstPropertyReference(literal)
