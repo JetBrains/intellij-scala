@@ -50,8 +50,6 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
 
         (expr, ty) <- exprs.zip(types)
 
-        if showObviousTypesInExpressionChain || !hasObviousType(expr, ty)
-
       } yield {
         val exprEndOffsetInLine = getOffsetInLine(expr.getTextRange.getEndOffset, document)
         val marginLike = longestLine.substring(0, longestLine.length - exprEndOffsetInLine)
@@ -125,19 +123,6 @@ private object ScalaExprChainTypeHintsPass {
       case (ls, ewt) if ls.head._2 == ewt._2 => ls
       case (ls, ewt) => ewt :: ls
     }
-
-  def hasObviousType(expr: ScExpression, ty: ScType): Boolean = {
-    @tailrec
-    def refName(expr: ScExpression): Option[String] = expr match {
-      case mi: MethodInvocation =>
-        mi.getEffectiveInvokedExpr.toOption.collect { case ref: ScReferenceExpression => ref.refName}
-      case ref: ScReferenceExpression => Some(ref.refName)
-      case ScParenthesisedExpr(inner) => refName(inner)
-      case _ => None
-    }
-
-    refName(expr).exists(isTypeObvious("", ty.presentableText, _))
-  }
 
   def getOffsetInLine(offset: Int, document: Document): Int =
     offset - getLineOffset(offset, document)
