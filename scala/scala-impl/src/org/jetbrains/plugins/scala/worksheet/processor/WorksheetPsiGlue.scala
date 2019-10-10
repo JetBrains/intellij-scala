@@ -1,25 +1,26 @@
 package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter.{ClassObjectPsi, QueuedPsi, SingleQueuedPsi}
 
 import scala.collection.mutable
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 27.03.17.
-  */
 class WorksheetPsiGlue(store: mutable.ListBuffer[QueuedPsi]) {
-  def processPsi(psi: PsiElement) {
+
+  def processPsi(psi: PsiElement): Unit = {
     def getMidText(first: PsiElement, second: PsiElement): String = {
       val builder = StringBuilder.newBuilder
-      
-      val it = new PrevSiblignsIterator(second)
+
+      val it = second.prevSiblings
       while (it.hasNext) {
         val n = it.next()
-        if (n == first) return builder.toString() else builder append n.getText
+        if (n == first) {
+          return builder.toString()
+        } else {
+          builder.append(n.getText)
+        }
       }
       
       builder.toString()
