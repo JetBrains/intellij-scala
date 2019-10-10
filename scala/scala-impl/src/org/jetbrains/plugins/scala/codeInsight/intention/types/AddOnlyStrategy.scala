@@ -3,15 +3,10 @@ package codeInsight
 package intention
 package types
 
-import java.util.concurrent.CompletableFuture
-
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod}
-import javax.swing.Icon
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
@@ -28,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignat
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
-
-import scala.collection.JavaConverters._
 
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
@@ -49,42 +42,27 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   override def underscoreSectionWithType(underscore: ScUnderscoreSection) = true
 
   override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
-    selectTypeForMember(function).thenAccept {
-      addTypeAnnotation(_, function, function.paramClauses)
-    }
-
+    addTypeAnnotation(typesForMember(function), function, function.paramClauses)
     true
   }
 
   override def valueWithoutType(value: ScPatternDefinition): Boolean = {
-    selectTypeForMember(value).thenAccept {
-      addTypeAnnotation(_, value, value.pList)
-    }
-
+    addTypeAnnotation(typesForMember(value), value, value.pList)
     true
   }
 
   override def variableWithoutType(variable: ScVariableDefinition): Boolean = {
-    selectTypeForMember(variable).thenAccept {
-      addTypeAnnotation(_, variable, variable.pList)
-    }
-
+    addTypeAnnotation(typesForMember(variable), variable, variable.pList)
     true
   }
 
   override def patternWithoutType(pattern: ScBindingPattern): Boolean = {
-    pattern.expectedType.foreach {
-      addTypeAnnotation(_, pattern.getParent, pattern)
-    }
-
+    addTypeAnnotation(pattern.expectedType, pattern.getParent, pattern)
     true
   }
 
   override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Boolean = {
-    pattern.expectedType.foreach {
-      addTypeAnnotation(_, pattern.getParent, pattern)
-    }
-
+    addTypeAnnotation(pattern.expectedType, pattern.getParent, pattern)
     true
   }
 
@@ -107,16 +85,17 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean = {
-    underscore.`type`().foreach {
-      addTypeAnnotation(_, underscore.getParent, underscore)
-    }
-
+    addTypeAnnotation(underscore.`type`().toOption, underscore.getParent, underscore)
     true
   }
 
-  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement): Unit = {
-    import AddOnlyStrategy._
-    val tps = annotationsFor(t)
+  def addTypeAnnotation(ty: ScType, context: PsiElement, anchor: PsiElement): Unit =
+    addTypeAnnotation(Some(ty), context, anchor)
+  def addTypeAnnotation(types: Option[ScType], context: PsiElement, anchor: PsiElement): Unit =
+    addTypeAnnotation(types.toSeq.map(TypeForAnnotation.apply(_)), context, anchor)
+
+  def addTypeAnnotation(types: Seq[TypeForAnnotation], context: PsiElement, anchor: PsiElement): Unit = {
+    val tps = types.flatMap(_.typeWithSuperTypes)
     val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText)
 
     val added = addActualType(tps.head, anchor)
@@ -136,31 +115,16 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
           case _ => None
         }
 
-        maybeExpression.collect {
+        maybeExpression.foreach {
           case call@Implementation.EmptyCollectionFactoryCall(ref) =>
-            (call, createElementFromText(ref.getText)(ref.projectContext))
-        }.foreach {
-          case (expression, replacement) => expression.replace(replacement)
+            val replacement = createElementFromText(ref.getText)(ref.projectContext)
+            call.replace(replacement)
+          case _ =>
         }
     }
   }
 
-  private def selectTypeForMember(element: ScMember): CompletableFuture[ScType] = {
-    import CompletableFuture.completedFuture
-
-    typeForMember(element) match {
-      case Seq() => completedFuture(element.projectContext.stdTypes.Any)
-      case Seq(one) => completedFuture(one)
-      case multiple =>
-        editor.fold(
-          completedFuture(multiple.head)
-        )(
-          showTypeChooser(multiple, _)
-        )
-    }
-  }
-
-  private def typeForMember(element: ScMember): Seq[ScType] = {
+  private def typesForMember(element: ScMember): Seq[TypeForAnnotation] = {
 
     def signatureType(sign: TermSignature): Option[ScType] = {
       val substitutor = sign.substitutor
@@ -200,15 +164,18 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       }
     }
 
-    val computedType = element match {
-      case function: ScFunctionDefinition =>
-        function.returnType.toOption
-      case value: ScPatternDefinition =>
-        value.`type`().toOption
-      case variable: ScVariableDefinition =>
-        variable.`type`().toOption
-      case _ =>
-        None
+    val computedType = {
+      val computedType = element match {
+        case function: ScFunctionDefinition =>
+          function.returnType.toOption
+        case value: ScPatternDefinition =>
+          value.`type`().toOption
+        case variable: ScVariableDefinition =>
+          variable.`type`().toOption
+        case _ =>
+          None
+      }
+      computedType.map(TypeForAnnotation(_))
     }
 
     val typeFromSuper = superSignatures(element)
@@ -216,48 +183,28 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       .map(signatureType)
       .find(_.nonEmpty)
       .flatten
+      .map(TypeForAnnotation(_, addSuperTypes = false))
 
     typeFromSuper.toSeq ++ computedType match {
-      case Seq(st, t) if t.isNothing || t.isAny =>
+      case Seq(st, t) if t.ty.isNothing || t.ty.isAny =>
         // if the computed type is nothing or any, the super type can only be more expressive
         Seq(st)
-      case Seq(st, t) if t.isAliasType.isEmpty && t.equiv(st) =>
+      case Seq(st, t) if t.ty.isAliasType.isEmpty && t.ty.equiv(st.ty) =>
         // if both types are equivalent, use the super type, because it might be a type alias
         // except, of course, the computed type is a type alias then better let the user choose
         Seq(st)
       case oneOrBoth => oneOrBoth
     }
   }
-
-  def showTypeChooser(multiple: Seq[ScType], editor: Editor): CompletableFuture[ScType] = {
-    implicit val project: Project = editor.getProject
-    val resultFuture = new CompletableFuture[ScType]()
-    val title = ScalaBundle.message("choose.inferred.or.super.type.popup.title")
-    val popup: BaseListPopupStep[ScType] = new BaseListPopupStep[ScType](title, multiple.asJava) {
-      override def getIconFor(value: ScType): Icon =
-        value.extractDesignated(expandAliases = false).map(_.getIcon(0)).orNull
-
-      override def getTextFor(value: ScType): String = {
-        value.presentableText
-      }
-
-      override def onChosen(selectedValue: ScType, finalChoice: Boolean): PopupStep[_] = {
-        if (selectedValue != null && finalChoice) {
-          executeWriteActionCommand("Add type annotation action") {
-            PsiDocumentManager.getInstance(project).commitAllDocuments()
-            resultFuture.complete(selectedValue)
-          }
-        }
-        PopupStep.FINAL_CHOICE
-      }
-    }
-    JBPopupFactory.getInstance.createListPopup(popup).showInBestPositionFor(editor)
-
-    resultFuture
-  }
 }
 
 object AddOnlyStrategy {
+
+  case class TypeForAnnotation(ty: ScType, addSuperTypes: Boolean = true) {
+    def typeWithSuperTypes: Seq[ScTypeElement] =
+      if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty)
+      else Seq(createTypeElementFromText(ty.canonicalCodeText)(ty.projectContext))
+  }
 
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
     implicit val ctx: ProjectContext = anchor
