@@ -936,6 +936,19 @@ package object extensions {
       else None
     }
 
+    def lastOption: Option[A] = {
+      var result = null.asInstanceOf[A]
+      var isEmpty = true
+
+      while (delegate.hasNext) {
+        result = delegate.next()
+        isEmpty = false
+      }
+
+      if (isEmpty) None
+      else Some(result)
+    }
+
     def findBy[T: ClassTag]: Option[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       delegate.find(clazz.isInstance).asInstanceOf[Option[T]]
