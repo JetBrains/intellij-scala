@@ -1046,6 +1046,9 @@ package object extensions {
       policy
     )
 
+  def executeUndoTransparentAction(body: => Any): Unit =
+    CommandProcessor.getInstance().runUndoTransparentAction(body)
+
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
     case application if application.isWriteAccessAllowed => body
     case application => application.runWriteAction(body)

@@ -3,76 +3,89 @@ package worksheet.ui
 
 import java.util
 
-import com.intellij.openapi.editor.ex.FoldingListener
-import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
+import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx}
+import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import worksheet.processor.FileAttributeUtilCache
-import worksheet.ui.WorksheetFoldGroup.{ParsedRegion, WorksheetFoldRegionListener}
+import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * User: Dmitry.Naydanov
- * Date: 10.04.14.
- */
-class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalEditor: Editor, project: Project,
-                         private val splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter) {
-  private val originalDocument = originalEditor.getDocument
-  private val viewerDocument: Document = viewerEditor.getDocument
+final class WorksheetFoldGroup(
+  private val viewerEditor: Editor,
+  private val originalEditor: Editor,
+  project: Project,
+  private val splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter
+) {
+
+  import FoldRegionSerializer._
+
+  private val originalDocument: Document = originalEditor.getDocument
+  private val viewerDocument  : Document = viewerEditor.getDocument
   
-  private val regions = mutable.ArrayBuffer[FoldRegionInfo]()
+  private val _regions = mutable.ArrayBuffer[FoldRegionInfo]()
   private val unfolded = new util.TreeMap[Int, Int]()
+
+  def regions: Seq[FoldRegionInfo] = _regions
 
   def left2rightOffset(left: Int): Int = {
     val key: Int = unfolded floorKey left
 
-    if (key == 0) left else {
-      unfolded.get(key) + left
+    if (key == 0) {
+      left
+    } else {
+      left + unfolded.get(key)
     }
   }
   
-  def addRegion(foldingModel: FoldingModelImpl, start: Int, end: Int, leftStart: Int, 
-                spaces: Int, leftSideLength: Int, isExpanded: Boolean) {
-    val placeholder = viewerDocument.getText(
-      new TextRange(start, start + Math.min(end - start, WorksheetFoldGroup.PLACEHOLDER_LIMIT)))
+  def addRegion(foldingModel: FoldingModelEx,
+                start: Int, end: Int, // range to fold in right editor
+                leftStart: Int,
+                spaces: Int, // number of folded lines - 1 (number of new line characters folded)
+                leftSideLength: Int,
+                isExpanded: Boolean): Unit = {
+    val placeholder = {
+      val offset = Math.min(end - start, WorksheetFoldGroup.PLACEHOLDER_LIMIT)
+      val range = new TextRange(start, start + offset)
+      viewerDocument.getText(range)
+    }
     
-    val region = foldingModel.createFoldRegion(start.toInt, end.toInt, placeholder, null, false)
+    val region = foldingModel.createFoldRegion(start, end, placeholder, null, false)
     
     if (region == null) return //something went wrong
     region.setExpanded(isExpanded)
-    addRegion(region, leftStart.toInt, spaces.toInt, leftSideLength.toInt)
+    addRegion(region, leftStart, spaces, leftSideLength)
   }
 
-  def addRegion(region: FoldRegion, start: Int, spaces: Int, leftSideLength: Int) {
-    regions += FoldRegionInfo(region, region.isExpanded, start, spaces, leftSideLength)
+  private def addRegion(region: FoldRegion, start: Int, spaces: Int, leftSideLength: Int): Unit =
+    _regions += FoldRegionInfo(region, region.isExpanded, start, spaces, leftSideLength)
+
+  private def addParsedRegions(regions: Seq[ParsedRegion]): Unit = {
+    val folding = viewerEditor.getFoldingModel.asInstanceOf[FoldingModelEx]
+    folding.runBatchFoldingOperation { () =>
+      regions.foreach(addParsedRegion(folding, _))
+    }
   }
 
-  def removeRegion(region: FoldRegion) {
-    regions -= FoldRegionInfo(region, expanded = true, 0, 0, 0)
+  private def addParsedRegion(folding: FoldingModelEx, region: ParsedRegion): Unit = {
+    val ParsedRegion(start, end, expanded, leftStart, spaces, leftSideLength) = region
+    addRegion(folding, start, end, leftStart, spaces, leftSideLength, expanded)
   }
 
-  def onExpand(expandedRegion: FoldRegion): Boolean = {
+  private def onExpand(expandedRegion: FoldRegion): Boolean =
     traverseAndChange(expandedRegion, expand = true)
-  }
 
-  def onCollapse(collapsedRegion: FoldRegion): Boolean = {
+  private def onCollapse(collapsedRegion: FoldRegion): Boolean =
     traverseAndChange(collapsedRegion, expand = false)
-  }
 
-  def getCorrespondInfo: ArrayBuffer[(Int, Int, Int, Int, Int)] = regions map {
-    case FoldRegionInfo(region: FoldRegion, _, leftStart, spaces, lsLength) =>
-      (region.getStartOffset, region.getEndOffset, leftStart, spaces, lsLength)
-  }
-  
-  def installOn(model: FoldingModelImpl) {
-    model.addListener(new WorksheetFoldRegionListener(this), project) 
-  }
+  def installOn(model: FoldingModelEx): Unit =
+    model.addListener(new WorksheetFoldRegionListener(this), project)
 
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
     if (!viewerEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return false
@@ -83,7 +96,9 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 
     if (targetInfo == null || targetInfo.expanded == expand) return false
 
-    if (splitter != null) splitter.update(fromTo, offsetsSpaces)
+    if (splitter != null) {
+      splitter.update(fromTo, offsetsSpaces)
+    }
 
     targetInfo.expanded = expand
 
@@ -91,67 +106,36 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
     true
   }
 
-  protected def serialize(): String = regions map {
-    case FoldRegionInfo(region, expanded, trueStart, spaces, lsLength) =>
-      s"${region.getStartOffset},${region.getEndOffset},$expanded,$trueStart,$spaces,$lsLength"
-  } mkString "|"
+  private def offset2Line(offset: Int) = originalDocument.getLineNumber(offset)
 
-  protected def deserialize(serialRegions: Array[ParsedRegion]) {
-    val folding = viewerEditor.getFoldingModel.asInstanceOf[FoldingModelImpl]
-    
-    folding runBatchFoldingOperation new Runnable {
-      override def run(): Unit = {
-        serialRegions foreach {
-          case ParsedRegion(start, end, expanded, leftStart, spaces, leftSideLength) =>
-            try addRegion(folding, start, end, leftStart, spaces, leftSideLength, expanded) catch {
-              case _: NumberFormatException =>
-            }
-          case _ => 
+  /** @return TODO: ??? */
+  private def traverseRegions(target: FoldRegion): (Iterable[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = {
+    val emptyResult: (Seq[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = (Seq.empty, null, 0)
+    if (_regions.isEmpty) return emptyResult
+
+    def numbers(reg: FoldRegionInfo, stored: Int): ((Int, Int), (Int, Int)) = {
+      val first = (offset2Line(reg.leftStart) - reg.leftSideLength, offset2Line(reg.leftStart))
+      val second = (offset2Line(reg.leftStart) + stored, reg.spaces)
+      (first, second)
+    }
+
+    val result = _regions.foldLeft(emptyResult) { case (acc@(res, currentRegion, offset), nextRegion) =>
+      val accNew = if (nextRegion.region == target) {
+        if (nextRegion.expanded) {
+          (res, nextRegion, offset)
+        } else {
+          val resUpdated = res :+ numbers(nextRegion, offset)
+          (resUpdated, nextRegion, offset + nextRegion.spaces)
         }
+      } else if (nextRegion.expanded) {
+        val resUpdated = res :+ numbers(nextRegion, offset)
+        (resUpdated, currentRegion, offset + nextRegion.spaces)
+      } else {
+        acc
       }
+      accNew
     }
-  }
-  
-  protected def deserialize(elem: String) {
-    val folding = viewerEditor.getFoldingModel.asInstanceOf[FoldingModelImpl]
-
-    folding runBatchFoldingOperation new Runnable {
-      override def run() {
-        elem split '|' foreach {
-          regionElem =>
-            regionElem split ',' match {
-              case Array(start, end, expanded, leftStart, spaces, leftSideLength) =>
-                try {
-                  addRegion(folding, start.toInt, end.toInt, leftStart.toInt, spaces.toInt, leftSideLength.toInt, expanded.length == 4)
-                } catch {
-                  case _: NumberFormatException =>
-                }
-              case _ =>
-            }
-        }
-      }
-    }
-  }
-
-  private def offset2Line(offset: Int) = originalDocument getLineNumber offset
-
-  private def traverseRegions(target: FoldRegion): (mutable.Iterable[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = {
-    if (regions.isEmpty) return (mutable.ArrayBuffer.empty, null, 0)
-
-    def numbers(reg: FoldRegionInfo, stored: Int) =
-      ((offset2Line(reg.leftStart) - reg.lsLength, offset2Line(reg.leftStart)),
-      (offset2Line(reg.leftStart) + stored, reg.spaces))
-
-    ((mutable.ArrayBuffer[((Int, Int), (Int, Int))](), null: FoldRegionInfo, 0) /: regions) {
-      case ((res, _, ff), reg) if reg.expanded && reg.region == target => (res, reg, ff)
-      case ((res, _, ff), reg) if !reg.expanded && reg.region == target =>
-        res append numbers(reg, ff)
-        (res, reg, ff + reg.spaces)
-      case ((res, a, ff), reg) if reg.expanded && reg.region != target =>
-        res append numbers(reg, ff)
-        (res, a, ff + reg.spaces)
-      case (res, _) => res
-    }
+    result
   }
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
@@ -160,21 +144,39 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 
     val spaces = target.spaces
     if (unfolded.get(key) == 0) {
-      if (expand) unfolded.put(line, spaces) else unfolded remove line
+      if (expand) unfolded.put(line, spaces)
+      else unfolded.remove(line)
       return
     }
 
     val lower = unfolded.tailMap(line).entrySet().iterator()
     while (lower.hasNext) {
       val t = lower.next()
-      unfolded.put(t.getKey, if (expand) t.getValue + spaces else t.getValue - spaces)
+      val magicValue = if (expand) t.getValue + spaces else t.getValue - spaces
+      unfolded.put(t.getKey, magicValue)
     }
 
-    if (expand) unfolded.put(line, unfolded.get(key) + spaces) else unfolded.remove(line)
+    if (expand) {
+      unfolded.put(line, unfolded.get(key) + spaces)
+    } else {
+      unfolded.remove(line)
+    }
   }
+}
 
+object WorksheetFoldGroup {
 
-  private case class FoldRegionInfo(region: FoldRegion, var expanded: Boolean, leftStart: Int, spaces: Int, lsLength: Int) {
+  import FoldRegionSerializer._
+
+  private val PLACEHOLDER_LIMIT = 75
+  private val WORKSHEET_PERSISTENT_FOLD_KEY = new FileAttribute("WorksheetPersistentFoldings", 1, false)
+
+  // TODO: why the hell is this a `case` class?
+  case class FoldRegionInfo(region: FoldRegion,
+                            var expanded: Boolean,
+                            leftStart: Int,
+                            spaces: Int,
+                            leftSideLength: Int) {
     override def equals(obj: scala.Any): Boolean = obj match {
       case info: FoldRegionInfo => this.region.equals(info.region)
       case _ => false
@@ -182,86 +184,105 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 
     override def hashCode(): Int = region.hashCode()
   }
-}
 
-object WorksheetFoldGroup {
-  private val PLACEHOLDER_LIMIT = 75
-  private val WORKSHEET_PERSISTENT_FOLD_KEY = new FileAttribute("WorksheetPersistentFoldings", 1, false)
-  
   private class WorksheetFoldRegionListener(val owner: WorksheetFoldGroup) extends FoldingListener {
     override def onFoldRegionStateChange(region: FoldRegion): Unit = 
-      if (region.isExpanded) owner.onExpand(region) else owner.onCollapse(region)
+      if (region.isExpanded) owner.onExpand(region)
+      else owner.onCollapse(region)
 
     override def onFoldProcessingEnd() {}
   }
-  
-  private case class ParsedRegion(start: Int, end: Int, expanded: Boolean, leftStart: Int, spaces: Int, leftSideLength: Int)
 
-  /* start, end, expanded, leftStart, spaces, leftSideLength */
-  private def parseFoldRegions(e: String): Array[ParsedRegion] = {
-    e split '|' map (_ split ',') collect {
-      case Array(start, end, expanded, leftStart, spaces, leftSideLength) => 
-        ParsedRegion(start.toInt, end.toInt, expanded.length == 4, leftStart.toInt, spaces.toInt, leftSideLength.toInt)
-    }
-  }
-  
-  private def extractMappings(parsedRegions: Array[ParsedRegion], originalDocument: Document, viewerDocument: Document) = {
+  // TODO: refactor, logic completely unreadable
+  private def extractMappings(parsedRegions: Seq[ParsedRegion], originalDocument: Document, viewerDocument: Document): Seq[(Int, Int)] = {
     val result = ArrayBuffer[(Int, Int)]()
-    
-    val fakeEndRegion = ParsedRegion(viewerDocument.getTextLength - 1, viewerDocument.getTextLength - 1, 
-      expanded = false, originalDocument.getTextLength - 1, 0, 1)
-    
-    if (parsedRegions.length > 1) {
-      (parsedRegions.head /: (parsedRegions.tail :+ fakeEndRegion)) {
-        case (previous, current) => 
-          val previousLeftStart = originalDocument.getLineNumber(previous.leftStart - 1)
-          result += ((previousLeftStart, viewerDocument.getLineNumber(previous.start)))
 
-          if (previous.leftSideLength + previousLeftStart - 1 < originalDocument.getLineNumber(current.leftStart - 1)) {
-            val rightSideBase = viewerDocument.getLineNumber(previous.end)
-            
-            for (j <- 1 to (originalDocument.getLineNumber(current.leftStart - 1) - previous.leftSideLength - previousLeftStart + 1)) {
-              result += ((previousLeftStart + j, rightSideBase + j))
-            }
+    if (parsedRegions.length > 1) {
+      val fakeEndRegion = {
+        val viewerLength   = viewerDocument.getTextLength - 1
+        val originalLength = originalDocument.getTextLength - 1
+        ParsedRegion(viewerLength , viewerLength , expanded = false, originalLength, 0, 1)
+      }
+
+      val regionsFinal = parsedRegions.tail :+ fakeEndRegion
+      regionsFinal.foldLeft(parsedRegions.head) { case (previous, current) =>
+        val previousLeftStart = originalDocument.getLineNumber(previous.leftStart - 1)
+        result += ((previousLeftStart, viewerDocument.getLineNumber(previous.start)))
+
+        if (previous.leftSideLength + previousLeftStart - 1 < originalDocument.getLineNumber(current.leftStart - 1)) {
+          val rightSideBase = viewerDocument.getLineNumber(previous.end)
+
+          for (j <- 1 to (originalDocument.getLineNumber(current.leftStart - 1) - previous.leftSideLength - previousLeftStart + 1)) {
+            result += ((previousLeftStart + j, rightSideBase + j))
           }
-          
-          current
+        }
+
+        current
       }
     } 
 
-    result.toArray
+    result
   }
 
-  def save(file: ScalaFile, group: WorksheetFoldGroup) {
+  def save(file: ScalaFile, group: WorksheetFoldGroup): Unit = {
     val virtualFile = file.getVirtualFile
     if (!virtualFile.isValid) return
-    FileAttributeUtilCache.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, group.serialize())
+
+    val regionsSerialized = serializeFoldRegions(group.regions)
+    FileAttributeUtilCache.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, regionsSerialized)
   }
 
   def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
-           splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter, file: PsiFile): WorksheetFoldGroup = {
-    val bytes = FileAttributeUtilCache.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file)
-
+           splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter,
+           file: PsiFile): WorksheetFoldGroup = {
     val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, splitter)
-    
-    bytes foreach {
-      case nonEmpty if nonEmpty.length > 0 =>
-        group.deserialize(parseFoldRegions(nonEmpty))
-      case _ =>
-    }
-    
+
+    val parsedRegions = extractRegions(file)
+    parsedRegions.foreach(group.addParsedRegions)
+
     group
   }
   
-  def computeMappings(viewerEditor: Editor, originalEditor: Editor, file: PsiFile): Array[(Int, Int)] = {
-    FileAttributeUtilCache.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file).filter(_.nonEmpty).map(parseFoldRegions).map {
-      parsed => 
-        val mappings = extractMappings(parsed, originalEditor.getDocument, viewerEditor.getDocument)
-        
-        mappings.headOption match {
-          case Some((_, 0)) => mappings
-          case _ => (0, 0) +: mappings
-        }
-    }.getOrElse(Array((0, 0)))
+  def computeMappings(viewerEditor: Editor, originalEditor: Editor, file: PsiFile): Seq[(Int, Int)] = {
+    val parsedRegionsOpt = extractRegions(file)
+    parsedRegionsOpt.fold(Seq((0, 0))) { parsed =>
+      val mappings = extractMappings(parsed, originalEditor.getDocument, viewerEditor.getDocument)
+      mappings.headOption match {
+        case Some((_, 0)) => mappings
+        case _ => (0, 0) +: mappings
+      }
+    }
+  }
+
+
+  private def extractRegions(file: PsiFile): Option[Seq[ParsedRegion]] = {
+    val regionsSerialized = FileAttributeUtilCache.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file).filter(_.nonEmpty)
+    regionsSerialized.map(deserializeFoldRegions)
+  }
+
+  private object FoldRegionSerializer {
+
+    private val FieldSeparator = ','
+    private val RegionsSeparator = '|'
+
+    case class ParsedRegion(start: Int, end: Int, expanded: Boolean, leftStart: Int, spaces: Int, leftSideLength: Int)
+
+    def serializeFoldRegions(regions: Seq[FoldRegionInfo]): String = {
+      val regionsSerialized = regions.map {
+        case FoldRegionInfo(region, expanded, trueStart, spaces, lsLength) =>
+          val fields = Seq(region.getStartOffset, region.getEndOffset, expanded, trueStart, spaces, lsLength)
+          fields.mkString(FieldSeparator.toString)
+      }
+      regionsSerialized.mkString(RegionsSeparator.toString)
+    }
+
+    def deserializeFoldRegions(text: String): Seq[ParsedRegion] = {
+      val regionsDumps  = text.split(RegionsSeparator)
+      val regionsFields = regionsDumps.map(_.split(FieldSeparator))
+      regionsFields.collect {
+        case Array(start, end, expanded, leftStart, spaces, leftSideLength) =>
+          ParsedRegion(start.toInt, end.toInt, expanded == "true", leftStart.toInt, spaces.toInt, leftSideLength.toInt)
+      }
+    }
   }
 }

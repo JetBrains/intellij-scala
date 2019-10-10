@@ -15,6 +15,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: Editor, file1: ScalaFile)
   extends WorksheetEditorPrinterBase(originalEditor1, worksheetViewer1) {
+
   private val timer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, TimerListener)
 
   private val outputBuffer = new StringBuilder
@@ -29,7 +30,6 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
 
   originalEditor.asInstanceOf[EditorImpl].setScrollToCaret(false)
   worksheetViewer.asInstanceOf[EditorImpl].setScrollToCaret(false)
-
 
   override def getScalaFile: ScalaFile = file1
 
@@ -61,7 +61,7 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
             insertedToOriginal -= differ
 
             foldingOffsets += FoldingOffsets(
-              start + insertedToOriginal + differ,
+              start + insertedToOriginal + differ + 1,
               outputBuffer.length - outputBuffer.reverseIterator.takeWhile(_ == '\n').length,
               end - start + 1,
               end
