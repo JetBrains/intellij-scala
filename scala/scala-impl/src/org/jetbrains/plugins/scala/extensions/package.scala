@@ -432,6 +432,14 @@ package object extensions {
 
     def withNormalizedSeparator: String =
       StringUtil.convertLineSeparators(string)
+
+    def toIntOpt: Option[Int] = parseNumeric(string.toInt)
+
+    def toFloatOpt: Option[Float] = parseNumeric(string.toFloat)
+
+    @inline private def parseNumeric[T: Numeric](parse: => T): Option[T] = try Some(parse) catch {
+      case _: NumberFormatException => None
+    }
   }
 
   implicit class CharSeqExt(private val cs: CharSequence) extends AnyVal {
