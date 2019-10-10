@@ -9,15 +9,15 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 03.02.17.
-  */
+
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                                           protected val worksheetViewer: Editor) extends WorksheetEditorPrinter {
   protected val viewerFolding: FoldingModelImpl = worksheetViewer.getFoldingModel.asInstanceOf[FoldingModelImpl]
+
   protected implicit val project: Project = originalEditor.getProject
+
   protected val originalDocument: Document = originalEditor.getDocument
   protected val viewerDocument: Document = worksheetViewer.getDocument
 
@@ -69,16 +69,12 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
   }
 
-  /**
-    *
-    * @param foldings : (Start output, End output, Input lines count, End input)*
-    */
-  protected def updateFoldings(foldings: Seq[(Int, Int, Int, Int)]): Unit = startCommand() {
+  protected def updateFoldings(foldings: Seq[FoldingOffsets]): Unit = startCommand() {
     val isExpanded = !ScalaProjectSettings.getInstance(project).isWorksheetFoldCollapsedByDefault
 
-    viewerFolding.runBatchFoldingOperation(() => {
+    val operation: Runnable = () => {
       foldings.foreach {
-        case (start, end, limit, originalEnd) =>
+        case FoldingOffsets(start, end, limit, originalEnd) =>
           val offset = originalDocument getLineEndOffset java.lang.Math.min(originalEnd, originalDocument.getLineCount)
           val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
 
@@ -87,7 +83,8 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       }
 
       WorksheetFoldGroup.save(getScalaFile, group)
-    }, false)
+    }
+    viewerFolding.runBatchFoldingOperation(operation, false)
   }
 
   protected def isInited: Boolean = inited
@@ -101,7 +98,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     cleanFoldings()
   }
 
-  protected def getNewLines(count: Int): String = StringUtil.repeatSymbol('\n', count)
+  protected def buildNewLines(count: Int): String = StringUtil.repeatSymbol('\n', count)
 
   protected def commitDocument(doc: Document): Unit = {
     if (project.isDisposed) return //EA-70786
@@ -123,4 +120,13 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   }
 
   protected def getOutputLimit: Int = ScalaProjectSettings.getInstance(project).getOutputLimit
+}
+
+object WorksheetEditorPrinterBase {
+
+  // TODO: why one is line number, other is offset
+  case class FoldingOffsets(outputStartLineIdx: Int,
+                            outputEndOffset: Int,
+                            inputLinesCount: Int,
+                            inputEnd: Int)
 }

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
 
 import scala.collection.mutable
 
@@ -162,7 +163,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
         val baseDiff = Math.max(processedStartLine - viewerDocument.getLineCount - 1, 0) + queuedPsi.getBaseDiff
 
-        val prefix = getNewLines(baseDiff + firstOffsetFix)
+        val prefix = buildNewLines(baseDiff + firstOffsetFix)
         simpleAppend(prefix, viewerDocument)
         var addedDiff = 0
 
@@ -170,7 +171,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
           case (absoluteOffset, relativeOffset, outputChunk) =>
             val df = originalLn(absoluteOffset) - originalLn(absoluteOffset - relativeOffset)
             addedDiff += df
-            val currentPrefix = getNewLines(df)
+            val currentPrefix = buildNewLines(df)
             simpleAppend(currentPrefix + outputChunk, viewerDocument)
         }
 
@@ -180,7 +181,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
         if (linesOutput > linesInput) {
           val lineCount = viewerDocument.getLineCount
-          updateFoldings(Seq((oldLinesCount + baseDiff + firstOffsetFix - 1, viewerDocument.getLineEndOffset(lineCount - 1), linesInput, processedEndLine)))
+          updateFoldings(Seq(FoldingOffsets(oldLinesCount + baseDiff + firstOffsetFix - 1, viewerDocument.getLineEndOffset(lineCount - 1), linesInput, processedEndLine)))
         }
       }
     }

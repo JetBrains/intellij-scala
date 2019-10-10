@@ -1,28 +1,24 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
 import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.Timer
 
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import javax.swing.Timer
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
 
 import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 03.02.17.
-  */
-class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: Editor, file1: ScalaFile) 
+class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: Editor, file1: ScalaFile)
   extends WorksheetEditorPrinterBase(originalEditor1, worksheetViewer1) {
   private val timer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, TimerListener)
 
   private val outputBuffer = new StringBuilder
-  private val foldingOffsets = ArrayBuffer.apply[(Int, Int, Int, Int)]()
+  private val foldingOffsets = ArrayBuffer.apply[FoldingOffsets]()
   private var linesCount = 0
   private var totalCount = 0
   private var insertedToOriginal = 0
@@ -45,30 +41,31 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
     if (checkForTerminate(line)) return true
 
     if (!isInsideOutput && line.trim.length == 0) {
-      outputBuffer append line
+      outputBuffer.append(line)
       totalCount += 1
     } else if (isResultEnd(line)) {
-      WorksheetSourceProcessor extractLineInfoFrom line match {
+      WorksheetSourceProcessor.extractLineInfoFrom(line) match {
         case Some((start, end)) =>
           if (!isInited) {
             val first = initExt()
-            val diffBetweenFirst = first map (i => Math.min(i, start)) getOrElse start
+            val diffBetweenFirst = first.map(i => Math.min(i, start)).getOrElse(start)
 
-            if (diffBetweenFirst > 0) prefix = getNewLines(diffBetweenFirst)
+            if (diffBetweenFirst > 0) prefix = buildNewLines(diffBetweenFirst)
           }
 
           val differ = end - start + 1 - linesCount
 
           if (differ > 0) {
-            outputBuffer append getNewLines(differ)
+            outputBuffer.append(buildNewLines(differ))
           } else if (0 > differ) {
             insertedToOriginal -= differ
 
-            foldingOffsets += (
-              (start + insertedToOriginal + differ,
-                outputBuffer.length - outputBuffer.reverseIterator.takeWhile(_ == '\n').length,
-                end - start + 1, end)
-              )
+            foldingOffsets += FoldingOffsets(
+              start + insertedToOriginal + differ,
+              outputBuffer.length - outputBuffer.reverseIterator.takeWhile(_ == '\n').length,
+              end - start + 1,
+              end
+            )
           }
 
           buffed += linesCount
@@ -82,9 +79,11 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
       totalCount += 1
 
       if (linesCount > getOutputLimit) {
-        outputBuffer append WorksheetEditorPrinterFactory.END_MESSAGE
+        outputBuffer.append(WorksheetEditorPrinterFactory.END_MESSAGE)
         cutoffPrinted = true
-      } else outputBuffer append line
+      } else {
+        outputBuffer.append(line)
+      }
     }
 
     false
@@ -117,7 +116,7 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
 */
   }
 
-  def midFlush() {
+  def midFlush(): Unit = {
     if (terminated || buffed == 0) return
 
     val str = getCurrentText
@@ -143,8 +142,11 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
         f = checkFlag(s)
       }
 
-      if (s != null) extensions.inReadAction(Some(s.getTextRange.getStartOffset)) else None
-    } else None
+      if (s != null) extensions.inReadAction(Some(s.getTextRange.getStartOffset))
+      else None
+    } else {
+      None
+    }
   }
 
   private def checkForTerminate(line: String): Boolean = {
@@ -156,7 +158,7 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
     terminated
   }
 
-  private def isResultEnd(line: String) = line startsWith WorksheetSourceProcessor.END_TOKEN_MARKER
+  private def isResultEnd(line: String) = line.startsWith(WorksheetSourceProcessor.END_TOKEN_MARKER)
 
   private def clear() {
     linesCount = 0
