@@ -92,7 +92,7 @@ class MembersTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
      """.stripMargin
 }
 
-class TypeAnnotationInspectionFromSuperTest extends TypeAnnotationInspectionTest {
+class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
   
   def testImplementingMethod(): Unit = testQuickFix (
     text  =
@@ -101,7 +101,7 @@ class TypeAnnotationInspectionFromSuperTest extends TypeAnnotationInspectionTest
          |  def test(i: Int): Option[Int]
          |}
          |
-          |class TestImpl extends Test {
+         |class TestImpl extends Test {
          |  override def ${START}test$END(i: Int) = ???
          |}
         """.stripMargin,
@@ -226,6 +226,27 @@ class TypeAnnotationInspectionFromSuperTest extends TypeAnnotationInspectionTest
          |}
          |""".stripMargin
   )
+
+  def testObjectEnum(): Unit = {
+    testQuickFix(
+      s"""
+        |sealed trait EnumBase
+        |object EnumElement extends EnumBase
+        |
+        |object Playground {
+        |  def ${START}test$END = EnumElement
+        |}
+        |""".stripMargin,
+      """
+        |sealed trait EnumBase
+        |object EnumElement extends EnumBase
+        |
+        |object Playground {
+        |  def test: EnumBase = EnumElement
+        |}
+        |""".stripMargin
+    )
+  }
 
   override protected def createTestText(text: String): String = text
 }

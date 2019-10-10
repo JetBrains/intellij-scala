@@ -259,7 +259,8 @@ object AddOnlyStrategy {
 
         get(tpe).map(_.canonicalCodeText)
           .filter(t => goodTypes.exists(t.startsWith))
-      case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(_.isSealed) =>
+      case Some(sc: ScTypeDefinition) if sc.isObject && sc.supers.exists(_.isSealed) =>
+        // if the type is the type of an object we prefer the super class
         get(tpe).find(_.extractClass.exists(_.isSealed)).toSeq
           .map(_.canonicalCodeText)
       case _ => Seq.empty
