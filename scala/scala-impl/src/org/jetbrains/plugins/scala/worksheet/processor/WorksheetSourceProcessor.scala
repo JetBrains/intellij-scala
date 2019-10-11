@@ -242,9 +242,6 @@ object WorksheetSourceProcessor {
       getTypePrinterName + s".printGeneric({import $instanceName._ ;" + fun.getText.stripPrefix(hadMods) + " })" + eraseClassName
     }
 
-    // TODO: remove unused method
-    protected def getStartText = ""
-
     protected def getObjectPrologue: String = objectPrologue
 
     protected def getPrintMethodName: String = genericPrintMethodName
@@ -278,7 +275,7 @@ object WorksheetSourceProcessor {
 
           classBuilder.append(s"def $defName = $pName;$END_GENERATED_MARKER")
 
-          objectBuilder.append(s"""$getPrintMethodName("$getStartText$pName${prettyPrintType(defName)})""").append("\n")
+          objectBuilder.append(s"""$getPrintMethodName("$pName${prettyPrintType(defName)})""").append("\n")
         }
       }
 
@@ -321,7 +318,7 @@ object WorksheetSourceProcessor {
 
       classBuilder.append(txt).append(";")
       varDef.declaredNames.foreach { pName =>
-        objectBuilder.append(s"""$getPrintMethodName("$getStartText$pName${prettyPrintType(pName)})""").append("\n")
+        objectBuilder.append(s"""$getPrintMethodName("$pName${prettyPrintType(pName)})""").append("\n")
       }
 
       appendPsiLineInfo(varDef, lineNum)
@@ -334,7 +331,7 @@ object WorksheetSourceProcessor {
 
       classBuilder.append(s"""def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}""")
       objectBuilder.append(s"""$instanceName.$defName; """)
-      objectBuilder.append(s"""$getPrintMethodName("$getStartText$pName${prettyPrintType(pName)})""").append("\n")
+      objectBuilder.append(s"""$getPrintMethodName("$pName${prettyPrintType(pName)})""").append("\n")
 
       appendPsiLineInfo(assign, lineNums)
 
@@ -427,7 +424,7 @@ object WorksheetSourceProcessor {
       val lineNums = psiToLineNumbers(expr)
 
       classBuilder.append(s"""def $resName = $END_GENERATED_MARKER${expr.getText}${insertNlsFromWs(expr)}""")
-      objectBuilder.append(s"""$getPrintMethodName("res$getStartText$resCount${prettyPrintType(resName)})""").append("\n")
+      objectBuilder.append(s"""$getPrintMethodName("res$resCount${prettyPrintType(resName)})""").append("\n")
       appendPsiLineInfo(expr, lineNums)
 
       resCount += 1
@@ -497,7 +494,7 @@ object WorksheetSourceProcessor {
       s"""{val $tempVarName = $target$callee ; $getTempVarInfo$eraseClassName$plusInfoDef" = " + ( $PRINT_ARRAY_NAME($tempVarName) )$erasePrefixName}"""
     }
 
-    @inline final def withPrint(text: String): String = s"""$getPrintMethodName("$getStartText$text")""" + "\n"
+    @inline final def withPrint(text: String): String = s"""$getPrintMethodName("$text")""" + "\n"
 
     @inline final def withPrecomputeLines(psi: ScalaPsiElement)(body: => Unit): Unit = {
       val lineNum = psiToLineNumbers(psi)
