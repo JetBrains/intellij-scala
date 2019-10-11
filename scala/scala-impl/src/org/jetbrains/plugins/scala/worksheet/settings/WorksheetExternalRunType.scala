@@ -65,11 +65,13 @@ object RunTypes {
     override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
       WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file)
 
-    override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest =
-      WorksheetSourceProcessor.processDefault(srcFile, ifEditor.map(_.getDocument)) match {
+    override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest = {
+      val result = WorksheetSourceProcessor.processDefault(srcFile, ifEditor.map(_.getDocument))
+      result match {
         case Right((code, className)) => RunCompile(code, className)
-        case Left(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
+        case Left(errorElement)       => ErrorWhileCompile(errorElement, ifEditor)
       }
+    }
   }
 
   object ReplRunType extends WorksheetExternalRunType {

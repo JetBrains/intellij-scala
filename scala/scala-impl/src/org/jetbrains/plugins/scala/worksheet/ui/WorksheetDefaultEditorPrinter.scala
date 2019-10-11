@@ -4,17 +4,17 @@ import java.awt.event.{ActionEvent, ActionListener}
 
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import javax.swing.Timer
-import org.jetbrains.plugins.scala.extensions
+import org.apache.commons.lang.StringUtils
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
 
 import scala.collection.mutable.ArrayBuffer
 
-class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: Editor, file1: ScalaFile)
-  extends WorksheetEditorPrinterBase(originalEditor1, worksheetViewer1) {
+class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaFile)
+  extends WorksheetEditorPrinterBase(editor, viewer) {
 
   private val timer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, TimerListener)
 
@@ -23,7 +23,7 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
   private var linesCount = 0
   private var totalCount = 0
   private var insertedToOriginal = 0
-  private var prefix = ""
+  private var contentOffsetPrefix = ""
   private var cutoffPrinted = false
   @volatile private var terminated = false
   @volatile private var buffed = 0
@@ -31,49 +31,66 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
   originalEditor.asInstanceOf[EditorImpl].setScrollToCaret(false)
   worksheetViewer.asInstanceOf[EditorImpl].setScrollToCaret(false)
 
-  override def getScalaFile: ScalaFile = file1
+  override def getScalaFile: ScalaFile = file
 
-  override def scheduleWorksheetUpdate() {
+  override def scheduleWorksheetUpdate(): Unit =
     timer.start()
-  }
-  
-  override def processLine(line: String): Boolean = {
-    if (checkForTerminate(line)) return true
 
-    if (!isInsideOutput && line.trim.length == 0) {
+  override def processLine(line: String): Boolean = {
+    if (isTerminationLine(line)) {
+      flushBuffer()
+      terminated = true
+      return true
+    }
+
+    if (!isInsideOutput && StringUtils.isBlank(line)) {
       outputBuffer.append(line)
       totalCount += 1
     } else if (isResultEnd(line)) {
       WorksheetSourceProcessor.extractLineInfoFrom(line) match {
         case Some((start, end)) =>
           if (!isInited) {
-            val first = initExt()
-            val diffBetweenFirst = first.map(i => Math.min(i, start)).getOrElse(start)
+            init()
 
-            if (diffBetweenFirst > 0) prefix = buildNewLines(diffBetweenFirst)
+            val contentStartLineIdx = outputBuffer.prefixLength(_ == '\n')
+            val extraLeadingBlankLines = start - contentStartLineIdx
+            if (extraLeadingBlankLines > 0) {
+              contentOffsetPrefix = buildNewLines(extraLeadingBlankLines)
+            }
           }
 
           val differ = end - start + 1 - linesCount
 
           if (differ > 0) {
-            outputBuffer.append(buildNewLines(differ))
-          } else if (0 > differ) {
+            val blankLines = buildNewLines(differ)
+            outputBuffer.append(blankLines)
+          } else if (differ < 0) {
             insertedToOriginal -= differ
 
+            val outputStartLineIdx = start + insertedToOriginal + differ
+            val outputEndOffset = {
+              val text = currentText
+              val trailingNewLines = text.reverseIterator.takeWhile(_ == '\n').length
+              currentText.length - trailingNewLines
+            }
+            val inputLinesCount = end - start + 1
+            val inputEndLineIdx = end
+
             foldingOffsets += FoldingOffsets(
-              start + insertedToOriginal + differ + 1,
-              outputBuffer.length - outputBuffer.reverseIterator.takeWhile(_ == '\n').length,
-              end - start + 1,
-              end
+              outputStartLineIdx,
+              outputEndOffset,
+              inputLinesCount,
+              inputEndLineIdx
             )
           }
 
           buffed += linesCount
-          if (buffed > WorksheetEditorPrinterFactory.BULK_COUNT) midFlush()
+          if (buffed > WorksheetEditorPrinterFactory.BULK_COUNT) {
+            midFlush()
+          }
           clear()
         case _ =>
       }
-
     } else if (!cutoffPrinted) {
       linesCount += 1
       totalCount += 1
@@ -94,85 +111,53 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
     terminated = true
   }
 
-  override def flushBuffer() {
-    if (!isInited) initExt()
+  override def flushBuffer(): Unit = {
+    if (!isInited) init()
     if (terminated) return
-    val str = getCurrentText
+    val text = currentText
 
     if (timer.isRunning) timer.stop()
 
-    updateWithPersistentScroll(viewerDocument, str)
+    updateWithPersistentScroll(viewerDocument, text)
 
     outputBuffer.clear()
-    prefix = ""
+    contentOffsetPrefix = ""
 
-    extensions.invokeLater {
+    invokeLater {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
     }
-/*
-    scala.extensions.inReadAction {
-      saveEvaluationResult(str)
-    }
-*/
   }
 
-  def midFlush(): Unit = {
+  private def midFlush(): Unit = {
     if (terminated || buffed == 0) return
 
-    val str = getCurrentText
+    val text = currentText
     buffed = 0
 
-    updateWithPersistentScroll(viewerDocument, str)
+    updateWithPersistentScroll(viewerDocument, text)
   }
 
-  def getCurrentText: String = prefix + outputBuffer.toString()
+  private def currentText: String = contentOffsetPrefix + outputBuffer.toString()
 
-  private def initExt(): Option[Int] = {
-    init()
+  private def isTerminationLine(line: String): Boolean =
+    line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER
 
-    if (getScalaFile != null) {
-      @inline def checkFlag(psi: PsiElement) =
-        psi != null && psi.getCopyableUserData(WorksheetSourceProcessor.WORKSHEET_PRE_CLASS_KEY) != null
+  private def isResultEnd(line: String): Boolean =
+    line.startsWith(WorksheetSourceProcessor.END_TOKEN_MARKER)
 
-      var s = getScalaFile.getFirstChild
-      var f = checkFlag(s)
-
-      while (s.isInstanceOf[PsiWhiteSpace] || f) {
-        s = s.getNextSibling
-        f = checkFlag(s)
-      }
-
-      if (s != null) extensions.inReadAction(Some(s.getTextRange.getStartOffset))
-      else None
-    } else {
-      None
-    }
-  }
-
-  private def checkForTerminate(line: String): Boolean = {
-    if (line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER) {
-      flushBuffer()
-      terminated = true
-    }
-
-    terminated
-  }
-
-  private def isResultEnd(line: String) = line.startsWith(WorksheetSourceProcessor.END_TOKEN_MARKER)
-
-  private def clear() {
+  private def clear(): Unit = {
     linesCount = 0
     cutoffPrinted = false
   }
-  
-  private def isInsideOutput = linesCount != 0
 
-  private def updateWithPersistentScroll(document: Document, text: String) {
+  private def isInsideOutput: Boolean = linesCount > 0
+
+  private def updateWithPersistentScroll(document: Document, text: String): Unit = {
     val foldingOffsetsCopy = foldingOffsets.clone()
     foldingOffsets.clear()
 
-    extensions.invokeLater {
-      extensions.inWriteAction {
+    invokeLater {
+      inWriteAction {
         val scroll = originalEditor.getScrollingModel.getVerticalScrollOffset
         val worksheetScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
 
@@ -186,7 +171,7 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
     }
   }
 
-  object TimerListener extends ActionListener {
+  private object TimerListener extends ActionListener {
     override def actionPerformed(e: ActionEvent): Unit = midFlush()
   }
 }
