@@ -3,10 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.uast.controlStructures
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
@@ -22,28 +19,26 @@ final class ScUIfExpression(override protected val scExpression: ScIf,
     with ScUExpression
     with ScUAnnotated {
 
-  import scExpression._
-
   override def getCondition: UExpression =
-    condition.convertToUExpressionOrEmpty(this)
+    scExpression.condition.convertToUExpressionOrEmpty(parent = this)
 
   @Nullable
   override def getElseExpression: UExpression =
-    elseExpression.convertToUExpressionOrEmpty(this)
+    scExpression.elseExpression.convertToUExpressionOrEmpty(parent = this)
 
   @Nullable
   override def getElseIdentifier: UIdentifier =
-    elseKeyword.map(createUIdentifier(_, this)).orNull
+    scExpression.elseKeyword.map(createUIdentifier(_, parent = this)).orNull
 
   override def getIfIdentifier: UIdentifier =
     createUIdentifier(
       scExpression.findFirstChildByType(ScalaTokenTypes.kIF),
-      this
+      parent = this
     )
 
   override def isTernary: Boolean = false
 
   @Nullable
   override def getThenExpression: UExpression =
-    thenExpression.convertToUExpressionOrEmpty(this)
+    scExpression.thenExpression.convertToUExpressionOrEmpty(parent = this)
 }

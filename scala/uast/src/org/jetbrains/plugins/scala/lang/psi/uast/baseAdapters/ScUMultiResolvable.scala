@@ -25,7 +25,7 @@ trait ScUMultiResolvable extends UResolvable with UMultiResolvable {
 
   override def multiResolve: lang.Iterable[ResolveResult] =
     scReference
-      .map(_.multiResolveScala(false).toSeq: Seq[ResolveResult])
+      .map(_.multiResolveScala(incomplete = false).toSeq: Seq[ResolveResult])
       .getOrElse(Seq.empty)
       .asJava
 }

@@ -4,35 +4,21 @@ package psi
 package uast
 package expressions
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.psi.{PsiElement, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{
-  ScBlock,
-  ScExpression,
-  ScFunctionExpr,
-  ScUnderScoreSectionUtil
-}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.types.api.PartialFunctionType
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScULambdaParameter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.SAMUtil._
-import org.jetbrains.uast.{
-  UExpression,
-  ULambdaExpression,
-  ULambdaExpressionAdapter,
-  UParameter
-}
+import org.jetbrains.uast.{UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
 
 import scala.collection.JavaConverters._
 
@@ -97,7 +83,7 @@ final class ScULambdaExpression(
   override protected def body: Option[PsiElement] = scExpression.result
   override protected def isExplicitLambda: Boolean = true
 
-  override def getValueParameters: util.List[UParameter] =
+  override def getValueParameters: ju.List[UParameter] =
     scExpression.parameters.flatMap(_.convertTo[UParameter](this)).asJava
 }
 
@@ -122,12 +108,12 @@ final class ScUPartialLambdaExpression(
     scExpression.getChildren.collectFirst { case cc: ScCaseClauses => cc }
   override protected def isExplicitLambda: Boolean = true
 
-  override def getValueParameters: util.List[UParameter] = {
+  override def getValueParameters: ju.List[UParameter] = {
     val paramPsiType = scExpression
       .`type`()
       .toOption match {
       case Some(PartialFunctionType(_, paramType)) => paramType.toPsiType
-      case _                                       => createUErrorType()
+      case _ => createUErrorType()
     }
 
     Seq(
@@ -159,7 +145,7 @@ final class ScUMethodValueLambdaExpression(
   override protected def body: Option[PsiElement] = Some(scExpression)
   override protected def isExplicitLambda: Boolean = false
 
-  override def getValueParameters: util.List[UParameter] = scExpression match {
+  override def getValueParameters: ju.List[UParameter] = scExpression match {
     case MethodValue(psiMethod) =>
       psiMethod.getParameterList.getParameters
         .map(
@@ -167,7 +153,7 @@ final class ScUMethodValueLambdaExpression(
         )
         .toSeq
         .asJava
-    case _ => Seq.empty.asJava
+    case _ => ju.Collections.emptyList()
   }
 }
 
@@ -188,7 +174,7 @@ final class ScUUnderscoreLambdaExpression(
   override protected def body: Option[PsiElement] = Some(scExpression)
   override protected def isExplicitLambda: Boolean = false
 
-  override def getValueParameters: util.List[UParameter] =
+  override def getValueParameters: ju.List[UParameter] =
     ScUnderScoreSectionUtil
       .underscores(scExpression)
       .zipWithIndex

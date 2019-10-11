@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.uast.java.internal.JavaUElementWithComments
 import org.jetbrains.uast.{UComment, UElement, UExpression}
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 /**
@@ -13,37 +14,34 @@ import scala.collection.JavaConverters._
   */
 trait ScUElementWithComments extends UElement {
 
-  override def getComments: java.util.List[UComment] = {
-    val psi = getSourcePsi
-    if (psi == null) return Seq.empty.asJava
-    val childrenComments = psi.getChildren.collect {
-      case pc: PsiComment => Scala2UastConverter.createUComment(pc, this)
-    }
+  override def getComments: java.util.List[UComment] =
+    getSourcePsi match {
+      case null => java.util.Collections.emptyList()
+      case element =>
+        val childrenComments = element.getChildren.toSeq
+          .filter(_.isInstanceOf[PsiComment])
+          .map(_.asInstanceOf[PsiComment])
 
-    this match {
-      case _: UExpression =>
-        Seq
-          .concat(
-            childrenComments,
-            nearestCommentSibling(psi, forward = true)
-              .map(Scala2UastConverter.createUComment(_, this)),
-            nearestCommentSibling(psi, forward = false)
-              .map(Scala2UastConverter.createUComment(_, this))
-          )
+        val nearestComments = this match {
+          case _: UExpression =>
+            nearestCommentSibling(element)(_.getNextSibling) ++
+              nearestCommentSibling(element)(_.getPrevSibling)
+          case _ => Seq.empty
+        }
+
+        (childrenComments ++ nearestComments)
+          .map(Scala2UastConverter.createUComment(_, parent = this))
           .asJava
-      case _ => childrenComments.toSeq.asJava
     }
-  }
 
-  private def nearestCommentSibling(psiElement: PsiElement,
-                                    forward: Boolean): Option[PsiComment] = {
-    var sibling =
-      if (forward) psiElement.getNextSibling else psiElement.getPrevSibling
-
-    while (sibling.isInstanceOf[PsiWhiteSpace] &&
-           !sibling.getText.contains('\n')) {
-      sibling = if (forward) sibling.getNextSibling else sibling.getPrevSibling
+  @tailrec
+  private def nearestCommentSibling(
+                                     element: PsiElement
+                                   )(sibling: PsiElement => PsiElement): Option[PsiComment] =
+    sibling(element) match {
+      case comment: PsiComment => Some(comment)
+      case whiteSpace: PsiWhiteSpace if !whiteSpace.getText.contains('\n') =>
+        nearestCommentSibling(whiteSpace)(sibling)
+      case _ => None
     }
-    Option(sibling).collect { case pc: PsiComment => pc }
-  }
 }

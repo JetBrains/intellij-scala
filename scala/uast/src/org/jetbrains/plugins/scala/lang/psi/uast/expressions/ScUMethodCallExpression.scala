@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
@@ -62,7 +62,7 @@ trait ScUMethodCallCommon
   override def getTypeArgumentCount: Int =
     getTypeArgs.map(_.getArgsCount).getOrElse(0)
 
-  override def getTypeArguments: util.List[PsiType] =
+  override def getTypeArguments: ju.List[PsiType] =
     getTypeArgs
       .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
       .getOrElse(Seq.empty)
@@ -106,7 +106,7 @@ final class ScUMethodCallExpression(
   override def getValueArgumentCount: Int = scExpression.args.exprs.size
 
   // TODO add conversion of CBN-parameters to implicit lambdas
-  override def getValueArguments: util.List[UExpression] =
+  override def getValueArguments: ju.List[UExpression] =
     scExpression match {
       case bracedArguments if bracedArguments.args.isBraceArgs =>
         scExpression.args.exprs.collect {
@@ -152,8 +152,8 @@ final class ScUGenericCallExpression(
 
   override def getValueArgumentCount: Int = 0
 
-  override def getValueArguments: util.List[UExpression] =
-    Seq.empty.asJava
+  override def getValueArguments: ju.List[UExpression] =
+    ju.Collections.emptyList()
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression = null
@@ -178,10 +178,13 @@ final class ScUReferenceCallExpression(
 
   override protected def getReferencedExpr: Option[ScExpression] =
     Some(scExpression)
+
   override protected def getTypeArgs: Option[ScTypeArgs] = None
+
   override protected def scReference: Option[ScReference] = Some(scExpression)
 
   override def getValueArgumentCount: Int = 0
-  override def getValueArguments: util.List[UExpression] =
-    Seq.empty.asJava
+
+  override def getValueArguments: ju.List[UExpression] =
+    ju.Collections.emptyList()
 }

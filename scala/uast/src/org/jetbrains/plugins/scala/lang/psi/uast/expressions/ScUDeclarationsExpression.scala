@@ -4,15 +4,10 @@ import java.util
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{
-  UAnnotation,
-  UDeclaration,
-  UDeclarationsExpression,
-  UDeclarationsExpressionAdapter
-}
+import org.jetbrains.uast.{UAnnotation, UDeclaration, UDeclarationsExpression, UDeclarationsExpressionAdapter}
 
 import scala.collection.JavaConverters._
 
@@ -43,5 +38,5 @@ final class ScUDeclarationsExpression(
 
   // escapes looping caused by the default implementation
   override def getUAnnotations: util.List[UAnnotation] =
-    Seq.empty.asJava
+    util.Collections.emptyList()
 }

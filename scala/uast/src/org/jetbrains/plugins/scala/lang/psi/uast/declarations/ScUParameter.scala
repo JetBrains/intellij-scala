@@ -3,26 +3,14 @@ package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 import _root_.java.util
 
 import com.intellij.psi.impl.light.LightParameter
-import com.intellij.psi.{
-  PsiElement,
-  PsiExpression,
-  PsiModifier,
-  PsiParameter,
-  PsiType
-}
+import com.intellij.psi.{PsiElement, PsiExpression, PsiModifier, PsiParameter, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnchorOwner,
-  ScUAnnotated,
-  ScUElement
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
-
-import scala.collection.JavaConverters._
 
 /**
   * [[ScParameter]] adapter for the [[UParameter]]
@@ -92,7 +80,7 @@ final class ScULambdaParameter(private val psiParameter: PsiParameter,
 
   // escapes looping caused by the default implementation
   override def getUAnnotations: util.List[UAnnotation] =
-    Seq.empty.asJava
+    util.Collections.emptyList()
 
   @Nullable
   override def getUastAnchor: UElement =

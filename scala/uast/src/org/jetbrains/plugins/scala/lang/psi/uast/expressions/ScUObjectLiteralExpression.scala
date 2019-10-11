@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScUErrorClass
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast.{UAnonymousClass, UClass, UExpression, UObjectLiteralExpression, UObjectLiteralExpressionAdapter, UReferenceExpression}
-
-import scala.collection.JavaConverters._
 
 /**
  * [[ScNewTemplateDefinition]] adapter for the [[UObjectLiteralExpression]]
@@ -51,18 +49,18 @@ final class ScUObjectLiteralExpression(
   override def getTypeArgumentCount: Int =
     uConstructor.map(_.getTypeArgumentCount).getOrElse(0)
 
-  override def getTypeArguments: util.List[PsiType] =
+  override def getTypeArguments: ju.List[PsiType] =
     uConstructor
       .map(_.getTypeArguments)
-      .getOrElse(Seq.empty.asJava)
+      .getOrElse(ju.Collections.emptyList())
 
   override def getValueArgumentCount: Int =
     uConstructor.map(_.getValueArgumentCount).getOrElse(0)
 
-  override def getValueArguments: util.List[UExpression] =
+  override def getValueArguments: ju.List[UExpression] =
     uConstructor
       .map(_.getValueArguments)
-      .getOrElse(Seq.empty.asJava)
+      .getOrElse(ju.Collections.emptyList())
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression =

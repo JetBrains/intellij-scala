@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
@@ -65,7 +65,7 @@ final class ScUCaseClausesList(override protected val scElement: ScCaseClauses,
   private def expressions: Seq[UExpression] =
     scElement.caseClauses.map(_.convertToUExpressionOrEmpty(this))
 
-  override def getExpressions: util.List[UExpression] = expressions.asJava
+  override def getExpressions: ju.List[UExpression] = expressions.asJava
 
   override def getKind: UastSpecialExpressionKind =
     ScalaSpecialExpressionKinds.Match
@@ -94,7 +94,7 @@ final class ScUCaseClause(override protected val scElement: ScCaseClause,
       }
       .getOrElse(new ScUEmptyExpressionList(scElement, LazyUElement.just(this)))
 
-  override def getCaseValues: util.List[UExpression] =
+  override def getCaseValues: ju.List[UExpression] =
     Seq(scElement.pattern.convertToUExpressionOrEmpty(this)).asJava
 }
 
@@ -116,7 +116,7 @@ final class ScUCaseClauseBodyList(override protected val scElement: ScBlock,
   private def expressions: Seq[UExpression] =
     scElement.statements.map(_.convertToUExpressionOrEmpty(this))
 
-  override def getExpressions: util.List[UExpression] = expressions.asJava
+  override def getExpressions: ju.List[UExpression] = expressions.asJava
 
   override def getKind: UastSpecialExpressionKind =
     ScalaSpecialExpressionKinds.CaseClause
@@ -141,14 +141,14 @@ final class ScUEmptyExpressionList(override protected val scElement: PsiElement,
   @Nullable
   override def getJavaPsi: PsiElement = null
 
-  override def getExpressions: util.List[UExpression] =
-    Seq.empty.asJava
+  override def getExpressions: ju.List[UExpression] =
+    ju.Collections.emptyList()
 
   override def getKind: UastSpecialExpressionKind =
     ScalaSpecialExpressionKinds.EmptyList
 
-  override def getUAnnotations: util.List[UAnnotation] =
-    Seq.empty.asJava
+  override def getUAnnotations: ju.List[UAnnotation] =
+    ju.Collections.emptyList()
 }
 
 private object RenderUtils {

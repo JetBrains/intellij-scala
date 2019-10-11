@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 
-import java.{util => javacoll}
+import java.{util => ju}
 
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -8,16 +8,8 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{
-  ScClass,
-  ScTemplateDefinition,
-  ScTypeDefinition
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnchorOwner,
-  ScUAnnotated,
-  ScUElement
-}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
@@ -29,19 +21,19 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
 
   protected val scTemplate: ScTemplateDefinition
 
-  override def getUastDeclarations: javacoll.List[UDeclaration] =
+  override def getUastDeclarations: ju.List[UDeclaration] =
     seqAsJavaList(
       Seq.concat(getUFields, getUInitializers, getUMethods, getUInnerClasses)
     )
 
-  override def getUastSuperTypes: javacoll.List[UTypeReferenceExpression] =
+  override def getUastSuperTypes: ju.List[UTypeReferenceExpression] =
     scTemplate.extendsBlock.templateParents
       .map(
         _.typeElements
           .flatMap(_.convertTo[UTypeReferenceExpression](this))
           .asJava
       )
-      .getOrElse(Seq.empty.asJava)
+      .getOrElse(ju.Collections.emptyList())
 
   def getUFields: Array[UField] = {
     val uFields = ArrayBuffer.empty[UField]
@@ -218,18 +210,23 @@ final class ScUErrorClass(override protected val scElement: PsiClass,
 
   @Nullable
   override def getJavaPsi: PsiClass = null
+
   @Nullable
   override def getPsi: PsiClass = null
 
   override def getUFields: Array[UField] = Array.empty
+
   override def getUMethods: Array[UMethod] = Array.empty
+
   override def getUInitializers: Array[UClassInitializer] = Array.empty
+
   override def getUInnerClasses: Array[UClass] = Array.empty
 
-  override def getUastDeclarations: javacoll.List[UDeclaration] =
-    Seq.empty.asJava
-  override def getUastSuperTypes: javacoll.List[UTypeReferenceExpression] =
-    Seq.empty.asJava
+  override def getUastDeclarations: ju.List[UDeclaration] =
+    ju.Collections.emptyList()
+
+  override def getUastSuperTypes: ju.List[UTypeReferenceExpression] =
+    ju.Collections.emptyList()
 
   @Nullable
   override def getUastAnchor: UElement = createUIdentifier(scElement, this)

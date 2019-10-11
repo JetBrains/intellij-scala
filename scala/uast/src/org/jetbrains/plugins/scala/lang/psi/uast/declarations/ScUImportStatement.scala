@@ -118,5 +118,5 @@ class ScUImportsList(uExprList: Seq[UReferenceExpression],
     ScalaSpecialExpressionKinds.ImportsList
 
   override def getUAnnotations: util.List[UAnnotation] =
-    Seq.empty.asJava
+    util.Collections.emptyList()
 }

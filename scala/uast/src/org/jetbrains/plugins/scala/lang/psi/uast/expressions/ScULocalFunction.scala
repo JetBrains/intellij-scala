@@ -1,26 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import _root_.java.util
+import java.{util => ju}
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiLocalVariable, PsiType, PsiVariable}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{
-  ScFunction,
-  ScFunctionDefinition
-}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement
-}
-import org.jetbrains.plugins.scala.lang.psi.uast.declarations.{
-  ScUVariable,
-  ScUVariableCommon
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.declarations.{ScUVariable, ScUVariableCommon}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
@@ -68,14 +59,14 @@ final class ScULocalFunctionDeclarationExpression(
   @Nullable
   override def getSourcePsi: PsiElement = scElement
 
-  override def getDeclarations: util.List[UDeclaration] =
+  override def getDeclarations: ju.List[UDeclaration] =
     Seq(
       new ScULocalFunction(scElement, containingTypeDef, LazyUElement.just(this)): UDeclaration
     ).asJava
 
   // escapes looping caused by the default implementation
-  override def getUAnnotations: util.List[UAnnotation] =
-    Seq.empty.asJava
+  override def getUAnnotations: ju.List[UAnnotation] =
+    ju.Collections.emptyList()
 }
 
 /**
@@ -145,6 +136,6 @@ final class ScULocalFunctionLambdaExpression(
   @Nullable
   override def getFunctionalInterfaceType: PsiType = null
 
-  override def getValueParameters: util.List[UParameter] =
+  override def getValueParameters: ju.List[UParameter] =
     scElement.parameters.flatMap(_.convertTo[UParameter](parent = this)).asJava
 }

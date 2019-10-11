@@ -4,7 +4,7 @@ package psi
 package uast
 package baseAdapters
 
-import java.util
+import java.{util => ju}
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
@@ -22,11 +22,11 @@ import scala.collection.JavaConverters._
   */
 trait ScUAnnotated extends UAnnotated {
 
-  override def getUAnnotations: util.List[UAnnotation] = getSourcePsi match {
+  override def getUAnnotations: ju.List[UAnnotation] = getSourcePsi match {
     case holder: ScAnnotationsHolder =>
       holder.annotations
         .flatMap(_.convertTo[UAnnotation](parent = this))
         .asJava
-    case _ => Seq.empty.asJava
+    case _ => ju.Collections.emptyList()
   }
 }
