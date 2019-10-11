@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import java.io.Closeable
+import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit}
@@ -366,6 +367,11 @@ package object extensions {
     @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag]: Boolean = is[T1, T2] || is[T3]
     @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag]: Boolean = is[T1, T2, T3] || is[T4]
     @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag, T5: ClassTag]: Boolean = is[T1, T2, T3, T4] || is[T5]
+  }
+
+  implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {
+
+    def getOpt: Option[T] = Option(target.get())
   }
 
   implicit class OptionExt[T](private val option: Option[T]) extends AnyVal {
