@@ -18,8 +18,8 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 final class WorksheetFoldGroup(
-  private val viewerEditor: Editor,
-  private val originalEditor: Editor,
+  private val viewerEditor: Editor, // left editor
+  private val originalEditor: Editor, // right editor
   project: Project,
   private val splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter
 ) {
@@ -43,24 +43,32 @@ final class WorksheetFoldGroup(
       left + unfolded.get(key)
     }
   }
-  
-  def addRegion(foldingModel: FoldingModelEx,
-                start: Int, end: Int, // range to fold in right editor
-                leftStart: Int,
-                spaces: Int, // number of folded lines - 1 (number of new line characters folded)
-                leftSideLength: Int,
+
+  /**
+   * @param rightStartOffset start of the range to fold in the viewerEditor
+   * @param rightEndOffset   end of the range to fold in the viewerEditor
+   * @param leftEndOffset    end of the current input content from the  originalEditor
+   * @param leftContentLines number of lines of the current input content from the originalEditor
+   * @param spaces           number of folded lines - 1 in the viewerEditor (number of new line characters folded)
+   * @param isExpanded       whether the region should be expanded right after folding
+   */
+  def addRegion(foldingModel: FoldingModelEx)
+               (rightStartOffset: Int, rightEndOffset: Int,
+                leftEndOffset: Int,
+                leftContentLines: Int,
+                spaces: Int,
                 isExpanded: Boolean): Unit = {
-    val placeholder = {
-      val offset = Math.min(end - start, WorksheetFoldGroup.PLACEHOLDER_LIMIT)
-      val range = new TextRange(start, start + offset)
+    val placeholder: String = {
+      val offset = Math.min(rightEndOffset - rightStartOffset, WorksheetFoldGroup.PLACEHOLDER_LIMIT)
+      val range = new TextRange(rightStartOffset, rightStartOffset + offset)
       viewerDocument.getText(range)
     }
-    
-    val region = foldingModel.createFoldRegion(start, end, placeholder, null, false)
-    
+
+    val region = foldingModel.createFoldRegion(rightStartOffset, rightEndOffset, placeholder, null, false)
     if (region == null) return //something went wrong
+
     region.setExpanded(isExpanded)
-    addRegion(region, leftStart, spaces, leftSideLength)
+    addRegion(region, leftEndOffset, spaces, leftContentLines)
   }
 
   private def addRegion(region: FoldRegion, start: Int, spaces: Int, leftSideLength: Int): Unit =
@@ -75,7 +83,7 @@ final class WorksheetFoldGroup(
 
   private def addParsedRegion(folding: FoldingModelEx, region: ParsedRegion): Unit = {
     val ParsedRegion(start, end, expanded, leftStart, spaces, leftSideLength) = region
-    addRegion(folding, start, end, leftStart, spaces, leftSideLength, expanded)
+    addRegion(folding)(start, end, leftStart, leftSideLength, spaces, expanded)
   }
 
   private def onExpand(expandedRegion: FoldRegion): Boolean =

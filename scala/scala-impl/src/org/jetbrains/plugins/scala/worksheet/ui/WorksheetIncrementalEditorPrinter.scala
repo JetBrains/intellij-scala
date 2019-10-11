@@ -26,7 +26,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   import WorksheetIncrementalEditorPrinter._
   import processor._
 
-  private var lastProcessed: Option[Int] = None
+  private var lastProcessedLine: Option[Int] = None
   private var currentFile: ScalaFile = file
   
   private var hasErrors = false
@@ -57,7 +57,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   }
 
   private def fetchNewPsi(): Unit = {
-    lastProcessed match {
+    lastProcessedLine match {
       case Some(lineNumber) =>
         val i = inputToOutputMapping.lastIndexWhere(_._1 == lineNumber)
         if (i == -1) {
@@ -78,7 +78,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     val buffer = mutable.ListBuffer[QueuedPsi]()
     val glue = new WorksheetPsiGlue(buffer)
-    val iterator = new WorksheetInterpretExprsIterator(getScalaFile, Option(originalEditor), lastProcessed)
+    val iterator = new WorksheetInterpretExprsIterator(getScalaFile, Option(originalEditor), lastProcessedLine)
     iterator.collectAll(x => inReadAction(glue.processPsi(x)), None)
     
     psiToProcess.enqueue(buffer: _*)
@@ -102,7 +102,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     line.trim match {
       case REPL_START => 
         fetchNewPsi()
-        if (lastProcessed.isEmpty) cleanFoldings()
+        if (lastProcessedLine.isEmpty) cleanFoldings()
         clearMessages()
         clearBuffer()
         false
@@ -141,36 +141,37 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     val queuedPsi: QueuedPsi  = psiToProcess.dequeue()
     if (!queuedPsi.isValid) return //warning here?
 
-    val linesOutput = countNewLines(outputText) + 1
-    val linesInput  = countNewLines(queuedPsi.getText) + 1
+    val linesCountOutput = countNewLines(outputText) + 1
+    val linesCountInput  = countNewLines(queuedPsi.getText) + 1
 
     @inline
-    def originalLineIdx(offset: Int): Int = originalDocument.getLineNumber(offset)
+    /** @return lines index (0-based) */
+    def originalLine(offset: Int): Int = originalDocument.getLineNumber(offset)
 
     val originalTextRange = queuedPsi.getWholeTextRange
 
-    val processedStartLineIdx    = originalLineIdx(queuedPsi.getFirstProcessedOffset)
-    val processedStartEndLineIdx = originalLineIdx(queuedPsi.getLastProcessedOffset)
-    val processedEndLineIdx      = originalLineIdx(originalTextRange.getEndOffset)
+    val processedStartLine    = originalLine(queuedPsi.getFirstProcessedOffset)
+    val processedStartEndLine = originalLine(queuedPsi.getLastProcessedOffset)
+    val processedEndLine      = originalLine(originalTextRange.getEndOffset)
 
-    lastProcessed = Some(processedStartEndLineIdx)
+    lastProcessedLine = Some(processedStartEndLine)
     WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
 
     invokeLater {
       inWriteAction {
-        val viewerDocumentLastLineIdx = (viewerDocument.getLineCount - 1).max(0)
+        val viewerDocumentLastLine = (viewerDocument.getLineCount - 1).max(0)
 
         // 1) append blank lines indentation to align input line from left editor with output line from right editor
 
         // a single visible line can actually contain many folded lines, so actual indexes can shift further
         // but the used does not see those folded lines so we need to extract folded lines
-        val viewerDocumentLastLineVisibleIdx = {
+        val viewerDocumentLastVisibleLine = {
           val regions = foldGroup.regions
           val totalRegionsSpaces = regions.map(_.spaces).sum
-          viewerDocumentLastLineIdx - totalRegionsSpaces
+          viewerDocumentLastLine - totalRegionsSpaces
         }
 
-        val blankLinesBase = (processedStartLineIdx - viewerDocumentLastLineVisibleIdx).max(0)
+        val blankLinesBase = (processedStartLine - viewerDocumentLastVisibleLine).max(0)
 
         val prefix = buildNewLines(blankLinesBase)
         simpleAppend(prefix, viewerDocument)
@@ -179,9 +180,9 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
         val outputChunks = queuedPsi.getPrintChunks(outputText)
         val outputTextWithNewLinesOffset = outputChunks.map { case PrintChunk(absoluteOffset, relativeOffset, chunkText) =>
-          val currChunkLineIdx = originalLineIdx(absoluteOffset)
-          val prevChunkLineIdx = originalLineIdx(absoluteOffset - relativeOffset)
-          val linesBetween = currChunkLineIdx - prevChunkLineIdx
+          val currChunkLine = originalLine(absoluteOffset)
+          val prevChunkLine = originalLine(absoluteOffset - relativeOffset)
+          val linesBetween = currChunkLine - prevChunkLine
           (chunkText, linesBetween)
         }
         outputTextWithNewLinesOffset.foreach { case (chunkText, newLinesOffset) =>
@@ -191,19 +192,24 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
         val blankLinesFromOutput = outputTextWithNewLinesOffset.foldLeft(0)(_ + _._2)
 
-        val inputLineIdx  = processedStartEndLineIdx
-        val outputLineIdx = viewerDocumentLastLineIdx + blankLinesBase + linesOutput  + blankLinesFromOutput
-        inputToOutputMapping.append((inputLineIdx, outputLineIdx))
+        val inputLine  = processedStartEndLine
+        val outputLine = viewerDocumentLastLine + blankLinesBase + linesCountOutput  + blankLinesFromOutput
+        inputToOutputMapping.append((inputLine, outputLine))
 
         saveEvaluationResult(viewerDocument.getText)
 
-        if (linesOutput > linesInput) {
+        if (linesCountOutput > linesCountInput) {
           val lineCount = viewerDocument.getLineCount
 
-          val outputStartLineIdx = viewerDocumentLastLineIdx + blankLinesBase
+          val outputStartLine = viewerDocumentLastLine + blankLinesBase
           val outputEndOffset = viewerDocument.getLineEndOffset(lineCount - 1)
 
-          val foldings = FoldingOffsets(outputStartLineIdx, outputEndOffset, linesInput, processedEndLineIdx)
+          val foldings = FoldingOffsets(
+            outputStartLine,
+            outputEndOffset,
+            linesCountInput,
+            processedEndLine
+          )
           updateFoldings(Seq(foldings))
         }
       }
@@ -219,10 +225,10 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     *
     * @return Number of the last processed line
     */
-  def getLastProcessedLine: Option[Int] = lastProcessed
+  def getLastProcessedLine: Option[Int] = lastProcessedLine
 
   def setLastProcessedLine(i: Option[Int]) {
-    lastProcessed = i
+    lastProcessedLine = i
   }
 
   def updateScalaFile(file: ScalaFile) {
@@ -357,11 +363,9 @@ object WorksheetIncrementalEditorPrinter {
     val i = line.lastIndexOf("//")
     if (i == -1) return None
 
-    try {
-      Option((line.substring(0, i), Integer.parseInt(line.substring(i + 2).trim)))
-    } catch {
-      case _: NumberFormatException => None
-    }
+    for {
+      lineIdx <- line.substring(i + 2).trim.toIntOpt
+    } yield (line.substring(0, i), lineIdx)
   }
 
   trait QueuedPsi {

@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase._
 
-
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                                           protected val worksheetViewer: Editor) extends WorksheetEditorPrinter {
 
@@ -50,7 +49,6 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     getWorksheetSplitter.foreach(_.redrawDiffs())
   }
 
-
   protected def saveEvaluationResult(result: String): Unit = {
     WorksheetEditorPrinterFactory.saveWorksheetEvaluation(getScalaFile, result, getWorksheetViewersRation)
     redrawViewerDiffs()
@@ -58,9 +56,9 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   protected def cleanFoldings(): Unit = {
     invokeLater {
-      viewerFolding.runBatchFoldingOperation(() => {
+      viewerFolding.runBatchFoldingOperation { () =>
         viewerFolding.clearFoldRegions()
-      })
+      }
 
       worksheetViewer.getCaretModel.moveToVisualPosition(new VisualPosition(0, 0))
     }
@@ -69,34 +67,32 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   protected def updateFoldings(foldings: Seq[FoldingOffsets]): Unit = startCommand() {
     val isExpanded = !scalaSettings.isWorksheetFoldCollapsedByDefault
 
-    // TODO: clean up this mess with field namings,  see
-    //  `FoldingOffsets`
-    //  `group.addRegion`
-    val operation: Runnable = () => {
-      foldings.foreach {
-        case FoldingOffsets(startLineIdx, foldEndOffset, inputLinesCount, originalEndLindIdx) =>
-          val foldLineStartIdx = startLineIdx + inputLinesCount - 1
-          val foldLineEndIdx = viewerDocument.getLineNumber(foldEndOffset)
+    def addRegion(fo: FoldingOffsets): Unit = {
+      val FoldingOffsets(outputStartLine, outputEndOffset, inputLinesCount, inputEndLine) = fo
 
-          val foldStartOffset = viewerDocument.getLineStartOffset(foldLineStartIdx)
+      val foldStartLine = outputStartLine + inputLinesCount - 1
+      val foldEndLine = viewerDocument.getLineNumber(outputEndOffset)
+      val foldedLinesCount = foldEndLine - foldStartLine
 
-          val leftStartOffset = originalDocument.getLineEndOffset(originalEndLindIdx.min(originalDocument.getLineCount))
+      val foldStartOffset = viewerDocument.getLineStartOffset(foldStartLine)
+      val foldEndOffset = outputEndOffset
 
-          val foldedLinesCount = foldLineEndIdx - foldLineStartIdx
+      val leftEndOffset = originalDocument.getLineEndOffset(inputEndLine.min(originalDocument.getLineCount))
 
-          foldGroup.addRegion(
-            viewerFolding,
-            foldStartOffset, foldEndOffset,
-            leftStartOffset,
-            spaces = foldedLinesCount,
-            leftSideLength = inputLinesCount,
-            isExpanded = isExpanded
-          )
-      }
-
-      WorksheetFoldGroup.save(getScalaFile, foldGroup)
+      foldGroup.addRegion(viewerFolding)(
+        rightStartOffset = foldStartOffset,
+        rightEndOffset = foldEndOffset,
+        leftEndOffset = leftEndOffset,
+        leftContentLines = inputLinesCount,
+        spaces = foldedLinesCount,
+        isExpanded = isExpanded
+      )
     }
-    viewerFolding.runBatchFoldingOperation(operation, false)
+
+    viewerFolding.runBatchFoldingOperation(() => {
+      foldings.foreach(addRegion)
+      WorksheetFoldGroup.save(getScalaFile, foldGroup)
+    }, false)
   }
 
   protected def isInited: Boolean = inited
@@ -135,11 +131,10 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
 object WorksheetEditorPrinterBase {
 
-  // TODO: why one is line number, other is offset
   case class FoldingOffsets(
-    outputStartLineIdx: Int,
+    outputStartLine: Int,
     outputEndOffset: Int,
     inputLinesCount: Int,
-    inputEndLineIdx: Int
+    inputEndLine: Int
   )
 }
