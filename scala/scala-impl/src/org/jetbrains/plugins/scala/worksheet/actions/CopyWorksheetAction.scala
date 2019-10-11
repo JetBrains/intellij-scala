@@ -12,6 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 
 /**
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
  * @since 12/6/12
  */
 class CopyWorksheetAction extends AnAction with TopComponentAction {
+
   def actionPerformed(e: AnActionEvent) {
     val project = e.getProject
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
@@ -29,9 +31,8 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     if (psiFile == null) return
 
-    var s = createMerged2(editor, viewer, psiFile)
-    s = StringUtil.convertLineSeparators(s)
-    val contents: StringSelection = new StringSelection(s)
+    val resultText = createMerged2(editor, viewer, psiFile).withNormalizedSeparator
+    val contents: StringSelection = new StringSelection(resultText)
     CopyPasteManager.getInstance.setContents(contents)
   }
   
@@ -46,12 +47,12 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     
     val mappings = WorksheetFoldGroup.computeMappings(viewer, editor, psiFile)
 
-    def getFromDoc(lineNumber: Int, document: Document): CharSequence = {
-      if (lineNumber >= document.getLineCount) "" else 
-        document.getImmutableCharSequence.subSequence(
-          document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber)
-        )
-    }
+    def getFromDoc(lineNumber: Int, document: Document): CharSequence =
+      if (lineNumber >= document.getLineCount) "" else {
+        val start = document.getLineStartOffset(lineNumber)
+        val end   = document.getLineEndOffset(lineNumber)
+        document.getImmutableCharSequence.subSequence(start, end)
+      }
 
     def getLinesFrom(f: Int, t: Int, document: Document) = 
       for (i <- f until t) yield getFromDoc(i, document)
@@ -64,19 +65,25 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
           result.append(StringUtil.trimTrailing(textLeft))
           
           if (textRight.length() > 0) {
-            for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) result append CopyWorksheetAction.FILL_SYMBOL
-            result append " //"
-            result append textRight
+            for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) {
+              result.append(CopyWorksheetAction.FILL_SYMBOL)
+            }
+            result.append(" //")
+            result.append(textRight)
           }
           
-          result append lineSeparator
+          result.append(lineSeparator)
       }
     }
     
-    if (mappings.length < 2) append2Result(getLines(leftDocument), getLines(rightDocument)) else (mappings.head /: (mappings.tail :+ (leftDocument.getLineCount, rightDocument.getLineCount))) {
-      case ((pl, pr), (l, r)) => 
-        append2Result(getLinesFrom(pl, l, leftDocument), getLinesFrom(pr, r, rightDocument))
-        (l, r)
+    if (mappings.length < 2) {
+      append2Result(getLines(leftDocument), getLines(rightDocument))
+    } else {
+      (mappings.head /: (mappings.tail :+ (leftDocument.getLineCount, rightDocument.getLineCount))) {
+        case ((pl, pr), (l, r)) =>
+          append2Result(getLinesFrom(pl, l, leftDocument), getLinesFrom(pr, r, rightDocument))
+          (l, r)
+      }
     }
     
     result.toString()

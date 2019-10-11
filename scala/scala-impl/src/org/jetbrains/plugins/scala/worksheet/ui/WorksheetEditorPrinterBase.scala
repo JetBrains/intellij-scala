@@ -80,8 +80,8 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       val leftEndOffset = originalDocument.getLineEndOffset(inputEndLine.min(originalDocument.getLineCount))
 
       foldGroup.addRegion(viewerFolding)(
-        rightStartOffset = foldStartOffset,
-        rightEndOffset = foldEndOffset,
+        foldStartOffset = foldStartOffset,
+        foldEndOffset = foldEndOffset,
         leftEndOffset = leftEndOffset,
         leftContentLines = inputLinesCount,
         spaces = foldedLinesCount,

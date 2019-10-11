@@ -95,7 +95,6 @@ object WorksheetEditorPrinterFactory {
         invokeLater {
           checkAndAdd(originalImpl, viewerImpl)
 
-          // TODO: code duplicate
           val line = Math.min(originalImpl.getCaretModel.getVisualPosition.getLine, viewerImpl.getDocument.getLineCount)
           viewerImpl.getCaretModel.moveToVisualPosition(new VisualPosition(line, 0))
 
