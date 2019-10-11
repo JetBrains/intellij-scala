@@ -4,7 +4,6 @@ package lang.refactoring.rename.inplace
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, VariableInplaceRenameHandler, VariableInplaceRenamer}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -17,8 +16,10 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
 
   override def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean = {
     val processor = renameProcessor(element)
-    editor.getSettings.isVariableInplaceRenameEnabled && processor != null && processor.canProcessElement(element) &&
-            element.getUseScope.isInstanceOf[LocalSearchScope]
+    editor.getSettings.isVariableInplaceRenameEnabled &&
+      processor != null &&
+      processor.canProcessElement(element) &&
+      isLocal(element)
   }
 
   override def createRenamer(elementToRename: PsiElement, editor: Editor): VariableInplaceRenamer = {

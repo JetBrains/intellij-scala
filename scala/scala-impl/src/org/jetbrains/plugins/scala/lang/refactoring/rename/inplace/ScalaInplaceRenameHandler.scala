@@ -7,15 +7,16 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.util.PsiUtilBase.getElementAtCaret
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, callbackInTransaction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, callbackInTransaction}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -26,6 +27,8 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
  */
 trait ScalaInplaceRenameHandler {
 
+  def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean
+
   def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {
       case null => false
@@ -35,6 +38,12 @@ trait ScalaInplaceRenameHandler {
     val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null
     if (processor != RenamePsiElementProcessor.DEFAULT) processor else null
   }
+
+  def isLocal(element: PsiElement): Boolean =
+    element.asOptionOf[PsiNamedElement] match {
+      case Some(inNameContext(m: ScMember)) => m.isLocal
+      case _ => false
+    }
 
   protected def doDialogRename(element: PsiElement, project: Project, nameSuggestionContext: PsiElement, editor: Editor): Unit = {
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
