@@ -111,22 +111,27 @@ object RunWorksheetAction {
 
   //FYI: repl mode works only if we use compiler server and run worksheet with "InProcess" setting
   private def executeWorksheet(name: String, project: Project, file: PsiFile, mainClassName: String, addToCp: String) {
-    val virtualFile = file.getVirtualFile
-    //todo extract default java options??
-    val params = createParameters(
-      module = WorksheetCommonSettings(file).getModuleFor,
-      mainClassName = mainClassName,
-      workingDirectory = Option(project.baseDir).map(_.getPath).getOrElse(""),
-      additionalCp = addToCp,
-      consoleArgs = "",
-      worksheetField = virtualFile.getCanonicalPath
-    )
-
-    setUpUiAndRun(params.createOSProcessHandler(), file)
+    val params: JavaParameters = createDefaultParameters(project, file, mainClassName, addToCp)
+    val processHandler = params.createOSProcessHandler()
+    setUpUiAndRun(processHandler, file)
   }
 
-  private def createParameters(module: Module, mainClassName: String,
-                               workingDirectory: String, additionalCp: String, consoleArgs: String, worksheetField: String) =  {
+  private def createDefaultParameters(project: Project, file: PsiFile, mainClassName: String, addToCp: String): JavaParameters =
+    createParameters(
+      module = WorksheetCommonSettings(file).getModuleFor,
+      mainClassName = mainClassName,
+      workingDirectory = Option(project.baseDir).fold("")(_.getPath),
+      additionalCp = addToCp,
+      consoleArgs = "",
+      worksheetField = file.getVirtualFile.getCanonicalPath
+    )
+
+  private def createParameters(module: Module,
+                               mainClassName: String,
+                               workingDirectory: String,
+                               additionalCp: String,
+                               consoleArgs: String,
+                               worksheetField: String): JavaParameters = {
     if (module == null) throw new ExecutionException("Module is not specified")
 
     val project = module.getProject
@@ -156,7 +161,7 @@ object RunWorksheetAction {
     params
   }
 
-  private def setUpUiAndRun(handler: OSProcessHandler, file: PsiFile) {
+  private def setUpUiAndRun(handler: OSProcessHandler, file: PsiFile): Unit = {
     val editor = EditorHelper.openInEditor(file)
     
     val scalaFile = file match {
