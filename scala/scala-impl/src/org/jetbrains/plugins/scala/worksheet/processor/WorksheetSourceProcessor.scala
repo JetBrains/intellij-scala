@@ -3,8 +3,8 @@ package worksheet.processor
 
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -39,7 +39,7 @@ object WorksheetSourceProcessor {
   val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */ "
 
   val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
-  
+
   val REPL_DELIMITER = "\n$\n$\n"
 
   private val PRINT_ARRAY_NAME = "print$$$Worksheet$$$Array$$$"
@@ -49,7 +49,7 @@ object WorksheetSourceProcessor {
     s"""
       |def $PRINT_ARRAY_NAME(an: Any): String = {
       |  an match {
-      |    case arr: Array[_] => 
+      |    case arr: Array[_] =>
       |      val a = scala.collection.mutable.WrappedArray.make(arr)
       |      a.toString.stripPrefix("Wrapped")
       |    case null => "null"
@@ -58,10 +58,10 @@ object WorksheetSourceProcessor {
     """.stripMargin
 
   private val genericPrintMethodName = "println"
-  
+
   def extractLineInfoFrom(encoded: String): Option[(Int, Int)] = {
-    if (encoded startsWith END_TOKEN_MARKER) { 
-      val nums = encoded stripPrefix END_TOKEN_MARKER stripSuffix "\n" split '|'
+    if (encoded.startsWith(END_TOKEN_MARKER)) {
+      val nums = encoded.stripPrefix(END_TOKEN_MARKER).stripSuffix("\n").split('|')
       if (nums.length == 2) {
         try {
           val (a, b) = (Integer parseInt nums(0), Integer parseInt nums(1))
@@ -72,28 +72,29 @@ object WorksheetSourceProcessor {
       } else None
     } else None
   }
-  
-  def processSimple(srcFile: ScalaFile, ifEditor: Option[Editor]): String = Base64.encode(srcFile.getText.getBytes)
-  
-  def processIncremental(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[PsiErrorElement, (String, String)] = {
+
+  def processSimple(srcFile: ScalaFile, editorOpt: Option[Editor]): String = Base64.encode(srcFile.getText.getBytes)
+
+  def processIncremental(srcFile: ScalaFile, editorOpt: Option[Editor]): Either[PsiErrorElement, (String, String)] = {
     val exprsPsi = mutable.ListBuffer[QueuedPsi]()
-    val lastProcessed = ifEditor.flatMap(
-      e => WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(e))
+    val lastProcessed = editorOpt.flatMap { e =>
+      WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(e)
+    }
 
     val glue = new WorksheetPsiGlue(exprsPsi)
-    new WorksheetInterpretExprsIterator(srcFile, ifEditor, lastProcessed).collectAll(
-      glue.processPsi, Some(e => return Left(e)))
-    
+    val iterator = new WorksheetInterpretExprsIterator(srcFile, editorOpt, lastProcessed)
+    iterator.collectAll(glue.processPsi, Some(e => return Left(e)))
+
     val texts = exprsPsi.map(_.getText)
     val allExprs = if (lastProcessed.isEmpty) ":reset" +: texts else texts
-    
+
     Right((Base64.encode((allExprs mkString REPL_DELIMITER).getBytes), ""))
   }
 
   /**
    * @return (Code, Main class name)
    */
-  def processDefault(srcFile: ScalaFile, ifDoc: Option[Document]): Either[PsiErrorElement, (String, String)] = {
+  def processDefault(srcFile: ScalaFile, documentOpt: Option[Document]): Either[PsiErrorElement, (String, String)] = {
     if (!srcFile.isWorksheetFile) return Left(null)
 
     val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
@@ -140,13 +141,13 @@ object WorksheetSourceProcessor {
 
     val sourceBuilder = new ScalaSourceBuilder(
       classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue
+      moduleOpt, documentOpt, macroPrinterName, packOpt, objectPrologue
     )
 
     val preDeclarations = mutable.ListBuffer.empty[PsiElement]
     val postDeclarations = mutable.ListBuffer.empty[PsiElement]
 
-    val root  = if (!isForObject(srcFile)) srcFile else {
+    val root: PsiElement = if (!isForObject(srcFile)) srcFile else {
       ((null: PsiElement) /: srcFile.getChildren) {
         case (a, imp: ScImportStmt) =>
           sourceBuilder.processImport(imp)
@@ -168,51 +169,59 @@ object WorksheetSourceProcessor {
     val rootChildren = root match {
       case file: PsiFile => file.getChildren
       case null          => srcFile.getChildren
-      case other         => other.getNode.getChildren(null) map (_.getPsi)
+      case other         => other.getNode.getChildren(null).map(_.getPsi)
     }
 
     sourceBuilder.process(rootChildren.toIterator, preDeclarations, postDeclarations)
   }
-  
-  private def isForObject(file: ScalaFile) = {
+
+  private def isForObject(file: ScalaFile): Boolean = {
     val isEclipseMode = ScalaProjectSettings.getInstance(file.getProject).isUseEclipseCompatibility
 
     @tailrec
     def isObjectOk(psi: PsiElement): Boolean = psi match {
-      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment | _: ScPackaging => isObjectOk(psi.getNextSibling)
-      case obj: ScObject => obj.extendsBlock.templateParents.isEmpty && isObjectOk(obj.getNextSibling)//isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
-      case _: PsiClass if isEclipseMode => isObjectOk(psi.getNextSibling)
+      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment | _: ScPackaging =>
+        isObjectOk(psi.getNextSibling)
+      case obj: ScObject =>
+        //isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
+        obj.extendsBlock.templateParents.isEmpty && isObjectOk(obj.getNextSibling)
+      case _: PsiClass if isEclipseMode =>
+        isObjectOk(psi.getNextSibling)
       case null => true
       case _ => false
     }
-    
+
     isObjectOk(file.getFirstChild)
   }
-  
-  private abstract class SourceBuilderBase(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
-                                           moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String, 
-                                           packOpt: Option[String], objectPrologue: String) {
-    protected val documentOpt: Option[Document] = ifDoc
+
+  private abstract class SourceBuilderBase(classBuilder: mutable.StringBuilder,
+                                           objectBuilder: mutable.StringBuilder,
+                                           iterNumber: Int, srcFile: ScalaFile,
+                                           moduleOpt: Option[Module],
+                                           documentOpt: Option[Document],
+                                           tpePrinterName: String,
+                                           packageOpt: Option[String],
+                                           objectPrologue: String) {
     protected val name = s"A$$A$iterNumber"
     protected val tempVarName = "$$temp$$"
     protected val instanceName = s"inst$$A$$A"
-    
+
     protected val eraseClassName: String = ".replace(\"" + instanceName + ".\", \"\")"
     protected val erasePrefixName: String = ".stripPrefix(\"" + name + "$" + name + "$\")"
     protected val plusInfoDef = " + "
-    
+
     protected var assignCount = 0
     protected var resCount = 0
     protected val importStmts: ArrayBuffer[String] = mutable.ArrayBuffer[String]()
     protected val importsProcessed: mutable.HashSet[ScImportStmt] = mutable.HashSet[ScImportStmt]()
-    
+
     protected def getTypePrinterName: String = tpePrinterName
-    
-    protected def prettyPrintType(tpeString: String): String = ": \" + " + withTempVar(tpeString)
-    
-    protected def logError(psiElement: PsiElement, message: Option[String] = None) {
-      def writeLog(ms: String) {}
-      
+
+    protected def prettyPrintType(tpeString: String): String = s""": " + ${withTempVar(tpeString)}"""
+
+    protected def logError(psiElement: PsiElement, message: Option[String] = None): Unit = {
+      def writeLog(ms: String): Unit = {}
+
       message match {
         case Some(msg) => writeLog(s"$msg ${if (psiElement != null) s"${psiElement.getText}  ${psiElement.getClass}" else "null" }  ")
         case None if psiElement == null =>  writeLog("PsiElement is null")
@@ -233,74 +242,71 @@ object WorksheetSourceProcessor {
       getTypePrinterName + s".printGeneric({import $instanceName._ ;" + fun.getText.stripPrefix(hadMods) + " })" + eraseClassName
     }
 
+    // TODO: remove unused method
     protected def getStartText = ""
 
     protected def getObjectPrologue: String = objectPrologue
 
-
     protected def getPrintMethodName: String = genericPrintMethodName
-    
 
-    protected def processTypeAlias(tpe: ScTypeAlias) {
-      withPrecomputeLines(tpe, {
-        objectBuilder append withPrint(s"defined type alias ${tpe.name}")
-      } )
-    }
+    protected def processTypeAlias(tpe: ScTypeAlias): Unit =
+      withPrecomputeLines(tpe) {
+        objectBuilder.append(withPrint(s"defined type alias ${tpe.name}"))
+      }
 
-    protected def processFunDef(fun: ScFunction) {
-      withPrecomputeLines(fun, {
-        objectBuilder append (getPrintMethodName + "(\"" + fun.getName + ": \" + " + getFunDefInfoString(fun) + ")\n")
-      })
-    }
+    protected def processFunDef(fun: ScFunction): Unit =
+      withPrecomputeLines(fun) {
+        objectBuilder.append(s"""$getPrintMethodName("${fun.getName}: " + ${getFunDefInfoString(fun)})""").append("\n")
+      }
 
-    protected def processTypeDef(tpeDef: ScTypeDefinition) {
-      withPrecomputeLines(tpeDef, {
+    protected def processTypeDef(tpeDef: ScTypeDefinition): Unit =
+      withPrecomputeLines(tpeDef) {
         val keyword = tpeDef match {
           case _: ScClass => "class"
           case _: ScTrait => "trait"
           case _ => "module"
         }
 
-        objectBuilder append withPrint(s"defined $keyword ${tpeDef.name}")
-      })
-    }
+        objectBuilder.append(withPrint(s"defined $keyword ${tpeDef.name}"))
+      }
 
-    protected def processValDef(valDef: ScPatternDefinition) {
-      withPrecomputeLines(valDef, {
-        valDef.bindings foreach {
-          p =>
-            val pName = p.name
-            val defName = variableInstanceName(pName)
+    protected def processValDef(valDef: ScPatternDefinition): Unit =
+      withPrecomputeLines(valDef) {
+        valDef.bindings.foreach { binding =>
+          val pName = binding.name
+          val defName = variableInstanceName(pName)
 
-            classBuilder append s"def $defName = $pName;$END_GENERATED_MARKER"
-            
-            objectBuilder append (getPrintMethodName + "(\"" + getStartText + pName + prettyPrintType(defName) + ")\n")
+          classBuilder.append(s"def $defName = $pName;$END_GENERATED_MARKER")
+
+          objectBuilder.append(s"""$getPrintMethodName("$getStartText$pName${prettyPrintType(defName)})""").append("\n")
         }
-      })
-    }
+      }
 
-    protected def processVarDef(varDef: ScVariableDefinition) {
-      def writeTypedPatter(p: ScTypedPattern) = 
+    protected def processVarDef(varDef: ScVariableDefinition): Unit = {
+      def writeTypedPatter(p: ScTypedPattern) =
         p.typePattern map (typed => p.name + ":" + typed.typeElement.getText) getOrElse p.name
 
       def typeElement2Types(te: ScTypeElement) = te match {
         case tpl: ScTupleTypeElement => tpl.components
         case other => Seq(other)
       }
-      
+
       def withOptionalBraces(s: Iterable[String]) = if (s.size == 1) s.head else s.mkString("(", ",", ")")
 
       val lineNum = psiToLineNumbers(varDef)
 
+      def varDefText(names: String, expr: ScExpression): String =
+        s"var $names = { ${expr.getText}; }"
+
       val txt = (varDef.typeElement, varDef.expr) match {
-        case (Some(tpl: ScTypeElement), Some(expr)) => 
+        case (Some(tpl: ScTypeElement), Some(expr)) =>
           val names = withOptionalBraces {
-            typeElement2Types(tpl) zip varDef.declaredElements map {
-              case (tpe, el) => el.name + ": " + tpe.getText
+            typeElement2Types(tpl).zip(varDef.declaredElements).map { case (tpe, el) =>
+              el.name + ": " + tpe.getText
             }
           }
-          
-          "var " + names  + " = { " + expr.getText + ";}"
+
+          varDefText(names, expr)
         case (_, Some(expr)) =>
           val names = withOptionalBraces {
             varDef.declaredElements.map {
@@ -308,29 +314,27 @@ object WorksheetSourceProcessor {
               case a => a.name
             }
           }
-          
-          "var " + names + " = { " + expr.getText + ";}"
+
+          varDefText(names, expr)
         case _ => varDef.getText
       }
 
-      classBuilder append txt append ";"
-      varDef.declaredNames foreach {
-        pName =>
-          objectBuilder append (
-            getPrintMethodName + "(\"" + getStartText + pName + prettyPrintType(pName /*, withInstance = false*/) + ")\n"
-          )
+      classBuilder.append(txt).append(";")
+      varDef.declaredNames.foreach { pName =>
+        objectBuilder.append(s"""$getPrintMethodName("$getStartText$pName${prettyPrintType(pName)})""").append("\n")
       }
 
       appendPsiLineInfo(varDef, lineNum)
     }
 
-    protected def processAssign(assign: ScAssignment){
+    protected def processAssign(assign: ScAssignment): Unit = {
       val pName = assign.leftExpression.getText
       val lineNums = psiToLineNumbers(assign)
       val defName = s"`get$$$$instance_$assignCount$$$$$pName`"
 
-      classBuilder append s"def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}"
-      objectBuilder append s"$instanceName.$defName; " append (getPrintMethodName + "(\"" + getStartText + pName + prettyPrintType(pName) + ")\n")
+      classBuilder.append(s"""def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}""")
+      objectBuilder.append(s"""$instanceName.$defName; """)
+      objectBuilder.append(s"""$getPrintMethodName("$getStartText$pName${prettyPrintType(pName)})""").append("\n")
 
       appendPsiLineInfo(assign, lineNums)
 
@@ -345,7 +349,8 @@ object WorksheetSourceProcessor {
 
       while (currentQual != null) {
         currentQual.resolve() match {
-          case el: PsiElement if el.getContainingFile == srcFile => lastFound = Some(currentQual, el)
+          case el: PsiElement if el.getContainingFile == srcFile =>
+            lastFound = Some(currentQual, el)
           case _ =>
         }
 
@@ -359,150 +364,163 @@ object WorksheetSourceProcessor {
           val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
             variableInstanceName(qualifierName) else qualifierName
 
-          objectBuilder append
-            s";{val $qualifierName = $instanceName.$memberName; $getPrintMethodName(${getImportInfoString(imp)})}\n"
-          classBuilder append s"${imp.getText}${insertNlsFromWs(imp)}"
+          objectBuilder.append(s";{val $qualifierName = $instanceName.$memberName; $getPrintMethodName(${getImportInfoString(imp)})}").append("\n")
+          classBuilder.append(s"${imp.getText}${insertNlsFromWs(imp)}")
 
           appendPsiLineInfo(imp, lineNums)
           true
       }
     }
 
-    def processImport(imp: ScImportStmt) {
+    def processImport(imp: ScImportStmt): Unit = {
       if (importsProcessed contains imp) return
 
       val lineNums = psiToLineNumbers(imp)
 
-      objectBuilder append s"$getPrintMethodName(${getImportInfoString(imp)})\n"
+      objectBuilder.append(s"$getPrintMethodName(${getImportInfoString(imp)})").append("\n")
 
       importStmts += (imp.getText + insertNlsFromWs(imp))
       appendPsiLineInfo(imp, lineNums)
       importsProcessed += imp
     }
 
-    protected def processComment(comment: PsiComment) {
+    protected def processComment(comment: PsiComment): Unit = {
       val range = comment.getTextRange
-      
+
       @scala.annotation.tailrec
       def getBackOffset(from: PsiElement): Int = {
         if (from == null) 1 else from.getPrevSibling match {
-          case ws: PsiWhiteSpace if countNls(ws.getText) > 0 => 0
+          case ws: PsiWhiteSpace if countNewLines(ws.getText) > 0 => 0
           case null => getBackOffset(from.getParent)
           case _ => 1
         }
       }
 
       val backOffset = getBackOffset(comment)
-      
-      documentOpt match {
-        case Some(document) => 
-          val differ = document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + (1 - backOffset)
-          for (_ <- 0 until differ) objectBuilder append getPrintMethodName append "()\n"
-        case _ =>
-          val count = countNls(comment.getText) - backOffset
-          for (_ <- 0 until count) objectBuilder append getPrintMethodName append "()\n"
-      }
+
+      val contentLines: Int = documentOpt.fold(
+        countNewLines(comment.getText)
+      )(
+        calcContentLines(_, range)
+      )
+      val blankLines: Int = contentLines - backOffset
+      for (_ <- 0 until blankLines)
+        objectBuilder.append(getPrintMethodName).append("()\n")
     }
 
-    protected def appendCommentToClass(comment: PsiComment) {
+    protected def appendCommentToClass(comment: PsiComment): Unit = {
       val range = comment.getTextRange
       if (comment.getNode.getElementType != ScalaTokenTypes.tLINE_COMMENT) return
 
-      val count = documentOpt map (
-        d => d.getLineNumber(range.getEndOffset) - d.getLineNumber(range.getStartOffset) + 1) getOrElse countNls(comment.getText)
+      val count = documentOpt
+        .map(calcContentLines(_, range))
+        .getOrElse(countNewLines(comment.getText))
 
-      for (_ <- 0 until count) classBuilder append "//\n"
-      classBuilder append insertNlsFromWs(comment).stripPrefix("\n")
+      for (_ <- 0 until count)
+        classBuilder.append("//\n")
+
+      classBuilder.append(insertNlsFromWs(comment).stripPrefix("\n"))
     }
 
-    protected def processOtherExpr(expr: ScExpression) {
+    protected def processOtherExpr(expr: ScExpression): Unit = {
       val resName = s"get$$$$instance$$$$res$resCount"
       val lineNums = psiToLineNumbers(expr)
 
-      classBuilder append s"def $resName = $END_GENERATED_MARKER${expr.getText}${insertNlsFromWs(expr)}"
-      objectBuilder append (getPrintMethodName + "(\"res" + getStartText + resCount + prettyPrintType(resName) + ")\n")
+      classBuilder.append(s"""def $resName = $END_GENERATED_MARKER${expr.getText}${insertNlsFromWs(expr)}""")
+      objectBuilder.append(s"""$getPrintMethodName("res$getStartText$resCount${prettyPrintType(resName)})""").append("\n")
       appendPsiLineInfo(expr, lineNums)
 
       resCount += 1
     }
 
-    protected def processWhiteSpace(ws: PsiElement) {
-      val count = countNls(ws.getText)
-      for (_ <- 1 until count) objectBuilder append getPrintMethodName append "()\n"
+    protected def processWhiteSpace(ws: PsiElement): Unit = {
+      val newLines = countNewLines(ws.getText)
+      for (_ <- 1 until newLines) {
+        objectBuilder.append(getPrintMethodName).append("()\n")
+      }
     }
 
+    protected def insertUntouched(exprs: Iterable[PsiElement]): Unit =
+      exprs.foreach(expr => classBuilder.append(expr.getText).append(insertNlsFromWs(expr)))
 
-    protected def insertUntouched(exprs: Iterable[PsiElement]) {
-      exprs foreach (expr => classBuilder append expr.getText append insertNlsFromWs(expr))
-    }
-    
-    protected def processUnknownElement(element: PsiElement) {
+    protected def processUnknownElement(element: PsiElement): Unit =
       logError(element)
-    }
 
-    
-    def process(elements: Iterator[PsiElement], preDeclarations: Iterable[PsiElement], 
+    def process(elements: Iterator[PsiElement],
+                preDeclarations: Iterable[PsiElement],
                 postDeclarations: Iterable[PsiElement]): Either[PsiErrorElement, (String, String)] = {
       insertUntouched(preDeclarations)
-      
+
       for (e <- elements) e match {
-        case tpe: ScTypeAlias => processTypeAlias(tpe)
-        case fun: ScFunction => processFunDef(fun)
-        case tpeDef: ScTypeDefinition => processTypeDef(tpeDef)
-        case valDef: ScPatternDefinition => processValDef(valDef)
+        case tpe: ScTypeAlias             => processTypeAlias(tpe)
+        case fun: ScFunction              => processFunDef(fun)
+        case tpeDef: ScTypeDefinition     => processTypeDef(tpeDef)
+        case valDef: ScPatternDefinition  => processValDef(valDef)
         case varDef: ScVariableDefinition => processVarDef(varDef)
-        case assign: ScAssignment => processAssign(assign)
-        case imp: ScImportStmt => if (!processLocalImport(imp)) processImport(imp)
-        case comment: PsiComment => 
+        case assign: ScAssignment         => processAssign(assign)
+        case imp: ScImportStmt            => if (!processLocalImport(imp)) processImport(imp)
+        case comment: PsiComment          =>
           processComment(comment)
           appendCommentToClass(comment)
-        case pack: ScPackaging => processWhiteSpace(pack)
-        case otherExpr: ScExpression => processOtherExpr(otherExpr)
-        case ws: PsiWhiteSpace => processWhiteSpace(ws)
-        case error: PsiErrorElement => return Left(error)
-        case null => logError(null)
-        case unknown => processUnknownElement(unknown)
+        case pack: ScPackaging            => processWhiteSpace(pack)
+        case otherExpr: ScExpression      => processOtherExpr(otherExpr)
+        case ws: PsiWhiteSpace            => processWhiteSpace(ws)
+        case error: PsiErrorElement       => return Left(error)
+        case null                         => logError(null)
+        case unknown                      => processUnknownElement(unknown)
       }
 
       insertUntouched(postDeclarations)
 
-      classBuilder append "}"
-      objectBuilder append (getPrintMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append s"} \n $PRINT_ARRAY_TEXT \n }"
-      
-      val codeResult = getObjectPrologue + importStmts.mkString(";") + classBuilder.toString() + "\n\n\n" + objectBuilder.toString()
-      Right(
-        (codeResult, packOpt.map(_ + ".").getOrElse("") + name)
+      classBuilder.append("}")
+      objectBuilder.append(
+        s"""$getPrintMethodName("$END_OUTPUT_MARKER")
+           |}
+           |$PRINT_ARRAY_TEXT
+           |}""".stripMargin
       )
-    }
-    
-    
-    //kinda utils stuff that shouldn't be overridden
-    
-    @inline final def withTempVar(callee: String, withInstance: Boolean = true): String =
-      s"{val $tempVarName = " + (if (withInstance) instanceName + "." else "") + callee + " ; " + getTempVarInfo +
-        eraseClassName + plusInfoDef + "\" = \" + ( " + PRINT_ARRAY_NAME + s"($tempVarName) )" + erasePrefixName + "}"
 
-    @inline final def withPrint(text: String): String = getPrintMethodName + "(\"" + getStartText + text + "\")\n"
-    
-    @inline final def withPrecomputeLines(psi: ScalaPsiElement, body: => Unit) {
+      val codeResult =
+        s"""$getObjectPrologue${importStmts.mkString(";")}${classBuilder.toString()}
+           |
+           |
+           |${objectBuilder.toString()}""".stripMargin
+      val mainClassName = s"${packageOpt.fold("")(_ + ".")}$name"
+      Right((codeResult, mainClassName))
+    }
+
+
+    //kinda utils stuff that shouldn't be overridden
+
+    @inline final def withTempVar(callee: String, withInstance: Boolean = true): String = {
+      val target = if (withInstance) instanceName + "." else ""
+      s"""{val $tempVarName = $target$callee ; $getTempVarInfo$eraseClassName$plusInfoDef" = " + ( $PRINT_ARRAY_NAME($tempVarName) )$erasePrefixName}"""
+    }
+
+    @inline final def withPrint(text: String): String = s"""$getPrintMethodName("$getStartText$text")""" + "\n"
+
+    @inline final def withPrecomputeLines(psi: ScalaPsiElement)(body: => Unit): Unit = {
       val lineNum = psiToLineNumbers(psi)
       body
       appendAll(psi, lineNum)
     }
 
-    @inline final def appendAll(psi: ScalaPsiElement, numberStr: Option[String] = None) {
+    @inline final def appendAll(psi: ScalaPsiElement, numberStr: Option[String] = None): Unit = {
       appendDeclaration(psi)
       appendPsiLineInfo(psi, numberStr)
     }
 
-    @inline final def variableInstanceName(name: String): String = if (name startsWith "`") s"`get$$$$instance$$$$${name.stripPrefix("`")}" else s"get$$$$instance$$$$$name"
+    @inline final def variableInstanceName(name: String): String =
+      if (name.startsWith("`")) s"`get$$$$instance$$$$${name.stripPrefix("`")}"
+      else s"get$$$$instance$$$$$name"
 
-    @inline final def countNls(str: String): Int = str.count(_ == '\n')
+    @inline final def countNewLines(str: String): Int = str.count(_ == '\n')
 
     @inline final def insertNlsFromWs(psi: PsiElement): String = psi.getNextSibling match {
       case ws: PsiWhiteSpace =>
-        val c = countNls(ws.getText)
-        if (c == 0) ";" else StringUtil.repeat("\n", c)
+        val c = countNewLines(ws.getText)
+        if (c == 0) ";"
+        else StringUtil.repeat("\n", c)
       case _ => ";"
     }
 
@@ -519,7 +537,7 @@ object WorksheetSourceProcessor {
                   processComment(comment)
                   iter(comment.getNextSibling)
                 case ws: PsiWhiteSpace =>
-                  processWhiteSpace(ws) 
+                  processWhiteSpace(ws)
                   iter(ws.getNextSibling)
                 case a: PsiElement if a.getTextRange.isEmpty => iter(a.getNextSibling)
                 case a: PsiElement => a
@@ -533,14 +551,14 @@ object WorksheetSourceProcessor {
 
 
         val start = actualPsi.getTextRange.getStartOffset //actualPsi for start and psi for end - it is intentional
-      val end = psi.getTextRange.getEndOffset
-        s"${document getLineNumber start}|${document getLineNumber end}"
+        val end = psi.getTextRange.getEndOffset
+        s"${document.getLineNumber(start)}|${document.getLineNumber(end)}"
     }
 
-    @inline final def appendPsiLineInfo(psi: PsiElement, numberStr: Option[String] = None) {
+    @inline final def appendPsiLineInfo(psi: PsiElement, numberStr: Option[String] = None): Unit = {
       val lineNumbers = numberStr getOrElse psiToLineNumbers(psi)
 
-      objectBuilder append getPrintMethodName append "(\"" append END_TOKEN_MARKER append lineNumbers append "\")\n"
+      objectBuilder.append(s"""$getPrintMethodName("$END_TOKEN_MARKER$lineNumbers")""").append("\n")
     }
 
     @inline final def appendDeclaration(psi: ScalaPsiElement): Unit = {
@@ -554,10 +572,20 @@ object WorksheetSourceProcessor {
         .append(insertNlsFromWs(psi))
     }
   }
-  
-  private class ScalaSourceBuilder(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
-                                   moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String,
-                                   packOpt: Option[String], objectPrologue: String) 
-    extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, ifDoc, tpePrinterName, packOpt, objectPrologue) {
-  }
+
+  private def calcContentLines(document: Document, range: TextRange): Int =
+    document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
+
+  private class ScalaSourceBuilder(classBuilder: mutable.StringBuilder,
+                                   objectBuilder: mutable.StringBuilder,
+                                   iterNumber: Int, srcFile: ScalaFile,
+                                   moduleOpt: Option[Module],
+                                   documentOpt: Option[Document],
+                                   tpePrinterName: String,
+                                   packageOpt: Option[String],
+                                   objectPrologue: String)
+    extends SourceBuilderBase(
+      classBuilder, objectBuilder, iterNumber, srcFile,
+      moduleOpt, documentOpt, tpePrinterName, packageOpt, objectPrologue
+    )
 }
