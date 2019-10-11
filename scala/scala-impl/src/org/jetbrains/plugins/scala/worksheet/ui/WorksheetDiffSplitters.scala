@@ -5,10 +5,9 @@ import java.awt._
 import java.awt.event.{MouseAdapter, MouseEvent}
 
 import com.intellij.diff.util.DiffDividerDrawUtil.DividerPolygon
-import com.intellij.openapi.diff.impl._
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.ui.{Divider, Splitter}
 import com.intellij.psi.PsiDocumentManager
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -80,8 +79,9 @@ object WorksheetDiffSplitters {
 
     def redrawDiffs(): Unit = getDivider.repaint()
 
-    // TODO: extract to a separate class
-    override def createDivider(): DividerImpl = new DividerImpl {
+    override def createDivider(): Divider = new SimpleWorksheetDivider()
+
+    private class SimpleWorksheetDivider extends DividerImpl {
 
       override def paint(g: Graphics) {
         super.paint(g)
