@@ -224,14 +224,14 @@ object WorksheetFoldGroup {
       result += ((prevLeftEndLine, prevRightStartLine))
 
       val currLeftEndLine = originalDocument.getLineNumber(currFolding.leftEndOffset - 1)
-      val gap = currLeftEndLine - prevLeftEndLine
-      val mappingsBetweenPrevAndCurr = gap - prevFolding.leftSideLength  + 1
-      if (mappingsBetweenPrevAndCurr > 0) {
+      val currLeftStartLine = currLeftEndLine - currFolding.leftSideLength + 1
+      val linesBetween = currLeftStartLine - prevLeftEndLine - 1
+      if (linesBetween > 0) {
         val prevRightEndLine  = viewerDocument.getLineNumber(prevFolding.foldEndOffset)
-        val newResults = (1 to mappingsBetweenPrevAndCurr).map { idx =>
+        val mappingsBetween = (1 to linesBetween).map { idx =>
           (prevLeftEndLine + idx, prevRightEndLine + idx)
         }
-        result ++= newResults
+        result ++= mappingsBetween
       }
 
       currFolding
