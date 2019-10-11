@@ -117,7 +117,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   }
 
   def compileAndRunFile(): Unit = {
-    compileAndRunCode(runType.process(worksheetFile, Option(editor)))
+    compileAndRunCode(runType.process(worksheetFile, editor))
   }
 }
 

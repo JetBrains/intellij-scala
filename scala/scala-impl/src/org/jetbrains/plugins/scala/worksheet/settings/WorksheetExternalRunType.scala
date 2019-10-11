@@ -17,12 +17,10 @@ abstract class WorksheetExternalRunType {
 
   def showAdditionalSettingsPanel(): PsiFile => Unit = null
   
-  def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest = RunSimple(
-    WorksheetSourceProcessor.processSimple(srcFile, ifEditor)
-  )
-  
-  def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = 
-    process(srcFile, Option(editor))
+  def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = {
+    val code = WorksheetSourceProcessor.processSimple(srcFile, editor)
+    RunSimple(code)
+  }
 
   def onSettingsConfirmed(file: PsiFile): Unit = {}
   
@@ -30,6 +28,7 @@ abstract class WorksheetExternalRunType {
 }
 
 object RunTypes {
+
   private val PREDEFINED_TYPES = Array(PlainRunType, ReplRunType)
   private val PREDEFINED_TYPES_MAP = PREDEFINED_TYPES.map(rt => (rt.getName, rt)).toMap
 
@@ -53,11 +52,11 @@ object RunTypes {
     override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
       WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file)
 
-    override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest = {
-      val result = WorksheetSourceProcessor.processDefault(srcFile, ifEditor.map(_.getDocument))
+    override def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = {
+      val result = WorksheetSourceProcessor.processDefault(srcFile, editor.getDocument)
       result match {
         case Right((code, className)) => RunCompile(code, className)
-        case Left(errorElement)       => ErrorWhileCompile(errorElement, ifEditor)
+        case Left(errorElement)       => ErrorWhileCompile(errorElement, Some(editor))
       }
     }
   }
@@ -70,10 +69,12 @@ object RunTypes {
     override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
       WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, file)
 
-    override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest =
-      WorksheetSourceProcessor.processIncremental(srcFile, ifEditor) match {
-        case Right((code, _)) => RunRepl(code)
-        case Left(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
+    override def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = {
+      val result = WorksheetSourceProcessor.processIncremental(srcFile, editor)
+      result match {
+        case Right((code, _))   => RunRepl(code)
+        case Left(errorElement) => ErrorWhileCompile(errorElement, Some(editor))
       }
+    }
   }
 }

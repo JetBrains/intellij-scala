@@ -73,16 +73,13 @@ object WorksheetSourceProcessor {
     } else None
   }
 
-  def processSimple(srcFile: ScalaFile, editorOpt: Option[Editor]): String = Base64.encode(srcFile.getText.getBytes)
+  def processSimple(srcFile: ScalaFile, editor: Editor): String = Base64.encode(srcFile.getText.getBytes)
 
-  def processIncremental(srcFile: ScalaFile, editorOpt: Option[Editor]): Either[PsiErrorElement, (String, String)] = {
+  def processIncremental(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, (String, String)] = {
     val exprsPsi = mutable.ListBuffer[QueuedPsi]()
-    val lastProcessed = editorOpt.flatMap { e =>
-      WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(e)
-    }
-
+    val lastProcessed = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor: Editor)
     val glue = new WorksheetPsiGlue(exprsPsi)
-    val iterator = new WorksheetInterpretExprsIterator(srcFile, editorOpt, lastProcessed)
+    val iterator = new WorksheetInterpretExprsIterator(srcFile, Some(editor), lastProcessed)
     iterator.collectAll(glue.processPsi, Some(e => return Left(e)))
 
     val texts = exprsPsi.map(_.getText)
@@ -94,7 +91,7 @@ object WorksheetSourceProcessor {
   /**
    * @return (Code, Main class name)
    */
-  def processDefault(srcFile: ScalaFile, documentOpt: Option[Document]): Either[PsiErrorElement, (String, String)] = {
+  def processDefault(srcFile: ScalaFile, document: Document): Either[PsiErrorElement, (String, String)] = {
     if (!srcFile.isWorksheetFile) return Left(null)
 
     val iterNumber = WorksheetCache.getInstance(srcFile.getProject)
@@ -141,7 +138,7 @@ object WorksheetSourceProcessor {
 
     val sourceBuilder = new ScalaSourceBuilder(
       classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, documentOpt, macroPrinterName, packOpt, objectPrologue
+      moduleOpt, Some(document), macroPrinterName, packOpt, objectPrologue
     )
 
     val preDeclarations = mutable.ListBuffer.empty[PsiElement]
