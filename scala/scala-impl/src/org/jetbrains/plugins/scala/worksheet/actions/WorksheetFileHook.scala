@@ -192,8 +192,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 }
 
 object WorksheetFileHook {
-  private val WORKSHEET_HK_ACTIONS: Array[AnAction] = 
-    Array(WorksheetReplRunAction.ACTION_INSTANCE, WorksheetRunCurrentCellAction.ACTION_INSTANCE)
+  private val WORKSHEET_HK_ACTIONS: Array[AnAction] = Array(WorksheetReplRunAction.ACTION_INSTANCE)
   private val file2panel = new util.WeakHashMap[VirtualFile, WeakReference[MyPanel]]()
   
   private class MyPanel(file: VirtualFile) extends JPanel {

@@ -1,25 +1,17 @@
 package org.jetbrains.plugins.scala.worksheet.settings
 
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.cell.{CellDescriptor, RunCellAction}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.worksheet.ui._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 13.07.18.
-  */
 abstract class WorksheetExternalRunType {
   def getName: String
 
   def isReplRunType: Boolean
-
-  def isUsesCell: Boolean
 
   def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter
 
@@ -32,15 +24,13 @@ abstract class WorksheetExternalRunType {
   def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = 
     process(srcFile, Option(editor))
 
-  def createRunCellAction(cellDescriptor: CellDescriptor): AnAction = null
-
   def onSettingsConfirmed(file: PsiFile): Unit = {}
   
   override def toString: String = getName
 }
 
 object RunTypes {
-  private val PREDEFINED_TYPES = Array(PlainRunType, ReplRunType/*, ReplCellRunType*/)
+  private val PREDEFINED_TYPES = Array(PlainRunType, ReplRunType)
   private val PREDEFINED_TYPES_MAP = PREDEFINED_TYPES.map(rt => (rt.getName, rt)).toMap
 
   val EP_NAME: ExtensionPointName[WorksheetExternalRunType] =
@@ -60,8 +50,6 @@ object RunTypes {
 
     override def isReplRunType: Boolean = false
 
-    override def isUsesCell: Boolean = false
-
     override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
       WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file)
 
@@ -79,8 +67,6 @@ object RunTypes {
 
     override def isReplRunType: Boolean = true
 
-    override def isUsesCell: Boolean = false
-
     override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
       WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, file)
 
@@ -89,18 +75,5 @@ object RunTypes {
         case Right((code, _)) => RunRepl(code)
         case Left(errorElement) => ErrorWhileCompile(errorElement, ifEditor)
       }
-  }
-
-  object ReplCellRunType extends WorksheetExternalRunType {
-    override def getName: String = "REPL with Cells"
-
-    override def isReplRunType: Boolean = true
-
-    override def isUsesCell: Boolean = true
-
-    override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
-      WorksheetEditorPrinterFactory.getConsoleUiFor(editor, file)
-
-    override def createRunCellAction(cellDescriptor: CellDescriptor): AnAction = new RunCellAction(cellDescriptor)
   }
 }

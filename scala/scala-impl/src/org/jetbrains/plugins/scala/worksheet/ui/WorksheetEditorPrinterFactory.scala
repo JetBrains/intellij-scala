@@ -168,14 +168,6 @@ object WorksheetEditorPrinterFactory {
       (editor: Editor, file: ScalaFile) => newIncrementalUiFor(editor, file)
     )
 
-  def getConsoleUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter =
-    providePrinter(
-      editor: Editor, scalaFile: ScalaFile,
-      _.isInstanceOf[WorksheetConsoleEditorPrinter],
-      (printer: WorksheetEditorPrinter) => printer,
-      (editor: Editor, file: ScalaFile) => newConsoleUiFor(editor, file)
-    )
-
   private def providePrinter(editor: Editor, scalaFile: ScalaFile, condition: WorksheetEditorPrinter => Boolean,
                              update: WorksheetEditorPrinter => WorksheetEditorPrinter,
                              create: (Editor, ScalaFile) => WorksheetEditorPrinter): WorksheetEditorPrinter = {
@@ -202,16 +194,13 @@ object WorksheetEditorPrinterFactory {
     new WorksheetIncrementalEditorPrinter(editor, sideViewer, scalaFile)
   }
 
-  private def newConsoleUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetConsoleEditorPrinter =
-    new WorksheetConsoleEditorPrinter(editor, scalaFile)
-
   private def setupRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
     val editorContentComponent = editor.getContentComponent
 
     val viewerSettings = rightSideEditor.getSettings
     viewerSettings.setLineMarkerAreaShown(false)
-    viewerSettings.setLineNumbersShown(false)
+    viewerSettings.setLineNumbersShown(true)
 
     val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 

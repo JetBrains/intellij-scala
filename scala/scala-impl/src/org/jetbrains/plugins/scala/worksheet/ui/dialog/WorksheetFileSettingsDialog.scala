@@ -4,13 +4,8 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.worksheet.cell.CellManager
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 05.02.18.
-  */
 class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(worksheetFile.getProject, true, true) {
   private val fileSettings = WorksheetCommonSettings(worksheetFile)
   private val projectSettings = WorksheetCommonSettings(worksheetFile.getProject)
@@ -51,19 +46,11 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   
   private def getDefaultSettingsData: WorksheetSettingsData = getSettingsData(projectSettings)
   
-  private def applyFileSettings(settingsData: WorksheetSettingsData): Unit = {
-    if (settingsData.runType.isUsesCell && !fileSettings.getRunType.isUsesCell) {
-      CellManager.installCells(worksheetFile)
-    } else if (!settingsData.runType.isUsesCell && fileSettings.getRunType.isUsesCell) {
-      CellManager.deleteCells(worksheetFile)
-    }
-    
+  private def applyFileSettings(settingsData: WorksheetSettingsData): Unit =
     applySettingsData(settingsData, fileSettings)
-  }
   
-  private def applyDefaultSettings(settingsData: WorksheetSettingsData): Unit = {
+  private def applyDefaultSettings(settingsData: WorksheetSettingsData): Unit =
     applySettingsData(settingsData, projectSettings)
-  }
 }
 
 object WorksheetFileSettingsDialog {
