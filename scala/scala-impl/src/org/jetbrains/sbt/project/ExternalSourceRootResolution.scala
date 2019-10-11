@@ -43,9 +43,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       // so source module dependencies are not relevant for compilation, only for highlighting.
       val representativeProject = representativeProjectIn(rootGroup.projects)
 
+      //add library dependencies of the representative project
       val moduleDependencies = representativeProject.dependencies.modules
       moduleNode.addAll(createLibraryDependencies(moduleDependencies)(moduleNode, libraryNodes.map(_.data)))
 
+      //add library dependencies of the representative project
       val projectDependencies = representativeProject.dependencies.projects
       projectDependencies.foreach { dependencyId =>
         val dependency = projectToModuleNode.values.find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI)).getOrElse(
@@ -56,9 +58,17 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
         moduleNode.add(dependencyNode)
       }
 
+      //add representative project itself as a dependency for shared source module
+      projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
+        val node = new ModuleDependencyNode(moduleNode, reprProjectModule)
+        node.setExported(true)
+        moduleNode.add(node)
+      }
+
       moduleNode
     }
 
+    //add shared sources module as a dependency to platform modules
     projects.map(projectToModuleNode).foreach { ownerModule =>
       val node = new ModuleDependencyNode(ownerModule, sourceModuleNode)
       node.setExported(true)
