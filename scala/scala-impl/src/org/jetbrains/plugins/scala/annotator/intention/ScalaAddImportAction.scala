@@ -55,7 +55,7 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
 
   private def showChooser(validVariants: Array[ElementToImport]) {
     val title = chooserTitle(validVariants)
-    val popup: BaseListPopupStep[ElementToImport] = new BaseListPopupStep[ElementToImport](title, validVariants: _*) {
+    val firstPopupStep: BaseListPopupStep[ElementToImport] = new BaseListPopupStep[ElementToImport](title, validVariants: _*) {
       override def getIconFor(aValue: ElementToImport): Icon =
         aValue.element.getIcon(0)
 
@@ -64,6 +64,8 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
       }
 
       override def isAutoSelectionEnabled: Boolean = false
+
+      override def isSpeedSearchEnabled: Boolean = true
 
       import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
 
@@ -97,7 +99,7 @@ abstract class ScalaAddImportAction[Elem <: PsiElement](editor: Editor, variants
         true
       }
     }
-    JBPopupFactory.getInstance.createListPopup(popup).showInBestPositionFor(editor)
+    JBPopupFactory.getInstance.createListPopup(firstPopupStep).showInBestPositionFor(editor)
   }
 
 
