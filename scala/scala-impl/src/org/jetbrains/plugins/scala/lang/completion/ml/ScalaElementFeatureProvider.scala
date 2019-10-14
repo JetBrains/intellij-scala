@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvide
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
 
 final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
@@ -46,7 +47,7 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
     val kind = elementKind(maybeElement).getOrElse {
       element.getObject match {
-        case string: String if ScalaTokenTypes.KEYWORDS.getTypes.exists(_.toString == string) => CompletionItem.KEYWORD
+        case string: String if isKeyword(string) => CompletionItem.KEYWORD
         case _ => CompletionItem.UNKNOWN
       }
     }
