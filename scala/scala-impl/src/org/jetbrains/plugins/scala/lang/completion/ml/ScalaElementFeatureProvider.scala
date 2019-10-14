@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.ml
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package ml
 
 import java.util
 
@@ -10,13 +13,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
-import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionContributor, ScalaSmartCompletionContributor, positionFromParameters}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
 
-class ScalaElementFeatureProvider extends ElementFeatureProvider {
+final class ScalaElementFeatureProvider extends ElementFeatureProvider {
+
+  import ScalaElementFeatureProvider._
 
   override def getName: String = "scala"
 
@@ -47,7 +50,7 @@ class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
     val kind = PsiFeaturesUtil.kind(maybeElement).getOrElse {
       element.getObject match {
-        case string: String if ScalaTokenTypes.KEYWORDS.getTypes.exists(_.toString == string) => ItemKind.KEYWORD
+        case string: String if isKeyword(string) => ItemKind.KEYWORD
         case _: LiveTemplateLookupElement => ItemKind.TEMPLATE
         case _ => ItemKind.UNKNOWN
       }
