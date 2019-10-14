@@ -6,8 +6,9 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.{PsiDocumentManager, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -16,6 +17,8 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+
+import scala.annotation.tailrec
 
 /**
  * User: Dmitry.Naydanov
@@ -29,86 +32,102 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
 }
 
 class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends ProjectComponent {
+
   private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
 
   override def getComponentName: String = "WorksheetAutoRunner"
 
-  def getAutoRunDelay: Int = ScalaProjectSettings.getInstance(project).getAutoRunDelay
+  private def getAutoRunDelay: Int = ScalaProjectSettings.getInstance(project).getAutoRunDelay
   
-  def addListener(document: Document) {
+  def addListener(document: Document): Unit =
     if (listeners.get(document) == null) {
       val listener = new MyDocumentAdapter(document)
 
-      document addDocumentListener listener
+      document.addDocumentListener(listener)
       listeners.put(document, listener)
     }
-  }
 
-  def removeListener(document: Document) {
-    val listener = listeners remove document
-    if (listener != null) document removeDocumentListener listener
+  def removeListener(document: Document): Unit = {
+    val listener = listeners.remove(document)
+    if (listener != null) {
+      document.removeDocumentListener(listener)
+    }
   }
   
-  def replExecuted(document: Document, offset: Int) {
+  def replExecuted(document: Document, offset: Int): Unit =
     listeners.get(document) match {
       case myAdapter: MyDocumentAdapter =>
         myAdapter.updateOffset(offset)
       case _ => 
     }
-  }
 
   private class MyDocumentAdapter(document: Document) extends DocumentListener {
     private val documentManager: PsiDocumentManager = PsiDocumentManager getInstance project
     private var lastProcessedOffset = 0
 
-    def updateOffset(offset: Int) {
+    def updateOffset(offset: Int): Unit =
       lastProcessedOffset = offset
-    }
-    
-    override def documentChanged(e: DocumentEvent) {
+
+    override def documentChanged(e: DocumentEvent): Unit = {
       if (project.isDisposed) return
       
-      val psiFile = documentManager getPsiFile document
+      val psiFile = documentManager.getPsiFile(document)
       val offset = e.getOffset
       val isRepl = WorksheetFileSettings.getRunType(psiFile).isReplRunType
 
-      if (isRepl && offset < lastProcessedOffset) 
-        WorksheetFileHook.handleEditor(FileEditorManager getInstance project, psiFile.getVirtualFile) {
-          ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None)
+      def needToResetLastLine: Boolean = offset < lastProcessedOffset
+
+      if (isRepl && needToResetLastLine) {
+        val manager = FileEditorManager.getInstance(project)
+        WorksheetFileHook.handleEditor(manager, psiFile.getVirtualFile) { editor =>
+          WorksheetCache.getInstance(project).setLastProcessedIncremental(editor, None)
         }
+      }
 
-      if (!WorksheetCommonSettings(psiFile).isInteractive) return
+      if (WorksheetCommonSettings(psiFile).isInteractive) {
+        handleDocumentChangedInteractiveMode(e, psiFile, offset, isRepl)
+      }
+    }
 
+    private def handleDocumentChangedInteractiveMode(e: DocumentEvent, psiFile: PsiFile, offset: Int, isRepl: Boolean): Unit = {
       val virtualFile = psiFile.getVirtualFile
 
       val fragment = e.getNewFragment
-      val isTrashEvent = isRepl && fragment.length() == 0 && e.getOffset + 1 >= e.getDocument.getTextLength && e.getOldFragment.length() == 0
+      val isTrashEvent = isRepl &&
+        fragment.length == 0 &&
+        e.getOffset + 1 >= e.getDocument.getTextLength &&
+        e.getOldFragment.length == 0
 
-      if (!isTrashEvent) myAlarm.cancelAllRequests()
+      if (!isTrashEvent)
+        myAlarm.cancelAllRequests()
 
       val isReplWrongChar = isRepl && {
-        val l = fragment.length()
-
-        l < 1 || fragment.charAt(l - 1) != '\n'
+        val length = fragment.length
+        length == 0 || fragment.charAt(length - 1) != '\n'
       }
-      
-      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile) || isReplWrongChar) return
 
-      myAlarm.addRequest(new Runnable {
+      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile) || isReplWrongChar)
+        return
+
+      val requestDelay = if (isRepl) getAutoRunDelay / 2 else getAutoRunDelay
+      val request: Runnable = new Runnable {
         override def run() {
-          if (!psiFile.isValid) return 
-          
-          if (isRepl) psiFile findElementAt offset match {
-            case null => //it means caret is at the end 
-            case ws: PsiWhiteSpace if ws.getParent == psiFile =>
-            case _ => return
+          if (psiFile.isValid) {
+            if (isRepl) {
+              psiFile.findElementAt(offset) match {
+                case null => //it means caret is at the end
+                case ws: PsiWhiteSpace if ws.getParent == psiFile => // continue
+                case _ => return
+              }
+            }
+
+            if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.running(virtualFile))
+              RunWorksheetAction.runCompiler(project, auto = true)
           }
-          
-          if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.running(virtualFile))
-            RunWorksheetAction.runCompiler(project, auto = true)
         }
-      }, if (isRepl) getAutoRunDelay/2 else getAutoRunDelay, true)
+      }
+      myAlarm.addRequest(request, requestDelay, true)
     }
   }
 }
