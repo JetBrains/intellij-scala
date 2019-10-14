@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package uast
 
 import com.intellij.lang.Language
+import com.intellij.openapi.application.{ApplicationManager, Experiments}
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
 import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
 import org.jetbrains.annotations.Nullable
@@ -18,19 +19,18 @@ import scala.language.postfixOps
  */
 final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
+  import ScalaUastLanguagePlugin._
   import UastLanguagePlugin._
 
-  override def getLanguage: Language = ScalaLanguage.INSTANCE
+  private val fileNameMatcher = new ExtensionFileNameMatcher(ScalaFileType.INSTANCE.getDefaultExtension)
+
+  override def getLanguage: Language =
+    if (isEnabled) ScalaLanguage.INSTANCE else DummyDialect
 
   override def getPriority: Int = 10
 
-  private val fileNameMatcher =
-    new ExtensionFileNameMatcher(
-      getLanguage.getAssociatedFileType.getDefaultExtension
-    )
-
-  override def isFileSupported(s: String): Boolean =
-    fileNameMatcher.acceptsCharSequence(s)
+  override def isFileSupported(fileName: String): Boolean =
+    isEnabled && fileNameMatcher.acceptsCharSequence(fileName)
 
   @Nullable
   override def convertElement(element: PsiElement,
@@ -123,6 +123,15 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
   override def isExpressionValueUsed(uExpression: UExpression): Boolean =
     throw new NotImplementedError // TODO: not implemented
+}
+
+object ScalaUastLanguagePlugin {
+
+  private def isEnabled =
+    ApplicationManager.getApplication.isUnitTestMode ||
+      Experiments.getInstance().isFeatureEnabled("scala.uast.enabled")
+
+  private object DummyDialect extends Language(ScalaLanguage.INSTANCE, "DummyDialect")
 
   private def toClassTag(@Nullable requiredType: Class[_ <: UElement]) =
     reflect.ClassTag[UElement](if (requiredType == null) classOf[UElement] else requiredType)
