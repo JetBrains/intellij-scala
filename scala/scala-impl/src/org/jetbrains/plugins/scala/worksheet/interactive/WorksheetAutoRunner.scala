@@ -76,7 +76,16 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       val offset = e.getOffset
       val isRepl = WorksheetFileSettings.getRunType(psiFile).isReplRunType
 
-      def needToResetLastLine: Boolean = offset < lastProcessedOffset
+      def needToResetLastLine: Boolean = offset < lastProcessedOffset || {
+        val line1 = document.getLineNumber(lastProcessedOffset)
+        val line2 = document.getLineNumber(offset)
+        line1 == line2 && {
+          val range = new TextRange(lastProcessedOffset, (offset + 1).min(document.getTextLength))
+          val text = document.getText(range)
+          val isBlank = text.forall(c => c == ';' || c.isWhitespace)
+          !isBlank
+        }
+      }
 
       if (isRepl && needToResetLastLine) {
         val manager = FileEditorManager.getInstance(project)
