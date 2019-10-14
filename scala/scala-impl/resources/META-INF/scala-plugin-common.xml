@@ -1335,7 +1335,7 @@
     <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
         <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
 
-        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.ScalaLoader"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>

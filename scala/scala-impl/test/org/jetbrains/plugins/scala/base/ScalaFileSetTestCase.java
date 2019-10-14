@@ -26,7 +26,6 @@ import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -65,7 +64,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     }
 
     protected void setUp(@NotNull Project project) {
-        ScalaLoader.loadScala();
         setSettings(project);
     }
 

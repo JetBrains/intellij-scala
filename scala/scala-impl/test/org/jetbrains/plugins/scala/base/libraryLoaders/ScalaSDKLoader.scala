@@ -89,8 +89,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       model.addLibraryEntry(library)
       model.commit()
     }
-
-    ScalaLoader.loadScala()
   }
 }
 

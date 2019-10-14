@@ -31,7 +31,7 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.ClassPrepareRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.ScalaCompilerLoader;
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
@@ -271,7 +271,7 @@ public class ScalaPositionManager implements PositionManager {
     Query<VirtualFile> query = directoryIndex.getDirectoriesByPackageName(packageName, true);
     String fileNameWithoutExtension = dotIndex > 0 ? qName.substring(dotIndex + 1) : qName;
     final Set<String> fileNames = new HashSet<String>();
-    for (final String extention : ScalaLoader.SCALA_EXTENSIONS) {
+    for (final String extention : ScalaCompilerLoader.SCALA_EXTENSIONS) {
       fileNames.add(fileNameWithoutExtension + "." + extention);
     }
 

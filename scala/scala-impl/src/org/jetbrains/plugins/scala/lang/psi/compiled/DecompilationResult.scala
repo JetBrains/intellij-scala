@@ -58,7 +58,7 @@ private object DecompilationResult {
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
   private[compiled] val DecompilerFileAttribute =
-    if (ScalaLoader.isUnderUpsource) None
+    if (ScalaCompilerLoader.isDisabled) None
     else Some(new newvfs.FileAttribute("_is_scala_compiled_new_key_", getStubVersion, true))
 
   private def getFromUserData(file: VirtualFile): DecompilationResult =
