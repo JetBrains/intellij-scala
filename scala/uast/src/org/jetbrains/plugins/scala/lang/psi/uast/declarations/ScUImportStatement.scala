@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 
-import _root_.java.{lang, util}
+import java.{lang, util}
 
 import com.intellij.psi.{PsiElement, ResolveResult}
 import org.jetbrains.annotations.Nullable
@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
 import org.jetbrains.plugins.scala.lang.psi.uast.kinds.ScalaSpecialExpressionKinds
+import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast._
 
 import scala.collection.JavaConverters._
@@ -71,7 +71,7 @@ final class ScUImportStatement(override protected val scElement: ScImportStmt,
 
   @Nullable
   override def resolve(): PsiElement =
-    singleImport.map(_.resolveTo[PsiElement]()).orNull
+    singleImport.map(_.resolveTo[PsiElement]).orNull
 }
 
 object ScUImportStatement {

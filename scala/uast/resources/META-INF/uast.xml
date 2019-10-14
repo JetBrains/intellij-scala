@@ -4,6 +4,6 @@
     <resource-bundle xmlns="">messages.ScalaUastBundle</resource-bundle>
 
     <extensions defaultExtensionNs="org.jetbrains.uast">
-        <uastLanguagePlugin implementation="org.jetbrains.plugins.scala.lang.psi.uast.ScalaUastLanguagePlugin"/>
+        <uastLanguagePlugin implementation="org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin"/>
     </extensions>
 </idea-plugin>

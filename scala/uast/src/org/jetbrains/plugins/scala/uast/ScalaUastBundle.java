@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.uast;
+package org.jetbrains.plugins.scala.uast;
 
 import com.intellij.CommonBundle;
 import com.intellij.reference.SoftReference;

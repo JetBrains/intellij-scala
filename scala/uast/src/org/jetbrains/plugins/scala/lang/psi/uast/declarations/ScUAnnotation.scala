@@ -4,41 +4,22 @@ import java.util
 
 import com.intellij.psi.{PsiAnnotation, PsiClass}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.{
-  ScAnnotation,
-  ScConstructorInvocation,
-  ScReference
-}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUElement,
-  ScUMultiResolvable
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUElement, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{
-  ScUNamedExpression,
-  ScUUnnamedExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{ScUNamedExpression, ScUUnnamedExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
-import org.jetbrains.uast.{
-  UAnchorOwner,
-  UAnnotation,
-  UAnnotationAdapter,
-  UAnnotationEx,
-  UCallExpression,
-  UExpression,
-  UIdentifier,
-  UNamedExpression
-}
+import org.jetbrains.plugins.scala.uast.ReferenceExt
+import org.jetbrains.uast.{UAnchorOwner, UAnnotation, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
 
 import scala.collection.JavaConverters._
 
 /**
-  * [[ScAnnotation]] adapter for the [[UAnnotation]]
-  *
-  * @param scElement Scala PSI element representing annotation
-  */
+ * [[ScAnnotation]] adapter for the [[UAnnotation]]
+ *
+ * @param scElement Scala PSI element representing annotation
+ */
 final class ScUAnnotation(override protected val scElement: ScAnnotation,
                           override protected val parent: LazyUElement)
     extends UAnnotationAdapter
@@ -81,7 +62,7 @@ final class ScUAnnotation(override protected val scElement: ScAnnotation,
 
   @Nullable
   override def resolve(): PsiClass =
-    scReference.map(_.resolveTo[PsiClass]()).orNull
+    scReference.map(_.resolveTo[PsiClass]).orNull
 
   override protected def scReference: Option[ScReference] =
     scElement.constructorInvocation.reference

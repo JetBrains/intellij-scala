@@ -7,27 +7,16 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUExpression,
-  ScUMultiResolvable
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
-import org.jetbrains.uast.{
-  UCallExpression,
-  UCallExpressionAdapter,
-  UExpression,
-  UIdentifier,
-  UReferenceExpression,
-  UastCallKind
-}
+import org.jetbrains.plugins.scala.uast.ReferenceExt
+import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
 import scala.collection.JavaConverters._
 
 trait ScUMethodCallCommon
-    extends UCallExpression
+  extends UCallExpression
     with ScUExpression
     with ScUAnnotated
     with ScUMultiResolvable {
@@ -88,7 +77,7 @@ trait ScUMethodCallCommon
 
   @Nullable
   override def resolve(): PsiMethod =
-    scReference.map(_.resolveTo[PsiMethod]()).orNull
+    scReference.map(_.resolveTo[PsiMethod]).orNull
 
   override def asLogString: String = s"UMethodCall(name = $getMethodName)"
 }

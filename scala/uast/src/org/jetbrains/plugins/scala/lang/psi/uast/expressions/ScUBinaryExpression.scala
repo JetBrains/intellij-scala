@@ -3,13 +3,10 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.PsiMethod
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScInfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
+import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast._
 
 /**
@@ -36,7 +33,7 @@ final class ScUBinaryExpression(
 
   @Nullable
   override def resolveOperator(): PsiMethod =
-    scExpression.operation.resolveTo[PsiMethod]()
+    scExpression.operation.resolveTo[PsiMethod]
 
   // TODO: not implemented properly
   override def getOperator: UastBinaryOperator =

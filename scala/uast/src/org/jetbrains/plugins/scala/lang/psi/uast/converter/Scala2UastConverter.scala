@@ -6,41 +6,24 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{
-  ScCaseClause,
-  ScCaseClauses,
-  ScReferencePattern
-}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{
-  ScAnnotation,
-  ScLiteral,
-  ScMethodLike,
-  ScReference
-}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{
-  ScFunctionDefinition,
-  ScValueOrVariable
-}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{
-  ScExtendsBlock,
-  ScTemplateBody
-}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.light.{
-  ScFunctionWrapper,
-  ScPrimaryConstructorWrapper
-}
+import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.lang.psi.uast.controlStructures._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUBlockExpression._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
+import org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast._
 
@@ -105,9 +88,12 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
         // ========================= DECLARATIONS ===============================
 
-        case e: ScalaFile =>
+        case file: ScalaFile =>
           (_: LazyUElement) =>
-            new ScUFile(e, UastFacade.INSTANCE.findPlugin(e))
+            new ScUFile(
+              file,
+              UastFacade.INSTANCE.findPlugin(file).asInstanceOf[ScalaUastLanguagePlugin]
+            )
         case e: ScImportStmt => new ScUImportStatement(e, _)
 
         case e: ScTypeDefinition            => new ScUClass(e, _)

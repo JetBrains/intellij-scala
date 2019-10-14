@@ -6,32 +6,21 @@ import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUMultiResolvable
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScUErrorClass
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.internals.ResolveProcessor._
-import org.jetbrains.uast.{
-  UAnonymousClass,
-  UClass,
-  UExpression,
-  UObjectLiteralExpression,
-  UObjectLiteralExpressionAdapter,
-  UReferenceExpression
-}
+import org.jetbrains.plugins.scala.uast.ReferenceExt
+import org.jetbrains.uast.{UAnonymousClass, UClass, UExpression, UObjectLiteralExpression, UObjectLiteralExpressionAdapter, UReferenceExpression}
 
 import scala.collection.JavaConverters._
 
 /**
-  * [[ScNewTemplateDefinition]] adapter for the [[UObjectLiteralExpression]]
-  *
-  * @param scElement Scala PSI expression representing anonymous class definition,
-  *                  e.g. `new Trait {...}`
-  */
+ * [[ScNewTemplateDefinition]] adapter for the [[UObjectLiteralExpression]]
+ *
+ * @param scElement Scala PSI expression representing anonymous class definition,
+ *                  e.g. `new Trait {...}`
+ */
 final class ScUObjectLiteralExpression(
   override protected val scElement: ScNewTemplateDefinition,
   override protected val parent: LazyUElement
@@ -81,5 +70,5 @@ final class ScUObjectLiteralExpression(
 
   @Nullable
   override def resolve(): PsiMethod =
-    scReference.map(_.resolveTo[PsiMethod]()).orNull
+    scReference.map(_.resolveTo[PsiMethod]).orNull
 }
