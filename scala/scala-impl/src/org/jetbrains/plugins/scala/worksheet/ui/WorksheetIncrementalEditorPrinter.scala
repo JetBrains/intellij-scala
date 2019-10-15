@@ -12,7 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
@@ -155,6 +155,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     val processedEndLine      = originalLine(originalTextRange.getEndOffset)
 
     lastProcessedLine = Some(processedStartEndLine)
+
     WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
 
     invokeLater {
@@ -216,24 +217,15 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     }
   }
 
-  /*
-  Looks like we don't need any flushing here
-   */
+  // Looks like we don't need any flushing here
   override def scheduleWorksheetUpdate(): Unit = {}
 
-  /**
-    *
-    * @return Number of the last processed line
-    */
+  /**  @return Number of the last processed line */
   def getLastProcessedLine: Option[Int] = lastProcessedLine
 
-  def setLastProcessedLine(i: Option[Int]) {
-    lastProcessedLine = i
-  }
+  def setLastProcessedLine(line: Option[Int]): Unit = lastProcessedLine = line
 
-  def updateScalaFile(file: ScalaFile) {
-    currentFile = file
-  }
+  def updateScalaFile(file: ScalaFile): Unit = currentFile = file
 
   private def augmentLine(inputLine: String): String = {
     val idx = inputLine.indexOf("$Lambda$")
@@ -445,7 +437,8 @@ object WorksheetIncrementalEditorPrinter {
     override def getFirstProcessedOffset: Int = startPsiOffset(psi)
   }
 
-  case class ClassObjectPsi(clazz: ScClass, obj: ScObject, mid: String, isClazzFirst: Boolean) extends QueuedPsi {
+  /** @param clazz class or trait */
+  case class ClassObjectPsi(clazz: ScTypeDefinition, obj: ScObject, mid: String, isClazzFirst: Boolean) extends QueuedPsi {
     private val (first, second) = if (isClazzFirst) (clazz, obj) else (obj, clazz)
 
     override protected def isValidImpl: Boolean = clazz.isValid && obj.isValid
