@@ -799,8 +799,8 @@ class SimplePrintVisitor protected() {
 
   protected def visitNotSupported(iNode: Option[IntermediateNode], msg: String): Unit = {
     printer.append(msg)
+    printer.appendNewLine()
     if (iNode.isDefined) {
-      printer.appendNewLine()
       visit(iNode.get)
     }
   }

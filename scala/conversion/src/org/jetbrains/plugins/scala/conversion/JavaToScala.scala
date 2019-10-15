@@ -488,14 +488,14 @@ object JavaToScala {
         else NotSupported(None, "break //todo: break is not supported")
       case y: PsiYieldStatement =>
         if (isYieldRemovable(y)) convertPsiToIntermediate(y.getExpression, externalProperties)
-        else NotSupported(None, "`yield` " + Option(y.getExpression).map(_.getText).getOrElse("") + "// todo: yield is not supported\n")
+        else NotSupported(None, "`yield` " + Option(y.getExpression).map(_.getText).mkString + "// todo: Java's yield is not supported")
       case c: PsiContinueStatement =>
         if (c.getLabelIdentifier != null)
           NotSupported(None, "continue " + c.getLabelIdentifier.getText + " //todo: continue is not supported")
         else NotSupported(None, "continue //todo: continue is not supported")
       case s: PsiLabeledStatement =>
         val statements = Option(s.getStatement).map(convertPsiToIntermediate(_, externalProperties))
-        NotSupported(statements, s.getLabelIdentifier.getText + " //todo: labels is not supported")
+        NotSupported(statements, s.getLabelIdentifier.getText + " //todo: labels are not supported")
       case _: PsiEmptyStatement => EmptyConstruction()
       case _: PsiErrorElement => EmptyConstruction()
       case e => LiteralExpression(e.getText)

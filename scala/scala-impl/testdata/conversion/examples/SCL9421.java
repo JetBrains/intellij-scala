@@ -20,7 +20,7 @@ class C {
   val array2: Array[Int] = new Array[Int](3)
 
   def testLabels(): Unit = {
-    Label1 //todo: labels is not supported
+    Label1 //todo: labels are not supported
     for (i <- array1) {
       for (j <- array2) {
         if (i > j) break Label1 // todo: label break is not supported

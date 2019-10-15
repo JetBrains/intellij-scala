@@ -9,12 +9,6 @@ class SwitchExpressionYield {
                     yield 4;
                 }
             }
-            case 2 -> {
-                if(args[0].equals("foo")) yield 5;
-                System.out.println("oops");
-                yield 6;
-            }
-            case 3, 4 -> 5;
             default -> {
                 System.out.println("Oops");
                 yield args.length * 2;
@@ -33,14 +27,6 @@ class SwitchExpressionYield {
         4
       }
 
-      case 2 => if (args(0) == "foo") {
-        `yield`
-        5 // todo: yield is not supported
-      }
-        System.out.println("oops")
-        6
-
-      case 3 | 4 => 5
       case _ => System.out.println("Oops")
         args.length * 2
 
