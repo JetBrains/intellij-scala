@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase._
 
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
-                                          protected val worksheetViewer: Editor) extends WorksheetEditorPrinter {
+                                          protected val worksheetViewer: Editor)
+  extends WorksheetEditorPrinter {
 
   protected implicit val project: Project = originalEditor.getProject
 
@@ -54,13 +55,14 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     redrawViewerDiffs()
   }
 
-  protected def cleanFoldings(): Unit = {
-    invokeLater {
-      viewerFolding.runBatchFoldingOperation { () =>
-        viewerFolding.clearFoldRegions()
-      }
+  protected def cleanFoldingsLater(): Unit = invokeLater {
+    cleanFoldings()
+  }
 
-      worksheetViewer.getCaretModel.moveToVisualPosition(new VisualPosition(0, 0))
+  protected def cleanFoldings(): Unit = {
+    foldGroup.clearRegions()
+    viewerFolding.runBatchFoldingOperation { () =>
+      viewerFolding.clearFoldRegions()
     }
   }
 
@@ -103,7 +105,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     foldGroup.installOn(viewerFolding)
     WorksheetEditorPrinterFactory.synch(originalEditor, worksheetViewer, getWorksheetSplitter, Some(foldGroup))
 
-    cleanFoldings()
+    cleanFoldingsLater()
   }
 
   protected def buildNewLines(count: Int): String = StringUtil.repeatSymbol('\n', count)

@@ -74,6 +74,11 @@ final class WorksheetFoldGroup(
   private def addRegion(region: FoldRegion, leftEndOffset: Int, leftContentLines: Int, spaces: Int): Unit =
     _regions += FoldRegionInfo(region, leftEndOffset, leftContentLines, spaces, region.isExpanded)
 
+  def clearRegions(): Unit = {
+    _regions.clear()
+    unfolded.clear()
+  }
+
   private def addParsedRegions(regions: Seq[ParsedRegion]): Unit = {
     val folding = viewerEditor.getFoldingModel.asInstanceOf[FoldingModelEx]
     folding.runBatchFoldingOperation { () =>

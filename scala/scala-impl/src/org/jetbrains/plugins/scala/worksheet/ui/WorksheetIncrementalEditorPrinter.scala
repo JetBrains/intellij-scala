@@ -43,6 +43,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
       invokeLater {
         inWriteAction {
           simpleUpdate("", viewerDocument)
+          cleanFoldings()
         }
       }
       
@@ -102,7 +103,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     line.trim match {
       case REPL_START => 
         fetchNewPsi()
-        if (lastProcessedLine.isEmpty) cleanFoldings()
+        if (lastProcessedLine.isEmpty)
+          cleanFoldingsLater()
         clearMessages()
         clearBuffer()
         false
@@ -166,11 +168,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
         // a single visible line can actually contain many folded lines, so actual indexes can shift further
         // but the used does not see those folded lines so we need to extract folded lines
-        val viewerDocumentLastVisibleLine = {
-          val regions = foldGroup.regions
-          val totalRegionsSpaces = regions.map(_.spaces).sum
-          viewerDocumentLastLine - totalRegionsSpaces
-        }
+        val totalRegionsSpaces = foldGroup.regions.map(_.spaces).sum
+        val viewerDocumentLastVisibleLine = (viewerDocumentLastLine - totalRegionsSpaces).max(0)
 
         val blankLinesBase = (processedStartLine - viewerDocumentLastVisibleLine).max(0)
 
