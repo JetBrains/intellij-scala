@@ -12,7 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
@@ -38,41 +38,40 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
   private val inputToOutputMapping = mutable.ListBuffer.empty[(Int, Int)]
 
-  private def cleanViewerFrom(ln: Int): Unit = {
-    if (ln == 0) {
+  // TODO: foldings should be cleaned updated only after lineIdx, now they are only cleaned in simpleUpdate
+  private def cleanViewerFromLine(lineIdx: Int): Unit = {
+    if (lineIdx == 0) {
       invokeLater {
         inWriteAction {
           simpleUpdate("", viewerDocument)
           cleanFoldings()
         }
       }
-      
-      return 
-    }
-
-    inWriteCommandAction {
-      val start = viewerDocument.getLineStartOffset(ln)
-      val end   = viewerDocument.getLineEndOffset(viewerDocument.getLineCount - 1)
-      viewerDocument.deleteString(start, end)
+    } else {
+      inWriteCommandAction {
+        val start = viewerDocument.getLineStartOffset(lineIdx)
+        val end   = viewerDocument.getLineEndOffset(viewerDocument.getLineCount - 1)
+        viewerDocument.deleteString(start, end)
+      }
     }
   }
 
   private def fetchNewPsi(): Unit = {
     lastProcessedLine match {
-      case Some(lineNumber) =>
-        val i = inputToOutputMapping.lastIndexWhere(_._1 == lineNumber)
-        if (i == -1) {
-          cleanViewerFrom(0)
-        } else {
-          val j = inputToOutputMapping.apply(i)._2
-          
-          if (j + 1 < viewerDocument.getLineCount)
-            cleanViewerFrom(j + 1)
-          if (inputToOutputMapping.length > j + 1)
-            inputToOutputMapping.remove(j + 1, inputToOutputMapping.length - j - 1)
+      case Some(inputLine) =>
+        inputToOutputMapping.lastWhere(_._1 == inputLine) match {
+          case Some((_, outputLine)) =>
+            if (outputLine + 1 < viewerDocument.getLineCount) {
+              cleanViewerFromLine(outputLine + 1)
+            }
+            if (inputToOutputMapping.length > outputLine + 1) {
+              inputToOutputMapping.remove(outputLine + 1, inputToOutputMapping.length - outputLine - 1)
+            }
+          case _ =>
+            cleanViewerFromLine(0)
         }
       case _ =>
-        cleanViewerFrom(0)
+        cleanViewerFromLine(0)
     }
     
     psiToProcess.clear()
@@ -137,10 +136,10 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   override def flushBuffer(): Unit = {
     if (psiToProcess.isEmpty) return // empty output is possible see SCL-11720
 
-    val outputText = outputBuffer.toString().trim
+    val outputText = outputBuffer.toString.trim
     outputBuffer.clear()
     
-    val queuedPsi: QueuedPsi  = psiToProcess.dequeue()
+    val queuedPsi: QueuedPsi = psiToProcess.dequeue()
     if (!queuedPsi.isValid) return //warning here?
 
     val linesCountOutput = countNewLines(outputText) + 1
@@ -359,10 +358,10 @@ object WorksheetIncrementalEditorPrinter {
     } yield (line.substring(0, i), lineIdx)
   }
 
-  trait QueuedPsi {
+  sealed trait QueuedPsi {
     /**
-      * @return underlying psi(-s) is valid
-      */
+     * @return underlying psi(-s) is valid
+     */
     final def isValid: Boolean = inReadAction {
       isValidImpl
     }
@@ -452,7 +451,7 @@ object WorksheetIncrementalEditorPrinter {
       val (text1, text2) =
         if (newLineIdx == -1) (output, "")
         else output.splitAt(newLineIdx)
-      
+
       val offset1 = startPsiOffset(first)
       val offset2 = startPsiOffset(second)
 

@@ -294,6 +294,12 @@ package object extensions {
     def foldlr[L, R](l: L, r: R)(f1: (L, A) => L)(f2: (L, A, R) => R): R =
       if (value.isEmpty) r
       else f2(l, value.head, value.tail.foldlr(f1(l, value.head), r)(f1)(f2))
+
+    def lastWhere(p: A => Boolean): Option[A] =
+      value.lastIndexWhere(p) match {
+        case -1 => None
+        case idx => Some(value(idx))
+      }
   }
 
   implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
