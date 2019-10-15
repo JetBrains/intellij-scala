@@ -19,6 +19,7 @@ import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspErrorMessage}
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 private[resolver] object BspResolverLogic {
 
@@ -77,16 +78,18 @@ private[resolver] object BspResolverLogic {
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
 
+    val transitiveDepComputed: mutable.Map[BuildTarget, Set[BuildTarget]] = mutable.Map.empty
+
     def transitiveDependencyOutputs(start: BuildTarget): Seq[File] = {
-      val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
-      transitiveDeps.flatMap(idToScalacOptions.get).map(_.getClassDirectory.toURI.toFile)
+      val transitiveDeps = transitiveDependencies(start).map(_.getId)
+      transitiveDeps.flatMap(idToScalacOptions.get).map(_.getClassDirectory.toURI.toFile).toSeq
     }
 
-    def transitiveDependencies(start: BuildTarget): Seq[BuildTarget] = {
-      val direct = start.getDependencies.asScala.flatMap(idToTarget.get) // TODO warning when dependencies are not in buildTargets
-      val transitive = direct.flatMap(transitiveDependencies)
-      (start +: (direct ++ transitive)).distinct
-    }
+    def transitiveDependencies(start: BuildTarget): Set[BuildTarget] =
+      transitiveDepComputed.getOrElseUpdate(start, {
+        val direct = start.getDependencies.asScala.flatMap(idToTarget.get) // TODO warning when dependencies are not in buildTargets
+        (start +: direct.flatMap(transitiveDependencies)).toSet
+      })
 
     val idToDepSources = dependencySourcesItems
       .map(item => (item.getTarget, item.getSources.asScala.map(_.toURI.toFile)))
