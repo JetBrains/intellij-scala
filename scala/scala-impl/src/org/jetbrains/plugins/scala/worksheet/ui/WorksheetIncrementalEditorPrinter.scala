@@ -300,9 +300,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     Option(MessageInfo(finalText, vertOffset, horOffset, severity))
   }
 
-  private def refreshLastMarker(): Unit = {
+  private def refreshLastMarker(): Unit =
     rehighlight(getScalaFile)
-  }
 }
 
 object WorksheetIncrementalEditorPrinter {
@@ -340,8 +339,9 @@ object WorksheetIncrementalEditorPrinter {
 
   def countNewLines(str: String): Int = StringUtil.countNewLines(str)
 
-  def rehighlight(file: PsiFile): Unit =
+  def rehighlight(file: PsiFile): Unit = inReadAction {
     DaemonCodeAnalyzer.getInstance(file.getProject).restart(file)
+  }
 
   case class MessageStart(msg: String)
   case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompilerUtil.CompilationMessageSeverity)
