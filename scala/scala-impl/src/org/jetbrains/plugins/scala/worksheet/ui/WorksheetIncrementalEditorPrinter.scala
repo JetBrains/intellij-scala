@@ -38,7 +38,6 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
   private val inputToOutputMapping = mutable.ListBuffer.empty[(Int, Int)]
 
-  // TODO: foldings should be cleaned updated only after lineIdx, now they are only cleaned in simpleUpdate
   private def cleanViewerFromLine(lineIdx: Int): Unit = {
     if (lineIdx == 0) {
       invokeLater {
@@ -75,13 +74,13 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     }
     
     psiToProcess.clear()
-    
-    val buffer = mutable.ListBuffer[QueuedPsi]()
-    val glue = new WorksheetPsiGlue(buffer)
+
+    val glue = WorksheetPsiGlue()
     val iterator = new WorksheetInterpretExprsIterator(getScalaFile, Option(originalEditor), lastProcessedLine)
     iterator.collectAll(x => inReadAction(glue.processPsi(x)), None)
-    
-    psiToProcess.enqueue(buffer: _*)
+
+    val elements = glue.result
+    psiToProcess.enqueue(elements: _*)
   }
 
   private def clearMessages(): Unit = {
@@ -405,7 +404,10 @@ object WorksheetIncrementalEditorPrinter {
     protected def startPsiOffset(psi: PsiElement): Int = computeStartPsi(psi).startOffset
 
     protected def getPsiTextWithCommentLine(psi: PsiElement): String =
-      storeLineInfoRepl(StringUtil.splitByLines(psi.getText, false))
+      getPsiTextWithCommentLine(psi.getText)
+
+    protected def getPsiTextWithCommentLine(text: String): String =
+      storeLineInfoRepl(StringUtil.splitByLines(text, false))
 
     protected def storeLineInfoRepl(lines: Array[String]): String = {
       lines.zipWithIndex
@@ -437,7 +439,7 @@ object WorksheetIncrementalEditorPrinter {
 
   /** @param clazz class or trait */
   case class ClassObjectPsi(clazz: ScTypeDefinition, obj: ScObject, mid: String, isClazzFirst: Boolean) extends QueuedPsi {
-    private val (first, second) = if (isClazzFirst) (clazz, obj) else (obj, clazz)
+    val (first, second) = if (isClazzFirst) (clazz, obj) else (obj, clazz)
 
     override protected def isValidImpl: Boolean = clazz.isValid && obj.isValid
 
@@ -463,5 +465,26 @@ object WorksheetIncrementalEditorPrinter {
     override def getFirstProcessedOffset: Int = startPsiOffset(first)
 
     override def getLastProcessedOffset: Int = startPsiOffset(second)
+  }
+
+  /** represents a sequence of input psi elements that go on a single line and separated with a semicolon  */
+  case class SemicolonSeqPsi(elements: Seq[PsiElement]) extends QueuedPsi {
+    override protected def isValidImpl: Boolean = elements.nonEmpty && elements.forall(_.isValid)
+
+    override protected def getTextImpl: String = {
+      val concat = elements.map(_.getText).mkString(" ; ")
+      getPsiTextWithCommentLine(concat)
+    }
+
+    override def getWholeTextRange: TextRange = TextRange.create(elements.head.startOffset, elements.last.endOffset)
+
+    override def getPrintChunks(output: String): Seq[PrintChunk] = {
+      val offset = startPsiOffset(elements.head)
+      val chunk = PrintChunk(offset, 0, output)
+      Seq(chunk)
+    }
+
+    override def getFirstProcessedOffset: Int = startPsiOffset(elements.head)
+    override def getLastProcessedOffset: Int = startPsiOffset(elements.last)
   }
 }

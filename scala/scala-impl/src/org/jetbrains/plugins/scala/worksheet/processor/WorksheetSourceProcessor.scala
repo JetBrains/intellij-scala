@@ -76,13 +76,14 @@ object WorksheetSourceProcessor {
   def processSimple(srcFile: ScalaFile, editor: Editor): String = Base64.encode(srcFile.getText.getBytes)
 
   def processIncremental(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, (String, String)] = {
-    val exprsPsi = mutable.ListBuffer[QueuedPsi]()
-    val lastProcessed = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor: Editor)
-    val glue = new WorksheetPsiGlue(exprsPsi)
+    val lastProcessed = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor)
+
+    val glue = WorksheetPsiGlue()
     val iterator = new WorksheetInterpretExprsIterator(srcFile, Some(editor), lastProcessed)
     iterator.collectAll(glue.processPsi, Some(e => return Left(e)))
 
-    val texts = exprsPsi.map(_.getText)
+    val elements = glue.result
+    val texts = elements.map(_.getText)
     val allExprs = if (lastProcessed.isEmpty) ":reset" +: texts else texts
 
     Right((Base64.encode((allExprs mkString REPL_DELIMITER).getBytes), ""))
