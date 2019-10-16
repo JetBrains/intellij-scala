@@ -73,6 +73,8 @@ object WorksheetDiffSplitters {
       redrawDiffs()
     }
 
+    def clear(): Unit = update(Seq(), Seq())
+
     def getComponent: JComponent = this
 
     def getVisibleAreaListener: VisibleAreaListener = visibleAreaListener

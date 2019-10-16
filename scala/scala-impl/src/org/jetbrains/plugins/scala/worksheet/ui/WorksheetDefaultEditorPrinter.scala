@@ -1,29 +1,31 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import java.awt.event.{ActionEvent, ActionListener}
-
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.util.text.StringUtil
 import javax.swing.Timer
-import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDefaultEditorPrinter._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
 
 import scala.collection.mutable.ArrayBuffer
 
+/** Printer for 'Plain' mode */
 class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaFile)
   extends WorksheetEditorPrinterBase(editor, viewer) {
 
-  private val timer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, TimerListener)
+  // used to flush collected output if there is some long process generating running
+  private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, _ => midFlush())
 
-  private val outputBuffer = new StringBuilder
-  private val foldingOffsets = ArrayBuffer.apply[FoldingOffsets]()
-  private var linesCount = 0
-  private var totalCount = 0
-  private var insertedToOriginal = 0
-  private var contentOffsetPrefix = ""
+  private val evaluatedChunks = ArrayBuffer[EvaluationChunk]()
+
+  private val currentOutputBuffer = StringBuilder.newBuilder
+  private var currentOutputNewLinesCount = 0
+
   private var cutoffPrinted = false
   @volatile private var terminated = false
   @volatile private var buffed = 0
@@ -33,8 +35,7 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
 
   override def getScalaFile: ScalaFile = file
 
-  override def scheduleWorksheetUpdate(): Unit =
-    timer.start()
+  override def scheduleWorksheetUpdate(): Unit = flushTimer.start()
 
   override def processLine(line: String): Boolean = {
     if (isTerminationLine(line)) {
@@ -43,64 +44,31 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
       return true
     }
 
-    if (!isInsideOutput && StringUtils.isBlank(line)) {
-      outputBuffer.append(line)
-      totalCount += 1
-    } else if (isResultEnd(line)) {
+    if (isResultEnd(line)) {
+      if (!isInited) init()
+
       WorksheetSourceProcessor.extractLineInfoFrom(line) match {
-        case Some((start, end)) =>
-          if (!isInited) {
-            init()
-
-            val contentStartLineIdx = outputBuffer.prefixLength(_ == '\n')
-            val extraLeadingBlankLines = start - contentStartLineIdx
-            if (extraLeadingBlankLines > 0) {
-              contentOffsetPrefix = buildNewLines(extraLeadingBlankLines)
-            }
-          }
-
-          val differ = end - start + 1 - linesCount
-
-          if (differ > 0) {
-            val blankLines = buildNewLines(differ)
-            outputBuffer.append(blankLines)
-          } else if (differ < 0) {
-            insertedToOriginal -= differ
-
-            val outputStartLineIdx = start + insertedToOriginal + differ
-            val outputEndOffset = {
-              val text = currentText
-              val trailingNewLines = text.reverseIterator.takeWhile(_ == '\n').length
-              currentText.length - trailingNewLines
-            }
-            val inputLinesCount = end - start + 1
-            val inputEndLineIdx = end
-
-            foldingOffsets += FoldingOffsets(
-              outputStartLineIdx,
-              outputEndOffset,
-              inputLinesCount,
-              inputEndLineIdx
-            )
-          }
-
-          buffed += linesCount
-          if (buffed > WorksheetEditorPrinterFactory.BULK_COUNT) {
-            midFlush()
-          }
-          clear()
+        case Some((inputStartLine, inputEndLine)) =>
+          val output = currentOutputBuffer.mkString
+          val chunk  = EvaluationChunk(inputStartLine, inputEndLine, output)
+          evaluatedChunks += chunk
         case _ =>
       }
-    } else if (!cutoffPrinted) {
-      linesCount += 1
-      totalCount += 1
 
-      if (linesCount > getOutputLimit) {
-        outputBuffer.append(WorksheetEditorPrinterFactory.END_MESSAGE)
+      currentOutputBuffer.clear()
+      currentOutputNewLinesCount = 0
+      buffed = 0
+      cutoffPrinted = false
+    } else {
+      if (currentOutputNewLinesCount < WorksheetEditorPrinterFactory.BULK_COUNT) {
+        currentOutputBuffer.append(line)
+      } else if (!cutoffPrinted) {
+        currentOutputBuffer.append(WorksheetEditorPrinterFactory.END_MESSAGE)
         cutoffPrinted = true
-      } else {
-        outputBuffer.append(line)
       }
+
+      currentOutputNewLinesCount += 1
+      buffed += 1
     }
 
     false
@@ -114,30 +82,30 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
   override def flushBuffer(): Unit = {
     if (!isInited) init()
     if (terminated) return
-    val text = currentText
 
-    if (timer.isRunning) timer.stop()
+    if (flushTimer.isRunning) {
+      flushTimer.stop()
+    }
 
-    updateWithPersistentScroll(viewerDocument, text)
-
-    outputBuffer.clear()
-    contentOffsetPrefix = ""
+    val (text, foldings) = renderText(evaluatedChunks)
+    updateWithPersistentScroll(viewerDocument, text, foldings)
 
     invokeLater {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
     }
   }
 
+  // currently we re-render text on each mid-flush (~once per 1 second for long processes),
+  // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
+  // TODO: as a known side affect all the expanded regions are collapsed after each mid flush, we could fix that
   private def midFlush(): Unit = {
-    if (terminated || buffed == 0) return
+    if (terminated || buffed  == 0) return
 
-    val text = currentText
     buffed = 0
 
-    updateWithPersistentScroll(viewerDocument, text)
+    val (text, foldings) = renderText(evaluatedChunks)
+    updateWithPersistentScroll(viewerDocument, text, foldings)
   }
-
-  private def currentText: String = contentOffsetPrefix + outputBuffer.toString()
 
   private def isTerminationLine(line: String): Boolean =
     line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER
@@ -145,20 +113,10 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
   private def isResultEnd(line: String): Boolean =
     line.startsWith(WorksheetSourceProcessor.END_TOKEN_MARKER)
 
-  private def clear(): Unit = {
-    linesCount = 0
-    cutoffPrinted = false
-  }
-
-  private def isInsideOutput: Boolean = linesCount > 0
-
-  private def updateWithPersistentScroll(document: Document, text: String): Unit = {
-    val foldingOffsetsCopy = foldingOffsets.clone()
-    foldingOffsets.clear()
-
+  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[FoldingOffsets]): Unit = {
     invokeLater {
       inWriteAction {
-        val scroll = originalEditor.getScrollingModel.getVerticalScrollOffset
+        val scroll          = originalEditor.getScrollingModel.getVerticalScrollOffset
         val worksheetScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
 
         simpleUpdate(text, document)
@@ -166,12 +124,119 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
         originalEditor.getScrollingModel.scrollVertically(scroll)
         worksheetViewer.getScrollingModel.scrollHorizontally(worksheetScroll)
 
-        updateFoldings(foldingOffsetsCopy)
+        cleanFoldings()
+        updateFoldings(foldings)
       }
     }
   }
+}
 
-  private object TimerListener extends ActionListener {
-    override def actionPerformed(e: ActionEvent): Unit = midFlush()
+object WorksheetDefaultEditorPrinter {
+
+  private val Log = Logger.getInstance(classOf[WorksheetDefaultEditorPrinter])
+
+  /**
+   * Represents evaluated expression which is located on `inputStartLine..inputEndLine` lines in the left editor
+   * and which evaluation output equals to `outputText`
+   */
+  private case class EvaluationChunk(inputStartLine: Int,
+                                     inputEndLine: Int,
+                                     outputText: String) {
+    // REMEMBER: output always goes with trailing new line
+    def outputLinesCount: Int = StringUtil.countNewLines(outputText)
+  }
+
+  /**
+   * @return grouped of sequential chunks, each group represent chunks that go on a single line
+   *         meaning that left sibling chunk end line equals to right sibling chunk start line
+   *         (this can happen when expressions are separated with comma)
+   *
+   * @example in format (lineStart, lineEnd): <br>
+   *          input: Seq((1, 1), (1, 1), (1, 2), (2, 2), (3, 4), (4, 5)) <br>
+   *          output: Seq(Seq((1, 1), (1, 1), (1, 2), (2, 2)), Seq((3, 4), (4, 5))) <br>
+   */
+  private def groupChunks(chunks: Seq[EvaluationChunk]): Seq[Seq[EvaluationChunk]] = if (chunks.isEmpty) Seq() else {
+    val result = ArrayBuffer(ArrayBuffer(chunks.head))
+
+    chunks.sliding(2).foreach {
+      case Seq(prev, curr) =>
+        assert(prev.inputEndLine <= curr.inputStartLine, "chunks should be ordered")
+
+        if (prev.inputEndLine == curr.inputStartLine) {
+          result.last += curr
+        } else {
+          result += ArrayBuffer(curr)
+        }
+      case _ => // only one chunk is present for now
+    }
+
+    result
+  }
+
+
+  @Measure
+  private def renderText(chunks: Seq[EvaluationChunk]): (CharSequence, Seq[FoldingOffsets]) = {
+    val resultText = StringBuilder.newBuilder
+    val resultFoldings = ArrayBuffer.empty[FoldingOffsets]
+
+    val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetDefaultEditorPrinter.groupChunks(chunks)
+    var foldedLines                              = 0
+
+    for { group <- chunksGrouped} {
+      val inputStartLine   = group.head.inputStartLine
+      val inputEndLine     = group.last.inputEndLine
+      val inputLinesCount  = inputEndLine - inputStartLine + 1
+      val outputTextLength = group.map(_.outputText.length).sum
+      val outputLinesCount = group.map(_.outputLinesCount).sum
+
+      val totalOutputLength            = resultText.length
+      val totalOutputLinesCount        = StringUtil.countNewLines(resultText)
+      val totalOutputVisibleLinesCount = totalOutputLinesCount - foldedLines
+
+      // align visible output line in the right editor with current input line from the left editor
+      val leadingNewLinesCount = {
+        val diff = inputStartLine - totalOutputVisibleLinesCount
+        if (diff < 0){
+          // expecting visible lines to be folded with the last input end line, thus less then current input start line
+          // NOTE: be careful not to log chunk text itself
+          val chunksDump = chunks.map { case c@EvaluationChunk(s, e, t) => (s, e, t.length, c.outputLinesCount) }
+          val message = s"leadingNewLinesCount is expected to be non-negative but got: $diff, chunks: $chunksDump"
+          Log.warn(message)
+        }
+        diff.max(0)
+      }
+      if (leadingNewLinesCount > 0) {
+        resultText.append("\n" * leadingNewLinesCount)
+      }
+
+      group.foreach { chunk =>
+        resultText.append(chunk.outputText)
+      }
+
+      val diffLocal = outputLinesCount - inputLinesCount
+      if (diffLocal > 0) {
+        // current output is longer than input, need to fold some output lines to align with input start/end lines
+        val outputStartLine = totalOutputLinesCount + leadingNewLinesCount
+        val outputEndOffset = totalOutputLength + leadingNewLinesCount + outputTextLength - 1
+        val folding = FoldingOffsets(
+          outputStartLine,
+          outputEndOffset,
+          inputLinesCount,
+          inputEndLine
+        )
+
+        foldedLines += diffLocal
+        resultFoldings += folding
+      } else if (diffLocal < 0) {
+        // current input is longer than output need to add extra trailing spaces after the output
+        // to align input end with output last line
+        val trailingNewLinesCount = -diffLocal //+ 1
+        resultText.append("\n" * trailingNewLinesCount)
+      } else {
+        // do nothing, input and output lines are already aligned
+      }
+    }
+
+    (resultText, resultFoldings)
   }
 }

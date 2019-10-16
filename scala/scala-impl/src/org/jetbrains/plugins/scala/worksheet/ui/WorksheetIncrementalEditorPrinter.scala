@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinte
 
 import scala.collection.mutable
 
+/** Printer for 'REPL' mode */
 class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: ScalaFile) 
   extends WorksheetEditorPrinterBase(editor, viewer) {
 

@@ -77,6 +77,7 @@ final class WorksheetFoldGroup(
   def clearRegions(): Unit = {
     _regions.clear()
     unfolded.clear()
+    splitter.clear()
   }
 
   private def addParsedRegions(regions: Seq[ParsedRegion]): Unit = {

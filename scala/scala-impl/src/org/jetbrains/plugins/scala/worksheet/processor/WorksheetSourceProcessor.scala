@@ -7,7 +7,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.util.Base64
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter.QueuedPsi
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -379,30 +378,6 @@ object WorksheetSourceProcessor {
       importsProcessed += imp
     }
 
-    protected def processComment(comment: PsiComment): Unit = {
-      val range = comment.getTextRange
-
-      @scala.annotation.tailrec
-      def getBackOffset(from: PsiElement): Int = {
-        if (from == null) 1 else from.getPrevSibling match {
-          case ws: PsiWhiteSpace if countNewLines(ws.getText) > 0 => 0
-          case null => getBackOffset(from.getParent)
-          case _ => 1
-        }
-      }
-
-      val backOffset = getBackOffset(comment)
-
-      val contentLines: Int = documentOpt.fold(
-        countNewLines(comment.getText)
-      )(
-        calcContentLines(_, range)
-      )
-      val blankLines: Int = contentLines - backOffset
-      for (_ <- 0 until blankLines)
-        objectBuilder.append(getPrintMethodName).append("()\n")
-    }
-
     protected def appendCommentToClass(comment: PsiComment): Unit = {
       val range = comment.getTextRange
       if (comment.getNode.getElementType != ScalaTokenTypes.tLINE_COMMENT) return
@@ -428,13 +403,6 @@ object WorksheetSourceProcessor {
       resCount += 1
     }
 
-    protected def processWhiteSpace(ws: PsiElement): Unit = {
-      val newLines = countNewLines(ws.getText)
-      for (_ <- 1 until newLines) {
-        objectBuilder.append(getPrintMethodName).append("()\n")
-      }
-    }
-
     protected def insertUntouched(exprs: Iterable[PsiElement]): Unit =
       exprs.foreach(expr => classBuilder.append(expr.getText).append(insertNlsFromWs(expr)))
 
@@ -455,11 +423,10 @@ object WorksheetSourceProcessor {
         case assign: ScAssignment         => processAssign(assign)
         case imp: ScImportStmt            => if (!processLocalImport(imp)) processImport(imp)
         case comment: PsiComment          =>
-          processComment(comment)
           appendCommentToClass(comment)
-        case pack: ScPackaging            => processWhiteSpace(pack)
+        case _: ScPackaging               => //skip
         case otherExpr: ScExpression      => processOtherExpr(otherExpr)
-        case ws: PsiWhiteSpace            => processWhiteSpace(ws)
+        case _: PsiWhiteSpace             => //skip
         case error: PsiErrorElement       => return Left(error)
         case null                         => logError(null)
         case unknown                      => processUnknownElement(unknown)
@@ -519,25 +486,19 @@ object WorksheetSourceProcessor {
       case _ => ";"
     }
 
-    @inline final def psiToLineNumbers(psi: PsiElement): Option[String] = documentOpt map {
-      document =>
+    @inline final def psiToLineNumbers(psi: PsiElement): Option[String] =
+      documentOpt.map { document =>
         var actualPsi = psi
 
         actualPsi.getFirstChild match {
           case _: PsiComment =>
             @tailrec
-            def iter(wsOrComment: PsiElement): PsiElement = {
-              wsOrComment match {
-                case comment: PsiComment =>
-                  processComment(comment)
-                  iter(comment.getNextSibling)
-                case ws: PsiWhiteSpace =>
-                  processWhiteSpace(ws)
-                  iter(ws.getNextSibling)
-                case a: PsiElement if a.getTextRange.isEmpty => iter(a.getNextSibling)
-                case a: PsiElement => a
-                case _ => psi
-              }
+            def iter(wsOrComment: PsiElement): PsiElement = wsOrComment match {
+              case ct: PsiComment                            => iter(ct.getNextSibling)
+              case ws: PsiWhiteSpace                         => iter(ws.getNextSibling)
+              case el: PsiElement if el.getTextRange.isEmpty => iter(el.getNextSibling)
+              case a: PsiElement                             => a
+              case _                                         => psi
             }
 
             actualPsi = iter(actualPsi.getFirstChild)
@@ -548,7 +509,7 @@ object WorksheetSourceProcessor {
         val start = actualPsi.getTextRange.getStartOffset //actualPsi for start and psi for end - it is intentional
         val end = psi.getTextRange.getEndOffset
         s"${document.getLineNumber(start)}|${document.getLineNumber(end)}"
-    }
+      }
 
     @inline final def appendPsiLineInfo(psi: PsiElement, numberStr: Option[String] = None): Unit = {
       val lineNumbers = numberStr getOrElse psiToLineNumbers(psi)

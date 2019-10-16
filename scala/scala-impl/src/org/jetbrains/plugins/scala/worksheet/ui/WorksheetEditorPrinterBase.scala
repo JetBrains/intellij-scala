@@ -115,7 +115,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     PsiDocumentManager.getInstance(project).commitDocument(doc)
   }
 
-  protected def simpleUpdate(text: String, document: Document): Unit = {
+  protected def simpleUpdate(text: CharSequence, document: Document): Unit = {
     document.setText(text)
     commitDocument(document)
   }
