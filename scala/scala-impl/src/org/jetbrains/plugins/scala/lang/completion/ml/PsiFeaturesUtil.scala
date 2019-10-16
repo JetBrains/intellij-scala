@@ -6,14 +6,14 @@ import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScCatchBlock, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScTypedDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType, StdType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.annotation.tailrec
@@ -67,14 +67,12 @@ object PsiFeaturesUtil {
       case _: ScTrait => ItemKind.TRAIT
       case _: ScClass => ItemKind.CLASS
       case _: ScTypeAlias => ItemKind.TYPE_ALIAS
-      case _: ScPrimaryConstructor => ItemKind.CONSTRUCTOR
       case _: ScFunction => ItemKind.FUNCTION
       case _: ScSyntheticFunction => ItemKind.SYNTHETHIC_FUNCTION
       case f: ScFieldId if f.isVar => ItemKind.VARIABLE
       case _: ScFieldId => ItemKind.VALUE
       case r: ScReferencePattern if r.isVar => ItemKind.VARIABLE
       case r: ScReferencePattern if r.isVal => ItemKind.VALUE
-      case _: ScReferencePattern => ItemKind.REFERENCE
       case _: PsiPackage => ItemKind.PACKAGE
       case c: PsiClass if c.isInterface => ItemKind.TRAIT
       case _: PsiClass => ItemKind.CLASS
@@ -86,7 +84,7 @@ object PsiFeaturesUtil {
 
   def argumentCount(maybeElement: Option[PsiElement]): Int = {
     val countOption = maybeElement.collectFirst {
-      case function: ScFunction => function.parameters.size
+      case function: ScFunction => function.paramClauses.clauses.headOption.filterNot(_.isImplicit).map(_.parameters.size).getOrElse(0)
       case method: PsiMethod => method.getParameterList.getParametersCount
       case syntheticFunction: ScSyntheticFunction => syntheticFunction.paramClauses.headOption.map(_.size).getOrElse(0)
       case Typeable(FunctionType(_, argumentTypes)) => argumentTypes.size

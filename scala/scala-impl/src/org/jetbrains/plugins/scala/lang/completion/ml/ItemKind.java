@@ -9,11 +9,8 @@ enum ItemKind {
     FUNCTION,
     SYNTHETHIC_FUNCTION,
     TYPE_ALIAS,
-    REFERENCE,
-    CONSTRUCTOR,
     PACKAGE,
     EXCEPTION,
     KEYWORD,
-    TEMPLATE,
     UNKNOWN
 }

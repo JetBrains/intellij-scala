@@ -1,25 +1,21 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package ml
+package org.jetbrains.plugins.scala.lang.completion.ml
 
 import java.util
 
 import com.intellij.codeInsight.completion.CompletionLocation
 import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeatureProvider, MLFeatureValue}
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.codeInsight.template.impl.LiveTemplateLookupElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
+import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionContributor, ScalaSmartCompletionContributor, positionFromParameters}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
 
-final class ScalaElementFeatureProvider extends ElementFeatureProvider {
-
-  import ScalaElementFeatureProvider._
+class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
   override def getName: String = "scala"
 
@@ -50,8 +46,7 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
     val kind = PsiFeaturesUtil.kind(maybeElement).getOrElse {
       element.getObject match {
-        case string: String if isKeyword(string) => ItemKind.KEYWORD
-        case _: LiveTemplateLookupElement => ItemKind.TEMPLATE
+        case string: String if ScalaTokenTypes.KEYWORDS.getTypes.exists(_.toString == string) => ItemKind.KEYWORD
         case _ => ItemKind.UNKNOWN
       }
     }
@@ -64,7 +59,6 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
     features.put("scala", MLFeatureValue.binary(scalaLookupItem.exists(_.element.isInstanceOf[ScalaPsiElement])))
     features.put("java_object_method", MLFeatureValue.binary(PsiFeaturesUtil.isJavaObjectMethod(maybeElement)))
     features.put("argument_count", MLFeatureValue.float(PsiFeaturesUtil.argumentCount(maybeElement)))
-    features.put("unit", MLFeatureValue.binary(typeWords sameElements Array("unit")))
     features.put("name_name_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedNameWords, nameWords)))
     features.put("name_type_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedNameWords, typeWords)))
     features.put("type_name_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedTypeWords, typeWords)))
@@ -80,7 +74,7 @@ object ScalaElementFeatureProvider {
     positionFromParameters(location.getCompletionParameters)
   })
 
-  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String], Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
+  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String],  Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
     val position = Position.getValue(location)
 
     val expressionOption = position match {
