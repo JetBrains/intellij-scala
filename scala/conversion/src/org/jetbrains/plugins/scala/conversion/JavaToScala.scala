@@ -687,15 +687,15 @@ object JavaToScala {
         sort(constructorsCallMap)
       }
 
-      def updateMembersAndConvert(dropMembes: Option[Seq[PsiMember]]): Seq[IntermediateNode] = {
+      def updateMembersAndConvert(dropMembers: Option[Seq[PsiMember]]): Seq[IntermediateNode] = {
         val sortedMembers = sortMembers()
-        val updatedMembers = dropMembes.map(el => sortedMembers.filter(!el.contains(_))).getOrElse(sortedMembers)
+        val updatedMembers = dropMembers.map(el => sortedMembers.filter(!el.contains(_))).getOrElse(sortedMembers)
         updatedMembers.map(convertPsiToIntermediate(_, externalProperties))
       }
 
-      def getDropComments(maybeDropMembes: Option[Seq[PsiMember]]) =
-        maybeDropMembes.map { dropMembes =>
-          dropMembes.flatMap(CommentsCollector.getAllInsideComments).map(CommentsCollector.convertComment)
+      def getDropComments(maybeDropMembers: Option[Seq[PsiMember]]) =
+        maybeDropMembers.map { dropMembers =>
+          dropMembers.flatMap(CommentsCollector.getAllInsideComments).map(CommentsCollector.convertComment)
         }
 
       def convertExtendList(): Seq[IntermediateNode] =
