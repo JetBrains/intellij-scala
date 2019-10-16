@@ -1,85 +1,100 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
-import java.util
-import java.util.Collections
+import java.{util => ju}
 
 import com.intellij.codeInsight.completion.PlainTextSymbolCompletionContributor
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.psi.PsiFile
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
-class ScalaPlainTextSymbolCompletionContributor extends PlainTextSymbolCompletionContributor {
-  override def getLookupElements(file: PsiFile
-                                 , invocationCount: Int
-                                 , prefix: String): util.Collection[LookupElement] = {
+final class ScalaPlainTextSymbolCompletionContributor extends PlainTextSymbolCompletionContributor {
+
+  import ScalaPlainTextSymbolCompletionContributor._
+
+  override def getLookupElements(file: PsiFile,
+                                 invocationCount: Int,
+                                 prefix: String): ju.Collection[LookupElement] =
     file match {
       case scalaFile: ScalaFile =>
-        val result = new util.ArrayList[LookupElement]
-        for (typeDefinition <- scalaFile.typeDefinitions) {
-          val name = typeDefinition.name
-          if (name != null) {
-            result.add(LookupElementBuilder.create(name).withIcon(typeDefinition.getIcon(0)))
-            val infix = getInfix(prefix, name)
-            if (infix != null) {
-              val offset = name.length + infix.length
-              val memberPrefix = prefix.substring(0, offset)
-              val rest = prefix.substring(offset)
-              processClassBody(invocationCount, result, typeDefinition, infix, memberPrefix, rest)
-            }
-            else if (invocationCount > 0) {
-              processClassBody(invocationCount, result, typeDefinition, infix, null, null)
-            }
+        val result = new ju.ArrayList[LookupElement]
+        for {
+          definition <- scalaFile.typeDefinitions
+
+          name = definition.name
+          if name != null
+        } {
+          result.add(createElement(name, definition.getIcon(0)))
+
+          val topLevelOnly = invocationCount == 0
+          splitAtDot(prefix, name) match {
+            case Some(suffix) =>
+              processClassBody(result, definition, topLevelOnly)(name, suffix)
+            case _ if !topLevelOnly =>
+              foreachMemberIn(definition) {
+                case (_, memberName, icon) => result.add(createElement(memberName, icon))
+              }
+            case _ =>
           }
         }
+
         result
-      case _ => Collections.emptyList()
+      case _ => ju.Collections.emptyList()
     }
-  }
+}
 
-  private def processClassBody(invocationCount: Int
-                               , result: util.List[LookupElement]
-                               , aClass: ScTypeDefinition
-                               , infix: String
-                               , memberPrefix: String
-                               , rest: String): Unit = {
-    for (member <- aClass.members) {
-      member match {
-        case namedMember: ScNamedElement if namedMember.isPhysical =>
-          val memberName = namedMember.getName
-          if (memberName != null) {
-            val icon = member.getIcon(0)
-            val element = LookupElementBuilder.create(memberName).withIcon(icon)
-            if (invocationCount > 0) result.add(element)
-            if (memberPrefix != null) {
-              if (member.isInstanceOf[ScFunction] ||
-                member.isInstanceOf[ScValueOrVariable] && !(infix == "::") || infix == ".") {
-                result.add(LookupElementBuilder.create(memberPrefix + memberName).withIcon(icon))
-                member match {
-                  case clazz: ScTypeDefinition =>
-                    val nestedInfix = getInfix(rest, memberName)
-                    if (nestedInfix != null) {
-                      val index = memberName.length + nestedInfix.length
-                      val nestedPrefix = memberPrefix + rest.substring(0, index)
-                      processClassBody(0, result, clazz, nestedInfix, nestedPrefix, rest.substring(index))
-                    }
-                  case _ =>
-                }
-              }
+object ScalaPlainTextSymbolCompletionContributor {
+
+  private def foreachMemberIn(definition: ScTypeDefinition)
+                             (action: (ScMember, String, Icon) => Unit): Unit = for {
+    member <- definition.members
+    if member.isPhysical
+
+    memberName <- member match {
+      case holder: ScDeclaredElementsHolder => holder.declaredNames
+      case named: ScNamedElement => Option(named.name).toSeq
+      case _ => Seq.empty
+    }
+  } action(member, memberName, member.getIcon(0))
+
+  private def processClassBody(result: ju.List[LookupElement],
+                               definition: ScTypeDefinition,
+                               topLevelOnly: Boolean)
+                              (prefix: String,
+                               suffix: String): Unit =
+    foreachMemberIn(definition) {
+      case (member, memberName, icon) =>
+        if (!topLevelOnly) {
+          result.add(createElement(memberName, icon))
+        }
+
+        val newPrefix = prefix + "." + memberName
+        result.add(createElement(newPrefix, icon))
+
+        member match {
+          case innerDefinition: ScTypeDefinition =>
+            splitAtDot(suffix, memberName) match {
+              case Some(newSuffix) =>
+                processClassBody(result, innerDefinition, topLevelOnly = true)(newPrefix, newSuffix)
+              case _ =>
             }
-          }
-        case _ =>
-      }
+          case _ =>
+        }
     }
+
+  private def splitAtDot(currentPrefix: String, name: String): Option[String] = {
+    val nameWithDot = name + "."
+    if (currentPrefix.startsWith(nameWithDot))
+      Some(currentPrefix.substring(nameWithDot.length))
+    else
+      None
   }
 
-  private def getInfix(currentPrefix: String, className: String): String = {
-    if (!currentPrefix.startsWith(className)) return null
-    List(".", "#", "::")
-      .find(infix => currentPrefix.startsWith(infix, className.length))
-      .orNull
-  }
-
+  private def createElement(name: String, icon: Icon) =
+    LookupElementBuilder.create(name).withIcon(icon)
 }

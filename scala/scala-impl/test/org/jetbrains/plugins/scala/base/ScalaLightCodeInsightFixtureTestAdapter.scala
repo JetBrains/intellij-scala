@@ -14,7 +14,7 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.junit.Assert.fail
+import org.junit.Assert.{assertNotNull, fail}
 
 /**
  * User: Dmitry Naydanov
@@ -56,11 +56,14 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     super.tearDown()
   }
 
-  protected def configureFromFileText(fileText: String): PsiFile =
-    getFixture.configureByText(
+  protected def configureFromFileText(fileText: String): PsiFile = {
+    val file = getFixture.configureByText(
       ScalaFileType.INSTANCE,
       normalize(fileText)
     )
+    assertNotNull(file)
+    file
+  }
 
   protected def checkTextHasNoErrors(text: String): Unit = {
     getFixture.configureByText(
