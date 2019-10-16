@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
 import javax.swing.*;
@@ -48,7 +49,7 @@ public class AttachSourcesUtil {
         }
 
         public String getName() {
-            return ProjectBundle.message("module.libraries.attach.sources.immediately.button");
+            return ScalaBundle.message("module.libraries.attach.sources.immediately.button");
         }
 
         public String getBusyText() {
