@@ -17,26 +17,12 @@ class BreakWithLabel {
 class BreakWithLabel {
   def main(args: Array[String]): Unit = {
     OUTER //todo: labels are not supported
-    var i: Int = 0
-    while ( {
-      i < 10
-    }) {
-      var j: Int = 0
-      while ( {
-        j < 10
-      }) {
+    for (i <- 0 until 10) {
+      for (j <- 0 until 10) {
         if (i + j % 5 == 0) { // unsupported
           break OUTER // todo: label break is not supported
 
         }
-
-        {
-          j += 1; j - 1
-        }
-      }
-
-      {
-        i += 1; i - 1
       }
     }
   }

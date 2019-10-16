@@ -55,6 +55,7 @@ case class ExpressionList(data: Seq[IntermediateNode]) extends IntermediateNode
 case class ThisExpression(value: Option[IntermediateNode]) extends IntermediateNode
 case class SuperExpression(value: Option[IntermediateNode]) extends IntermediateNode
 case class LiteralExpression(literal: String) extends IntermediateNode
+case class RangeExpression(from: IntermediateNode, to: IntermediateNode, inclusive: Boolean, descending: Boolean) extends IntermediateNode
 case class ParenthesizedExpression(value: Option[IntermediateNode]) extends IntermediateNode
 case class FunctionalExpression(params: IntermediateNode, body: IntermediateNode) extends IntermediateNode
 object NewExpression {

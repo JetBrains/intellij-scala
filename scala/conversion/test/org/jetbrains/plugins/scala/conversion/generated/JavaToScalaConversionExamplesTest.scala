@@ -87,17 +87,19 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testBreakWithLabel(): Unit = doTest()
 
-  def testSwitchExpressionYield(): Unit = {
-    doTestJava13()
-  }
+  def testSwitchExpressionYield(): Unit = doTestJava13()
 
-  def testSwitchExpressionYieldNonRemovable(): Unit = {
-    doTestJava13()
-  }
+  def testSwitchExpressionYieldNonRemovable(): Unit = doTestJava13()
 
-  def testSwitchMultiLabel(): Unit = {
-    doTestJava13()
-  }
+  def testSwitchMultiLabel(): Unit = doTestJava13()
+
+  def testCountingLoopSimple(): Unit = doTest()
+
+  def testCountingLoopInclusive(): Unit = doTest()
+
+  def testCountingLoopDescending(): Unit = doTest()
+
+  def testCountingLoopDescendingInclusive(): Unit = doTest()
 
   private def doTestJava13(): Unit = {
     import com.intellij.openapi.roots.LanguageLevelProjectExtension

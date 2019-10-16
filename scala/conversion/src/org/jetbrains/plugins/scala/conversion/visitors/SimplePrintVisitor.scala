@@ -66,6 +66,7 @@ class SimplePrintVisitor protected() {
     case AnonymousClassExpression(anonymousClass) => visitAnonymousClassExpression(anonymousClass)
     case FunctionalExpression(params, body) => visitFunctionalExpression(params, body)
     case PolyadicExpression(args, operation) => visitPoliadic(args, operation)
+    case RangeExpression(from, to, inclusive, descending) => visitRange(from, to, inclusive, descending)
     case PrefixExpression(operand, signType, canBeSimplified) => visitPrefixPostfix(operand, signType, canBeSimplified)
     case PostfixExpression(operand, signType, canBeSimplified) =>
       visitPrefixPostfix(operand, signType, canBeSimplified, isPostfix = true)
@@ -383,6 +384,19 @@ class SimplePrintVisitor protected() {
         constructHelperFunction()
         constructFunctionCall()
       case _ => visit(body)
+    }
+  }
+
+  protected def visitRange(from: IntermediateNode, to: IntermediateNode, inclusive: Boolean, descending: Boolean): Unit = {
+    visit(from)
+    if (inclusive) {
+      printer.append(" to ")
+    } else {
+      printer.append(" until ")
+    }
+    visit(to)
+    if (descending) {
+      printer.append(" by -1")
     }
   }
 

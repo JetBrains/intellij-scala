@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.siyeh.ig.psiutils.ControlFlowUtils
+import com.siyeh.ig.psiutils.{ControlFlowUtils, CountingLoop}
 import org.jetbrains.plugins.scala.conversion.ast.{ModifierType, _}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
 import org.jetbrains.plugins.scala.lang.dependency.Path
@@ -168,15 +168,26 @@ object JavaToScala {
         val body = Option(w.getBody).map(convertPsiToIntermediate(_, externalProperties))
         WhileStatement(None, condition, body, None, WhileStatement.POST_TEST_LOOP)
       case f: PsiForStatement =>
-        val initialization = Option(f.getInitialization).map(convertPsiToIntermediate(_, externalProperties))
-        val condition = Some(f.getCondition match {
-          case _: PsiEmptyStatement => LiteralExpression("true")
-          case null => LiteralExpression("true")
-          case _ => convertPsiToIntermediate(f.getCondition, externalProperties)
-        })
+        val countingLoop = CountingLoop.from(f)
         val body = Option(f.getBody).map(convertPsiToIntermediate(_, externalProperties))
-        val update = Option(f.getUpdate).map(convertPsiToIntermediate(_, externalProperties))
-        WhileStatement(initialization, condition, body, update, WhileStatement.PRE_TEST_LOOP)
+        if (countingLoop != null) {
+          val name = convertPsiToIntermediate(countingLoop.getCounter.getNameIdentifier, externalProperties)
+
+          val iteratedValue = RangeExpression(
+            convertPsiToIntermediate(countingLoop.getInitializer, externalProperties),
+            convertPsiToIntermediate(countingLoop.getBound, externalProperties),
+            countingLoop.isIncluding, countingLoop.isDescending)
+          ForeachStatement(name, Some(iteratedValue), body, isJavaCollection = false)
+        } else {
+          val initialization = Option(f.getInitialization).map(convertPsiToIntermediate(_, externalProperties))
+          val condition = Some(f.getCondition match {
+            case _: PsiEmptyStatement => LiteralExpression("true")
+            case null => LiteralExpression("true")
+            case _ => convertPsiToIntermediate(f.getCondition, externalProperties)
+          })
+          val update = Option(f.getUpdate).map(convertPsiToIntermediate(_, externalProperties))
+          WhileStatement(initialization, condition, body, update, WhileStatement.PRE_TEST_LOOP)
+        }
       case a: PsiAssertStatement =>
         val condition = Option(a.getAssertCondition).map(convertPsiToIntermediate(_, externalProperties))
         val description = Option(a.getAssertDescription).map(convertPsiToIntermediate(_, externalProperties))
