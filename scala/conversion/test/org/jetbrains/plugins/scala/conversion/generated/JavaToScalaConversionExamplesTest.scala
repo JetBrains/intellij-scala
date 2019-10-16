@@ -101,6 +101,8 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testCountingLoopDescendingInclusive(): Unit = doTest()
 
+  def testNonCountingIncrementLoop(): Unit = doTest()
+
   private def doTestJava13(): Unit = {
     import com.intellij.openapi.roots.LanguageLevelProjectExtension
     val projectExtension = LanguageLevelProjectExtension.getInstance(getProject)

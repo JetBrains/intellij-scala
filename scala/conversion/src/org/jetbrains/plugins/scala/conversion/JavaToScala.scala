@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.siyeh.ig.psiutils.{ControlFlowUtils, CountingLoop}
+import com.siyeh.ig.psiutils.{ControlFlowUtils, CountingLoop, ExpressionUtils}
 import org.jetbrains.plugins.scala.conversion.ast.{ModifierType, _}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
 import org.jetbrains.plugins.scala.lang.dependency.Path
@@ -483,9 +483,9 @@ object JavaToScala {
         val finallys = Option(t.getFinallyBlock).map((f: PsiCodeBlock) => f.getStatements.map(convertPsiToIntermediate(_, externalProperties)).toSeq)
         TryCatchStatement(resourcesVariables, tryBlock, catches, finallys, ScalaPsiUtil.functionArrow(t.getProject))
       case p: PsiPrefixExpression =>
-        PrefixExpression(convertPsiToIntermediate(p.getOperand, externalProperties), p.getOperationSign.getText, canBeSimpified(p))
+        PrefixExpression(convertPsiToIntermediate(p.getOperand, externalProperties), p.getOperationSign.getText, ExpressionUtils.isVoidContext(p))
       case p: PsiPostfixExpression =>
-        PostfixExpression(convertPsiToIntermediate(p.getOperand, externalProperties), p.getOperationSign.getText, canBeSimpified(p))
+        PostfixExpression(convertPsiToIntermediate(p.getOperand, externalProperties), p.getOperationSign.getText, ExpressionUtils.isVoidContext(p))
       case p: PsiPolyadicExpression =>
         val tokenValue = if (p.getOperands.nonEmpty) {
           p.getTokenBeforeOperand(p.getOperands.apply(1)).getText
@@ -1028,22 +1028,6 @@ object JavaToScala {
     } else None
   }
 
-
-  /**
-    * @param expr prefix or postfix expression
-    * @return true if this expression is under block
-    */
-  private def canBeSimpified(expr: PsiExpression): Boolean = {
-    expr.getParent match {
-      case b: PsiExpressionStatement =>
-        b.getParent match {
-          case _: PsiBlockStatement => true
-          case _: PsiCodeBlock => true
-          case _ => false
-        }
-      case _ => false
-    }
-  }
 
   @scala.annotation.tailrec
   private def isYieldRemovable(statement: PsiStatement): Boolean = {
