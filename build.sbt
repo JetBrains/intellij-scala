@@ -93,6 +93,7 @@ lazy val scalaImpl: sbt.Project =
         "IntelliLang",
         "java-i18n",
         "android",
+        "stats-collector", // required for ml completion testing
         "smali",      // required by Android
         "gradle",     // required by Android
         "Groovy",     // required by Gradle
