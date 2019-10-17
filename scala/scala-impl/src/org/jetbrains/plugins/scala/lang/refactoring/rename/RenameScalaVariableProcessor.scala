@@ -57,12 +57,14 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
             case member: ScMember if member.containingClass != null =>
               Seq(GETTER, SETTER, IS_GETTER).foreach(
                 r => {
-                  val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, r, None)
-                  val name = wrapper.getName
-                  val is = name.startsWith("is")
-                  val prefix = if (is) "is" else name.substring(0, 3)
-                  val newBeanName = prefix + StringUtil.capitalize(ScalaNamesUtil.toJavaName(newName))
-                  allRenames.put(wrapper, newBeanName)
+                  if (mayHavePropertyMethod(t, r)) {
+                    val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, r, None)
+                    val name = wrapper.getName
+                    val is = name.startsWith("is")
+                    val prefix = if (is) "is" else name.substring(0, 3)
+                    val newBeanName = prefix + StringUtil.capitalize(ScalaNamesUtil.toJavaName(newName))
+                    allRenames.put(wrapper, newBeanName)
+                  }
                 }
               )
             case _ =>

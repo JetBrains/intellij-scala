@@ -41,7 +41,7 @@ trait ScalaInplaceRenameHandler {
 
   def isLocal(element: PsiElement): Boolean =
     element.asOptionOf[PsiNamedElement] match {
-      case Some(inNameContext(m: ScMember)) => m.isLocal
+      case Some(inNameContext(m: ScMember)) => m.isLocal || m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
       case _ => false
     }
 
