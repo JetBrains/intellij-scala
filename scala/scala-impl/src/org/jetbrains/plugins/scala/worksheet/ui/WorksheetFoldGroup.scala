@@ -34,6 +34,8 @@ final class WorksheetFoldGroup(
 
   def foldedLines: Int = _regions.map(_.spaces).sum
 
+  def expandedRegionsIndexes: Seq[Int] = _regions.zipWithIndex.filter(_._1.expanded).map(_._2)
+
   def left2rightOffset(left: Int): Int = {
     val key: Int = unfolded floorKey left
 
@@ -92,11 +94,17 @@ final class WorksheetFoldGroup(
     addRegion(folding)(start, end, leftEndLine, leftSideLength, spaces, expanded)
   }
 
-  private def onExpand(expandedRegion: FoldRegion): Boolean =
-    traverseAndChange(expandedRegion, expand = true)
+  def expand(regionIdx: Int): Boolean =
+    _regions.lift(regionIdx) match {
+      case Some(region) => expand(region.region)
+      case None         => false
+    }
 
-  private def onCollapse(collapsedRegion: FoldRegion): Boolean =
-    traverseAndChange(collapsedRegion, expand = false)
+  private def expand(region: FoldRegion): Boolean =
+    traverseAndChange(region, expand = true)
+
+  private def collapse(region: FoldRegion): Boolean =
+    traverseAndChange(region, expand = false)
 
   def installOn(model: FoldingModelEx): Unit =
     model.addListener(new WorksheetFoldRegionListener(this), project)
@@ -209,9 +217,9 @@ object WorksheetFoldGroup {
   }
 
   private class WorksheetFoldRegionListener(val owner: WorksheetFoldGroup) extends FoldingListener {
-    override def onFoldRegionStateChange(region: FoldRegion): Unit = 
-      if (region.isExpanded) owner.onExpand(region)
-      else owner.onCollapse(region)
+    override def onFoldRegionStateChange(region: FoldRegion): Unit =
+      if (region.isExpanded) owner.expand(region)
+      else owner.collapse(region)
 
     override def onFoldProcessingEnd() {}
   }

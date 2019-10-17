@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
 import com.intellij.openapi.editor.ex.FoldingModelEx
-import com.intellij.openapi.editor.{Document, Editor, VisualPosition}
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
@@ -66,10 +66,8 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
   }
 
-  protected def updateFoldings(foldings: Seq[FoldingOffsets]): Unit = startCommand() {
-    val isExpanded = !scalaSettings.isWorksheetFoldCollapsedByDefault
-
-    def addRegion(fo: FoldingOffsets): Unit = {
+  protected def updateFoldings(foldings: Seq[FoldingOffsets], expandedIndexes: Set[Int] = Set.empty): Unit = startCommand() {
+    def addRegion(fo: FoldingOffsets, index: Int): Unit = {
       val FoldingOffsets(outputStartLine, outputEndOffset, inputLinesCount, inputEndLine) = fo
 
       val foldStartLine = outputStartLine + inputLinesCount - 1
@@ -80,6 +78,8 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       val foldEndOffset = outputEndOffset
 
       val leftEndOffset = originalDocument.getLineEndOffset(inputEndLine.min(originalDocument.getLineCount))
+
+      val isExpanded = !scalaSettings.isWorksheetFoldCollapsedByDefault || expandedIndexes.contains(index)
 
       foldGroup.addRegion(viewerFolding)(
         foldStartOffset = foldStartOffset,
@@ -92,7 +92,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
 
     viewerFolding.runBatchFoldingOperation(() => {
-      foldings.foreach(addRegion)
+      foldings.zipWithIndex.foreach { case (f, i) => addRegion(f, i) }
       WorksheetFoldGroup.save(getScalaFile, foldGroup)
     }, false)
   }

@@ -57,7 +57,6 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
 
       currentOutputBuffer.clear()
       currentOutputNewLinesCount = 0
-      buffed = 0
       cutoffPrinted = false
     } else {
       if (currentOutputNewLinesCount < WorksheetEditorPrinterFactory.BULK_COUNT) {
@@ -124,8 +123,10 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
         originalEditor.getScrollingModel.scrollVertically(scroll)
         worksheetViewer.getScrollingModel.scrollHorizontally(worksheetScroll)
 
-        cleanFoldings()
-        updateFoldings(foldings)
+        // NOTE: if a folding already exists in a folding group it will note be duplicated
+        // see FoldingModelImpl.createFoldRegion
+        val expandedIndexes = foldGroup.expandedRegionsIndexes.toSet
+        updateFoldings(foldings, expandedIndexes)
       }
     }
   }
