@@ -161,6 +161,14 @@ package object completion {
     }
   }
 
+  private[completion] def definitionByPosition(position: PsiElement, isAfterNew: Boolean) = {
+    position match {
+      case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
+      case _ if isAfterNew => ScalaAfterNewCompletionContributor.findNewTemplate(position)
+      case _ => None
+    }
+  }
+
   private[this] def requiresSuffix(element: PsiElement) =
     element != null && element.getNode.getElementType == tSTUB
 
@@ -174,12 +182,7 @@ package object completion {
         case defaultSorter =>
           val position = positionFromParameters(parameters)
           val isAfterNew = ScalaAfterNewCompletionContributor.isAfterNew(position)
-
-          val maybeDefinition = position match {
-            case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
-            case _ if isAfterNew => ScalaAfterNewCompletionContributor.findNewTemplate(position)
-            case _ => None
-          }
+          val maybeDefinition = definitionByPosition(position, isAfterNew)
 
           defaultSorter
             .weighBefore("liftShorter", new ScalaByTypeWeigher(position))

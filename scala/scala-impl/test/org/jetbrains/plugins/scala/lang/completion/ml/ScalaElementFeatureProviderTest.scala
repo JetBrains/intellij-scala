@@ -9,6 +9,7 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ml.CompletionItem._
 import org.junit.{Assert, Test}
 
 import scala.collection.mutable
@@ -141,28 +142,28 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   @Test
   def testKind(): Unit = {
 
-    assertElement("kind", "type", MLFeatureValue.categorical(ItemKind.KEYWORD))(
+    assertElement("kind", "type", MLFeatureValue.categorical(KEYWORD))(
       """object X {
         |  <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "Nil", MLFeatureValue.categorical(ItemKind.VALUE))(
+    assertElement("kind", "Nil", MLFeatureValue.categorical(VALUE))(
       """object X {
         |  <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "BufferedIterator", MLFeatureValue.categorical(ItemKind.TYPE_ALIAS))(
+    assertElement("kind", "BufferedIterator", MLFeatureValue.categorical(TYPE_ALIAS))(
       """object X {
         |  type a = <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "a", MLFeatureValue.categorical(ItemKind.VARIABLE))(
+    assertElement("kind", "a", MLFeatureValue.categorical(VARIABLE))(
       """object X {
         |  var a = 1
         |  <caret>
@@ -170,35 +171,35 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
         |""".stripMargin
     )
 
-    assertElement("kind", "X", MLFeatureValue.categorical(ItemKind.OBJECT))(
+    assertElement("kind", "X", MLFeatureValue.categorical(OBJECT))(
       """object X {
         |  <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "X", MLFeatureValue.categorical(ItemKind.CLASS))(
+    assertElement("kind", "X", MLFeatureValue.categorical(CLASS))(
       """class X {
         |  type a = <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "X", MLFeatureValue.categorical(ItemKind.TRAIT))(
+    assertElement("kind", "X", MLFeatureValue.categorical(TRAIT))(
       """trait X {
         |  type a = <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "int2Integer", MLFeatureValue.categorical(ItemKind.FUNCTION))(
+    assertElement("kind", "int2Integer", MLFeatureValue.categorical(FUNCTION))(
       """object X {
         |  <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "asInstanceOf", MLFeatureValue.categorical(ItemKind.SYNTHETHIC_FUNCTION))(
+    assertElement("kind", "asInstanceOf", MLFeatureValue.categorical(SYNTHETHIC_FUNCTION))(
       """object X {
         |  "" <caret>
         |}
@@ -206,14 +207,14 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
     )
 
 
-    assertElement("kind", "LinkageError", MLFeatureValue.categorical(ItemKind.EXCEPTION))(
+    assertElement("kind", "LinkageError", MLFeatureValue.categorical(EXCEPTION))(
       """object X {
         |  <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "java", MLFeatureValue.categorical(ItemKind.PACKAGE))(
+    assertElement("kind", "java", MLFeatureValue.categorical(PACKAGE))(
       """object X {
         |  <caret>
         |}
@@ -537,11 +538,16 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   }
 
   private def computeElementsFeatures(fileText: String): Map[String, util.Map[String, MLFeatureValue]] = {
-    class ScalaElementFeatureProviderWrapper extends ScalaElementFeatureProvider {
+    class ScalaElementFeatureProviderWrapper extends ElementFeatureProvider {
+
+      private val original = new ScalaElementFeatureProvider
+
       val elements = mutable.Map.empty[String, util.Map[String, MLFeatureValue]]
 
+      override def getName: String = "scala"
+
       override def calculateFeatures(element: LookupElement, location: CompletionLocation, contextFeatures: ContextFeatures): util.Map[String, MLFeatureValue] = {
-        val result = super.calculateFeatures(element, location, contextFeatures)
+        val result = original.calculateFeatures(element, location, contextFeatures)
 
         val name = element.getObject match {
           case named: PsiNamedElement => named.name

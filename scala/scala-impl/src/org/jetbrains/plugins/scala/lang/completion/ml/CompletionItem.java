@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.ml;
 
-enum ItemKind {
+enum CompletionItem {
     VALUE,
     VARIABLE,
     CLASS,
