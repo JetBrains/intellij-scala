@@ -308,14 +308,14 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
   @Test
   def testArgumentCount(): Unit = {
 
-    assertElement("argument_count", "Nil", MLFeatureValue.float(-1))(
+    assertElement("argument_count", "Nil", MLFeatureValue.float(-1.0))(
       """object X {
         |  <caret>
         |}
         |""".stripMargin
     )
 
-    assertElement("argument_count", "f", MLFeatureValue.float(0))(
+    assertElement("argument_count", "f", MLFeatureValue.float(0.0))(
       """object X {
         |  def f(): Unit = ???
         |  <caret>
@@ -323,7 +323,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
         |""".stripMargin
     )
 
-    assertElement("argument_count", "print", MLFeatureValue.float(1))(
+    assertElement("argument_count", "print", MLFeatureValue.float(1.0))(
       """object X {
         |  <caret>
         |}
@@ -347,14 +347,193 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
     )
   }
 
-  private def assertContext(name: String, value: MLFeatureValue)(fileText : String): Unit = {
-    val elementsFeatures = computeElementsFeatures(fileText)
-    Assert.assertEquals(featuresAdapter(elementsFeatures.head._2.get(name)), featuresAdapter(value))
+  @Test
+  def testNameNameDist(): Unit = {
+
+    assertElement("name_name_sim", "List", MLFeatureValue.float(-1.0))(
+      """object X {
+        |  val l = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_name_sim", "List", MLFeatureValue.float(1.0))(
+      """object X {
+        |  val list = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_name_sim", "ScalaReflectionException", MLFeatureValue.float(1.0))(
+      """object X {
+        |  var scalaReflectionException = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_name_sim", "ind", MLFeatureValue.float(0.6))(
+      """object X {
+        |  val ind = ???
+        |  "".charAt(index = <caret>)
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_name_sim", "List", MLFeatureValue.float(0.5))(
+      """object X {
+        |  def byteList = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_name_sim", "List", MLFeatureValue.float(0.25))(
+      """object X {
+        |  type ByteListTypeName = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_name_sim", "List", MLFeatureValue.float(0.5))(
+      """object X {
+        |  def f(listname: Nothing) = ???
+        |  f(<caret>)
+        |}
+        |""".stripMargin
+    )
+
+    // TODO for some reason expectedTypeEx don't return name for non local methods
+//    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
+//      """object X {
+//        |  val requ = ???
+//        |  require(<caret>)
+//        |}
+//        |""".stripMargin
+//    )
   }
 
-  private def assertElement(name: String, element: String, value: MLFeatureValue)(fileText : String): Unit = {
+  @Test
+  def testNameTypeDist(): Unit = {
+
+    assertElement("name_type_sim", "Array", MLFeatureValue.float(-1.0))(
+      """object X {
+        |  type A = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_type_sim", "List", MLFeatureValue.float(0.25))(
+      """object X {
+        |  type ByteListTypeName = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_type_sim", "Product12", MLFeatureValue.float(1.0))(
+      """object X {
+        |  def f(product11: <caret>)
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_type_sim", "List", MLFeatureValue.float(1.0))(
+      """object X {
+        |  val list: <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("name_type_sim", "a", MLFeatureValue.float(0.5))(
+      """object X {
+        |  val a: List[Int] = ???
+        |  def f(listname: Nothing) = ???
+        |  f(<caret>)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  @Test
+  def testTypeNameDist(): Unit = {
+
+    assertElement("type_name_sim", "Array", MLFeatureValue.float(-1.0))(
+      """object X {
+        |  val a = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("type_name_sim", "integral", MLFeatureValue.float(0.375))(
+      """object X {
+        |  val integral = ???
+        |  val b: Int = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("type_name_sim", "index", MLFeatureValue.float(0.4))(
+      """object X {
+        |  val index = ???
+        |  "".charAt(<caret>)
+        |}
+        |""".stripMargin
+    )
+
+    // TODO for some reason expectedTypeEx don't return any type for overloading
+//    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
+//      """object X {
+//        |  val string = ???
+//        |  "".indexOf(<caret>)
+//        |}
+//        |""".stripMargin
+//    )
+  }
+
+  @Test
+  def testTypeTypeDist(): Unit = {
+
+    assertElement("type_type_sim", "integer", MLFeatureValue.float(-1.0))(
+      """object X {
+        |  type I = Int
+        |  val integer: Int = ???
+        |  val anotherInteger: I = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("type_type_sim", "a", MLFeatureValue.float(0.5))(
+      """object X {
+        |  val a: Option[Int] = ???
+        |  var b: Int with Double = <caret>
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("type_type_sim", "a", MLFeatureValue.float(1.0))(
+      """object X {
+        |  val a: Option[Int] = ???
+        |  def f(o: Option[Int]) = ???
+        |  f(<caret>)
+        |}
+        |""".stripMargin
+    )
+
+    assertElement("type_type_sim", "a", MLFeatureValue.float(1.0))(
+      """object X {
+        |  val a: Option[Int] = ???
+        |  val b: Int = <caret>
+        |}
+        |""".stripMargin
+    )
+  }
+
+  private def assertContext(name: String, expected: MLFeatureValue)(fileText : String): Unit = {
+    val elementsFeatures = computeElementsFeatures(fileText)
+    assertFeatureEquals(expected, elementsFeatures.head._2.get(name))
+  }
+
+  private def assertElement(name: String, element: String, expected: MLFeatureValue)(fileText : String): Unit = {
     val elementFeatures = computeElementsFeatures(fileText)
-    Assert.assertEquals(featuresAdapter(elementFeatures(element).get(name)), featuresAdapter(value))
+    assertFeatureEquals(expected, elementFeatures(element).get(name))
   }
 
   private def computeElementsFeatures(fileText: String): Map[String, util.Map[String, MLFeatureValue]] = {
@@ -393,9 +572,20 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
     }
   }
 
-  // no equals impl for MLFeatureValue
-  private def featuresAdapter(value: MLFeatureValue): Any = {
-    val actualValue = Option(value.asBinary()) orElse Option(value.asCategorical()) orElse Option(value.asFloat())
-    actualValue.get
+  private def assertFeatureEquals(expected: MLFeatureValue, actual: MLFeatureValue): Unit = {
+
+    // no equals impl for MLFeatureValue
+    def adapter(value: MLFeatureValue): Any = {
+      val actualValue = Option(value.asBinary()) orElse Option(value.asCategorical()) orElse Option(value.asFloat())
+      actualValue.get
+    }
+
+    val adaptedExpected = adapter(expected)
+    val adaptedActual = adapter(actual)
+
+    adaptedExpected match {
+      case floatExpected: Double => Assert.assertEquals(floatExpected, adaptedActual.asInstanceOf[Double], 0.001)
+      case _ => Assert.assertEquals(adaptedExpected, adaptedActual)
+    }
   }
 }
