@@ -112,8 +112,8 @@ object WorksheetDiffSplitters {
 
             colorFlag = !colorFlag
 
-            val startLine1 = from - firstVisible1 + 1
-            val startLine2 = offset + from - to - firstVisible2 + 1
+            val startLine1 = from - firstVisible1
+            val startLine2 = offset + from - to - firstVisible2
             val endLine1   = to - firstVisible1 + 1
             val endLine2   = offset + spaces - firstVisible2 + 1
 

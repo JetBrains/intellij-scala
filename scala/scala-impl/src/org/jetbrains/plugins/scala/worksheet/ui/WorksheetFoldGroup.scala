@@ -130,7 +130,7 @@ final class WorksheetFoldGroup(
     def numbers(reg: FoldRegionInfo, stored: Int): ((Int, Int), (Int, Int)) = {
       val leftEndOffset = reg.leftEndOffset - 1
       val leftEndLine   = offset2Line(leftEndOffset)
-      val leftStartLine = leftEndLine - reg.leftContentLines
+      val leftStartLine = leftEndLine - reg.leftContentLines + 1
 
       val left  = (leftStartLine, leftEndLine)
       val right = (leftEndLine + stored, reg.spaces)
