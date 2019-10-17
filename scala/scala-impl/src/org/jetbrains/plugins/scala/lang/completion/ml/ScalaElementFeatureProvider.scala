@@ -59,10 +59,10 @@ class ScalaElementFeatureProvider extends ElementFeatureProvider {
     features.put("scala", MLFeatureValue.binary(scalaLookupItem.exists(_.element.isInstanceOf[ScalaPsiElement])))
     features.put("java_object_method", MLFeatureValue.binary(PsiFeaturesUtil.isJavaObjectMethod(maybeElement)))
     features.put("argument_count", MLFeatureValue.float(PsiFeaturesUtil.argumentCount(maybeElement)))
-    features.put("name_name_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedNameWords, nameWords)))
-    features.put("name_type_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedNameWords, typeWords)))
-    features.put("type_name_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedTypeWords, typeWords)))
-    features.put("type_type_dist", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedTypeWords, nameWords)))
+    features.put("name_name_sim", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedNameWords, nameWords)))
+    features.put("name_type_sim", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedNameWords, typeWords)))
+    features.put("type_name_sim", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedTypeWords, nameWords)))
+    features.put("type_type_sim", MLFeatureValue.float(NameFeaturesUtil.wordsSimilarity(expectedTypeWords, typeWords)))
 
     features
   }

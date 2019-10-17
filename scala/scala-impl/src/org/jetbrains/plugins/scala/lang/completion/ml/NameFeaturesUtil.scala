@@ -69,8 +69,8 @@ object NameFeaturesUtil {
     var result = 0f
 
     for (expectedWord <- expectedWords) {
-      for (candidate <- candidates) {
-        result += relativePrefixMath(expectedWord, candidate)
+      if (candidates.nonEmpty) {
+        result += candidates.map(relativePrefixMath(expectedWord, _)).max
       }
     }
 
