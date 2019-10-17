@@ -102,7 +102,7 @@ final class WorksheetFoldGroup(
     model.addListener(new WorksheetFoldRegionListener(this), project)
 
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
-    if (!viewerEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return false
+    if (!viewerEditor.getContentComponent.hasFocus) return false
 
     val ((fromTo, offsetsSpaces), targetInfo) = traverseRegions(target) match {
       case (all, info, _) => (all.unzip, info)
@@ -122,15 +122,19 @@ final class WorksheetFoldGroup(
 
   private def offset2Line(offset: Int) = originalDocument.getLineNumber(offset)
 
-  /** @return TODO: magic??? */
+  /** @return TODO: dark magic??? */
   private def traverseRegions(target: FoldRegion): (Iterable[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = {
     val emptyResult: (Seq[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = (Seq.empty, null, 0)
     if (_regions.isEmpty) return emptyResult
 
     def numbers(reg: FoldRegionInfo, stored: Int): ((Int, Int), (Int, Int)) = {
-      val first = (offset2Line(reg.leftEndOffset) - reg.leftContentLines, offset2Line(reg.leftEndOffset))
-      val second = (offset2Line(reg.leftEndOffset) + stored, reg.spaces)
-      (first, second)
+      val leftEndOffset = reg.leftEndOffset
+      val leftEndLine   = offset2Line(leftEndOffset)
+      val leftStartLine = leftEndLine - reg.leftContentLines
+
+      val left  = (leftStartLine, leftEndLine)
+      val right = (leftEndLine + stored, reg.spaces)
+      (left, right)
     }
 
     val result = _regions.foldLeft(emptyResult) { case (acc@(res, currentRegion, offset), nextRegion) =>
