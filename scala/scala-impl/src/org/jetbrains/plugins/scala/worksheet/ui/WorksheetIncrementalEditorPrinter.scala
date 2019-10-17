@@ -167,8 +167,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
         // a single visible line can actually contain many folded lines, so actual indexes can shift further
         // but the used does not see those folded lines so we need to extract folded lines
-        val totalRegionsSpaces = foldGroup.regions.map(_.spaces).sum
-        val viewerDocumentLastVisibleLine = (viewerDocumentLastLine - totalRegionsSpaces).max(0)
+        val numberOfFoldedLines = foldGroup.foldedLines
+        val viewerDocumentLastVisibleLine = (viewerDocumentLastLine - numberOfFoldedLines).max(0)
 
         val blankLinesBase = (processedStartLine - viewerDocumentLastVisibleLine).max(0)
 

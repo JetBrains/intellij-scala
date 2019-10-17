@@ -32,7 +32,7 @@ final class WorksheetFoldGroup(
   private val _regions = mutable.ArrayBuffer[FoldRegionInfo]()
   private val unfolded = new util.TreeMap[Int, Int]()
 
-  def regions: Seq[FoldRegionInfo] = _regions
+  def foldedLines: Int = _regions.map(_.spaces).sum
 
   def left2rightOffset(left: Int): Int = {
     val key: Int = unfolded floorKey left
@@ -128,7 +128,7 @@ final class WorksheetFoldGroup(
     if (_regions.isEmpty) return emptyResult
 
     def numbers(reg: FoldRegionInfo, stored: Int): ((Int, Int), (Int, Int)) = {
-      val leftEndOffset = reg.leftEndOffset
+      val leftEndOffset = reg.leftEndOffset - 1
       val leftEndLine   = offset2Line(leftEndOffset)
       val leftStartLine = leftEndLine - reg.leftContentLines
 
@@ -157,7 +157,7 @@ final class WorksheetFoldGroup(
   }
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
-    val line = offset2Line(target.leftEndOffset)
+    val line = offset2Line(target.leftEndOffset - 1)
     val key = unfolded floorKey line
 
     val spaces = target.spaces
@@ -189,11 +189,17 @@ object WorksheetFoldGroup {
   private val PLACEHOLDER_LIMIT = 75
   private val WORKSHEET_PERSISTENT_FOLD_KEY = new FileAttribute("WorksheetPersistentFoldings", 1, false)
 
-  case class FoldRegionInfo private(region: FoldRegion,
-                                    leftEndOffset: Int,
-                                    leftContentLines: Int,
-                                    spaces: Int,
-                                    var expanded: Boolean) {
+  /**
+   * @param leftEndOffset    end offset of corresponding input text range (exclusive)
+   * @param leftContentLines number of lines on corresponding input text
+   * @param spaces           number of folded lines
+   * @param expanded         whether the region is expanded
+   */
+  private case class FoldRegionInfo private(region: FoldRegion,
+                                            leftEndOffset: Int,
+                                            leftContentLines: Int,
+                                            spaces: Int,
+                                            var expanded: Boolean) {
     override def equals(obj: scala.Any): Boolean = obj match {
       case info: FoldRegionInfo => this.region.equals(info.region)
       case _ => false
@@ -267,7 +273,7 @@ object WorksheetFoldGroup {
     val virtualFile = file.getVirtualFile
     if (!virtualFile.isValid) return
 
-    val regionsSerialized = serializeFoldRegions(group.regions)
+    val regionsSerialized = serializeFoldRegions(group._regions)
     FileAttributeUtilCache.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, regionsSerialized)
   }
 
@@ -310,8 +316,8 @@ object WorksheetFoldGroup {
 
     def serializeFoldRegions(regions: Seq[FoldRegionInfo]): String = {
       val regionsSerialized = regions.map {
-        case FoldRegionInfo(region, trueStart, lsLength, spaces, expanded) =>
-          val fields = Seq(region.getStartOffset, region.getEndOffset, expanded, trueStart, spaces, lsLength)
+        case FoldRegionInfo(region, leftEndOffset, leftContentLines, spaces, expanded) =>
+          val fields = Seq(region.getStartOffset, region.getEndOffset, expanded, leftEndOffset, spaces, leftContentLines)
           fields.mkString(FieldSeparator.toString)
       }
       regionsSerialized.mkString(RegionsSeparator.toString)
