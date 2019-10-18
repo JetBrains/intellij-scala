@@ -11,6 +11,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.DiffMapping
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
@@ -110,9 +111,8 @@ final class WorksheetFoldGroup(
   def installOn(model: FoldingModelEx): Unit =
     model.addListener(new WorksheetFoldRegionListener(this), project)
 
+  @Measure
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
-    if (!viewerEditor.getContentComponent.hasFocus) return false
-
     val (mappings, targetInfo, _) = traverseRegions(target)
 
     if (targetInfo == null || targetInfo.expanded == expand) return false

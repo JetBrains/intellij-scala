@@ -39,14 +39,17 @@ object WorksheetEditorPrinterFactory {
   val BULK_COUNT = 15
   val IDLE_TIME_MLS = 1000
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f
-  val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create[WorksheetDiffSplitters.SimpleWorksheetSplitter]("SimpleWorksheetViewerSplitter")
+  val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create[SimpleWorksheetSplitter]("SimpleWorksheetViewerSplitter")
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
   private val LAST_WORKSHEET_RUN_RATIO = new FileAttribute("ScalaWorksheetLastRatio", 1, false)
 
-  def synch(originalEditor: Editor, worksheetViewer: Editor,
-            diffSplitter: Option[WorksheetDiffSplitters.SimpleWorksheetSplitter] = None,
-            foldGroup: Option[WorksheetFoldGroup] = None): Unit = {
+  def synch(
+    originalEditor: Editor,
+    worksheetViewer: Editor,
+    diffSplitter: Option[SimpleWorksheetSplitter] = None,
+    foldGroup: Option[WorksheetFoldGroup] = None
+  ): Unit = {
 
     class MyCaretAdapterBase extends CaretListener {
       override def equals(obj: Any): Boolean = obj match {
