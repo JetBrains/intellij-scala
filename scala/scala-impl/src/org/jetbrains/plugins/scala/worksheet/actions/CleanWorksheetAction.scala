@@ -3,7 +3,6 @@ package worksheet.actions
 
 import java.awt.BorderLayout
 
-import javax.swing.{DefaultBoundedRangeModel, Icon}
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem._
@@ -14,17 +13,13 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import javax.swing.{DefaultBoundedRangeModel, Icon}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import worksheet.runconfiguration.WorksheetCache
-import worksheet.ui.WorksheetEditorPrinterFactory
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
-/**
- * @author Ksenia.Sautina
- * @author Dmitry Naydanov
- * @since 11/12/12
- */
-class CleanWorksheetAction() extends AnAction with TopComponentAction {
+class CleanWorksheetAction extends AnAction with TopComponentAction {
 
   def actionPerformed(e: AnActionEvent) {
     val project = e.getProject
@@ -44,6 +39,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
 }
 
 object CleanWorksheetAction {
+
   def cleanAll(editor: Editor, file: VirtualFile, project: Project): Unit = {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
@@ -59,16 +55,17 @@ object CleanWorksheetAction {
       inWriteAction {
         CleanWorksheetAction.resetScrollModel(viewer)
         WorksheetCache.getInstance(project).removePrinter(editor)
-        CleanWorksheetAction.cleanWorksheet(psiFile.getNode, editor, viewer, project)
+        cleanWorksheet(psiFile.getNode, editor, viewer, project)
 
         parent.remove(splitPane)
         parent.add(editor.getComponent, BorderLayout.CENTER)
         editor.getSettings.setFoldingOutlineShown(true)
+        editor.getContentComponent.requestFocus() //  properly repaints editor SCL-16073
       }
     }
   }
 
-  def resetScrollModel(viewer: Editor) {
+  def resetScrollModel(viewer: Editor): Unit = {
     viewer match {
       case viewerEx: EditorImpl =>
         val commonModel = viewerEx.getScrollPane.getVerticalScrollBar.getModel
@@ -81,7 +78,7 @@ object CleanWorksheetAction {
     }
   }
 
-  def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project) {
+  def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project): Unit = {
     val rightDocument = rightEditor.getDocument
 
     WorksheetEditorPrinterFactory.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
