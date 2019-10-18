@@ -229,7 +229,7 @@ object WorksheetEditorPrinterFactory {
       val child = editorComponent.getParent
       val parent = child.getParent
 
-      val diffPane = WorksheetDiffSplitters.createSimpleSplitter(editor, worksheetViewer, List.empty, List.empty, prop)
+      val diffPane = WorksheetDiffSplitters.createSimpleSplitter(editor, worksheetViewer, prop)
 
       worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
 

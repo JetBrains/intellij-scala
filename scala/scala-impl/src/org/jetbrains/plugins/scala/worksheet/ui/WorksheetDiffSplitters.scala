@@ -1,44 +1,32 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import java.awt._
 import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.{Color, Graphics, Graphics2D, RenderingHints}
 
 import com.intellij.diff.util.DiffDividerDrawUtil.DividerPolygon
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
 import com.intellij.openapi.ui.{Divider, Splitter}
 import com.intellij.psi.PsiDocumentManager
-import javax.swing.JComponent
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
-/**
- * User: Dmitry.Naydanov
- * Date: 11.04.14.
- */
 object WorksheetDiffSplitters {
 
   private val COLOR1 = Color.GRAY
   private val COLOR2 = Color.LIGHT_GRAY
 
-  def createSimpleSplitter(originalEditor: Editor, viewerEditor: Editor,
-                           intervals: Iterable[(Int, Int)], changes: Iterable[(Int, Int)],
-                           prop: Float): SimpleWorksheetSplitter = {
-    new SimpleWorksheetSplitter(originalEditor, viewerEditor, intervals, changes, prop)
-  }
-
-  private def getVisibleInterval(editor: Editor) = {
-    val line = editor.xyToLogicalPosition(new Point(0, editor.getScrollingModel.getVerticalScrollOffset)).line
-    (line, editor.getComponent.getHeight / editor.getLineHeight + 1)
-  }
+  def createSimpleSplitter(originalEditor: Editor, viewerEditor: Editor, prop: Float): SimpleWorksheetSplitter =
+    new SimpleWorksheetSplitter(originalEditor, viewerEditor, Nil, prop)
 
   class SimpleWorksheetSplitter private[WorksheetDiffSplitters](
     editor1: Editor, editor2: Editor,
-    private var intervals: Iterable[(Int, Int)],
-    private var changes: Iterable[(Int, Int)], prop: Float
+    private var mappings: Iterable[DiffMapping],
+    prop: Float
   ) extends Splitter (false, prop) {
 
-    private val visibleAreaListener: VisibleAreaListener = (e: VisibleAreaEvent) => redrawDiffs()
+    private val visibleAreaListener: VisibleAreaListener = (_: VisibleAreaEvent) => redrawDiffs()
 
     init()
 
@@ -60,24 +48,15 @@ object WorksheetDiffSplitters {
         }
       })
 
-      editor1.getScrollingModel.addVisibleAreaListener(getVisibleAreaListener)
+      editor1.getScrollingModel.addVisibleAreaListener(visibleAreaListener)
     }
 
-    def getIntervals: Iterable[(Int, Int)] = intervals
-
-    def getChanges: Iterable[(Int, Int)] = changes
-
-    def update(newIntervals: Iterable[(Int, Int)], newChanges: Iterable[(Int, Int)]): Unit = {
-      intervals = newIntervals
-      changes = newChanges
+    def update(newMappings: Iterable[DiffMapping]): Unit = {
+      mappings = newMappings
       redrawDiffs()
     }
 
-    def clear(): Unit = update(Seq(), Seq())
-
-    def getComponent: JComponent = this
-
-    def getVisibleAreaListener: VisibleAreaListener = visibleAreaListener
+    def clear(): Unit = update(Seq())
 
     def redrawDiffs(): Unit = getDivider.repaint()
 
@@ -85,42 +64,55 @@ object WorksheetDiffSplitters {
 
     private class SimpleWorksheetDivider extends DividerImpl {
 
-      override def paint(g: Graphics) {
+      @Measure
+      override def paint(g: Graphics): Unit = {
         super.paint(g)
+        if (mappings.isEmpty) return
 
         val width = getWidth
         val height = getHeight
         val editorHeight = editor1.getComponent.getHeight
 
         val gg = g.create(0, height - editorHeight, width, editorHeight).asInstanceOf[Graphics2D]
+        val rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        gg.setRenderingHints(rh)
 
         // to switch color between sibling polygons, to make them more noticeable
         var colorFlag = false
 
-        val (firstVisible1, lastVisible1) = getVisibleInterval(editor1)
-        val (firstVisible2, lastVisible2) = getVisibleInterval(editor2)
+        // returns mappings of left lines to right lines
+        def diffToLinesMapping(diff: DiffMapping): (Segment, Segment) = {
+          val DiffMapping(from, to, offset, spaces) = diff
+          val start1 = from
+          val end1   = to + 1
+          val start2 = offset - (to - from)
+          val end2   = offset + spaces + 1
+          Segment(start1, end1) -> Segment(start2, end2)
+        }
 
         val lineHeight1 = editor1.getLineHeight
         val lineHeight2 = editor2.getLineHeight
 
-        val zipped = intervals.zip(changes)
-        val plainPolygons = zipped.collect {
-          case ((from, to), (offset, spaces))
-            if spaces != 0 &&
-              firstVisible1 <= from && to <= lastVisible1 &&
-              firstVisible2 <= (from + offset - to) && (offset + spaces) <= lastVisible2 =>
+        // returns mappings of left offsets to right offsets (in pixels)
+        // (relative to the beggining of the document, not screen)
+        def linesToOffsetMapping(tuple: (Segment, Segment)): (Segment, Segment) =
+          tuple._1 * lineHeight1 -> tuple._2 * lineHeight2
+
+        // ranges for both editors can differ if  font sizes differ, but usually are equal cause font size is the same
+        val visibleInterval1 = calcVisibleInterval(editor1)
+        val visibleInterval2 = calcVisibleInterval(editor2)
+
+        val plainPolygons = mappings.map(diffToLinesMapping).map(linesToOffsetMapping).collect {
+          case (seg1, seg2)
+            if visibleInterval1.intersects(seg1) || visibleInterval2.intersects(seg2) =>
 
             colorFlag = !colorFlag
 
-            val startLine1 = from - firstVisible1
-            val startLine2 = offset + from - to - firstVisible2
-            val endLine1   = to - firstVisible1 + 1
-            val endLine2   = offset + spaces - firstVisible2 + 1
-
-            val start1 = startLine1 * lineHeight1
-            val start2 = startLine2 * lineHeight2
-            val end1   = endLine1 * lineHeight1
-            val end2   = endLine2 * lineHeight2
+            // relative to the beginning of the editor component window top
+            val start1 = seg1.start - visibleInterval1.start
+            val end1   = seg1.end - visibleInterval1.start
+            val start2 = seg2.start - visibleInterval2.start
+            val end2   = seg2.end - visibleInterval2.start
 
             val fillColor = if (colorFlag) COLOR1 else COLOR2
 
@@ -130,8 +122,42 @@ object WorksheetDiffSplitters {
         for (polygon <- plainPolygons) {
           polygon.paint(gg, width, true)
         }
+
         gg.dispose()
       }
     }
+  }
+
+  /**
+   * @return first and last visible line offsets in pixels (from top of the editor)
+   *         visible means that it it doesnt care about folded lines
+   */
+  private def calcVisibleInterval(editor: Editor): Segment = {
+    val verticalScrollOffset = editor.getScrollingModel.getVerticalScrollOffset
+    val editorHeight = editor.getComponent.getHeight
+    val first = verticalScrollOffset
+    val last = verticalScrollOffset + editorHeight
+    Segment(first, last)
+  }
+
+  /**
+   * @param leftStartLine       (inclusive)
+   * @param leftEndLine         (inclusive)
+   * @param rightFoldLineOffset (visible)
+   */
+  case class DiffMapping(leftStartLine: Int,
+                         leftEndLine: Int,
+                         rightFoldLineOffset: Int,
+                         rightFoldedLinesCount: Int)
+
+  /**
+   * @param start (inclusive)
+   * @param end (inclusive)
+   */
+  private case class Segment(start: Int, end: Int) {
+    def contains(point: Int): Boolean = start <= point && point <= end
+    def contains(other: Segment): Boolean = start <= other.start && other.end <= end
+    def intersects(other: Segment): Boolean = start <= other.end && other.start <= end
+    def * (a: Int): Segment = Segment(start * a, end * a)
   }
 }

@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.DiffMapping
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
 
 import scala.collection.mutable
@@ -112,14 +113,12 @@ final class WorksheetFoldGroup(
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
     if (!viewerEditor.getContentComponent.hasFocus) return false
 
-    val ((fromTo, offsetsSpaces), targetInfo) = traverseRegions(target) match {
-      case (all, info, _) => (all.unzip, info)
-    }
+    val (mappings, targetInfo, _) = traverseRegions(target)
 
     if (targetInfo == null || targetInfo.expanded == expand) return false
 
     if (splitter != null) {
-      splitter.update(fromTo, offsetsSpaces)
+      splitter.update(mappings)
     }
 
     targetInfo.expanded = expand
@@ -130,22 +129,19 @@ final class WorksheetFoldGroup(
 
   private def offset2Line(offset: Int) = originalDocument.getLineNumber(offset)
 
-  /** @return TODO: dark magic??? */
-  private def traverseRegions(target: FoldRegion): (Iterable[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = {
-    val emptyResult: (Seq[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = (Seq.empty, null, 0)
+  private def traverseRegions(target: FoldRegion): (Iterable[DiffMapping], FoldRegionInfo, Int) = {
+    val emptyResult: (Seq[DiffMapping], FoldRegionInfo, Int) = (Seq.empty, null, 0)
     if (_regions.isEmpty) return emptyResult
 
-    def numbers(reg: FoldRegionInfo, stored: Int): ((Int, Int), (Int, Int)) = {
+    def numbers(reg: FoldRegionInfo, stored: Int): DiffMapping = {
       val leftEndOffset = reg.leftEndOffset - 1
       val leftEndLine   = offset2Line(leftEndOffset)
       val leftStartLine = leftEndLine - reg.leftContentLines + 1
 
-      val left  = (leftStartLine, leftEndLine)
-      val right = (leftEndLine + stored, reg.spaces)
-      (left, right)
+      DiffMapping(leftStartLine, leftEndLine, leftEndLine + stored, reg.spaces)
     }
 
-    val result = _regions.foldLeft(emptyResult) { case (acc@(res, currentRegion, offset), nextRegion) =>
+    _regions.foldLeft(emptyResult) { case (acc@(res, currentRegion, offset), nextRegion) =>
       val accNew = if (nextRegion.region == target) {
         if (nextRegion.expanded) {
           (res, nextRegion, offset)
@@ -161,7 +157,6 @@ final class WorksheetFoldGroup(
       }
       accNew
     }
-    result
   }
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
