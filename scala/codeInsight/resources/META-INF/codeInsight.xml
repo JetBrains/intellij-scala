@@ -12,6 +12,8 @@
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
 
         <highlightErrorFilter
+                implementation="org.jetbrains.plugins.scala.codeInsight.highlighting.ScalaDocHighlightErrorFilter"/>
+        <highlightErrorFilter
                 implementation="org.jetbrains.plugins.scala.codeInsight.highlighting.Scala3HighlightErrorFilter"/>
 
         <lang.quoteHandler language="Scala"
