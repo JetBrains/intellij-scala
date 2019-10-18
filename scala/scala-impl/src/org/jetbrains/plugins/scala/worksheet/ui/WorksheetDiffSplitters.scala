@@ -77,9 +77,6 @@ object WorksheetDiffSplitters {
         val rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         gg.setRenderingHints(rh)
 
-        // to switch color between sibling polygons, to make them more noticeable
-        var colorFlag = false
-
         // returns mappings of left lines to right lines
         def diffToLinesMapping(diff: DiffMapping): (Segment, Segment) = {
           val DiffMapping(from, to, offset, spaces) = diff
@@ -94,7 +91,7 @@ object WorksheetDiffSplitters {
         val lineHeight2 = editor2.getLineHeight
 
         // returns mappings of left offsets to right offsets (in pixels)
-        // (relative to the beggining of the document, not screen)
+        // (relative to the beginning of the document, not screen)
         def linesToOffsetMapping(tuple: (Segment, Segment)): (Segment, Segment) =
           tuple._1 * lineHeight1 -> tuple._2 * lineHeight2
 
@@ -102,11 +99,10 @@ object WorksheetDiffSplitters {
         val visibleInterval1 = calcVisibleInterval(editor1)
         val visibleInterval2 = calcVisibleInterval(editor2)
 
-        val plainPolygons = mappings.map(diffToLinesMapping).map(linesToOffsetMapping).collect {
-          case (seg1, seg2)
+        val offsetMappings = mappings.map(diffToLinesMapping).map(linesToOffsetMapping)
+        val plainPolygons = offsetMappings.zipWithIndex.collect {
+          case ((seg1, seg2), idx)
             if visibleInterval1.intersects(seg1) || visibleInterval2.intersects(seg2) =>
-
-            colorFlag = !colorFlag
 
             // relative to the beginning of the editor component window top
             val start1 = seg1.start - visibleInterval1.start
@@ -114,7 +110,9 @@ object WorksheetDiffSplitters {
             val start2 = seg2.start - visibleInterval2.start
             val end2   = seg2.end - visibleInterval2.start
 
-            val fillColor = if (colorFlag) COLOR1 else COLOR2
+            val isEven = (idx & 1) == 0
+            // to switch color between sibling polygons, to make them more noticeable
+            val fillColor = if (isEven) COLOR1 else COLOR2
 
             new DividerPolygon(start1, start2, end1, end2, fillColor, null, true)
         }
