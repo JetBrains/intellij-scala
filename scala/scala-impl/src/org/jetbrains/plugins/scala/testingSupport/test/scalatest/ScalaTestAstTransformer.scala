@@ -45,7 +45,7 @@ object ScalaTestAstTransformer {
       found.orNull
     } catch {
       case e: Exception =>
-        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${clazz.qualifiedName}: ${e.getMessage}")
+        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${clazz.qualifiedName}", e)
         null
     }
   }
@@ -303,7 +303,7 @@ object ScalaTestAstTransformer {
     val containingClass = methodDef.containingClass
     if (containingClass != null) { // For inner method, this will be null
       val className = containingClass.qualifiedName
-      val paramTypes = methodDef.parameters.map(_.getTypeElement.getText).toArray
+      val paramTypes = methodDef.parameters.flatMap(_.typeElement.map(_.getText)).toArray
       Some(new StMethodDefinition(methodDef, className, paramTypes))
     } else {
       None // May be to build the nested AST nodes too

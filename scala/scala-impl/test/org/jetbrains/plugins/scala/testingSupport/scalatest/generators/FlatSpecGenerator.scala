@@ -56,6 +56,10 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
        |  it should "tag" taggedAs(BehaviorTag) in {
        |
        |  }
+       |
+       |  private def abc(foo: String) = {
+       |    println(foo)
+       |  }
        |}
        |
        |object BehaviorTag extends Tag("MyTag")

@@ -58,7 +58,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     if (id == null) findChildByType[PsiElement](ScalaTokenTypes.tUNDER) else id
   }
 
-  def getTypeElement = null
+  def getTypeElement: PsiTypeElement = null
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
