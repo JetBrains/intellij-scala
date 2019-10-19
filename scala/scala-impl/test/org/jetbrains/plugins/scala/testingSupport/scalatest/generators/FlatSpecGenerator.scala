@@ -67,7 +67,7 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
        |
        |  }
        |
-       |  it should "run scopes 2 2" in {
+       |  they should "run scopes 2 2" in {
        |
        |  }
        |}

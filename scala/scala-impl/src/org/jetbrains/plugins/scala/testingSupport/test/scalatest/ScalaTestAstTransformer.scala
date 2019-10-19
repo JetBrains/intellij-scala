@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil._
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.itWordFqns
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.{itWordFqns, theyWordFqns}
 import org.scalatest.finders.{MethodInvocation => _, _}
 
 import scala.annotation.tailrec
@@ -392,14 +392,17 @@ object ScalaTestAstTransformer {
     protected def isIt: Boolean =
       element.isInstanceOf[ScReferenceExpression] && target == "it" && itWordFqns.contains(pClassName)
 
+    protected def isThey: Boolean =
+      element.isInstanceOf[ScReferenceExpression] && target == "they" && theyWordFqns.contains(pClassName)
+
     override def parent: AstNode = getParentNode(pClassName, element)
 
     override def children: Array[AstNode] = getChildren(pClassName, element)
 
-    override def canBePartOfTestName: Boolean = isIt || getStaticTestName(element).isDefined
+    override def canBePartOfTestName: Boolean = isIt || isThey || getStaticTestName(element).isDefined
 
     override def toString: String =
-      if (isIt) ""
+      if (isIt || isThey) ""
       else getStaticTestName(element).getOrElse(name)
 
     override def equals(other: Any): Boolean = other match {

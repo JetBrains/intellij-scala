@@ -31,6 +31,32 @@ object ScalaTestUtil {
     "org.scalatest.fixture.WordSpecLike.ItWord",
   )
 
+  val flatSpecTheyWordFqns: Set[String] = Set(
+    "org.scalatest.FlatSpecLike.TheyWord",
+    "org.scalatest.FlatSpecLike.TheyVerbStringTaggedAs",
+    "org.scalatest.FlatSpecLike.TheyVerbString",
+    "org.scalatest.fixture.FlatSpecLike.TheyWord",
+    "org.scalatest.fixture.FlatSpecLike.TheyVerbStringTaggedAs",
+    "org.scalatest.fixture.FlatSpecLike.TheyVerbString"
+  )
+
+  val asyncFlatSpecTheyWordFqns: Set[String] = Set(
+    "org.scalatest.AsyncFlatSpecLike.TheyWord",
+    "org.scalatest.AsyncFlatSpecLike.TheyVerbStringTaggedAs",
+    "org.scalatest.AsyncFlatSpecLike.TheyVerbString",
+    "org.scalatest.fixture.AsyncFlatSpecLike.TheyWord",
+    "org.scalatest.fixture.AsyncFlatSpecLike.TheyVerbStringTaggedAs",
+    "org.scalatest.fixture.AsyncFlatSpecLike.TheyVerbString",
+  )
+
+  val theyWordFqns: Set[String] = flatSpecTheyWordFqns ++ asyncFlatSpecTheyWordFqns ++ Set(
+    "org.scalatest.FunSpecLike.TheyWord",
+    "org.scalatest.fixture.FunSpecLike.TheyWord",
+    "org.scalatest.path.FunSpecLike.TheyWord",
+    "org.scalatest.WordSpecLike.TheyWord",
+    "org.scalatest.fixture.WordSpecLike.TheyWord",
+  )
+
   val funSuiteBases: List[String] = List(
     "org.scalatest.FunSuite",
     "org.scalatest.FunSuiteLike",
