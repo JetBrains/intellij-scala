@@ -22,7 +22,7 @@ trait FindersApiTest
     EdtTestUtil.runInEdtAndWait { () =>
       selection = ScalaTestAstTransformer.testSelection(location)
     }
-    assertNotNull(selection)
+    assertNotNull(s"selection is null for $fileName:$lineNumber:$offset", selection)
     assertEquals(testNames, selection.testNames().map(_.trim).toSet)
   }
 
@@ -70,14 +70,18 @@ trait FindersApiTest
     val testName2 = "FlatSpec should do other stuff"
     val testName3 = "FlatSpec should tag"
 
-    val testNames = Set(testName1, testName2, testName3)
+    val testName4 = "FlatSpec 2 should run scopes 2 1"
+    val testName5 = "FlatSpec 2 should run scopes 2 2"
+
+    val testNamesAll1 = Set(testName1, testName2, testName3)
+    val testNamesAll2 = Set(testName4, testName5)
 
     //'behavior' word
-    checkSelection(3, 3, behaviourFlatFileName, testNames)
+    checkSelection(3, 3, behaviourFlatFileName, testNamesAll1)
     //'of' word
-    checkSelection(3, 12, behaviourFlatFileName, testNames)
+    checkSelection(3, 12, behaviourFlatFileName, testNamesAll1)
     //object name
-    checkSelection(3, 20, behaviourFlatFileName, testNames)
+    checkSelection(3, 20, behaviourFlatFileName, testNamesAll1)
 
     //specific test, 'it' word
     checkSelection(5, 3, behaviourFlatFileName, Set(testName1))
@@ -104,6 +108,24 @@ trait FindersApiTest
     checkSelection(13, 41, behaviourFlatFileName, Set(testName3))
     //tagged test, test body
     checkSelection(14, 2, behaviourFlatFileName, Set(testName3))
+
+    //'behavior' word (non first)
+    checkSelection(21, 3, behaviourFlatFileName, testNamesAll2)
+    //'of' word (non first)
+    checkSelection(21, 12, behaviourFlatFileName, testNamesAll2)
+    //object name (non first)
+    checkSelection(21, 20, behaviourFlatFileName, testNamesAll2)
+
+    //specific test, 'it' word (after non-first behaviour)
+    checkSelection(23, 3, behaviourFlatFileName, Set(testName4))
+    //specific test, should (after non-first behaviour)
+    checkSelection(23, 8, behaviourFlatFileName, Set(testName4))
+    //specific test, object name (after non-first behaviour)
+    checkSelection(23, 15, behaviourFlatFileName, Set(testName4))
+    //specific test, 'in' word (after non-first behaviour)
+    checkSelection(23, 30, behaviourFlatFileName, Set(testName4))
+    //specific test, test body (after non-first behaviour)
+    checkSelection(24, 1, behaviourFlatFileName, Set(testName4))
   }
 
   def testFlatSpec_ItOnly(): Unit = {

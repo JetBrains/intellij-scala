@@ -60,6 +60,16 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
        |  private def abc(foo: String) = {
        |    println(foo)
        |  }
+       |
+       |  behavior of "FlatSpec 2"
+       |
+       |  it should "run scopes 2 1" in {
+       |
+       |  }
+       |
+       |  it should "run scopes 2 2" in {
+       |
+       |  }
        |}
        |
        |object BehaviorTag extends Tag("MyTag")
