@@ -188,11 +188,14 @@ object DependencyManagerBase {
   case class IvyResolver(name: String, pattern: String) extends Resolver
 
   private def scalaDependency(kind: String)
-                             (implicit scalaVersion: ScalaVersion) = DependencyDescription(
-    "org.scala-lang",
-    "scala-" + kind,
-    scalaVersion.minor
-  )
+                             (implicit scalaVersion: ScalaVersion) = {
+    val (org, idPrefix, idSuffix) = scalaVersion match {
+      case Scala_3_0 => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
+      case _ => ("org.scala-lang", "scala", "")
+    }
+
+    DependencyDescription(org, idPrefix + "-" + kind + idSuffix, scalaVersion.minor)
+  }
 
   def scalaCompilerDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("compiler")
 
