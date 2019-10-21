@@ -312,8 +312,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Map[ProjectData,ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
+
+    val nameToProjects = projects.groupBy(_.name)
+    val namesAreUnique = nameToProjects.size == projects.size
+
     val projectToModule = projects.map { project =>
-      val moduleNode = createModule(project, moduleFilesDirectory)
+
+      val moduleName =
+        if (namesAreUnique) project.name
+        else project.id
+
+      val groupName =
+        if (nameToProjects(project.name).size > 1) Array(project.name)
+        else null
+
+      val moduleNode = createModule(project, moduleFilesDirectory, moduleName)
+
+      moduleNode.setIdeModuleGroup(groupName)
+
       val contentRootNode = createContentRoot(project)
       project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
       moduleNode.add(contentRootNode)
@@ -420,11 +436,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     s"${id.organization}:${id.name}:${id.revision}" + classifierOption.map(":"+_).getOrElse("") + s":${id.artifactType}"
   }
 
-  private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File): ModuleNode = {
+  private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, moduleName: String): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
-    val result = new ModuleNode(StdModuleTypes.JAVA.getId, projectId, project.buildURI, project.name,
+    val result = new ModuleNode(StdModuleTypes.JAVA.getId, projectId, project.buildURI, moduleName,
       moduleFilesDirectory.path, project.base.canonicalPath)
 
     result.setInheritProjectCompileOutputPath(false)
