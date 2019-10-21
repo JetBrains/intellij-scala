@@ -53,14 +53,9 @@ final class ScUImplicitReturnExpression(
   override lazy val getReturnExpression: UExpression =
     returnedElement.convertToUExpressionOrEmpty(parent = this, convertLambdas)
 
-  /** equals & hashcode based on the [[returnedElement]] */
-  override def canEqual(other: Any): Boolean =
-    other.isInstanceOf[ScUImplicitReturnExpression]
   override def equals(other: Any): Boolean = other match {
-    case that: ScUImplicitReturnExpression =>
-      super.equals(that) &&
-        (that canEqual this) &&
-        getReturnExpression == that.getReturnExpression
+    case that: ScUImplicitReturnExpression if super.equals(that) =>
+      getReturnExpression == that.getReturnExpression
     case _ => false
   }
 

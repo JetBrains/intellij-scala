@@ -170,14 +170,9 @@ final class ScUImplicitBlockExpression(private val statement: PsiElement,
         statement.convertToUExpressionOrEmpty(parent = this, convertLambdas)
     ).asJava
 
-  /** equals & hashcode based on the [[statement]] */
-  override def canEqual(other: Any): Boolean =
-    other.isInstanceOf[ScUImplicitBlockExpression]
   override def equals(other: Any): Boolean = other match {
-    case that: ScUImplicitBlockExpression =>
-      super.equals(that) &&
-        (that canEqual this) &&
-        statement == that.statement
+    case other: ScUImplicitBlockExpression if super.equals(other) =>
+      statement == other.statement
     case _ => false
   }
 

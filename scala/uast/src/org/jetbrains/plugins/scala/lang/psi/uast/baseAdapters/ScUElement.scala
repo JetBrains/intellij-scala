@@ -47,12 +47,9 @@ trait ScUElement extends UElement with ScUElementWithComments {
   @Nullable
   override lazy val getUastParent: UElement = parent.force
 
-  /** equals & hashcode based on the [[getSourcePsi]] */
-  def canEqual(other: Any): Boolean =
-    other.isInstanceOf[ScUElement]
   override def equals(other: Any): Boolean = other match {
-    case that: ScUElement =>
-      (that canEqual this) && getSourcePsi == that.getSourcePsi
+    case other: ScUElement =>
+      getSourcePsi == other.getSourcePsi
     case _ => false
   }
 
