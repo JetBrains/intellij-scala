@@ -10,23 +10,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 12.09.2008
-  */
 class ScalaIndexPatternBuilder extends IndexPatternBuilder {
-  override def getIndexingLexer(file: PsiFile): Lexer = {
-    file match {
-      case _: ScalaFile => new ScalaLexer
-      case _            => null
-    }
+
+  override def getIndexingLexer(file: PsiFile): Lexer = file match {
+    case _: ScalaFile => new ScalaLexer
+    case _            => null
   }
 
-  override def getCommentTokenSet(file: PsiFile): TokenSet = {
-    file match {
-      case _: ScalaFile => ScalaTokenTypes.COMMENTS_TOKEN_SET
-      case _            => null
-    }
+  override def getCommentTokenSet(file: PsiFile): TokenSet = file match {
+    case _: ScalaFile => ScalaTokenTypes.COMMENTS_TOKEN_SET
+    case _            => null
   }
 
   override def getCommentStartDelta(tokenType: IElementType): Int = tokenType match {
