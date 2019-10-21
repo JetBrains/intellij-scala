@@ -16,7 +16,7 @@ import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Computable, Ref, TextRange, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, Disposer, Ref, TextRange, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -1093,6 +1093,11 @@ package object extensions {
 
   def scheduleOnPooledThread[T](time: Long, unit: TimeUnit)(body: => T): ScheduledFuture[T] =
     AppExecutorUtil.getAppScheduledExecutorService.schedule(body, time, unit)
+
+  def schedulePeriodicTask(delay: Long, unit: TimeUnit, parentDisposable: Disposable)(body: => Unit): Unit = {
+    val task = AppExecutorUtil.getAppScheduledExecutorService.scheduleWithFixedDelay(() => body, delay, delay, unit)
+    Disposer.register(parentDisposable, () => task.cancel(true))
+  }
 
   def withProgressSynchronously[T](title: String)(body: => T): T = {
     withProgressSynchronouslyTry[T](title)(_ => body) match {
