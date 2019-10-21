@@ -63,10 +63,9 @@ final class ScUImplicitReturnExpression(
         getReturnExpression == that.getReturnExpression
     case _ => false
   }
-  override def hashCode(): Int = {
-    val state = Seq(super.hashCode(), getReturnExpression)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+
+  override def hashCode(): Int =
+    31 * super.hashCode + Option(getReturnExpression).hashCode
 }
 
 object ScUImplicitReturnExpression {

@@ -55,10 +55,9 @@ trait ScUElement extends UElement with ScUElementWithComments {
       (that canEqual this) && getSourcePsi == that.getSourcePsi
     case _ => false
   }
-  override def hashCode(): Int = {
-    val state = Seq(super.hashCode(), getSourcePsi)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+
+  override def hashCode(): Int =
+    31 * super.hashCode + Option(getSourcePsi).hashCode
 
   override def asSourceString(): String =
     Option(scElement).map(_.getText).orNull
