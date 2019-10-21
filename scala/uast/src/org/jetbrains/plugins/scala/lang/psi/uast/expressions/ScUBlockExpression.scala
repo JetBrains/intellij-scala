@@ -180,10 +180,9 @@ final class ScUImplicitBlockExpression(private val statement: PsiElement,
         statement == that.statement
     case _ => false
   }
-  override def hashCode(): Int = {
-    val state = Seq(super.hashCode(), statement)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+
+  override def hashCode(): Int =
+    31 * super.hashCode + statement.hashCode
 }
 
 object ScUImplicitBlockExpression {
