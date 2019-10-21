@@ -157,7 +157,8 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
   def testSCL14635(): Unit = runTest(
     new project("SCL-14635") {
-      val buildURI: URI = new File(getHomePath).getCanonicalFile.toURI
+      private val buildURI: URI = new File(getHomePath).getCanonicalFile.toURI
+      private val buildModulesGroup = Array("sbt-build-modules")
 
       lazy val base: module = new module("SCL-14635") {
         sbtBuildURI := buildURI
@@ -167,17 +168,17 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       lazy val ideaPlugin: module = new module("sbt-idea-plugin") {
         sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-plugin")
       }
-      lazy val ideaPluginBuild: module = new module("sbt-idea-plugin-build") {}
+      lazy val ideaPluginBuild: module = new module("sbt-idea-plugin-build", buildModulesGroup) {}
 
       lazy val ideaShell: module = new module("sbt-idea-shell") {
         sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-shell")
       }
-      lazy val ideaShellBuild: module = new module("sbt-idea-shell-build") {}
+      lazy val ideaShellBuild: module = new module("sbt-idea-shell-build", buildModulesGroup) {}
 
       lazy val ideSettings: module = new module("sbt-ide-settings") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
       }
-      lazy val ideSettingsBuild: module = new module("sbt-ide-settings-build") {}
+      lazy val ideSettingsBuild: module = new module("sbt-ide-settings-build", buildModulesGroup) {}
 
       modules := Seq(base, ideaPlugin, ideaPluginBuild, ideaShell, ideaShellBuild, ideSettings, ideSettingsBuild)
     }

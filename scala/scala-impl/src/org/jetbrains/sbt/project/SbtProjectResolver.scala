@@ -274,6 +274,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val buildModuleForProject: BuildData => ModuleNode = createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
     val buildModules = data.builds.map(buildModuleForProject)
+
+    if (buildModules.size > 1) {
+      buildModules.foreach(_.setIdeModuleGroup(Array("sbt-build-modules")))
+    }
+
     projectNode.addAll(buildModules)
     projectNode
   }
