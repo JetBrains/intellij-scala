@@ -20,7 +20,7 @@ import scala.collection.Seq
 
 /**
  * @author Alexander Podkhalyuzin
- * @deprecated use { @link org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter} instead
+ * @deprecated use [[org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter]] instead
  */
 @deprecated
 abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase with ScalaSdkOwner {
