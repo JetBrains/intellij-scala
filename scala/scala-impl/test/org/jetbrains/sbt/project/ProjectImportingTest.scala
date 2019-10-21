@@ -178,6 +178,20 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
       }
       lazy val ideSettingsBuild: module = new module("sbt-ide-settings-build") {}
+
+      modules := Seq(base, ideaPlugin, ideaPluginBuild, ideaShell, ideaShellBuild, ideSettings, ideSettingsBuild)
+    }
+  )
+
+  def testCrossplatform(): Unit = runTest(
+    new project("crossplatform") {
+      lazy val root = new module("crossplatform")
+      lazy val crossJS = new module("crossJS", Array("cross"))
+      lazy val crossJVM = new module("crossJVM", Array("cross"))
+      lazy val crossNative = new module("crossNative", Array("cross"))
+      lazy val crossSources = new module("cross-sources", Array("cross"))
+
+      modules := Seq(root, crossJS, crossJVM, crossNative, crossSources)
     }
   )
 }

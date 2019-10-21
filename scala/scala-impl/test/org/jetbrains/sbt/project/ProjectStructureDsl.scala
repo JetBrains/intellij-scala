@@ -83,7 +83,7 @@ object ProjectStructureDsl {
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class module(val name: String) extends Attributed with Named {
+  class module(val name: String, val group: Array[String] = null) extends Attributed with Named {
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =

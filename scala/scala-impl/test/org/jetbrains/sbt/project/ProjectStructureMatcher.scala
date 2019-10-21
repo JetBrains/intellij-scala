@@ -1,6 +1,9 @@
 package org.jetbrains.sbt
 package project
 
+import java.util
+import java.util.Arrays
+
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
@@ -13,6 +16,7 @@ import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.data.SbtModuleData
+import org.junit.Assert
 import org.junit.Assert.{assertTrue, fail}
 
 import scala.collection.JavaConverters._
@@ -68,6 +72,8 @@ trait ProjectStructureMatcher {
     expected.foreach(moduleDependencies)(assertModuleDependenciesEqual(actual))
     expected.foreach(libraryDependencies)(assertLibraryDependenciesEqual(actual))
     expected.foreach(libraries)(assertModuleLibrariesEqual(actual))
+
+    assertGroupEqual(expected, actual)
   }
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
@@ -147,6 +153,16 @@ trait ProjectStructureMatcher {
 
   private def assertNamesEqual[T](what: String, expected: Seq[Named], actual: Seq[T])(implicit nameOf: HasName[T]): Unit =
     assertMatch(what, expected.map(_.name), actual.map(s => nameOf(s)))
+
+  private def assertGroupEqual[T](expected: module, actual: Module): Unit = {
+    val actualPath = ModuleManager.getInstance(actual.getProject).getModuleGroupPath(actual)
+
+    if (expected.group == null) Assert.assertNull(actualPath)
+    else {
+      Assert.assertNotNull(actualPath)
+      Assert.assertEquals("Wrong module group path", expected.group.toSeq, actualPath.toSeq)
+    }
+  }
 
   private def assertEquals[T](what: String, expected: T, actual: T): Unit = {
     if (expected != null && !expected.equals(actual))
