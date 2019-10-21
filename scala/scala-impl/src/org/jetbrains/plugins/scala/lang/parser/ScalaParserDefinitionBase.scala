@@ -7,6 +7,7 @@ import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
 
   override def createLexer(project: Project) =
-    new lexer.ScalaLexer(false, project)
+    ScalaParserDefinitionBase.createLexer(isScala3 = false, project)
 
   override def createParser(project: Project) = new ScalaParser
 
@@ -47,4 +48,13 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
       case _ => MAY
     }
   }
+}
+
+object ScalaParserDefinitionBase {
+
+  def createLexer: ScalaLexer =
+    createLexer(isScala3 = false, null)
+
+  private def createLexer(isScala3: Boolean, project: Project): ScalaLexer =
+    new lexer.ScalaLexer(isScala3, project)
 }

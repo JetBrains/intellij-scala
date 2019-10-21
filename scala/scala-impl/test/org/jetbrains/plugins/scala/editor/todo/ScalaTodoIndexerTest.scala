@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.editor.todo
 
 /** tests [[ScalaIndexPatternBuilder]] */
-class ScalaTodoItemsTestCase extends ScalaTodoItemsTestCaseBase {
+class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
 
   def testTodo_LineComment(): Unit = doTodoTest(
     s"""// ${start}TODO: do something$end
@@ -117,8 +117,8 @@ class ScalaTodoItemsTestCase extends ScalaTodoItemsTestCaseBase {
   def testTodo_ScaladocComment_TagTodo(): Unit = doTodoTest(
     s"""/**
        | * @param x some description
-       | $start@todo do something$end
-       | * @returs something
+       | * @${start}todo do something$end
+       | * @returns something
        | */
        |def foo(x: String) = 42
        |""".stripMargin
