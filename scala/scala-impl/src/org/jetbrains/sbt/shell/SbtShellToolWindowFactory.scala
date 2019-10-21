@@ -2,18 +2,24 @@ package org.jetbrains.sbt.shell
 
 import java.awt.event.{InputEvent, KeyEvent}
 import java.awt.{Component, Container, FocusTraversalPolicy}
+import java.util.concurrent.TimeUnit
 
+import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
-import javax.swing.KeyStroke
+import javax.swing.{Icon, KeyStroke}
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.sbt.shell
+import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.scheduleIconUpdate
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -41,6 +47,8 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
     val defaultFocusPolicy = toolWindow.getComponent.getFocusTraversalPolicy
     val focusPolicy = new shell.SbtShellToolWindowFactory.TraversalPolicy(project, defaultFocusPolicy)
     toolWindow.getComponent.setFocusTraversalPolicy(focusPolicy)
+
+    scheduleIconUpdate(project, toolWindow)
 
     SbtProcessManager.forProject(project).initAndRunAsync()
   }
@@ -83,6 +91,22 @@ object SbtShellToolWindowFactory {
 
     result
   }
+
+  private def currentIcon(project: Project): Icon = {
+    val baseIcon = Icons.SBT_SHELL_TOOLWINDOW
+
+    def isAlive = SbtProcessManager.forProject(project).isAlive
+
+    if (!project.isDisposed && isAlive) ExecutionUtil.getLiveIndicator(baseIcon)
+    else baseIcon
+  }
+
+  private def scheduleIconUpdate(project: Project, toolWindow: ToolWindow): Unit =
+    schedulePeriodicTask(500L, TimeUnit.MILLISECONDS, toolWindow.getContentManager) {
+      invokeLater {
+        toolWindow.setIcon(currentIcon(project))
+      }
+    }
 
   private class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
     override def getComponentAfter(aContainer: Container, aComponent: Component): Component =
