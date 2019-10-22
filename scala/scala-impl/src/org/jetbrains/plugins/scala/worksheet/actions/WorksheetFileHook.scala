@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.UserDataKeys
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetUiConstructor}
 
 /**
  * User: Dmitry Naydanov

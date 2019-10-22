@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala.worksheet.ui.printers
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 

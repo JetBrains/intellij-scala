@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala.worksheet.ui.printers
 
 import com.intellij.openapi.editor.ex.FoldingModelEx
 import com.intellij.openapi.editor.{Document, Editor}
@@ -8,7 +8,8 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase._
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
 
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                                           protected val worksheetViewer: Editor)

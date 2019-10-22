@@ -17,7 +17,7 @@ import javax.swing.{DefaultBoundedRangeModel, Icon}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
 class CleanWorksheetAction extends AnAction with TopComponentAction {
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala.worksheet.ui.printers
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDefaultEditorPrinter._
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetDefaultEditorPrinter._
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
 
 import scala.collection.mutable.ArrayBuffer
 
