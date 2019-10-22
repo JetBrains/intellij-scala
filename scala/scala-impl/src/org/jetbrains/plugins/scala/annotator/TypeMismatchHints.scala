@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 // TODO experimental feature (SCL-15250)
 private object TypeMismatchHints {
@@ -35,7 +37,7 @@ private object TypeMismatchHints {
       .map(_.getText.takeWhile(_ != '\n').length)
       .getOrElse(0)
 
-    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta)
+    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = Some("TypeHintsMenu"))
 
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }
@@ -82,5 +84,16 @@ private object TypeMismatchHints {
     val (diff1, diff2) = TypeDiff.forBoth(expectedType, actualType)
 
     ScalaBundle.message("type.mismatch.tooltip", format(diff1, s => s"<b>$s</b>"), format(diff2, red))
+  }
+
+  // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
+  def refreshIn(project: Project): Unit = {
+    if (!ScalaProjectSettings.in(project).isTypeMismatchHints) {
+      AnnotatorHints.clearIn(project)
+    }
+
+    Class.forName("org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints")
+      .getDeclaredMethod("updateInAllEditors")
+      .invoke(null)
   }
 }
