@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
-import org.jetbrains.plugins.scala.worksheet.settings.RunTypes.PlainRunType
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.PlainRunType
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
 class RunWorksheetAction extends AnAction with TopComponentAction {

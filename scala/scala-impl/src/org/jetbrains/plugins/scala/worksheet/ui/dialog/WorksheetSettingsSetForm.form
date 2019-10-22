@@ -77,12 +77,6 @@
           <text value="Run type:"/>
         </properties>
       </component>
-      <component id="a3d1a" class="com.intellij.openapi.actionSystem.impl.ActionButton" binding="additionalSettingsButton" custom-create="true">
-        <constraints>
-          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
     </children>
   </grid>
 </form>

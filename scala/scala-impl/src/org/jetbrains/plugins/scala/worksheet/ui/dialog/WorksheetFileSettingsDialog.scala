@@ -38,8 +38,6 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
       settings.setModuleName(settingsData.cpModule.getName)
     if (settingsData.compilerProfile != null && settingsData.compilerProfile.getName != settings.getCompilerProfileName) 
       settings.setCompilerProfileName(settingsData.compilerProfile.getName)
-
-    settingsData.runType.onSettingsConfirmed(worksheetFile)
   }
   
   private def getFileSettingsData: WorksheetSettingsData = getSettingsData(fileSettings)

@@ -98,7 +98,7 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
     file match {
       case scalaFile: ScalaFile =>
         val attrValue = FileAttributeUtilCache.readAttributeLight(WORKSHEET_RUN_TYPE, scalaFile)
-        attrValue.flatMap(RunTypes.findRunTypeByName).exists(_.isReplRunType)
+        attrValue.flatMap(WorksheetExternalRunType.findRunTypeByName).exists(_.isReplRunType)
       case _ => false
     }
   }
@@ -145,7 +145,7 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
     implicit val ExternalRunTypeAttribute: SerializableInFileAttribute[WorksheetExternalRunType] = new SerializableInFileAttribute[WorksheetExternalRunType] {
       override def convertFrom(t: WorksheetExternalRunType): String = t.getName
 
-      override def convertTo(s: String): WorksheetExternalRunType = RunTypes.findRunTypeByName(s).getOrElse(RunTypes.getDefaultRunType)
+      override def convertTo(s: String): WorksheetExternalRunType = WorksheetExternalRunType.findRunTypeByName(s).getOrElse(WorksheetExternalRunType.getDefaultRunType)
     }
   }
 }

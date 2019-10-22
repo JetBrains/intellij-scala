@@ -72,8 +72,6 @@ object WorksheetSourceProcessor {
     } else None
   }
 
-  def processSimple(srcFile: ScalaFile, editor: Editor): String = Base64.encode(srcFile.getText.getBytes)
-
   def processIncremental(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, String] = {
     val lastProcessed = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor)
 
