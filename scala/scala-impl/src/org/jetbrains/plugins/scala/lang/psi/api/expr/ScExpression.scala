@@ -202,45 +202,38 @@ object ScExpression {
           case (Some(expType), Some(tp))
             if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
 
-            synthesizePartialFunctionType(tp, expType)
-              .orElse(tryConvertToSAM(fromUnderscore, expType, tp))
-              .getOrElse {
-                if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
-                else {
-                  val functionType = FunctionType(expType, Seq(tp))
+            if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
+            else {
+              val functionType = FunctionType(expType, Seq(tp))
 
-                  val implicitCollector = new ImplicitCollector(
-                    expr,
-                    functionType,
-                    functionType,
-                    None,
-                    isImplicitConversion = true
-                  )
+              val implicitCollector = new ImplicitCollector(
+                expr,
+                functionType,
+                functionType,
+                None,
+                isImplicitConversion = true
+              )
 
-                  val fromImplicit = implicitCollector.collect() match {
-                    case Seq(res) =>
-                      extractImplicitParameterType(res).flatMap {
-                        case FunctionType(rt, Seq(_)) => Some(rt)
-                        case paramType =>
-                          expr.elementScope.cachedFunction1Type.flatMap { functionType =>
-                            paramType.conforms(functionType, ConstraintSystem.empty) match {
-                              case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
-                              case _ => None
-                            }
-                          }.filterNot {
-                            _.isInstanceOf[UndefinedType]
-                          }
-                      }.map(_ -> res)
-                    case _ => None
-                  }
-
-                  fromImplicit match {
-                    case Some((mr, result)) =>
-                      ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
-                    case _ => ExpressionTypeResult(tr)
-                  }
-                }
+              val fromImplicit = implicitCollector.collect() match {
+                case Seq(res) =>
+                  extractImplicitParameterType(res).flatMap {
+                    case FunctionType(rt, Seq(_)) => Some(rt)
+                    case paramType =>
+                      expr.elementScope.cachedFunction1Type.flatMap { functionType =>
+                        paramType.conforms(functionType, ConstraintSystem.empty) match {
+                          case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
+                          case _                             => None
+                        }
+                      }.filterNot(_.isInstanceOf[UndefinedType])
+                  }.map(_ -> res)
+                case _ => None
               }
+
+              fromImplicit match {
+                case Some((mr, result)) => ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
+                case _                  => ExpressionTypeResult(tr)
+              }
+            }
           case _ => ExpressionTypeResult(tr)
         }
       }
@@ -264,6 +257,7 @@ object ScExpression {
               .dropMethodTypeEmptyParams(expr, expectedType)
               .inferValueType
               .unpackedType
+              .synthesizePartialFunctionType(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
             else
@@ -385,82 +379,6 @@ object ScExpression {
         case _                                => None
       }
     }
-
-    private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
-      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
-        def expectedResult = Some(ExpressionTypeResult(Right(expected)))
-
-        tp match {
-          case FunctionType(_, params) if expr.isSAMEnabled =>
-            SAMUtil.toSAMType(expected, expr) match {
-              case Some(methodType) if tp.conforms(methodType) => expectedResult
-              case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
-                val newTp = FunctionType(Unit, params)
-                if (newTp.conforms(methodType)) expectedResult
-                else None
-              case _ => None
-            }
-          case _ => None
-        }
-      }
-
-      expr match {
-        case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
-        case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM()
-        case MethodValue(method) if expr.scalaLanguageLevelOrDefault == Scala_2_11 || method.getParameterList.getParametersCount > 0 =>
-          checkForSAM(etaExpansionHappened = true)
-        case _ => None
-      }
-    }
-
-    /**
-     * https://github.com/scala/scala/pull/8172
-     *
-     * Adapt type of a function literal, if the expected type is
-     * PartialFunction with matching type arguments.
-     */
-    private final def synthesizePartialFunctionType(tpe: ScType, expectedTpe: ScType): Option[ExpressionTypeResult] = {
-      def flattenParamTypes(tpe: ScType): Seq[ScType] = tpe match {
-        case TupleType(comps) => comps
-        case _                => Seq(tpe)
-      }
-
-      def parameterTypesMatch(ptParams: ScType, paramTpes: Seq[ScType]): Boolean =
-        paramTpes.corresponds(flattenParamTypes(ptParams))(_.conforms(_)) ||
-          paramTpes.corresponds(Seq(ptParams))(_.conforms(_))
-
-      def checkExpectedPartialFunctionType(
-        pt:        ScType,
-        resTpe:    ScType,
-        paramTpes: Seq[ScType]
-      ): Option[ScType] = pt match {
-        case PartialFunctionType(ptRes, ptParams)
-            if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&
-              expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
-          val partialFunctionParamType =
-            if (paramTpes.size == 1) paramTpes.head
-            else                     TupleType(paramTpes)
-
-          PartialFunctionType((resTpe, partialFunctionParamType)).toOption
-        case _ => None
-      }
-
-      val maybeResTpe =
-          expr match {
-            case _: ScFunctionExpr =>
-              val FunctionType(rTpe, pTpes) = tpe
-              checkExpectedPartialFunctionType(expectedTpe, rTpe, pTpes)
-            case _ if ScUnderScoreSectionUtil.isUnderscoreFunction(expr) =>
-              tpe match {
-                case FunctionType(rTpe, pTpes) =>
-                  checkExpectedPartialFunctionType(expectedTpe, rTpe, pTpes)
-                case _ => None
-              }
-            case _ => None
-          }
-
-      maybeResTpe.map(t => ExpressionTypeResult(Right(t)))
-    }
   }
 
   @tailrec
@@ -479,7 +397,6 @@ object ScExpression {
   }
 
   private implicit class ExprTypeUpdates(private val scType: ScType) extends AnyVal {
-
     def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
       def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().isInstanceOf[ScLiteralType]
 
@@ -490,22 +407,107 @@ object ScExpression {
       }
     }
 
-    def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType = {
+    /**
+     * https://github.com/scala/scala/pull/8172
+     *
+     * Adapt type of a function literal, if the expected type is
+     * PartialFunction with matching type arguments.
+     */
+    final def synthesizePartialFunctionType(
+      expr:        ScExpression,
+      expectedTpe: Option[ScType]
+    ): ScType = {
+      implicit val scope: ElementScope = expr.elementScope
 
+      def flattenParamTypes(t: ScType): Seq[ScType] = t match {
+        case TupleType(comps) => comps
+        case _                => Seq(t)
+      }
+
+      def parameterTypesMatch(ptParams: ScType, paramTpes: Seq[ScType]): Boolean =
+        paramTpes.corresponds(flattenParamTypes(ptParams))(_.conforms(_)) ||
+          paramTpes.corresponds(Seq(ptParams))(_.conforms(_))
+
+      def checkExpectedPartialFunctionType(
+        resTpe:    ScType,
+        paramTpes: Seq[ScType]
+      ): ScType = expectedTpe match {
+        case Some(PartialFunctionType(ptRes, ptParams))
+            if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&
+              expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
+          val partialFunctionParamType =
+            if (paramTpes.size == 1) paramTpes.head
+            else TupleType(paramTpes)
+
+          PartialFunctionType((resTpe, partialFunctionParamType))
+        case _ => scType
+      }
+
+      expr match {
+        case _: ScFunctionExpr => scType match {
+          case FunctionType(rTpe, pTpes) => checkExpectedPartialFunctionType(rTpe, pTpes)
+          case _                         => scType
+        }
+        case _ if ScUnderScoreSectionUtil.isUnderscoreFunction(expr) => scType match {
+          case FunctionType(rTpe, pTpes) => checkExpectedPartialFunctionType(rTpe, pTpes)
+          case _                         => scType
+        }
+        case _ => scType
+      }
+    }
+
+
+    private def expectedSAMType(
+      expr:           ScExpression,
+      fromUnderscore: Boolean,
+      expected:       ScType
+    ): Option[ScType] = {
+      @scala.annotation.tailrec
+      def checkForSAM(tp: ScType): Option[ScType] =
+        tp match {
+          case FunctionType(_, _) if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
+          case _: ScMethodType                         => SAMUtil.toSAMType(expected, expr)
+          case ScTypePolymorphicType(tp, _)            => checkForSAM(tp)
+          case _                                       => None
+        }
+
+      expr match {
+        case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
+        case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
+        case MethodValue(method)
+            if expr.scalaLanguageLevelOrDefault == Scala_2_11 || method.getParameterList.getParametersCount > 0 =>
+          checkForSAM(scType)
+        case _ => None
+      }
+    }
+
+    def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType =
       if (shouldUpdateImplicitParams(expr)) {
         try {
-          val updatedWithExpected =
-            InferUtil.updateAccordingToExpectedType(scType,
-              filterTypeParams = false, expectedType = expectedType, expr = expr, canThrowSCE = true)
+          val maybeSAMpt =
+            expectedType.flatMap(expectedSAMType(expr, fromUnderscore, _))
 
-          expr.updateWithImplicitParameters(updatedWithExpected, checkExpectedType = true, fromUnderscore)
+          val updatedWithExpected =
+            InferUtil.updateAccordingToExpectedType(
+              scType,
+              filterTypeParams = false,
+              expectedType     = maybeSAMpt.orElse(expectedType),
+              expr             = expr,
+              canThrowSCE      = true
+            )
+
+          val withImplicitParams = expr.updateWithImplicitParameters(
+            updatedWithExpected,
+            checkExpectedType = true,
+            fromUnderscore
+          )
+
+          maybeSAMpt.fold(withImplicitParams)(_ => expectedType.getOrElse(withImplicitParams))
         } catch {
           case _: SafeCheckException =>
             expr.updateWithImplicitParameters(scType, checkExpectedType = false, fromUnderscore)
         }
-      }
-      else scType
-    }
+      } else scType
 
     def dropMethodTypeEmptyParams(expr: ScExpression, expectedType: Option[ScType]): ScType = {
       val (retType, typeParams) = scType match {
