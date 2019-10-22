@@ -9,20 +9,13 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
-import org.jetbrains.plugins.scala.worksheet.settings.RunTypes;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-/**
- * User: Dmitry.Naydanov
- * Date: 05.02.18.
- */
 public class WorksheetSettingsSetForm {
     private PsiFile myFile;
     private Project myProject;
@@ -33,8 +26,7 @@ public class WorksheetSettingsSetForm {
     private JPanel mainPanel;
     private JComboBox<ScalaCompilerSettingsProfile> compilerProfileComboBox;
     private ActionButton openCompilerProfileSettingsButton;
-    private JComboBox runTypeComboBox;
-    private ActionButton additionalSettingsButton;
+    private JComboBox<WorksheetExternalRunType> runTypeComboBox;
 
     WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
         myFile = file;
@@ -51,22 +43,13 @@ public class WorksheetSettingsSetForm {
     }
 
     private void init(WorksheetSettingsData settingsData) {
-
-        runTypeComboBox.setModel(new DefaultComboBoxModel<>(RunTypes.getAllRunTypes()));
+        runTypeComboBox.setModel(new DefaultComboBoxModel<>(WorksheetExternalRunType.getAllRunTypes()));
         runTypeComboBox.setSelectedItem(settingsData.runType);
-
-        runTypeComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                additionalSettingsButton.setVisible(isAdditionalSettingsShown());
-            }
-        });
 
         interactiveModeCheckBox.setSelected(settingsData.isInteractive);
         makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun);
         compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(settingsData.profiles));
         compilerProfileComboBox.setSelectedItem(settingsData.compilerProfile);
-        additionalSettingsButton.setVisible(isAdditionalSettingsShown());
     }
 
     public JPanel getMainPanel() {
@@ -97,11 +80,6 @@ public class WorksheetSettingsSetForm {
         );
     }
 
-    private boolean isAdditionalSettingsShown() {
-        return runTypeComboBox.getSelectedItem() != null &&
-                ((WorksheetExternalRunType) runTypeComboBox.getSelectedItem()).showAdditionalSettingsPanel() != null;
-    }
-
     private void createUIComponents() {
         moduleComboBox = new ModulesComboBox();
         moduleComboBox.fillModules(myProject);
@@ -119,7 +97,6 @@ public class WorksheetSettingsSetForm {
         }
 
         openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(this).getActionButton();
-        additionalSettingsButton = new ShowRunTypeAdditionalSettingsButton(this).getActionButton();
     }
 
     /**
@@ -156,7 +133,6 @@ public class WorksheetSettingsSetForm {
         final JLabel label3 = new JLabel();
         label3.setText("Run type:");
         mainPanel.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        mainPanel.add(additionalSettingsButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     /**

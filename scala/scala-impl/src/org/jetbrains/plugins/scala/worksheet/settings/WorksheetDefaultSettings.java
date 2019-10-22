@@ -22,7 +22,7 @@ public class WorksheetDefaultSettings implements PersistentStateComponent<Worksh
 
   private String moduleName;
   private String compilerProfileName;
-  private WorksheetExternalRunType runType = RunTypes.getDefaultRunType();
+  private WorksheetExternalRunType runType = WorksheetExternalRunType.getDefaultRunType();
 
   public boolean isInteractive() {
     return isInteractive;
