@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.actions
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CustomShortcutSet}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 27.02.17.
-  */
 class WorksheetReplRunAction extends AnAction with WorksheetAction {
 
   setShortcutSet(CustomShortcutSet.fromString("ctrl ENTER"))

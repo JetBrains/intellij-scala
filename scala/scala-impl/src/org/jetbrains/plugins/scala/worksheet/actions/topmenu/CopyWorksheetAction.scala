@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet.actions
+package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import java.awt.datatransfer.StringSelection
 
@@ -11,18 +10,18 @@ import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 12/6/12
- */
 class CopyWorksheetAction extends AnAction with TopComponentAction {
 
-  def actionPerformed(e: AnActionEvent) {
+  override def genericText: String = ScalaBundle.message("worksheet.copy.button")
+
+  override def actionIcon: Icon = AllIcons.Actions.Copy
+
+  override def actionPerformed(e: AnActionEvent) {
     val project = e.getProject
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
     if (editor == null) return
@@ -88,10 +87,6 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     
     result.toString()
   }
-
-  override def actionIcon: Icon = AllIcons.Actions.Copy
-
-  override def bundleKey = "worksheet.copy.button"
 }
 
 object CopyWorksheetAction {

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet.actions
+package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import com.intellij.execution._
 import com.intellij.execution.configurations.JavaParameters
@@ -19,6 +18,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
@@ -31,9 +31,14 @@ import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, 
 
 class RunWorksheetAction extends AnAction with TopComponentAction {
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  override def genericText: String = ScalaBundle.message("worksheet.execute.button")
+
+  override def actionIcon: Icon = AllIcons.Actions.Execute
+
+  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
+
+  override def actionPerformed(e: AnActionEvent): Unit =
     RunWorksheetAction.runCompiler(e.getProject, auto = false)
-  }
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
@@ -41,22 +46,16 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
     val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
     
     if (shortcuts.nonEmpty) {
-      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+      val shortcutText = s" (${KeymapUtil.getShortcutText(shortcuts(0))})"
       e.getPresentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
     }
   }
-
-  override def actionIcon: Icon = AllIcons.Actions.Execute
-
-  override def bundleKey: String = "worksheet.execute.button"
-
-  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
 }
 
 object RunWorksheetAction {
   private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
-  def runCompiler(project: Project, auto: Boolean) {
+  def runCompiler(project: Project, auto: Boolean): Unit = {
     Stats.trigger(FeatureKey.runWorksheet)
 
     if (project == null) return

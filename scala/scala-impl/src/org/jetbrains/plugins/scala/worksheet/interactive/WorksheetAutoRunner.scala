@@ -8,17 +8,16 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
-
-import scala.annotation.tailrec
 
 /**
  * User: Dmitry.Naydanov
