@@ -13,7 +13,7 @@ import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer._
 
-private class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
+class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
   extends HintRendererProxy(parts.map(_.string).mkString) {
 
   private val originalParts = parts

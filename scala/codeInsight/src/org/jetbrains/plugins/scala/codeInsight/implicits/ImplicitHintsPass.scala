@@ -42,8 +42,8 @@ private class ImplicitHintsPass(private val editor: Editor, private val rootElem
       rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       hints ++= collectTypeHints(editor, rootElement)
-      hints ++= collectExpressionChainTypeHints(editor, rootElement)
       collectConversionsAndArguments()
+      collectExpressionChainTypeHints(editor, rootElement)
     }
   }
 
@@ -131,6 +131,7 @@ private class ImplicitHintsPass(private val editor: Editor, private val rootElem
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
       hints.foreach(inlayModel.add(_))
+      regenerateExprChainHints(myEditor, inlayModel, rootElement)
     })
   }
 }
