@@ -59,7 +59,13 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       .getAfterLineEndElementsInRange(rootElement.getTextRange.getStartOffset, rootElement.getTextRange.getEndOffset)
       .asScala
       .filter(ScalaExprChainKey.isIn)
-      .foreach(Disposer.dispose)
+      .foreach { inlay =>
+        inlay
+          .getUserData(ScalaExprChainDisposableKey)
+          .toOption
+          .foreach(Disposer.dispose)
+        Disposer.dispose(inlay)
+      }
 
     assert(collectedHintTemplates.forall(_.nonEmpty))
     val document = editor.getDocument
@@ -78,7 +84,8 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
 }
 
 private object ScalaExprChainTypeHintsPass {
-  private val ScalaExprChainKey = Key.create[Disposable]("SCALA_IMPLICIT_HINT")
+  private val ScalaExprChainKey = Key.create[Boolean]("SCALA_EXPR_CHAIN_KEY")
+  private val ScalaExprChainDisposableKey = Key.create[Disposable]("SCALA_EXPR_CHAIN_DISPOSABLE_KEY")
 
   object ExprChain {
     def unapply(element: PsiElement): Option[Seq[ScExpression]] = {
@@ -135,7 +142,7 @@ private object ScalaExprChainTypeHintsPass {
   private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
                                   minMargin: Int = 1,
                                   maxMargin: Int = 6)
-                                 (inlayModel: InlayModel, document: Document, charWidthInPixel: Int) {
+                                 (inlayModel: InlayModel, document: Document, charWidthInPixel: Int) extends Disposable {
     private val minMarginInPixel = minMargin * charWidthInPixel
     private val maxMarginInPixel = maxMargin * charWidthInPixel
 
@@ -158,19 +165,19 @@ private object ScalaExprChainTypeHintsPass {
       }
     }
 
-    private val inlays: Seq[Inlay[AlignedInlayRenderer]] = {
-      for {
-        line <- alignmentLines
-        hint <- line.maybeHint
-      } yield {
+    private val inlays: Seq[Inlay[AlignedInlayRenderer]] =
+      for(line <- alignmentLines; hint <- line.maybeHint) yield {
         val inlay = inlayModel.addAfterLineEndElement(
           hint.expr.getTextRange.getEndOffset,
           false,
           new AlignedInlayRenderer(line, hint.textParts)
         )
-        inlay.putUserData(ScalaExprChainKey, line)
+        inlay.putUserData(ScalaExprChainKey, true)
         inlay
       }
+
+    locally {
+      inlays.head.putUserData(ScalaExprChainDisposableKey, this)
     }
 
     private def recalculateGroupsOffsets(editor: Editor): Unit = {
@@ -194,6 +201,8 @@ private object ScalaExprChainTypeHintsPass {
         renderer.setMargin(endX, targetMaxX - endX, inlay)
       }
     }
+
+    override def dispose(): Unit = alignmentLines.foreach(_.dispose())
 
     private class AlignmentLine(offset: Int, val maybeHint: Option[AlignedHintTemplate])(document: Document) extends Disposable {
       private val marker: RangeMarker = document.createRangeMarker(offset, offset)
