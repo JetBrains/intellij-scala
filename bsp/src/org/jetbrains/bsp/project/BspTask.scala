@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceled
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskNotification
+import mercator._
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
@@ -27,6 +28,7 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.util.control.NonFatal
+import scala.util.{Failure, Try}
 
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
@@ -87,9 +89,25 @@ class BspTask[T](project: Project,
         processLog(report))
     }
 
-    val compileResults = buildJobs.map(waitForJobCancelable(_, indicator))
-    val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
-    val combinedMessages = updatedMessages.fold(BuildMessages.empty){ (m1, m2) => m1.combine(m2) }
+    val combinedMessages = buildJobs
+      .traverse(waitForJobCancelable(_, indicator))
+      .map { compileResults =>
+        val updatedMessages = compileResults.map(r => messagesWithStatus(report, reportIndicator, r._1, r._2))
+        updatedMessages.fold(BuildMessages.empty) { (m1, m2) => m1.combine(m2) }
+      }.recover {
+        case _: ProcessCanceledException =>
+          BuildMessages.empty.status(BuildMessages.Canceled)
+        case NonFatal(x: Exception) =>
+          BuildMessages.empty
+            .status(BuildMessages.Error)
+            .exception(x)
+      }
+      .getOrElse{
+        BuildMessages.empty
+          .status(BuildMessages.Error)
+          .addError(s"Build failed: unknown reason")
+      }
+
 
     // TODO start/finish task for individual builds
     if (combinedMessages.status == BuildMessages.Canceled) {
@@ -106,6 +124,7 @@ class BspTask[T](project: Project,
     }
 
     val result = combinedMessages.toTaskResult
+
     callbackOpt.foreach(_.finished(result))
     onComplete()
   }
@@ -150,17 +169,17 @@ class BspTask[T](project: Project,
   }
 
 
-  @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): R = {
+  @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): Try[R] =
     try {
       indicator.checkCanceled()
-      Await.result(job.future, 300.millis)
+      val res = Await.result(job.future, 300.millis)
+      Try(res)
     } catch {
       case _ : TimeoutException => waitForJobCancelable(job, indicator)
       case cancel : ProcessCanceledException =>
         job.cancel()
-        throw cancel
+        Failure(cancel)
     }
-  }
 
   private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])(implicit server: BspServer) = {
     if (targetsToClean.isEmpty) compileRequest(targets)

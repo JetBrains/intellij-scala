@@ -166,7 +166,8 @@ object DependencyGroups {
       .exclude("com.google.guava", "guava") // included in IDEA platform
     ,
     "ch.epfl.scala" %% "bsp-testkit" % bspVersion % "test",
-    "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+    "com.propensive" %% "mercator" % "0.2.1"
   )
 
   val decompiler: Seq[ModuleID] = Seq(
