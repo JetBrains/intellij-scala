@@ -64,7 +64,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
     val myFileEditorManager = FileEditorManager.getInstance(project)
     val editors = myFileEditorManager.getAllEditors(file)
-    
+
     for (editor <- editors) {
       for {
         ref <- WorksheetFileHook.getAndRemovePanel(file)
@@ -72,7 +72,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       } invokeLater {
         myFileEditorManager.removeTopComponent(editor, panel)
       }
-      
+
       val panel  = new WorksheetFileHook.MyPanel(file)
       val constructor = new WorksheetUiConstructor(panel, project)
 
@@ -110,9 +110,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
   private object WorksheetEditorListener extends FileEditorManagerListener {
 
     private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
-      WorksheetFileType.isWorksheetFile(file) {
-        PsiManager.getInstance(_).findFile(file).isInstanceOf[ScalaFile]
-      }(project)
+      WorksheetFileType.isWorksheetFile(file)(project)
 
     override def selectionChanged(event: FileEditorManagerEvent): Unit = {}
 
@@ -184,20 +182,20 @@ object WorksheetFileHook {
 
   private val WORKSHEET_HK_ACTIONS: Array[AnAction] = Array(WorksheetReplRunAction.ACTION_INSTANCE)
   private val file2panel = new util.WeakHashMap[VirtualFile, WeakReference[MyPanel]]()
-  
+
   private class MyPanel(file: VirtualFile) extends JPanel {
-    
+
     file2panel.put(file, new WeakReference[MyPanel](this))
-    
+
     override def equals(obj: Any): Boolean = obj.isInstanceOf[MyPanel]
 
     override def hashCode(): Int = Integer.MAX_VALUE
   }
-  
+
   private def getAndRemovePanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.remove(file))
 
   private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
-  
+
   private def plugWorksheetActions(file: VirtualFile, project: Project): Unit =
     inReadAction {
       val editors = FileEditorManager.getInstance(project).getAllEditors(file)
@@ -222,7 +220,7 @@ object WorksheetFileHook {
     inReadAction {
       FileEditorManager.getInstance(project).getAllEditors(file) foreach unplugWorksheetActions
     }
-  
+
   private def unplugWorksheetActions(editor: FileEditor): Unit =
     patchComponentActions(editor) { oldActions =>
       if (oldActions == null) null else {
@@ -231,7 +229,7 @@ object WorksheetFileHook {
         newActions
       }
     }
-  
+
   private def patchComponentActions(editor: FileEditor)(patcher: util.List[AnAction] => util.List[AnAction]) {
     val c = editor.getComponent
     val patchedActions = patcher(UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY))
@@ -241,7 +239,7 @@ object WorksheetFileHook {
   }
 
   def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])
-  
+
   def handleEditor(source: FileEditorManager, file: VirtualFile)(callback: Editor => Unit): Unit =
     invokeLater {
       source.getSelectedEditor(file) match {
@@ -250,7 +248,7 @@ object WorksheetFileHook {
         case _ =>
       }
     }
-  
+
   def getDocumentFrom(project: Project,  file: VirtualFile): Option[Document] = {
     val fileOpt = Option(PsiManager.getInstance(project).findFile(file))
     fileOpt.map { file =>
