@@ -15,6 +15,7 @@ import org.jetbrains.bsp.settings.BspExecutionSettings
 
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.util.{Success, Try}
 
 class BspCommunicationService extends Disposable {
 
@@ -60,6 +61,17 @@ class BspCommunicationService extends Disposable {
     projectPath.map(new File(_))
       .map(communicate)
       .orNull // TODO
+
+  def closeCommunication(base: File): Try[Unit] =
+    comms.get(base.getCanonicalFile.toURI)
+      .toRight(new NoSuchElementException)
+      .toTry
+      .flatMap(_.closeSession())
+
+  def closeAll: Try[Unit] =
+    comms.values
+      .map(_.closeSession())
+      .foldLeft(Success(Unit): Try[Unit])(_.orElse(_))
 
   private def executionSettings(base: File): BspExecutionSettings =
     BspExecutionSettings.executionSettingsFor(base)
