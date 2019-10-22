@@ -7,12 +7,11 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.compiler.{CompilerConfiguration, CompilerTestUtil}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler._
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.testFramework.{EdtTestUtil, JavaModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import javax.swing.SwingUtilities
@@ -30,7 +29,7 @@ import scala.util.{Failure, Success, Try}
  * Nikolay.Tropin
  * 2/26/14
  */
-abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
+abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
   private var deleteProjectAtTearDown = false
 
