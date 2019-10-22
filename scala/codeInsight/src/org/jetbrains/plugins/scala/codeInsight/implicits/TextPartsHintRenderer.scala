@@ -11,9 +11,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.implicits.TextRenderer._
+import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer._
 
-private class TextRenderer(var parts: Seq[Text], menu: Option[String])
+private class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
   extends HintRendererProxy(parts.map(_.string).mkString) {
 
   private val originalParts = parts
@@ -182,7 +182,7 @@ private class TextRenderer(var parts: Seq[Text], menu: Option[String])
   }
 }
 
-private object TextRenderer {
+private object TextPartsHintRenderer {
   private final val HintFontMetrics = Key.create[MyFontMetrics]("SCALA_IMPLICIT_HINT_FONT_METRICS")
 
   private final val BackgroundAlpha = 0.55F
