@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetIncrementalEditorPrinter}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
 import scala.collection.mutable
 
@@ -51,17 +51,17 @@ class WorksheetCache(project: Project) extends ProjectComponent  {
     allReplPrinters.remove(inputEditor)
   }
   
-  def getLastProcessedIncremental(inputEditor: Editor): Option[Int] = {
-    Option(allReplPrinters get inputEditor) flatMap {
-      case in: WorksheetIncrementalEditorPrinter => in.getLastProcessedLine
-      case _ => None
+  def getLastProcessedIncremental(inputEditor: Editor): Option[Int] =
+    Option(allReplPrinters.get(inputEditor)).flatMap {
+      case in: WorksheetEditorPrinterRepl => in.getLastProcessedLine
+      case _                              => None
     }
   }
   
-  def setLastProcessedIncremental(inputEditor: Editor, v: Option[Int]) {
-    allReplPrinters get inputEditor match {
-      case inc: WorksheetIncrementalEditorPrinter => inc setLastProcessedLine v
-      case _ => 
+  def setLastProcessedIncremental(inputEditor: Editor, line: Option[Int]): Unit = {
+    allReplPrinters.get(inputEditor) match {
+      case inc: WorksheetEditorPrinterRepl => inc.setLastProcessedLine(line)
+      case _                               =>
     }
   }
   
@@ -91,7 +91,7 @@ class WorksheetCache(project: Project) extends ProjectComponent  {
 
   def addViewer(viewer: Editor, editor: Editor) {
     synchronized {
-      allViewers get editor match {
+      allViewers.get(editor) match {
         case null =>
           allViewers.put(editor, viewer :: Nil)
         case list: List[Editor] =>
@@ -129,7 +129,7 @@ class WorksheetCache(project: Project) extends ProjectComponent  {
 
   private def get(editor: Editor): Editor = {
     synchronized {
-      allViewers get editor match {
+      allViewers.get(editor) match {
         case null => null
         case list => list.headOption.orNull
       }

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetIncrementalEditorPrinter.{ClassObjectPsi, QueuedPsi, SemicolonSeqPsi, SingleQueuedPsi}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl.{ClassObjectPsi, QueuedPsi, SemicolonSeqPsi, SingleQueuedPsi}
 
 import scala.collection.mutable
 

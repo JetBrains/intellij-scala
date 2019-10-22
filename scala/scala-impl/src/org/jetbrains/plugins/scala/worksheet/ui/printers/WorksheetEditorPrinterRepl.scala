@@ -16,20 +16,19 @@ import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetIncrementalEditorPrinter.QueuedPsi.PrintChunk
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl.QueuedPsi.PrintChunk
 
 import scala.collection.mutable
 
-/** Printer for 'REPL' mode */
-class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: ScalaFile) 
+final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer: Editor, file: ScalaFile)
   extends WorksheetEditorPrinterBase(editor, viewer) {
 
-  import WorksheetIncrementalEditorPrinter._
+  import WorksheetEditorPrinterRepl._
   import processor._
 
   private var lastProcessedLine: Option[Int] = None
   private var currentFile: ScalaFile = file
-  
+
   private var hasErrors = false
   private var hasMessages = false
 
@@ -73,7 +72,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
       case _ =>
         cleanViewerFromLine(0)
     }
-    
+
     psiToProcess.clear()
 
     val glue = WorksheetPsiGlue()
@@ -93,30 +92,30 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     outputBuffer.clear()
     messagesBuffer.clear()
   }
-  
+
   override def getScalaFile: ScalaFile = currentFile
 
   override def processLine(line: String): Boolean = {
     if (!isInited) init()
 
     line.trim match {
-      case REPL_START => 
+      case REPL_START =>
         fetchNewPsi()
         if (lastProcessedLine.isEmpty)
           cleanFoldingsLater()
         clearMessages()
         clearBuffer()
         false
-      case REPL_LAST_CHUNK_PROCESSED => 
+      case REPL_LAST_CHUNK_PROCESSED =>
         flushBuffer()
         refreshLastMarker()
         true
-      case REPL_CHUNK_END => 
-        if (hasErrors) refreshLastMarker() 
+      case REPL_CHUNK_END =>
+        if (hasErrors) refreshLastMarker()
         flushBuffer()
 
         hasErrors
-      case ReplMessage(info) => 
+      case ReplMessage(info) =>
         messagesBuffer.append(info.msg).append("\n")
         hasMessages = true
         false
@@ -138,7 +137,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
     val outputText = outputBuffer.toString.trim
     outputBuffer.clear()
-    
+
     val queuedPsi: QueuedPsi = psiToProcess.dequeue()
     if (!queuedPsi.isValid) return //warning here?
 
@@ -236,8 +235,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   }
 
   /**
-    * @return true if error and should stop
-    */
+   * @return true if error and should stop
+   */
   private def processMessage(): Boolean = {
     if (psiToProcess.isEmpty) return false
 
@@ -302,7 +301,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     rehighlight(getScalaFile)
 }
 
-object WorksheetIncrementalEditorPrinter {
+object WorksheetEditorPrinterRepl {
 
   import processor.WorksheetCompilerUtil
 
@@ -369,8 +368,8 @@ object WorksheetIncrementalEditorPrinter {
     protected def isValidImpl: Boolean
 
     /**
-      * @return the whole corresponding input text
-      */
+     * @return the whole corresponding input text
+     */
     final def getText: String = inReadAction {
       getTextImpl
     }
@@ -378,8 +377,8 @@ object WorksheetIncrementalEditorPrinter {
     protected def getTextImpl: String
 
     /**
-      * @return input text range
-      */
+     * @return input text range
+     */
     def getWholeTextRange: TextRange
 
     /**

@@ -9,13 +9,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetDefaultEditorPrinter._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
 import scala.collection.mutable.ArrayBuffer
 
-/** Printer for 'Plain' mode */
-class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaFile)
+final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer: Editor, file: ScalaFile)
   extends WorksheetEditorPrinterBase(editor, viewer) {
 
   // used to flush collected output if there is some long process generating running
@@ -132,9 +131,9 @@ class WorksheetDefaultEditorPrinter(editor: Editor, viewer: Editor, file: ScalaF
   }
 }
 
-object WorksheetDefaultEditorPrinter {
+object WorksheetEditorPrinterPlain {
 
-  private val Log = Logger.getInstance(classOf[WorksheetDefaultEditorPrinter])
+  private val Log = Logger.getInstance(classOf[WorksheetEditorPrinterPlain])
 
   /**
    * Represents evaluated expression which is located on `inputStartLine..inputEndLine` lines in the left editor
@@ -180,7 +179,7 @@ object WorksheetDefaultEditorPrinter {
     val resultText = StringBuilder.newBuilder
     val resultFoldings = ArrayBuffer.empty[FoldingOffsets]
 
-    val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetDefaultEditorPrinter.groupChunks(chunks)
+    val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
     var foldedLines                              = 0
 
     for { group <- chunksGrouped} {
