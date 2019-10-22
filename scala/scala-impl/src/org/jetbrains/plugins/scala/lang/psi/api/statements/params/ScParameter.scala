@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{FunctionLikeType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{FunctionLikeType, ScAbstractType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -105,7 +105,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
     case clause: ScParameterClause => clause.getContext.getContext match {
       case fn: ScFunctionExpr =>
         val functionLikeType = FunctionLikeType(this)
-        val eTpe             = fn.expectedType(fromUnderscore = false).map(_.removeAbstracts)
+        val eTpe             = fn.expectedType(fromUnderscore = false)
         val idx              = clause.parameters.indexOf(this)
         val isUnderscoreFn   = ScUnderScoreSectionUtil.isUnderscoreFunction(fn)
 
@@ -113,7 +113,11 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
         def extractFromFunctionType(tpe: ScType, checkDeep: Boolean = false): Option[ScType] =
           tpe match {
             case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
-            case functionLikeType(_, _, paramTpes)           => paramTpes.lift(idx)
+              case functionLikeType(_, _, paramTpes) =>
+                paramTpes.lift(idx).flatMap {
+                  case abs: ScAbstractType if abs.upper.isAny => None
+                  case tpe                                    => Option(tpe.removeAbstracts)
+                }
             case _                                           => None
           }
 

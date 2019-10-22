@@ -349,11 +349,12 @@ package object types {
       case FunctionType(retTpe, paramTpes)       => (FunctionN, retTpe, paramTpes).toOption
       case PartialFunctionType(retTpe, paramTpe) => (PF, retTpe, Seq(paramTpe)).toOption
       case ScAbstractType(_, _, upper)           => unapply(upper)
-      case tpe                                   =>
+      case tpe if place.isSAMEnabled             =>
         for {
           (_, retTpe, paramTpes) <- SAMUtil.toSAMType(tpe, place).flatMap(unapply)
           cls                    <- tpe.extractClass
         } yield (SAM(cls), retTpe, paramTpes)
+      case _ => None
     }
   }
 

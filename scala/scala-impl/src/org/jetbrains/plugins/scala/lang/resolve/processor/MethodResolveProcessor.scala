@@ -248,7 +248,7 @@ object MethodResolveProcessor {
       }
     }
 
-    def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
+    def checkFunction(fun: PsiNamedElement, isPolymorphic: Boolean): ConformanceExtResult = {
       def default(): ConformanceExtResult = {
         fun match {
           case fun: ScFunction if fun.paramClauses.clauses.isEmpty ||
@@ -281,16 +281,17 @@ object MethodResolveProcessor {
         case _ =>
       }
 
-      expectedOption().map {
-        case a: ScAbstractType => a.simplifyType
-        case f => f
-      } match {
-        case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
-        case Some(tp: ScType) if fun.isSAMEnabled =>
-          SAMUtil.toSAMType(tp, fun) match {
-            case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
-            case _ => default()
+      val functionLikeType = FunctionLikeType(fun)
+
+      expectedOption() match {
+        case Some(functionLikeType(_, retTpe, paramTpes)) =>
+          val doNotEtaExpand = isPolymorphic && paramTpes.exists {
+            case abs: ScAbstractType if abs.upper.isAny => true
+            case _                                      => false
           }
+
+          if (doNotEtaExpand) default()
+          else                processFunctionType(retTpe.removeAbstracts, paramTpes.map(_.removeAbstracts))
         case _ => default()
       }
     }
@@ -363,14 +364,14 @@ object MethodResolveProcessor {
               argumentClauses.isEmpty =>
         addExpectedTypeProblems()
       //eta expansion
-      case fun: ScTypeParametersOwner if (typeArgElements.isEmpty ||
-              typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty &&
-              fun.isInstanceOf[PsiNamedElement] =>
-        checkFunction(fun.asInstanceOf[PsiNamedElement])
-      case fun: PsiTypeParameterListOwner if (typeArgElements.isEmpty ||
-              typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty &&
-              fun.isInstanceOf[PsiNamedElement] =>
-        checkFunction(fun.asInstanceOf[PsiNamedElement])
+      case (fun: ScTypeParametersOwner) && (_: PsiNamedElement)
+          if (typeArgElements.isEmpty ||
+            typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty =>
+        checkFunction(fun, fun.typeParameters.nonEmpty)
+      case (fun: PsiTypeParameterListOwner) && (_: PsiNamedElement)
+          if (typeArgElements.isEmpty ||
+            typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
+        checkFunction(fun, fun.getTypeParameters.nonEmpty)
       //simple application including empty application
       case tp: ScTypeParametersOwner with PsiNamedElement =>
         val args = argumentClauses.headOption.toList
