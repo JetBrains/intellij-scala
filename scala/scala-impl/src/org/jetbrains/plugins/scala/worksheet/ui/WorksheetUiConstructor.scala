@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
 import java.awt.{Component, Dimension}
-import javax.swing._
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.extensions
@@ -23,7 +23,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     panel setLayout layout
     panel setAlignmentX 0.0f //leftmost
 
-    import WorksheetUiConstructor._  
+    import WorksheetUiConstructor._
     
     @inline def addSplitter(): Unit = addChild(panel, createSplitter())
     @inline def addFiller(): Unit = {

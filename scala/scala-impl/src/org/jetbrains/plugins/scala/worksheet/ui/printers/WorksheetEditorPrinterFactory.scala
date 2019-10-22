@@ -1,18 +1,15 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala.worksheet.ui.printers
 
 import java.awt.{BorderLayout, Dimension}
 import java.util
 
 import com.intellij.diff.tools.util.BaseSyncScrollable
 import com.intellij.diff.tools.util.SyncScrollSupport.TwosideSyncScrollSupport
-import javax.swing.{JComponent, JLayeredPane}
 import com.intellij.ide.DataManager
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataProvider}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
-import com.intellij.openapi.editor.event.{CaretEvent, CaretListener}
+import com.intellij.openapi.editor.event.{CaretEvent, CaretListener, VisibleAreaEvent, VisibleAreaListener}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -25,10 +22,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.ui.JBSplitter
+import javax.swing.{JComponent, JLayeredPane}
+import org.jetbrains.plugins.scala.extensions.{StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.extensions.{invokeLater, StringExt}
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.util.Random

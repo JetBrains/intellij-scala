@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet
-package ui
+package org.jetbrains.plugins.scala.worksheet.ui.printers
 
 import java.util.regex.Pattern
 
@@ -13,10 +11,12 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import org.jetbrains.plugins.scala.worksheet.processor
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase.FoldingOffsets
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter.QueuedPsi._
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetIncrementalEditorPrinter.QueuedPsi.PrintChunk
 
 import scala.collection.mutable
 

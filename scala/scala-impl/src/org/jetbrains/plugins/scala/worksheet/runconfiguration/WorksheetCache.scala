@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetIncrementalEditorPrinter}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetIncrementalEditorPrinter}
 
 import scala.collection.mutable
 

@@ -4,7 +4,6 @@ package worksheet.ui
 import java.util
 
 import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx}
-import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
