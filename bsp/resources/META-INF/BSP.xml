@@ -53,6 +53,18 @@
     </extensions>
 
     <actions>
+        <action id="Bsp.Session.CloseAll"
+                class="org.jetbrains.bsp.protocol.CloseBspSessionsAction"
+                text="Close Sessions"
+                description="Close all open BSP sessions"
+                icon="AllIcons.Process.Stop">
+        </action>
+
+        <group>
+            <separator/>
+            <reference id="Bsp.Session.CloseAll"/>
+            <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
+        </group>
     </actions>
 
 
