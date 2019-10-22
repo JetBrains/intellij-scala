@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.extensions.{ReferenceExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.UserDataKeys
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu.{RunWorksheetAction, StopWorksheetAction, TopComponentDisplayable}
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
+import org.jetbrains.plugins.scala.worksheet.actions.repl._
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
