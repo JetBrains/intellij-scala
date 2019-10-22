@@ -86,6 +86,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
 private object ScalaExprChainTypeHintsPass {
   private val ScalaExprChainKey = Key.create[Boolean]("SCALA_EXPR_CHAIN_KEY")
   private val ScalaExprChainDisposableKey = Key.create[Disposable]("SCALA_EXPR_CHAIN_DISPOSABLE_KEY")
+  private val typeHintsMenu = Some("TypeHintsMenu")
 
   object ExprChain {
     def unapply(element: PsiElement): Option[Seq[ScExpression]] = {
@@ -216,7 +217,9 @@ private object ScalaExprChainTypeHintsPass {
       override def dispose(): Unit = marker.dispose()
     }
 
-    private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text]) extends TextPartsHintRenderer(textParts, None) {
+    private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text])
+      extends TextPartsHintRenderer(textParts, typeHintsMenu) {
+
       private case class Cached(lineEndX: Int, margin: Int)
       private var cached: Cached = Cached(0, 0)
 
