@@ -3,6 +3,7 @@ package org.jetbrains.bsp.protocol
 import java.io.File
 import java.net.URI
 import java.nio.file._
+import java.util.concurrent.atomic.AtomicReference
 
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.google.gson.Gson
@@ -33,10 +34,10 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
-  @volatile private var session: Option[BspSession] = None
+  private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
   private def acquireSessionAndRun(job: BspSessionJob[_,_]): Either[BspError, BspSession] = session.synchronized {
-    session match {
+    session.get() match {
       case Some(currentSession) =>
         if (currentSession.isAlive) Right(currentSession)
         else openSession(job)
@@ -60,7 +61,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 //          .addNotificationCallback(projectCallback) TODO
           .withTraceLogPredicate(() => BspExecutionSettings.executionSettingsFor(base).traceBsp)
         val newSession = newSessionBuilder.create
-        session = Some(newSession)
+        session.updateAndGet(_ => Option(newSession))
         Right(newSession)
     }
   }
@@ -85,17 +86,17 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 //    case _ => // ignore
 //  }
 
-  private[bsp] def closeSession(): Try[Unit] = session match {
+  private[bsp] def closeSession(): Try[Unit] = session.get() match {
     case None => Success(())
     case Some(s) =>
-      session = None
+      session.set(None)
       s.shutdown()
   }
 
-  private[protocol] def isIdle(now: Long, timeout: Duration) = session match {
+  private[protocol] def isIdle(now: Long, timeout: Duration) = session.get() match {
     case None => false
     case Some(s) =>
-      s.isAlive && now - s.getLastActivity >  timeout.toMillis
+      s.isAlive && (now - s.getLastActivity >  timeout.toMillis)
   }
 
   def run[T, A](task: BspSessionTask[T],
