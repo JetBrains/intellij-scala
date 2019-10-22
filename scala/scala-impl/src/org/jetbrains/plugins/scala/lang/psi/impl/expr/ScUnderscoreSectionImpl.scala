@@ -24,13 +24,16 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
   protected override def innerType: TypeResult = {
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>
-        def fun(): TypeResult = {
+        def fun(): TypeResult =
           ref.getNonValueType().map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
-              ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false), typeParameters)
+              ScTypePolymorphicType(
+                ScMethodType(internalType, Nil, isImplicit = false),
+                typeParameters
+              )
             case tp: ScType => ScMethodType(tp, Nil, isImplicit = false)
           }
-        }
+
         ref.bind() match {
           case Some(ScalaResolveResult(f: ScFunction, _)) if f.paramClauses.clauses.isEmpty => fun()
           case Some(ScalaResolveResult(c: ScClassParameter, _)) if c.isVal | c.isVar => fun()
@@ -59,7 +62,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
         }
 
         overExpr match {
-          case None => Failure("No type inferred")
+          case None                     => Failure("No type inferred")
           case Some(expr: ScExpression) =>
             val unders      = ScUnderScoreSectionUtil.underscores(expr)
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
@@ -76,9 +79,16 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
             idx match {
               case -1 => Failure("Failed to found corresponging underscore section")
               case i =>
-                expr.expectedType(fromUnderscore = false).map(_.removeAbstracts) match {
-                  case Some(functionLikeType(_, _, params)) => params.lift(i).asTypeResult
-                  case _                                    => this.expectedType(false).asTypeResult
+                expr.expectedType(fromUnderscore = false) match {
+                  case Some(functionLikeType(_, _, params)) =>
+                    val param               = params.lift(i)
+                    val failure: TypeResult = Failure("Could not infer type of underscore section")
+
+                    param.fold(failure) {
+                      case abs: ScAbstractType if abs.upper.isAny => failure
+                      case tpe                                    => Right(tpe)
+                    }
+                  case _ => this.expectedType(false).asTypeResult
                 }
             }
         }

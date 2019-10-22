@@ -14,7 +14,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
                        (implicit holder: AnnotationHolder): Unit = {
     element.owner match {
       case null =>
-        holder.createErrorAnnotation(element, "Parameter hasn't owner: " + element.name)
+        holder.createErrorAnnotation(element, "Parameter without an owner: " + element.name)
       case _: ScMethodLike =>
         element.typeElement match {
           case None =>

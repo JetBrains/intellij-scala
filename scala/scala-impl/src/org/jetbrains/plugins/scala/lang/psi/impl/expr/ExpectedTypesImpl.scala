@@ -78,15 +78,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case (t, _)                                                 => t
       }
 
+    if (distinct.isEmpty)   None
     if (distinct.size == 1) distinct.headOption
     else {
-      val arities = aritiesOf(place)
-
-      if (arities.isEmpty) None
-      else {
-        val tpes = distinct.map(_._1)
-        expectedFunctionTypeFromOverloadedAlternatives(tpes, arities, place)
-      }
+      val tpes = distinct.map(_._1)
+      expectedFunctionTypeFromOverloadedAlternatives(tpes, place)
     }
   }
 
@@ -95,17 +91,21 @@ class ExpectedTypesImpl extends ExpectedTypes {
     else                 None
 
   /** Returns arity of the functional literal `e`, taking tupling into account. */
-  private[this] def aritiesOf(e: PsiElement): Set[Int] = e match {
-    case block: ScBlockExpr if block.isAnonymousFunction => aritiesOf(block.caseClauses.get)
-    case clauses: ScCaseClauses                          => clauses.caseClause.pattern.fold(Set.empty[Int])(aritiesOf)
-    case _: ScReferencePattern                           => Set(1)
-    case tuple: ScTuplePattern                           => Set(tuple.bindings.size, 1)
-    case fn: ScFunctionExpr                              => Set(fn.parameters.size)
-    case e: ScExpression =>
-      val underscores = ScUnderScoreSectionUtil.underscores(e).size
-      if (underscores == 0) Set.empty
-      else                  Set(1)
-    case _ => Set.empty
+  private[this] def aritiesOf(e: PsiElement): Arity = {
+    import Arity._
+
+    e match {
+      case block: ScBlockExpr if block.isAnonymousFunction => aritiesOf(block.caseClauses.get)
+      case clauses: ScCaseClauses                          => clauses.caseClause.pattern.fold(NotAFunction : Arity)(aritiesOf)
+      case _: ScReferencePattern                           => FunctionLiteral(1)
+      case tuple: ScTuplePattern                           => TuplePattern(tuple.subpatterns.size)
+      case fn: ScFunctionExpr                              => FunctionLiteral(fn.parameters.size)
+      case e: ScExpression =>
+        val underscores = ScUnderScoreSectionUtil.underscores(e).size
+        if (underscores == 0) NotAFunction
+        else                  FunctionLiteral(underscores)
+      case _ => NotAFunction
+    }
   }
 
   /**
@@ -122,61 +122,62 @@ class ExpectedTypesImpl extends ExpectedTypes {
    * - OR: all overloads expect a SAM type of the same class, but with potentially varying result types (argument types must be =:=)
    * */
   private[this] def expectedFunctionTypeFromOverloadedAlternatives(
-    alternatives:    Seq[ScType],
-    expectedArities: Set[Int],
-    place:           PsiElement
+    alternatives: Seq[ScType],
+    e:            PsiElement
   ): Option[ParameterType] = {
     import FunctionTypeMarker._
 
-    implicit val scope: ElementScope = place.elementScope
+    def equiv(ltpe: ScType, rtpe: ScType, falseUndef: Boolean = true): Boolean = {
+      val comparingAbstractTypes = ltpe.is[ScAbstractType] && rtpe.is[ScAbstractType]
+      ltpe.equiv(rtpe, ConstraintSystem.empty, falseUndef = !comparingAbstractTypes).isRight
+    }
 
-    val canMergeParamTpes = place.scalaLanguageLevelOrDefault >= Scala_2_13
-    val functionLikeType  = FunctionLikeType(place)
+    implicit val scope: ElementScope = e.elementScope
+
+    lazy val canMergeParamTpes = e.scalaLanguageLevelOrDefault >= Scala_2_13
+    lazy val expectedArity     = aritiesOf(e)
+    lazy val functionLikeType  = FunctionLikeType(e)
 
     def paramTpesMatch(lhs: Seq[ScType], rhs: Seq[ScType]): Boolean =
-      lhs.isEmpty || lhs.corresponds(rhs) { case (l, r) => l.equiv(r) }
+      lhs.isEmpty || lhs.corresponds(rhs)(equiv(_, _))
 
     @tailrec
     def recur(
       tpes:              Iterator[ScType],
-      correctArity:      List[ScType]     = Nil,
-      isFunctionN:       Boolean          = false,
-      isPartialFunction: Boolean          = false,
-      isSameSam:         Boolean          = true,
-      SAMCls:            Option[PsiClass] = None,
-      paramTpes:         Seq[ScType]      = Seq.empty
+      compatible:        List[ScType]   = Nil,
+      isFunctionN:       Boolean        = false,
+      isPartialFunction: Boolean        = false,
+      paramTpes:         Seq[ScType]    = Seq.empty,
+      returnTpe:         Option[ScType] = None
     ): (Option[ScType], List[ScType]) =
       if (tpes.isEmpty) {
+        val rtpe = returnTpe.getOrElse(Any)
+
         val mergedTpe =
-          if (isPartialFunction) PartialFunctionType((Any, paramTpes.head)).toOption
-          else if (isFunctionN)  FunctionType((Any, paramTpes)).toOption
-          else if (isSameSam)    SAMCls.map(cls => ScParameterizedType(ScDesignatorType(cls), paramTpes))
-          else                   None
+          if (isPartialFunction) PartialFunctionType((rtpe, paramTpes.head)).toOption
+          else if (isFunctionN)  FunctionType((rtpe, paramTpes)).toOption
+          else if (compatible.size == 1) compatible.headOption
+          else                           None
 
-        (mergedTpe, correctArity)
+        (mergedTpe, compatible)
       } else tpes.next() match {
-        case ftpe @ functionLikeType(marker, _, ptpes) if paramTpesMatch(paramTpes, ptpes) =>
-          if (!expectedArities.contains(ptpes.size)) {
+        case ftpe @ functionLikeType(marker, rtpe, ptpes) if paramTpesMatch(paramTpes, ptpes) =>
+          if (!expectedArity.matches(ptpes.size))
             /* Skip function like types with wrong arity */
-            recur(tpes, correctArity, isFunctionN, isPartialFunction, isSameSam, SAMCls, paramTpes)
-          } else {
-            val currentSAM = marker match {
-              case SAM(cls) => cls.toOption
-              case _        => None
-            }
-
-            val currentSAMClsMatches = currentSAM.exists(cls =>
-              (isSameSam && SAMCls.isEmpty) || SAMCls.contains(cls)
-            )
+            recur(tpes, compatible, isFunctionN, isPartialFunction, paramTpes, returnTpe)
+          else {
+            val functionN        = isFunctionN       || marker == FunctionN
+            val pf               = isPartialFunction || marker == PF
+            val shouldSkip       = returnTpe.exists(equiv(_, rtpe))
+            val uniqueCompatible = if (shouldSkip) compatible else ftpe :: compatible
 
             recur(
               tpes,
-              ftpe :: correctArity,
-              isFunctionN       || marker == FunctionN,
-              isPartialFunction || marker == PF,
-              isSameSam         && currentSAMClsMatches,
-              currentSAM,
-              ptpes
+              uniqueCompatible,
+              functionN,
+              pf,
+              ptpes,
+              returnTpe.orElse(rtpe.toOption)
             )
           }
         case _ => (None, Nil)
@@ -671,6 +672,19 @@ class ExpectedTypesImpl extends ExpectedTypes {
 }
 
 private object ExpectedTypesImpl {
+  private sealed trait Arity { def matches(arity: Int): Boolean }
+  private object Arity {
+    final case class TuplePattern(subpatterns: Int) extends Arity {
+      override def matches(arity: Int): Boolean = subpatterns == arity || arity == 1
+    }
+
+    final case class FunctionLiteral(arity: Int) extends Arity {
+      override def matches(arity: Int): Boolean = this.arity == arity
+    }
+
+    case object NotAFunction extends Arity { override def matches(arity: Int): Boolean = true }
+  }
+
 
   implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {
 
