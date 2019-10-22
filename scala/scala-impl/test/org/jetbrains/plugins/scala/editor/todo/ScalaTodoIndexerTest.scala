@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala.editor.todo
 
-/** tests [[ScalaIndexPatternBuilder]] */
-class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
+import org.jetbrains.sbt.language.SbtFileType
 
-  def testTodo_LineComment(): Unit = doTodoTest(
+/** tests [[ScalaIndexPatternBuilder]] */
+class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
+
+  def testTodo_LineComment(): Unit = testTodos(
     s"""// ${start}TODO: do something$end
        |// unrelated comment line
        |val x =  42
        |""".stripMargin
   )
 
-  def testTodo_LineComment_1(): Unit = doTodoTest(
+  def testTodo_LineComment_1(): Unit = testTodos(
     s"""// ${start}TODO: do something$end
        |
        |//  unrelated comment line
@@ -18,14 +21,14 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_LineComment_MultilineTodo(): Unit = doTodoTest(
+  def testTodo_LineComment_MultilineTodo(): Unit = testTodos(
     s"""// ${start}TODO: do something$end
        |//  ${start}todo description continue$end
        |val x =  42
        |""".stripMargin
   )
 
-  def testTodo_BlockComment(): Unit = doTodoTest(
+  def testTodo_BlockComment(): Unit = testTodos(
     s"""/*
        | * ${start}TODO: do something$end
        | * unrelated comment line
@@ -34,7 +37,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_BlockComment_1(): Unit = doTodoTest(
+  def testTodo_BlockComment_1(): Unit = testTodos(
     s"""/*
        | * ${start}TODO: do something$end
        | *
@@ -44,7 +47,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_BlockComment_MultilineTodo(): Unit = doTodoTest(
+  def testTodo_BlockComment_MultilineTodo(): Unit = testTodos(
     s"""/*
        | * ${start}TODO: do something$end
        | *  ${start}todo description continue$end
@@ -53,7 +56,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment(): Unit = doTodoTest(
+  def testTodo_ScaladocComment(): Unit = testTodos(
     s"""/**
        | * ${start}TODO: do something$end
        | * unrelated comment line
@@ -62,7 +65,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment_1(): Unit = doTodoTest(
+  def testTodo_ScaladocComment_1(): Unit = testTodos(
     s"""/**
        | * ${start}TODO: do something$end
        | *
@@ -72,7 +75,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment_AndSomeTodoOfAnotherType(): Unit = doTodoTest(
+  def testTodo_ScaladocComment_AndSomeTodoOfAnotherType(): Unit = testTodos(
     s"""/**
        | * ${start}TODO: do something$end
        | *
@@ -84,7 +87,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment_MultilineTodo(): Unit = doTodoTest(
+  def testTodo_ScaladocComment_MultilineTodo(): Unit = testTodos(
     s"""/**
        | * ${start}TODO: do something$end
        | *  ${start}todo description continue$end
@@ -93,7 +96,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment_WithOtherFields(): Unit = doTodoTest(
+  def testTodo_ScaladocComment_WithOtherFields(): Unit = testTodos(
     s"""/**
        | * ${start}TODO: do something$end
        | * @param x some description
@@ -103,7 +106,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment_WithOtherFields_MultilineTodo(): Unit = doTodoTest(
+  def testTodo_ScaladocComment_WithOtherFields_MultilineTodo(): Unit = testTodos(
     s"""/**
        | * ${start}TODO: do something$end
        | *  ${start}todo description continue$end
@@ -114,7 +117,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |""".stripMargin
   )
 
-  def testTodo_ScaladocComment_TagTodo(): Unit = doTodoTest(
+  def testTodo_ScaladocComment_TagTodo(): Unit = testTodos(
     s"""/**
        | * @param x some description
        | * @${start}todo do something$end
@@ -123,4 +126,22 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestCaseBase {
        |def foo(x: String) = 42
        |""".stripMargin
   )
+
+  def testTodo_ScaladocComment_InWorksheet_HealthCheck(): Unit = testTodos(
+    s"""/**
+       | * ${start}TODO: do something$end
+       | * unrelated comment line
+       | */
+       |val x =  42
+       |""".stripMargin
+  )(WorksheetFileType)
+
+  def testTodo_ScaladocComment_InSbt_HealthCheck(): Unit = testTodos(
+    s"""/**
+       | * ${start}TODO: do something$end
+       | * unrelated comment line
+       | */
+       |val x =  42
+       |""".stripMargin
+  )(SbtFileType)
 }
