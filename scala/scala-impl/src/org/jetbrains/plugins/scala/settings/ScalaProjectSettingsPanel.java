@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.settings;
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.openapi.fileTypes.FileType;
@@ -11,10 +10,9 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.openapi.updateSettings.impl.UpdateSettings;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiModificationTrackerImpl;
-import com.intellij.psi.util.PsiModificationTracker;
-import com.intellij.ui.*;
+import com.intellij.ui.EnumComboBoxModel;
+import com.intellij.ui.ListCellRendererWrapper;
+import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -22,6 +20,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.annotator.TypeMismatchHints;
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsUiTableModel;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
@@ -32,8 +31,6 @@ import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -207,11 +204,7 @@ public class ScalaProjectSettingsPanel {
     boolean typeMismatchHighlightingModeChanged = scalaProjectSettings.isTypeMismatchHints() != highlightHints;
     scalaProjectSettings.setTypeMismatchHints(highlightHints);
     if (typeMismatchHighlightingModeChanged) {
-      PsiModificationTracker modificationTracker = PsiManager.getInstance(myProject).getModificationTracker();
-      if (modificationTracker instanceof PsiModificationTrackerImpl) {
-        ((PsiModificationTrackerImpl) modificationTracker).incCounter();
-      }
-      DaemonCodeAnalyzer.getInstance(myProject).restart();
+      TypeMismatchHints.refreshIn(myProject);
     }
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
     scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
