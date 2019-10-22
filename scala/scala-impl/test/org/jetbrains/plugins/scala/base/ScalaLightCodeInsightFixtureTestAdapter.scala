@@ -5,6 +5,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.TextRange
@@ -61,11 +62,11 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     super.tearDown()
   }
 
-  protected def configureFromFileText(fileText: String): PsiFile = {
-    val file = getFixture.configureByText(
-      ScalaFileType.INSTANCE,
-      normalize(fileText)
-    )
+  protected def configureFromFileText(fileText: String): PsiFile =
+    configureFromFileText(fileText, ScalaFileType.INSTANCE)
+
+  protected def configureFromFileText(fileText: String, fileType: FileType): PsiFile = {
+    val file = getFixture.configureByText(fileType, normalize(fileText))
     assertNotNull(file)
     file
   }
