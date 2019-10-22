@@ -23,13 +23,13 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.ui.JBSplitter
 import javax.swing.{JComponent, JLayeredPane}
-import org.jetbrains.plugins.scala.extensions.{StringExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
+import org.jetbrains.plugins.scala.worksheet.ui.extensions.JComponentExt
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.util.Random
 
@@ -107,11 +107,9 @@ object WorksheetEditorPrinterFactory {
           )
 
           diffSplitter.foreach { splitter =>
-            val listener = new VisibleAreaListener {
-              override def visibleAreaChanged(e: VisibleAreaEvent): Unit = {
-                splitter.redrawDiffs()
-                syncSupport.visibleAreaChanged(e)
-              }
+            val listener: VisibleAreaListener = (e: VisibleAreaEvent) => {
+              splitter.redrawDiffs()
+              syncSupport.visibleAreaChanged(e)
             }
 
             originalEditor.getScrollingModel.addVisibleAreaListener(listener)
@@ -132,9 +130,8 @@ object WorksheetEditorPrinterFactory {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
   }
 
-  def saveOnlyRatio(file: ScalaFile, ratio: Float = DEFAULT_WORKSHEET_VIEWERS_RATIO): Unit = {
+  def saveOnlyRatio(file: ScalaFile, ratio: Float = DEFAULT_WORKSHEET_VIEWERS_RATIO): Unit =
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
-  }
 
   def loadWorksheetEvaluation(file: ScalaFile): Option[(String, Float)] = {
     val ratioAttribute = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RATIO, file)
@@ -148,53 +145,37 @@ object WorksheetEditorPrinterFactory {
   }
 
   def createViewer(editor: Editor, virtualFile: VirtualFile): Editor =
-    setupRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor, isPlain = true), modelSync = true)
-
-  //kinda legacy code
-  def getMacrosheetUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetDefaultEditorPrinter =
-    newDefaultUiFor(editor, scalaFile, isPlain = false)
+    setupRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor), modelSync = true)
 
   def getDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter = {
-    val printer = newDefaultUiFor(editor, scalaFile, isPlain = true)
+    val printer = newDefaultUiFor(editor, scalaFile)
     printer.scheduleWorksheetUpdate()
     printer
   }
 
-  def getIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter =
-    providePrinter(
-      editor, scalaFile,
-      _.isInstanceOf[WorksheetIncrementalEditorPrinter],
-      (printer: WorksheetEditorPrinter) => {
-        printer.asInstanceOf[WorksheetIncrementalEditorPrinter].updateScalaFile(scalaFile)
-        printer
-      },
-      (editor: Editor, file: ScalaFile) => newIncrementalUiFor(editor, file)
-    )
-
-  private def providePrinter(editor: Editor, scalaFile: ScalaFile, condition: WorksheetEditorPrinter => Boolean,
-                             update: WorksheetEditorPrinter => WorksheetEditorPrinter,
-                             create: (Editor, ScalaFile) => WorksheetEditorPrinter): WorksheetEditorPrinter = {
+  def getIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter = {
     val cache = WorksheetCache.getInstance(editor.getProject)
 
     cache.getPrinter(editor) match {
-      case Some(cachedPrinter: WorksheetEditorPrinter) if condition(cachedPrinter) =>
-        update(cachedPrinter)
-      case _ =>
-        val printer = create(editor, scalaFile)
+      case Some(printer: WorksheetEditorPrinterRepl) =>
+        printer.updateScalaFile(scalaFile)
+        printer
+      case _                                         =>
+        val printer = newIncrementalUiFor(editor, scalaFile)
         cache.addPrinter(editor, printer)
         printer.scheduleWorksheetUpdate()
         printer
     }
   }
 
-  private def newDefaultUiFor(editor: Editor, scalaFile: ScalaFile, isPlain: Boolean): WorksheetDefaultEditorPrinter = {
-    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain))
-    new WorksheetDefaultEditorPrinter(editor, sideViewer, scalaFile)
+  private def newDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterPlain = {
+    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor))
+    new WorksheetEditorPrinterPlain(editor, sideViewer, scalaFile)
   }
 
-  private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetIncrementalEditorPrinter = {
-    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain = true))
-    new WorksheetIncrementalEditorPrinter(editor, sideViewer, scalaFile)
+  private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterRepl = {
+    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor))
+    new WorksheetEditorPrinterRepl(editor, sideViewer, scalaFile)
   }
 
   private def setupRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
@@ -207,16 +188,9 @@ object WorksheetEditorPrinterFactory {
 
     val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
-    val prop = if (editorComponent.getComponentCount > 0) {
-      editorComponent.getComponent(0) match {
-        case splitter: JBSplitter => splitter.getProportion
-        /*
-        case _ if worksheetViewer.getUserData(DIFF_SPLITTER_KEY) != null =>
-          worksheetViewer.getUserData(DIFF_SPLITTER_KEY).getProportion
-        */
-        case _ => DEFAULT_WORKSHEET_VIEWERS_RATIO
-      }
-    } else DEFAULT_WORKSHEET_VIEWERS_RATIO
+    val prop = editorComponent.components.headOption
+      .collect { case splitter: JBSplitter => splitter.getProportion }
+      .getOrElse(DEFAULT_WORKSHEET_VIEWERS_RATIO)
 
     val dimension = editorComponent.getSize()
     val prefDim = new Dimension(dimension.width / 2, dimension.height)
@@ -272,14 +246,12 @@ object WorksheetEditorPrinterFactory {
     worksheetViewer
   }
 
-  private def getOrCreateViewerEditorFor(editor: Editor, isPlain: Boolean): Editor = {
+  private def getOrCreateViewerEditorFor(editor: Editor): Editor = {
     val project = editor.getProject
     val viewer  = WorksheetCache.getInstance(project).getViewer(editor)
     viewer match {
-      case editorImpl: EditorImpl => editorImpl
-      case _ =>
-        if (isPlain) createBlankEditor(project)
-        else createBlankEditorWithLang(project, ScalaLanguage.INSTANCE, ScalaFileType.INSTANCE)
+      case editor: EditorImpl => editor
+      case _                  => createBlankEditor(project)
     }
   }
 

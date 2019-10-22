@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.worksheet.actions._
 
 /**
@@ -36,7 +36,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     
     var statusDisplayN: InteractiveStatusDisplay = null
     
-    extensions.inReadAction {
+    inReadAction {
       statusDisplayN = new InteractiveStatusDisplay()
       statusDisplayN.init(panel)
       if (run) statusDisplayN.onSuccessfulCompiling() else statusDisplayN.onStartCompiling()

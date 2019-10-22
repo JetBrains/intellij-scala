@@ -6,7 +6,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import org.jetbrains.plugins.scala.worksheet.ui._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory}
 
 abstract class WorksheetExternalRunType {
