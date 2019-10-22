@@ -5,6 +5,7 @@ package hints
 import java.awt.{Graphics, Insets, Rectangle}
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -74,13 +75,18 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       .getFontMetrics(EditorColorsManager.getInstance().getGlobalScheme.getFont(EditorFontType.PLAIN))
       .charWidth(' ')
 
-    if (settings.alignExpressionChain) {
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      // there is no way to check for AfterLineEndElements in the test framework
+      // so we create normal inline elements here
+      // this is ok to test the recognition of expression chain types
+      // there is no need to unit test the other alternatives because they need ui tests anyway
+      for (hints <- collectedHintTemplates; hint <- hints) {
+        inlayModel.addInlineElement(hint.expr.getTextRange.getEndOffset, false, new TextPartsHintRenderer(hint.textParts, None))
+      }
+    } else if (settings.alignExpressionChain) {
       collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
     } else {
-      for {
-        hints <- collectedHintTemplates
-        hint <- hints
-      } {
+      for (hints <- collectedHintTemplates; hint <- hints) {
         val inlay = inlayModel.addAfterLineEndElement(
           hint.expr.getTextRange.getEndOffset,
           false,
