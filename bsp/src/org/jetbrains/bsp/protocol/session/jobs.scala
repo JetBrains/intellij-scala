@@ -1,12 +1,13 @@
 package org.jetbrains.bsp.protocol.session
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicReference
 
-import org.jetbrains.bsp.{BspError, BspTaskCancelled}
 import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
+import org.jetbrains.bsp.{BspError, BspTaskCancelled}
 
 import scala.concurrent.{CancellationException, Future, Promise}
 
@@ -66,7 +67,7 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
   private val promise = Promise[(T,A)]
   private var a: A = default
 
-  private var runningTask: Option[CompletableFuture[(T,A)]] = None
+  private val runningTask: AtomicReference[Option[CompletableFuture[(T,A)]]] = new AtomicReference(None)
 
   override private[session] def notification(bspNotification: BspNotification): Unit = {
     a = aggregator(a, bspNotification)
@@ -91,12 +92,12 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
   }
 
   private[session] def run(bspServer: BspServer): CompletableFuture[(T, A)] = runningTask.synchronized {
-    runningTask match {
+    runningTask.get match {
       case Some(running) =>
         running
       case None =>
         val running = doRun(bspServer)
-        runningTask = Some(running)
+        runningTask.set(Some(running))
         running
     }
   }
@@ -108,13 +109,13 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       cancelWithError(BspTaskCancelled)
 
   override def cancelWithError(error: BspError): Unit = runningTask.synchronized {
-    runningTask match {
+    runningTask.get() match {
       case Some(toCancel) =>
         toCancel.cancel(true)
       case None =>
         val errorFuture = new CompletableFuture[(T,A)]
         errorFuture.completeExceptionally(error)
-        runningTask = Some(errorFuture)
+        runningTask.set(Some(errorFuture))
     }
 
     promise.failure(error)
