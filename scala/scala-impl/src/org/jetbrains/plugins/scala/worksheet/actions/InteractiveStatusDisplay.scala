@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.worksheet.actions
 
 import java.awt.geom.AffineTransform
 import java.awt.{Color, Component, Graphics, Graphics2D}
-import javax.swing.border.LineBorder
-import javax.swing.{Icon, JComponent, JPanel}
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.roots.ScalableIconComponent
-import com.intellij.util.ui.{EmptyIcon, AnimatedIcon}
+import com.intellij.util.ui.{AnimatedIcon, EmptyIcon}
+import javax.swing.border.LineBorder
+import javax.swing.{Icon, JComponent, JPanel}
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentDisplayable
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
 
 /**

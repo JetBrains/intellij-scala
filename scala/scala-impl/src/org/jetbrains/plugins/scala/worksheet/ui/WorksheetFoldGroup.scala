@@ -219,7 +219,7 @@ object WorksheetFoldGroup {
   }
 
   /**
-   * Used in [[org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction]]
+   * Used in [[org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction]]
    * to copy text with its output attached as comments to the right of the input (if output is available)
    *
    * @return Seq(input line index -> output line index)

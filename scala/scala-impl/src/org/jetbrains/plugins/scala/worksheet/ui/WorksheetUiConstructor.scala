@@ -6,8 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
-import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.actions._
 
 /**

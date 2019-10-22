@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet.actions
+package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import java.awt.BorderLayout
 
@@ -14,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.{DefaultBoundedRangeModel, Icon}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -21,7 +21,11 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterF
 
 class CleanWorksheetAction extends AnAction with TopComponentAction {
 
-  def actionPerformed(e: AnActionEvent) {
+  override def genericText: String = ScalaBundle.message("worksheet.clear.button")
+
+  override def actionIcon: Icon = AllIcons.Actions.GC
+
+  override def actionPerformed(e: AnActionEvent) {
     val project = e.getProject
     if (project == null) return //EA-72055
 
@@ -32,10 +36,6 @@ class CleanWorksheetAction extends AnAction with TopComponentAction {
 
     CleanWorksheetAction.cleanAll(editor, file, project)
   }
-
-  override def actionIcon: Icon = AllIcons.Actions.GC
-
-  override def bundleKey = "worksheet.clear.button"
 }
 
 object CleanWorksheetAction {

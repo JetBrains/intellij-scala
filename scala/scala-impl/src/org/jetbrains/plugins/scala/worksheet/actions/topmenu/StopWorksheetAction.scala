@@ -1,23 +1,16 @@
-package org.jetbrains.plugins.scala
-package components
-
-import javax.swing.Icon
+package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
-import worksheet.actions.TopComponentAction
 
-/**
- * User: Dmitry Naydanov
- * Date: 2/17/14
- */
 class StopWorksheetAction(exec: CompilationProcess) extends AnAction with TopComponentAction {
-  override def actionPerformed(e: AnActionEvent) {
-    exec.stop()
-  }
+
+  override def genericText: String = ScalaBundle.message("worksheet.stop.button")
 
   override def actionIcon: Icon = AllIcons.Actions.Suspend
 
-  override def bundleKey = "worksheet.stop.button"
+  override def actionPerformed(e: AnActionEvent): Unit = exec.stop()
 }

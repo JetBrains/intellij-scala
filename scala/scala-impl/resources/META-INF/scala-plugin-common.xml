@@ -1554,15 +1554,15 @@
                 text="Implicit &amp;Arguments" description="Show Implicit Arguments">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
         </action>
-        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction"
+        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction"
                 text="Run Scala Worksheet" description="Run Scala Worksheet">
             <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
         </action>
-        <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CleanWorksheetAction"
+        <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction"
                 text="Clean Scala Worksheet" description="Clean Scala Worksheet">
         </action>
-        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction"
+        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction"
                 text="Copy Scala Worksheet" description="Copy Scala Worksheet">
         </action>
         <action id="Scala.ExtractTrait"
