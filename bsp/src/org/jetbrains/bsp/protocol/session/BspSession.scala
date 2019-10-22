@@ -41,8 +41,8 @@ class BspSession private(bspIn: InputStream,
 
   private var currentJob: BspSessionJob[_,_] = initialJob
 
-  private var lastProcessOutput: Long = 0
-  private var lastActivity: Long = 0
+  private var lastProcessOutput: Long = System.currentTimeMillis()
+  private var lastActivity: Long = lastProcessOutput
 
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
@@ -173,7 +173,7 @@ class BspSession private(bspIn: InputStream,
       )
     }
 
-    ServerConnection(bspServer, cancelable)
+    ServerConnection(bspServer, cancelable, listening)
   }
 
   private def initializeSession: CompletableFuture[bsp4j.InitializeBuildResult] = {
@@ -215,7 +215,8 @@ class BspSession private(bspIn: InputStream,
   }
 
   private[protocol] def isAlive: Boolean = {
-    ! sessionShutdown.isCompleted &&
+    ! serverConnection.listening.isDone &&
+      ! sessionShutdown.isCompleted &&
       ! queueProcessor.isDone
   }
 
@@ -383,6 +384,6 @@ object BspSession {
   }
 
 
-  private case class ServerConnection(server: BspServer, cancelable: Cancelable)
+  private case class ServerConnection(server: BspServer, cancelable: Cancelable, listening: java.util.concurrent.Future[Void])
 
 }
