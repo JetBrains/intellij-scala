@@ -74,7 +74,7 @@ object WorksheetSourceProcessor {
 
   def processSimple(srcFile: ScalaFile, editor: Editor): String = Base64.encode(srcFile.getText.getBytes)
 
-  def processIncremental(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, (String, String)] = {
+  def processIncremental(srcFile: ScalaFile, editor: Editor): Either[PsiErrorElement, String] = {
     val lastProcessed = WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(editor)
 
     val glue = WorksheetPsiGlue()
@@ -102,8 +102,8 @@ object WorksheetSourceProcessor {
     val moduleOpt = Option(WorksheetCommonSettings(srcFile).getModuleFor)
 
     val packOpt: Option[String] = for {
-      dir <- srcFile.getContainingDirectory.toOption
-      psiPackage <- JavaDirectoryService.getInstance().getPackage(dir).toOption
+      dir         <- srcFile.getContainingDirectory.toOption
+      psiPackage  <- JavaDirectoryService.getInstance().getPackage(dir).toOption
       packageName = psiPackage.getQualifiedName
       if !packageName.trim.isEmpty
     } yield packageName

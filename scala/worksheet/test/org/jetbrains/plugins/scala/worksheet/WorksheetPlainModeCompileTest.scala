@@ -3,21 +3,17 @@ package worksheet
 
 import org.junit.experimental.categories.Category
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 12.07.16.
-  */
 @Category(Array(classOf[SlowTests]))
-class WorksheetCompileTest extends WorksheetProcessorTestBase {
+class WorksheetPlainModeCompileTest extends WorksheetSourceProcessorTestBase {
 
-  def testSimple1(): Unit = doTest {
+  def testSimple1(): Unit = testCompilesInPlainMode {
     """
       | val a = 1
       | val b = 2
     """.stripMargin
   }
 
-  def testSimple2(): Unit = doTest {
+  def testSimple2(): Unit = testCompilesInPlainMode {
     """
       | val s = "Boo"
       | var b = 2
@@ -30,7 +26,7 @@ class WorksheetCompileTest extends WorksheetProcessorTestBase {
     """.stripMargin
   }
 
-  def testSimple3(): Unit = doTest {
+  def testSimple3(): Unit = testCompilesInPlainMode {
     """
       | val c = true
       |
@@ -47,7 +43,7 @@ class WorksheetCompileTest extends WorksheetProcessorTestBase {
     """.stripMargin
   }
 
-  def testTemplateDeclarations(): Unit = doTest {
+  def testTemplateDeclarations(): Unit = testCompilesInPlainMode {
     """
       | trait A {
       |   
@@ -63,7 +59,7 @@ class WorksheetCompileTest extends WorksheetProcessorTestBase {
     """.stripMargin
   }
 
-  def testFunctions(): Unit = doTest {
+  def testFunctions(): Unit = testCompilesInPlainMode {
     """
       | def foo() = 123
       |
@@ -82,7 +78,7 @@ class WorksheetCompileTest extends WorksheetProcessorTestBase {
     """.stripMargin
   }
 
-  def testImports(): Unit = doTest {
+  def testImports(): Unit = testCompilesInPlainMode {
     """
       | import java.util._
       | import java.lang.Math
@@ -100,7 +96,7 @@ class WorksheetCompileTest extends WorksheetProcessorTestBase {
     """.stripMargin
   }
 
-  def testTypes(): Unit = doTest {
+  def testTypes(): Unit = testCompilesInPlainMode {
     """
       | class A[T] {
       |   def foo(t: T): T = t

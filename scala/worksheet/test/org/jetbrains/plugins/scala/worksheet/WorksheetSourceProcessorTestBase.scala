@@ -3,6 +3,7 @@ package worksheet
 
 import java.io.File
 
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
@@ -12,61 +13,63 @@ import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetSourceProcessorTestBase._
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.junit.Assert._
 
-/**
- * User: Dmitry.Naydanov
- * Date: 12.07.16.
- */
-abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
+abstract class WorksheetSourceProcessorTestBase extends ScalaCompilerTestBase {
 
   override protected def useCompileServer: Boolean = true
 
-  import WorksheetProcessorTestBase._
-
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] =
-    Seq(WorksheetProcessorTestBase.MacroPrinterLoader(this.getClass.getClassLoader))
+    Seq(MacroPrinterLoader(this.getClass.getClassLoader))
 
-  protected def doTest(text: String): Unit = {
-    val fileName = defaultFileName(WorksheetFileType)
-    val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(fileName, WorksheetFileType, text)
-    val document = psiFile.getViewProvider.getDocument
-    assertNotNull("document can't be null", document)
+  protected def testCompilesInPlainMode(text: String): Unit = {
+    val (scalaFile, document) = prepareFileAndDocument(text)
 
-    WorksheetSourceProcessor.processDefault(psiFile.asInstanceOf[ScalaFile], document) match {
+    WorksheetSourceProcessor.processDefault(scalaFile, document) match {
       case Right((code, _)) =>
-        val src = new File(getBaseDir.getCanonicalPath, "src")
-        assertTrue("Cannot find src dir", src.exists())
-
-        val file = new File(src, defaultFileName(ScalaFileType.INSTANCE))
-        file.createNewFile()
-
-        FileUtil.writeToFile(file, code)
-
-        val fileOnFilesystem = LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
-        assertNotNull("Can't find created file", fileOnFilesystem)
-
-        val messages = make()
-
-        assertTrue(messages.mkString(" , "), messages.isEmpty)
+        assertCodeIsCompiled(code)
 
       case Left(errorElement) =>
         fail(s"Compile error: $errorElement , ${errorElement.getText}")
     }
+  }
 
+  private def prepareFileAndDocument(text: String): (ScalaFile, Document) = {
+    val fileName = defaultFileName(WorksheetFileType)
+    val psiFile  = PsiFileFactory.getInstance(myProject).createFileFromText(fileName, WorksheetFileType, text).asInstanceOf[ScalaFile]
+    val document = psiFile.getViewProvider.getDocument
+    assertNotNull("document can't be null", document)
+    (psiFile, document)
+  }
+
+  private def assertCodeIsCompiled(code: String): Unit = {
+    val src = new File(getBaseDir.getCanonicalPath, "src")
+    assertTrue("Cannot find src dir", src.exists())
+
+    val file = new File(src, defaultFileName(ScalaFileType.INSTANCE))
+    file.createNewFile()
+
+    FileUtil.writeToFile(file, code)
+
+    val vFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
+    assertNotNull("Can't find created file", vFile)
+
+    val messages = make()
+
+    assertTrue(messages.mkString(" , "), messages.isEmpty)
   }
 }
 
-object WorksheetProcessorTestBase {
+object WorksheetSourceProcessorTestBase {
 
-  private def defaultFileName(fileType: FileType) = s"dummy." + fileType.getDefaultExtension
+  private def defaultFileName(fileType: FileType): String = s"dummy." + fileType.getDefaultExtension
 
   case class MacroPrinterLoader(classLoader: ClassLoader) extends ThirdPartyLibraryLoader {
+    import MacroPrinterLoader.CLASS_NAME
 
     override protected val name: String = "WorksheetLibrary"
-
-    import MacroPrinterLoader.CLASS_NAME
 
     override def init(implicit module: Module, version: ScalaVersion): Unit = {
       val printerClazz = classLoader.loadClass(CLASS_NAME)
@@ -89,5 +92,4 @@ object WorksheetProcessorTestBase {
   object MacroPrinterLoader {
     private val CLASS_NAME: String = "org.jetbrains.plugins.scala.worksheet.MacroPrinter"
   }
-
 }

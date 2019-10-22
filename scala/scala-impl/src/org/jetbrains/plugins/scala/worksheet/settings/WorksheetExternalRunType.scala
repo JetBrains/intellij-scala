@@ -72,7 +72,7 @@ object RunTypes {
     override def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = {
       val result = WorksheetSourceProcessor.processIncremental(srcFile, editor)
       result match {
-        case Right((code, _))   => RunRepl(code)
+        case Right(code)        => RunRepl(code)
         case Left(errorElement) => ErrorWhileCompile(errorElement, Some(editor))
       }
     }
