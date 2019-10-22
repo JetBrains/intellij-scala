@@ -74,7 +74,23 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       .getFontMetrics(EditorColorsManager.getInstance().getGlobalScheme.getFont(EditorFontType.PLAIN))
       .charWidth(' ')
 
-    collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
+    if (settings.alignExpressionChain) {
+      collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
+    } else {
+      for {
+        hints <- collectedHintTemplates
+        hint <- hints
+      } {
+        val inlay = inlayModel.addAfterLineEndElement(
+          hint.expr.getTextRange.getEndOffset,
+          false,
+          new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
+            override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
+          }
+        )
+        inlay.putUserData(ScalaExprChainKey, true)
+      }
+    }
   }
 
   private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
