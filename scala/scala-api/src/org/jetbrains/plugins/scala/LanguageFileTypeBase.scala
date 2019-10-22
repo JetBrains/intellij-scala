@@ -17,6 +17,9 @@ abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType
   // (FileTypeManagerImpl.isFileOfType is called from ScalaSourceFilterScope,
   //   while FileTypeManager contains no .scala pattern)
   override final def isMyFileType(file: VirtualFile): Boolean =
+    isMyFileExtension(file)
+
+  protected def isMyFileExtension(file: VirtualFile): Boolean =
     getDefaultExtension == file.getExtension
 }
 
