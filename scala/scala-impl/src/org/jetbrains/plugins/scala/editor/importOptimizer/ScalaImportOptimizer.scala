@@ -328,7 +328,7 @@ object ScalaImportOptimizer {
     val optimizers = LanguageImportStatements.INSTANCE.forFile(topLevelFile)
     if (optimizers.isEmpty) return None
 
-    if (!topLevelFile.getViewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE))
+    if (!topLevelFile.getViewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) && topLevelFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE) == null)
       return None
 
     val i = optimizers.iterator()
