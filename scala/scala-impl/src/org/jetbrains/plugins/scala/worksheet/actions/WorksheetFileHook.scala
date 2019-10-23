@@ -78,7 +78,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       val constructor = new WorksheetUiConstructor(panel, project)
 
       inReadAction {
-        statusDisplay = constructor.initTopPanel(panel, file, run, exec)
+        statusDisplay = Some(constructor.initTopPanel(panel, file, run, exec))
         WorksheetFileHook.plugWorksheetActions(editor)
       }
 
