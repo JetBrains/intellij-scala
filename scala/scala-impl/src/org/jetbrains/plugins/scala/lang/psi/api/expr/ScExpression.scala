@@ -534,7 +534,10 @@ object ScExpression {
             fromUnderscore
           )
 
-          maybeSAMpt.fold(withImplicitParams)(_ => expectedType.getOrElse(withImplicitParams))
+          maybeSAMpt.fold(withImplicitParams)(tpe =>
+            if (withImplicitParams.conforms(tpe)) expectedType.getOrElse(withImplicitParams)
+            else                                  withImplicitParams
+          )
         } catch {
           case _: SafeCheckException =>
             expr.updateWithImplicitParameters(scType, checkExpectedType = false, fromUnderscore)
