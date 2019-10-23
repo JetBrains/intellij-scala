@@ -4,6 +4,7 @@ package lang.refactoring.rename.inplace
 import java.util
 
 import com.intellij.lang.Language
+import com.intellij.notebook.editor.BackedVirtualFile
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pair, TextRange}
@@ -53,5 +54,10 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
       case _: ScalaLocalInplaceRenameHandler => ScalaRenameUtil.sameElement(elementRange, element)
       case _ => false
     }
+  }
+
+  override def checkLocalScope(): PsiElement = Option(super.checkLocalScope()).getOrElse {
+    Option(myElementToRename.getContainingFile.getVirtualFile).filter(_.isInstanceOf[BackedVirtualFile]).map(
+      _ => myElementToRename.getContainingFile).orNull
   }
 }
