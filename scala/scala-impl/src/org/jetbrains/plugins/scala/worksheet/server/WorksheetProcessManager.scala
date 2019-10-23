@@ -4,27 +4,23 @@ package worksheet.server
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
-
-/**
- * User: Dmitry Naydanov
- * Date: 2/20/14
- */
 object WorksheetProcessManager {
+
   private val processes = ContainerUtil.createConcurrentWeakMap[VirtualFile, CompilationProcess]()
 
-  def add(file: VirtualFile, process: CompilationProcess) {
-    process.addTerminationCallback({remove(file)})
+  def add(file: VirtualFile, process: CompilationProcess): Unit = {
+    process.addTerminationCallback(remove(file))
     processes.put(file, process)
   }
 
-  def remove(file: VirtualFile) {
+  def remove(file: VirtualFile): Unit =
     processes.remove(file)
-  }
-  
-  def stop(file: VirtualFile) {
+
+  def stop(file: VirtualFile): Unit = {
     val p = processes.get(file)
     if (p != null) p.stop()
   }
 
-  def running(file: VirtualFile): Boolean = processes containsKey file
+  def isRunning(file: VirtualFile): Boolean =
+    processes containsKey file
 }

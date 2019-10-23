@@ -115,7 +115,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
         length == 0 || fragment.charAt(length - 1) != '\n'
       }
 
-      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile) || isReplWrongChar)
+      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.isRunning(virtualFile) || isReplWrongChar)
         return
 
       val requestDelay = if (isRepl) getAutoRunDelay / 2 else getAutoRunDelay
@@ -130,7 +130,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
               }
             }
 
-            if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.running(virtualFile))
+            if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.isRunning(virtualFile))
               RunWorksheetAction.runCompiler(project, auto = true)
           }
         }

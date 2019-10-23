@@ -38,19 +38,19 @@ object CompileServerLauncher {
     if (running) stop()
   )
 
-  def tryToStart(project: Project): Boolean = {
-    if (!running) {
+  def tryToStart(project: Project): Boolean =
+    if (running) true else {
       val started = start(project)
       if (started) {
-        try new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
-        catch {
+        try {
+          val runner = new RemoteServerRunner(project)
+          runner.send("addDisconnectListener", Seq.empty, null)
+        } catch {
           case _: Exception =>
         }
       }
       started
     }
-    else true
-  }
 
   private def start(project: Project): Boolean = {
 

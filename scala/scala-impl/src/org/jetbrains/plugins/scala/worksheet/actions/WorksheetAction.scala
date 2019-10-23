@@ -21,17 +21,16 @@ trait WorksheetAction {
   
   def updateInner(e: AnActionEvent) {
     if (e == null) return
-    
-    val presentation = e.getPresentation
+
     val project = e.getProject
-    
-    if (project == null) return 
-    
-   inReadAction {
+    if (project == null) return
+
+    val presentation = e.getPresentation
+    inReadAction {
       getSelectedFile(project) match {
-        case Some(sf: ScalaFile) if sf.isWorksheetFile && acceptFile(sf) => 
+        case Some(sf: ScalaFile) if sf.isWorksheetFile && acceptFile(sf) =>
           ScalaActionUtil.enablePresentation(presentation)
-        case _ => 
+        case _ =>
           ScalaActionUtil.disablePresentation(presentation)
       }
     }

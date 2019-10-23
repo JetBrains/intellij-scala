@@ -49,12 +49,15 @@ class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSett
 }
 
 object WorksheetProjectSettings {
-  def getMakeType(project: Project): WorksheetMakeType = {
-    if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {
-      if (ScalaProjectSettings.getInstance(project).isInProcessMode)
+
+  def getMakeType(project: Project): WorksheetMakeType =
+    if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED) {
+      if (ScalaProjectSettings.getInstance(project).isInProcessMode) {
         InProcessServer
-      else OutOfProcessServer
+      } else {
+        OutOfProcessServer
+      }
+    } else {
+      NonServer
     }
-    else NonServer
-  }
 }
