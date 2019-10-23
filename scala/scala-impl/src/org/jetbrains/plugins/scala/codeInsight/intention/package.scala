@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -45,7 +46,7 @@ package object intention {
       case _ => false
     }
     val allNamesDefined = argsAndMatchedParams.forall {
-      case (_, param) => !StringUtil.isEmpty(param.name)
+      case (_, param) => !StringUtil.isEmpty(param.name) && param.psiParam.exists(_.isInstanceOf[ScParameter])
     }
     val hasUnderscore = argsAndMatchedParams.exists {
       case (_: ScUnderscoreSection, _) => true
