@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.worksheet.actions._
 
 class WorksheetUiConstructor(base: JComponent, project: Project) {
 
-  private val (baseSize, hh, wh) = calculateDeltas(base)
-
   def initTopPanel(panel: JPanel, file: VirtualFile, run: Boolean, exec: Option[CompilationProcess]): InteractiveStatusDisplay = {
     val layout = new BoxLayout(panel, BoxLayout.LINE_AXIS)
     panel.setLayout(layout)
@@ -60,7 +58,6 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
 
     statusDisplayN
   }
- 
   
   private def calculateDeltas(comp: JComponent) = {
     val baseSize = comp.getPreferredSize
@@ -75,8 +72,6 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     
     WorksheetUiConstructor.createFiller(baseSize.height + hh, wh)
   }
-  
-  def createFiller(): Component = WorksheetUiConstructor.createFiller(baseSize.height + hh, wh)
 }
 
 object WorksheetUiConstructor {

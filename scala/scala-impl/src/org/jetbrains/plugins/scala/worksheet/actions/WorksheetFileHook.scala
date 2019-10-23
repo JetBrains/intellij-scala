@@ -28,10 +28,6 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetUiConstructor}
 
-/**
- * User: Dmitry Naydanov
- * Date: 1/24/14
- */
 class WorksheetFileHook(private val project: Project) extends ProjectComponent  {
 
   private var statusDisplay: Option[InteractiveStatusDisplay] = None
@@ -42,16 +38,18 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, WorksheetEditorListener)
     project.getMessageBus.connect(project).subscribe(DumbService.DUMB_MODE, new DumbModeListener {
       override def enteredDumbMode(): Unit = {}
-
-      override def exitDumbMode(): Unit = for {
-        editor   <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
-        file     <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
-        vFile    <- Option(file.getVirtualFile)
-        panelRef <- WorksheetFileHook.getPanel(vFile)
-        panel    <- panelRef.getOpt
-      } notifyButtons(panel)
+      override def exitDumbMode(): Unit = initializeButtons()
     })
   }
+
+  private def initializeButtons(): Unit =
+    for {
+      editor   <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
+      file     <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
+      vFile    <- Option(file.getVirtualFile)
+      panelRef <- WorksheetFileHook.getPanel(vFile)
+      panel    <- panelRef.getOpt
+    } notifyButtons(panel)
 
   private def notifyButtons(panel: WorksheetFileHook.MyPanel): Unit =
     panel.getComponents.foreach {
@@ -60,7 +58,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       case _ =>
     }
 
-  def initWorksheetComponents(file: VirtualFile, run: Boolean, exec: Option[CompilationProcess] = None): Unit = {
+  private def initWorksheetComponents(file: VirtualFile, run: Boolean, exec: Option[CompilationProcess] = None): Unit = {
     if (project.isDisposed) return
 
     val myFileEditorManager = FileEditorManager.getInstance(project)
@@ -74,7 +72,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         myFileEditorManager.removeTopComponent(editor, panel)
       }
 
-      val panel  = new WorksheetFileHook.MyPanel(file)
+      val panel = new WorksheetFileHook.MyPanel(file)
       val constructor = new WorksheetUiConstructor(panel, project)
 
       inReadAction {

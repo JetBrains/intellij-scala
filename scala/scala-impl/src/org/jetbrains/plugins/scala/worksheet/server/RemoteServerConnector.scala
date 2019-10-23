@@ -198,28 +198,31 @@ object RemoteServerConnector {
     def trace(thr: Throwable)
   }
   
-  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: Option[WorksheetEditorPrinter],
-                              indicator: Option[ProgressIndicator], auto: Boolean = false) extends OuterCompilerInterface {
-    override def progress(text: String, done: Option[Float]) {
+  class CompilerInterfaceImpl(task: CompilerTask,
+                              worksheetPrinter: Option[WorksheetEditorPrinter],
+                              indicator: Option[ProgressIndicator],
+                              auto: Boolean = false)
+    extends OuterCompilerInterface {
+
+    override def progress(text: String, done: Option[Float]): Unit = {
       if (auto) return
       val taskIndicator = ProgressManager.getInstance().getProgressIndicator
       
       if (taskIndicator != null) {
-        taskIndicator setText text
-        done foreach (d => taskIndicator.setFraction(d.toDouble))
+        taskIndicator.setText(text)
+        done.foreach(d => taskIndicator.setFraction(d.toDouble))
       }
     }
 
-    override def message(message: CompilerMessageImpl) {
+    override def message(message: CompilerMessageImpl): Unit = {
       if (auto) return
-      task addMessage message
+      task.addMessage(message)
     }
 
-    override def worksheetOutput(text: String) {
-      worksheetPrinter.foreach(_ processLine text)
-    }
+    override def worksheetOutput(text: String): Unit =
+      worksheetPrinter.foreach(_.processLine(text))
 
-    override def trace(thr: Throwable) {
+    override def trace(thr: Throwable): Unit = {
       val message = "\n" + thr.stackTraceText // stacktrace already contains thr.toString which contains message
       worksheetPrinter.foreach(_.internalError(message))
     }
