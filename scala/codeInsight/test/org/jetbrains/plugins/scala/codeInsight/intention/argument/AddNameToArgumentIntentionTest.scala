@@ -3,15 +3,11 @@ package codeInsight
 package intention
 package argument
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * @author Ksenia.Sautina
   * @since 5/14/12
   */
 class AddNameToArgumentIntentionTest extends intentions.ScalaIntentionTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override def familyName = AddNameToArgumentIntention.FamilyName
 
@@ -76,6 +72,16 @@ class AddNameToArgumentIntentionTest extends intentions.ScalaIntentionTestBase {
       """.stripMargin
 
     doTest(text, resultText)
+  }
+
+  def testFromJava(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+        |object Test {
+        |  val jlist: java.util.List[String] = ???
+        |  jlist.add(${CARET}0, "123")
+        |}"""
+        .stripMargin)
   }
 
 }
