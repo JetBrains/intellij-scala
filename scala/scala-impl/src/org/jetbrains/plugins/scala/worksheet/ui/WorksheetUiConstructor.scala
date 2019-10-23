@@ -10,18 +10,14 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.actions._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 22.12.15.
-  */
 class WorksheetUiConstructor(base: JComponent, project: Project) {
+
   private val (baseSize, hh, wh) = calculateDeltas(base)
 
-  
-  def initTopPanel(panel: JPanel, file: VirtualFile, run: Boolean, exec: Option[CompilationProcess]): Option[InteractiveStatusDisplay] = {
+  def initTopPanel(panel: JPanel, file: VirtualFile, run: Boolean, exec: Option[CompilationProcess]): InteractiveStatusDisplay = {
     val layout = new BoxLayout(panel, BoxLayout.LINE_AXIS)
-    panel setLayout layout
-    panel setAlignmentX 0.0f //leftmost
+    panel.setLayout(layout)
+    panel.setAlignmentX(0.0f) //leftmost
 
     import WorksheetUiConstructor._
     
@@ -33,13 +29,18 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
         case _ => 
       }  
     }
-    
-    var statusDisplayN: InteractiveStatusDisplay = null
+
+    val statusDisplayN = new InteractiveStatusDisplay()
     
     inReadAction {
-      statusDisplayN = new InteractiveStatusDisplay()
       statusDisplayN.init(panel)
-      if (run) statusDisplayN.onSuccessfulCompiling() else statusDisplayN.onStartCompiling()
+
+      if (run) {
+        statusDisplayN.onSuccessfulCompiling()
+      } else {
+        statusDisplayN.onStartCompiling()
+      }
+
       addSplitter()
       addChild(panel, Box.createHorizontalGlue())
       addSplitter()
@@ -50,10 +51,14 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
       addFiller()
       new CleanWorksheetAction().init(panel)
       addFiller()
-      if (run) new RunWorksheetAction().init(panel) else exec foreach (new StopWorksheetAction(_).init(panel))
+      if (run) {
+        new RunWorksheetAction().init(panel)
+      } else {
+        exec.foreach(new StopWorksheetAction(_).init(panel))
+      }
     }
 
-    Option(statusDisplayN)
+    statusDisplayN
   }
  
   
@@ -75,28 +80,30 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
 }
 
 object WorksheetUiConstructor {
-  def fixUnboundMaxSize(comp: JComponent, isSquare: Boolean = true) {
+
+  def fixUnboundMaxSize(comp: JComponent, isSquare: Boolean = true): Unit = {
     val preferredSize = comp.getPreferredSize
     
     val size = if (isSquare) {
       val sqSize = Math.max(preferredSize.width, preferredSize.height)
       new Dimension(sqSize, sqSize)
-    } else new Dimension(preferredSize.width, preferredSize.height)
+    } else {
+      new Dimension(preferredSize.width, preferredSize.height)
+    }
     
-    comp setMaximumSize size
+    comp.setMaximumSize(size)
   }
 
-  def addChild(parent: JComponent, child: Component, idx: Int = 0) {
-    parent.add(child, 0)  
-  }
+  def addChild(parent: JComponent, child: Component, idx: Int = 0): Unit =
+    parent.add(child, 0)
 
   def createSplitter(): JSeparator = {
     val separator = new JSeparator(SwingConstants.VERTICAL)
     val size = new Dimension(separator.getPreferredSize.width, separator.getMaximumSize.height)
-    separator setMaximumSize size
-
+    separator.setMaximumSize(size)
     separator
   }
 
-  def createFiller(h: Int, w: Int): Component = Box.createRigidArea(new Dimension(w, h))
+  def createFiller(h: Int, w: Int): Component =
+    Box.createRigidArea(new Dimension(w, h))
 }
