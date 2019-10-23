@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.shell
 
+import java.awt.BorderLayout
 import java.util
 
 import com.intellij.execution.Executor
@@ -20,7 +21,7 @@ import com.intellij.ui.content.impl.ContentImpl
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
-import javax.swing.{Icon, JLabel, SwingConstants}
+import javax.swing.{Icon, JLabel, JPanel, SwingConstants}
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
@@ -138,25 +139,19 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   @TraceWithLogger
   private def createToolWindowContent(consoleView: SbtShellConsoleView): Content = {
-    //Create runner UI layout
-    val factory = RunnerLayoutUi.Factory.getInstance(project)
-    val layoutUi = factory.create("sbt-shell-toolwindow-runner", "", "session", project)
-    val layoutComponent = layoutUi.getComponent
-    // Adding actions
-    val group = new DefaultActionGroup
-    layoutUi.getOptions.setLeftToolbar(group, ActionPlaces.UNKNOWN)
-    val console = layoutUi.createContent(
-      SbtShellToolWindowFactory.ID,
-      consoleView.getComponent,
-      "sbt-shell-toolwindow-console",
-      null, null
-    )
+    val actionGroup = consoleView.createActionGroup()
+    val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
 
-    consoleView.addConsoleActions(group)
+    val toolbarPanel = new JPanel()
+    toolbarPanel.setLayout(new BorderLayout)
+    toolbarPanel.add(actionToolBar.getComponent)
 
-    layoutUi.addContent(console, 0, PlaceInGrid.right, false)
+    val mainPanel = new JPanel()
+    mainPanel.setLayout(new BorderLayout)
+    mainPanel.add(toolbarPanel, BorderLayout.WEST)
+    mainPanel.add(consoleView.getComponent, BorderLayout.CENTER)
 
-    val content = ContentFactory.SERVICE.getInstance.createContent(layoutComponent, "sbt-shell-toolwindow-content", true)
+    val content = ContentFactory.SERVICE.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
     val toolWindowTitle = project.getName
     content.setTabName(toolWindowTitle)
     content.setDisplayName(toolWindowTitle)

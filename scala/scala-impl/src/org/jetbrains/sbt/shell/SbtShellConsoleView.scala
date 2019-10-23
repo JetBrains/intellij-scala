@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
-import com.intellij.openapi.actionSystem.{AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
@@ -21,7 +21,9 @@ import org.jetbrains.sbt.shell.action._
 final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection])
   extends LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
 
-  def addConsoleActions(group: DefaultActionGroup): Unit = {
+  def createActionGroup(): ActionGroup = {
+    val group = new DefaultActionGroup()
+
     // hackery because we can't construct those actions directly
     val defaultActions = super.createConsoleActions()
     val toggleSoftWrapsAction = defaultActions.find(_.isInstanceOf[ToggleUseSoftWrapsToolbarAction])
@@ -54,6 +56,7 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     group.addAll(startAction, stopAction, debugShellAction)
     group.addSeparator()
     group.addAll(scrollToTheEndToolbarAction, toggleSoftWrapsAction, clearAllAction)
+    group
   }
 }
 
