@@ -23,7 +23,7 @@ trait ScParameters extends ScalaPsiElement with PsiParameterList {
     this
   }
 
-  def getParameterIndex(p: PsiParameter): Int = params.indexOf(List(p))
+  def getParameterIndex(p: PsiParameter): Int = params.indexOf(p)
 
   def getParametersCount: Int = params.length
 
