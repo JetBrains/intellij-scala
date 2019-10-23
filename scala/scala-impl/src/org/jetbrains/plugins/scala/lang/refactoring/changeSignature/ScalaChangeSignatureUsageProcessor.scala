@@ -85,15 +85,18 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
   override def shouldPreviewUsages(changeInfo: ChangeInfo, usages: Array[UsageInfo]): Boolean = false
 
-  override def processPrimaryMethod(changeInfo: ChangeInfo): Boolean = changeInfo match {
-    case scalaChange: ScalaChangeInfo =>
-      scalaChange.function match {
-        case f: ScFunction => processNamedElementUsage(changeInfo, FunUsageInfo(f))
-        case pc: ScPrimaryConstructor => processNamedElementUsage(changeInfo, PrimaryConstructorUsageInfo(pc))
-        case _ =>
-      }
-      true
-    case _ => false
+  override def processPrimaryMethod(changeInfo: ChangeInfo): Boolean = {
+    val methodUsageInfo = Option(changeInfo.getMethod).collect {
+      case f: ScFunction => FunUsageInfo(f)
+      case c: ScPrimaryConstructor => PrimaryConstructorUsageInfo(c)
+    }
+    methodUsageInfo match {
+      case Some(usageInfo) =>
+        processNamedElementUsage(changeInfo, usageInfo)
+        true
+      case None =>
+        false
+    }
   }
 
   override def processUsage(changeInfo: ChangeInfo,
