@@ -9,11 +9,14 @@ import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.google.gson.Gson
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.ProjectUtil
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
-import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFileManager}
 import com.intellij.util.SystemProperties
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
@@ -22,8 +25,8 @@ import org.jetbrains.bsp.protocol.session.BspServerConnector._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
-import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BspError, BspErrorMessage}
+import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
+import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
 import scala.concurrent.duration._
 import scala.io.Source
@@ -58,7 +61,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
         Left(error)
       case Right(newSessionBuilder) =>
         newSessionBuilder.withInitialJob(job)
-//          .addNotificationCallback(projectCallback) TODO
+          .addNotificationCallback(projectCallback)
           .withTraceLogPredicate(() => BspExecutionSettings.executionSettingsFor(base).traceBsp)
         val newSession = newSessionBuilder.create
         session.updateAndGet(_ => Option(newSession))
@@ -66,25 +69,27 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
     }
   }
 
-//  private val bspSettings(basePath: File): Option[BspProjectSettings] =
-//    for {
-//      p <- project
-//      basePath <- Option(ProjectUtil.guessProjectDir(p))
-//      settings <- Option(BspSettings.getInstance(p).getLinkedProjectSettings(basePath.getPath))
-//    } yield settings
-//
-//  val projectCallback: NotificationCallback = {
-//    case BspNotifications.DidChangeBuildTarget(didChange) =>
-//      for {
-//        p <- project
-//        s <- bspSettings
-//        if s.isUseAutoImport
-//      } {
-//        FileDocumentManager.getInstance.saveAllDocuments()
-//        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(p, BSP.ProjectSystemId))
-//      }
-//    case _ => // ignore
-//  }
+  private def findProject: Option[Project] =
+    for {
+      vfsPath <- Option(VfsUtil.findFileByIoFile(base, false))
+      project <- Option(ProjectUtil.guessProjectForFile(vfsPath))
+    } yield project
+
+  private def bspSettings(project: Project): Option[BspProjectSettings] =
+    Option(BspSettings.getInstance(project).getLinkedProjectSettings(base.getPath))
+
+  private val projectCallback: NotificationCallback = {
+    case BspNotifications.DidChangeBuildTarget(didChange) =>
+      for {
+        project <- findProject
+        settings <- bspSettings(project)
+        if settings.isUseAutoImport
+      } {
+        FileDocumentManager.getInstance.saveAllDocuments()
+        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, BSP.ProjectSystemId))
+      }
+    case _ => // ignore
+  }
 
   private[bsp] def closeSession(): Try[Unit] = session.get() match {
     case None => Success(())
