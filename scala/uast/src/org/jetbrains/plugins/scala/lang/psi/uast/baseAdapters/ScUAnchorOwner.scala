@@ -22,5 +22,5 @@ trait ScUAnchorOwner extends UAnchorOwner {
 
   @Nullable
   final override def getUastAnchor: UIdentifier =
-    Scala2UastConverter.createUIdentifier(namedElement.getNameIdentifier, this)
+    Scala2UastConverter.createUIdentifier(namedElement.nameId, this)
 }
