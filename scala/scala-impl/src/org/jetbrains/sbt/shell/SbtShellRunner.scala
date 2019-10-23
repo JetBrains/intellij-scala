@@ -8,8 +8,7 @@ import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console._
 import com.intellij.execution.process.{ColoredProcessHandler, OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
-import com.intellij.execution.ui.layout.PlaceInGrid
-import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
@@ -19,8 +18,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.content.impl.ContentImpl
 import com.intellij.ui.content.{Content, ContentFactory}
-import com.pty4j.unix.UnixPtyProcess
-import com.pty4j.{PtyProcess, WinSize}
 import javax.swing.{Icon, JLabel, JPanel, SwingConstants}
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
@@ -76,9 +73,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
   @TraceWithLogger
   override def createConsoleView: SbtShellConsoleView = {
-    val cv = SbtShellConsoleView(project, debugConnection)
-    Disposer.register(this, cv)
-    cv
+    SbtShellConsoleView(project, debugConnection)
   }
 
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
@@ -98,6 +93,8 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       log.error("console view should be created in initAndRun by this moment")
       return
     }
+
+    Disposer.register(this, getConsoleView)
 
     consoleView.setPrompt("(initializing) >")
 
