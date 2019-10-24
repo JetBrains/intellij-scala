@@ -1349,6 +1349,9 @@
             <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
         </component>
         <component>
+          <implementation-class>org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler</implementation-class>
+        </component>
+        <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
         </component>
         <component>
