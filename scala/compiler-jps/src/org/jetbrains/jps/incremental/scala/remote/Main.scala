@@ -12,8 +12,9 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 
 /**
  * Nailgun Nail, used in:
- * org.jetbrains.plugins.scala.nailgun.NailgunRunner
- * org.jetbrains.plugins.scala.compiler.NonServerRunner
+ *
+ * @see [[org.jetbrains.plugins.scala.nailgun.NailgunRunner]]<br>
+ *      [[org.jetbrains.plugins.scala.compiler.NonServerRunner]]
  */
 object Main {
   private val server = new LocalServer()
@@ -79,8 +80,6 @@ object Main {
           // We must abort the process on _any_ error
           case e: Throwable =>
             client.error(e.getMessage)
-            client.compilationEnd()
-            client.close()
             return
         }
       }
@@ -96,6 +95,7 @@ object Main {
       case e: Throwable =>
         client.trace(e)
     } finally {
+      client.processingEnd()
       client.close()
       System.setOut(oldOut)
     }

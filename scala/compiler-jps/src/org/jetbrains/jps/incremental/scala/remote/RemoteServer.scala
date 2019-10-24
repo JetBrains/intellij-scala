@@ -12,6 +12,7 @@ import org.jetbrains.jps.incremental.scala.remote.RemoteServer._
  * @author Pavel Fatin
  */
 class RemoteServer(val address: InetAddress, val port: Int) extends Server with RemoteResourceOwner {
+
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
     val token = readStringFrom(tokenPathFor(port)).getOrElse("NO_TOKEN")
 
@@ -19,6 +20,7 @@ class RemoteServer(val address: InetAddress, val port: Int) extends Server with 
 
     try {
       send(serverAlias, arguments, client)
+      // client.compilationEnd() is meant to be sent by remote server
       ExitCode.OK
     } catch {
       case e: ConnectException =>
