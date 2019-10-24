@@ -125,25 +125,34 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   }
 
   override final def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
-    import JavaStubIndexKeys._
     import index.ScalaIndexKeys._
 
     if (stub.isScriptFileClass) return
-    val name = ScalaNamesUtil.cleanFqn(stub.getName)
-    if (name != null) {
-      sink.occurrence(SHORT_NAME_KEY, name)
+    val scalaName = stub.getName
+    val javaName = stub.javaName
+
+    if (javaName != null) {
+      if (stub.isVisibleInJava) {
+        sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
+      }
+      sink.occurrence(ALL_CLASS_NAMES, javaName)
     }
-    val javaName = ScalaNamesUtil.cleanFqn(stub.javaName)
-    if (javaName != null && stub.isVisibleInJava) sink.occurrence(CLASS_SHORT_NAMES, javaName)
-    else sink.occurrence(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, name)
-    sink.occurrence(ALL_CLASS_NAMES, javaName)
+
+    if (scalaName != null) {
+      sink.occurrence(SHORT_NAME_KEY, scalaName)
+
+      if (scalaName != javaName || !stub.isVisibleInJava) {
+        sink.occurrence(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, scalaName)
+      }
+    }
+
     val additionalNames = stub.additionalJavaName
     for (name <- additionalNames) {
       sink.occurrence(ALL_CLASS_NAMES, name)
     }
-    val javaFqn = ScalaNamesUtil.cleanFqn(stub.javaQualifiedName)
+    val javaFqn = stub.javaQualifiedName
     if (javaFqn != null && !stub.isLocal && stub.isVisibleInJava) {
-      sink.occurrence[PsiClass, java.lang.Integer](CLASS_FQN, javaFqn.hashCode)
+      sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, javaFqn.hashCode)
       val i = javaFqn.lastIndexOf(".")
       val pack =
         if (i == -1) ""
