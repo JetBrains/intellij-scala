@@ -3,6 +3,7 @@ package remote
 
 /**
  * @author Pavel Fatin
+ * @see [[org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient]]
  */
 class ClientEventProcessor(client: Client) {
 
@@ -31,6 +32,9 @@ class ClientEventProcessor(client: Client) {
 
       case CompilationEndEvent() =>
         client.compilationEnd()
+
+      case ProcessingEndEvent() =>
+        client.processingEnd()
 
       case WorksheetOutputEvent(text) =>
         client.worksheetOutput(text)

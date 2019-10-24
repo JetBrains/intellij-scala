@@ -57,6 +57,9 @@ case class SourceProcessedEvent(source: File) extends Event
 @SerialVersionUID(-2795117544723203396L)
 case class CompilationEndEvent() extends Event
 
+@SerialVersionUID(1L)
+case class ProcessingEndEvent() extends Event
+
 @SerialVersionUID(5572517354322649988L)
 case class WorksheetOutputEvent(text: String) extends Event
 
