@@ -28,9 +28,15 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
   }
 
   class LibraryDetailsModel(selectedDescriptor: Option[ExtensionJarData]) extends AbstractListModel[ExtensionDescriptor] {
-    private val myExtensions = selectedDescriptor.flatMap(_.descriptor.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil).filter(_.isAvailable)
     override def getSize: Int = myExtensions.length
     override def getElementAt(i: Int): ExtensionDescriptor = myExtensions(i)
+    private val myExtensions = selectedDescriptor
+      .flatMap(
+        _.descriptor
+          .getCurrentPluginDescriptor
+          .map(_.extensions))
+      .getOrElse(Nil)
+      .filter(_.isAvailable)
   }
 
   def build(): Unit = {
@@ -94,13 +100,13 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     }
 
     librariesList.setEmptyText("No known extension libraries")
+    librariesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     librariesList.addListSelectionListener { event =>
-      val libraries = libraryExtensionsManager.getAvailableLibraries
-      val index = event.getFirstIndex
-      val newData = if (index != -1 && index < libraries.size) {
-        Some(libraries(index))
-      } else None
-      extensionsList.setModel(new LibraryDetailsModel(newData))
+      if (!event.getValueIsAdjusting) {
+        val jarData = librariesList.getSelectedValue
+        val model   = new LibraryDetailsModel(Option(jarData))
+        extensionsList.setModel(model)
+      }
     }
     librariesList.installCellRenderer{ ld: ExtensionJarData =>
       val ExtensionJarData(LibraryDescriptor(name, _, description, vendor, version, _), file, _) = ld
