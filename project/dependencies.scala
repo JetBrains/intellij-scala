@@ -28,7 +28,7 @@ object Versions {
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
     val latest_2_12 = "2.12.8"
-    val latest_2_13 = "2.13.0-M4"
+    val latest_2_13 = "2.13.1"
     val latest_3_0 = "0.15.0-RC1"
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
@@ -50,7 +50,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.2.8"
+    val latest_1_0 = "1.3.3"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -118,7 +118,7 @@ object Dependencies {
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
-  val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
+  val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
 
   /** The filtering function returns true for jars to be removed.
     * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
