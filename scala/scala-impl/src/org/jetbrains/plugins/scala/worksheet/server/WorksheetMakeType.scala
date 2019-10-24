@@ -1,13 +1,8 @@
-package org.jetbrains.plugins.scala
-package worksheet.server
+package org.jetbrains.plugins.scala.worksheet.server
 
-/**
- * User: Dmitry Naydanov
- * Date: 2/11/14
- */
 abstract sealed class WorksheetMakeType
 
-object InProcessServer extends WorksheetMakeType
-object OutOfProcessServer extends WorksheetMakeType
-object NonServer extends WorksheetMakeType
+object InProcessServer extends WorksheetMakeType // compile server is enabled, worksheet is compiled in server and run inside the server process
+object OutOfProcessServer extends WorksheetMakeType // compile server is enabled, worksheet is compiled in server is run outside the server process
+object NonServer extends WorksheetMakeType // compile server is disabled
 

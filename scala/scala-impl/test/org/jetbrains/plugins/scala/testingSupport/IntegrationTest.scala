@@ -68,8 +68,6 @@ trait IntegrationTest {
 
   def getProject: Project
 
-  protected def addFileToProject(fileName: String, fileText: String)
-
   protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Boolean = {
     val config = configAndSettings.getConfiguration
     checkConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])

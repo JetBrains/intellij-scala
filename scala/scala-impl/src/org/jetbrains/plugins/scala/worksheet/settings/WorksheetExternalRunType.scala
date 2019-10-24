@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.psi.PsiErrorElement
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
@@ -13,6 +14,7 @@ abstract sealed class WorksheetExternalRunType {
 
   def isReplRunType: Boolean
 
+  @NotNull
   def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter
 
   def process(srcFile: ScalaFile, editor: Editor): Either[WorksheetPreprocessError, WorksheetCompileRunRequest]

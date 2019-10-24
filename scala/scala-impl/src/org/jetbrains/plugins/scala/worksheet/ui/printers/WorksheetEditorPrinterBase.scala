@@ -22,7 +22,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   protected val viewerFolding: FoldingModelEx = worksheetViewer.getFoldingModel.asInstanceOf[FoldingModelEx]
 
-  protected lazy val foldGroup = new WorksheetFoldGroup(worksheetViewer, originalEditor, project, getWorksheetSplitter.orNull)
+  protected lazy val foldGroup = new WorksheetFoldGroup(worksheetViewer, originalEditor, project, getWorksheetSplitter)
 
   private var inited = false
 

@@ -4,19 +4,16 @@ package compiler
 import java.io.{BufferedReader, File, InputStreamReader, Reader}
 import java.util.concurrent.Future
 
-import com.intellij.execution.TaskExecutor
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.Consumer
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 
 import _root_.scala.collection.JavaConverters._
 
 /**
- * User: Dmitry Naydanov
- * Date: 2/11/14
+ * @see [[RemoteServerRunner]]
  */
 class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = None) {
   private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
@@ -33,11 +30,13 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
       case None =>
         null
       case Some(jdk) =>
-        val commands = ((FileUtil toCanonicalPath jdk.executable.getPath) +: "-cp" +: classPath(jdk) +: jvmParameters :+ 
-          SERVER_CLASS_NAME).++(args)
+        val commands: Seq[String] = {
+          val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
+          (jdkPath +: "-cp" +: classPath(jdk) +: jvmParameters :+ SERVER_CLASS_NAME) ++ args
+        }
 
         val builder = new ProcessBuilder(commands.asJava)
-        
+
         new CompilationProcess {
           var myProcess: Option[Process] = None
           var myCallbacks: Seq[() => Unit] = Seq.empty
@@ -50,42 +49,39 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
             val p = builder.start()
             myProcess = Some(p)
 
-            val reader = new BufferedReader(new InputStreamReader(p.getInputStream))
-            new MyBase64StreamReader(reader, listener)
+            val bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream))
+            val reader = new MyBase64StreamReader(bufferedReader, listener) //starts threads under the hood
 
             val processName = "Non-server worksheet runner"
             val processWaitFor =
               new ProcessWaitFor(p, (task: Runnable) => AppExecutorUtil.getAppExecutorService.submit(task), processName)
 
-            processWaitFor.setTerminationCallback(new Consumer[Integer] {
-              override def consume(t: Integer) {
-                myCallbacks.foreach(c => c())
-              }
+            processWaitFor.setTerminationCallback((_: Integer) => {
+              reader.close()
+              reader.stop()
+              myCallbacks.foreach(c => c())
             })
           }
 
           override def stop() {
-            myProcess foreach (_.destroy())
+            myProcess.foreach(_.destroy())
             myProcess = None
           }
         }
     }
   }
-  
-  private def error(message: String) {
-    errorHandler.foreach(_.error(message))
-  }
-  
+
+
   private class MyBase64StreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
     start(project.getName)
     
     private val charBuffer = new Array[Char](8192)
     private val text = new StringBuilder
     
-    def executeOnPooledThread(runnable: Runnable): Future[_] =
+    override def executeOnPooledThread(runnable: Runnable): Future[_] =
       AppExecutorUtil.getAppExecutorService.submit(runnable)
 
-    def onTextAvailable(text: String) {
+    def onTextAvailable(text: String): Unit = {
       try {
         listener(text)
       }
@@ -94,9 +90,8 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
       }
     }
 
-    override def close() {
+    override def close(): Unit =
       reader.close()
-    }
 
     override def readAvailable(): Boolean = {
       var read = false

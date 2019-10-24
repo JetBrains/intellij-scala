@@ -10,8 +10,7 @@ import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 
 /**
- * User: Dmitry Naydanov
- * Date: 2/24/14
+ * @see [[NonServerRunner]]
  */
 class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
   protected val address: InetAddress = InetAddress.getByName(null)

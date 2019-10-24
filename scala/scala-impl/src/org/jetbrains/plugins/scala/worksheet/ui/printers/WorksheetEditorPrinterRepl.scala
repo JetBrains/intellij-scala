@@ -78,8 +78,8 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
     val glue = WorksheetPsiGlue()
     val iterator = new WorksheetInterpretExprsIterator(getScalaFile, Option(originalEditor), lastProcessedLine)
     iterator.collectAll(x => inReadAction(glue.processPsi(x)), None)
-
     val elements = glue.result
+
     psiToProcess.enqueue(elements: _*)
   }
 
@@ -148,7 +148,7 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
     /** @return lines index (0-based) */
     def originalLine(offset: Int): Int = originalDocument.getLineNumber(offset)
 
-    val originalTextRange = queuedPsi.getWholeTextRange
+    val originalTextRange = inReadAction(queuedPsi.getWholeTextRange)
 
     val processedStartLine    = originalLine(queuedPsi.getFirstProcessedOffset)
     val processedStartEndLine = originalLine(queuedPsi.getLastProcessedOffset)
@@ -305,7 +305,7 @@ object WorksheetEditorPrinterRepl {
 
   import processor.WorksheetCompilerUtil
 
-  val TECHNICAL_MESSAGE_START = "$$worksheet$$"
+  private val TECHNICAL_MESSAGE_START = "$$worksheet$$"
 
   private val REPL_START                = s"${TECHNICAL_MESSAGE_START}repl$$$$start$$$$"
   private val REPL_CHUNK_END            = s"${TECHNICAL_MESSAGE_START}repl$$$$chunk$$$$end$$$$"

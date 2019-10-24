@@ -20,6 +20,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
@@ -51,11 +52,10 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override def runInDispatchThread(): Boolean = false
 
-  override protected def addFileToProject(fileName: String, fileText: String): Unit = {
-    EdtTestUtil.runInEdtAndWait(() => {
-      ScalaTestingTestCase.super.addFileToProject(fileName, fileText)
-    })
-  }
+  override protected def addFileToProjectSources(fileName: String, fileText: String): VirtualFile =
+    EdtTestUtil.runInEdtAndGet { () =>
+      ScalaTestingTestCase.super.addFileToProjectSources(fileName, fileText)
+    }
 
   override val testDataBasePrefix = "testingSupport"
 

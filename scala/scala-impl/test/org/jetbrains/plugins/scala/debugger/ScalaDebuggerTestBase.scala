@@ -10,7 +10,7 @@ import com.intellij.execution.application.{ApplicationConfiguration, Application
 import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -77,10 +77,9 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     configuration
   }
 
-  override protected def addFileToProject(fileName: String, fileText: String) {
-    def virtualFileExists(file: File) = {
+  override protected def addFileToProjectSources(fileName: String, fileText: String): VirtualFile = {
+    def virtualFileExists(file: File): Boolean =
       Try(getVirtualFile(file).exists()).getOrElse(false)
-    }
 
     val file = getFileInSrc(fileName)
     if (needMake || !fileWithTextExists(file, fileText)) {
@@ -88,8 +87,12 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       if (file.exists() || virtualFileExists(file)) {
         val vFile = getVirtualFile(file)
         inWriteAction(VfsUtil.saveText(vFile, fileText))
+        vFile
+      } else {
+        super.addFileToProjectSources(fileName, fileText)
       }
-      else super.addFileToProject(fileName, fileText)
+    } else {
+      getVirtualFile(file)
     }
   }
 
@@ -102,14 +105,14 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       case (path, text) => !fileWithTextExists(new File(path), text)
     }) {
       sourceFiles.foreach {
-        case (path, text) => addFileToProject(path, text)
+        case (path, text) => addFileToProjectSources(path, text)
       }
     }
   }
 
   protected def addFileToProject(fileText: String) {
     Assert.assertTrue(s"File should start with `object $mainClassName`", fileText.startsWith(s"object $mainClassName"))
-    addFileToProject(mainFileName, fileText)
+    addFileToProjectSources(mainFileName, fileText)
   }
 
   protected def getFileInSrc(fileName: String): File = {
