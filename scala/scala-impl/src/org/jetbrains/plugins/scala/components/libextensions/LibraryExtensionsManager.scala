@@ -156,7 +156,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   private def loadDescriptor(descriptor: LibraryDescriptor, jarFile: File): Unit = {
-    var classBuffer = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
+    val classBuffer = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
       val IdeaVersionDescriptor(_, _, _, defaultPackage, extensions) = currentVersion
       val classLoader = UrlClassLoader.build()
@@ -172,7 +172,11 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         classBuffer.getOrElseUpdate(myInterface, mutable.ArrayBuffer.empty) += myInstance
       }
     }
-    myExtensionInstances ++= classBuffer
+    classBuffer.foreach {
+      case (k, v) =>
+        myExtensionInstances.getOrElseUpdate(k, mutable.ArrayBuffer.empty) ++= v
+    }
+
     myLoadedLibraries    +=  ExtensionJarData(descriptor, jarFile, classBuffer.toMap)
   }
 
