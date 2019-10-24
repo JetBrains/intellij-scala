@@ -55,7 +55,7 @@
     <actions>
         <action id="Bsp.Session.CloseAll"
                 class="org.jetbrains.bsp.protocol.CloseBspSessionsAction"
-                text="Close Sessions"
+                text="Close BSP Sessions"
                 description="Close all open BSP sessions"
                 icon="AllIcons.Process.Stop">
         </action>
