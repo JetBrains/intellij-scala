@@ -18,15 +18,15 @@ object PsiFileTestUtil {
     addFileToProject(Paths.get(fileName), text, project)
 
   def addFileToProject(path: Path, text: String, project: Project): PsiFile = {
-    def dirNames(path: Path): Seq[String] =
-      (0 until path.getNameCount - 1)
-        .map(i => path.getName(i).toString)
 
     val fileName = path.getFileName.toString
 
+    def dirNames(path: Path): Seq[String] =
+      Iterator.tabulate(path.getNameCount - 1)(path.getName(_).toString).toSeq // last name in path is file itself
+
     def createDir(parent: VirtualFile, name: String): VirtualFile = parent.createChildDirectory(null, name)
 
-    def createVFile(path: Path) = {
+    def createVFile(path: Path): VirtualFile = {
       val sourceRoot = LightPlatformTestCase.getSourceRoot
       val dir = dirNames(path).foldLeft(sourceRoot)(createDir)
       val vFile = dir.createChildData(null, fileName)

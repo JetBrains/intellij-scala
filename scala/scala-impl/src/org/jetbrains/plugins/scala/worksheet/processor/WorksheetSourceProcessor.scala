@@ -7,7 +7,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.util.Base64
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -77,9 +77,9 @@ object WorksheetSourceProcessor {
 
     val glue = WorksheetPsiGlue()
     val iterator = new WorksheetInterpretExprsIterator(srcFile, Some(editor), lastProcessed)
-    iterator.collectAll(glue.processPsi, Some(e => return Left(e)))
-
+    iterator.collectAll(x => inReadAction(glue.processPsi(x)), Some(e => return Left(e)))
     val elements = glue.result
+
     val texts = elements.map(_.getText)
     val allExprs = if (lastProcessed.isEmpty) ":reset" +: texts else texts
 

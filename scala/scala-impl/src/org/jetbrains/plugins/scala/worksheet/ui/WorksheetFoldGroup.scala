@@ -12,7 +12,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.DiffMapping
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.{DiffMapping, SimpleWorksheetSplitter}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
 
 import scala.collection.mutable
@@ -22,7 +22,7 @@ final class WorksheetFoldGroup(
   private val viewerEditor: Editor, // left editor
   private val originalEditor: Editor, // right editor
   project: Project,
-  private val splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter
+  private val splitter: Option[SimpleWorksheetSplitter]
 ) {
 
   import FoldRegionSerializer._
@@ -62,8 +62,9 @@ final class WorksheetFoldGroup(
                 spaces: Int,
                 isExpanded: Boolean): Unit = {
     val placeholder: String = {
-      val offset = Math.min(foldEndOffset - foldStartOffset, WorksheetFoldGroup.PLACEHOLDER_LIMIT)
-      val range = new TextRange(foldStartOffset, foldStartOffset + offset)
+      val foldedTextLength = foldEndOffset - foldStartOffset
+      val length = Math.min(foldedTextLength, WorksheetFoldGroup.PLACEHOLDER_LIMIT)
+      val range = TextRange.from(foldStartOffset, length)
       viewerDocument.getText(range)
     }
 
@@ -80,7 +81,7 @@ final class WorksheetFoldGroup(
   def clearRegions(): Unit = {
     _regions.clear()
     unfolded.clear()
-    splitter.clear()
+    splitter.foreach(_.clear())
   }
 
   private def addParsedRegions(regions: Seq[ParsedRegion]): Unit = {
@@ -116,9 +117,7 @@ final class WorksheetFoldGroup(
 
     if (targetInfo == null || targetInfo.expanded == expand) return false
 
-    if (splitter != null) {
-      splitter.update(mappings)
-    }
+    splitter.foreach(_.update(mappings))
 
     targetInfo.expanded = expand
 
@@ -280,9 +279,9 @@ object WorksheetFoldGroup {
   }
 
   def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
-           splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter,
+           splitter: SimpleWorksheetSplitter,
            file: PsiFile): WorksheetFoldGroup = {
-    val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, splitter)
+    val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, Some(splitter))
 
     val parsedRegions = extractRegions(file)
     parsedRegions.foreach(group.addParsedRegions)

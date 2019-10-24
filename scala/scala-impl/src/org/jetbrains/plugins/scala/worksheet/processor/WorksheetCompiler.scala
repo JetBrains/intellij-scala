@@ -9,10 +9,14 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import WorksheetCompiler.WorksheetEvaluationError._
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetRunResult.{CompileOutsideCompilerProcess, Done}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.{WorksheetEvaluationError, WorksheetRunResult}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server._
@@ -20,20 +24,22 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.W
 import org.jetbrains.plugins.scala.worksheet.settings._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinter
 
-/**
- * @param callback (Name, AddToClasspath)
- */
-class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit, auto: Boolean) {
+class WorksheetCompiler(
+  module: Module,
+  editor: Editor,
+  worksheetFile: ScalaFile,
+  callback: Either[WorksheetEvaluationError, WorksheetRunResult] => Unit,
+  auto: Boolean
+) {
   import worksheet.processor.WorksheetCompiler._
-  
+
   private implicit val project: Project = worksheetFile.getProject
 
   private val makeType = WorksheetProjectSettings.getMakeType(project)
   private val runType = WorksheetFileSettings.getRunType(worksheetFile)
   private val worksheetVirtual = worksheetFile.getVirtualFile
-  private val module = WorksheetCommonSettings(worksheetFile).getModuleFor
 
-  private def onError(msg: String): Unit =
+  private def showErrorNotification(msg: String): Unit =
     NotificationUtil.builder(project, msg)
       .setGroup("Scala")
       .setNotificationType(NotificationType.ERROR)
@@ -47,9 +53,16 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
     Option(runType.createPrinter(editor, worksheetFile))
 
   private def runCompilerTask(className: String, code: String, tempFile: File, outputDir: File): Unit = {
-    val afterCompileRunnable: Runnable =
-      if (makeType == OutOfProcessServer) () => callback(className, outputDir.getAbsolutePath)
-      else EmptyRunnable
+    val afterCompileCallback: Either[String, Unit] => Unit = {
+      case Right(_) =>
+        val result = makeType match {
+          case OutOfProcessServer => CompileOutsideCompilerProcess(className, outputDir.getAbsolutePath)
+          case _                  => Done()
+        }
+        callback(Right(result))
+      case Left(value) =>
+        callback(Left(UnknownError(value)))
+    }
 
     val task = createCompilerTask
     val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, createWorksheetPrinter, None, auto)
@@ -57,10 +70,11 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
     FileUtil.writeToFile(tempFile, code)
 
     val compileWork: Runnable = () => try {
-      val connector = new RemoteServerConnector(worksheetFile, tempFile, outputDir, className, None, true)
-      connector.compileAndRun(afterCompileRunnable, worksheetVirtual, consumer)
+      val connector = new RemoteServerConnector(module, worksheetFile, tempFile, outputDir, className, None, true)
+      connector.compileAndRun(afterCompileCallback, worksheetVirtual, consumer)
     } catch {
-      case ex: IllegalArgumentException => onError(ex.getMessage)
+      case ex: IllegalArgumentException =>
+        showErrorNotification(ex.getMessage)
     }
     task.start(compileWork, EmptyRunnable)
 
@@ -71,35 +85,38 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   }
 
   private def runDumbTask(replModeArgs: ReplModeArgs): Unit = {
+    val afterCompileCallback: Either[String, Unit] => Unit = {
+      case Right(_)    => callback(Right(Done()))
+      case Left(value) => callback(Left(UnknownError(value)))
+    }
     val task = createCompilerTask
 
     val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, createWorksheetPrinter, None)
     val compileWork: Runnable = () => {
-      val connector = new RemoteServerConnector(worksheetFile, new File(""), new File(""), "", Some(replModeArgs), false)
-      connector.compileAndRun(EmptyRunnable, worksheetVirtual, consumer)
+      val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), false)
+      connector.compileAndRun(afterCompileCallback, worksheetVirtual, consumer)
     }
     task.start(compileWork, EmptyRunnable)
   }
 
   private def compileAndRunCode(request: WorksheetCompileRunRequest): Unit = {
-    if (module == null) {
-      onError("Can't find Scala module to run")
-      return
-    }
-
     WorksheetCompilerUtil.removeOldMessageContent(project) //or not?
 
-    if (makeType != NonServer) {
-      CompileServerLauncher.ensureServerRunning(project)
+    makeType match {
+      case InProcessServer | OutOfProcessServer =>
+        CompileServerLauncher.ensureServerRunning(project)
+      case NonServer =>
     }
 
     request match {
       case RunRepl(code) =>
         val args = ReplModeArgs(worksheetVirtual.getCanonicalPath, code)
         runDumbTask(args)
+
       case RunCompile(code, name) =>
-        val (_, tempFile, outputDir) = WorksheetCache.getInstance(project).updateOrCreateCompilationInfo(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
-        WorksheetCache.getInstance(project).removePrinter(editor)
+        val cache = WorksheetCache.getInstance(project)
+        val (_, tempFile, outputDir) = cache.updateOrCreateCompilationInfo(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
+        cache.removePrinter(editor)
         runCompilerTask(name, code, tempFile, outputDir)
     }
   }
@@ -110,6 +127,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
         compileAndRunCode(request)
       case Left(preprocessError) =>
         showCompilationError(preprocessError)
+        callback(Left(PreprocessError(preprocessError)))
     }
 
   private def showCompilationError(error: WorksheetPreprocessError): Unit = {
@@ -124,4 +142,16 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
   private val EmptyRunnable: Runnable = () => {}
   private val ConfigErrorHeader = "Worksheet configuration error:"
+
+  sealed trait WorksheetRunResult
+  object WorksheetRunResult {
+    case class Done() extends WorksheetRunResult
+    case class CompileOutsideCompilerProcess(name: String, addToClasspath: String) extends WorksheetRunResult
+  }
+
+  sealed trait WorksheetEvaluationError
+  object WorksheetEvaluationError {
+    case class PreprocessError(error: WorksheetPreprocessError) extends WorksheetEvaluationError
+    case class UnknownError(reason: Any) extends WorksheetEvaluationError // TODO: make more specific errors
+  }
 }

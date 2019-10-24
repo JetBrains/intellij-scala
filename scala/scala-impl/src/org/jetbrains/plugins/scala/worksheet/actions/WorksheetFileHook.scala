@@ -7,6 +7,7 @@ import java.util
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Document, Editor}
@@ -60,6 +61,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
   private def initWorksheetComponents(file: VirtualFile, run: Boolean, exec: Option[CompilationProcess] = None): Unit = {
     if (project.isDisposed) return
+    if (ApplicationManager.getApplication.isUnitTestMode) return
 
     val myFileEditorManager = FileEditorManager.getInstance(project)
     val editors = myFileEditorManager.getAllEditors(file)
@@ -85,15 +87,22 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
   }
 
   def disableRun(file: VirtualFile, exec: Option[CompilationProcess]): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) return
+
     WorksheetFileHook.unplugWorksheetActions(file, project)
-    cleanAndAdd(file, exec map (new StopWorksheetAction(_)))
+    cleanAndAdd(file, exec.map(new StopWorksheetAction(_)))
     statusDisplay.foreach(_.onStartCompiling())
   }
 
   def enableRun(file: VirtualFile, hasErrors: Boolean): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) return
+
     WorksheetFileHook.plugWorksheetActions(file, project)
     cleanAndAdd(file, Some(new RunWorksheetAction))
-    statusDisplay.foreach(display => if (hasErrors) display.onFailedCompiling() else display.onSuccessfulCompiling())
+    statusDisplay.foreach { display =>
+      if (hasErrors) display.onFailedCompiling()
+      else display.onSuccessfulCompiling()
+    }
   }
 
   private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentDisplayable]): Unit =
@@ -102,7 +111,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       panel <- ref.getOpt
     } {
       val c = panel.getComponent(0)
-      if (c != null) panel remove c
+      if (c != null) panel.remove(c)
       action.foreach(_.init(panel))
     }
 
@@ -149,8 +158,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     private def loadEvaluationResult(scalaFile: ScalaFile, vFile: VirtualFile, editor: EditorEx): Unit = {
       ensureWorksheetModuleIsSet(scalaFile)
 
-      val evaluationResults = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile)
-      evaluationResults.foreach {
+      val evaluationResultOpt = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile)
+      evaluationResultOpt.foreach {
         case (result, ratio) if !result.isEmpty =>
           val viewer = WorksheetEditorPrinterFactory.createViewer(editor, vFile)
           val document = viewer.getDocument
@@ -193,7 +202,7 @@ object WorksheetFileHook {
 
   private def getAndRemovePanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.remove(file))
 
-  private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
+  private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.get(file))
 
   private def plugWorksheetActions(file: VirtualFile, project: Project): Unit =
     inReadAction {
@@ -217,7 +226,8 @@ object WorksheetFileHook {
 
   private def unplugWorksheetActions(file: VirtualFile, project: Project): Unit =
     inReadAction {
-      FileEditorManager.getInstance(project).getAllEditors(file) foreach unplugWorksheetActions
+      val editors = FileEditorManager.getInstance(project).getAllEditors(file)
+      editors.foreach(unplugWorksheetActions)
     }
 
   private def unplugWorksheetActions(editor: FileEditor): Unit =

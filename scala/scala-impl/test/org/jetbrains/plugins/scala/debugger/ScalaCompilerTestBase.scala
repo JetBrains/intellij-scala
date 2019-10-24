@@ -55,7 +55,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def useCompileServer: Boolean = false
 
-  protected def addRoots() {
+  private def addRoots(): Unit = {
     def getOrCreateChildDir(name: String) = {
       val file = new File(getBaseDir.getCanonicalPath, name)
       if (!file.exists()) file.mkdir()
@@ -70,12 +70,12 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     }
   }
 
-  private def setCompilerVmOptions(options: String): Unit = {
-    if (useCompileServer)
-      ScalaCompileServerSettings.getInstance().COMPILE_SERVER_JVM_PARAMETERS = options
-    else
+  private def setCompilerVmOptions(options: String): Unit =
+    if (useCompileServer) {
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_JVM_PARAMETERS = options
+    } else {
       CompilerConfiguration.getInstance(getProject).setBuildProcessVMOptions(options)
-  }
+    }
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaReflect = true),
@@ -94,10 +94,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
         CompilerTestUtil.disableExternalCompiler(myProject)
         ScalaCompilerTestBase.stopAndWait()
         disposeLibraries(myModule)
-
       } finally {
         ScalaCompilerTestBase.super.tearDown()
-        if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+        if (deleteProjectAtTearDown) {
+          VfsTestUtil.deleteFile(baseDir)
+        }
       }
     }
 
@@ -175,13 +176,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     baseDir
   }
 
-  protected def addFileToProject(relativePath: String, text: String): Unit = VfsTestUtil.createFile(
+  protected def addFileToProjectSources(relativePath: String, text: String): VirtualFile = VfsTestUtil.createFile(
     getSourceRootDir,
     relativePath,
     StringUtil.convertLineSeparators(text)
   )
 
-  private def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
+  protected def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
 
   private def saveProject(): Unit = {
     val applicationEx = ApplicationManagerEx.getApplicationEx
