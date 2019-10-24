@@ -79,8 +79,8 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GoToClassS")
 
-    checkSize(elements, 1)
     checkContainExpected(elements, (isTrait, "GoToClassSimpleTrait"))
+    checkSize(elements, 1)
   }
 
   def testTrait2(): Unit = {
@@ -88,8 +88,8 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GTCS")
 
-    checkSize(elements, 1)
     checkContainExpected(elements, (isTrait, "GoToClassSimpleTrait"))
+    checkSize(elements, 1)
   }
 
   def testObject(): Unit = {
@@ -97,8 +97,8 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GoToClassS")
 
-    checkSize(elements, 1)
     checkContainExpected(elements, (isObject, "GoToClassSimpleObject$"))
+    checkSize(elements, 1)
   }
 
   def testPackageObject(): Unit = {
@@ -110,8 +110,8 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("someP")
 
-    checkSize(elements, 1)
     checkContainExpected(elements, (isPackageObject, "foo.somePackageName.package$"))
+    checkSize(elements, 1)
   }
 
   def testGoToSymbol(): Unit = {
@@ -136,21 +136,21 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testClass_:::(): Unit = {
-    getFixture.addFileToProject("Semicolons.scala", "class ::: { def ::: : Unit = () }")
+    getFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
     val elements = gotoClassElements("::")
 
-    checkSize(elements, 1)
     checkContainExpected(elements, (isClass, Colon + Colon + Colon))
+    checkSize(elements, 1)
   }
 
   def testSymbol_:::(): Unit = {
-    getFixture.addFileToProject("Semicolons.scala", "class ::: { def ::: : Unit = () }")
+    getFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
     val elements = gotoSymbolElements("::")
 
-    checkSize(elements, 2)
     checkContainExpected(elements, (isClass, Colon + Colon + Colon), (isFunction, Colon + Colon + Colon))
+    checkSize(elements, 2)
   }
 }
 

@@ -5,7 +5,7 @@ import java.util
 
 import com.intellij.navigation.{GotoClassContributor, NavigationItem}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
 import org.jetbrains.plugins.scala.extensions.childOf
@@ -92,7 +92,7 @@ class ScalaGoToSymbolContributor extends GotoClassContributor {
 
   private def isNonLocal(item: NavigationItem): Boolean = {
     item match {
-      case _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions) => true
+      case _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile) => true
       case _ => false
     }
   }
