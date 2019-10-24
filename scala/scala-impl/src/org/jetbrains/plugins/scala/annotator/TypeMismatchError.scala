@@ -47,7 +47,7 @@ private object TypeMismatchError {
 
     implicit val context = TypePresentationContext(annotatedElement)
 
-    annotation.setTooltip(if (highlightExpression) TypeMismatchHints.tooltipFor(expectedType, actualType) else null)
+    annotation.setTooltip(TypeMismatchHints.tooltipFor(expectedType, actualType))
     annotation.registerFix(ReportHighlightingErrorQuickFix)
     annotation.registerFix(EnableTypeMismatchHints)
 
