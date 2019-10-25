@@ -21,23 +21,33 @@ class TypeMismatchTooltipsHandler(project: Project, editorFactory: EditorFactory
 
   private val mouseMovedListener: EditorMouseMotionListener = new EditorMouseMotionListener {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (!e.isConsumed && project.isInitialized && !project.isDisposed && ScalaProjectSettings.getInstance(project).isTypeMismatchHints) {
+      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         val editor = e.getEditor
-        val point = e.getMouseEvent.getPoint
 
-        val position = editor.xyToLogicalPosition(point)
-        val offset = editor.logicalPositionToOffset(position)
+        if (ScalaProjectSettings.getInstance(project).isTypeMismatchHints) {
+          val point = e.getMouseEvent.getPoint
 
-        val highlightInfo = DaemonCodeAnalyzer.getInstance(project).asInstanceOf[DaemonCodeAnalyzerImpl]
-          .findHighlightByOffset(editor.getDocument, offset, false)
+          val position = editor.xyToLogicalPosition(point)
+          val offset = editor.logicalPositionToOffset(position)
 
-        disableTooltipOnMouseHoverForTypeMismatchErrors(editor, highlightInfo)
+          val highlightInfo = Option(DaemonCodeAnalyzer.getInstance(project).asInstanceOf[DaemonCodeAnalyzerImpl]
+            .findHighlightByOffset(editor.getDocument, offset, false))
+
+          disableTooltipOnMouseHoverForTypeMismatchErrors(editor, highlightInfo)
+        } else {
+          if (popupsWereDisabled) {
+            EditorMouseHoverPopupControl.enablePopups(editor);
+            popupsWereDisabled = false
+          }
+        }
       }
     }
   }
 
-  private def disableTooltipOnMouseHoverForTypeMismatchErrors(editor: Editor, info: HighlightInfo): Unit = {
-    val isTypeMismatchError = info.getSeverity == HighlightSeverity.ERROR && info.getToolTip != null && info.getToolTip.startsWith(TypeMismatchTooltipPrefix)
+  private def disableTooltipOnMouseHoverForTypeMismatchErrors(editor: Editor, maybeInfo: Option[HighlightInfo]): Unit = {
+    val isTypeMismatchError = maybeInfo.exists(info =>
+      info.getSeverity == HighlightSeverity.ERROR &&
+        Option(info.getToolTip).exists(_.startsWith(TypeMismatchTooltipPrefix)))
 
     if (isTypeMismatchError) {
       if (!popupsWereDisabled && !EditorMouseHoverPopupControl.arePopupsDisabled(editor)) {
