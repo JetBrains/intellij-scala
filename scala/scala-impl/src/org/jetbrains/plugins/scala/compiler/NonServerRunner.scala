@@ -16,10 +16,14 @@ import _root_.scala.collection.JavaConverters._
  * @see [[RemoteServerRunner]]
  */
 class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = None) {
+
   private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
 
-  private def classPath(jdk: JDK) = (jdk.tools +: CompileServerLauncher.compilerJars).map(
-    file => FileUtil toCanonicalPath file.getPath).mkString(File.pathSeparator)
+  private def classPath(jdk: JDK): String = {
+    val jars = jdk.tools +: CompileServerLauncher.compilerJars
+    val jarPaths = jars.map(file => FileUtil.toCanonicalPath(file.getPath))
+    jarPaths.mkString(File.pathSeparator)
+  }
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
@@ -57,9 +61,8 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
               new ProcessWaitFor(p, (task: Runnable) => AppExecutorUtil.getAppExecutorService.submit(task), processName)
 
             processWaitFor.setTerminationCallback((_: Integer) => {
-              reader.close()
-              reader.stop()
               myCallbacks.foreach(c => c())
+              reader.stop() // will close streams under the hood in event loop
             })
           }
 
