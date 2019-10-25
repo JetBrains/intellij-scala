@@ -271,6 +271,31 @@
     </project-components>
 
     <actions>
+
+        <action id="Scala.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"
+                description="Show implicit conversions / arguments as inlay hints in editor">
+            <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+        </action>
+
+        <action id="Scala.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"
+                description="Expand implicit conversions / arguments inlay hints in editor">
+            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
+        </action>
+
+        <action id="Scala.ToggleExpressionChainType"
+                class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleExpressionChainTypeAction"
+                text="Show Expression Chain Type Hints">
+            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ExpandImplicits"/>
+        </action>
+
+
+
+
+
         <group id="ScalaGenerateGroup">
             <separator/>
             <action id="Scala.GenerateEquals"
@@ -306,9 +331,7 @@
                     class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"
                     text="Type mismatch hints"/>
             <separator />
-            <action id="ToogleForExpressionChainType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleExpressionChainTypeAction"
-                    text="Expression chain type hints"/>
+            <reference ref="Scala.ToggleExpressionChainType" />
             <action id="ToggleForAlignExpressionChains"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleAlignExpressionChainAction"
                     text="Align type hints of expression chains"/>
@@ -318,12 +341,8 @@
                     class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"
                     text="Make conversion explicit"/>
             <separator/>
-            <action id="ImplicitConversionMenu.ShowImplicits"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-                    text="Show Implicit Hints"/>
-            <action id="ImplicitConversionMenu.ExpandImplicits"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
-                    text="Expand Implicit Hints"/>
+            <reference ref="Scala.ShowImplicits" />
+            <reference ref="Scala.ExpandImplicits" />
         </group>
 
         <group id="ImplicitArgumentsMenu">
@@ -331,12 +350,8 @@
                     class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"
                     text="Implicit Arguments Popup"/>
             <separator/>
-            <action id="ImplicitArgumentsMenu.ShowImplicits"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-                    text="Show Implicit Hints"/>
-            <action id="ImplicitArgumentsMenu.ExpandImplicits"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
-                    text="Expand Implicit Hints"/>
+            <reference ref="Scala.ShowImplicits" />
+            <reference ref="Scala.ExpandImplicits" />
         </group>
 
         <group id="ExplicitArgumentsMenu">
@@ -344,30 +359,8 @@
                     class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments"
                     text="Remove explicit arguments"/>
             <separator/>
-            <action id="ExplicitArgumentsMenu.ShowImplicits"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-                    text="Show Implicit Hints"/>
-            <action id="ExplicitArgumentsMenu.ExpandImplicits"
-                    class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
-                    text="Expand Implicit Hints"/>
+            <reference ref="Scala.ShowImplicits" />
+            <reference ref="Scala.ExpandImplicits" />
         </group>
-
-        <action id="Scala.ShowImplicits"
-                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-                text="Show Implicit Hints"
-                description="Show implicit conversions / arguments as inlay hints in editor">
-            <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
-        </action>
-
-        <action id="Scala.ExpandImplicits"
-                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
-                text="Expand Implicit Hints"
-                description="Expand implicit conversions / arguments inlay hints in editor">
-            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
-        </action>
-
-        <action id="Scala.ToggleExpressionChainType"
-                class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleExpressionChainTypeAction"
-                text="Expression Chain Type Hints" />
     </actions>
 </idea-plugin>
