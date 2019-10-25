@@ -235,13 +235,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
       else firstPsiNode
 
-    val anchor = Option(lastPsi.getNextSibling).map(_.getNode).orNull
+    val buffer = AstChildrenBuffer(parentNode, firstNodeToRemove, lastPsi.getNode)
 
     withDisabledPostprocessFormatting(file.getProject) {
-      parentNode.removeRange(firstNodeToRemove, anchor)
-      //dummy file may be empty if there are no importInfos
-      val firstChild = dummyFile.getNode.getFirstChildNode.toOption
-      firstChild.foreach(parentNode.addChildren(_, null, anchor))
+      val finalResult = dummyFile.getNode.getChildren(null)
+      BufferUpdate.updateIncrementally(buffer, finalResult)(_.getText)
     }
   }
 
