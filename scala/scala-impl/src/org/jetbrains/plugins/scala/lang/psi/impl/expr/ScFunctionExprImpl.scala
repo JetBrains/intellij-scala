@@ -10,9 +10,10 @@ import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.api.Singleton
 
 /**
   * @author Alexander Podkhalyuzin
@@ -40,10 +41,19 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
   }
 
+  private[this] def widenSingletonsInRetType(retType: ScType): ScType = retType match {
+    case lit: ScLiteralType =>
+      this.expectedType() match {
+        case Some(FunctionType(expectedRetTpe, _)) if expectedRetTpe.conforms(Singleton) => lit
+        case _                                                                           => lit.widen
+      }
+    case tpe => tpe
+  }
+
   protected override def innerType: TypeResult = {
-    val paramTypes = parameters.map(_.`type`().getOrNothing)
-    val maybeResultType = result.map(_.`type`().getOrAny)
-    val functionType = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
+    val paramTypes      = parameters.map(_.`type`().getOrNothing)
+    val maybeResultType = result.map(r => widenSingletonsInRetType(r.`type`().getOrAny))
+    val functionType    = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
     Right(functionType)
   }
 
