@@ -47,6 +47,7 @@ private object TypeMismatchError {
 
     implicit val context = TypePresentationContext(annotatedElement)
 
+    // See org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler
     annotation.setTooltip(TypeMismatchHints.tooltipFor(expectedType, actualType))
     annotation.registerFix(ReportHighlightingErrorQuickFix)
     annotation.registerFix(EnableTypeMismatchHints)
