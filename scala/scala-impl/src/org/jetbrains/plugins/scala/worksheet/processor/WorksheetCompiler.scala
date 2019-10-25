@@ -9,7 +9,6 @@ import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
-import com.intellij.ide.util.EditorHelper
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
@@ -30,7 +29,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.RemoteServerConnectorResult
 import org.jetbrains.plugins.scala.worksheet.server._
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.{PlainRunType, WorksheetPreprocessError}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
 import org.jetbrains.plugins.scala.worksheet.settings._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinter
 
@@ -59,21 +58,22 @@ class WorksheetCompiler(
   private def createCompilerTask: CompilerTask =
     new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
 
-  private def createWorksheetPrinter: Option[WorksheetEditorPrinter] =
-    Option(runType.createPrinter(editor, worksheetFile))
+  private def createWorksheetPrinter: WorksheetEditorPrinter =
+    runType.createPrinter(editor, worksheetFile)
 
   private def runCompilerTask(className: String, code: String, tempFile: File, outputDir: File): Unit = {
+    val task = createCompilerTask
+    val printer = createWorksheetPrinter
+    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, Some(printer), None, auto)
+
     val afterCompileCallback: RemoteServerConnectorResult => Unit = {
       case RemoteServerConnectorResult.Compiled =>
-        executeWorksheet(worksheetFile.getName, worksheetFile, className, outputDir.getAbsolutePath)(callback)(module)
+        executeWorksheet(worksheetFile.getName, worksheetFile, className, outputDir.getAbsolutePath)(callback, printer)(module)
       case RemoteServerConnectorResult.CompiledAndEvaluated =>
         callback(WorksheetCompilerResult.Done)
       case error: RemoteServerConnectorResult.Error =>
         callback(WorksheetCompilerResult.RemoteServerConnectorError(error))
     }
-
-    val task = createCompilerTask
-    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, createWorksheetPrinter, None, auto)
 
     FileUtil.writeToFile(tempFile, code)
 
@@ -93,6 +93,11 @@ class WorksheetCompiler(
   }
 
   private def runDumbTask(replModeArgs: ReplModeArgs): Unit = {
+    val task = createCompilerTask
+
+    val printer = createWorksheetPrinter
+    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, Some(printer), None)
+
     val afterCompileCallback: RemoteServerConnectorResult => Unit = {
       case RemoteServerConnectorResult.Compiled =>
         val error = new AssertionError("Worksheet is expected to be evaluated in REPL mode")
@@ -102,9 +107,7 @@ class WorksheetCompiler(
       case error: RemoteServerConnectorResult.Error =>
         callback(WorksheetCompilerResult.RemoteServerConnectorError(error))
     }
-    val task = createCompilerTask
 
-    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, createWorksheetPrinter, None)
     val compileWork: Runnable = () => try {
       val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), false)
       connector.compileAndRun( worksheetVirtual, consumer, afterCompileCallback)
@@ -180,13 +183,13 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
    * this method is only used when run type is [[org.jetbrains.plugins.scala.worksheet.server.OutOfProcessServer]]
    */
   private def executeWorksheet(name: String, scalaFile: ScalaFile, mainClassName: String, addToCp: String)
-                              (callback: EvaluationCallback)
+                              (callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter)
                               (implicit module: Module): Unit =
     invokeLater {
       try {
         val params: JavaParameters = createDefaultParameters(scalaFile, mainClassName, addToCp)
         val processHandler = params.createOSProcessHandler()
-        setUpUiAndRun(processHandler, scalaFile)(callback)
+        setUpUiAndRun(processHandler, scalaFile)(callback, worksheetPrinter)
       } catch {
         case ex: Throwable =>
           callback(WorksheetCompilerResult.EvaluationError(ex))
@@ -239,11 +242,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   }
 
   private def setUpUiAndRun(handler: OSProcessHandler, scalaFile: ScalaFile)
-                           (callback: EvaluationCallback): Unit = {
-    val editor = EditorHelper.openInEditor(scalaFile)
-
-    val worksheetPrinter = PlainRunType.createPrinter(editor, scalaFile)
-
+                           (callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter): Unit = {
     val myProcessListener: ProcessAdapter = new ProcessAdapter {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
         val isStdOutput = ConsoleViewContentType.getConsoleViewType(outputType) == ConsoleViewContentType.NORMAL_OUTPUT
@@ -262,7 +261,6 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
         callback.apply(result)
       }
     }
-
     handler.addProcessListener(myProcessListener)
     handler.startNotify()
   }
