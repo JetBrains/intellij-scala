@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
@@ -67,7 +68,8 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
           removeQualifier(ref, qualifier)
       case ref: ScReference if usage.qualifierClass != null =>
         addQualifier(ref, usage.qualifierClass)
-      case _ => false
+      case _ =>
+        true
     }
   }
 
@@ -84,8 +86,9 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   }
 
   private def changeQualifier(qualifier: ScReference, targetClass: PsiClass): Boolean = {
-    qualifier.handleElementRename(targetClass.name)
-    qualifier.bindToElement(targetClass)
+    val newReference = createExpressionWithContextFromText(targetClass.name, qualifier.getContext, qualifier)
+    val newQualifier = qualifier.replace(newReference)
+    newQualifier.asInstanceOf[ScReferenceExpression].bindToElement(targetClass)
     true
   }
 
