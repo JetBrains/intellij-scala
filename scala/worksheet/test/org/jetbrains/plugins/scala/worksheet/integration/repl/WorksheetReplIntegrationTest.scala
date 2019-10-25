@@ -37,13 +37,32 @@ class WorksheetReplIntegrationTest extends WorksheetIntegrationBaseTest with Wor
         |""".stripMargin
 
     val right =
-      """1
+      s"""${start}1
         |2
-        |3
+        |3$end
         |x: Int = 42""".stripMargin
 
-    val foldings = Seq(ExpectedFolding(0, 5, Some("1\n2\n3")))
+    doTest(left, right)
+  }
 
-    doTest(left, right, foldings)
+  def testMultipleFoldings(): Unit = {
+    val left =
+      """println("1\n2\n3")
+        |val x = 42
+        |println("4\n5\n6")
+        |val y = 23
+        |""".stripMargin
+
+    val right =
+      s"""${start}1
+         |2
+         |3$end
+         |x: Int = 42
+         |${start}4
+         |5
+         |6$end
+         |y: Int = 23""".stripMargin
+
+    doTest(left, right)
   }
 }

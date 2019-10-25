@@ -34,15 +34,37 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |""".stripMargin
 
     val right =
-      """1
-        |2
-        |3
-        |res0: Unit = ()
-        |x: Int = 42
+      s"""${start}1
+         |2
+         |3
+         |res0: Unit = ()${end}
+         |x: Int = 42
+         |""".stripMargin
+
+    doTest(left, right)
+  }
+
+  def testMultipleFoldings(): Unit = {
+    val left =
+      """println("1\n2\n3")
+        |val x = 42
+        |println("4\n5\n6")
+        |val y = 23
         |""".stripMargin
 
-    val foldings = Seq(ExpectedFolding(0, 21, Some("1\n2\n3\nres0: Unit = ()")))
+    val right =
+      s"""${start}1
+         |2
+         |3
+         |res0: Unit = ()${end}
+         |x: Int = 42
+         |${start}4
+         |5
+         |6
+         |res1: Unit = ()${end}
+         |y: Int = 23
+         |""".stripMargin
 
-    doTest(left, right, foldings)
+    doTest(left, right)
   }
 }
