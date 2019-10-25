@@ -53,11 +53,11 @@ object RunWorksheetAction {
   sealed trait RunWorksheetActionResult
   object RunWorksheetActionResult {
     object Done extends RunWorksheetActionResult
-    sealed trait RunWorksheetActionError extends RunWorksheetActionResult
-    object NoModuleError extends RunWorksheetActionError
-    object NoWorksheetFileError extends RunWorksheetActionError
-    case class ProjectCompilationError(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) extends RunWorksheetActionError
-    case class WorksheetCompilerError(error: WorksheetEvaluationError) extends RunWorksheetActionError
+    sealed trait Error extends RunWorksheetActionResult
+    object NoModuleError extends Error
+    object NoWorksheetFileError extends Error
+    final case class ProjectCompilationError(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) extends Error
+    final case class WorksheetCompilerError(error: WorksheetEvaluationError) extends Error
   }
 
   def runCompiler(project: Project, auto: Boolean): Unit = {

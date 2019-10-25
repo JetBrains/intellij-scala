@@ -508,6 +508,10 @@ package object extensions {
     def shrink(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset - delta)
   }
 
+  object TextRangeExt {
+    def unapply(range: TextRange): Option[(Int, Int)] = Some(range.getStartOffset, range.getEndOffset)
+  }
+
   implicit class RangeMarkerExt(private val marker: RangeMarker) extends AnyVal {
     def getTextRange: TextRange = TextRange.create(marker.getStartOffset, marker.getEndOffset)
   }
