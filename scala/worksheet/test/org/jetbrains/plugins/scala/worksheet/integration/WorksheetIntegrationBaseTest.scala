@@ -5,9 +5,12 @@ import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager, TextEdito
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.{EdtTestUtil, PlatformTestUtil}
+import com.intellij.util.ui.UIUtil
+import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ExpectedFolding
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -16,13 +19,14 @@ import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, TimeoutException}
+import scala.concurrent.Future
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 @Category(Array(classOf[SlowTests]))
 abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
+  self: WorksheetRunTestSettings =>
 
   override protected def supportedIn(version: ScalaVersion): Boolean = Seq(
     Scala_2_10,
@@ -31,10 +35,20 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
     Scala_2_13
   ).contains(version)
 
-  protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit
+  protected def evaluationTimeout: Duration = 60 seconds
+
+  override protected def useCompileServer: Boolean = self.compileInCompileServerProcess
+
+  protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit  = {
+    settings.setRunType(self.runType)
+    settings.setInteractive(false) // TODO: test these values?
+    settings.setMakeBeforeRun(false)
+  }
 
   override def setUp(): Unit = {
     super.setUp()
+
+    ScalaProjectSettings.getInstance(project).setInProcessMode(self.runInCompileServerProcess)
 
     if (useCompileServer){
       println("initializing compiler server")
@@ -68,8 +82,14 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
     val actualFoldings = viewerEditor.getFoldingModel.getAllFoldRegions
     assertFoldings(foldings, actualFoldings)
 
-    // TODO: check the compiler output messages ?
-    //  (should be empty for success runs, and non-empty for some warnings/failures)
+    /*
+      TODO 1: check the compiler output messages ?
+        (should be empty for success runs, and non-empty for some warnings/failures)
+      TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
+      TODO 3: test clean action
+      TODO 4: test Repl iterative evaluation
+      TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
+    */
   }
 
   private def createWorksheetFile(before: String) = {
@@ -96,21 +116,13 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
   }
 
   private def evaluateWorksheetAndWait(worksheetEditor: Editor): Unit = {
-    // 3) run worksheet in a mode which is got from 1.2)
     // NOTE: worksheet backend / frontend initialization is done under the hood on calling action
-    val future =
-      RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
-
-    // 4) wait while worksheet evaluation is completed
-    Try(Await.result(future, 60 seconds)) match {
-      case Success(value)     =>
-        println(value)
-      case Failure(exception) =>
-        exception match {
-          case _: InterruptedException => fail("Thread was interrupted")
-          case _: TimeoutException     => fail("Timeout period was exceeded while waiting for worksheet evaluation")
-          case other                   => throw other
-        }
+    val future = RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
+    val result = WorksheetIntegrationBaseTest.await(future, 60 seconds)
+    result match {
+      case Some(Success(_))         => // ok, continue the test
+      case Some(Failure(exception)) => throw exception
+      case None                     => fail("Timeout period was exceeded while waiting for worksheet evaluation")
     }
 
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
@@ -154,4 +166,19 @@ object WorksheetIntegrationBaseTest {
     placeholderText: Option[String] = None,
     isExpanded: Boolean = false
   )
+
+  protected def await[T](future: Future[T],
+                         duration: Duration,
+                         sleepInterval: Duration = 100 milliseconds): Option[Try[T]] = {
+    var timeSpent: Duration = Duration.Zero
+    while (!future.isCompleted && (timeSpent < duration)) {
+      if (SwingUtilities.isEventDispatchThread) {
+        UIUtil.dispatchAllInvocationEvents()
+      }
+      Thread.sleep(sleepInterval.toMillis)
+      timeSpent = timeSpent.plus(sleepInterval)
+    }
+
+    future.value
+  }
 }

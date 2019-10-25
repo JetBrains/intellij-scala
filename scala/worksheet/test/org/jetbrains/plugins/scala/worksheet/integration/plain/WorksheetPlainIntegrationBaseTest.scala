@@ -1,21 +1,17 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ExpectedFolding
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetExternalRunType}
+import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
 @Category(Array(classOf[SlowTests]))
-abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest {
+abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest with WorksheetRunTestSettings {
 
-  override def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit = {
-    settings.setRunType(WorksheetExternalRunType.PlainRunType)
-    settings.setInteractive(false)
-    settings.setMakeBeforeRun(false)
-  }
+  override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 
   def testSimpleDeclaration(): Unit = {
     val left =
