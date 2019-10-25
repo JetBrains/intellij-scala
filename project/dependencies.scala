@@ -114,7 +114,7 @@ object Dependencies {
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.1.2"
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.3.2"
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
@@ -134,11 +134,6 @@ object Dependencies {
 object DependencyGroups {
   import Dependencies._
   import Versions._
-
-  val sbtBundled: Seq[ModuleID] = Seq(
-    zinc,
-    zincInterface
-  )
 
   val scalaCommunity: Seq[ModuleID] = Seq(
     scalaLibrary,
@@ -187,6 +182,7 @@ object DependencyGroups {
 
   val sbtRuntime: Seq[ModuleID] = Seq(
     sbtLaunch,
+    sbtInterface,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13
