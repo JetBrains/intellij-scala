@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ExpectedFolding
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.junit.experimental.categories.Category
@@ -37,7 +36,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       s"""${start}1
          |2
          |3
-         |res0: Unit = ()${end}
+         |res0: Unit = ()$end
          |x: Int = 42
          |""".stripMargin
 
@@ -56,12 +55,12 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       s"""${start}1
          |2
          |3
-         |res0: Unit = ()${end}
+         |res0: Unit = ()$end
          |x: Int = 42
          |${start}4
          |5
          |6
-         |res1: Unit = ()${end}
+         |res1: Unit = ()$end
          |y: Int = 23
          |""".stripMargin
 
