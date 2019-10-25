@@ -6,9 +6,9 @@ package compiler
  * 2014-10-07
  */
 trait CompilationProcess {
-  def run()
+  def run(): Unit
 
-  def stop()
+  def stop(): Unit
 
-  def addTerminationCallback(callback: => Unit)
+  def addTerminationCallback(callback: => Unit): Unit
 }

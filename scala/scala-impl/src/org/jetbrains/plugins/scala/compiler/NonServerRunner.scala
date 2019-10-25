@@ -7,15 +7,18 @@ import java.util.concurrent.Future
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.Base64Converter
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
+import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event}
 
 import _root_.scala.collection.JavaConverters._
 
 /**
  * @see [[RemoteServerRunner]]
  */
-class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = None) {
+class NonServerRunner(project: Project) {
 
   private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
 
@@ -27,7 +30,7 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
-  def buildProcess(args: Seq[String], listener: String => Unit): CompilationProcess = {
+  def buildProcess(args: Seq[String], client: Client): CompilationProcess = {
     CompileServerLauncher.compilerJars.foreach(p => assert(p.exists(), p.getPath))
 
     CompileServerLauncher.compileServerJdk(project) match {
@@ -49,10 +52,15 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
             myCallbacks = myCallbacks :+ (() => callback)
           }
 
-          override def run() {
+          override def run(): Unit = {
             val p = builder.start()
             myProcess = Some(p)
 
+            val eventClient = new ClientEventProcessor(client)
+            val listener: String => Unit = (text: String) => {
+              val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
+              eventClient.process(event)
+            }
             val bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream))
             val reader = new MyBase64StreamReader(bufferedReader, listener) //starts threads under the hood
 
@@ -123,8 +131,4 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
       read
     }
   }
-}
-
-trait ErrorHandler {
-  def error(message: String): Unit
 }
