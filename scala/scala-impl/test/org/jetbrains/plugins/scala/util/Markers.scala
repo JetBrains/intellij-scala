@@ -1,26 +1,27 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.TextRange
-import org.apache.commons.lang3.StringUtils
+import org.junit.Assert._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-import org.junit.Assert._
-
 trait Markers {
+
   def startMarker(i: Int) = s"/*start$i*/"
   def endMarker(i: Int) = s"/*end$i*/"
   val startMarker = "/*start*/"
   val endMarker = "/*end*/"
 
-  private val startReg = """/\*start\*/""".r
-  private val endReg = """/\*end\*/""".r
+  def start(i: Int = 0): String = startMarker(i)
+  def end (i: Int = 0): String = endMarker(i)
+  def start: String = startMarker
+  def end: String = endMarker
 
   /**
    * @example
-   * line /*start*/ 1 content /*end*/
-   * line /*start0*/ /*start1*/ 2 /*end1*/ content/*end0*/
+   * line /start/ 1 content /end/
+   * line /start0/ /start1/ 2 /end1/ content/end0/
    */
   def extractMarkers(inputText: String): (String, Seq[TextRange]) = {
     var input = inputText
@@ -55,14 +56,31 @@ trait Markers {
     input -> textRanges
   }
 
+  def extractSequentialMarkers(inputText: String): (String, Seq[TextRange]) =
+    MarkersUtils.extractSequentialMarkers(inputText, startMarker, endMarker)
+
+  private def sortMarkers(sorted: List[(String, Int)], offset: Int = 0): List[(String, Int)] = {
+    sorted match {
+      case (marker, position) :: tail => (marker, position - offset) :: sortMarkers(tail, offset + marker.length)
+      case _ => sorted
+    }
+  }
+}
+
+
+object MarkersUtils {
 
   /**
-   * No need to enumerate markers, it is implyed that ranges do not intersect
+   * Used to extract ranges that do not do not intersect
+   *
    * @example
-   * line /*start*/ 1 content /*end*/
-   * line /*start*/ 2 /*end*/ /*start*/ content /*end*/
+   * line /start/ 1 content /end/
+   * line /start/ 2 /end/ /start/ content /end/
    */
-  def extractSequentialMarkers(inputText: String): (String, Seq[TextRange]) = {
+  def extractSequentialMarkers(inputText: String, startMarker: String, endMarker: String): (String, Seq[TextRange]) = {
+    val startReg = s"\\Q$startMarker\\E".r
+    val endReg = s"\\Q$endMarker\\E".r
+
     val startIndexes = startReg.findAllMatchIn(inputText).map(_.start).toList
     val endIndexes = endReg.findAllMatchIn(inputText).map(_.start).toList
     assertEquals(
@@ -89,12 +107,5 @@ trait Markers {
     val textFixed = inputText.replace(startMarker, "").replace(endMarker, "")
 
     (textFixed, rangesFixed)
-  }
-
-  private def sortMarkers(sorted: List[(String, Int)], offset: Int = 0): List[(String, Int)] = {
-    sorted match {
-      case (marker, position) :: tail => (marker, position - offset) :: sortMarkers(tail, offset + marker.length)
-      case _ => sorted
-    }
   }
 }

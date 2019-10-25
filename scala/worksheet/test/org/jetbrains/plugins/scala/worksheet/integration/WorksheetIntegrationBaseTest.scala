@@ -9,10 +9,11 @@ import com.intellij.util.ui.UIUtil
 import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ExpectedFolding
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13, SlowTests}
@@ -25,7 +26,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 @Category(Array(classOf[SlowTests]))
-abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
+abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with Markers {
   self: WorksheetRunTestSettings =>
 
   override protected def supportedIn(version: ScalaVersion): Boolean = Seq(
@@ -59,10 +60,15 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
 
   protected def project = getProject
 
+  protected def doTest(before: String, after: String): Unit = {
+    val (afterFixed, foldings) = extractFoldings(after.withNormalizedSeparator)
+    doTest(before, afterFixed, foldings)
+  }
+
   protected def doTest(
     before: String,
     after: String,
-    foldings: Seq[ExpectedFolding] = Seq()
+    foldings: Seq[ExpectedFolding]
   ): Unit = {
     val (vFile, psiFile) = createWorksheetFile(before)
 
@@ -155,6 +161,14 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
     assertEquals(expected.endOffset, actual.getEndOffset)
     assertEquals(expected.isExpanded, actual.isExpanded)
     expected.placeholderText.foreach(assertEquals(_, actual.getPlaceholderText))
+  }
+
+  private def extractFoldings(after: String): (String, Seq[ExpectedFolding]) = {
+    val (text, ranges) = extractSequentialMarkers(after)
+    val foldings = ranges.map { case TextRangeExt(startOffset, endOffset) =>
+      ExpectedFolding(startOffset, endOffset, Some(text.substring(startOffset, endOffset)))
+    }
+    (text, foldings)
   }
 }
 
