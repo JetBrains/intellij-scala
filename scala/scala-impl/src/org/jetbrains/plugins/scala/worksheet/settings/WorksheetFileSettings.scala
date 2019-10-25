@@ -106,8 +106,6 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
   def isRepl(file: PsiFile): Boolean = getRunType(file).isReplRunType
 
   def getRunType(file: PsiFile): WorksheetExternalRunType = new WorksheetFileSettings(file).getRunType
-  
-  def shouldShowReplWarning(file: PsiFile): Boolean = isRepl(file) && WorksheetProjectSettings.getMakeType(file.getProject) != InProcessServer
 
   def isScratchWorksheet(file: VirtualFile)
                         (implicit project: Project): Boolean = {

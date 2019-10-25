@@ -139,8 +139,8 @@ object RemoteServerConnector {
     object Compiled extends RemoteServerConnectorResult
     object CompiledAndEvaluated extends RemoteServerConnectorResult
     trait Error extends RemoteServerConnectorResult
-    case class ProcessTerminatedError(rc: ExitCode) extends Error
-    case class CompilationError(message: String) extends Error
+    final case class ProcessTerminatedError(rc: ExitCode) extends Error
+    final case class CompilationError(message: String) extends Error
   }
 
   private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: OuterCompilerInterface) extends DummyClient {

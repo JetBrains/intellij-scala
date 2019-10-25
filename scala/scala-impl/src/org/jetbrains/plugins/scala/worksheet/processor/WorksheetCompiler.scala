@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.EvaluationCallback
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.PreconditionError
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.RemoteServerConnectorResult
@@ -33,6 +34,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.W
 import org.jetbrains.plugins.scala.worksheet.settings._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinter
 
+//TODO: add logging everywhere
 class WorksheetCompiler(
   module: Module,
   editor: Editor,
@@ -61,7 +63,7 @@ class WorksheetCompiler(
   private def createWorksheetPrinter: WorksheetEditorPrinter =
     runType.createPrinter(editor, worksheetFile)
 
-  private def runCompilerTask(className: String, code: String, tempFile: File, outputDir: File): Unit = {
+  private def runPlainCompilerTask(className: String, code: String, tempFile: File, outputDir: File): Unit = {
     val task = createCompilerTask
     val printer = createWorksheetPrinter
     val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, Some(printer), None, auto)
@@ -85,14 +87,9 @@ class WorksheetCompiler(
         showErrorNotification(ex.getMessage)
     }
     task.start(compileWork, EmptyRunnable)
-
-    if (WorksheetFileSettings.shouldShowReplWarning(worksheetFile)) {
-      val message = "Worksheet can be executed in REPL mode only in compile server process."
-      task.addMessage(new CompilerMessageImpl(project, CompilerMessageCategory.WARNING, message))
-    }
   }
 
-  private def runDumbTask(replModeArgs: ReplModeArgs): Unit = {
+  private def runReplCompilerTask(replModeArgs: ReplModeArgs): Unit = {
     val task = createCompilerTask
 
     val printer = createWorksheetPrinter
@@ -109,8 +106,14 @@ class WorksheetCompiler(
     }
 
     val compileWork: Runnable = () => try {
-      val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), false)
-      connector.compileAndRun( worksheetVirtual, consumer, afterCompileCallback)
+      if (makeType == InProcessServer) {
+        val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), false)
+        connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
+      } else {
+        val message = "Worksheet can be executed in REPL mode only in compile server process"
+        task.addMessage(new CompilerMessageImpl(project, CompilerMessageCategory.WARNING, message))
+        callback(PreconditionError(message))
+      }
     } catch {
       case ex: IllegalArgumentException =>
         showErrorNotification(ex.getMessage)
@@ -130,13 +133,13 @@ class WorksheetCompiler(
     request match {
       case RunRepl(code) =>
         val args = ReplModeArgs(worksheetVirtual.getCanonicalPath, code)
-        runDumbTask(args)
+        runReplCompilerTask(args)
 
       case RunCompile(code, name) =>
         val cache = WorksheetCache.getInstance(project)
         val (_, tempFile, outputDir) = cache.updateOrCreateCompilationInfo(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
         cache.removePrinter(editor)
-        runCompilerTask(name, code, tempFile, outputDir)
+        runPlainCompilerTask(name, code, tempFile, outputDir)
     }
   }
 
@@ -170,18 +173,16 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     object Done extends WorksheetCompilerResult
 
     sealed trait WorksheetEvaluationError extends WorksheetCompilerResult
-    case class PreprocessError(error: WorksheetPreprocessError) extends WorksheetEvaluationError
-    case class EvaluationError(reason: Throwable) extends WorksheetEvaluationError
-    case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetEvaluationError
-    case class RemoteServerConnectorError(error: RemoteServerConnectorResult.Error) extends WorksheetEvaluationError
+    final case class PreprocessError(error: WorksheetPreprocessError) extends WorksheetEvaluationError
+    final case class EvaluationError(reason: Throwable) extends WorksheetEvaluationError
+    final case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetEvaluationError
+    final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.Error) extends WorksheetEvaluationError
+    final case class PreconditionError(message: String) extends WorksheetEvaluationError
   }
 
   private val RunnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
-  /**
-   * FYI: REPL mode works only if we use compiler server and run worksheet with "InProcess" setting
-   * this method is only used when run type is [[org.jetbrains.plugins.scala.worksheet.server.OutOfProcessServer]]
-   */
+  // this method is only used when run type is [[org.jetbrains.plugins.scala.worksheet.server.OutOfProcessServer]]
   private def executeWorksheet(name: String, scalaFile: ScalaFile, mainClassName: String, addToCp: String)
                               (callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter)
                               (implicit module: Module): Unit =

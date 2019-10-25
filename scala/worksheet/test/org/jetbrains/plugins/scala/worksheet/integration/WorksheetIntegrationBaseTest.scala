@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
@@ -65,19 +66,26 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
     doTest(before, afterFixed, foldings)
   }
 
+  protected def doFailingTest(text: String, expectedError: RunWorksheetActionResult.Error): Unit = {
+    val worksheetEditor = prepareWorksheetEditor(text)
+    val result = evaluateWorksheetAndWait(worksheetEditor)
+    assertEquals(Some(Success(expectedError)), result)
+  }
+
   protected def doTest(
     before: String,
     after: String,
     foldings: Seq[ExpectedFolding]
   ): Unit = {
-    val (vFile, psiFile) = createWorksheetFile(before)
+    val worksheetEditor = prepareWorksheetEditor(before)
+    val evaluationResult = evaluateWorksheetAndWait(worksheetEditor)
+    evaluationResult match {
+      case Some(Success(_))         => // ok, continue the test
+      case Some(Failure(exception)) => throw exception
+      case None                     => fail("Timeout period was exceeded while waiting for worksheet evaluation")
+    }
 
-    val settings = WorksheetCommonSettings(psiFile)
-    setupWorksheetSettings(settings)
-
-    val worksheetEditor = openEditor(vFile)
-
-    evaluateWorksheetAndWait(worksheetEditor)
+    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
 
     val cache = WorksheetCache.getInstance(project)
     val viewerEditor = cache.getViewer(worksheetEditor)
@@ -96,6 +104,16 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
       TODO 4: test Repl iterative evaluation
       TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
     */
+  }
+
+  private def prepareWorksheetEditor(before: String) = {
+    val (vFile, psiFile) = createWorksheetFile(before)
+
+    val settings = WorksheetCommonSettings(psiFile)
+    setupWorksheetSettings(settings)
+
+    val worksheetEditor = openEditor(vFile)
+    worksheetEditor
   }
 
   private def createWorksheetFile(before: String) = {
@@ -121,17 +139,10 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
     }
   }
 
-  private def evaluateWorksheetAndWait(worksheetEditor: Editor): Unit = {
+  private def evaluateWorksheetAndWait(worksheetEditor: Editor): Option[Try[RunWorksheetAction.RunWorksheetActionResult]] = {
     // NOTE: worksheet backend / frontend initialization is done under the hood on calling action
     val future = RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
-    val result = WorksheetIntegrationBaseTest.await(future, 60 seconds)
-    result match {
-      case Some(Success(_))         => // ok, continue the test
-      case Some(Failure(exception)) => throw exception
-      case None                     => fail("Timeout period was exceeded while waiting for worksheet evaluation")
-    }
-
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+    WorksheetIntegrationBaseTest.await(future, 60 seconds)
   }
 
   private def assertFoldings(expectedFoldings: Seq[ExpectedFolding], actualFoldings: Seq[FoldRegion]): Unit = {
@@ -157,16 +168,19 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
   }
 
   private def assertFolding(expected: ExpectedFolding, actual: FoldRegion): Unit = {
-    assertEquals(expected.startOffset, actual.getStartOffset)
-    assertEquals(expected.endOffset, actual.getEndOffset)
-    assertEquals(expected.isExpanded, actual.isExpanded)
-    expected.placeholderText.foreach(assertEquals(_, actual.getPlaceholderText))
+    val actualTransformed = ExpectedFolding(
+      actual.getStartOffset,
+      actual.getEndOffset,
+      actual.getPlaceholderText,
+      actual.isExpanded
+    )
+    assertEquals(expected, actualTransformed)
   }
 
   private def extractFoldings(after: String): (String, Seq[ExpectedFolding]) = {
     val (text, ranges) = extractSequentialMarkers(after)
     val foldings = ranges.map { case TextRangeExt(startOffset, endOffset) =>
-      ExpectedFolding(startOffset, endOffset, Some(text.substring(startOffset, endOffset)))
+      ExpectedFolding(startOffset, endOffset, text.substring(startOffset, endOffset))
     }
     (text, foldings)
   }
@@ -177,7 +191,7 @@ object WorksheetIntegrationBaseTest {
   case class ExpectedFolding(
     startOffset: Int,
     endOffset: Int,
-    placeholderText: Option[String] = None,
+    placeholderText: String,
     isExpanded: Boolean = false
   )
 
