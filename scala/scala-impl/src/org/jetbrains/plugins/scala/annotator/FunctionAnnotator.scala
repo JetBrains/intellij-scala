@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
@@ -121,8 +122,10 @@ trait FunctionAnnotator {
         if (typeAware) {
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturn].expr else None
           val expression = returnExpression.getOrElse(usage)
-          TypeMismatchError.register(expression, functionType, usageType, blockLevel = 1) { (expected, actual) =>
-            ScalaBundle.message("type.mismatch.found.required", actual, expected)
+          if (!ScMethodType.hasMethodType(expression)) {
+            TypeMismatchError.register(expression, functionType, usageType, blockLevel = 1) { (expected, actual) =>
+              ScalaBundle.message("type.mismatch.found.required", actual, expected)
+            }
           }
         }
       }

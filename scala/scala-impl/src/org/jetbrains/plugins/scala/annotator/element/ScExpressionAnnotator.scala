@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -111,6 +112,9 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               element.getParent match {
                 case assign: ScAssignment if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
                 case _ =>
+              }
+              if (ScMethodType.hasMethodType(element)) {
+                return
               }
               val annotation = {
                 val target = element match {

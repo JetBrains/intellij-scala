@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -31,6 +32,10 @@ object AnnotatorUtils {
   def checkConformance(expression: ScExpression, typeElement: ScTypeElement)
                       (implicit holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = expression
+
+    if (ScMethodType.hasMethodType(expression)) {
+      return
+    }
 
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
@@ -63,6 +68,11 @@ object AnnotatorUtils {
   def registerTypeMismatchError(actualType: ScType, expectedType: ScType,
                                 expression: ScExpression)
                                (implicit holder: AnnotationHolder): Unit = {
+
+    if (ScMethodType.hasMethodType(expression)) {
+      return
+    }
+
     //TODO show parameter name
     if (!actualType.conforms(expectedType)) {
       TypeMismatchError.register(expression, expectedType, actualType) { (expected, actual) =>

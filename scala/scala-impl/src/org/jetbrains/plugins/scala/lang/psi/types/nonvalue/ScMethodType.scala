@@ -4,6 +4,10 @@ package psi
 package types
 package nonvalue
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall, ScReferenceExpression}
+
+import scala.annotation.tailrec
+
 final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
@@ -41,5 +45,15 @@ final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit
         lastConstraints
       case _ => ConstraintsResult.Left
     }
+  }
+}
+
+object ScMethodType {
+  // A safe & simple workaround for https://youtrack.jetbrains.com/issue/SCL-16431 and https://youtrack.jetbrains.com/issue/SCL-15354
+  // TODO Actually infer method types
+  @tailrec def hasMethodType(e: ScExpression): Boolean = e match {
+    case r: ScReferenceExpression => r.bind().exists(_.problems.exists(_.isInstanceOf[MissedParametersClause]))
+    case c: ScGenericCall => hasMethodType(c.referencedExpr)
+    case _ => false
   }
 }

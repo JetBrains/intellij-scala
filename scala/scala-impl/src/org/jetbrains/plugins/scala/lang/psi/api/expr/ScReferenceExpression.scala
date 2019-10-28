@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.types.MissedParametersClause
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
