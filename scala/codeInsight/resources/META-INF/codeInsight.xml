@@ -335,6 +335,10 @@
             <action id="ToggleForAlignExpressionChains"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleAlignExpressionChainAction"
                     text="Align type hints of expression chains"/>
+
+            <action id="Scala.ToggleHideIdenticalTypesInExpressionChains"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleHideIdenticalTypeInExpressionChainChainAction"
+                    text="Hide identical types in expression chains"/>
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"

@@ -42,6 +42,11 @@ final class ScalaTypeHintsConfigurable
       settings.alignExpressionChainGetter,
       settings.alignExpressionChainSetter
     )
+    checkBox(
+      "Hide identical types in expression chains (Scala)",
+      settings.hideIdenticalTypesInExpressionChainGetter(),
+      settings.hideIdenticalTypesInExpressionChainSetter()
+    )
 
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
@@ -111,5 +116,10 @@ object ScalaTypeHintsConfigurable {
   class ToggleAlignExpressionChainAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.alignExpressionChainGetter,
     ScalaCodeInsightSettings.alignExpressionChainSetter
+  )
+
+  class ToggleHideIdenticalTypeInExpressionChainChainAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.hideIdenticalTypesInExpressionChainGetter,
+    ScalaCodeInsightSettings.hideIdenticalTypesInExpressionChainSetter
   )
 }
