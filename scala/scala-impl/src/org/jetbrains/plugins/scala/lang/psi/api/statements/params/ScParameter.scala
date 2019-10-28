@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{FunctionLikeType, ScAbstractType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{FullyAbstractType, FunctionLikeType, ScAbstractType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -115,10 +115,10 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
             case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
               case functionLikeType(_, _, paramTpes) =>
                 paramTpes.lift(idx).flatMap {
-                  case abs: ScAbstractType if abs.upper.isAny => None
-                  case tpe                                    => Option(tpe.removeAbstracts)
+                  case FullyAbstractType() => None
+                  case tpe                 => Option(tpe.removeAbstracts)
                 }
-            case _                                           => None
+            case _ => None
           }
 
         val maybeExpectedParamTpe = eTpe.flatMap(extractFromFunctionType(_, isUnderscoreFn))
