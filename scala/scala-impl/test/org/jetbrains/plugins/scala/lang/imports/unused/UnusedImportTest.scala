@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
-import org.jetbrains.plugins.scala.base.AssertMatches
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 /**
   * Created by Svyatoslav Ilinskiy on 24.07.16.
   */
-class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
+class UnusedImportTest extends UnusedImportTestBase with MatcherAssertions {
   def testTwoUnusedSelectorsOnSameLine(): Unit = {
     val text =
       """
