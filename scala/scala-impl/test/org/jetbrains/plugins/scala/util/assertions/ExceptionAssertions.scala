@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala
+package org.jetbrains.plugins.scala.util.assertions
 
 import org.junit.ComparisonFailure
 

@@ -4,7 +4,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
-import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaLightCodeInsightFixtureTestAdapter}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.annotator.Message
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 /**
   * User: Dmitry.Naydanov
@@ -21,7 +23,7 @@ import org.junit.experimental.categories.Category
   *  
   */
 @Category(Array(classOf[PerfCycleTests]))
-class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertMatches {
+class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
 
   override protected def shouldPass: Boolean = false
 

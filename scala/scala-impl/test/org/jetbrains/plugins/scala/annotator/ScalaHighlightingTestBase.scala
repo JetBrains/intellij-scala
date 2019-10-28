@@ -4,8 +4,9 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
-import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.experimental.categories.Category
 
 /**
@@ -13,7 +14,7 @@ import org.junit.experimental.categories.Category
   * @since 23/03/16
   */
 @Category(Array(classOf[TypecheckerTests]))
-abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with AssertMatches {
+abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with MatcherAssertions {
 
   private var filesCreated: Boolean = false
 

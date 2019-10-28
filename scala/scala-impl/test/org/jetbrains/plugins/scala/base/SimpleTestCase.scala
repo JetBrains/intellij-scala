@@ -9,6 +9,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 import scala.reflect.ClassTag
 
@@ -16,7 +17,7 @@ import scala.reflect.ClassTag
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
+abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
 
   var fixture: CodeInsightTestFixture = _
 

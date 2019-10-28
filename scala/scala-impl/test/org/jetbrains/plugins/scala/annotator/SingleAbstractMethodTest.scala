@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 6/15/15
   */
-abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with AssertMatches {
+abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertions {
 
 
 

@@ -5,8 +5,9 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
-import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.experimental.categories.Category
 
 /**
@@ -14,7 +15,7 @@ import org.junit.experimental.categories.Category
   * @since 23/03/16
   */
 @Category(Array(classOf[TypecheckerTests]))
-abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with AssertMatches {
+abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with MatcherAssertions {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   private var filesCreated: Boolean = false

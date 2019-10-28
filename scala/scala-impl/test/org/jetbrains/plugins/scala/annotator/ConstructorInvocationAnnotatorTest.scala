@@ -3,12 +3,12 @@ package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
-import org.jetbrains.plugins.scala.base.AssertMatches
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = """
@@ -386,7 +386,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   }
 }
 
-class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase with AssertMatches {
+class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase with MatcherAssertions {
   val javaCode =
     """
       |public class JavaClass {
