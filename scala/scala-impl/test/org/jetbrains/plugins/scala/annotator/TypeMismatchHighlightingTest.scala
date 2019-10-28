@@ -216,7 +216,22 @@ class TypeMismatchHighlightingTest extends TypeMismatchHighlightingTestBase {
     assertNothing(errorsFromScalaCode("val v: String = Math\n  ."))
   }
 
-  // TODO val v = method, SCL-15663
+  // Don't show type mismatch on unapplied methods, SCL-16431
+
+  def testTypeMismatchUnappliedMethod(): Unit = {
+    assertMessages(errorsFromScalaCode("def f(i: String): Int = 1; val v: Int = f"))(
+      Error("f", "Missing arguments for method f(String)"))
+  }
+
+  def testTypeMismatchUnappliedGenericMethod(): Unit = {
+    assertMessages(errorsFromScalaCode("def f[T](t: T): Int = 1; val v: Int = f"))(
+      Error("f", "Missing arguments for method f(T)"))
+  }
+
+  def testTypeMismatchUnappliedGenericMethodTypeArgument(): Unit = {
+    assertNothing(errorsFromScalaCode("def f[T](t: T): Int = 1; val v: Int = f[Int]"))
+    // TODO missing arguments?
+  }
 }
 
 class TypeMismatchHighlightingTest_with_LiteralTypes extends TypeMismatchHighlightingTestBase {
