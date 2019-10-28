@@ -50,7 +50,11 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
             }
             .map(_.right.get.tryExtractDesignatorSingleton)
           if types.toSet.size >= 2
-        } yield for ((expr, ty) <- exprs.zip(types))
+
+          exprsAndTypes =
+            if (!settings.hideIdenticalTypesInExpressionChain) exprs.zip(types)
+            else removeConsecutiveDuplicates(exprs.zip(types))
+        } yield for ((expr, ty) <- exprsAndTypes)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
       ).toList
   }
@@ -159,6 +163,13 @@ private object ScalaExprChainTypeHintsPass {
         }
       case _ => false
     }
+
+  private def removeConsecutiveDuplicates(exprsWithTypes: Seq[(ScExpression, ScType)]): Seq[(ScExpression, ScType)] =
+    exprsWithTypes.foldLeft(List.empty[(ScExpression, ScType)]) {
+      case (Nil, ewt) => List(ewt)
+      case (ls, ewt) if ls.head._2 == ewt._2 => ls
+      case (ls, ewt) => ewt :: ls
+    }.reverse
 
   private case class AlignedHintTemplate(textParts: Seq[Text], expr: ScExpression)
 
