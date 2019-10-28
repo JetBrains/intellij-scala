@@ -283,15 +283,18 @@ object MethodResolveProcessor {
 
       val functionLikeType = FunctionLikeType(fun)
 
-      expectedOption() match {
+      expectedOption().map {
+        case abs: ScAbstractType => abs.simplifyType
+        case t                   => t
+      } match {
         case Some(functionLikeType(_, retTpe, paramTpes)) =>
           val doNotEtaExpand = isPolymorphic && paramTpes.exists {
-            case abs: ScAbstractType if abs.upper.isAny => true
-            case _                                      => false
+            case FullyAbstractType() => true
+            case _                   => false
           }
 
           if (doNotEtaExpand) default()
-          else                processFunctionType(retTpe.removeAbstracts, paramTpes.map(_.removeAbstracts))
+          else                processFunctionType(retTpe, paramTpes)
         case _ => default()
       }
     }

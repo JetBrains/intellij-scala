@@ -62,7 +62,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expr.expectedTypesEx(fromUnderscore)
 
-    filterAlternatives(types, expr)
+    val alt = filterAlternatives(types, expr)
+    alt
   }
 
   private[this] def filterAlternatives(
@@ -161,10 +162,14 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
         (mergedTpe, compatible)
       } else tpes.next() match {
-        case ftpe @ functionLikeType(marker, rtpe, ptpes) if paramTpesMatch(paramTpes, ptpes) =>
+        case ftpe @ functionLikeType(marker, rtpe, ptpes) =>
           if (!expectedArity.matches(ptpes.size))
             /* Skip function like types with wrong arity */
             recur(tpes, compatible, isFunctionN, isPartialFunction, paramTpes, returnTpe)
+          else if (!paramTpesMatch(paramTpes, ptpes))
+          /* One of the expected types is a function-like type of correct arity
+             but with mismatched parameter types, FAIL */
+            (None, Nil)
           else {
             val functionN        = isFunctionN       || marker == FunctionN
             val pf               = isPartialFunction || marker == PF
