@@ -85,8 +85,8 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
                     val failure: TypeResult = Failure("Could not infer type of underscore section")
 
                     param.fold(failure) {
-                      case abs: ScAbstractType if abs.upper.isAny => failure
-                      case tpe                                    => Right(tpe)
+                      case FullyAbstractType() => failure
+                      case tpe                 => Right(tpe.removeAbstracts)
                     }
                   case _ => this.expectedType(false).asTypeResult
                 }

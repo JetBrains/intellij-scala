@@ -194,46 +194,47 @@ object ScExpression {
 
       if (isShape) ExpressionTypeResult(Right(shape(expr).getOrElse(Nothing)))
       else {
-        val expected = expectedOption.orElse {
-          expectedType(fromUnderscore = fromUnderscore)
-        }
-        val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+        val expected = expectedOption.orElse(expectedType(fromUnderscore = fromUnderscore))
+        val tr       = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+
         (expected, tr.toOption) match {
           case (Some(expType), Some(tp))
             if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
 
-            if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
-            else {
-              val functionType = FunctionType(expType, Seq(tp))
+            tryAdaptToSAM(tp, expType, fromUnderscore).getOrElse(
+              if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
+              else {
+                val functionType = FunctionType(expType, Seq(tp))
 
-              val implicitCollector = new ImplicitCollector(
-                expr,
-                functionType,
-                functionType,
-                None,
-                isImplicitConversion = true
-              )
+                val implicitCollector = new ImplicitCollector(
+                  expr,
+                  functionType,
+                  functionType,
+                  None,
+                  isImplicitConversion = true
+                )
 
-              val fromImplicit = implicitCollector.collect() match {
-                case Seq(res) =>
-                  extractImplicitParameterType(res).flatMap {
-                    case FunctionType(rt, Seq(_)) => Some(rt)
-                    case paramType =>
-                      expr.elementScope.cachedFunction1Type.flatMap { functionType =>
-                        paramType.conforms(functionType, ConstraintSystem.empty) match {
-                          case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
-                          case _                             => None
-                        }
-                      }.filterNot(_.isInstanceOf[UndefinedType])
-                  }.map(_ -> res)
-                case _ => None
+                val fromImplicit = implicitCollector.collect() match {
+                  case Seq(res) =>
+                    extractImplicitParameterType(res).flatMap {
+                      case FunctionType(rt, Seq(_)) => Some(rt)
+                      case paramType =>
+                        expr.elementScope.cachedFunction1Type.flatMap { functionType =>
+                          paramType.conforms(functionType, ConstraintSystem.empty) match {
+                            case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
+                            case _                             => None
+                          }
+                        }.filterNot(_.isInstanceOf[UndefinedType])
+                    }.map(_ -> res)
+                  case _ => None
+                }
+
+                fromImplicit match {
+                  case Some((mr, result)) => ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
+                  case _                  => ExpressionTypeResult(tr)
+                }
               }
-
-              fromImplicit match {
-                case Some((mr, result)) => ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
-                case _                  => ExpressionTypeResult(tr)
-              }
-            }
+            )
           case _ => ExpressionTypeResult(tr)
         }
       }
@@ -241,23 +242,27 @@ object ScExpression {
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits"),
       ModCount.getBlockModificationCount)
-    def getTypeWithoutImplicits(ignoreBaseType: Boolean = false,
-                                fromUnderscore: Boolean = false): TypeResult = {
+    def getTypeWithoutImplicits(
+      ignoreBaseType: Boolean = false,
+      fromUnderscore: Boolean = false
+    ): TypeResult = {
       ProgressManager.checkCanceled()
 
       expr match {
         case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
         case _ =>
           expr.getNonValueType(ignoreBaseType, fromUnderscore).flatMap { nonValueType =>
-            val expectedType = this.expectedType(fromUnderscore)
+            val expectedType = this.expectedType(fromUnderscore = fromUnderscore)
+            val widened      = nonValueType.widenLiteralType(expr, expectedType)
+            val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, fromUnderscore, _))
 
-            val valueType = nonValueType
-              .widenLiteralType(expr, expectedType)
-              .updateWithExpected(expr, expectedType, fromUnderscore)
-              .dropMethodTypeEmptyParams(expr, expectedType)
-              .inferValueType
-              .unpackedType
-              .synthesizePartialFunctionType(expr, expectedType)
+            val valueType =
+              widened
+                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
+                .dropMethodTypeEmptyParams(expr, expectedType)
+                .inferValueType
+                .unpackedType
+                .synthesizePartialFunctionType(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
             else
@@ -379,6 +384,38 @@ object ScExpression {
         case _                                => None
       }
     }
+
+    private def tryAdaptToSAM(
+      tp:             ScType,
+      pt:             ScType,
+      fromUnderscore: Boolean
+    ): Option[ExpressionTypeResult] = {
+      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
+        def expectedResult = Some(ExpressionTypeResult(Right(pt)))
+
+        tp match {
+          case FunctionType(_, params) if expr.isSAMEnabled =>
+            SAMUtil.toSAMType(pt, expr) match {
+              case Some(methodType) if tp.conforms(methodType) => expectedResult
+              case Some(methodType @ FunctionType(retTp, _))
+                  if etaExpansionHappened && retTp.isUnit =>
+                val newTp = FunctionType(Unit, params)
+
+                if (newTp.conforms(methodType)) expectedResult
+                else                            None
+              case _ => None
+            }
+          case _ => None
+        }
+      }
+
+      expr match {
+        case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM()
+        case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM()
+        case MethodValue(_)                                              => checkForSAM(etaExpansionHappened = true)
+        case _                                                           => None
+      }
+    }
   }
 
   @tailrec
@@ -456,8 +493,7 @@ object ScExpression {
       }
     }
 
-
-    private def expectedSAMType(
+    def expectedSAMType(
       expr:           ScExpression,
       fromUnderscore: Boolean,
       expected:       ScType
@@ -466,7 +502,7 @@ object ScExpression {
       def checkForSAM(tp: ScType): Option[ScType] =
         tp match {
           case FunctionType(_, _) if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
-          case _: ScMethodType                         => SAMUtil.toSAMType(expected, expr)
+          case _: ScMethodType    if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
           case ScTypePolymorphicType(tp, _)            => checkForSAM(tp)
           case _                                       => None
         }
@@ -474,37 +510,27 @@ object ScExpression {
       expr match {
         case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
         case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
-        case MethodValue(method)
-            if expr.scalaLanguageLevelOrDefault == Scala_2_11 || method.getParameterList.getParametersCount > 0 =>
-          checkForSAM(scType)
-        case _ => None
+        case MethodValue(_)                                              => checkForSAM(scType)
+        case _                                                           => None
       }
     }
 
     def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType =
       if (shouldUpdateImplicitParams(expr)) {
         try {
-          val maybeSAMpt =
-            expectedType.flatMap(expectedSAMType(expr, fromUnderscore, _))
-
           val updatedWithExpected =
             InferUtil.updateAccordingToExpectedType(
               scType,
               filterTypeParams = false,
-              expectedType     = maybeSAMpt.orElse(expectedType),
+              expectedType     = expectedType,
               expr             = expr,
               canThrowSCE      = true
             )
 
-          val withImplicitParams = expr.updateWithImplicitParameters(
+          expr.updateWithImplicitParameters(
             updatedWithExpected,
             checkExpectedType = true,
             fromUnderscore
-          )
-
-          maybeSAMpt.fold(withImplicitParams)(tpe =>
-            if (withImplicitParams.conforms(tpe)) expectedType.getOrElse(withImplicitParams)
-            else                                  withImplicitParams
           )
         } catch {
           case _: SafeCheckException =>
@@ -519,16 +545,23 @@ object ScExpression {
         case _                                                                         => return scType
       }
 
-      val shouldDrop = !ScUnderScoreSectionUtil.isUnderscore(expr) && expectedType.map(_.removeAbstracts).forall {
-        case FunctionType(_, _) => false
-        case expect if expr.isSAMEnabled =>
-          val languageLevel = expr.scalaLanguageLevelOrDefault
-          languageLevel != Scala_2_11 || SAMUtil.toSAMType(expect, expr).isEmpty
-        case _ => true
-      }
+      val functionLikeType = FunctionLikeType(expr)
+      import FunctionTypeMarker.SAM
+
+      val shouldDrop =
+        !ScUnderScoreSectionUtil.isUnderscore(expr) &&
+          expectedType
+            .map(_.removeAbstracts)
+            .forall {
+              case functionLikeType(marker, _, _) => marker match {
+                case SAM(_) => expr.scalaLanguageLevelOrDefault != Scala_2_11
+                case _      => false
+              }
+              case _ => true
+            }
 
       if (!shouldDrop) scType
-      else typeParams.map(ScTypePolymorphicType(retType, _)).getOrElse(retType)
+      else             typeParams.map(ScTypePolymorphicType(retType, _)).getOrElse(retType)
     }
   }
 

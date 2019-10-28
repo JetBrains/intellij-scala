@@ -87,7 +87,7 @@ object ScalaPsiUtil {
     param:                ScTypeParam,
     withLowerUpperBounds: Boolean = true,
     withViewBounds:       Boolean = true,
-    withContextBounds:    Boolean = true,
+    withContextBounds:    Boolean = true
   ): String = {
     var paramText = param.name
 
@@ -1074,40 +1074,62 @@ object ScalaPsiUtil {
     isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
 
   object MethodValue {
-    def unapply(expr: ScExpression): Option[PsiMethod] = {
+    def unapply(expr: ScExpression): Option[PsiMethod] =
       if (!expr.expectedType(fromUnderscore = false).exists {
-        case FunctionType(_, _) => true
-        case expected if expr.isSAMEnabled =>
-          SAMUtil.toSAMType(expected, expr).isDefined
-        case _ => false
-      }) {
-        return None
-      }
-      expr match {
-        case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref, canBeParameterless = false)
-        case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc, canBeParameterless = false)
-        case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
-        case ScMethodCall(invoked@(_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall), args)
-          if args.nonEmpty && args.forall(isSimpleUnderscore) => referencedMethod(invoked, canBeParameterless = false)
-        case mc: ScMethodCall if !mc.getParent.isInstanceOf[ScMethodCall] =>
-          referencedMethod(mc, canBeParameterless = false).filter {
-            case f: ScFunction if f.paramClauses.clauses.size > numberOfArgumentClauses(mc) => true
-            case _ => false
-          }
-        case _ => None
-      }
+        case FunctionType(_, _)            => true
+        case expected if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr).isDefined
+        case _                             => false
+      }) None
+      else
+        expr match {
+          case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] =>
+            referencedMethod(ref, canBeParameterless = false)
+          case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] =>
+            referencedMethod(gc, canBeParameterless = false)
+          case us: ScUnderscoreSection =>
+            us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
+          case ScMethodCall(
+            invoked @ (_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall),
+            args
+          ) if args.nonEmpty && args.forall(isSimpleUnderscore) =>
+            referencedMethod(invoked, canBeParameterless = false)
+          case mc: ScMethodCall if !mc.getParent.isInstanceOf[ScMethodCall] =>
+            referencedMethod(mc, canBeParameterless = false).filter {
+              case f: ScFunction if f.paramClauses.clauses.size > numberOfArgumentClauses(mc) =>
+                true
+              case _ => false
+            }
+          case _ => None
+        }
+
+    private def cantBeEtaExpanded(m: ScFunctionDefinition): Boolean = {
+      import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+      val clauses         = m.paramClauses.clauses
+      lazy val isScala211 = m.scalaLanguageLevelOrDefault == Scala_2_11
+
+      clauses.isEmpty ||
+        clauses.forall { clause =>
+          val isEmptyClause =
+            if (isScala211) false
+            else            clause.parameters.isEmpty
+
+          clause.isImplicit || isEmptyClause
+        }
     }
 
     @tailrec
-    private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
-      expr match {
-        case ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
-        case ResolvesTo(m: PsiMethod) => Some(m)
-        case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
-        case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
-        case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
-        case _ => None
-      }
+    private def referencedMethod(
+      expr:               ScExpression,
+      canBeParameterless: Boolean
+    ): Option[PsiMethod] = expr match {
+      case ResolvesTo(f: ScFunctionDefinition) if cantBeEtaExpanded(f) && !canBeParameterless => None
+      case ResolvesTo(m: PsiMethod)                                                           => Some(m)
+      case gc: ScGenericCall =>
+        referencedMethod(gc.referencedExpr, canBeParameterless)
+      case us: ScUnderscoreSection if us.bindingExpr.isDefined =>
+        referencedMethod(us.bindingExpr.get, canBeParameterless)
+      case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
+      case _               => None
     }
 
     private def isSimpleUnderscore(expr: ScExpression) = expr match {

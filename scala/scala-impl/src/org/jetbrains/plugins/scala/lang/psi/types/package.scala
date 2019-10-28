@@ -364,4 +364,8 @@ package object types {
     case object PF                extends FunctionTypeMarker
     case class SAM(cls: PsiClass) extends FunctionTypeMarker
   }
+
+  object FullyAbstractType {
+    def unapply(abs: ScAbstractType): Boolean = abs.upper.isAny && abs.lower.isNothing
+  }
 }
