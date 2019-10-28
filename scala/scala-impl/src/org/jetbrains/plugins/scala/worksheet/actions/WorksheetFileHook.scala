@@ -3,7 +3,7 @@ package worksheet
 package actions
 
 import java.lang.ref.WeakReference
-import java.util
+import java.{util => ju}
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
@@ -19,15 +19,16 @@ import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.ui.UIUtil
 import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
-import org.jetbrains.plugins.scala.extensions.{ReferenceExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{OptionExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.UserDataKeys
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.actions.repl._
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetUiConstructor}
+import org.jetbrains.sbt.RichOption
 
 import scala.util.control.NonFatal
 
@@ -47,11 +48,10 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
   private def initializeButtons(): Unit =
     for {
-      editor   <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
-      file     <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
-      vFile    <- Option(file.getVirtualFile)
-      panelRef <- WorksheetFileHook.getPanel(vFile)
-      panel    <- panelRef.getOpt
+      editor <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
+      file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
+      vFile  <- Option(file.getVirtualFile)
+      panel  <- WorksheetFileHook.getPanel(vFile)
     } notifyButtons(panel)
 
   private def notifyButtons(panel: WorksheetFileHook.MyPanel): Unit =
@@ -69,11 +69,10 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     val editors = myFileEditorManager.getAllEditors(file)
 
     for (editor <- editors) {
-      for {
-        ref <- WorksheetFileHook.getAndRemovePanel(file)
-        panel <- ref.getOpt
-      } invokeLater {
-        myFileEditorManager.removeTopComponent(editor, panel)
+      WorksheetFileHook.getAndRemovePanel(file).foreach { panel =>
+        invokeLater {
+          myFileEditorManager.removeTopComponent(editor, panel)
+        }
       }
 
       val panel = new WorksheetFileHook.MyPanel(file)
@@ -91,27 +90,33 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
   def disableRun(file: VirtualFile, exec: Option[CompilationProcess]): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
-    WorksheetFileHook.unplugWorksheetActions(file, project)
-    cleanAndAdd(file, exec.map(new StopWorksheetAction(_)))
-    statusDisplay.foreach(_.onStartCompiling())
+    invokeLater {
+      WorksheetFileHook.unplugWorksheetActions(file, project)
+      cleanAndAdd(file, exec.map(new StopWorksheetAction(_)))
+      statusDisplay.foreach(_.onStartCompiling())
+    }
   }
 
+  // TODO: rethink how we enable/disable run, try to avoid as much UI blocking as possible
+  //  currently there are read actions in EDT which can lead to freezes
   def enableRun(file: VirtualFile, hasErrors: Boolean): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
-    WorksheetFileHook.plugWorksheetActions(file, project)
-    cleanAndAdd(file, Some(new RunWorksheetAction))
-    statusDisplay.foreach { display =>
-      if (hasErrors) display.onFailedCompiling()
-      else display.onSuccessfulCompiling()
+    invokeLater {
+      WorksheetFileHook.plugWorksheetActions(file, project)
+      cleanAndAdd(file, Some(new RunWorksheetAction))
+      statusDisplay.foreach { display =>
+        if (hasErrors) {
+          display.onFailedCompiling()
+        } else {
+          display.onSuccessfulCompiling()
+        }
+      }
     }
   }
 
   private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentDisplayable]): Unit =
-    for {
-      ref <- WorksheetFileHook.getPanel(file)
-      panel <- ref.getOpt
-    } {
+    for { panel <- WorksheetFileHook.getPanel(file) } {
       val c = panel.getComponent(0)
       if (c != null) panel.remove(c)
       action.foreach(_.init(panel))
@@ -149,7 +154,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       for {
         editor    <- editorWithFile(source, vFile)
         manager   = PsiDocumentManager.getInstance(project)
-        scalaFile <- Option(manager.getPsiFile(editor.getDocument)).collect { case f: ScalaFile => f }
+        scalaFile <- Option(manager.getPsiFile(editor.getDocument)).filterByType[ScalaFile]
       } loadEvaluationResult(scalaFile, vFile, editor)
 
     private def editorWithFile(source: FileEditorManager, file: VirtualFile): Option[EditorEx] =
@@ -190,8 +195,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
 object WorksheetFileHook {
 
-  private val WORKSHEET_HK_ACTIONS: Array[AnAction] = Array(WorksheetReplRunAction.ACTION_INSTANCE)
-  private val file2panel = new util.WeakHashMap[VirtualFile, WeakReference[MyPanel]]()
+  private val WorksheetHookActions: Seq[AnAction] = Array(WorksheetReplRunAction.ACTION_INSTANCE)
+  private val file2panel = new ju.WeakHashMap[VirtualFile, WeakReference[MyPanel]]()
 
   private class MyPanel(file: VirtualFile) extends JPanel {
 
@@ -202,9 +207,11 @@ object WorksheetFileHook {
     override def hashCode(): Int = Integer.MAX_VALUE
   }
 
-  private def getAndRemovePanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.remove(file))
+  private def getAndRemovePanel(file: VirtualFile): Option[MyPanel] =
+    Option(file2panel.remove(file)).safeMap(_.get)
 
-  private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.get(file))
+  private def getPanel(file: VirtualFile): Option[MyPanel] =
+    Option(file2panel.get(file)).safeMap(_.get)
 
   private def plugWorksheetActions(file: VirtualFile, project: Project): Unit =
     inReadAction {
@@ -215,10 +222,10 @@ object WorksheetFileHook {
   private def plugWorksheetActions(editor: FileEditor): Unit =
     patchComponentActions(editor) { oldActions =>
       if (oldActions == null) {
-        util.Arrays.asList(WORKSHEET_HK_ACTIONS: _*)
+        ju.Arrays.asList(WorksheetHookActions: _*)
       } else {
-        val newActions = new util.ArrayList(oldActions)
-        WORKSHEET_HK_ACTIONS.foreach { action =>
+        val newActions = new ju.ArrayList(oldActions)
+        WorksheetHookActions.foreach { action =>
           if (!newActions.contains(action))
             newActions.add(action)
         }
@@ -235,17 +242,19 @@ object WorksheetFileHook {
   private def unplugWorksheetActions(editor: FileEditor): Unit =
     patchComponentActions(editor) { oldActions =>
       if (oldActions == null) null else {
-        val newActions = new util.ArrayList(oldActions)
-        WORKSHEET_HK_ACTIONS.foreach(newActions.remove)
+        val newActions = new ju.ArrayList(oldActions)
+        WorksheetHookActions.foreach(newActions.remove)
         newActions
       }
     }
 
-  private def patchComponentActions(editor: FileEditor)(patcher: util.List[AnAction] => util.List[AnAction]) {
-    val c = editor.getComponent
-    val patchedActions = patcher(UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY))
+  private def patchComponentActions(editor: FileEditor)
+                                   (patcher: ju.List[AnAction] => ju.List[AnAction]): Unit = {
+    val component = editor.getComponent
+    val currentActions = UIUtil.getClientProperty(component, AnAction.ACTIONS_KEY)
+    val patchedActions = patcher(currentActions)
     if (patchedActions != null) {
-      UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, patchedActions)
+      UIUtil.putClientProperty(component, AnAction.ACTIONS_KEY, patchedActions)
     }
   }
 
