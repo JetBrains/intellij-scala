@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager, TextEditor}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{EdtTestUtil, PlatformTestUtil}
 import com.intellij.util.ui.UIUtil
 import javax.swing.SwingUtilities
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.Markers
+import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
@@ -26,9 +26,13 @@ import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
+// TODO: move to a separate category and run in TeamCity multiple times against different scala versions
 @Category(Array(classOf[SlowTests]))
-abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with Markers {
+abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase {
   self: WorksheetRunTestSettings =>
+
+  protected val (foldStart, foldEnd) = ("<folding>", "</folding>")
+  protected val (foldStartExpanded, foldEndExpanded) = ("<foldingExpanded>", "</foldingExpanded>")
 
   override protected def supportedIn(version: ScalaVersion): Boolean = Seq(
     Scala_2_10,
@@ -40,6 +44,10 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
   protected def evaluationTimeout: Duration = 60 seconds
 
   override protected def useCompileServer: Boolean = self.compileInCompileServerProcess
+
+  protected def project = getProject
+
+  protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
 
   protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit  = {
     settings.setRunType(self.runType)
@@ -59,11 +67,10 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
     }
   }
 
-  protected def project = getProject
-
-  protected def doTest(before: String, after: String): Unit = {
-    val (afterFixed, foldings) = extractFoldings(after.withNormalizedSeparator)
-    doTest(before, afterFixed, foldings)
+  protected def doTest(before: String, after: String): (Editor, String, Array[Folding]) = {
+    val beforeFixed = before.withNormalizedSeparator
+    val (afterFixed, foldings) = preprocessViewerText(after)
+    doTest(beforeFixed, afterFixed, foldings)
   }
 
   protected def doFailingTest(text: String, expectedError: RunWorksheetActionResult.Error): Unit = {
@@ -72,41 +79,49 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
     assertEquals(Some(Success(expectedError)), result)
   }
 
+  /*
+    TODO 1: check the compiler output messages ?
+      (should be empty for success runs, and non-empty for some warnings/failures)
+    TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
+    TODO 3: test clean action
+    TODO 4: test Repl iterative evaluation
+    TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
+  */
   protected def doTest(
     before: String,
     after: String,
-    foldings: Seq[ExpectedFolding]
-  ): Unit = {
-    val worksheetEditor = prepareWorksheetEditor(before)
+    foldings: Seq[Folding]
+  ): (Editor, String, Array[Folding]) = {
+    val result@(editor, actualText, actualFoldings) = runWorksheetEvaluation(before)
+
+    assertEquals(after, actualText)
+
+    assertFoldings(foldings, actualFoldings)
+
+    result
+  }
+
+  /** @return (leftEditor, text from viewer editor, folding regions) */
+  protected def runWorksheetEvaluation(text: String): (Editor, String, Array[Folding]) = {
+    val worksheetEditor = prepareWorksheetEditor(text.withNormalizedSeparator)
     val evaluationResult = evaluateWorksheetAndWait(worksheetEditor)
+
     evaluationResult match {
       case Some(Success(_))         => // ok, continue the test
       case Some(Failure(exception)) => throw exception
       case None                     => fail("Timeout period was exceeded while waiting for worksheet evaluation")
     }
 
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-
     val cache = WorksheetCache.getInstance(project)
     val viewerEditor = cache.getViewer(worksheetEditor)
 
-    val actualText = viewerEditor.getDocument.getText
-    assertEquals(after.withNormalizedSeparator, actualText)
-
-    val actualFoldings = viewerEditor.getFoldingModel.getAllFoldRegions
-    assertFoldings(foldings, actualFoldings)
-
-    /*
-      TODO 1: check the compiler output messages ?
-        (should be empty for success runs, and non-empty for some warnings/failures)
-      TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
-      TODO 3: test clean action
-      TODO 4: test Repl iterative evaluation
-      TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
-    */
+    val renderedText = viewerEditor.getDocument.getText
+    val foldRegions = viewerEditor.getFoldingModel.getAllFoldRegions
+    val foldings = foldRegions.map(Folding.apply)
+    (worksheetEditor, renderedText, foldings)
   }
 
-  private def prepareWorksheetEditor(before: String) = {
+  private def prepareWorksheetEditor(before: String): Editor = {
     val (vFile, psiFile) = createWorksheetFile(before)
 
     val settings = WorksheetCommonSettings(psiFile)
@@ -116,8 +131,8 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
     worksheetEditor
   }
 
-  private def createWorksheetFile(before: String) = {
-    val fileName = s"worksheet_${getTestName(false)}.sc"
+  private def createWorksheetFile(before: String): (VirtualFile, PsiFile) = {
+    val fileName = worksheetFileName
 
     val vFile = addFileToProjectSources(fileName, before)
     assertNotNull(vFile)
@@ -127,7 +142,7 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
     (vFile, psiFile)
   }
 
-  private def openEditor(vFile: VirtualFile) = {
+  private def openEditor(vFile: VirtualFile): Editor = {
     val editors: Array[FileEditor] = EdtTestUtil.runInEdtAndGet { () =>
       FileEditorManager.getInstance(project).openFile(vFile, true)
     }
@@ -142,58 +157,59 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase with M
   private def evaluateWorksheetAndWait(worksheetEditor: Editor): Option[Try[RunWorksheetAction.RunWorksheetActionResult]] = {
     // NOTE: worksheet backend / frontend initialization is done under the hood on calling action
     val future = RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
-    WorksheetIntegrationBaseTest.await(future, 60 seconds)
+    val result = WorksheetIntegrationBaseTest.await(future, 60 seconds)
+    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+    result
   }
 
-  private def assertFoldings(expectedFoldings: Seq[ExpectedFolding], actualFoldings: Seq[FoldRegion]): Unit = {
+  protected def assertFoldings(expectedFoldings: Seq[Folding], actualFoldings: Seq[Folding]): Unit = {
     expectedFoldings.zipAll(actualFoldings, null, null).toList.foreach { case (expected, actual) =>
       assertNotNull(
         s"""there are to few actual foldings:
            |expected : $expected
-           |expected all : $expected
-           |actual all : $actual
+           |expected all : $expectedFoldings
+           |actual all : $actualFoldings
            |""".stripMargin,
         actual
       )
       assertNotNull(
         s"""there are some unexpected foldings:
            |actual: $actual
-           |expected all : $expected
-           |actual all : $actual
+           |expected all : $expectedFoldings
+           |actual all : $actualFoldings
            |""".stripMargin,
         expected
       )
-      assertFolding(expected, actual)
+      assertEquals(expected, actual)
     }
   }
 
-  private def assertFolding(expected: ExpectedFolding, actual: FoldRegion): Unit = {
-    val actualTransformed = ExpectedFolding(
-      actual.getStartOffset,
-      actual.getEndOffset,
-      actual.getPlaceholderText,
-      actual.isExpanded
-    )
-    assertEquals(expected, actualTransformed)
-  }
-
-  private def extractFoldings(after: String): (String, Seq[ExpectedFolding]) = {
-    val (text, ranges) = extractSequentialMarkers(after)
-    val foldings = ranges.map { case TextRangeExt(startOffset, endOffset) =>
-      ExpectedFolding(startOffset, endOffset, text.substring(startOffset, endOffset))
+  protected def preprocessViewerText(text: String): (String, Seq[Folding]) = {
+    val (textFixed, ranges) = {
+      val markers = IndexedSeq((foldStart, foldEnd), (foldStartExpanded, foldEndExpanded))
+      MarkersUtils.extractSequentialMarkers(text.withNormalizedSeparator, markers)
     }
-    (text, foldings)
+    val foldings = ranges.map { case (TextRangeExt(startOffset, endOffset), markerType) =>
+      Folding(startOffset, endOffset, textFixed.substring(startOffset, endOffset), isExpanded = markerType == 1)
+    }
+    (textFixed, foldings)
   }
 }
 
 object WorksheetIntegrationBaseTest {
 
-  case class ExpectedFolding(
+  case class Folding(
     startOffset: Int,
     endOffset: Int,
     placeholderText: String,
     isExpanded: Boolean = false
   )
+
+  object Folding {
+
+    def apply(region: FoldRegion): Folding =
+      Folding(region.getStartOffset, region.getEndOffset, region.getPlaceholderText, region.isExpanded)
+  }
 
   protected def await[T](future: Future[T],
                          duration: Duration,

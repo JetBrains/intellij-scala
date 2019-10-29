@@ -149,6 +149,11 @@ object WorksheetEditorPrinterFactory {
 
   def getDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter = {
     val printer = newDefaultUiFor(editor, scalaFile)
+
+    // TODO: now we cache it only for unit tests but maybe we should also cache it like in getIncrementalUiFor
+    val cache = WorksheetCache.getInstance(editor.getProject)
+    cache.addPrinter(editor, printer)
+
     printer.scheduleWorksheetUpdate()
     printer
   }
@@ -202,13 +207,13 @@ object WorksheetEditorPrinterFactory {
     if (modelSync) synch(editor, worksheetViewer)
     editorContentComponent.setPreferredSize(prefDim)
 
+    val child = editorComponent.getParent
+
+    val diffPane = WorksheetDiffSplitters.createSimpleSplitter(editor, worksheetViewer, prop)
+    worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
+
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val child = editorComponent.getParent
       val parent = child.getParent
-
-      val diffPane = WorksheetDiffSplitters.createSimpleSplitter(editor, worksheetViewer, prop)
-
-      worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
 
       @inline def preserveFocus(body: => Unit) {
         val hadFocus = editorContentComponent.hasFocus

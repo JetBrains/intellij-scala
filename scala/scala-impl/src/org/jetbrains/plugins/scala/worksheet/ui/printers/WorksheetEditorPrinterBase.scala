@@ -41,15 +41,16 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       }
     }
 
+  override def diffSplitter: Option[SimpleWorksheetSplitter] = getWorksheetSplitter
+
   protected def getWorksheetSplitter: Option[SimpleWorksheetSplitter] =
     Option(worksheetViewer.getUserData(WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY))
 
   protected def getWorksheetViewersRation: Float =
     getWorksheetSplitter.map(_.getProportion).getOrElse(WorksheetEditorPrinterFactory.DEFAULT_WORKSHEET_VIEWERS_RATIO)
 
-  protected def redrawViewerDiffs(): Unit = {
+  protected def redrawViewerDiffs(): Unit =
     getWorksheetSplitter.foreach(_.redrawDiffs())
-  }
 
   protected def saveEvaluationResult(result: String): Unit = {
     WorksheetEditorPrinterFactory.saveWorksheetEvaluation(getScalaFile, result, getWorksheetViewersRation)
@@ -68,8 +69,8 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   }
 
   protected def updateFoldings(foldings: Seq[FoldingOffsets], expandedIndexes: Set[Int] = Set.empty): Unit = startCommand() {
-    def addRegion(fo: FoldingOffsets, index: Int): Unit = {
-      val FoldingOffsets(outputStartLine, outputEndOffset, inputLinesCount, inputEndLine) = fo
+    def addRegion(fo: FoldingOffsets): Unit = {
+      val FoldingOffsets(outputStartLine, outputEndOffset, inputLinesCount, inputEndLine, expanded) = fo
 
       val foldStartLine = outputStartLine + inputLinesCount - 1
       val foldEndLine = viewerDocument.getLineNumber(outputEndOffset)
@@ -80,7 +81,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
       val leftEndOffset = originalDocument.getLineEndOffset(inputEndLine.min(originalDocument.getLineCount))
 
-      val isExpanded = !scalaSettings.isWorksheetFoldCollapsedByDefault || expandedIndexes.contains(index)
+      val isExpanded = expanded || !scalaSettings.isWorksheetFoldCollapsedByDefault
 
       foldGroup.addRegion(viewerFolding)(
         foldStartOffset = foldStartOffset,
@@ -93,7 +94,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
 
     viewerFolding.runBatchFoldingOperation(() => {
-      foldings.zipWithIndex.foreach { case (f, i) => addRegion(f, i) }
+      foldings.foreach(addRegion)
       WorksheetFoldGroup.save(getScalaFile, foldGroup)
     }, false)
   }
@@ -138,6 +139,7 @@ object WorksheetEditorPrinterBase {
     outputStartLine: Int,
     outputEndOffset: Int,
     inputLinesCount: Int,
-    inputEndLine: Int
+    inputEndLine: Int,
+    isExpanded: Boolean = false
   )
 }

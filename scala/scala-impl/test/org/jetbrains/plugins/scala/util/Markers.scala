@@ -76,6 +76,8 @@ object MarkersUtils {
    * @example
    * line /start/ 1 content /end/
    * line /start/ 2 /end/ /start/ content /end/
+   *
+   * TODO: reuse extractSequentialMarkers generic implementation
    */
   def extractSequentialMarkers(inputText: String, startMarker: String, endMarker: String): (String, Seq[TextRange]) = {
     val startReg = s"\\Q$startMarker\\E".r
@@ -108,4 +110,74 @@ object MarkersUtils {
 
     (textFixed, rangesFixed)
   }
+
+  /**
+   * Used to extract ranges that do not do not intersect, support
+   *
+   * @param inputText       example: {{{
+   *   line /start/ 1 content /end/
+   *   line <foldStart> 2 </foldEnd> [[ content ]]
+   * }}}
+   * @param startEndMarkers example: {{{
+   *   Seq(("/start/", "/end/"), ("<foldStart>", "<foldEnd>"), ("[[", "]]"))
+   * }}}
+   */
+  def extractSequentialMarkers(inputText: String, startEndMarkers: Seq[(String, String)]): (String, Seq[(TextRange, Int)]) = {
+    type MarkerType = Int
+
+    // marker selection ranges with marker types
+    val ranges: Seq[(TextRange, MarkerType)] = startEndMarkers.zipWithIndex.flatMap {
+      case ((startMarker, endMarker), markerType) =>
+        val startReg = s"\\Q$startMarker\\E".r
+        val endReg   = s"\\Q$endMarker\\E".r
+
+        val startMatches = startReg.findAllMatchIn(inputText).map(m => TextRange.create(m.start, m.end)).toSeq
+        val endMatches   = endReg.findAllMatchIn(inputText).map(m => TextRange.create(m.start, m.end)).toSeq
+
+        assertEquals(
+          s"start & end markers ($startMarker / $endMarker) counts are not equal\nstart: $startMatches,\nend: $endMatches",
+          startMatches.size,
+          endMatches.size
+        )
+
+        val ranges = startMatches.zip(endMatches).map { case (s, e) => TextRange.create(s.getStartOffset, e.getStartOffset) }
+        ranges.foreach { range =>
+          assertTrue("range end offset can't be smaller then start offset", range.getEndOffset >= range.getStartOffset)
+        }
+
+        ranges.map(r => (r, markerType))
+    }
+
+    assertNonIntersecting(ranges.map(_._1))
+
+    val rangesFixed = ranges.foldLeft(Seq.empty[(TextRange, MarkerType)], 0) {
+      case ((ranges, removedChars), (range, markerType)) =>
+        val (startMarker, endMarker) = startEndMarkers(markerType)
+
+        val start = range.getStartOffset - removedChars
+        val end = range.getEndOffset - removedChars - startMarker.length
+
+        val rangesUpdated = ranges :+ (TextRange.create(start, end), markerType)
+        val removedCharsUpdated = removedChars + startMarker.length + endMarker.length
+
+        (rangesUpdated, removedCharsUpdated)
+    }._1
+
+    assertNonIntersecting(rangesFixed.map(_._1))
+
+    // it is not most efficient way: we could build text by parts in the previous foldLeft and StringBuilder
+    // but it a little clear this way and doesn't matter much in tests cause it anyway costs milliseconds
+    val textFixed = startEndMarkers.foldLeft(inputText) { case (text, (startMarker, endMarker)) =>
+      text.replace(startMarker, "").replace(endMarker, "")
+    }
+
+    (textFixed, rangesFixed)
+  }
+
+  private def assertNonIntersecting(ranges: Seq[TextRange]): Unit =
+    ranges.sliding(2).foreach {
+      case Seq(prev, curr) =>
+        assertTrue("ranges shouldn't intersect", curr.getStartOffset >= prev.getEndOffset)
+      case _ =>
+    }
 }

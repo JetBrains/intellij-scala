@@ -96,17 +96,17 @@ class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTe
          |
          |function2: function2[](val y: Int) => Int
          |
-         |${start}1
+         |${foldStart}1
          |2
          |3
-         |res0: Unit = ()$end
+         |res0: Unit = ()$foldEnd
          |
-         |${start}4
+         |${foldStart}4
          |5
          |6
          |
          |
-         |res1: Unit = ()$end
+         |res1: Unit = ()$foldEnd
          |
          |
          |
