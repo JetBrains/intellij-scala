@@ -17,8 +17,6 @@ import scala.collection.JavaConverters._
  */
 class GoToClassAndSymbolTest extends GoToTestBase {
 
-  import GoToClassAndSymbolTest._
-
   override protected def loadScalaLibrary = false
 
   private var myPopup: ChooseByNamePopup = _
@@ -65,8 +63,9 @@ class GoToClassAndSymbolTest extends GoToTestBase {
                                    expected: (Any => Boolean, String)*): Unit = for {
     (predicate, expectedName) <- expected
 
-    if elements.find(predicate).forall(!hasExpectedName(_, expectedName))
-  } fail(s"Element not found: $expectedName, found: $elements")
+    actualNames = elements.filter(predicate).map(actualName)
+    if !actualNames.contains(expectedName)
+  } fail(s"Element not found: $expectedName, found: $actualNames")
 
   private def checkSize(elements: Set[Any], expectedSize: Int): Unit = assertEquals(
     s"Wrong number of elements found, found: $elements",
@@ -97,7 +96,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GoToClassS")
 
-    checkContainExpected(elements, (isObject, "GoToClassSimpleObject$"))
+    checkContainExpected(elements, (isObject, "GoToClassSimpleObject"))
     checkSize(elements, 1)
   }
 
@@ -110,7 +109,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("someP")
 
-    checkContainExpected(elements, (isPackageObject, "foo.somePackageName.package$"))
+    checkContainExpected(elements, (isPackageObject, "foo.somePackageName"))
     checkSize(elements, 1)
   }
 
@@ -140,7 +139,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("::")
 
-    checkContainExpected(elements, (isClass, Colon + Colon + Colon))
+    checkContainExpected(elements, (isClass, ":::"))
     checkSize(elements, 1)
   }
 
@@ -149,12 +148,20 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoSymbolElements("::")
 
-    checkContainExpected(elements, (isClass, Colon + Colon + Colon), (isFunction, Colon + Colon + Colon))
+    checkContainExpected(elements, (isClass, ":::"), (isFunction, ":::"))
     checkSize(elements, 2)
   }
-}
 
-object GoToClassAndSymbolTest {
+  def testSymbolInPackaging_:::(): Unit = {
+    getFixture.addFileToProject("threeColons.scala",
+      """package test
+        |class ::: { def ::: : Unit = () }""".stripMargin
+    )
 
-  private val Colon = "$colon"
+    val elements = gotoSymbolElements("::")
+
+    checkContainExpected(elements, (isClass, "test.:::"), (isFunction, ":::"))
+    checkSize(elements, 2)
+  }
+
 }
