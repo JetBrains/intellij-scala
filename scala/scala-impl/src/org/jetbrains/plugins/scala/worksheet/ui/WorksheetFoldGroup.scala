@@ -111,6 +111,14 @@ final class WorksheetFoldGroup(
   def installOn(model: FoldingModelEx): Unit =
     model.addListener(new WorksheetFoldRegionListener(this), project)
 
+  def initMappings(): Unit = {
+    val (mappings, _, _) = traverseRegions(null)
+    splitter.foreach(_.update(mappings))
+    _regions.iterator
+      .filter(_.expanded)
+      .foreach(updateChangeFolded(_, expand = true))
+  }
+
   @Measure
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
     val (mappings, targetInfo, _) = traverseRegions(target)
@@ -127,6 +135,7 @@ final class WorksheetFoldGroup(
 
   private def offset2Line(offset: Int) = originalDocument.getLineNumber(offset)
 
+  @Measure
   private def traverseRegions(target: FoldRegion): (Iterable[DiffMapping], FoldRegionInfo, Int) = {
     val emptyResult: (Seq[DiffMapping], FoldRegionInfo, Int) = (Seq.empty, null, 0)
     if (_regions.isEmpty) return emptyResult
@@ -209,6 +218,7 @@ object WorksheetFoldGroup {
     override def hashCode(): Int = region.hashCode()
   }
 
+  // TODO: looks like listeners are leaked, see FoldingModelImpl.notifyListenersOnFoldRegionStateChange
   private class WorksheetFoldRegionListener(val owner: WorksheetFoldGroup) extends FoldingListener {
     override def onFoldRegionStateChange(region: FoldRegion): Unit =
       if (region.isExpanded) owner.expand(region)

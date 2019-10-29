@@ -5,10 +5,12 @@ import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.{Color, Graphics, Graphics2D, RenderingHints}
 
 import com.intellij.diff.util.DiffDividerDrawUtil.DividerPolygon
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
 import com.intellij.openapi.ui.{Divider, Splitter}
 import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
@@ -28,6 +30,12 @@ object WorksheetDiffSplitters {
   ) extends Splitter (false, prop) {
 
     private val visibleAreaListener: VisibleAreaListener = (_: VisibleAreaEvent) => redrawDiffs()
+
+    // TODO: improve the way how rendered split diff poligons is tested
+    @TestOnly
+    def renderedPolygons: Option[Seq[DividerPolygon]] = _renderedPolygons
+    private var _renderedPolygons: Option[Seq[DividerPolygon]] = None
+    private val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
 
     init()
 
@@ -59,7 +67,13 @@ object WorksheetDiffSplitters {
 
     def clear(): Unit = update(Seq())
 
-    def redrawDiffs(): Unit = getDivider.repaint()
+    def redrawDiffs(): Unit =
+      if (!isUnitTestMode) {
+        getDivider.repaint()
+      } else {
+        val polygons = getDivider.asInstanceOf[SimpleWorksheetDivider].generatePolygons
+        _renderedPolygons = Some(polygons.toArray.toSeq)
+      }
 
     override def createDivider(): Divider = new SimpleWorksheetDivider()
 
@@ -78,6 +92,16 @@ object WorksheetDiffSplitters {
         val rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         gg.setRenderingHints(rh)
 
+        val polygons = generatePolygons
+
+        for (polygon <- polygons) {
+          polygon.paint(gg, width, true)
+        }
+
+        gg.dispose()
+      }
+
+      def generatePolygons: Iterable[DividerPolygon] = {
         // returns mappings of left lines to right lines
         def diffToLinesMapping(diff: DiffMapping): (Segment, Segment) = {
           val DiffMapping(from, to, offset, spaces) = diff
@@ -117,26 +141,25 @@ object WorksheetDiffSplitters {
 
             new DividerPolygon(start1, start2, end1, end2, fillColor, null, true)
         }
-
-        for (polygon <- plainPolygons) {
-          polygon.paint(gg, width, true)
-        }
-
-        gg.dispose()
+        plainPolygons
       }
     }
-  }
 
-  /**
-   * @return first and last visible line offsets in pixels (from top of the editor)
-   *         visible means that it it doesnt care about folded lines
-   */
-  private def calcVisibleInterval(editor: Editor): Segment = {
-    val verticalScrollOffset = editor.getScrollingModel.getVerticalScrollOffset
-    val editorHeight = editor.getComponent.getHeight
-    val first = verticalScrollOffset
-    val last = verticalScrollOffset + editorHeight
-    Segment(first, last)
+    /**
+     * @return first and last visible line offsets in pixels (from top of the editor)
+     *         visible means that it it doesnt care about folded lines
+     */
+    private def calcVisibleInterval(editor: Editor): Segment = {
+      if (!isUnitTestMode) {
+        val verticalScrollOffset = editor.getScrollingModel.getVerticalScrollOffset
+        val editorHeight = editor.getComponent.getHeight
+        val first = verticalScrollOffset
+        val last = verticalScrollOffset + editorHeight
+        Segment(first, last)
+      } else {
+        Segment(0, 100500)
+      }
+    }
   }
 
   /**

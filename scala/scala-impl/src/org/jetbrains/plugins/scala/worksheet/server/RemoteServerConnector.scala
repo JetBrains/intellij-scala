@@ -201,16 +201,22 @@ object RemoteServerConnector {
 
     override def worksheetOutput(text: String): Unit =
       consumer.worksheetOutput(text)
+
+    override def processingEnd(): Unit = {
+      super.processingEnd()
+      consumer.finish()
+    }
   }
   
   trait OuterCompilerInterface {
     def message(message: CompilerMessageImpl)
     def progress(text: String, done: Option[Float])
-    
+    def finish()
+
     def worksheetOutput(text: String)
     def trace(thr: Throwable)
   }
-  
+
   class CompilerInterfaceImpl(task: CompilerTask,
                               worksheetPrinter: Option[WorksheetEditorPrinter],
                               indicator: Option[ProgressIndicator],
@@ -220,7 +226,7 @@ object RemoteServerConnector {
     override def progress(text: String, done: Option[Float]): Unit = {
       if (auto) return
       val taskIndicator = ProgressManager.getInstance().getProgressIndicator
-      
+
       if (taskIndicator != null) {
         taskIndicator.setText(text)
         done.foreach(d => taskIndicator.setFraction(d.toDouble))
@@ -239,5 +245,8 @@ object RemoteServerConnector {
       val message = "\n" + thr.stackTraceText // stacktrace already contains thr.toString which contains message
       worksheetPrinter.foreach(_.internalError(message))
     }
+
+    override def finish(): Unit =
+      worksheetPrinter.foreach(_.flushBuffer())
   }
 }

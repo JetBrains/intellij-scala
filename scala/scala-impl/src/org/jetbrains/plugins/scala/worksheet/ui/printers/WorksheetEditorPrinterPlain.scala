@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.text.StringUtil
 import javax.swing.Timer
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
@@ -24,6 +25,7 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
 
   private val currentOutputBuffer = StringBuilder.newBuilder
   private var currentOutputNewLinesCount = 0
+  private var currentResultStartLine: Option[String] = None
 
   private var cutoffPrinted = false
   @volatile private var terminated = false
@@ -43,10 +45,12 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
       return true
     }
 
-    if (isResultEnd(line)) {
+    if (isResultStart(line)) {
+      currentResultStartLine = Some(line)
+    } else if (isResultEnd(line)) {
       if (!isInited) init()
 
-      WorksheetSourceProcessor.extractLineInfoFrom(line) match {
+      WorksheetSourceProcessor.extractLineInfoFromEnd(line) match {
         case Some((inputStartLine, inputEndLine)) =>
           val output = currentOutputBuffer.mkString
           val chunk  = EvaluationChunk(inputStartLine, inputEndLine, output)
@@ -85,7 +89,9 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
       flushTimer.stop()
     }
 
-    val (text, foldings) = renderText(evaluatedChunks)
+    val lastChunk = buildIncompleteLastChunkOpt
+    val expandedIndexes = (foldGroup.expandedRegionsIndexes.toIterator ++ lastChunk.map(_ => evaluatedChunks.size)).toSet
+    val (text, foldings) = renderText(evaluatedChunks ++ lastChunk, expandedIndexes)
     updateWithPersistentScroll(viewerDocument, text, foldings)
 
     invokeLater {
@@ -93,25 +99,39 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
     }
   }
 
+  private def buildIncompleteLastChunkOpt: Option[EvaluationChunk] = {
+    if (StringUtils.isNotBlank(currentOutputBuffer)) {
+      val (inputStartLine, inputEndLine) =
+        currentResultStartLine.flatMap(WorksheetSourceProcessor.extractLineInfoFromStart).getOrElse(0, 0)
+      val output = currentOutputBuffer.mkString
+      Some(EvaluationChunk(inputStartLine, inputEndLine, output))
+    } else {
+      None
+    }
+  }
+
   // currently we re-render text on each mid-flush (~once per 1 second for long processes),
   // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
-  // TODO: as a known side affect all the expanded regions are collapsed after each mid flush, we could fix that
   private def midFlush(): Unit = {
     if (terminated || buffed  == 0) return
 
     buffed = 0
 
-    val (text, foldings) = renderText(evaluatedChunks)
+    val expandedIndexes = foldGroup.expandedRegionsIndexes.toSet
+    val (text, foldings) = renderText(evaluatedChunks, expandedIndexes)
     updateWithPersistentScroll(viewerDocument, text, foldings)
   }
 
   private def isTerminationLine(line: String): Boolean =
     line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER
 
+  private def isResultStart(line: String): Boolean =
+    line.startsWith(WorksheetSourceProcessor.START_TOKEN_MARKER)
+
   private def isResultEnd(line: String): Boolean =
     line.startsWith(WorksheetSourceProcessor.END_TOKEN_MARKER)
 
-  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[FoldingOffsets]): Unit = {
+  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[FoldingOffsets]): Unit =
     invokeLater {
       inWriteAction {
         val scroll          = originalEditor.getScrollingModel.getVerticalScrollOffset
@@ -124,11 +144,10 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
 
         // NOTE: if a folding already exists in a folding group it will note be duplicated
         // see FoldingModelImpl.createFoldRegion
-        val expandedIndexes = foldGroup.expandedRegionsIndexes.toSet
-        updateFoldings(foldings, expandedIndexes)
+        updateFoldings(foldings)
+        foldGroup.initMappings()
       }
     }
-  }
 }
 
 object WorksheetEditorPrinterPlain {
@@ -175,14 +194,14 @@ object WorksheetEditorPrinterPlain {
 
 
   @Measure
-  private def renderText(chunks: Seq[EvaluationChunk]): (CharSequence, Seq[FoldingOffsets]) = {
+  private def renderText(chunks: Seq[EvaluationChunk], expandedIndexes: Set[Int]): (CharSequence, Seq[FoldingOffsets]) = {
     val resultText = StringBuilder.newBuilder
     val resultFoldings = ArrayBuffer.empty[FoldingOffsets]
 
     val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
     var foldedLines                              = 0
 
-    for { group <- chunksGrouped} {
+    for { (group, groupIdx) <- chunksGrouped.iterator.zipWithIndex } {
       val inputStartLine   = group.head.inputStartLine
       val inputEndLine     = group.last.inputEndLine
       val inputLinesCount  = inputEndLine - inputStartLine + 1
@@ -222,7 +241,8 @@ object WorksheetEditorPrinterPlain {
           outputStartLine,
           outputEndOffset,
           inputLinesCount,
-          inputEndLine
+          inputEndLine,
+          isExpanded = expandedIndexes.contains(groupIdx)
         )
 
         foldedLines += diffLocal

@@ -454,6 +454,8 @@ package object extensions {
     @inline private def parseNumeric[T: Numeric](parse: => T): Option[T] = try Some(parse) catch {
       case _: NumberFormatException => None
     }
+
+    def trimRight: String = string.replaceAll("\\s+$", "")
   }
 
   implicit class CharSeqExt(private val cs: CharSequence) extends AnyVal {
