@@ -58,7 +58,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  ${CARET}Test(false)
        |}
       """,
-    expected = (isObject, "Test$"), (isFunction, Apply)
+    expected = (isObject, "Test"), (isFunction, Apply)
   )
 
   def testPackageObjectOnly(): Unit = doTest(
@@ -71,7 +71,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |
        |import org.example.foo.b${CARET}ar.foo
      """,
-    expected = (isPackageObject, "org.example.foo.bar.package$")
+    expected = (isPackageObject, "org.example.foo.bar")
   )
 
   def testPackageObjectAmbiguity(): Unit = doTest(
@@ -82,7 +82,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |
        |import org.example.foo.b${CARET}ar
      """,
-    expected = (isPackageObject, "org.example.foo.bar.package$"),
+    expected = (isPackageObject, "org.example.foo.bar"),
     (_.isInstanceOf[PsiPackage], "org.example.foo.bar")
   )
 
@@ -100,8 +100,8 @@ class GoToDeclarationTest extends GoToTestBase {
        |
        |import org.example.foo.ba${CARET}r.{Bar, baz}
      """,
-    expected = (_.isInstanceOf[PsiPackage], "org.example.foo.bar"),
-    (isPackageObject, "org.example.foo.bar.package$")
+    (_.isInstanceOf[PsiPackage], "org.example.foo.bar"),
+    (isPackageObject, "org.example.foo.bar")
   )
 
   def testImportSelectorsExclusive(): Unit = doTest(
@@ -119,7 +119,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |
        |import org.example.foo.ba${CARET}r.{qux, baz}
      """,
-    expected = (isPackageObject, "org.example.foo.bar.package$")
+    expected = (isPackageObject, "org.example.foo.bar")
   )
 
   def testGenerator_map(): Unit = doTest(
@@ -195,7 +195,7 @@ class GoToDeclarationTest extends GoToTestBase {
     val wrongTargets = for {
       (actualElement, (predicate, expectedName)) <- targets.zip(expected)
 
-      if !(predicate(actualElement) && hasExpectedName(actualElement, expectedName))
+      if !predicate(actualElement) || actualName(actualElement) != expectedName
     } yield actualElement
 
     assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)

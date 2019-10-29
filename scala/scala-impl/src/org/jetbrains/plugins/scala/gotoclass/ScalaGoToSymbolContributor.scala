@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -92,7 +93,7 @@ class ScalaGoToSymbolContributor extends GotoClassContributor {
 
   private def isNonLocal(item: NavigationItem): Boolean = {
     item match {
-      case _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile) => true
+      case m: ScMember => !m.isLocal
       case _ => false
     }
   }
