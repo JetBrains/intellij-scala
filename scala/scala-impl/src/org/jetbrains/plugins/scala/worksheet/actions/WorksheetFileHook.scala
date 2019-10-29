@@ -29,6 +29,8 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetUiConstructor}
 
+import scala.util.control.NonFatal
+
 class WorksheetFileHook(private val project: Project) extends ProjectComponent  {
 
   private var statusDisplay: Option[InteractiveStatusDisplay] = None
@@ -176,7 +178,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
                 val group = WorksheetFoldGroup.load(viewer, editor, project, splitter, scalaFile)
                 WorksheetEditorPrinterFactory.synch(editor, viewer, Some(splitter), Some(group))
               } catch {
-                case _: Exception => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
+                case NonFatal(_) => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
               }
             }
           }

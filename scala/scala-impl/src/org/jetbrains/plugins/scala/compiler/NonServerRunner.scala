@@ -3,6 +3,7 @@ package compiler
 
 import java.io.{BufferedReader, File, InputStreamReader, Reader}
 import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
@@ -46,13 +47,12 @@ class NonServerRunner(project: Project) {
 
         new CompilationProcess {
           var myProcess: Option[Process] = None
-          var myCallbacks: Seq[() => Unit] = Seq.empty
+          var myCallbacks: Seq[Option[Throwable] => Unit] = Seq.empty
+          var myCallbacksHandled: AtomicBoolean = new AtomicBoolean(false)
 
-          override def addTerminationCallback(callback: => Unit) {
-            myCallbacks = myCallbacks :+ (() => callback)
-          }
+          override def addTerminationCallback(callback: Option[Throwable] => Unit): Unit = this.myCallbacks :+= callback
 
-          override def run(): Unit = {
+          override def run(): Unit = try {
             val p = builder.start()
             myProcess = Some(p)
 
@@ -68,10 +68,19 @@ class NonServerRunner(project: Project) {
             val processWaitFor =
               new ProcessWaitFor(p, (task: Runnable) => AppExecutorUtil.getAppExecutorService.submit(task), processName)
 
-            processWaitFor.setTerminationCallback((_: Integer) => {
-              myCallbacks.foreach(c => c())
+            processWaitFor.setTerminationCallback { returnCode =>
+              if (myCallbacksHandled.compareAndSet(false, true)) {
+                val ex = if (returnCode == 0) None else Some(new RuntimeException(s"process terminated with return code: $returnCode"))
+                myCallbacks.foreach(_.apply(ex))
+              }
               reader.stop() // will close streams under the hood in event loop
-            })
+            }
+          } catch {
+            case ex: Throwable =>
+              if(myCallbacksHandled.compareAndSet(false, true)) {
+                myCallbacks.foreach(_.apply(Some(ex)))
+              }
+              throw ex
           }
 
           override def stop() {

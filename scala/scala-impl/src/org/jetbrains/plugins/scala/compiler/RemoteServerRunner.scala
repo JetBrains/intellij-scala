@@ -9,6 +9,8 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 
+import scala.util.control.NonFatal
+
 /**
  * @see [[NonServerRunner]]
  */
@@ -20,13 +22,13 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
   def buildProcess(arguments: Seq[String], client: Client): CompilationProcess = new CompilationProcess {
     val COUNT = 10
 
-    var callbacks: Seq[() => Unit] = Seq.empty
+    var callbacks: Seq[Option[Throwable] => Unit] = Seq.empty
 
-    override def addTerminationCallback(callback: => Unit) {
-      this.callbacks = this.callbacks :+ (() => callback)
-    }
+    override def addTerminationCallback(callback: Option[Throwable] => Unit): Unit =
+      this.callbacks :+= callback
 
-    override def run() {
+    override def run(): Unit = {
+      var unhandledException: Option[Throwable] = None
       try {
         for (i <- 0 until (COUNT - 1)) {
           try {
@@ -50,8 +52,10 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
           val message = "Unknown IP address of compile server host: " + address.toString
           client.error(message)
           client.debug(s"$message\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
+        case NonFatal(ex) =>
+          unhandledException = Some(ex)
       } finally {
-        callbacks.foreach(a => a())
+        callbacks.foreach(_.apply(unhandledException))
       }
     }
 

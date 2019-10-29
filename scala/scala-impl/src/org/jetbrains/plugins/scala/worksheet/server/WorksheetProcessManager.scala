@@ -9,7 +9,7 @@ object WorksheetProcessManager {
   private val processes = ContainerUtil.createConcurrentWeakMap[VirtualFile, CompilationProcess]()
 
   def add(file: VirtualFile, process: CompilationProcess): Unit = {
-    process.addTerminationCallback(remove(file))
+    process.addTerminationCallback(_ => remove(file))
     processes.put(file, process)
   }
 
