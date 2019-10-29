@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsPass
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Expression
 
 import scala.annotation.tailrec
@@ -105,6 +105,8 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
 
   private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
+    implicit val typePresentationContext: TypePresentationContext = TypePresentationContext(expr)
+
     Text(": ") +: textPartsOf(ty, settings.presentationLength)
   }
 }
