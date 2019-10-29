@@ -184,7 +184,7 @@ object WorksheetEditorPrinterFactory {
 
     val viewerSettings = rightSideEditor.getSettings
     viewerSettings.setLineMarkerAreaShown(false)
-    viewerSettings.setLineNumbersShown(true)
+    viewerSettings.setLineNumbersShown(false)
 
     val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
