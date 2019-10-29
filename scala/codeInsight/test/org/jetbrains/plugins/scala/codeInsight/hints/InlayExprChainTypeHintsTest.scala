@@ -119,6 +119,26 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
      """.stripMargin
   )
 
+  // SCL-16459
+  def testShortTypes():Unit = doTest(
+    s"""
+       |class A {
+       |  class BBB {
+       |    def ccc: CCC = new CCC
+       |  }
+       |  class CCC {
+       |    def bbb: BBB = new BBB
+       |  }
+       |  def newB: BBB = new BBB
+       |
+       |  val b =
+       |    (new BBB)$S: BBB$E
+       |      .ccc$S: CCC$E
+       |      .bbb$S: BBB$E
+       |}
+       |""".stripMargin
+  )
+
   private def doTest(text: String, options: (Setter[java.lang.Boolean], Boolean)*): Unit = {
     def setOptions(reset: Boolean): Unit = options.foreach { case (opt, value) => opt.set(if(reset) !value else value) }
 
