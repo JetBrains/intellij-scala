@@ -43,10 +43,8 @@ class SbtProjectOpenProcessor extends ProjectOpenProcessorBase[SbtProjectImportB
       }
     }
 
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      dialog.show()
-      dialog.isOK
-    } else true
+    dialog.doFinishAction()
+    true
   }
 
   override def getIcon(file: VirtualFile): Icon = {
