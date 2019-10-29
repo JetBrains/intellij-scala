@@ -10,5 +10,5 @@ trait CompilationProcess {
 
   def stop(): Unit
 
-  def addTerminationCallback(callback: => Unit): Unit
+  def addTerminationCallback(callback: Option[Throwable] => Unit): Unit
 }

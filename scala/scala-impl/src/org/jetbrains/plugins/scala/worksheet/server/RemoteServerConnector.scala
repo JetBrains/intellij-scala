@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet.server
 
 import java.io._
-import java.net._
 
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.compiler.progress.CompilerTask
@@ -28,6 +27,8 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface, RemoteServerConnectorResult}
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
+
+import scala.util.control.NonFatal
 
 // TODO: remove all deprecated Base64Converter usages
 final class RemoteServerConnector(
@@ -66,6 +67,7 @@ final class RemoteServerConnector(
 
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
   // TODO: add logging across all these callbacks in RunWorksheetAction, WorksheetCompiler, RemoteServerConnector...
+  // NOTE: for now this method is non-blocking for runType == NonServer and blocking for other run types
   def compileAndRun(originalFile: VirtualFile, consumer: OuterCompilerInterface, callback: RemoteServerConnectorResult => Unit): Unit = { // TODO: make it some normal errors
 
     val project = module.getProject
@@ -73,7 +75,7 @@ final class RemoteServerConnector(
 
     val client = new MyTranslatingClient(project, originalFile, consumer)
 
-    try {
+    val process = try {
       val worksheetProcess = runType match {
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
@@ -104,26 +106,35 @@ final class RemoteServerConnector(
       }
 
       worksheetHook.disableRun(originalFile, Some(worksheetProcess))
-      worksheetProcess.addTerminationCallback {
+      worksheetProcess.addTerminationCallback { exception =>
         worksheetHook.enableRun(originalFile, client.isCompiledWithErrors)
         fileToReHighlight.foreach(WorksheetEditorPrinterRepl.rehighlight)
 
-        val result = if (client.isCompiledWithErrors) {
-          RemoteServerConnectorResult.CompilationError("compilation ended with errors")
-        } else runType match {
-          case OutOfProcessServer => RemoteServerConnectorResult.Compiled
-          case _                  => RemoteServerConnectorResult.CompiledAndEvaluated
+        val result = exception match {
+          case Some(_) =>
+            RemoteServerConnectorResult.ProcessTerminatedError(ExitCode.ABORT)
+          case _ if client.isCompiledWithErrors=>
+            RemoteServerConnectorResult.CompilationError("compilation ended with errors")
+          case _ =>
+            runType match {
+              case OutOfProcessServer => RemoteServerConnectorResult.Compiled
+              case _                  => RemoteServerConnectorResult.CompiledAndEvaluated
+            }
         }
+
         callback.apply(result)
       }
 
       WorksheetProcessManager.add(originalFile, worksheetProcess)
-
-      worksheetProcess.run()
+      worksheetProcess
     } catch {
-      case _: SocketException =>
-        callback(RemoteServerConnectorResult.ProcessTerminatedError(ExitCode.ABORT)) // someone has stopped the server
+      case NonFatal(ex) =>
+        callback(RemoteServerConnectorResult.UnknownError(ex))
+        throw ex
     }
+
+    // exceptions thrown inside the process should be propagated to callback via termination callback
+    process.run()
   }
 
   private def outputDirs: Array[String] = {
@@ -140,6 +151,7 @@ object RemoteServerConnector {
     object CompiledAndEvaluated extends RemoteServerConnectorResult
     trait Error extends RemoteServerConnectorResult
     final case class ProcessTerminatedError(rc: ExitCode) extends Error
+    final case class UnknownError(cause: Throwable) extends Error
     final case class CompilationError(message: String) extends Error
   }
 

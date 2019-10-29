@@ -34,6 +34,8 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.W
 import org.jetbrains.plugins.scala.worksheet.settings._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinter
 
+import scala.util.control.NonFatal
+
 //TODO: add logging everywhere
 class WorksheetCompiler(
   module: Module,
@@ -192,7 +194,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
         val processHandler = params.createOSProcessHandler()
         setUpUiAndRun(processHandler, scalaFile)(callback, worksheetPrinter)
       } catch {
-        case ex: Throwable =>
+        case NonFatal(ex: Throwable) =>
           callback(WorksheetCompilerResult.EvaluationError(ex))
           throw ex
       }

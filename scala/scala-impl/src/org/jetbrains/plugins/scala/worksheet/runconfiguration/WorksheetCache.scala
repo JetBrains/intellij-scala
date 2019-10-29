@@ -51,7 +51,7 @@ class WorksheetCache(project: Project) extends ProjectComponent  {
     allReplPrinters.remove(inputEditor)
   }
   
-  def getLastProcessedIncremental(inputEditor: Editor): Option[Int] =
+  def getLastProcessedIncremental(inputEditor: Editor): Option[Int] = {
     Option(allReplPrinters.get(inputEditor)).flatMap {
       case in: WorksheetEditorPrinterRepl => in.getLastProcessedLine
       case _                              => None

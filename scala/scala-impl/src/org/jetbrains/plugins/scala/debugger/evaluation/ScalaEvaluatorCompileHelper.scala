@@ -133,7 +133,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
 
     val compilationProcess = new RemoteServerRunner(project).buildProcess(arguments, client)
     var result: Either[Array[(File, String)], Seq[String]] = Right(Seq("Compilation failed"))
-    compilationProcess.addTerminationCallback {
+    compilationProcess.addTerminationCallback { exception => // TODO: do not ignore possible exception
       result = if (errors.nonEmpty) Right(errors) else Left(classfiles(outputDir))
     }
     compilationProcess.run()
