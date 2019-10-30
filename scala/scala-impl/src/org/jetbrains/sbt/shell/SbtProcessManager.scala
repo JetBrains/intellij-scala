@@ -20,8 +20,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.ui.MessageType
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.vfs.VfsUtil
 import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
@@ -418,9 +418,6 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
       case Some(ProcessData(handler, runner)) =>
-        invokeAndWait {
-          Disposer.dispose(runner)
-        }
         handler.destroyProcess()
         processData = None
       case None => // nothing to do
@@ -431,6 +428,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
 
   override def projectClosed(): Unit = {
     destroyProcess()
+    SbtShellConsoleView.disposeLastConsoleView(project)
   }
 
   /** Report if shell process is alive. Should only be used for UI/informational purposes. */
