@@ -18,15 +18,16 @@ private object TypeMismatchError {
   def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
               (formatMessage: (String, String) => String)
               (implicit holder: AnnotationHolder): Annotation = {
-    // TODO update the test data, SCL-15483
-    val message = {
-      val wideActualType = (expectedType, actualType) match {
-        case (_: ScLiteralType, t2: ScLiteralType) => t2
-        case (_, t2: ScLiteralType) => t2.wideType
-        case (_, t2) => t2
-      }
 
-      val (actualTypeText, expectedTypeText) = ScTypePresentation.different(wideActualType, expectedType)
+    // TODO update the test data, SCL-15483
+    val adjustedActualType = (expectedType, actualType) match {
+      case (_: ScLiteralType, t2: ScLiteralType) => t2
+      case (_, t2: ScLiteralType) => t2.wideType
+      case (_, t2) => t2
+    }
+
+    val message = {
+      val (actualTypeText, expectedTypeText) = ScTypePresentation.different(adjustedActualType, expectedType)
 
       if (ApplicationManager.getApplication.isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
       else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)
@@ -48,7 +49,7 @@ private object TypeMismatchError {
     implicit val context = TypePresentationContext(annotatedElement)
 
     // See org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler
-    annotation.setTooltip(TypeMismatchHints.tooltipFor(expectedType, actualType))
+    annotation.setTooltip(TypeMismatchHints.tooltipFor(expectedType, adjustedActualType))
     annotation.registerFix(ReportHighlightingErrorQuickFix)
     annotation.registerFix(EnableTypeMismatchHints)
 
@@ -62,7 +63,7 @@ private object TypeMismatchError {
       // TODO Can we detect a "current" color scheme in a "current" editor somehow?
       implicit val scheme = EditorColorsManager.getInstance().getGlobalScheme
 
-      TypeMismatchHints.createFor(delegateElement, expectedType, actualType).putTo(delegateElement)
+      TypeMismatchHints.createFor(delegateElement, expectedType, adjustedActualType).putTo(delegateElement)
     }
 
     annotation

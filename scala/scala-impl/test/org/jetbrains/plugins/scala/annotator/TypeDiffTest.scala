@@ -41,6 +41,16 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "class Foo; class Bar",
       "~Foo~", "~Bar~"
     )
+
+    // Subtyping
+    assertDiffsAre(
+      "class Foo; class Bar extends Foo",
+      "Foo", "Bar"
+    )
+    assertDiffsAre(
+      "class Foo; class Bar extends Foo",
+      "~Bar~", "~Foo~"
+    )
   }
 
   def testQualifier(): Unit = {
@@ -114,13 +124,6 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       "",
       "~\"foo\"~", "~\"bar\"~"
     )
-
-    // Widening
-//    assertDiffsAre(
-//      "",
-//      "Int", "1",
-//      "Int", "Int"
-//    )
 
     // Type differs
     assertDiffsAre(
