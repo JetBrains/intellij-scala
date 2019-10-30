@@ -387,7 +387,7 @@ class Test28 extends ComparingUnrelatedTypesInspectionTest {
 class Test29 extends ComparingUnrelatedTypesInspectionTest {
 
   override protected val description: String =
-    InspectionBundle.message("comparing.unrelated.types.hint", "A.Coord", "Int")
+    InspectionBundle.message("comparing.unrelated.types.hint", "Coord", "Int")
 
   def testTypeAlias(): Unit = checkTextHasNoErrors(
     """

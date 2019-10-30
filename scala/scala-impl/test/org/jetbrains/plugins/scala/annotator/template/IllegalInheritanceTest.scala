@@ -46,22 +46,22 @@ class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
   }
 
   def testIllegalInheritance(): Unit = {
-    val firstMessage = ScalaBundle.message("illegal.inheritance.self.type", "Holder.C", "Holder.X")
+    val firstMessage = ScalaBundle.message("illegal.inheritance.self.type", "C", "X")
     assertMatches(messages("trait X; trait T { self: X => }; class C extends T")) {
       case Error("T", `firstMessage`) :: Nil =>
     }
 
-    val secondMessage = ScalaBundle.message("illegal.inheritance.self.type", "Holder.C", "Holder.X")
+    val secondMessage = ScalaBundle.message("illegal.inheritance.self.type", "C", "X")
     assertMatches(messages("trait X; trait T { self: X => }; class C extends Object with T")) {
       case Error("T", `secondMessage`) :: Nil =>
     }
 
-    val thirdMessage = ScalaBundle.message("illegal.inheritance.self.type", "Holder.C with Holder.Y", "Holder.X")
+    val thirdMessage = ScalaBundle.message("illegal.inheritance.self.type", "C with Y", "X")
     assertMatches(messages("trait X; trait Y; trait T { self: X => }; class C extends T { self: Y => }")) {
       case Error("T", `thirdMessage`) :: Nil =>
     }
 
-    val fourthMessage = ScalaBundle.message("illegal.inheritance.self.type", "Holder.C with Holder.X", "Holder.Y")
+    val fourthMessage = ScalaBundle.message("illegal.inheritance.self.type", "C with X", "Y")
     assertMatches(messages("trait X; trait Y extends X; trait T { self: Y => }; class C extends T { self: X => }")) {
       case Error("T", `fourthMessage`) :: Nil =>
     }

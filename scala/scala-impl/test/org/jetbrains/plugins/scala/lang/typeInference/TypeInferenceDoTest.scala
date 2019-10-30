@@ -29,7 +29,7 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
   protected def doTest(fileText: Option[String], fileName: String = "dummy.scala"): Unit = {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
-    implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
+    implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     val typez = expr.`type`() match {
       case Right(t) if t.isUnit => expr.getTypeIgnoreBaseType
       case x => x
