@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetEvaluationError
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
@@ -57,7 +57,7 @@ object RunWorksheetAction {
     object NoModuleError extends Error
     object NoWorksheetFileError extends Error
     final case class ProjectCompilationError(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) extends Error
-    final case class WorksheetCompilerError(error: WorksheetEvaluationError) extends Error
+    final case class WorksheetRunError(error: WorksheetCompilerError) extends Error
   }
 
   def runCompiler(project: Project, auto: Boolean): Unit = {
@@ -118,8 +118,8 @@ object RunWorksheetAction {
 
     def runnable(): Unit = {
       val callback: WorksheetCompilerResult => Unit = {
-        case WorksheetCompilerResult.Done    => promise.success(RunWorksheetActionResult.Done)
-        case error: WorksheetEvaluationError => promise.success(RunWorksheetActionResult.WorksheetCompilerError(error))
+        case WorksheetCompilerResult.CompiledAndEvaluated => promise.success(RunWorksheetActionResult.Done)
+        case error: WorksheetCompilerError                => promise.success(RunWorksheetActionResult.WorksheetRunError(error))
       }
       val compiler = new WorksheetCompiler(module, editor, file, callback, auto)
       compiler.compileAndRunFile()

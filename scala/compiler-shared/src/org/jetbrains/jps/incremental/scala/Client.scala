@@ -5,6 +5,8 @@ import java.io.File
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
 /**
+ * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
+ *
  * @author Pavel Fatin
  */
 trait Client {

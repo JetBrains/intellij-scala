@@ -63,10 +63,10 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
 
   import _root_.scala.language.implicitConversions
 
-  implicit def file2path(file: File): String = FileUtil.toCanonicalPath(file.getAbsolutePath)
-  implicit def option2string(opt: Option[String]): String = opt getOrElse ""
-  implicit def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
-  implicit def array2string(arr: Array[String]): String = arr mkString "\n"
+  implicit private def file2path(file: File): String = FileUtil.toCanonicalPath(file.getAbsolutePath)
+  implicit private def option2string(opt: Option[String]): String = opt getOrElse ""
+  implicit private def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
+  implicit private def array2string(arr: Array[String]): String = arr mkString "\n"
 
   def arguments: Seq[String] = Seq[String](
     sbtData.sbtInterfaceJar,

@@ -1,7 +1,11 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13, SlowTests}
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11, SlowTests}
+import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
@@ -10,18 +14,10 @@ import scala.language.postfixOps
 class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
-  override def compileInCompileServerProcess: Boolean = true
-
-  override def runInCompileServerProcess: Boolean = true
-
   // FIXME: fails for scala 2.10:
   //  sbt.internal.inc.CompileFailed: Error compiling the sbt component 'repl-wrapper-2.10.7-55.0-2-ILoopWrapperImpl.jar'
   //  https://youtrack.jetbrains.com/issue/SCL-16175
-  override protected def supportedIn(version: ScalaVersion): Boolean = Seq(
-    Scala_2_11,
-    Scala_2_12,
-    Scala_2_13
-  ).contains(version)
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   def testSimpleDeclaration(): Unit = {
     val left =
@@ -33,7 +29,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """a: Int = 1
         |b: Int = 2""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
 
   def testSimpleFolding(): Unit = {
@@ -48,7 +44,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |3$foldEnd
         |x: Int = 42""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
 
   def testMultipleFoldings(): Unit = {
@@ -69,8 +65,33 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |6$foldEnd
          |y: Int = 23""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
+
+  def testLongLineOutput(): Unit = {
+    val left =
+      """val text = "1\n^\n2\n3\n4\n^\n5\n6\n7\n8\n9"
+        |val x = 42
+        |""".stripMargin
+
+    val right =
+      s"""${foldStart}text: String =
+         |1
+         |^
+         |2
+         |3
+         |4
+         |^
+         |5
+         |6
+         |7
+         |8
+         |9$foldEnd
+         |x: Int = 42""".stripMargin
+
+    doRenderTest(left, right)
+  }
+
 
   override def stackTraceLineStart = "..."
 
@@ -94,5 +115,58 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     val errorMessage = "java.lang.ArithmeticException: / by zero"
 
     testDisplayFirstRuntimeException(left, right, errorMessage)
+  }
+
+  def testCompilationErrorsAndWarnings_ComplexTst(): Unit = {
+    val before =
+      """
+        |Option(42) match {
+        |  case Some(42) => println("1\n2\n3\n4")
+        |}
+        |
+        |class X {
+        |  sealed trait T
+        |  case class A() extends T
+        |  case class B() extends T
+        |
+        |  def foo = Sum(Product(Number(2),
+        |    Number(3)))
+        |}
+        |
+        |val shouldNotBeEvaluated = 42
+        |""".stripMargin
+
+    val after =
+      s"""
+         |1
+         |2
+         |${foldStart}3
+         |4$foldEnd
+         |
+         |""".stripMargin
+
+
+    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after)
+
+    assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
+
+    assertCompilerMessages(editor)(
+      """Warning:(2, 7) match may not be exhaustive.
+        |It would fail on the following inputs: None, Some((x: Int forSome x not in 42))
+        |Option(42) match {
+        |
+        |Error:(11, 13) not found: value Sum
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 17) not found: value Product
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 25) class java.lang.Number is not a value
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(12, 5) class java.lang.Number is not a value
+        |Number(3)))
+        |""".stripMargin.trim
+    )
   }
 }

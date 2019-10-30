@@ -10,5 +10,9 @@ import scala.language.postfixOps
 @Category(Array(classOf[SlowTests]))
 abstract class WorksheetReplIntegrationBaseTest extends WorksheetIntegrationBaseTest with WorksheetRunTestSettings {
 
+  override def compileInCompileServerProcess: Boolean = true
+
+  override def runInCompileServerProcess: Boolean = true
+
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.ReplRunType
 }

@@ -4,10 +4,8 @@ package worksheet.server
 import java.io._
 
 import com.intellij.compiler.CompilerMessageImpl
-import com.intellij.compiler.progress.CompilerTask
-import com.intellij.openapi.compiler.{CompilerMessageCategory, CompilerPaths}
+import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory, CompilerPaths}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
@@ -18,20 +16,20 @@ import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.plugins.scala.compiler.{NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
-import org.jetbrains.plugins.scala.extensions.ThrowableExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface, RemoteServerConnectorResult}
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 
 import scala.util.control.NonFatal
 
 // TODO: remove all deprecated Base64Converter usages
-final class RemoteServerConnector(
+private[worksheet]
+class RemoteServerConnector(
   module: Module,
   worksheetPsiFile: ScFile,
   worksheet: File,
@@ -48,7 +46,7 @@ final class RemoteServerConnector(
 
   /**
     * Args (for running in compile server process only)
-    * 0. Compiled class name to execute 
+    * 0. Compiled class name to execute
     * 1. Path to runners.jar (needed to load MacroPrinter for types)
     * 2. Output - path to temp file, where processed worksheet code is written
     * 3. Output dir for compiled worksheet (i.e. for compiled temp file with processed code)
@@ -68,7 +66,9 @@ final class RemoteServerConnector(
   // TODO: make something more advanced than just `callback: Runnable`: error reporting, Future, Task, etc...
   // TODO: add logging across all these callbacks in RunWorksheetAction, WorksheetCompiler, RemoteServerConnector...
   // NOTE: for now this method is non-blocking for runType == NonServer and blocking for other run types
-  def compileAndRun(originalFile: VirtualFile, consumer: OuterCompilerInterface, callback: RemoteServerConnectorResult => Unit): Unit = { // TODO: make it some normal errors
+  def compileAndRun(originalFile: VirtualFile,
+                    consumer: RemoteServerConnector.CompilerInterface,
+                    callback: RemoteServerConnectorResult => Unit): Unit = {
 
     val project = module.getProject
     val worksheetHook = WorksheetFileHook.instance(project)
@@ -107,17 +107,18 @@ final class RemoteServerConnector(
 
       worksheetHook.disableRun(originalFile, Some(worksheetProcess))
       worksheetProcess.addTerminationCallback { exception =>
-        worksheetHook.enableRun(originalFile, client.isCompiledWithErrors)
+        worksheetHook.enableRun(originalFile, consumer.isCompiledWithErrors)
+
         fileToReHighlight.foreach(WorksheetEditorPrinterRepl.rehighlight)
 
         val result = exception match {
           case Some(_) =>
             RemoteServerConnectorResult.ProcessTerminatedError(ExitCode.ABORT)
-          case _ if client.isCompiledWithErrors=>
-            RemoteServerConnectorResult.CompilationError("compilation ended with errors")
+          case _ if consumer.isCompiledWithErrors =>
+            RemoteServerConnectorResult.CompilationError
           case _ =>
             runType match {
-              case OutOfProcessServer => RemoteServerConnectorResult.Compiled
+              case OutOfProcessServer => RemoteServerConnectorResult.Compiled(worksheetClassName, output)
               case _                  => RemoteServerConnectorResult.CompiledAndEvaluated
             }
         }
@@ -143,24 +144,22 @@ final class RemoteServerConnector(
   }
 }
 
+private[worksheet]
 object RemoteServerConnector {
 
   sealed trait RemoteServerConnectorResult
   object RemoteServerConnectorResult {
-    object Compiled extends RemoteServerConnectorResult
-    object CompiledAndEvaluated extends RemoteServerConnectorResult
+    case class Compiled(worksheetClassName: String, outputDir: File) extends RemoteServerConnectorResult
+    case object CompiledAndEvaluated extends RemoteServerConnectorResult
+
     trait Error extends RemoteServerConnectorResult
+    case object CompilationError extends Error // assuming that errors are collected by CompilerInterface
     final case class ProcessTerminatedError(rc: ExitCode) extends Error
     final case class UnknownError(cause: Throwable) extends Error
-    final case class CompilationError(message: String) extends Error
   }
 
-  private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: OuterCompilerInterface) extends DummyClient {
-    private val length = WorksheetSourceProcessor.END_GENERATED_MARKER.length
-
-    private var hasErrors = false
-
-    def isCompiledWithErrors: Boolean = hasErrors
+  private class MyTranslatingClient(project: Project, worksheet: VirtualFile, consumer: CompilerInterface) extends DummyClient {
+    private val endMarker = WorksheetSourceProcessor.END_GENERATED_MARKER
 
     override def progress(text: String, done: Option[Float]): Unit =
       consumer.progress(text, done)
@@ -173,42 +172,46 @@ object RemoteServerConnector {
       val linesLength = lines.length
 
       val differ = if (linesLength > 2) {
-        val i = lines(linesLength - 2) indexOf WorksheetSourceProcessor.END_GENERATED_MARKER
-        if (i > -1) i + length else 0
+        val endLineIdx = lines(linesLength - 2).indexOf(endMarker)
+        if (endLineIdx != -1) {
+          endLineIdx + endMarker.length
+        } else 0
       } else 0
 
       val finalText = if (differ == 0) text else {
         val buffer = new StringBuilder
 
-        for (j <- 0 until (linesLength - 2)) buffer append lines(j) append "\n"
+        for (j <- 0 until (linesLength - 2)) {
+          buffer.append(lines(j)).append("\n")
+        }
 
         val lines1 = lines(linesLength - 1)
 
-        buffer append lines(linesLength - 2).substring(differ) append "\n" append (
-          if (lines1.length > differ) lines1.substring(differ) else lines1) append "\n"
+        buffer
+          .append(lines(linesLength - 2).substring(differ)).append("\n")
+          .append(if (lines1.length > differ) lines1.substring(differ) else lines1).append("\n")
+
         buffer.toString()
       }
 
-      val line1 = line.map(i => i - 4).map(_.toInt)
-      val column1 = column.map(_ + 1 - differ).map(_.toInt)
+      // TODO: current line & column calculation are broken
+      val line1 = line.map(i => i - 4).map(_.toInt).getOrElse(-1)
+      val column1 = column.map(_ - differ).map(_.toInt).getOrElse(-1)
 
+      val category = toCompilerMessageCategory(kind)
+
+      val message = new CompilerMessageImpl(project, category, finalText, worksheet, line1, column1, null)
+      consumer.message(message)
+    }
+
+    private def toCompilerMessageCategory(kind: Kind): CompilerMessageCategory = {
       import BuildMessage.Kind._
-
-      val category = kind match {
-        case INFO | JPS_INFO | OTHER =>
-          CompilerMessageCategory.INFORMATION
-        case ERROR =>
-          hasErrors = true
-          CompilerMessageCategory.ERROR
-        case PROGRESS =>
-          CompilerMessageCategory.STATISTICS
-        case WARNING =>
-          CompilerMessageCategory.WARNING
+      kind match {
+        case INFO | JPS_INFO | OTHER        => CompilerMessageCategory.INFORMATION
+        case ERROR | INTERNAL_BUILDER_ERROR => CompilerMessageCategory.ERROR
+        case PROGRESS                       => CompilerMessageCategory.STATISTICS
+        case WARNING                        => CompilerMessageCategory.WARNING
       }
-
-      consumer.message(
-        new CompilerMessageImpl(project, category, finalText, worksheet, line1 getOrElse -1, column1 getOrElse -1, null)
-      )
     }
 
     override def worksheetOutput(text: String): Unit =
@@ -219,46 +222,19 @@ object RemoteServerConnector {
       consumer.finish()
     }
   }
-  
-  trait OuterCompilerInterface {
-    def message(message: CompilerMessageImpl)
+
+  // Worksheet Integration Tests rely on that this is the main entry point for all compiler messages
+  trait CompilerMessagesConsumer {
+    def message(message: CompilerMessage)
+  }
+
+  trait CompilerInterface extends CompilerMessagesConsumer {
     def progress(text: String, done: Option[Float])
     def finish()
 
     def worksheetOutput(text: String)
     def trace(thr: Throwable)
-  }
 
-  class CompilerInterfaceImpl(task: CompilerTask,
-                              worksheetPrinter: Option[WorksheetEditorPrinter],
-                              indicator: Option[ProgressIndicator],
-                              auto: Boolean = false)
-    extends OuterCompilerInterface {
-
-    override def progress(text: String, done: Option[Float]): Unit = {
-      if (auto) return
-      val taskIndicator = ProgressManager.getInstance().getProgressIndicator
-
-      if (taskIndicator != null) {
-        taskIndicator.setText(text)
-        done.foreach(d => taskIndicator.setFraction(d.toDouble))
-      }
-    }
-
-    override def message(message: CompilerMessageImpl): Unit = {
-      if (auto) return
-      task.addMessage(message)
-    }
-
-    override def worksheetOutput(text: String): Unit =
-      worksheetPrinter.foreach(_.processLine(text))
-
-    override def trace(thr: Throwable): Unit = {
-      val message = "\n" + thr.stackTraceText // stacktrace already contains thr.toString which contains message
-      worksheetPrinter.foreach(_.internalError(message))
-    }
-
-    override def finish(): Unit =
-      worksheetPrinter.foreach(_.flushBuffer())
+    def isCompiledWithErrors: Boolean
   }
 }

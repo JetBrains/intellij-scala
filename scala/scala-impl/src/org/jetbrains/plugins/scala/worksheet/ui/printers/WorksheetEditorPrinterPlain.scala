@@ -79,15 +79,14 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   override def internalError(errorMessage: String): Unit = {
     super.internalError(errorMessage)
     terminated = true
+    stopTimer()
   }
 
   override def flushBuffer(): Unit = {
     if (!isInited) init()
     if (terminated) return
 
-    if (flushTimer.isRunning) {
-      flushTimer.stop()
-    }
+    stopTimer()
 
     val lastChunk = buildIncompleteLastChunkOpt
     val expandedIndexes = (foldGroup.expandedRegionsIndexes.toIterator ++ lastChunk.map(_ => evaluatedChunks.size)).toSet
@@ -98,6 +97,14 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
       worksheetViewer.getMarkupModel.removeAllHighlighters()
     }
   }
+
+  override def close(): Unit =
+    stopTimer()
+
+  private def stopTimer(): Unit =
+    if (flushTimer.isRunning) {
+      flushTimer.stop()
+    }
 
   private def buildIncompleteLastChunkOpt: Option[EvaluationChunk] = {
     if (StringUtils.isNotBlank(currentOutputBuffer)) {

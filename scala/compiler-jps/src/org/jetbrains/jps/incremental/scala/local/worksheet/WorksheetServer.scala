@@ -2,7 +2,9 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io._
 import java.net.URL
+import java.nio.charset.StandardCharsets
 import java.nio.{Buffer, ByteBuffer}
+import java.util.Base64
 
 import org.jetbrains.annotations.NotNull
 import com.intellij.util.Base64Converter

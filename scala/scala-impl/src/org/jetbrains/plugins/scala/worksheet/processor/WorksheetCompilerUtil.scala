@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.compiler.impl.CompilerErrorTreeView
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiErrorElement
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.extensions._
@@ -25,6 +24,16 @@ object WorksheetCompilerUtil {
   sealed trait CompilationMessageSeverity {
     def toType: Int
     def isFatal: Boolean = false
+  }
+
+  object CompilationMessageSeverity {
+
+    def apply(value: String): Option[CompilationMessageSeverity] = value match {
+      case "INFO"    => Some(InfoSeverity)
+      case "WARNING" => Some(WarningSeverity)
+      case "ERROR"   => Some(ErrorSeverity)
+      case _         => None
+    }
   }
 
   object ErrorSeverity extends CompilationMessageSeverity {

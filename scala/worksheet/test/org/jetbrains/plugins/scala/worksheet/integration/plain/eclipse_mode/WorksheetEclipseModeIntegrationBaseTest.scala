@@ -115,6 +115,6 @@ class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTe
          |
          |""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
 }
