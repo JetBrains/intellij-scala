@@ -9,13 +9,11 @@ import com.intellij.execution.console._
 import com.intellij.execution.process.{ColoredProcessHandler, OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.ui.content.impl.ContentImpl
 import com.intellij.ui.content.{Content, ContentFactory}
 import javax.swing.{Icon, JLabel, JPanel, SwingConstants}
@@ -29,8 +27,7 @@ import org.jetbrains.sbt.shell.SbtShellRunner._
 import scala.collection.JavaConverters._
 
 final class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
-  extends AbstractConsoleRunnerWithHistory[SbtShellConsoleView](project, consoleTitle, project.baseDir.getCanonicalPath)
-    with Disposable {
+  extends AbstractConsoleRunnerWithHistory[SbtShellConsoleView](project, consoleTitle, project.baseDir.getCanonicalPath) {
 
   private val log = Logger.getInstance(getClass)
 
@@ -93,8 +90,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       log.error("console view should be created in initAndRun by this moment")
       return
     }
-
-    Disposer.register(this, getConsoleView)
 
     consoleView.setPrompt("(initializing) >")
 
@@ -188,8 +183,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     }
 
   def getDebugConnection: Option[RemoteConnection] = debugConnection
-
-  override def dispose(): Unit = {}
 
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 

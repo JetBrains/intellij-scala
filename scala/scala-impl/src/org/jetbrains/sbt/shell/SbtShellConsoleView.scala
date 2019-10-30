@@ -7,12 +7,15 @@ import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.sbt.shell.action._
+
+import scala.collection.mutable
 
 /**
   * Created by jast on 2017-05-17.
@@ -57,9 +60,16 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     group.addAll(scrollToTheEndToolbarAction, toggleSoftWrapsAction, clearAllAction)
     group
   }
+
+  override def dispose(): Unit = {
+    super.dispose()
+    EditorFactory.getInstance().releaseEditor(getConsoleEditor)
+  }
 }
 
 object SbtShellConsoleView {
+
+  private val lastConsoleViews: mutable.Map[Project, SbtShellConsoleView] = mutable.HashMap.empty
 
   def apply(project: Project, debugConnection: Option[RemoteConnection]): SbtShellConsoleView = {
     val cv = new SbtShellConsoleView(project, debugConnection)
@@ -74,9 +84,16 @@ object SbtShellConsoleView {
 
     cv.getHistoryViewer.addEditorMouseListener(new HistoryMouseListener(cv))
 
+    disposeLastConsoleView(project)
+    lastConsoleViews.put(project, cv)
+
     cv
   }
 
+  def disposeLastConsoleView(project: Project): Unit = {
+    lastConsoleViews.get(project).foreach(_.dispose())
+    lastConsoleViews.remove(project)
+  }
 
   private def filePatternFilters(project: Project) = {
     import PatternHyperlinkPart._
