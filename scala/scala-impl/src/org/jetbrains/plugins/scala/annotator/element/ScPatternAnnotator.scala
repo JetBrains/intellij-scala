@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, ScTypePresentation, TupleType, TypeParameterType, arrayType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Pattern
@@ -50,6 +50,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
   private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern)
                               (implicit holder: AnnotationHolder) = {
     implicit val ctx: ProjectContext = pattern
+    implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
 
     val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))
     val patType = _patType.removeAliasDefinitions()

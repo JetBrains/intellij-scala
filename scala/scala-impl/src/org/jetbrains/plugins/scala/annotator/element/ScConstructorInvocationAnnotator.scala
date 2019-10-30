@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
@@ -15,10 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorO
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, DefaultTypeParameterMismatch, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedParametersClause, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, DefaultTypeParameterMismatch, ExcessArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, MalformedDefinition, MissedParametersClause, MissedValueParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, TypeMismatch, TypePresentationContext, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.extensions._
 
 // TODO unify with ScMethodInvocationAnnotator and ScReferenceAnnotator
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
@@ -109,6 +109,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         Map.empty
     }
 
+    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     missedParamsPerArgList.foreach {
       case (param, missing) =>
         val range = param.map { argumentList =>

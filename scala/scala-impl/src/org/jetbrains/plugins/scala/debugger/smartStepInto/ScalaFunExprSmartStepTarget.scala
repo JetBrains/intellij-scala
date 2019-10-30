@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
-import javax.swing.Icon
-
 import com.intellij.debugger.actions.SmartStepTarget
 import com.intellij.util.Range
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
 /**
  * @author Nikolay.Tropin
@@ -42,6 +42,7 @@ object FunExpressionTarget {
   }
 
   private def parameterNameAndType(expr: ScExpression): Option[String] = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
     ScalaPsiUtil.parameterOf(expr) match {
       case Some(p) if p.isByName => Some(s"${p.name}: => ${p.paramType.presentableText}")
       case Some(p) => Some(s"${p.name}: ${p.paramType.presentableText}")

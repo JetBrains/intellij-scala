@@ -299,7 +299,7 @@ object ScalaResolveResult {
         val extractedType: Option[PsiClass] = {
           val fromType = resolveResult.fromType
 
-          def isPredef = fromType.exists(_.presentableText == "Predef.type")
+          def isPredef = fromType.exists(_.presentableText(TypePresentationContext.emptyContext) == "Predef.type")
 
           import resolveResult.projectContext
           qualifierType.orElse(fromType).getOrElse(api.Nothing) match {

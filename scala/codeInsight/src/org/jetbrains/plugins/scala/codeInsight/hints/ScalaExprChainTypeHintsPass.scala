@@ -105,7 +105,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
 
   private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
-    implicit val typePresentationContext: TypePresentationContext = TypePresentationContext(expr)
+    implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
     Text(": ") +: textPartsOf(ty, settings.presentationLength)
   }

@@ -39,7 +39,7 @@ object ScalaElementPresentation {
       presentableText.append(": ")
       try {
         val typez = subst(function.returnType.getOrAny)
-        presentableText.append(typez.presentableText)
+        presentableText.append(typez.presentableText(function))
       }
       catch {
         case _: IndexNotReadyException => presentableText.append("NoTypeInfo")
@@ -56,7 +56,7 @@ object ScalaElementPresentation {
 
   def getValOrVarPresentableText(elem: ScNamedElement): String = {
     val typeText = elem match {
-      case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText
+      case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText(typed)
       case _ => ""
     }
     val keyword = ScalaPsiUtil.nameContext(elem) match {

@@ -84,7 +84,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
       if (needHighlighting) {
         Seq(left, right).map(_.`type`().map(_.tryExtractDesignatorSingleton)) match {
           case Seq(Right(leftType), Right(rightType)) if cannotBeCompared(leftType, rightType) =>
-            val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
+            val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
             holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           case _ =>
         }
@@ -95,7 +95,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
         argType <- arg.`type`().toOption
         if cannotBeCompared(elemType, argType)
       } {
-        val message = generateComparingUnrelatedTypesMsg(elemType, argType)
+        val message = generateComparingUnrelatedTypesMsg(elemType, argType)(arg)
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call) =>
@@ -109,12 +109,12 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
         t2 <- argType
         if cannotBeCompared(t1, t2)
       } {
-        val message = generateComparingUnrelatedTypesMsg(t1, t2)
+        val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)
         holder.registerProblem(call, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
   }
 
-  private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType): String = {
+  private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType)(implicit tpc: TypePresentationContext): String = {
     val nonSingleton1 = firstType.extractDesignatorSingleton.getOrElse(firstType)
     val nonSingleton2 = secondType.extractDesignatorSingleton.getOrElse(secondType)
     val (firstTypeText, secondTypeText) = ScTypePresentation.different(nonSingleton1, nonSingleton2)

@@ -52,7 +52,7 @@ class CirceCodecTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
     assertTrue("no implicit defs were generated", implicitDefs0.forall(_.isRight))
 
     val implicitDefs: Set[String] =
-      implicitDefs0.map(_.right.get.presentableText)
+      implicitDefs0.map(_.right.get.presentableText(clazz))
 
     assertEquals(
       s"$implicitDefs != Set(Encoder[$codecTypeName], Decoder[$codecTypeName])",

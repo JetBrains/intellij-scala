@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
@@ -17,6 +18,7 @@ private class Function(function: ScFunction, inherited: Boolean, override val sh
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 
   override def getPresentableText: String = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext(function)
     val presentation = ScalaElementPresentation.getMethodPresentableText(function)
 
     val inferredType =

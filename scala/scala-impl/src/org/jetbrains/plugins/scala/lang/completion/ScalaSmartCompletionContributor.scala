@@ -596,7 +596,7 @@ object ScalaSmartCompletionContributor {
     private val presentableParams = for {
       parameterType <- params
       simplifiedType = parameterType.removeAbstracts
-    } yield (simplifiedType, simplifiedType.presentableText)
+    } yield (simplifiedType, simplifiedType.presentableText(TypePresentationContext.emptyContext))
 
     def renderElement(element: LookupElement,
                       presentation: LookupElementPresentation): Unit = {
@@ -681,7 +681,7 @@ object ScalaSmartCompletionContributor {
         name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX -> (`type`, name)
       }.toMap
 
-      def seekAbstracts(te: ScTypeElement) {
+      def seekAbstracts(te: ScTypeElement)(implicit tpc: TypePresentationContext): Unit = {
         val visitor = new ScalaRecursiveElementVisitor {
 
           override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = for {
@@ -699,10 +699,11 @@ object ScalaSmartCompletionContributor {
         te.accept(visitor)
       }
 
+      implicit val tpc: TypePresentationContext = TypePresentationContext(commonParent)
       commonParent match {
         case f: ScFunctionExpr =>
           for (parameter <- f.parameters) {
-            parameter.typeElement.foreach(seekAbstracts)
+            parameter.typeElement.foreach(seekAbstracts(_))
             builder.replaceElement(parameter.nameId, parameter.name)
           }
         case c: ScCaseClause => c.pattern match {
@@ -728,7 +729,7 @@ object ScalaSmartCompletionContributor {
 
       document.deleteString(commonParent.getTextRange.getStartOffset, commonParent.getTextRange.getEndOffset)
       TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-        override def templateFinished(template: Template, brokenOff: Boolean) {
+        override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
           if (!brokenOff) {
             val offset = editor.getCaretModel.getOffset
             inWriteAction {

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -50,8 +50,9 @@ object AnnotatorHighlighter {
     implicit val project: ProjectContext = refElement.projectContext
 
     def annotateCollectionByType(resolvedType: ScType) {
+      val resolvedTypeName = resolvedType.presentableText(TypePresentationContext.emptyContext)
       if (ScalaNamesUtil.isOperatorName(
-        resolvedType.presentableText.substring(0, resolvedType.presentableText.prefixLength(_ != '.')))) return
+        resolvedTypeName.substring(0, resolvedTypeName.prefixLength(_ != '.')))) return
 
       val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
 

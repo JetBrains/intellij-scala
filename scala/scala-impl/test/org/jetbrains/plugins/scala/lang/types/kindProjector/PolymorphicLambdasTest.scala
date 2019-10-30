@@ -8,7 +8,7 @@ class PolymorphicLambdasTest extends ScPsiElementAssertionTestBase[ScMethodCall]
 
   override def computeRepresentation(t: ScMethodCall) =
     t.`type`() match {
-      case Right(res) => Right(res.presentableText)
+      case Right(res) => Right(res.presentableText(t))
       case Left(f)    => Left(f.toString)
     }
 

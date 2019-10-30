@@ -333,7 +333,7 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(`type`: ScType, name: String, isVariable: Boolean,
                         exprText: String, isPresentableText: Boolean = false)
-                       (implicit context: ProjectContext): ScValueOrVariable = {
+                       (implicit tpc: TypePresentationContext, context: ProjectContext): ScValueOrVariable = {
     val typeText = `type` match {
       case null => ""
       case tp if isPresentableText => tp.presentableText

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
 /**
@@ -73,7 +73,7 @@ sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMac
     ).isDefined
 
   protected def typeText(expressions: Array[String], `type`: ScType): Option[String] = expressions match {
-    case Array("", _*) => Some(`type`.presentableText)
+    case Array("", _*) => Some(`type`.presentableText(TypePresentationContext.emptyContext))
     case Array(IterableId, _*) =>
       val flag = `type`.canonicalText.startsWith("_root_.scala.Array") ||
         isIterable(`type`)

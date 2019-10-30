@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext}
 
 /**
  * Pavel Fatin
@@ -27,7 +27,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
   }
 
   private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder) {
-
+    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
         for {

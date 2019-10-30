@@ -4,7 +4,7 @@ package refactoring
 package introduceVariable
 
 import java.awt._
-import java.awt.event.{ActionEvent, ItemEvent}
+import java.awt.event.ActionEvent
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForBinding
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -194,6 +194,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
     def addTypeAnnotation(selectedType: ScType): Unit = {
       getDeclaration.foreach {
         case declaration@(_: ScDeclaredElementsHolder | _: ScForBinding) =>
+          implicit val tpc: TypePresentationContext = TypePresentationContext(declaration)
           val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
           val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
 

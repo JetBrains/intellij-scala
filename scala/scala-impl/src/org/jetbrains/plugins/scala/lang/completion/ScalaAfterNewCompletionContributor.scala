@@ -176,7 +176,7 @@ object ScalaAfterNewCompletionContributor {
           val parametersText = typeParameters match {
             case Seq() => ""
             case seq => seq.map(substitutor)
-              .map(_.presentableText)
+              .map(_.presentableText(clazz))
               .mkString("[", ", ", "]")
 
           }

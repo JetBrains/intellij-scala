@@ -22,12 +22,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations._
 
@@ -120,7 +121,7 @@ object ScalaExtractMethodUtils {
 
     if (!settings.lastReturn) {
       val returnVisitor = new ScalaRecursiveElementVisitor {
-        override def visitReturn(ret: ScReturn) {
+        override def visitReturn(ret: ScReturn): Unit = {
           if (!ret.method.contains(method)) return
           val retExprText = ret.expr.map(_.getText).mkString
           val newText = settings.returnType match {
@@ -144,7 +145,7 @@ object ScalaExtractMethodUtils {
     }
 
     val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReference(ref: ScReference) {
+      override def visitReference(ref: ScReference): Unit = {
         ref.bind() match {
           case Some(ScalaResolveResult(named: PsiNamedElement, _: ScSubstitutor)) =>
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
@@ -153,8 +154,8 @@ object ScalaExtractMethodUtils {
               var break = false
               for (param <- settings.parameters if !break) {
                 if (param.oldName == oldName) {
-                  implicit val projectContext = method.projectContext
-                  def tail() {
+                  implicit val projectContext: ProjectContext = method.projectContext
+                  def tail(): Unit = {
                     if (param.oldName != param.newName) {
                       val newRef = createExpressionFromText(param.newName)
                       ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
@@ -192,7 +193,7 @@ object ScalaExtractMethodUtils {
 
     val bindTo = new ArrayBuffer[(PsiNamedElement, String)]
     val newVisitor = new ScalaRecursiveElementVisitor() {
-      override def visitScalaElement(element: ScalaPsiElement) {
+      override def visitScalaElement(element: ScalaPsiElement): Unit = {
         element match {
           case named: PsiNamedElement if named != method && named.getTextOffset < offset =>
             settings.parameters.find(p => p.oldName == named.name)
@@ -224,7 +225,7 @@ object ScalaExtractMethodUtils {
     val retType = definition.`type`().getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
-        implicit val elementScope = definition.elementScope
+        implicit val elementScope: ElementScope = definition.elementScope
         FunctionType(retType, Seq.empty)
       case _ => retType
     }
@@ -368,15 +369,15 @@ object ScalaExtractMethodUtils {
     returnTypeText
   }
 
-  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch) {
+  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch): Unit = {
     replaceWithMethodCall(settings, d.candidates, d.parameterText, d.outputName)
   }
 
   def replaceWithMethodCall(settings: ScalaExtractMethodSettings,
                             elements: Seq[PsiElement],
                             parameterText: ExtractMethodParameter => String,
-                            outputName: ExtractMethodOutput => String) {
-    implicit val projectContext = settings.projectContext
+                            outputName: ExtractMethodOutput => String): Unit = {
+    implicit val projectContext: ProjectContext = settings.projectContext
 
     val element = elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element) {
@@ -470,17 +471,18 @@ object ScalaExtractMethodUtils {
       }
     }
 
-    def insertAssignsFromMultipleReturn(element: PsiElement) {
+    def insertAssignsFromMultipleReturn(element: PsiElement): Unit = {
       if (!needExtractorsFromMultipleReturn) return
 
       var lastElem: PsiElement = element
+      implicit val tpc: TypePresentationContext = TypePresentationContext(lastElem.getParent)
       def addElement(elem: PsiElement) = {
         lastElem = lastElem.getParent.addAfter(elem, lastElem)
         lastElem.getParent.addBefore(createNewLine()(elem.getManager), lastElem)
         lastElem
       }
 
-      def addAssignment(ret: ExtractMethodOutput, extrText: String) {
+      def addAssignment(ret: ExtractMethodOutput, extrText: String): Unit = {
         val stmt =
           if (ret.needNewDefinition) createDeclaration(ret.returnType, ret.paramName, !ret.isVal, extrText, isPresentableText = false)
           else createExpressionFromText(ret.paramName + " = " + extrText)
@@ -491,7 +493,7 @@ object ScalaExtractMethodUtils {
       val allVals = settings.outputs.forall(_.isVal)
       val allVars = settings.outputs.forall(!_.isVal)
 
-      def addExtractorsFromCaseClass() {
+      def addExtractorsFromCaseClass(): Unit = {
         if (allVals || allVars) {
           val patternArgsText = outputTypedNames.mkString("(", ", ", ")")
           val patternText = ics.className + patternArgsText
@@ -503,7 +505,7 @@ object ScalaExtractMethodUtils {
         }
       }
 
-      def addExtractorsFromClass() {
+      def addExtractorsFromClass(): Unit = {
         for (ret <- settings.outputs) {
           val exprText = s"$mFreshName.${ret.paramName}"
           addAssignment(ret, exprText)
@@ -522,7 +524,7 @@ object ScalaExtractMethodUtils {
       else addExtractorsFromClass()
     }
 
-    def removeReplacedElements() {
+    def removeReplacedElements(): Unit = {
       val valid = elements.dropWhile(!_.isValid)
       if (valid.isEmpty) return
 

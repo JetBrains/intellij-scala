@@ -104,6 +104,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case _ =>
                 }
               case call: MethodInvocation =>
+                implicit val tpc: TypePresentationContext = TypePresentationContext(call)
                 val missed =
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
@@ -467,17 +468,20 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def nameOf(f: PsiNamedElement) = f.name + signatureOf(f)
 
-  def signatureOf(f: PsiNamedElement): String = f match {
-    case f: ScMethodLike =>
-      if (f.parameters.isEmpty) "" else formatParamClauses(f.parameterList)
-    case m: PsiMethod =>
-      val params = m.parameters
-      if (params.isEmpty) "" else formatJavaParams(params)
-    case syn: ScSyntheticFunction =>
-      if (syn.paramClauses.isEmpty) "" else syn.paramClauses.map(formatSyntheticParams).mkString
+  def signatureOf(f: PsiNamedElement): String = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext(f)
+    f match {
+      case f: ScMethodLike =>
+        if (f.parameters.isEmpty) "" else formatParamClauses(f.parameterList)
+      case m: PsiMethod =>
+        val params = m.parameters
+        if (params.isEmpty) "" else formatJavaParams(params)
+      case syn: ScSyntheticFunction =>
+        if (syn.paramClauses.isEmpty) "" else syn.paramClauses.map(formatSyntheticParams).mkString
+    }
   }
 
-  private def formatParamClauses(paramClauses: ScParameters) = {
+  private def formatParamClauses(paramClauses: ScParameters)(implicit tpc: TypePresentationContext) = {
     def formatParams(parameters: Seq[ScParameter], types: Seq[ScType]) = {
       val parts = parameters.zip(types).map {
         case (p, t) => t.presentableText + (if(p.isRepeatedParameter) "*" else "")
@@ -487,7 +491,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
   }
 
-  private def formatJavaParams(parameters: Seq[PsiParameter]): String = {
+  private def formatJavaParams(parameters: Seq[PsiParameter])(implicit tpc: TypePresentationContext): String = {
     val types = parameters.map(_.paramType())
     val parts = parameters.zip(types).map {
       case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
@@ -495,7 +499,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     parenthesise(parts)
   }
 
-  private def formatSyntheticParams(parameters: Seq[Parameter]) = {
+  private def formatSyntheticParams(parameters: Seq[Parameter])(implicit tpc: TypePresentationContext): String = {
     val parts = parameters.map {
       p => p.paramType.presentableText + (if (p.isRepeated) "*" else "")
     }

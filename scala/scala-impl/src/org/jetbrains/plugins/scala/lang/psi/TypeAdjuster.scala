@@ -156,7 +156,7 @@ object TypeAdjuster extends ApplicationListener {
         val replacementType = newTypeElem(replacement, place).calcType
         val withoutAliases = replacementType.removeAliasDefinitions(expandableOnly = true)
 
-        if (replacementType.presentableText != withoutAliases.presentableText) {
+        if (replacementType.presentableText(TypePresentationContext.emptyContext) != withoutAliases.presentableText(TypePresentationContext.emptyContext)) {
           ToReplace(place)
 
           val newTypeElement = newTypeElem(withoutAliases.canonicalText, place)

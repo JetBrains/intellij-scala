@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -272,6 +272,7 @@ trait OverridingAnnotator {
       case _ => None
     }
 
+    implicit val tpc = TypePresentationContext(memberNameId)
     for {
       overridingType <- comparableType(namedElement)
       superSig <- superSignatures.filterBy[TermSignature]

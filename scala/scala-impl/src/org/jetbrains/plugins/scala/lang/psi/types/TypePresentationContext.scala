@@ -13,7 +13,7 @@ trait TypePresentationContext {
 object TypePresentationContext {
   import scala.language.implicitConversions
 
-  def apply(place: PsiElement) = psiElementPresentationContext(place)
+  def apply(place: PsiElement): TypePresentationContext = psiElementPresentationContext(place)
 
   implicit def psiElementPresentationContext(place: PsiElement): TypePresentationContext = (text, target) => {
     if (place.isValid) {
@@ -25,5 +25,5 @@ object TypePresentationContext {
     else true //let's just show short version for invalid elements
   }
 
-  implicit val emptyContext: TypePresentationContext = (_, _) => false
+  val emptyContext: TypePresentationContext = (_, _) => false
 }

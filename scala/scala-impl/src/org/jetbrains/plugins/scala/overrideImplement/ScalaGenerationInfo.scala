@@ -174,7 +174,7 @@ object ScalaGenerationInfo {
 
     val method = member.getElement
 
-    properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, returnType.presentableText)
+    properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, returnType.presentableText(method))
     properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE, standardValue)
     properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, callSuperText(td, method))
     properties.setProperty("Q_MARK", ScalaGenerationInfo.defaultValue(returnType, td.getContainingFile))

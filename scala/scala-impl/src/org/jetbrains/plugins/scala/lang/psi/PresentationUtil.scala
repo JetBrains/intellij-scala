@@ -9,10 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
@@ -22,16 +22,14 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
  */
 
 object PresentationUtil {
-  def presentationString(owner: ProjectContextOwner): String = {
-    implicit val project = owner.projectContext
-    presentationString(owner.asInstanceOf[Any])(project)
-  }
+  def presentationString(owner: ProjectContextOwner): String =
+    presentationString(owner.asInstanceOf[Any])(owner.projectContext, TypePresentationContext.emptyContext)
 
-  def presentationString(obj: Any)
-                        (implicit project: ProjectContext): String = presentationString(obj, ScSubstitutor.empty)
+  def presentationString(obj: Any)(implicit project: ProjectContext, tpc: TypePresentationContext): String =
+    presentationString(obj, ScSubstitutor.empty)
 
   def presentationString(obj: Any, substitutor: ScSubstitutor)
-                        (implicit project: ProjectContext): String = {
+                        (implicit project: ProjectContext, tpc: TypePresentationContext): String = {
     val res: String = obj match {
       case clauses: ScParameters => clauses.clauses.map(presentationString(_, substitutor)).mkString("")
       case clause: ScParameterClause =>
@@ -49,7 +47,7 @@ object PresentationUtil {
         if (param.isRepeated) builder.append("*")
         if (param.isDefault) builder.append(" = _")
         builder.toString()
-      case tp: ScType => substitutor(tp).presentableText
+      case tp: ScType => substitutor(tp).presentableText(TypePresentationContext.emptyContext)
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
       case tp: PsiType =>

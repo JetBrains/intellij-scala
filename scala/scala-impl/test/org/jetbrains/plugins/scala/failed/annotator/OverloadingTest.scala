@@ -66,7 +66,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
           case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
           case _ => expression
         }
-        val (actualText, expText) = ScTypePresentation.different(actual, expected)
+        val (actualText, expText) = ScTypePresentation.different(actual, expected)(expr)
         val annotation = holder.createErrorAnnotation(expr,
           ScalaBundle.message("type.mismatch.found.required", actualText, expText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)

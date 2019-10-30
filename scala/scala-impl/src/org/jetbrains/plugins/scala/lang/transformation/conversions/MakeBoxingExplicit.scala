@@ -6,9 +6,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedType, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 
@@ -56,7 +56,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
     holder.annotations.exists { it =>
       val name = it.annotationExpr.constructorInvocation.typeElement.getText
       val arguments = it.annotationExpr.getAnnotationParameters
-      name == "specialized" && (arguments.isEmpty || arguments.exists(_.getText == t.presentableText))
+      name == "specialized" && (arguments.isEmpty || arguments.exists(_.getText == t.presentableText(TypePresentationContext.emptyContext)))
     }
   }
 }

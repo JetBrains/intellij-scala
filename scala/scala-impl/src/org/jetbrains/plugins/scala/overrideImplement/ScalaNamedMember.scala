@@ -63,14 +63,14 @@ class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substit
         extends {
           val name = element.getName
           val scType = substitutor(element.`type`().getOrAny)
-          val text = element.name + ": " + scType.presentableText
+          val text = element.name + ": " + scType.presentableText(element)
         } with PsiElementClassMember[ScValue](member, text) with ScalaFieldMember
 
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
           val scType = substitutor(element.`type`().getOrAny)
-          val text = name + ": " + scType.presentableText
+          val text = name + ": " + scType.presentableText(element)
         } with PsiElementClassMember[ScVariable](member, text) with ScalaFieldMember
 
 class JavaFieldMember private(override val getElement: PsiField,
@@ -88,7 +88,7 @@ object JavaFieldMember {
     val fieldType = field.getType.toScType()
     val scType = substitutor(fieldType)
 
-    val text = s"${field.getName}: ${scType.presentableText}"
+    val text = s"${field.getName}: ${scType.presentableText(field)}"
     new JavaFieldMember(field, text, scType, substitutor)
   }
 }

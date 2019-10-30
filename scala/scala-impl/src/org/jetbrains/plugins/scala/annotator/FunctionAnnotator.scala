@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -113,12 +113,12 @@ trait FunctionAnnotator {
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 
-      def redundantReturnExpression() = {
-        val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText)
+      def redundantReturnExpression(): Annotation = {
+        val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText(usage))
         holder.createWarningAnnotation(usage.asInstanceOf[ScReturn].expr.get, message)
       }
 
-      def typeMismatch() {
+      def typeMismatch(): Unit = {
         if (typeAware) {
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturn].expr else None
           val expression = returnExpression.getOrElse(usage)

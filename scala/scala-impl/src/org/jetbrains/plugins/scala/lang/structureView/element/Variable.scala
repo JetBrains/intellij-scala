@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import javax.swing.Icon
-
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi.PsiElement
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
@@ -21,6 +21,7 @@ private class Variable(element: ScNamedElement, inherited: Boolean, override val
   override def location: Option[String] = variable.map(_.containingClass).map(_.name)
 
   override def getPresentableText: String = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     val typeAnnotation = variable.flatMap(_.typeElement.map(_.getText))
 
     def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None

@@ -37,7 +37,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
           processor.processType(tp, expr)
           val candidates = processor.candidates
           if (candidates.length != 1) {
-            val error = ScalaBundle.message("method.is.not.member", memberName, tp.presentableText)
+            val error = ScalaBundle.message("method.is.not.member", memberName, tp.presentableText(expr))
             val annotation = holder.createErrorAnnotation(expr, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           } else if (checkReturnTypeIsBoolean) {
@@ -64,7 +64,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
                     val conformance = smartCheckConformance(Right(tp), returnType)
                     if (!conformance) {
                       if (typeAware) {
-                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)
+                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)(t)
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
                         val annotation = holder.createErrorAnnotation(expr, error)
                         typeElement match {

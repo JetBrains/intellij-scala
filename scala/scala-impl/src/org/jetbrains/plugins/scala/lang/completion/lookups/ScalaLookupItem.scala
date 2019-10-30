@@ -26,9 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -90,7 +90,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   override def hashCode(): Int =
     super.hashCode() + 31 * isNamedParameter.## + 31 * 31 * Option(containingClass).hashCode()
 
-  override def renderElement(presentation: LookupElementPresentation) {
+  override def renderElement(presentation: LookupElementPresentation): Unit = {
     if (isNamedParameter) {
       presentation.setTailText(s" = $typeText")
     } else {
@@ -123,6 +123,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   private lazy val typeText: String = {
     UIFreezingGuard.withDefaultValue("") {
+      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
       element match {
         case fun: ScFunction =>
           val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
@@ -136,7 +137,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         case t: ScTemplateDefinition if name == "this" || name.endsWith(".this") =>
           t.getTypeWithProjections(thisProjections = true) match {
             case Right(tp) =>
-              tp.presentableText
+              tp.presentableText(element)
             case _ => ""
           }
         case f: PsiField =>
@@ -152,6 +153,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   private lazy val tailText: String = {
     UIFreezingGuard.withDefaultValue("") {
+      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
       element match {
         //scala
         case fun: ScFunction =>
@@ -173,7 +175,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     }
   }
 
-  private def withTypeParamsText: String = element match {
+  private def withTypeParamsText(implicit tpc: TypePresentationContext): String = element match {
     case t: ScFun =>
       if (t.typeParameters.nonEmpty) t.typeParameters.map(param => presentationString(param, substitutor)).
         mkString("[", ", ", "]")
@@ -188,7 +190,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     case _ => ""
   }
 
-  private def textForMethod(m: PsiMethod): String = {
+  private def textForMethod(m: PsiMethod)(implicit tpc: TypePresentationContext): String = {
     val params = m match {
       case fun: ScFunction => fun.paramClauses
       case _ => m.getParameterList
@@ -205,11 +207,11 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     withTypeParamsText + paramsText + containingClassText
   }
 
-  private def simpleInsert(context: InsertionContext) {
+  private def simpleInsert(context: InsertionContext): Unit = {
     new ScalaInsertHandler().handleInsert(context, this)
   }
 
-  override def handleInsert(context: InsertionContext) {
+  override def handleInsert(context: InsertionContext): Unit = {
     def shift: Int = {
       val smartAdd = if (someSmartCompletion) 5 else 0
       val simpleStringAdd =
@@ -310,7 +312,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                   case scalaFile: ScalaFile =>
                     val elem = scalaFile.findElementAt(context.getStartOffset + shift)
 
-                    def qualifyReference(ref: ScReferenceExpression) {
+                    def qualifyReference(ref: ScReferenceExpression): Unit = {
                       val newRef = createExpressionFromText(s"${containingClass.name}.${ref.getText}")(containingClass.getManager)
                         .asInstanceOf[ScReferenceExpression]
                       ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)

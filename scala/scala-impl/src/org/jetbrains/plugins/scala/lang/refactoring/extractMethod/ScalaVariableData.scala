@@ -6,8 +6,8 @@ import com.intellij.refactoring.util.VariableData
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData._
 
@@ -35,7 +35,7 @@ object ScalaVariableData {
 
     override def getPresentableText(boolean: Boolean): String = getPresentableText
 
-    override def getPresentableText: String = tp.codeText
+    override def getPresentableText: String = tp.codeText(TypePresentationContext.emptyContext)
 
     override def getCanonicalText: String = tp.canonicalCodeText
 
