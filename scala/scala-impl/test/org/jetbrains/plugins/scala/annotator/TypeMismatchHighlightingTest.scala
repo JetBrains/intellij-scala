@@ -243,6 +243,11 @@ class TypeMismatchHighlightingTest_with_LiteralTypes extends TypeMismatchHighlig
       Error("2", "Expression of type 2 doesn't conform to expected type 1"))
   }
 
+  def testTypeMismatchHintNotWidenExpected(): Unit = {
+    assertMessages(errorsFromScalaCode("val x: Int = 2; val v: 1 = x"))(Hint("x", ": Int"),
+      Error("x", "Expression of type Int doesn't conform to expected type 1"))
+  }
+
   // Don't narrow type when non-literal type is ascribed but literal type is expected, SCL-15571
   def testTypeMismatchAndTypeAscriptionErrorNotNarrow(): Unit = {
     // TODO unify the message in tests
