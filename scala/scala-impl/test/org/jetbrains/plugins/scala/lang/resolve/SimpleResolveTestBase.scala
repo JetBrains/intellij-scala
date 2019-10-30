@@ -40,9 +40,15 @@ trait SimpleResolveTestBase {
     else null
   }
 
-  protected def doResolveTest(sources: (String, String)*): Unit = {
+  protected def doResolveTest(sources: (String, String)*): Unit =
+    doResolveTest(target = None, shouldResolve = true, sources: _*)
+
+  protected def doResolveTest(target: PsiElement, sources: (String, String)*): Unit =
+    doResolveTest(target = Some(target), shouldResolve = true, sources: _*)
+
+  private def doResolveTest(target: Option[PsiElement], shouldResolve: Boolean, sources: (String, String)*): Unit = {
     var src: ScReference = null
-    var tgt: PsiElement = null
+    var tgt: PsiElement = target.orNull
 
     def configureFile(file: (String, String), configureFun: (String, String) => PsiFile): Unit = {
       val (source, fileName) = file
@@ -63,8 +69,21 @@ trait SimpleResolveTestBase {
     Assert.assertNotNull("Failed to locate source element", src)
     val result = src.resolve()
     if (shouldPass) {
-      Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
-    } else if (result == null) return
+      if (shouldResolve) {
+        Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
+      }
+      else {
+        Assert.assertNull("Reference '${src.getText}' must not resolve", result)
+      }
+    }
+    else if (result == null) {
+      if (!shouldResolve) {
+        Assert.fail(failingPassed + ": failed to resolve element")
+      }
+      else {
+        return
+      }
+    }
 
     // we might want to check if reference simply resolves to something
     if (tgt != null)
@@ -74,6 +93,8 @@ trait SimpleResolveTestBase {
         Assert.assertFalse(failingPassed, tgt == result)
       }
   }
+
+  protected def testNoResolve(sources: (String, String)*) = doResolveTest(None, shouldResolve = false, sources: _*)
 
   protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit =
     doResolveTest(source -> fileName)
