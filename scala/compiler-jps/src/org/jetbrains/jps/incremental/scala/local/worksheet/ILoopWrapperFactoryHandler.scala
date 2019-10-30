@@ -86,6 +86,10 @@ class ILoopWrapperFactoryHandler {
       case Some(jar) => jar
       case None => return
     }
+    val reporterJar = findContainingJar(classOf[ILoopWrapperReporter]) match {
+      case Some(jar) => jar
+      case None => return
+    }
 
     client.progress("Compiling REPL runner...")
 
@@ -105,7 +109,7 @@ class ILoopWrapperFactoryHandler {
     AnalyzingCompiler.compileSources(
       Seq(sourceJar),
       targetFile,
-      xsbtiJars = Seq(interfaceJar, containingJar),
+      xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct,
       id = replLabel,
       compiler = rawCompiler,
       log = logger
@@ -115,7 +119,7 @@ class ILoopWrapperFactoryHandler {
 
 object ILoopWrapperFactoryHandler {
   // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
-  private val WRAPPER_VERSION = 2
+  private val WRAPPER_VERSION = 3
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")

@@ -8,6 +8,7 @@ trait WorksheetEditorPrinter {
   def getScalaFile: ScalaFile
   def processLine(line: String): Boolean
   def flushBuffer(): Unit
+  def close(): Unit
   def scheduleWorksheetUpdate(): Unit
   def internalError(errorMessage: String)
 

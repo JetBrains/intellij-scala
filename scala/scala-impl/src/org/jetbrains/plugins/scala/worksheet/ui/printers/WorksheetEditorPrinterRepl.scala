@@ -1,27 +1,33 @@
 package org.jetbrains.plugins.scala.worksheet.ui.printers
 
-import java.util.regex.Pattern
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.compiler.CompilerMessageImpl
+import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
+import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter
+import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter.MessageLineParsed
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.FoldingOffsets
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl.QueuedPsi.PrintChunk
 
 import scala.collection.mutable
 
-final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer: Editor, file: ScalaFile)
-  extends WorksheetEditorPrinterBase(editor, viewer) {
+final class WorksheetEditorPrinterRepl private[printers](
+  editor: Editor,
+  viewer: Editor,
+  file: ScalaFile
+) extends WorksheetEditorPrinterBase(editor, viewer) {
 
   import WorksheetEditorPrinterRepl._
   import processor._
@@ -29,11 +35,11 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
   private var lastProcessedLine: Option[Int] = None
   private var currentFile: ScalaFile = file
 
-  private var hasErrors = false
-  private var hasMessages = false
+  /* we have to inject this interface because we have to restore the original error positions in worksheet editor
+   * and for now this can only be done in this printer  */
+  private var messagesConsumerOpt: Option[CompilerMessagesConsumer] = None
 
   private val outputBuffer = StringBuilder.newBuilder
-  private val messagesBuffer = StringBuilder.newBuilder
   private val psiToProcess = mutable.Queue.empty[QueuedPsi]
 
   private val inputToOutputMapping = mutable.ListBuffer.empty[(Int, Int)]
@@ -83,18 +89,13 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
     psiToProcess.enqueue(elements: _*)
   }
 
-  private def clearMessages(): Unit = {
-    hasMessages = false
-    hasErrors = false
-  }
-
-  private def clearBuffer(): Unit = {
+  private def clearBuffer(): Unit =
     outputBuffer.clear()
-    messagesBuffer.clear()
-  }
 
   override def getScalaFile: ScalaFile = currentFile
 
+  // FIXME: now all return boolean values are not processed anywhere and do not mean anything, remove or handle
+  // FIXME: handle exceptions in process line
   override def processLine(line: String): Boolean = {
     if (!isInited) init()
 
@@ -103,32 +104,31 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
         fetchNewPsi()
         if (lastProcessedLine.isEmpty)
           cleanFoldingsLater()
-        clearMessages()
         clearBuffer()
         false
       case REPL_LAST_CHUNK_PROCESSED =>
         flushBuffer()
         refreshLastMarker()
         true
-      case REPL_CHUNK_END =>
-        if (hasErrors) refreshLastMarker()
-        flushBuffer()
 
-        hasErrors
-      case ReplMessage(info) =>
-        messagesBuffer.append(info.msg).append("\n")
-        hasMessages = true
+      case REPL_CHUNK_START =>
         false
-      case "" => //do nothing
+      case REPL_CHUNK_END =>
+        flushBuffer()
+        false
+      case REPL_CHUNK_COMPILATION_ERROR =>
+        refreshLastMarker()
+        flushBuffer()
+        true
+
+      case "" =>
+        false
+      case ReplMessage(line) =>
+        messagesConsumerOpt.foreach(handleReplMessageLine(_, line))
         false
       case outputLine =>
-        if (hasMessages) {
-          messagesBuffer.append(line).append("\n")
-          outputLine == "^" && { hasMessages = false; processMessage() }
-        } else {
-          outputBuffer.append(augmentLine(outputLine)).append("\n")
-          false
-        }
+        outputBuffer.append(augmentLine(outputLine)).append("\n")
+        false
     }
   }
 
@@ -214,6 +214,8 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
     }
   }
 
+  def close(): Unit = {}
+
   // Looks like we don't need any flushing here
   override def scheduleWorksheetUpdate(): Unit = {}
 
@@ -223,6 +225,8 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
   def setLastProcessedLine(line: Option[Int]): Unit = lastProcessedLine = line
 
   def updateScalaFile(file: ScalaFile): Unit = currentFile = file
+
+  def updateMessagesConsumer(consumer: CompilerMessagesConsumer): Unit = messagesConsumerOpt = Some(consumer)
 
   private def augmentLine(inputLine: String): String = {
     val idx = inputLine.indexOf("$Lambda$")
@@ -234,68 +238,57 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
     }
   }
 
-  /**
-   * @return true if error and should stop
-   */
-  private def processMessage(): Boolean = {
-    if (psiToProcess.isEmpty) return false
+  private def handleReplMessageLine(messagesConsumer: CompilerMessagesConsumer, messageLine: String): Unit = {
+    val currentPsi = psiToProcess.headOption match {
+      case Some(value) => value
+      case None        => return
+    }
 
-    val currentPsi = psiToProcess.head
-    val offset = currentPsi.getWholeTextRange.getStartOffset
-    val str = messagesBuffer.toString().trim
+    val ReplMessageInfo(message, lineContent, lineOffset, columnOffset, severity) =
+      extractReplMessage(messageLine)
+        .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
 
-    messagesBuffer.clear()
+    val (lineContentClean, lineOffsetFromComment) = splitLineNumberFromRepl(lineContent).getOrElse {
+      val headerLines = consoleHeaderLines(WorksheetCommonSettings(getScalaFile).getModuleFor)
+      (lineContent, lineOffset - headerLines)
+    }
 
-    val MessageInfo(msg, vertOffset, horizontalOffset, severity) = extractInfoFromAllText(str).getOrElse((str, 0, 0, WorksheetCompilerUtil.InfoSeverity))
-
-    val position = {
-      val p = inReadAction {
+    val messagePosition: LogicalPosition = {
+      val elementPosition = inReadAction {
+        val offset = currentPsi.getWholeTextRange.getStartOffset
         originalEditor.offsetToLogicalPosition(offset)
       }
-      new LogicalPosition(p.line + vertOffset, p.column + horizontalOffset)
+
+      new LogicalPosition(
+        (elementPosition.line + lineOffsetFromComment).max(0),
+        elementPosition.column + columnOffset
+      )
     }
 
-
-    val isFatal = severity.isFatal
-    val messages = msg.split('\n').map(_.trim).filter(_.length > 0)
-    val onError = if (isFatal) () => {originalEditor.getCaretModel moveToLogicalPosition position} else () => {}
-    WorksheetCompilerUtil.showCompilationMessage(getScalaFile.getVirtualFile, position, messages, severity, onError)
-
-    if (isFatal) {
-      hasErrors = true
-      psiToProcess.dequeue()
-    }
-
-    hasErrors
+    val messageLines = (message.split('\n'):+ lineContentClean).map(_.trim).filter(_.length > 0)
+    val compilerMessage = new CompilerMessageImpl(
+      project,
+      severity,
+      messageLines.mkString("\n"),
+      file.getVirtualFile,
+      messagePosition.line + 1, // compiler messages positions are 1-based
+      messagePosition.column + 1,
+      null
+    )
+    messagesConsumer.message(compilerMessage)
   }
 
-  def extractInfoFromAllText(toMatch: String): Option[MessageInfo] = {
-    val indexOfNl = toMatch.lastIndexOf('\n')
-    if (indexOfNl == -1) return None
-
-    val indexOfC = toMatch.lastIndexOf('^')
-    val horOffset = if (indexOfC < indexOfNl) 0 else indexOfC - indexOfNl
-    val allMessageStrings = toMatch.substring(0, indexOfNl)
-
-    val matcher = CONSOLE_MESSAGE_PATTERN matcher allMessageStrings
-    val (textWoConsoleLine, lineNumStr) = if (matcher.find()) (allMessageStrings.substring(matcher.end()), matcher.group(1)) else (allMessageStrings, "0")
-
-    val (textWoSeverity, severity) = textWoConsoleLine match {
-      case error if error.startsWith("error: ") =>
-        (error.substring("error: ".length), WorksheetCompilerUtil.ErrorSeverity)
-      case warning if warning.startsWith("warning: ") =>
-        (warning.substring("warning: ".length), WorksheetCompilerUtil.WarningSeverity)
-      case _ => return None
+  private def extractReplMessage(messageLine: String): Option[ReplMessageInfo] =
+    PrintWriterReporter.parse(messageLine).map {
+      case MessageLineParsed(severity, line, column, lineContent, message) =>
+        val messageCategory = severity match {
+          case "INFO"    => CompilerMessageCategory.INFORMATION
+          case "ERROR"   => CompilerMessageCategory.ERROR
+          case "WARNING" => CompilerMessageCategory.WARNING
+          case _         => CompilerMessageCategory.INFORMATION
+        }
+        ReplMessageInfo(message, lineContent, (line - 1).max(0), (column - 1).max(0), messageCategory)
     }
-
-    val (finalText, vertOffset) =
-      splitLineNumberFromRepl(textWoSeverity).getOrElse {
-        // we still have a fall back variant here as some errors aren't raised from the text of our input
-        (textWoSeverity, Integer.parseInt(lineNumStr) - getConsoleHeaderLines(WorksheetCommonSettings(getScalaFile).getModuleFor))
-      }
-
-    Option(MessageInfo(finalText, vertOffset, horOffset, severity))
-  }
 
   private def refreshLastMarker(): Unit =
     rehighlight(getScalaFile)
@@ -303,35 +296,33 @@ final class WorksheetEditorPrinterRepl private[printers](editor: Editor, viewer:
 
 object WorksheetEditorPrinterRepl {
 
-  import processor.WorksheetCompilerUtil
-
   private val TECHNICAL_MESSAGE_START = "$$worksheet$$"
 
-  private val REPL_START                = s"${TECHNICAL_MESSAGE_START}repl$$$$start$$$$"
-  private val REPL_CHUNK_END            = s"${TECHNICAL_MESSAGE_START}repl$$$$chunk$$$$end$$$$"
-  private val REPL_LAST_CHUNK_PROCESSED = s"${TECHNICAL_MESSAGE_START}repl$$$$last$$$$chunk$$$$processed$$$$"
+  private val REPL_START                   = TECHNICAL_MESSAGE_START + "repl$$start$$"
+  private val REPL_CHUNK_START             = TECHNICAL_MESSAGE_START + "repl$$chunk$$start$$"
+  private val REPL_CHUNK_END               = TECHNICAL_MESSAGE_START + "repl$$chunk$$end$$"
+  private val REPL_CHUNK_COMPILATION_ERROR = TECHNICAL_MESSAGE_START + "repl$$chunk$$compilation$$error$$"
+  private val REPL_LAST_CHUNK_PROCESSED    = TECHNICAL_MESSAGE_START + "repl$$last$$chunk$$processed$$"
 
-  private val CONSOLE_ERROR_START = "<console>:"
-  private val CONSOLE_MESSAGE_PATTERN = {
-    val regex = "\\s*(\\d+)" + Pattern.quote(":") + "\\s*"
-    Pattern.compile(regex)
-  }
+  private val CONSOLE_REPORT_PREFIX = PrintWriterReporter.IJReportPrefix
 
   private val LAMBDA_LENGTH = 32
 
-  private def getConsoleHeaderLines(module: Module): Int = {
+  // TODO: actually header is not fixed, this hack should be rethought,
+  //  ideally lines from compiler (see extractReplMessage) should be relative to the original input
+  private def consoleHeaderLines(module: Module): Int = {
     import project._
 
-    val isBefore = module.scalaSdk.exists { sdk =>
+    val headerOffset = module.scalaSdk.map { sdk =>
       sdk.properties.languageLevel match {
-        case ScalaLanguageLevel.Scala_2_9 |
-             ScalaLanguageLevel.Scala_2_10 => true
-        case ScalaLanguageLevel.Scala_2_11 => sdk.compilerVersion.forall(!_.startsWith("2.11.8"))
-        case _ => false
+        case ScalaLanguageLevel.Scala_2_9 | ScalaLanguageLevel.Scala_2_10                         => 7
+        case ScalaLanguageLevel.Scala_2_11 if sdk.compilerVersion.forall(!_.startsWith("2.11.8")) => 7
+        case ScalaLanguageLevel.Scala_2_13                                                        => 0
+        case _                                                                                    => 11
       }
     }
 
-    if (isBefore) 7 else 11
+    headerOffset.getOrElse(0)
   }
 
   def countNewLines(str: String): Int = StringUtil.countNewLines(str)
@@ -340,22 +331,31 @@ object WorksheetEditorPrinterRepl {
     DaemonCodeAnalyzer.getInstance(file.getProject).restart(file)
   }
 
-  case class MessageStart(msg: String)
-  case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompilerUtil.CompilationMessageSeverity)
+  private case class ReplMessageInfo(text: String,
+                                     lineContent: String,
+                                     lineOffset: Int,
+                                     columnOffset: Int,
+                                     messageCategory: CompilerMessageCategory)
 
   object ReplMessage {
-    def unapply(arg: String): Option[MessageStart] =
-      if (arg startsWith CONSOLE_ERROR_START) Option(MessageStart(arg substring CONSOLE_ERROR_START.length)) else None
+
+    def unapply(line: String): Option[String] =
+      if (line.startsWith(CONSOLE_REPORT_PREFIX)) {
+        Option(line.substring(CONSOLE_REPORT_PREFIX.length).trim)
+      } else {
+        None
+      }
   }
 
-  def splitLineNumberFromRepl(line: String): Option[(String, Int)] = {
-    val i = line.lastIndexOf("//")
-    if (i == -1) return None
-
-    for {
-      lineIdx <- line.substring(i + 2).trim.toIntOpt
-    } yield (line.substring(0, i), lineIdx)
-  }
+  private def splitLineNumberFromRepl(line: String): Option[(String, Int)] =
+    line.lastIndexOf("//") match {
+      case -1 => None
+      case commentIdx =>
+        val (content, comment) =  line.splitAt(commentIdx)
+        for {
+          lineIdx <- comment.substring(2).trim.toIntOpt
+        } yield (content, lineIdx)
+    }
 
   sealed trait QueuedPsi {
     /**
@@ -407,9 +407,9 @@ object WorksheetEditorPrinterRepl {
       getPsiTextWithCommentLine(psi.getText)
 
     protected def getPsiTextWithCommentLine(text: String): String =
-      storeLineInfoRepl(StringUtil.splitByLines(text, false))
+      storeLineInfoRepl(text.linesIterator.toIterable)
 
-    protected def storeLineInfoRepl(lines: Array[String]): String = {
+    protected def storeLineInfoRepl(lines: Iterable[String]): String = {
       lines.zipWithIndex
         .map { case (line, index) => s"$line //$index" }
         .mkString("\n")

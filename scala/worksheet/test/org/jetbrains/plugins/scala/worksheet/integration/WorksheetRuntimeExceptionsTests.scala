@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
-import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStartsWith
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStartsWith
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{TestRunResult, ViewerEditorData}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 
-trait WorksheetRuntimeExceptionsTests {
+trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
   self: WorksheetIntegrationBaseTest =>
 
   def stackTraceLineStart: String
@@ -19,9 +22,11 @@ trait WorksheetRuntimeExceptionsTests {
     expectedRightTextStart: String,
     expectedExceptionMessage: String
   ): Unit = {
-    val (expectedTextStart, expectedFoldingsStart) = preprocessViewerText(expectedRightTextStart)
+    val leftEditor = doResultTest(leftText, RunWorksheetActionResult.Done)
 
-    val (leftEditor, actualText, actualFoldings) = runWorksheetEvaluation(leftText)
+    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorData(leftEditor)
+
+    val (expectedTextStart, expectedFoldingsStart) = preprocessViewerText(expectedRightTextStart)
 
     val (actualTextStart, actualTextEnd) = actualText.splitAt(expectedTextStart.length)
 
@@ -50,9 +55,7 @@ trait WorksheetRuntimeExceptionsTests {
     if (exceptionOutputShouldBeExpanded) {
       assertTrue("exception folding should be expanded", foldingsLast.isExpanded)
 
-      val cache = WorksheetCache.getInstance(project)
-
-      val printer = cache.getPrinter(leftEditor).orNull
+      val printer = worksheetCache.getPrinter(leftEditor).orNull
       assertNotNull("couldn't find editor printer", printer)
 
       val diffSplitter = printer.diffSplitter.orNull

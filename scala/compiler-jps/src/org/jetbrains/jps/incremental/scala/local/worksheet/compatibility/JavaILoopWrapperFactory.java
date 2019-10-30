@@ -2,6 +2,8 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.compatibility;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper;
+import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperReporter;
+import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter;
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer;
 
 import java.io.File;
@@ -25,9 +27,12 @@ import java.util.stream.Collectors;
  * Date: 2018-10-30
  */
 public class JavaILoopWrapperFactory {
-  private static final String REPL_START = "$$worksheet$$repl$$start$$";
-  private static final String REPL_CHUNK_END = "$$worksheet$$repl$$chunk$$end$$";
-  private static final String REPL_LAST_CHUNK_PROCESSED = "$$worksheet$$repl$$last$$chunk$$processed$$";
+
+  private static final String REPL_START                   = "$$worksheet$$repl$$start$$";
+  private static final String REPL_CHUNK_START             = "$$worksheet$$repl$$chunk$$start$$";
+  private static final String REPL_CHUNK_END               = "$$worksheet$$repl$$chunk$$end$$";
+  private static final String REPL_CHUNK_COMPILATION_ERROR = "$$worksheet$$repl$$chunk$$compilation$$error$$";
+  private static final String REPL_LAST_CHUNK_PROCESSED    = "$$worksheet$$repl$$last$$chunk$$processed$$";
 
   private static final String FALLBACK_CLASSNAME = "ILoopWrapperImpl";
 
@@ -68,13 +73,19 @@ public class JavaILoopWrapperFactory {
 
     ILoopWrapper inst = cache.getOrCreate(
         replArgs.getSessionId(),
-        () -> createILoopWrapper(worksheetArgs, iLoopFile, new WorksheetServer.MyUpdatePrintWriter(outStream), classLoader),
+        () -> {
+          PrintWriter printWriter = new WorksheetServer.MyUpdatePrintWriter(outStream);
+          ILoopWrapperReporter reporter = new PrintWriterReporter(printWriter);
+          return createILoopWrapper(worksheetArgs, iLoopFile, printWriter, reporter, classLoader);
+        },
         ILoopWrapper::shutdown
     );
     if (inst == null) return;
 
     PrintWriter out = inst.getOutputWriter();
-    if (out instanceof WorksheetServer.MyUpdatePrintWriter) ((WorksheetServer.MyUpdatePrintWriter) out).updateOut(outStream);
+    if (out instanceof WorksheetServer.MyUpdatePrintWriter) {
+      ((WorksheetServer.MyUpdatePrintWriter) out).updateOut(outStream);
+    }
 
     clientProvider.onProgress("Worksheet execution started");
     printService(out, REPL_START);
@@ -92,10 +103,15 @@ public class JavaILoopWrapperFactory {
         }
       }
 
+      printService(out, REPL_CHUNK_START);
       boolean shouldContinue = statement.trim().length() == 0 || inst.processChunk(statement);
-      clientProvider.onProgress("Executing worksheet...");
-      printService(out, REPL_CHUNK_END);
-      if (!shouldContinue) return;
+      clientProvider.onProgress("Executing worksheet..."); // TODO: add fraction
+      if (shouldContinue) {
+        printService(out, REPL_CHUNK_END);
+      } else {
+        printService(out, REPL_CHUNK_COMPILATION_ERROR);
+        return;
+      }
     }
 
     printService(out, REPL_LAST_CHUNK_PROCESSED);
@@ -110,6 +126,7 @@ public class JavaILoopWrapperFactory {
   private ILoopWrapper createILoopWrapper(final WorksheetArgsJava worksheetArgs,
                                           final File iLoopFile,
                                           final PrintWriter out,
+                                          final ILoopWrapperReporter reporter,
                                           final ClassLoader classLoader) {
     final URLClassLoader loader;
     final Class<?> clazz;
@@ -120,10 +137,11 @@ public class JavaILoopWrapperFactory {
 
       int idxDot = iLoopFile.getName().lastIndexOf('.');
       int idxDash = iLoopFile.getName().lastIndexOf('-');
-      String name = idxDot == -1 || idxDash == -1 || idxDash >= idxDot ?
-          FALLBACK_CLASSNAME : iLoopFile.getName().substring(idxDash + 1, idxDot);
+      String className = idxDot == -1 || idxDash == -1 || idxDash >= idxDot
+              ? FALLBACK_CLASSNAME
+              : iLoopFile.getName().substring(idxDash + 1, idxDot);
 
-      clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet." + name);
+      clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet." + className);
     } catch (MalformedURLException | ClassNotFoundException ignored) {
       return null;
     }
@@ -143,8 +161,8 @@ public class JavaILoopWrapperFactory {
             .collect(Collectors.toList());
 
     try {
-      Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, List.class);
-      ILoopWrapper inst = (ILoopWrapper) constructor.newInstance(out, stringCp);
+      Constructor<?> constructor = clazz.getConstructor(PrintWriter.class, ILoopWrapperReporter.class, List.class);
+      ILoopWrapper inst = (ILoopWrapper) constructor.newInstance(out, reporter, stringCp);
       inst.init();
       return inst;
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

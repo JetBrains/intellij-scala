@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.junit.experimental.categories.Category
 
@@ -25,7 +27,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |b: Int = 2
         |""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
 
   def testSimpleFolding(): Unit = {
@@ -42,7 +44,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |x: Int = 42
          |""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
 
   def testMultipleFoldings(): Unit = {
@@ -66,7 +68,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |y: Int = 23
          |""".stripMargin
 
-    doTest(left, right)
+    doRenderTest(left, right)
   }
 
   override def stackTraceLineStart = "\tat"
@@ -91,5 +93,61 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     val errorMessage = "java.lang.ArithmeticException: / by zero"
     testDisplayFirstRuntimeException(left, right, errorMessage)
+  }
+
+  def testCompilationError(): Unit = {
+    val before =
+      """val x = new A()
+        |""".stripMargin
+
+    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+
+    // TODO: fix SCL-16497
+    return
+    assertCompilerMessages(editor)(
+      """Error:(1, 13) not found: type A
+        |val x = new A()
+        |""".stripMargin.trim
+    )
+  }
+
+  def testCompilationError_ContentLines(): Unit = {
+    val before =
+      """
+        |
+        |  val x = new A()
+        |""".stripMargin
+
+    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+
+    // TODO: fix SCL-16497
+    return
+    assertCompilerMessages(editor)(
+      """Error:(3, 15) not found: type A
+        |val x = new A()
+        |""".stripMargin.trim
+    )
+  }
+
+  def testCompilationError_ContentIndentedInInnerScope(): Unit = {
+    val before =
+      """
+        |class Outer {
+        |  def foo = {
+        |
+        |    val x = new A()
+        |  }
+        |}
+        |""".stripMargin
+
+    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+
+    // TODO: fix SCL-16497
+    return
+    assertCompilerMessages(editor)(
+      """Error:(5, 17) not found: type A
+        |val x = new A()
+        |""".stripMargin.trim
+    )
   }
 }
