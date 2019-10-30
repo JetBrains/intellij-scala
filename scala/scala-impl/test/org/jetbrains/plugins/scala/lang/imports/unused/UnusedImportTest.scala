@@ -18,6 +18,18 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
     }
   }
 
+  def testTwoUnusedSelectorsInWorksheet(): Unit = {
+    val text =
+      """
+        |import java.util.{Set, ArrayList}
+        |
+        |object Doo
+      """.stripMargin
+    assertMatches(messages(text, "dummy.sc")) {
+      case HighlightMessage("import java.util.{Set, ArrayList}", _) :: Nil =>
+    }
+  }
+
   def testUsedImportFromInterpolatedString(): Unit = {
     val text =
       """

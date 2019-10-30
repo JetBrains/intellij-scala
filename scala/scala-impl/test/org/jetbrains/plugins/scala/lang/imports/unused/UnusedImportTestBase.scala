@@ -8,8 +8,8 @@ import scala.collection.JavaConverters._
   * Created by Svyatoslav Ilinskiy on 24.07.16.
   */
 abstract class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
-  def messages(text: String): Seq[HighlightMessage] = {
-    myFixture.configureByText("dummy.scala", text)
+  def messages(text: String, fileName: String = "dummy.scala"): Seq[HighlightMessage] = {
+    myFixture.configureByText(fileName, text)
     val infos = myFixture.doHighlighting().asScala
       .toList
       .filterNot(_.getDescription == null)
