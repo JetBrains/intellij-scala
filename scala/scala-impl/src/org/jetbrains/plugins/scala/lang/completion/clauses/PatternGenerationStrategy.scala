@@ -7,9 +7,9 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiEnumConstant}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 sealed trait PatternGenerationStrategy {
   def canBeExhaustive: Boolean
@@ -69,7 +69,7 @@ object PatternGenerationStrategy {
           case _ =>
             new EnumGenerationStrategy(
               enumClass,
-              valueType.presentableText,
+              valueType.presentableText(TypePresentationContext.emptyContext),
               enumConstants.map(_.getName)
             )
         }

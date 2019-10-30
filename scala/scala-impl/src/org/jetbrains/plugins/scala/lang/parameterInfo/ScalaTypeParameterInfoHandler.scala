@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -59,6 +59,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
+    implicit val tpc: TypePresentationContext = TypePresentationContext(context.getParameterOwner)
     context.getParameterOwner match {
       case _: ScTypeArgs =>
         val color: Color = context.getDefaultParameterColor
@@ -98,7 +99,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     }
   }
 
-  private def appendPsiTypeParams(params: Array[PsiTypeParameter], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor) {
+  private def appendPsiTypeParams(params: Array[PsiTypeParameter], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor)(implicit tpc: TypePresentationContext) {
     if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
     else {
       buffer.append(params.map((param: PsiTypeParameter) => {
@@ -120,7 +121,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     }
   }
 
-  private def appendScTypeParams(params: scala.Seq[ScTypeParam], buffer: StringBuilder, index: Int, substitutor: ScSubstitutor): StringBuilder = {
+  private def appendScTypeParams(params: scala.Seq[ScTypeParam], buffer: StringBuilder, index: Int, substitutor: ScSubstitutor)(implicit tpc: TypePresentationContext): StringBuilder = {
     if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
     else {
       buffer.append(params.map((param: ScTypeParam) => {

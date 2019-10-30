@@ -13,7 +13,7 @@ object ScalaStatisticManager {
   def memberKey(element: PsiElement): Option[String] = {
     val value = element match {
       case f: ScFunction => s"function#${f.name}" +
-        f.parameters.map(p => "#" + p.`type`().getOrAny.presentableText).mkString
+        f.parameters.map(p => "#" + p.`type`().getOrAny.presentableText(element)).mkString
       case o: ScObject => s"object#${o.qualifiedName}"
       case c: ScClass => s"class#${c.qualifiedName}"
       case t: ScTrait => s"trait#${t.qualifiedName}"

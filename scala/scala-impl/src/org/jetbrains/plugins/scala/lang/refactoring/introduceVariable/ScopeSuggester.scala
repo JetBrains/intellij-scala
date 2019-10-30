@@ -212,7 +212,7 @@ object ScopeSuggester {
         }
 
         import JavaConverters._
-        val typeName = typeElement.calcType.codeText
+        val typeName = typeElement.calcType.codeText(typeElement)
         val words = StringUtil.getWordsIn(typeName).asScala
 
         val resultBuffer = mutable.ArrayBuffer.empty[mutable.ArrayBuffer[ScalaFile]]

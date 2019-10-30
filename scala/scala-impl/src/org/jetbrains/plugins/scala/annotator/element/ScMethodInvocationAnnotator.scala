@@ -30,6 +30,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   def annotateMethodInvocation(call: MethodInvocation)
                               (implicit holder: AnnotationHolder) {
     implicit val ctx: ProjectContext = call
+    implicit val tpc: TypePresentationContext = TypePresentationContext(call)
 
     //do we need to check it:
     call.getEffectiveInvokedExpr match {

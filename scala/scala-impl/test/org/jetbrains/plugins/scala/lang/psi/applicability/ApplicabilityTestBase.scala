@@ -75,18 +75,18 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   // complex (missed + mismatches, etc)
 
   def assertProblems(definition: String, application: String)
-                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]): Unit = {
     assertProblems("", definition, application)(pattern)
   }
 
   def assertProblems(auxiliary: String, definition: String, application: String)
-                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]): Unit = {
     assertProblemsFunction(auxiliary, definition, application)(pattern)
     assertProblemsConstructor(auxiliary, definition, application)(pattern)
   }
 
   def assertProblemsFunction(auxiliary: String, definition: String, application: String)
-                            (pattern: PartialFunction[scala.List[ApplicabilityProblem], Unit]) {
+                            (pattern: PartialFunction[scala.List[ApplicabilityProblem], Unit]): Unit = {
     val typified = typify(definition, application)
 
     assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
@@ -94,7 +94,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
 
   def assertProblemsConstructor(auxiliary: String, definition: String, application: String)
-                               (pattern: PartialFunction[scala.List[ApplicabilityProblem], Unit]) {
+                               (pattern: PartialFunction[scala.List[ApplicabilityProblem], Unit]): Unit = {
     val typified = typify(definition, application)
     assertProblemsAre(auxiliary, formatConstructor(definition, application))(pattern)
     // TODO Uncomment and solve problems with primary constructors substitutors
@@ -102,7 +102,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
 
   private def assertProblemsAre(preface: String, code: String)
-                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]): Unit = {
     val line = if(preface.isEmpty) code else preface + "; " + code
     val file = (Header + "\n" + line).parse
     Compatibility.seqClass = file.depthFirst().instanceOf[ScClass]
@@ -147,18 +147,18 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
   
   object Expression {
-    def unapply(e: ScExpression) = e.toOption.map(_.getText)
+    def unapply(e: ScExpression): Option[String] = e.toOption.map(_.getText)
   }
   
   object Parameter {
-    def unapply(e: Parameter) = e.toOption.map(_.name)
+    def unapply(e: Parameter): Option[String] = e.toOption.map(_.name)
   }
 
   object Assignment {
-    def unapply(e: ScAssignment) = e.toOption.map(_.getText)
+    def unapply(e: ScAssignment): Option[String] = e.toOption.map(_.getText)
   }
     
   object Type {
-    def unapply(t: ScType) = t.toOption.map(_.presentableText)
+    def unapply(t: ScType): Option[String] = t.toOption.map(_.presentableText(TypePresentationContext.emptyContext))
   }
 }

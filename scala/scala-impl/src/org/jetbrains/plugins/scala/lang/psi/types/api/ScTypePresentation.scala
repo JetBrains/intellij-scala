@@ -50,7 +50,7 @@ trait TypePresentation {
     override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
     override def escapeName(e: String): String = StringEscapeUtils.escapeHtml(e)
-  })
+  })(TypePresentationContext.emptyContext)
 
   final def canonicalText(`type`: ScType): String = typeText(`type`, new NameRenderer {
     def removeKeywords(s: String): String =
@@ -77,7 +77,7 @@ trait TypePresentation {
     override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
 
     override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
-  })
+  })(TypePresentationContext.emptyContext)
 
   trait NameRenderer {
     def renderName(e: PsiNamedElement): String
@@ -147,7 +147,7 @@ object ScTypePresentation {
 
 }
 
-case class ScTypeText(tp: ScType) {
+case class ScTypeText(tp: ScType)(implicit tpc: TypePresentationContext) {
   val canonicalText: String = tp.canonicalText
   val presentableText: String = tp.presentableText
 }

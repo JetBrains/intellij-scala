@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.junit.Assert._
@@ -28,6 +29,7 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
   protected def doTest(fileText: Option[String], fileName: String = "dummy.scala"): Unit = {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
+    implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
     val typez = expr.`type`() match {
       case Right(t) if t.isUnit => expr.getTypeIgnoreBaseType
       case x => x

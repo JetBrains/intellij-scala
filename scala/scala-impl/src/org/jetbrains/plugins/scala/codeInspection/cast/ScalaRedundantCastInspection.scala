@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext}
 
 /**
  * Pavel Fatin
@@ -18,7 +18,7 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case call: ScGenericCall =>
-
+      implicit val tpc: TypePresentationContext = TypePresentationContext(call)
 
       call.referencedExpr.children.toList match {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>

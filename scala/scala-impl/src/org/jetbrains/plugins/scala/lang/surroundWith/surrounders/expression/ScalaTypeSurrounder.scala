@@ -15,7 +15,7 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val expression = elements(0).asInstanceOf[ScExpression]
     val result = expression.`type`().getOrAny
-    s"(${super.getTemplateAsString(elements)}: ${result.presentableText})"
+    s"(${super.getTemplateAsString(elements)}: ${result.presentableText(expression)})"
   }
 
   override def getTemplateDescription: String = "(expr: Type)"

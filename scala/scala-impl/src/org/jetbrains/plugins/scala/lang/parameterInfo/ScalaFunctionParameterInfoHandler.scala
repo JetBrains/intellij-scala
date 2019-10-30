@@ -120,6 +120,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     context.getParameterOwner match {
       case args: PsiElement =>
         implicit val project: ProjectContext = args.projectContext
+        implicit val tpc: TypePresentationContext = TypePresentationContext(args)
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")

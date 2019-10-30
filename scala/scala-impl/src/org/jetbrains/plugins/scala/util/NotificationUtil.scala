@@ -3,9 +3,9 @@ package util
 
 import java.net.URL
 
-import javax.swing.event.HyperlinkEvent
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
+import javax.swing.event.HyperlinkEvent
 
 import scala.collection.mutable
 
@@ -47,7 +47,7 @@ object NotificationUtil  {
              title: String = "Warning",
              notificationType: NotificationType = NotificationType.WARNING,
              displayType: NotificationDisplayType = NotificationDisplayType.BALLOON,
-             handler: Handler = IdHandler) {
+             handler: Handler = IdHandler): Unit = {
 
     builder(project, message).
       setGroup(group).
@@ -62,7 +62,7 @@ object NotificationUtil  {
   private val IdHandler: Handler = { (_: String) => {} }
 
   private class HyperlinkListener(handler: Handler) extends NotificationListener {
-    def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
+    def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
       event match {
         case Link(url) => DesktopUtils browse url
         case Action(command) =>

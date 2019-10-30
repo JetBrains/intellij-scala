@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
@@ -36,7 +36,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     doTestInner(checkEquivalence)
   }
 
-  private def errorMessage(title: String, expected: Boolean, declaredType: ScType, rhsType: ScType) = {
+  private def errorMessage(title: String, expected: Boolean, declaredType: ScType, rhsType: ScType)(implicit tpc: TypePresentationContext) = {
     s"""$title
        |Expected result: $expected
        |declared type:   ${declaredType.presentableText}
@@ -44,6 +44,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   private def doTestInner(checkEquivalence: Boolean): Unit = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     val (declaredType, rhsType) = declaredAndExpressionTypes()
     val expected = expectedResult
     if (checkEquivalence) {
@@ -145,8 +146,8 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
         errors +=
           s"""
              |Expected: $expectedResult
-             |Param tp: ${param.paramType.presentableText}
-             |Arg   tp: ${exprTp.presentableText}
+             |Param tp: ${param.paramType.presentableText(TypePresentationContext.emptyContext)}
+             |Arg   tp: ${exprTp.presentableText(TypePresentationContext.emptyContext)}
           """.stripMargin
     }
     assertTrue(if (shouldPass) "Conformance failure:\n"+ errors.mkString("\n\n").trim else failingPassed, !shouldPass ^ errors.isEmpty)

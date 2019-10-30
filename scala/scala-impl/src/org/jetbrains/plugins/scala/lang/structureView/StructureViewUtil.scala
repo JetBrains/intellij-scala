@@ -33,7 +33,7 @@ object StructureViewUtil {
       } else {
         res.append(param.name + ": ")
         val typez = subst(param.`type`().getOrNothing)
-        res.append(typez.presentableText + (if (param.isRepeatedParameter) "*" else ""))
+        res.append(typez.presentableText(x) + (if (param.isRepeatedParameter) "*" else ""))
         res.append(", ")
       }
     }

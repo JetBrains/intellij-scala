@@ -3,9 +3,9 @@ package codeInsight
 
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
-import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
+import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -59,7 +59,11 @@ package object hints {
   private val NonIdentifierChars = Set('\n', '(', '[', '{', ';', ',')
 
   def isTypeObvious(name: Option[String], tpe: ScType, body: ScExpression): Boolean =
-    isTypeObvious(name.getOrElse(""), tpe.presentableText, body.getText.takeWhile(!NonIdentifierChars(_)))
+    isTypeObvious(
+      name.getOrElse(""),
+      tpe.presentableText(TypePresentationContext.emptyContext),
+      body.getText.takeWhile(!NonIdentifierChars(_))
+    )
 
   // SCL-14339
   // Text-based algorithm is easy to implement, easy to test, and is highly portable (e.g. can be reused in Kotlin)

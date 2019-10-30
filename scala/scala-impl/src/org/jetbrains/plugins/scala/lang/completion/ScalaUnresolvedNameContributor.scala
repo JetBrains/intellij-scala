@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDeclaration, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
@@ -184,7 +184,7 @@ sealed abstract class ScalaTextLookupItem(protected val reference: ScReference)
     }
 
     arguments.map(createParameter).map {
-      case (parameterName, scType) => s"$parameterName${ScalaTokenTypes.tCOLON} ${scType.presentableText}"
+      case (parameterName, scType) => s"$parameterName${ScalaTokenTypes.tCOLON} ${scType.presentableText(TypePresentationContext.emptyContext)}"
     }.commaSeparated(model = Model.Parentheses)
   }
 }

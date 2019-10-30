@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -48,7 +49,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
       val typeArgs = parameterized.typeArgList.typeArgs
 
       if (alias.typeParameters.size == typeArgs.size) {
-        val fix = new SimplifyAppliedTypeLambdaQuickFix(parameterized, simplifyTypeProjection(alias, typeArgs))
+        val fix = new SimplifyAppliedTypeLambdaQuickFix(parameterized, simplifyTypeProjection(alias, typeArgs)(parameterized))
         val problem = holder.getManager.createProblemDescriptor(
           parameterized,
           getDisplayName,
@@ -86,7 +87,7 @@ object AppliedTypeLambdaCanBeSimplifiedInspection {
   private val inspectionId: String = "ScalaAppliedTypeLambdaCanBeSimplified"
   private val inspectionName: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
 
-  def simplifyTypeProjection(alias: ScTypeAliasDefinition, typeArgs: Seq[ScTypeElement]): String = {
+  def simplifyTypeProjection(alias: ScTypeAliasDefinition, typeArgs: Seq[ScTypeElement])(implicit tpc: TypePresentationContext): String = {
     val aliased     = alias.aliasedType.getOrAny
     val subst       = ScSubstitutor.bind(alias.typeParameters, typeArgs)(_.calcType)
     val substituted = subst(aliased)

@@ -225,7 +225,7 @@ object ScalaOverrideContributor {
         case _ => None
       }
 
-      maybeType.map(_.presentableText).getOrElse("")
+      maybeType.map(_.presentableText(member.getPsiElement)).getOrElse("")
     }
   }
 }

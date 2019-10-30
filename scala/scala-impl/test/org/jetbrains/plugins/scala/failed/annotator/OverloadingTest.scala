@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
-import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaLightCodeInsightFixtureTestAdapter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
-import org.jetbrains.plugins.scala.annotator.Message
 
 /**
   * User: Dmitry.Naydanov
@@ -66,7 +65,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Asser
           case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
           case _ => expression
         }
-        val (actualText, expText) = ScTypePresentation.different(actual, expected)
+        val (actualText, expText) = ScTypePresentation.different(actual, expected)(expr)
         val annotation = holder.createErrorAnnotation(expr,
           ScalaBundle.message("type.mismatch.found.required", actualText, expText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)

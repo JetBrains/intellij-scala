@@ -34,7 +34,7 @@ trait ScType extends project.ProjectContextOwner {
   protected def isAliasTypeInner: Option[AliasType] = None
 
   override final def toString: String = extensions.ifReadAllowed {
-    presentableText
+    presentableText(TypePresentationContext.emptyContext)
   }(getClass.getSimpleName)
 
   def isValue: Boolean

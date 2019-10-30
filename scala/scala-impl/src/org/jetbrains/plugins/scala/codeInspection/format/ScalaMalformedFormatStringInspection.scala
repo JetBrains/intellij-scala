@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.format.Injection._
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
 /**
   * // Acceptance test
@@ -58,6 +59,7 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
   private def inspect(part: StringPart, holder: ProblemsHolder) {
     part match {
       case injection @ Injection(exp, Some(Specifier(Span(element, start, end), format))) =>
+        implicit val tpc: TypePresentationContext = TypePresentationContext(element)
         injection.problem match {
           case Some(Inapplicable) =>
             for (argumentType <- injection.expressionType) {

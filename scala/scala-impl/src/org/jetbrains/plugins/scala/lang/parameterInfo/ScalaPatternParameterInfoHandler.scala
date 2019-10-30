@@ -75,23 +75,24 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
           case (sign: PhysicalMethodSignature, _: Int) =>
             //i  can be -1 (it's update method)
-            val methodName = sign.method.name
+            val method = sign.method
+            val methodName = method.name
 
             val subst = sign.substitutor
-            val returnType = sign.method match {
+            val returnType = method match {
               case function: ScFunction => subst(function.returnType.getOrAny)
               case method: PsiMethod => subst(method.getReturnType.toScType())
             }
 
             val isUnapplySeq = methodName == CommonNames.UnapplySeq
-            val params = ScPattern.unapplySubpatternTypes(returnType, args, sign.method.asInstanceOf[ScFunction]).zipWithIndex
+            val params = ScPattern.unapplySubpatternTypes(returnType, args, method.asInstanceOf[ScFunction]).zipWithIndex
 
             if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               buffer.append(params.map {
                 case (param, i) =>
                   val sb = StringBuilder.newBuilder
-                  sb.append(param.presentableText)
+                  sb.append(param.presentableText(method))
 
                   val isSeq = isUnapplySeq && i == args.getArgsCount - 1
                   if (isSeq) sb.append("*")

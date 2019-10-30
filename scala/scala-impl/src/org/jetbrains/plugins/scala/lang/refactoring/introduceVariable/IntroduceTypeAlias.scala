@@ -258,7 +258,7 @@ trait IntroduceTypeAlias {
       }
 
       //avoid replacing typeelement that was replaced
-      if (typeElement.calcType.codeText == inName) {
+      if (typeElement.calcType.codeText(typeElement) == inName) {
         typeElement
       } else {
         typeElement.replace(replacement).asInstanceOf[ScTypeElement]
@@ -276,7 +276,7 @@ trait IntroduceTypeAlias {
   }
 
 
-  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String, elementName: T => String) {
+  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String, elementName: T => String): Unit = {
     class Selection {
       val selectionModel: SelectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)

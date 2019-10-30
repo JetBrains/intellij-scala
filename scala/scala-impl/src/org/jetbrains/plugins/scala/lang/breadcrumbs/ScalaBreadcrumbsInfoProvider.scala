@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -82,20 +82,20 @@ object ScalaBreadcrumbsInfoProvider {
       if (txt == null) "" else if (txt.length < MAX_TEXT_LENGTH) txt else txt.substring(0, MAX_TEXT_LENGTH - 1 - stub.length) + stub
     }
     
-    def getSignature(el: Option[ScNamedElement], parameters: Seq[ScParameter], tpe: Option[ScType], needTpe: Boolean = false): String =
+    def getSignature(el: Option[ScNamedElement], parameters: Seq[ScParameter], tpe: Option[ScType], needTpe: Boolean = false)(implicit tpc: TypePresentationContext): String =
       el.map(_.name).getOrElse("") + 
         limitString(parameters.map(p => p.name + ": " +  p.typeElement.map(_.getText).getOrElse("Any")).mkString("(", ", ", ")")) + 
         (if (needTpe && el.exists(e => !DumbService.isDumb(e.getProject))) ": " + tpe.map(_.presentableText).getOrElse("") else "")
 
-    def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)
+    def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)(fun)
 
-    def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, None)
+    def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, None)(fun)
     
     def getConstructorSignature(constr: ScFunction): String = 
-      if (!constr.isConstructor) "" else "this" + limitString(getSignature(None, constr.parameters, None))
+      if (!constr.isConstructor) "" else "this" + limitString(getSignature(None, constr.parameters, None)(constr))
 
     def getPrimaryConstructorSignature(constr: ScPrimaryConstructor): String = 
-      "this" + limitString(getSignature(None, constr.parameters, None))
+      "this" + limitString(getSignature(None, constr.parameters, None)(constr))
     
     def describeFunction(fun: ScFunction): String = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
     

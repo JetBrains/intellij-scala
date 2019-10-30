@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypeText
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeExt, TypePresentationContext}
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -75,7 +75,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
         val replaced = te.replace(ScalaPsiElementFactory.createTypeElementFromText(types.head.canonicalText, te.getContext, te))
         TypeAdjuster.markToAdjust(replaced)
       } else {
-        val texts = types.map(ScTypeText)
+        implicit val tpc: TypePresentationContext = TypePresentationContext(context)
+        val texts = types.map(ScTypeText(_))
         val expr = new ChooseTypeTextExpression(texts, ScTypeText(declaredType))
         startTemplate(te, context.getParent, expr, maybeEditor.get)
       }

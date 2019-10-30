@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.element.ScPatternAnnotator
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection.{ScPatternExpectedAndPatternType, inspectionName}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
-import org.jetbrains.plugins.scala.annotator.element.ScPatternAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -21,16 +21,16 @@ class PatternMayNeverMatchInspection extends AbstractInspection(inspectionName) 
       if (!ScPatternAnnotator.matchesPattern(exTp, patType) && !patType.conforms(exTp) &&
         !isNeverSubType(exTp, patType)) {
         //need to check so inspection highlighting doesn't interfere with PatterAnnotator's
-        val message = PatternMayNeverMatchInspection.message(exTp, patType)
+        val message = PatternMayNeverMatchInspection.message(exTp, patType)(pat)
         holder.registerProblem(pat, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
   }
 }
 
 object PatternMayNeverMatchInspection {
-  val inspectionId = "PatternMayNeverMatch"
-  val inspectionName = InspectionBundle.message("pattern.may.never.match")
-  def message(_expected: ScType, _found: ScType): String = {
+  val inspectionId: String = "PatternMayNeverMatch"
+  val inspectionName: String = InspectionBundle.message("pattern.may.never.match")
+  def message(_expected: ScType, _found: ScType)(implicit tpc: TypePresentationContext): String = {
     val (expected, found) = ScTypePresentation.different(_expected, _found)
     InspectionBundle.message("pattern.may.never.match", expected, found)
   }

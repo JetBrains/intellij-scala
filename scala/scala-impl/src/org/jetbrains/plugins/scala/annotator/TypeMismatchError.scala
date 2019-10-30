@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -18,6 +18,8 @@ private object TypeMismatchError {
   def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
               (formatMessage: (String, String) => String)
               (implicit holder: AnnotationHolder): Annotation = {
+    val annotatedElement = elementAt(element, blockLevel)
+    implicit val context: TypePresentationContext = TypePresentationContext(annotatedElement)
 
     // TODO update the test data, SCL-15483
     val adjustedActualType = (expectedType, actualType) match {
@@ -33,8 +35,6 @@ private object TypeMismatchError {
       else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)
     }
 
-    val annotatedElement = elementAt(element, blockLevel)
-
     val highlightExpression = !ScalaProjectSettings.in(element.getProject).isTypeMismatchHints || !canBeHint
 
     // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
@@ -45,8 +45,6 @@ private object TypeMismatchError {
       adjustTextAttributesOf(annotation)
       annotation
     }
-
-    implicit val context = TypePresentationContext(annotatedElement)
 
     // See org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler
     annotation.setTooltip(TypeMismatchHints.tooltipFor(expectedType, adjustedActualType))
@@ -61,7 +59,7 @@ private object TypeMismatchError {
       }
 
       // TODO Can we detect a "current" color scheme in a "current" editor somehow?
-      implicit val scheme = EditorColorsManager.getInstance().getGlobalScheme
+      implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
 
       TypeMismatchHints.createFor(delegateElement, expectedType, adjustedActualType).putTo(delegateElement)
     }
@@ -84,7 +82,7 @@ private object TypeMismatchError {
     case 0 => element
   }
 
-  private def adjustTextAttributesOf(annotation: Annotation) = {
+  private def adjustTextAttributesOf(annotation: Annotation): Unit = {
     val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
     val attributes = new TextAttributes()
     attributes.setEffectType(null)

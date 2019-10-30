@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, TypePresentationContext}
 import org.jetbrains.plugins.scala.util.KindProjectorUtil
 
 /**
@@ -102,12 +102,12 @@ object KindProjectorSimplifyTypeProjectionInspection {
 
           val newTypeArgs = paramType.typeArguments.map { ta =>
             currentTypeParam match {
-              case Some(tpt) if ta.presentableText == tpt.name =>
+              case Some(tpt) if ta.presentableText(TypePresentationContext.emptyContext) == tpt.name =>
                 currentTypeParam =
                   if (typeParamIt.hasNext) Option(typeParamIt.next())
                   else                     None
                 tpt.getText.replace(tpt.name, KindProjectorUtil.placeholderSymbolFor(alias))
-              case _ => ta.presentableText
+              case _ => ta.presentableText(TypePresentationContext.emptyContext)
             }
           }
 
