@@ -71,7 +71,7 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestAdapt
       |}
       |""".stripMargin)
 
-  def overloadedProtoCollapse(): Unit = checkTextHasNoErrors(
+  def testOverloadedProtoCollapse(): Unit = checkTextHasNoErrors(
     """
       |class Test {
       |  def prepended[B >: Char](elem: B): String = ???
@@ -87,7 +87,7 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestAdapt
       |  def days: Int = ???
       |  def days[C](c: C)(implicit ev: Classifier[C]): ev.R = ???
       |
-      |  def day[C](c: C)(implicit ev: Classifier[C]): ev.R = days(c)
+      |  def day[C](c: C)(implicit ev: Classifier[C]): ev.R = ???
       |}
       |
       |
@@ -131,7 +131,7 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestAdapt
       |}
       |""".stripMargin)
 
-  def overloadedHoFun(): Unit = checkTextHasNoErrors(
+  def testOverloadedHoFun(): Unit = checkTextHasNoErrors(
     """
       |import scala.math.Ordering
       |import scala.reflect.ClassTag
