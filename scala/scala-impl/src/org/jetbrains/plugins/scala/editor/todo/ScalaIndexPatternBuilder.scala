@@ -1,45 +1,53 @@
 package org.jetbrains.plugins.scala
-package editor.todo
+package editor
+package todo
 
+import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.lang.ParserDefinition
 import com.intellij.lexer.Lexer
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.search.IndexPatternBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes.SCALA_DOC_COMMENT
 
-class ScalaIndexPatternBuilder extends IndexPatternBuilder {
+//noinspection TypeAnnotation
+final class ScalaIndexPatternBuilder extends IndexPatternBuilder {
 
-  override def getIndexingLexer(file: PsiFile): Lexer = file match {
-    case _: ScalaFile => new ScalaLexer
-    case _            => null
+  import ScalaTokenTypes._
+
+  override def getIndexingLexer(file: PsiFile) =
+    byParserDefinition[Lexer](file)(_.createLexer(null))
+
+  override def getCommentTokenSet(file: PsiFile) =
+    byParserDefinition[TokenSet](file)(_.getCommentTokens)
+
+  override def getCommentStartDelta(tokenType: IElementType) = tokenType match {
+    case `tLINE_COMMENT` |
+         `tBLOCK_COMMENT` => 2
+    case `tDOC_COMMENT` |
+         `SCALA_DOC_COMMENT` => 3
+    case _ => 0
   }
 
-  override def getCommentTokenSet(file: PsiFile): TokenSet = file match {
-    case _: ScalaFile => ScalaTokenTypes.COMMENTS_TOKEN_SET
-    case _            => null
+  override def getCommentEndDelta(tokenType: IElementType) = tokenType match {
+    case `tBLOCK_COMMENT` |
+         `SCALA_DOC_COMMENT` => 2
+    case _ => 0
   }
 
-  override def getCommentStartDelta(tokenType: IElementType): Int = tokenType match {
-    case ScalaTokenTypes.tLINE_COMMENT |
-         ScalaTokenTypes.tBLOCK_COMMENT         => 2
-    case ScalaTokenTypes.tDOC_COMMENT |
-         ScalaDocElementTypes.SCALA_DOC_COMMENT => 3
-    case _                                      => 0
+  override def getCharsAllowedInContinuationPrefix(tokenType: IElementType) = tokenType match {
+    case `tBLOCK_COMMENT` |
+         `tDOC_COMMENT` |
+         `SCALA_DOC_COMMENT` => "*"
+    case _ => ""
   }
 
-  override def getCommentEndDelta(tokenType: IElementType): Int = tokenType match {
-    case ScalaTokenTypes.tBLOCK_COMMENT |
-         ScalaDocElementTypes.SCALA_DOC_COMMENT => 2
-    case _                                      => 0
-  }
-
-  override def getCharsAllowedInContinuationPrefix(tokenType: IElementType): String = tokenType match {
-    case ScalaTokenTypes.tBLOCK_COMMENT |
-         ScalaTokenTypes.tDOC_COMMENT |
-         ScalaDocElementTypes.SCALA_DOC_COMMENT => "*"
-    case _                                      => ""
-  }
+  private def byParserDefinition[T >: Null](file: PsiFile)
+                                           (function: ParserDefinition => T) =
+    file match {
+      case file: ScalaFile with PsiFileBase => function(file.getParserDefinition)
+      case _ => null
+    }
 }
