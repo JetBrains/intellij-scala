@@ -62,8 +62,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expr.expectedTypesEx(fromUnderscore)
 
-    val alt = filterAlternatives(types, expr)
-    alt
+    filterAlternatives(types, expr)
   }
 
   private[this] def filterAlternatives(
