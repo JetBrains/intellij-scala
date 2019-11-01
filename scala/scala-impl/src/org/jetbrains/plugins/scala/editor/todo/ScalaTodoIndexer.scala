@@ -1,15 +1,37 @@
-package org.jetbrains.plugins.scala.editor.todo
+package org.jetbrains.plugins.scala
+package editor
+package todo
 
-import com.intellij.lexer.Lexer
 import com.intellij.psi.impl.cache.impl.todo.LexerBasedTodoIndexer
-import com.intellij.psi.impl.cache.impl.{IdAndToDoScannerBasedOnFilterLexer, OccurrenceConsumer}
-import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinitionBase
+import com.intellij.psi.impl.cache.impl.{BaseFilterLexer, OccurrenceConsumer, idCache}
+import com.intellij.psi.search.UsageSearchContext.IN_COMMENTS
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 
-/** see [[com.intellij.psi.impl.cache.impl.idCache.JavaTodoIndexer]] */
-final class ScalaTodoIndexer extends LexerBasedTodoIndexer with IdAndToDoScannerBasedOnFilterLexer {
+final class ScalaTodoIndexer extends LexerBasedTodoIndexer {
 
-  override def createLexer(consumer: OccurrenceConsumer): Lexer = {
-    val scalaLexer = ScalaParserDefinitionBase.createLexer
-    new ScalaFilterLexer(scalaLexer, consumer)
+  override def createLexer(consumer: OccurrenceConsumer): BaseFilterLexer =
+    new ScalaTodoIndexer.ScalaFilterLexer(consumer)
+}
+
+object ScalaTodoIndexer {
+
+  /**
+   * This basic implementation was only added to support proper TO-DO indices for ScalaDoc
+   *
+   * see [[idCache.JavaFilterLexer]]
+   */
+  private final class ScalaFilterLexer(consumer: OccurrenceConsumer)
+    extends BaseFilterLexer(new ScalaLexer, consumer) {
+
+    override def advance(): Unit = {
+      val tokenType = getDelegate.getTokenType
+
+      if (ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(tokenType)) {
+        scanWordsInToken(IN_COMMENTS, false, false)
+        advanceTodoItemCountsInToken()
+      }
+
+      getDelegate.advance()
+    }
   }
 }
