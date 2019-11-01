@@ -4,13 +4,13 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11, SlowTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 

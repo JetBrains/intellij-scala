@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.PreconditionError
 import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplCompileLocallyRunLocallyIntegrationTest extends WorksheetReplIntegrationBaseTest {
 
   override def compileInCompileServerProcess: Boolean = false

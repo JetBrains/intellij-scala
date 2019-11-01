@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13, SlowTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -20,13 +20,13 @@ import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /*
-  TODO 1: move to a separate category and run in TeamCity multiple times against different scala versions
+  TODO 1: run in TeamCity multiple times against different scala versions
   TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
   TODO 3: test clean action
   TODO 4: test Repl iterative evaluation
   TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
 */
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase
   with WorksheetItEditorPreparations
   with WorksheetItEvaluations

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain.eclipse_mode
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
@@ -8,7 +8,7 @@ import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTest with WorksheetRunTestSettings {
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType

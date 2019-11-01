@@ -3,7 +3,7 @@ package worksheet
 
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetPlainModeCompileTest extends WorksheetSourceProcessorTestBase {
 
   def testSimple1(): Unit = testCompilesInPlainMode {

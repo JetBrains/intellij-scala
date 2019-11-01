@@ -4,8 +4,7 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStartsWith
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{TestRunResult, ViewerEditorData}
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ViewerEditorData
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 
