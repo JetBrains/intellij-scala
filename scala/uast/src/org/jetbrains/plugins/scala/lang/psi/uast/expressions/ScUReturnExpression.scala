@@ -1,20 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
+import java.util.Objects
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{
-  UExpression,
-  UReturnExpression,
-  UReturnExpressionAdapter
-}
+import org.jetbrains.uast.{UExpression, UReturnExpression, UReturnExpressionAdapter}
 
 /**
   * [[ScReturn]] adapter for the [[UReturnExpression]]
@@ -37,9 +31,9 @@ final class ScUReturnExpression(override protected val scExpression: ScReturn,
   * Implicit return for result statements in blocks.
   */
 final class ScUImplicitReturnExpression(
-  returnedElement: PsiElement,
+  private val returnedElement: PsiElement,
   override protected val parent: LazyUElement,
-  convertLambdas: Boolean = true
+  private val convertLambdas: Boolean = true
 ) extends UReturnExpressionAdapter
     with ScUElement
     with UExpression
@@ -54,13 +48,14 @@ final class ScUImplicitReturnExpression(
     returnedElement.convertToUExpressionOrEmpty(parent = this, convertLambdas)
 
   override def equals(other: Any): Boolean = other match {
-    case that: ScUImplicitReturnExpression if super.equals(that) =>
-      getReturnExpression == that.getReturnExpression
+    case that: ScUImplicitReturnExpression =>
+        returnedElement == that.returnedElement &&
+        convertLambdas == that.convertLambdas
     case _ => false
   }
 
   override def hashCode(): Int =
-    31 * super.hashCode + Option(getReturnExpression).hashCode
+    31 * returnedElement.hashCode() + convertLambdas.##
 }
 
 object ScUImplicitReturnExpression {
