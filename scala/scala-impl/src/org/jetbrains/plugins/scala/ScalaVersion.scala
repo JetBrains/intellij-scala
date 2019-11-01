@@ -49,12 +49,12 @@ case object Scala_2_11 extends ScalaVersion(
 
 case object Scala_2_12 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_12,
-  "3"
+  "10"
 )
 
 case object Scala_2_13 extends ScalaVersion(
   ScalaLanguageLevel.Scala_2_13,
-  "0"
+  "1"
 )
 
 case object Scala_3_0 extends ScalaVersion(
