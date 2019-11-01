@@ -66,6 +66,7 @@ public final class ScalaLexer extends Lexer {
    */
   private IElementType previousToken = null;
 
+  @Deprecated
   public ScalaLexer() {
     this(false, null);
   }
