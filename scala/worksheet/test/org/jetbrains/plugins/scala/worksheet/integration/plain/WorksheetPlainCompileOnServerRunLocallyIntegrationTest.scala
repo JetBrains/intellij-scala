@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetPlainCompileOnServerRunLocallyIntegrationTest extends WorksheetPlainIntegrationBaseTest {
 
   override def compileInCompileServerProcess = true

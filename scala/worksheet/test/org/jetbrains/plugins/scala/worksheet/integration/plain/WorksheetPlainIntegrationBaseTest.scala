@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest
   with WorksheetRunTestSettings
   with WorksheetRuntimeExceptionsTests {

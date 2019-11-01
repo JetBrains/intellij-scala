@@ -16,3 +16,5 @@ trait TypecheckerTests
 trait TestingSupportTests
 
 trait UltimateTests
+
+trait WorksheetEvaluationTests
