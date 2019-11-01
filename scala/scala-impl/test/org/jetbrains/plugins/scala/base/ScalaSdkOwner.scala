@@ -56,7 +56,9 @@ object ScalaSdkOwner {
     possibleVersions.iteratorFrom(wantedVersion).toStream.headOption.getOrElse(possibleVersions.last)
 
   lazy val configuredScalaVersion: Option[ScalaVersion] = {
-    scala.util.Properties.envOrNone("SCALA_SDK_TEST_VERSION").map(
+    val property = scala.util.Properties.propOrNone("scala.sdk.test.version")
+      .orElse(scala.util.Properties.envOrNone("SCALA_SDK_TEST_VERSION"))
+    property.map(
       ScalaVersion.fromString(_).filter(allTestVersions.contains).getOrElse(
         throw new AssertionError(
           "Scala SDK Version specified in environment variable SCALA_SDK_TEST_VERSION is not one of "
