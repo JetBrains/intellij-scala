@@ -13,7 +13,7 @@ import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
@@ -33,15 +33,18 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
     val scope = inReadAction {
       val useScope = clazz.getUseScope match {
         case _: LocalSearchScope =>
-          clazz.containingScalaFile match {
-            case Some(f) if f.getVirtualFile != null => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
-            case Some(f) => Some(GlobalSearchScope.allScope(f.getProject))
-            case None => None
+          clazz.getContainingFile match {
+            case null => null
+            case file =>
+              file.getVirtualFile match {
+                case null => GlobalSearchScope.allScope(file.getProject)
+                case _ => GlobalSearchScope.fileScope(file)
+              }
           }
-        case global: GlobalSearchScope => Some(global)
-        case _ => None
+        case global: GlobalSearchScope => global
+        case _ => null
       }
-      ScalaUseScope.intersect(queryParameters.getScope, useScope) match {
+      ScalaUseScope.intersect(queryParameters.getScope, Option(useScope)) match {
         case x: GlobalSearchScope => x
         case _ => return true
       }

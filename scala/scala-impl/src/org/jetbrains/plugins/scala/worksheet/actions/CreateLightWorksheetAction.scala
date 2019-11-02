@@ -1,29 +1,38 @@
 package org.jetbrains.plugins.scala
-package worksheet.actions
+package worksheet
+package actions
 
 import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import com.intellij.openapi.util.text.StringUtil.notNullize
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScalaFile
 
 /**
  * User: Dmitry.Naydanov
  * Date: 26.05.14.
  */
-class CreateLightWorksheetAction extends AnAction {
-  override def actionPerformed(e: AnActionEvent) {
-    val project = e.getProject
-    val editor = e getData CommonDataKeys.EDITOR
-    val text = StringUtil.notNullize(if (editor == null) null else editor.getSelectionModel.getSelectedText)
-    
-    val f: VirtualFile = ScratchRootType.getInstance.createScratchFile(
-      project, "scratch" + ScalaFileType.INSTANCE.getExtensionWithDot, ScalaLanguage.INSTANCE, text)
-    if (f != null) FileEditorManager.getInstance(project).openFile(f, true)
+final class CreateLightWorksheetAction extends AnAction {
+
+  override def actionPerformed(event: AnActionEvent): Unit = {
+    val project = event.getProject
+    val text = event.getData(CommonDataKeys.EDITOR) match {
+      case null => null
+      case editor => editor.getSelectionModel.getSelectedText
+    }
+
+    ScratchRootType.getInstance.createScratchFile(
+      project,
+      "scratch" + ScalaFileType.INSTANCE.getExtensionWithDot,
+      ScalaLanguage.INSTANCE,
+      notNullize(text)
+    ) match {
+      case null =>
+      case file => FileEditorManager.getInstance(project).openFile(file, true)
+    }
   }
 
-  override def update(e: AnActionEvent) {
-    ScalaActionUtil enableAndShowIfInScalaFile e
+  override def update(event: AnActionEvent): Unit = {
+    enableAndShowIfInScalaFile(event)
   }
 }
