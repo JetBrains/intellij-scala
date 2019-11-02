@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package finder
 
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
-import com.intellij.ide.scratch.{ScratchFileService, ScratchFileType}
+import com.intellij.ide.scratch.ScratchFileService
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -47,22 +47,20 @@ final class ScalaFilterScope private(scope: GlobalSearchScope)
                                     (implicit project: Project)
   extends FilterScope(scope) {
 
+  override def contains(file: VirtualFile): Boolean =
+    super.contains(file) ||
+      Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
+        .exists(_.isKindOf(ScalaLanguage.INSTANCE))
+
   override protected def isValid(file: VirtualFile): Boolean =
     FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
       case _: JavaClassFileType =>
         isInLibraryClasses(file)
-      case fileType: LanguageFileType =>
-        substitutedLanguage(fileType, file).exists(_.isKindOf(ScalaLanguage.INSTANCE)) ||
+      case fileType: LanguageFileType if isInSourceContent(file) =>
+        fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) ||
           ScalaLanguageDerivative.existsFor(fileType)
       case _ => false
     }
-
-  private def substitutedLanguage(fileType: LanguageFileType,
-                                  file: VirtualFile) = fileType match {
-    case _: ScratchFileType => Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
-    case _ if isInSourceContent(file) => Some(fileType.getLanguage)
-    case _ => None
-  }
 }
 
 object ScalaFilterScope {
