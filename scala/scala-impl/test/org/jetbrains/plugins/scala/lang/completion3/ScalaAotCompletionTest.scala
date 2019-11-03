@@ -6,8 +6,8 @@ import com.intellij.codeInsight.lookup.Lookup
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
 /**
-  * @author Pavel Fatin
-  */
+ * @author Pavel Fatin
+ */
 class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._
@@ -48,6 +48,24 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       s"""class Foo
          |var foo$CARET
       """.stripMargin,
+    lookupString = "Foo",
+    itemText = "foo",
+    tailText = null
+  )
+
+  def testMethodName(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |
+         |object Bar {
+         |  def f$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""class Foo
+         |
+         |object Bar {
+         |  def foo$CARET
+         |}""".stripMargin,
     lookupString = "Foo",
     itemText = "foo",
     tailText = null
@@ -200,6 +218,17 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     lookupString = "Foo",
     itemText = "foo: Foo"
   )
+
+  def testNoOverrideCompletion(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |object Bar {
+         |  override val f$CARET
+         |}""".stripMargin
+  ) {
+    hasItemText(_, "Foo")(itemText = "foo")
+  }
 
   private def doAotCompletionTest(fileText: String,
                                   resultText: String,

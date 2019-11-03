@@ -4,12 +4,12 @@ package aot
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionResult, CompletionResultSet}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation}
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.text.StringUtil.{capitalize, decapitalize}
 import com.intellij.util.{Consumer => IJConsumer}
 
-private[completion] sealed abstract class Consumer(originalResultSet: CompletionResultSet) extends IJConsumer[CompletionResult] {
+import scala.collection.mutable
 
-  import StringUtil.{capitalize, decapitalize}
+private[completion] sealed abstract class Consumer(originalResultSet: CompletionResultSet) extends IJConsumer[CompletionResult] {
 
   private val prefixMatcher = originalResultSet.getPrefixMatcher
   private val prefix = prefixMatcher.getPrefix
@@ -55,26 +55,29 @@ private[completion] class TypedConsumer(originalResultSet: CompletionResultSet) 
   override final protected def suggestItemText(lookupString: String): String =
     super.suggestItemText(lookupString) + Delimiter + lookupString
 
-  override final protected def createRenderer(itemText: String): LookupElementRenderer =
+  override final protected def createRenderer(itemText: String) =
     new LookupElementRenderer(itemText)
 }
 
-private[completion] class UntypedConsumer(originalResultSet: CompletionResultSet) extends Consumer(originalResultSet) {
+private[completion] final class UntypedConsumer(originalResultSet: CompletionResultSet) extends Consumer(originalResultSet) {
 
-  override final protected def suggestItemText(lookupString: String): String =
-    super.suggestItemText(lookupString)
+  private val consumed = mutable.Set.empty[String]
 
-  override final protected def createRenderer(itemText: String): LookupElementRenderer =
-    new LookupElementRenderer(itemText) {
-
-      override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
-        super.renderElement(decorator, presentation)
-
-        presentation.setIcon(null)
-        presentation.setTailText(null)
-      }
+  override protected def consume(lookupElement: LookupElement, itemText: String): Unit =
+    if (consumed.add(itemText)) {
+      super.consume(lookupElement, itemText)
     }
 
-  override final protected def createInsertHandler(itemText: String): InsertHandler =
-    super.createInsertHandler(itemText)
+  //noinspection TypeAnnotation
+  override protected def createRenderer(itemText: String) = new LookupElementRenderer(itemText) {
+
+    override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
+      super.renderElement(decorator, presentation)
+
+      presentation.setIcon(null)
+      presentation.setTypeText(null)
+      presentation.setTailText(null)
+      presentation.setStrikeout(false)
+    }
+  }
 }
