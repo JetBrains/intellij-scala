@@ -6,17 +6,18 @@ package aot
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-
-import scala.collection.mutable
 
 /**
  * @author Pavel Fatin
@@ -94,25 +95,8 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     (resultSet: CompletionResultSet, _: PsiElement) => new UntypedConsumer(resultSet)
   )
 
-  extend(
-    BASIC,
-    identifierWithParentPattern(classOf[ScFieldId]),
-    new CompletionProvider[ScValueDeclaration] {
-
-      override protected def addCompletions(resultSet: CompletionResultSet,
-                                            prefix: String)
-                                           (implicit parameters: CompletionParameters,
-                                            context: ProcessingContext): Unit =
-        positionFromParameters.getContext.getContext.getContext match {
-          case _: ScVariableDeclaration | _: ScValueDeclaration => super.addCompletions(resultSet, prefix)
-          case _ =>
-        }
-
-      override protected def createElement(text: String,
-                                           context: PsiElement,
-                                           child: PsiElement): ScValueDeclaration =
-        createDeclarationFromText(ScalaKeyword.VAL + " " + text, context, child)
-          .asInstanceOf[ScValueDeclaration]
+  registerDeclarationProvider[ScFieldId](
+    new DeclarationCompletionProvider[ScValueDeclaration](ScalaKeyword.VAL, classOf[ScValueDeclaration], classOf[ScVariableDeclaration]) {
 
       override protected def findTypeElement(declaration: ScValueDeclaration): Option[ScTypeElement] =
         declaration.typeElement
@@ -120,20 +104,26 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       override protected def findContext(element: ScValueDeclaration): PsiElement =
         super.findContext(element).getContext.getContext
 
-      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer = new UntypedConsumer(resultSet) {
+    }
+  )
 
-        private val consumed = mutable.Set.empty[String]
+  registerDeclarationProvider[ScFunctionDeclaration](
+    new DeclarationCompletionProvider[ScFunctionDeclaration](ScalaKeyword.DEF, classOf[ScFunctionDeclaration]) {
 
-        override protected def consume(lookupElement: LookupElement, itemText: String): Unit = {
-          if (consumed.add(itemText)) super.consume(lookupElement, itemText)
-        }
-      }
+      override protected def findTypeElement(element: ScFunctionDeclaration): Option[ScTypeElement] =
+        element.returnTypeElement
     }
   )
 
   private def registerParameterProvider[E <: ScalaPsiElement : ClassTag](provider: ParameterCompletionProvider): Unit = extend(
     BASIC,
     identifierPattern.withParents(classOf[ScParameter], classOf[ScParameterClause], classOf[ScParameters], classTag[E].runtimeClass.asSubclass(classOf[ScalaPsiElement])),
+    provider
+  )
+
+  private def registerDeclarationProvider[E <: ScalaPsiElement : ClassTag](provider: DeclarationCompletionProvider[_]): Unit = extend(
+    BASIC,
+    identifierWithParentPattern(classTag[E].runtimeClass.asSubclass(classOf[ScalaPsiElement])),
     provider
   )
 }
@@ -152,4 +142,20 @@ object ScalaAotCompletionContributor {
       parameter.paramType.map(_.typeElement)
   }
 
+  private abstract class DeclarationCompletionProvider[D <: ScMember with ScDeclaration](keyword: String,
+                                                                                         classes: Class[_ <: ScMember]*) extends CompletionProvider[D] {
+
+    override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
+                                         (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
+      PsiTreeUtil.getParentOfType(positionFromParameters, classes: _*) match {
+        case member: ScMember if !member.hasModifierPropertyScala(ScalaModifier.OVERRIDE) =>
+          super.addCompletions(resultSet, prefix)
+        case _ =>
+      }
+
+    override protected final def createElement(text: String, context: PsiElement, child: PsiElement): D =
+      createDeclarationFromText(keyword + " " + text, context, child).asInstanceOf[D]
+
+    override protected final def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new UntypedConsumer(resultSet)
+  }
 }

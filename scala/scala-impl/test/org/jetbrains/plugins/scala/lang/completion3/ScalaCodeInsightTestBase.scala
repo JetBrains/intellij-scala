@@ -49,8 +49,10 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
 
     changePsiAt(getEditor.getCaretModel.getOffset)
 
-    new CodeCompletionHandlerBase(completionType, false, false, true)
-      .invokeCompletion(getProject, getEditor, invocationCount)
+    invokeAndWait {
+      new CodeCompletionHandlerBase(completionType, false, false, true)
+        .invokeCompletion(getProject, getEditor, invocationCount)
+    }
 
     LookupManager.getActiveLookup(getEditor) match {
       case impl: LookupImpl => (impl, items(impl))
