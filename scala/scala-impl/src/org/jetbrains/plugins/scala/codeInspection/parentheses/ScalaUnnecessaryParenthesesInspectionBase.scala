@@ -36,17 +36,12 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   def setSettings(settings: UnnecessaryParenthesesSettings): Unit
 
   private def hasSingleParenthesizedParam(f: ScFunctionExpr): Boolean = {
-    // If an anonymous function (x: T) => e with a single typed parameter appears as the result expression of a block, it can be abbreviated to x: T => e.
-    def isBlockResultExpr: Boolean = f.getParent match {
-      case block: ScBlockExpr if block.resultExpression.contains(f) => true
-      case _ => false
-    }
     // In the case of a single untyped formal parameter, (x) => e can be abbreviated to x => e
     def hasNoParamType = f.parameters.headOption.exists(_.typeElement.isEmpty)
 
     def hasParenthesizedClause = f.params.clauses.headOption.exists(isParenthesised)
 
-    f.parameters.size == 1 && hasParenthesizedClause && (hasNoParamType || isBlockResultExpr)
+    f.parameters.size == 1 && hasParenthesizedClause && hasNoParamType
   }
 
   private def isParenthesesRedundant(elem: ScParenthesizedElement, settings: UnnecessaryParenthesesSettings): Boolean = {
