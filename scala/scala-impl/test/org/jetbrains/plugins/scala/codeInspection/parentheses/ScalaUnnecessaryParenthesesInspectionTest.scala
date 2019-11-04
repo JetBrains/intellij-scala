@@ -362,7 +362,7 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
     checkTextHasNoErrors(required)
     checkTextHasErrors(r1)
-    checkTextHasErrors(r2)
+    checkTextHasNoErrors(r2)
     checkTextHasErrors(r3)
 
     withSettings(ignoreAroundFunctionExprParam) {
@@ -372,9 +372,9 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       checkTextHasNoErrors(r3)
     }
 
-    val text = s"Seq(1) map { (${CARET_MARKER}i: Int) => i + 1 }"
-    val result = s"Seq(1) map { i: Int => i + 1 }"
-    val hint = hintBeginning + " (i: Int)"
+    val text = s"Seq(1) map { (${CARET_MARKER}i) => i + 1 }"
+    val result = s"Seq(1) map { i => i + 1 }"
+    val hint = hintBeginning + " (i)"
     testQuickFix(text, result, hint)
   }
 
