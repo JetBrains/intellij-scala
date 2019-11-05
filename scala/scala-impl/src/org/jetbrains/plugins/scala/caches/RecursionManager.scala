@@ -8,7 +8,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.NullSafe
 
 /**
   * Nikolay.Tropin
@@ -43,7 +42,7 @@ object RecursionManager {
 
   //invalidates all current StackStamps
   def prohibitCaching(): Unit = {
-    ourStack.get.prohibitCaching()
+    ourStack.get().prohibitCaching()
   }
 
   class RecursionGuard[Data >: Null <: AnyRef, LocalCacheValue] private (id: String) {
@@ -142,6 +141,12 @@ object RecursionManager {
 
     private[this] var _isDirty: Boolean = false
 
+    // The local cache is an optimization and just prevents unnecessary recalculation.
+    // It contains cached values that were created inside a recursion.
+    // Normally we shouldn't cache them at all, but that would mean that they would
+    // have to be recalculated every time they are requested in the same recursive call.
+    // So instead we cache them here for as long as we are in that recursive call and
+    // prevent calculating them incorrectly again.
     private[RecursionManager] var localCache: LocalCacheMap = Map.empty
     private[RecursionManager] val progressMap = new util.LinkedHashMap[MyKey[_], Integer]
 

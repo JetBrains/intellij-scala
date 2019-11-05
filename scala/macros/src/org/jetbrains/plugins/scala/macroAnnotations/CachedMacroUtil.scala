@@ -175,60 +175,54 @@ object CachedMacroUtil {
     def apply(resultName: c.universe.TermName): c.universe.Tree
   }
 
-  def doCaching(c: whitebox.Context)(computation: c.universe.Tree,
-                                     resultName: c.universe.TermName,
-                                     guardName: c.universe.TermName,
-                                     dataName: c.universe.TermName,
-                                     updateHolderGenerator: UpdateHolderGenerator[c.type]): c.universe.Tree = {
+  def doPreventingRecursionCaching(c: whitebox.Context)(computation: c.universe.Tree,
+                                                        guard: c.universe.TermName,
+                                                        data: c.universe.TermName,
+                                                        resultType: c.universe.Tree,
+                                                        updateHolderGenerator: UpdateHolderGenerator[c.type]): c.universe.Tree = {
     import c.universe.Quasiquote
     implicit val context: c.type = c
-
-    q"""
-      {
-        val fromLocalCache = $guardName.getFromLocalCache($dataName)
-        if (fromLocalCache != null) (fromLocalCache, false)
-        else {
-          val stackStamp = $recursionManagerFQN.markStack()
-
-          val $resultName = { $computation }
-
-          val cacheLocally =
-            if (stackStamp.mayCacheNow()) {
-              ${updateHolderGenerator(resultName)}
-              false
-            } else {
-              true
-            }
-          ($resultName, cacheLocally)
-        }
-      }
-      """
-  }
-
-  def doPreventingRecursion(c: whitebox.Context)(computation: c.universe.Tree,
-                                                 guard: c.universe.TermName,
-                                                 data: c.universe.TermName,
-                                                 resultType: c.universe.Tree): c.universe.Tree = {
-    import c.universe.Quasiquote
 
     val needLocalFunction = hasReturnStatements(c)(computation)
     if (needLocalFunction) {
       abort("Annotated function has explicit return statements, function body can't be inlined")(c)
     }
 
+    val resultName = c.universe.TermName("result")
     q"""{
-          val realKey = $guard.createKey($data)
+          val fromLocalCache = $guard.getFromLocalCache($data)
+          if (fromLocalCache != null) fromLocalCache
+          else {
+            val realKey = $guard.createKey($data)
 
-          val (sizeBefore, sizeAfter, minDepth, localCacheBefore) = $guard.beforeComputation(realKey)
-          try {
-            $computation
-          }
-          finally {
-            $guard.afterComputation(realKey, sizeBefore, sizeAfter, minDepth, localCacheBefore)
+            val (sizeBefore, sizeAfter, minDepth, localCacheBefore) = $guard.beforeComputation(realKey)
+            val ($resultName, shouldCache) = try {
+              val stackStamp = $recursionManagerFQN.markStack()
+              val result = $computation
+              val shouldCache = stackStamp.mayCacheNow()
+              result -> shouldCache
+            }
+            finally {
+              $guard.afterComputation(realKey, sizeBefore, sizeAfter, minDepth, localCacheBefore)
+            }
+
+            if (shouldCache) {
+              ${updateHolderGenerator(resultName)}
+            } else {
+              // we should not cache, because the value is tainted by an intercepted recursion
+              // but we can cache it in the local cache to prevent calculating it again in
+              // same situations
+              // See CacheWithinRecursionTest.test_local_cache/test_local_cache_reset
+              $guard.cacheInLocalCache($data, $resultName)
+            }
+
+            $resultName
           }
         }
      """
   }
+
+
   def hasReturnStatements(c: whitebox.Context)(tree: c.universe.Tree): Boolean = {
     var result = false
     val traverser = new c.universe.Traverser {
