@@ -277,9 +277,22 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     checkIntentionIsNotAvailable(
       s"""
          |class Test {
-         |  type X =${CARET} Int
+         |  type X =$CARET Int
          |}
          |""".stripMargin
+    )
+  }
+
+  def test_not_available_in_comment(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+        |/** @see [[B$CARET]] */
+        |class A {
+        |}
+        |
+        |class B {
+        |}
+        |""".stripMargin
     )
   }
 }

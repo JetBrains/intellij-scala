@@ -60,6 +60,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
         case _: PsiFile => false
         case _: ScExpression => false
         case _: ScTemplateBody => false
+        case _: PsiComment => false
         case _ => true
       }
       .takeWhile {
