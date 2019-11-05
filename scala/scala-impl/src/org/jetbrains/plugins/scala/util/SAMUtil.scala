@@ -118,7 +118,7 @@ object SAMUtil {
     case fun: ScFunction => fun.`type`().toOption
     case method          =>
       val returnType = Option(method.getReturnType.toScType())
-      val paramTypes = method.parameters.map(_.getTypeElement.getType.toScType())
+      val paramTypes = method.parameters.map(_.getType.toScType())
       returnType.map(FunctionType(_, paramTypes))
   }
 
