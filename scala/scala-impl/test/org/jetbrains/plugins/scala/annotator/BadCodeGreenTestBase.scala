@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.failed.annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.util.TextRange
@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import scala.collection.JavaConverters._
 
 /**
-  * @author Nikolay.Tropin
-  */
+ * @author Nikolay.Tropin
+ */
 abstract class BadCodeGreenTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import CodeInsightTestFixture.CARET_MARKER
@@ -30,3 +30,4 @@ abstract class BadCodeGreenTestBase extends ScalaLightCodeInsightFixtureTestAdap
     }
   }
 }
+

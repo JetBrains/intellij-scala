@@ -101,58 +101,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
    * Infers expected type for the parameter of an anonymous function
    * based on the corresponding function-like type.
    */
-  def expectedParamType: Option[ScType] = getContext match {
-    case clause: ScParameterClause => clause.getContext.getContext match {
-      case fn: ScFunctionExpr =>
-        val functionLikeType = FunctionLikeType(this)
-        val eTpe             = fn.expectedType(fromUnderscore = false)
-        val idx              = clause.parameters.indexOf(this)
-        val isUnderscoreFn   = ScUnderScoreSectionUtil.isUnderscoreFunction(fn)
-
-        @tailrec
-        def extractFromFunctionType(tpe: ScType, checkDeep: Boolean = false): Option[ScType] =
-          tpe match {
-            case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
-              case functionLikeType(_, _, paramTpes) =>
-                paramTpes.lift(idx).flatMap {
-                  case FullyAbstractType() => None
-                  case tpe                 => Option(tpe.removeAbstracts)
-                }
-            case _ => None
-          }
-
-        val maybeExpectedParamTpe = eTpe.flatMap(extractFromFunctionType(_, isUnderscoreFn))
-        maybeExpectedParamTpe.orElse(inferExpectedParamTypeUndoingEtaExpansion(fn))
-      case _ => None
-    }
-  }
-
-  /**
-   * When typing a parameter of function literal of shape `(a1, ... aN) => f(a1, ...., aN)`,
-   * if we failed to find an expected type from an expected type of a corresponding function literal
-   * (e.g. because there were multiple overloaded alternatives for `f` w/o matching parameter types)
-   * try inferring it from the usage of [[self]] in the (non-polymorphic) function call.
-   */
-  private[this] def inferExpectedParamTypeUndoingEtaExpansion(fn: ScFunctionExpr): Option[ScType] =
-    fn.result.collect { case ResultOfEtaExpansion(tpe) => tpe }
-
-  private object ResultOfEtaExpansion {
-    def unapply(invocation: MethodInvocation): Option[ScType] = {
-      val maybeInvokedAndArgs = invocation match {
-        case MethodInvocation(inv: ScReferenceExpression, args)          => (inv, args).toOption
-        case ScBlock(MethodInvocation(inv: ScReferenceExpression, args)) => (inv, args).toOption
-        case _                                                           => None
-      }
-
-      for {
-        (inv, args)  <- maybeInvokedAndArgs
-        targetMethod <- inv.bind().collect { case ScalaResolveResult(m: PsiMethod, _) => m }
-        if !targetMethod.hasTypeParameters // if the function is polymorphic -- bail out
-        targetArg <- args.find(_.getText == self.name)
-        eTpe      <- targetArg.expectedType(false)
-      } yield eTpe
-    }
-  }
+  def expectedParamType: Option[ScType]
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 

@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.annotator.BadCodeGreenTestBase
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 
 class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
@@ -9,6 +10,8 @@ class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureT
   def testPartialFunctionSynthesis(): Unit = checkTextHasNoErrors(
     """
       |val seq = Seq("a", "b")
+      |seq.collect(a => a)
+      |seq.collect { a => a + "!" }
       |seq.collect { case a => a }
       |
       |def applyPartial[b](f: PartialFunction[Option[String], b])(x: Option[String]) =
@@ -24,11 +27,38 @@ class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureT
 
   def testFunctionLikeResolve(): Unit = checkTextHasNoErrors(
     """
-      |def takeFunctionLike(fn: String => String)                   = println("fn wins")
-      |def takeFunctionLike(pf: PartialFunction[String, String])    = println("pf wins")
-      |
-      |  takeFunctionLike(_.reverse)
-      |  takeFunctionLike { case s => s.reverse }
-      |  takeFunctionLike { case s: String => s.reverse }
+      |def takeFunctionLike(pf: PartialFunction[String, String]) = println("pf wins")
+      |takeFunctionLike(_.reverse)
+      |takeFunctionLike { case s => s.reverse }
       |""".stripMargin)
+}
+
+class FunctionLiteralToPartialFunctionTest2_12 extends BadCodeGreenTestBase {
+  import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+
+  def testCollect(): Unit = doTest(
+    s"""
+      |List(1, 2, 3).collect(x => x + 1)
+      |(1 to 5).collect { _.toString }
+      |""".stripMargin
+  )
+
+  def testFunctionLike(): Unit = doTest(
+    s"""
+       |def takeFunctionLike(pf: PartialFunction[String, String]) = println("pf wins")
+       |takeFunctionLike(_.rev${CARET_MARKER}erse)
+       |takeFunctionLike { case s => s.reverse }
+       |""".stripMargin
+  )
+
+  def testApplyPartial(): Unit = doTest(
+    s"""
+       |def applyPartial[b](f: PartialFunction[Option[String], b])(x: Option[String]) =
+       |  if (f.isDefinedAt(x)) f(x) else "<undefined>"
+       |
+       |applyPartial(_.g${CARET_MARKER}et)(None)
+       |""".stripMargin
+  )
 }

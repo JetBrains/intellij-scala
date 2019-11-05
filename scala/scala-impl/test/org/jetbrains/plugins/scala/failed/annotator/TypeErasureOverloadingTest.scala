@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.annotator.BadCodeGreenTestBase
 import org.junit.experimental.categories.Category
 
 /**
