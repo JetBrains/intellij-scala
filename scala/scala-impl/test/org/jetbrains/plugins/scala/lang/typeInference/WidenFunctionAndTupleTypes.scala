@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 
 class WidenFunctionAndTupleTypes extends TypeInferenceTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override implicit val version: ScalaVersion = Scala_2_13
 
   def testSCL16384(): Unit = doTest(
     s"""
