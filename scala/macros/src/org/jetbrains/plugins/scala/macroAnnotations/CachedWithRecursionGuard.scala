@@ -61,7 +61,6 @@ object CachedWithRecursionGuard {
         val dataName = generateTermName(name.toString, "data")
         val keyVarName = generateTermName(name.toString, "key")
         val holderName = generateTermName(name.toString, "holder")
-        val resultName = generateTermName(name.toString, "result")
         val dataForGuardName = generateTermName(name.toString, "dataForGuard")
 
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
@@ -91,8 +90,7 @@ object CachedWithRecursionGuard {
 
         val guardedCalculation = withUIFreezingGuard(c)(rhs, retTp)
         val withProbablyRecursiveException = handleProbablyRecursiveException(c)(elemName, dataName, keyVarName, guardedCalculation)
-        val withCaching = doCaching(c)(withProbablyRecursiveException, resultName, guard, dataForGuardName, updateHolder)
-        val cachedCalculationWithAllTheChecks = doPreventingRecursion(c)(withCaching, guard, dataForGuardName, retTp)
+        val cachedCalculationWithAllTheChecks = doPreventingRecursionCaching(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp, updateHolder)
 
         val updatedRhs = q"""
           val $elemName = $element
@@ -115,11 +113,7 @@ object CachedWithRecursionGuard {
           $tracerName.calculationStart()
 
           try {
-            val ($resultName, shouldCacheLocally) = $cachedCalculationWithAllTheChecks
-            if (shouldCacheLocally) {
-              $guard.cacheInLocalCache($dataForGuardName, $resultName)
-            }
-            $resultName
+            $cachedCalculationWithAllTheChecks
           } finally {
             $tracerName.calculationEnd()
           }
