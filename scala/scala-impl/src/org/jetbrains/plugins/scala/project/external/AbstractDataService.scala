@@ -3,7 +3,7 @@ package project
 package external
 
 import java.io.File
-import java.{util => ju}
+import java.util
 
 import com.intellij.facet.ModifiableFacetModel
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
@@ -17,7 +17,7 @@ import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 
-import scala.collection.JavaConverters
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -31,15 +31,14 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
 
   def getTargetDataKey: Key[E] = key
 
-  override final def importData(toImport: ju.Collection[DataNode[E]],
+  override final def importData(toImport: util.Collection[DataNode[E]],
                                 projectData: ProjectData,
                                 project: Project,
-                                modelsProvider: IdeModifiableModelsProvider): Unit = {
-    import JavaConverters._
+                                modelsProvider: IdeModifiableModelsProvider): Unit =
     createImporter(toImport.asScala.toSeq, projectData, project, modelsProvider).importData()
-  }
 }
 
+// TODO The Importer trait is probably redundant
 /**
  * The purposes of this trait are the following:
  *    - Encapsulate logic necessary for importing specified data
@@ -49,47 +48,51 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
  *    - Abstract from External System's API which is rather unstable
  */
 trait Importer[E] {
-  val dataToImport: Seq[DataNode[E]]
-  val projectData: ProjectData
-  val project: Project
-  val modelsProvider: IdeModifiableModelsProvider
+  // TODO abstract vals in traits is an anti-pattern, may use constructor parameters instead
+  protected val dataToImport: Seq[DataNode[E]]
+  protected val projectData: ProjectData
+  protected val project: Project
+  protected val modelsProvider: IdeModifiableModelsProvider
 
   def importData(): Unit
 
   // IdeModifiableModelsProvider wrappers
 
-  def findIdeModule(name: String): Option[Module] =
+  // TODO can be extension methods for IdeModifiableModelsProvider
+  protected def findIdeModule(name: String): Option[Module] =
     Option(modelsProvider.findIdeModule(name))
 
-  def findIdeModule(data: ModuleData): Option[Module] =
+  protected def findIdeModule(data: ModuleData): Option[Module] =
     Option(modelsProvider.findIdeModule(data))
 
-  def getModifiableFacetModel(module: Module): ModifiableFacetModel =
+  protected def getModifiableFacetModel(module: Module): ModifiableFacetModel =
     modelsProvider.getModifiableFacetModel(module)
 
-  def getModifiableLibraryModel(library: Library): Library.ModifiableModel =
+  protected def getModifiableLibraryModel(library: Library): Library.ModifiableModel =
     modelsProvider.getModifiableLibraryModel(library)
 
-  def getModifiableRootModel(module: Module): ModifiableRootModel =
+  protected def getModifiableRootModel(module: Module): ModifiableRootModel =
     modelsProvider.getModifiableRootModel(module)
 
-  def getModules: Array[Module] =
+  protected def getModules: Array[Module] =
     modelsProvider.getModules
 
   // Utility methods
 
-  def getIdeModuleByNode(node: DataNode[_]): Option[Module] =
+  protected def getIdeModuleByNode(node: DataNode[_]): Option[Module] =
     for {
       moduleData <- Option(node.getData(ProjectKeys.MODULE))
       module <- findIdeModule(moduleData)
     } yield module
 
-  def executeProjectChangeAction(action: => Unit): Unit =
+  // TODO Can be a "static" utility method
+  protected def executeProjectChangeAction(action: => Unit): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
       override def execute(): Unit = action
     })
 
-  def setScalaSdk(library: Library,
+  // TODO "set" is for setters, but the method modifies the IDEA's model
+  protected def setScalaSdk(library: Library,
                   compilerClasspath: Seq[File])
                  (maybeVersion: Option[String] = library.compilerVersion): Unit =
     Importer.setScalaSdk(modelsProvider, library, ScalaLibraryProperties(maybeVersion, compilerClasspath))

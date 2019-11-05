@@ -36,23 +36,19 @@ private object ScalaGradleDataService {
                          modelsProvider: IdeModifiableModelsProvider)
     extends AbstractImporter[ScalaModelData](dataToImport, projectData, project, modelsProvider) {
 
-    override def importData(): Unit = for {
-      scalaNode <- dataToImport
+    override def importData(): Unit = dataToImport.foreach { scalaNode =>
+      Option(scalaNode.getData(ProjectKeys.MODULE)).foreach { moduleData =>
+        val moduleName = moduleData.getInternalName
 
-      moduleData = scalaNode.getData(ProjectKeys.MODULE)
-      if moduleData != null
+        val maybeCompoundModule = findIdeModule(moduleName)
+        val maybeProductionModule = findIdeModule(s"${moduleName}_main").orElse(findIdeModule(s"$moduleName.main"))
+        val maybeTestModule = findIdeModule(s"${moduleName}_test").orElse(findIdeModule(s"$moduleName.test"))
 
-      moduleName = moduleData.getInternalName
-    } {
-      (findIdeModule(moduleName),
-        findIdeModule(s"${moduleName}_main").orElse(findIdeModule(s"$moduleName.main")),
-        findIdeModule(s"${moduleName}_test").orElse(findIdeModule(s"$moduleName.test"))) match {
-
-        case (_, Some(productionModule), Some(testModule)) =>
-          configureModules(productionModule, scalaNode, testModule :: Nil)
-        case (Some(compoundModule), _, _) =>
-          configureModules(compoundModule, scalaNode)
-        case _ =>
+        (maybeCompoundModule, maybeProductionModule, maybeTestModule) match {
+          case (_, Some(productionModule), Some(testModule)) => configureModules(productionModule, scalaNode, testModule :: Nil)
+          case (Some(compoundModule), _, _) => configureModules(compoundModule, scalaNode)
+          case _ =>
+        }
       }
     }
 
