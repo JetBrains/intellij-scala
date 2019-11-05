@@ -4,6 +4,8 @@ package lang
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
+import scala.annotation.tailrec
+
 package object parser {
 
   implicit class PsiBuilderExt[B <: PsiBuilder](private val repr: B) extends AnyVal {
@@ -33,10 +35,17 @@ package object parser {
       repr.advanceLexer()
     }
 
-    def lookAhead(elementTypes: IElementType*): Boolean =
-      elementTypes.zipWithIndex.forall {
-        case (elementType, index) => elementType == repr.lookAhead(index)
-      }
+    def lookAhead(elementTypes: IElementType*): Boolean = {
+      val types = elementTypes.iterator
+
+      @tailrec
+      def lookAhead(steps: Int): Boolean =
+        types.isEmpty ||
+          types.next() == repr.lookAhead(steps) &&
+            lookAhead(steps + 1)
+
+      lookAhead(0)
+    }
 
     def lookBack(expected: IElementType): Boolean = {
       val (newSteps, _) = skipWhiteSpacesAndComments(1)
@@ -44,7 +53,7 @@ package object parser {
       expected == actual
     }
 
-    @annotation.tailrec
+    @tailrec
     final def skipWhiteSpacesAndComments(steps: Int,
                                          accumulator: IElementType = null): (Int, IElementType) =
       repr.getCurrentOffset match {
