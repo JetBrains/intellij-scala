@@ -52,7 +52,7 @@ object ScClassFileDecompiler {
             ScalaLanguage.INSTANCE,
             sourceText,
             true,
-            true,
+            false,
             false,
             original
           )
