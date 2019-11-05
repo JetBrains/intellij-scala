@@ -248,9 +248,10 @@ final class WorksheetEditorPrinterRepl private[printers](
       extractReplMessage(messageLine)
         .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
 
-    val (lineContentClean, lineOffsetFromComment) = splitLineNumberFromRepl(lineContent).getOrElse {
-      val headerLines = consoleHeaderLines(WorksheetCommonSettings(getScalaFile).getModuleFor)
-      (lineContent, lineOffset - headerLines)
+    val (hOffset, vOffset) = extraOffset(WorksheetCommonSettings(getScalaFile).getModuleFor)
+    val columnOffsetFixed = columnOffset - vOffset
+    val (lineContentClean, lineOffsetFinal) = splitLineNumberFromRepl(lineContent).getOrElse {
+      (lineContent, lineOffset - hOffset)
     }
 
     val messagePosition: LogicalPosition = {
@@ -260,8 +261,8 @@ final class WorksheetEditorPrinterRepl private[printers](
       }
 
       new LogicalPosition(
-        (elementPosition.line + lineOffsetFromComment).max(0),
-        elementPosition.column + columnOffset
+        (elementPosition.line + lineOffsetFinal).max(0),
+        (elementPosition.column + columnOffsetFixed).max(0)
       )
     }
 
@@ -308,21 +309,33 @@ object WorksheetEditorPrinterRepl {
 
   private val LAMBDA_LENGTH = 32
 
-  // TODO: actually header is not fixed, this hack should be rethought,
-  //  ideally lines from compiler (see extractReplMessage) should be relative to the original input
-  private def consoleHeaderLines(module: Module): Int = {
+  // Required due to compiler reports wrong error positions with extra offsets which we need to fix.
+  // This happens because compiler prepossesses original input adding extra classes, indents, imports, etc...
+  // Ideally lines from compiler (see extractReplMessage) should be relative to the original input
+  // but unfortunately old scala versions does not provide such API
+  private def extraOffset(module: Module): (Int, Int) = {
     import project._
+    import ScalaLanguageLevel._
 
-    val headerOffset = module.scalaSdk.map { sdk =>
-      sdk.properties.languageLevel match {
-        case ScalaLanguageLevel.Scala_2_9 | ScalaLanguageLevel.Scala_2_10                         => 7
-        case ScalaLanguageLevel.Scala_2_11 if sdk.compilerVersion.forall(!_.startsWith("2.11.8")) => 7
-        case ScalaLanguageLevel.Scala_2_13                                                        => 0
-        case _                                                                                    => 11
-      }
+    val sdk = module.scalaSdk
+    val languageLevel = sdk.map(_.properties.languageLevel)
+    val compilerVersion = sdk.flatMap(_.compilerVersion)
+
+    val consoleHeaders = languageLevel.map {
+      case Scala_2_9 | Scala_2_10                                        => 7
+      case Scala_2_11 if compilerVersion.forall(!_.startsWith("2.11.8")) => 7
+      case Scala_2_13                                                    => 0
+      case _                                                             => 11
     }
 
-    headerOffset.getOrElse(0)
+    val verticalOffset   = consoleHeaders
+    val horizontalOffset = languageLevel.map {
+      case Scala_2_11 => 7
+      case _          => 0
+    }
+
+
+    (verticalOffset.getOrElse(0), horizontalOffset.getOrElse(0))
   }
 
   def countNewLines(str: String): Int = StringUtil.countNewLines(str)
