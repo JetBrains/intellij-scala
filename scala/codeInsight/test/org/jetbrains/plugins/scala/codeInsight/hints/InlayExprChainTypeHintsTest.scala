@@ -79,6 +79,59 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
      """.stripMargin
   )
 
+  def testWithArgumentBlock(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)
+       |  .toSet$S: Set[Int]$E
+       |  .filter {
+       |    _ > 2
+       |  }$S: Set[Int]$E.collect {
+       |    case a => a
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
+  def testWithArgumentBlock_withNewline(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)
+       |  .toSet$S: Set[Int]$E
+       |  .filter {
+       |    _ > 2
+       |  }$S: Set[Int]$E.collect
+       |  {
+       |    case a => a
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
+  def testWithArguments(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)
+       |  .toSet$S: Set[Int]$E
+       |  .filter {
+       |    _ > 2
+       |  }$S: Set[Int]$E.filter(
+       |    _ > 3
+       |  ).toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
+  def testWithArgumentBlock_withMoreOnTheSameLine(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)
+       |  .toSet$S: Set[Int]$E
+       |  .filter {
+       |    _ > 2
+       |  }.map { e =>
+       |    e + 3
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
   def testNoHintsWhenTurnedOf(): Unit = doTest(
     s"""
        |List(1, 2, 3)
