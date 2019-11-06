@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 
 abstract class ResolvePrecedenceTest extends ScalaLightCodeInsightFixtureTestAdapter
   with SimpleResolveTestBase
@@ -265,4 +264,26 @@ class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
        |""".stripMargin -> "package.scala"
   )
 
+}
+
+class ResolvePrecedenceAnyVersionTest extends ResolvePrecedenceTest {
+  override protected def supportedIn(version: ScalaVersion) = true
+
+  def testSCL6146(): Unit = doResolveTest(
+    "case class Foo()" -> "Foo.scala",
+
+    s"""
+      |object SCL6146 {
+      |  case class ${REFTGT}Foo()
+      |}
+      |class SCL6146 {
+      |  import SCL6146._
+      |  def foo(c: Any) = c match {
+      |    case f: ${REFSRC}Foo =>
+      |  }
+      |
+      |  def foo2 = Foo()
+      |}
+      |""".stripMargin -> "SCL6146.scala"
+  )
 }

@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator.AnnotatorTestBase
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.junit.experimental.categories.Category
 
 /**
   * Created by kate on 3/23/16.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class IllegalInheritanceTest extends AnnotatorTestBase {
+class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
   override protected def shouldPass: Boolean = false
   def testSCL8628(): Unit = {
     assertNothing(

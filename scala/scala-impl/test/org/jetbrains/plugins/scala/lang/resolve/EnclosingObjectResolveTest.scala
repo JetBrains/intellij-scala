@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.failed.resolve
+package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
@@ -10,10 +10,7 @@ import org.junit.experimental.categories.Category
   * @author mucianm 
   * @since 28.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class EnclosingObjectResolveTest extends SimpleTestCase {
-
-  override protected def shouldPass: Boolean  = false
 
   def testSCL10015(): Unit = {
     val code =

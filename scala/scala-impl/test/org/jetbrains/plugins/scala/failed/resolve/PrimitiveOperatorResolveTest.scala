@@ -33,11 +33,4 @@ class PrimitiveOperatorResolveTest extends FailedResolveCaretTestBase {
         |val a = List("A", "B", "B", "C").toSet.reduceOption(_ <caret>+ " " + _).get
       """.stripMargin)
   }
-
-  def testSCL11832(): Unit = {
-    doResolveCaretTest(
-      """
-        |val v = 2 <caret>< 4 == true
-      """.stripMargin)
-  }
 }

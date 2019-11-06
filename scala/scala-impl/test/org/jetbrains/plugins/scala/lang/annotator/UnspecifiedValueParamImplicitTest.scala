@@ -54,5 +54,17 @@ class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTest
       """.stripMargin)
   }
 
+  def testSCL10045(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class Repro {
+        |    implicit val i: Int = 0
+        |
+        |    new ReproDep // Warning: "Unspecified value parameters: i: Int"
+        |}
+        |
+        |class ReproDep(private implicit val i: Int)
+      """.stripMargin)
+  }
 
 }

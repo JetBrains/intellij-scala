@@ -103,15 +103,6 @@ class PatternResolveTest extends FailedResolveCaretTestBase {
       """.stripMargin)
   }
 
-  def testSCL13150(): Unit = {
-    doResolveCaretTest(
-      """
-        |object X {
-        |  def f(x : Any): Any = x match { case <caret>A@_ => A }
-        |}
-      """.stripMargin)
-  }
-
   def testSCL13148(): Unit = {
     doResolveCaretTest(
       """

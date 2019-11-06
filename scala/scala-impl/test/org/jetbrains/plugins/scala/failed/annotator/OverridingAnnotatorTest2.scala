@@ -27,14 +27,6 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin)
   }
 
-  def testScl2071(): Unit = {
-    checkTextHasNoErrors(
-      """
-        |  def doSmth(p: String) {}
-        |  def doSmth(p: => String) {}
-      """.stripMargin)
-  }
-
   def testScl9034(): Unit = {
     checkTextHasNoErrors(
       """

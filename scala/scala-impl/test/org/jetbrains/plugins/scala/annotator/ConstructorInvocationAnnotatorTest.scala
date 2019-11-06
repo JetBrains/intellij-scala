@@ -427,4 +427,18 @@ class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase w
       Error("(1)", "Unspecified value parameters: y: Int")
     )
   }
+
+  def testSCL4504(): Unit = {
+    assertNothing(messages(
+      """
+        |class B
+        |trait C { val b: B}
+        |class A(override implicit val b: B) extends C
+        |//class A(implicit override val b: B) extends C
+        |
+        |implicit val b = new B
+        |new A()
+      """.stripMargin))
+  }
+
 }

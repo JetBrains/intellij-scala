@@ -55,8 +55,14 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
       case _ => fail("Test result must be in last comment statement.")
     }
 
-    if (shouldPass) assertEquals("Result differs from reference: ", expected, actual.toString)
-    else fail("Test has passed, but was supposed to fail")
+    if (shouldPass) {
+      assertEquals("Wrong reference accessibility: ", expected, actual.toString)
+    }
+    else {
+      if (expected == actual.toString) {
+        fail("Test has passed, but was supposed to fail")
+      }
+    }
   }
 
   protected def shouldPass: Boolean = true

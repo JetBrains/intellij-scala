@@ -17,4 +17,7 @@ class BasicTest extends ResolveTestBase {
   def testToPattern(): Unit = doTest()
   def testGetClass(): Unit = doTest()
   def testNothing(): Unit = doTest()
+
+  //SCL-11832
+  def testCompareOperator(): Unit = doTest()
 }

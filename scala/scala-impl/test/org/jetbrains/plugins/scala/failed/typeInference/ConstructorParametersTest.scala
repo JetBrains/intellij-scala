@@ -20,19 +20,6 @@ class ConstructorParametersTest extends SimpleTestCase {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL4504() = {
-    assertNothing(messages(
-      """
-        |class B
-        |trait C { val b: B}
-        |class A(override implicit val b: B) extends C
-        |//class A(implicit override val b: B) extends C
-        |
-        |implicit val b = new B
-        |new A()
-      """.stripMargin))
-  }
-
   def testSCL11201() = {
     assertNothing(messages(
       """

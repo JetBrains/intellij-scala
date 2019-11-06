@@ -1,18 +1,14 @@
-package org.jetbrains.plugins.scala.failed.resolve
+package org.jetbrains.plugins.scala.lang.resolve
 
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase
 import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm 
   * @since 07.04.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class OverloadedErasureExpectedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
-
-  override protected def shouldPass: Boolean = false
 
   import SimpleResolveTestBase._
 

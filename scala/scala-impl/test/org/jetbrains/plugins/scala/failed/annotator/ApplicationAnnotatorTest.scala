@@ -69,24 +69,6 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
 
-  def testSCL7021(): Unit = {
-    assertMatches(messages(
-      """trait Base {
-        |  def foo(default: Int = 1): Any
-        |}
-        |
-        |object Test {
-        |  private val anonClass = new Base() {
-        |    def foo(default: Int): Any = ()
-        |  }
-        |
-        |  anonClass.foo()
-        |}""".stripMargin
-    )) {
-      case Nil =>
-    }
-  }
-
   def testSCL13211(): Unit = {
     assertMatches(messages(
       """object Glitch {

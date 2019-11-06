@@ -1123,6 +1123,8 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
        |//Builder[Columns]
        |""".stripMargin
   }
+
+  def testSCL9857(): Unit = doTest()
 }
 
 class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5TestBase {

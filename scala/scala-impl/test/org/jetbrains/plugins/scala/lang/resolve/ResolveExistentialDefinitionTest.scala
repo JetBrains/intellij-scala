@@ -43,5 +43,13 @@ class ResolveExistentialDefinitionTest extends ScalaLightCodeInsightFixtureTestA
      """.stripMargin)
   }
 
+  def testSCL10548(): Unit = {
+    doResolveTest(
+      s"""
+         |type A = Set[X] forSome { type X <: ${REFSRC}Y; type ${REFTGT}Y <: Int}
+        """.stripMargin)
+  }
+
+
 
 }

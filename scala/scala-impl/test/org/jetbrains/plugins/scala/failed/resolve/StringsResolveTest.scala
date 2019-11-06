@@ -10,6 +10,5 @@ import org.junit.experimental.categories.Category
 class StringsResolveTest extends FailedResolveTest("strings") {
 
   def testSCL8414a(): Unit = doTest()
-  def testSCL10662(): Unit = doTest()
 
 }

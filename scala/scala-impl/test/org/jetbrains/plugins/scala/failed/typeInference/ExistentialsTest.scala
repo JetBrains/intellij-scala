@@ -75,20 +75,6 @@ class ExistentialsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
-  def testSCL8634(): Unit = doTest(
-    s"""
-      |trait Iterable[+S]
-      |trait Box[U]
-      |trait A {
-      |  //val e: Iterable[S] forSome { type U; type S <: Box[U]}
-      |  val e: Iterable[S] forSome { type S <: Box[U]; type U}
-      |  ${START}e$END
-      |}
-      |
-      |//(Iterable[_ <: Box[U]]) forSome {type U}
-    """.stripMargin
-  )
-
   def testSCL5725(): Unit = doTest {
     """
       |class Zoo {

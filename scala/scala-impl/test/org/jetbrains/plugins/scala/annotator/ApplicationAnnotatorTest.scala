@@ -258,4 +258,38 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     assertWithFoo("foo(last = true, 3, first = true)")(
       Error("3", "Positional after named argument")
     )
+
+  def testSCL7021(): Unit = {
+    assertMatches(messages(
+      """trait Base {
+        |  def foo(default: Int = 1): Any
+        |}
+        |
+        |object Test {
+        |  private val anonClass = new Base() {
+        |    def foo(default: Int): Any = ()
+        |  }
+        |
+        |  anonClass.foo()
+        |}""".stripMargin
+    )) {
+      case Nil =>
+    }
+  }
+
+  def testSCL10608(): Unit = {
+    assertMatches(messages(
+      """
+        |def abc = {
+        |    23
+        |    val b = "nope"
+        |  }
+        |def foo(par: Int) = par
+        |foo(abc)
+      """.stripMargin
+    )) {
+      case Error("abc", "Type mismatch, expected: Int, actual: Unit") :: Nil =>
+    }
+  }
+
 }
