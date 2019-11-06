@@ -7,9 +7,9 @@ import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, B
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
 
-class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabilities) extends BspServerConnector() {
+class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabilities, methods: List[ProcessBsp]) extends BspServerConnector() {
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] = {
+  override def connect: Either[BspError, Builder] = {
     methods.collectFirst {
       case ProcessBsp(details: BspConnectionDetails) =>
         // TODO check bsp version compatibility

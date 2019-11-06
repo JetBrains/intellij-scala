@@ -38,14 +38,13 @@ object BspServerConnector {
 abstract class BspServerConnector() {
   /**
     * Connect to a bsp server with one of the given methods.
-    * @param methods methods supported by the bsp server, in order of preference
-    * @return None if no compatible method is found. TODO should be an error response
+    * @return a BspError if no compatible method is found.
     */
-  def connect(methods: BspConnectionMethod*): Either[BspError, Builder]
+  def connect: Either[BspError, Builder]
 }
 
 class DummyConnector(rootUri: URI) extends BspServerConnector() {
-  override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] =
+  override def connect: Either[BspError, Builder] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
 

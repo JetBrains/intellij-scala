@@ -181,14 +181,20 @@ object BspCommunication {
     val compilerOutputDir = compilerOutputDirFromConfig
       .getOrElse(new File(base, "out"))
 
+    // TODO user dialog when multiple valid connectors exist: https://youtrack.jetbrains.com/issue/SCL-14880
     val connector =
-      if (connectionDetails.nonEmpty) new GenericConnector(base, compilerOutputDir, capabilities)
-      else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, compilerOutputDir, capabilities)
+      if (connectionDetails.nonEmpty)
+        new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods)
+      else if (bloopConfigDir.exists())
+        new BloopConnector(
+          bspExecutionSettings.bloopExecutable,
+          base,
+          compilerOutputDir,
+          capabilities,
+          List(platformMethod, tcpMethod))
       else new DummyConnector(base.toURI)
 
-    // TODO user dialog when multiple valid connectors exist: https://youtrack.jetbrains.com/issue/SCL-14880
-    val methodsInPreferenceOrder = platformMethod :: tcpMethod :: configuredMethods
-    connector.connect(methodsInPreferenceOrder : _*)
+    connector.connect
   }
 
   private def findBspConfigs(projectBase: File): List[BspConnectionDetails] = {

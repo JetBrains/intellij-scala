@@ -12,13 +12,13 @@ import org.scalasbt.ipcsocket.UnixDomainSocket
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, capabilities: BspCapabilities)
+class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, capabilities: BspCapabilities, methods: List[BspConnectionMethod])
   extends BspServerConnector() {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
   private val verbose = false
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] = {
+  override def connect: Either[BspError, Builder] = {
 
     val socketAndCleanupOpt: Option[Either[BspError, (Socket, ()=>Unit)]] = methods.collectFirst {
       case UnixLocalBsp(socketFile) =>
