@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.annotator.BadCodeGreenTestBase
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 
@@ -33,32 +32,31 @@ class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureT
       |""".stripMargin)
 }
 
-class FunctionLiteralToPartialFunctionTest2_12 extends BadCodeGreenTestBase {
-  import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
+class FunctionLiteralToPartialFunctionTest2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
-  def testCollect(): Unit = doTest(
+  def testCollect(): Unit = checkHasErrorAroundCaret(
     s"""
       |List(1, 2, 3).collect(x => x + 1)
       |(1 to 5).collect { _.toString }
       |""".stripMargin
   )
 
-  def testFunctionLike(): Unit = doTest(
+  def testFunctionLike(): Unit = checkHasErrorAroundCaret(
     s"""
        |def takeFunctionLike(pf: PartialFunction[String, String]) = println("pf wins")
-       |takeFunctionLike(_.rev${CARET_MARKER}erse)
+       |takeFunctionLike(_.rev${CARET}erse)
        |takeFunctionLike { case s => s.reverse }
        |""".stripMargin
   )
 
-  def testApplyPartial(): Unit = doTest(
+  def testApplyPartial(): Unit = checkHasErrorAroundCaret(
     s"""
        |def applyPartial[b](f: PartialFunction[Option[String], b])(x: Option[String]) =
        |  if (f.isDefinedAt(x)) f(x) else "<undefined>"
        |
-       |applyPartial(_.g${CARET_MARKER}et)(None)
+       |applyPartial(_.g${CARET}et)(None)
        |""".stripMargin
   )
 }

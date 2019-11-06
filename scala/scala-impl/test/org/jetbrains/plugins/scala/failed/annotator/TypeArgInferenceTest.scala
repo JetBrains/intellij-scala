@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.annotator.BadCodeGreenTestBase
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
 @Category(Array(classOf[PerfCycleTests]))
-class TypeArgInferenceTest extends BadCodeGreenTestBase {
+class TypeArgInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
-
-  import CodeInsightTestFixture.CARET_MARKER
 
   def testScl9402(): Unit = {
     val text =
@@ -35,14 +32,14 @@ class TypeArgInferenceTest extends BadCodeGreenTestBase {
         |  val fred: chatter.Member = chatter.join("Fred")
         |  val barney: myFace.Member = myFace.join("Barney")
         |
-        |  processSpecificNetwork(fred, bar${CARET_MARKER}ney)
+        |  processSpecificNetwork(fred, bar${CARET}ney)
         |}
       """.stripMargin
-    doTest(text)
+    checkHasErrorAroundCaret(text)
   }
 
   def testScl6883(): Unit = {
-    doTest("List(1, 2).reduce(_.toString + _.toString)")
+    checkHasErrorAroundCaret("List(1, 2).reduce(_.toString + _.toString)")
   }
 
   def testSCL10395(): Unit = {
@@ -54,9 +51,9 @@ class TypeArgInferenceTest extends BadCodeGreenTestBase {
         |}
         |
         |object Test {
-        |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.ap${CARET_MARKER}pend)
+        |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.ap${CARET}pend)
         |}""".stripMargin
-    doTest(text)
+    checkHasErrorAroundCaret(text)
   }
 
   def testSCL10395_2(): Unit = {
@@ -68,8 +65,8 @@ class TypeArgInferenceTest extends BadCodeGreenTestBase {
           |}
           |
         |object Test {
-          |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.ap${CARET_MARKER}pend _)
+          |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.ap${CARET}pend _)
           |}""".stripMargin
-    doTest(text)
+    checkHasErrorAroundCaret(text)
   }
 }

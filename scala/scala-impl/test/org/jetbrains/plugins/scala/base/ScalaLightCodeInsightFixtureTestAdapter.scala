@@ -2,11 +2,14 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
@@ -15,6 +18,8 @@ import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightP
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.junit.Assert.{assertNotNull, fail}
+
+import scala.collection.JavaConverters._
 
 /**
  * User: Dmitry Naydanov
@@ -83,6 +88,23 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
       failingTestPassed()
     }
   }
+
+  protected def checkHasErrorAroundCaret(text: String): Unit = {
+    myFixture.configureByText("dummy.scala", text)
+    val caretIndex = text.indexOf(CARET)
+
+    def isAroundCaret(info: HighlightInfo) = caretIndex == -1 || new TextRange(info.getStartOffset, info.getEndOffset).contains(caretIndex)
+    val infos = myFixture.doHighlighting().asScala
+
+    val warnings = infos.filter(i => StringUtil.isNotEmpty(i.getDescription) && isAroundCaret(i))
+
+    if (shouldPass) {
+      assert(warnings.nonEmpty, "No highlightings found")
+    } else if (warnings.nonEmpty) {
+      failingTestPassed()
+    }
+  }
+
 
   protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 

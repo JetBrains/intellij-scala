@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.annotator.BadCodeGreenTestBase
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
 @Category(Array(classOf[PerfCycleTests]))
-class TypeErasureOverloadingTest extends BadCodeGreenTestBase {
+class TypeErasureOverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
   def testSCL9276(): Unit = {
-    doTest(
+    checkHasErrorAroundCaret(
       """class Example {
         |  def foo(arg: => String) = Unit
         |  def foo(arg: => Option[String]) = Unit

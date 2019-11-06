@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.annotator.BadCodeGreenTestBase
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
 /**
   * @author Anton Yalyshev
   */
 @Category(Array(classOf[PerfCycleTests]))
-class ConstructorTest extends BadCodeGreenTestBase {
+class ConstructorTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
-
-  import CodeInsightTestFixture.CARET_MARKER
 
   def testScl7255(): Unit = {
     val text =
@@ -31,12 +28,12 @@ class ConstructorTest extends BadCodeGreenTestBase {
          |
           |object Cookbook {
          |  // no warnings
-         |  val pbj = ${CARET_MARKER}new Recipe(
+         |  val pbj = ${CARET}new Recipe(
          |    List("peanut butter", "jelly", "bread"),
          |    List("put the peanut butter and jelly on the bread"))
          |}
       """.stripMargin
-    doTest(text)
+    checkHasErrorAroundCaret(text)
   }
 
 }
