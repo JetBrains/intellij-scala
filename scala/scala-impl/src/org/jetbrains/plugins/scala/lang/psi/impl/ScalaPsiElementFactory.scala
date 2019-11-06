@@ -50,88 +50,94 @@ import scala.reflect.ClassTag
 
 final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFactory {
 
-  def createDocCommentFromText(text: String): PsiDocComment = ???
+  override def createDocCommentFromText(text: String): PsiDocComment = ???
 
-  def isValidClassName(name: String): Boolean = isIdentifier(name)
+  override def isValidClassName(name: String): Boolean = isIdentifier(name)
 
-  def isValidMethodName(name: String): Boolean = isIdentifier(name)
+  override def isValidMethodName(name: String): Boolean = isIdentifier(name)
 
-  def isValidParameterName(name: String): Boolean = isIdentifier(name)
+  override def isValidParameterName(name: String): Boolean = isIdentifier(name)
 
-  def isValidFieldName(name: String): Boolean = isIdentifier(name)
+  override def isValidFieldName(name: String): Boolean = isIdentifier(name)
 
-  def isValidLocalVariableName(name: String): Boolean = isIdentifier(name)
+  override def isValidLocalVariableName(name: String): Boolean = isIdentifier(name)
 
-  def createConstructor(name: String, context: PsiElement): PsiMethod = ???
+  override def createConstructor(name: String, context: PsiElement): PsiMethod = ???
 
-  def createParameter(name: String, `type`: PsiType, context: PsiElement): PsiParameter = ???
+  override def createParameter(name: String, `type`: PsiType, context: PsiElement): PsiParameter = ???
 
-  def createClass(name: String): PsiClass = throw new IncorrectOperationException
+  override def createClass(name: String): PsiClass = throw new IncorrectOperationException
 
-  def createInterface(name: String): PsiClass = throw new IncorrectOperationException
+  override def createInterface(name: String): PsiClass = throw new IncorrectOperationException
 
-  def createEnum(name: String): PsiClass = throw new IncorrectOperationException
+  override def createEnum(name: String): PsiClass = throw new IncorrectOperationException
 
-  def createField(name: String, `type`: PsiType): PsiField = throw new IncorrectOperationException
+  override def createField(name: String, `type`: PsiType): PsiField = throw new IncorrectOperationException
 
-  def createMethod(name: String, returnType: PsiType): PsiMethod = throw new IncorrectOperationException
+  override def createMethod(name: String, returnType: PsiType): PsiMethod = throw new IncorrectOperationException
 
-  def createMethod(name: String, returnType: PsiType, context: PsiElement): PsiMethod = throw new IncorrectOperationException
+  override def createMethod(name: String, returnType: PsiType, context: PsiElement): PsiMethod = throw new IncorrectOperationException
 
-  def createConstructor(): PsiMethod =
+  override def createConstructor(): PsiMethod =
     ScalaPsiElementFactory.createMethodFromText(
       """def this() {
         |this()
         |}""".stripMargin
     )(project)
 
-  def createConstructor(name: String): PsiMethod = createConstructor()
+  override def createConstructor(name: String): PsiMethod = createConstructor()
 
-  def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
+  override def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
 
-  def createParameter(name: String, `type`: PsiType): PsiParameter = {
+  override def createParameter(name: String, `type`: PsiType): PsiParameter = {
     implicit val context: ProjectContext = project
     val typeText = `type`.toScType().canonicalText
     ScalaPsiElementFactory.createParameterFromText(s"$name: $typeText")
   }
 
-  def createParameterList(names: Array[String], types: Array[PsiType]): PsiParameterList = throw new IncorrectOperationException
+  override def createParameterList(names: Array[String], types: Array[PsiType]): PsiParameterList = throw new IncorrectOperationException
 
-  def createMethodFromText(text: String, context: PsiElement): PsiMethod = throw new IncorrectOperationException
+  override def createMethodFromText(text: String, context: PsiElement): PsiMethod = throw new IncorrectOperationException
 
-  def createAnnotationFromText(annotationText: String, context: PsiElement): PsiAnnotation = throw new IncorrectOperationException
+  override def createAnnotationFromText(annotationText: String, context: PsiElement): PsiAnnotation = throw new IncorrectOperationException
 
-  def createReferenceElementByType(`type`: PsiClassType): PsiElement = ???
+  override def createReferenceElementByType(`type`: PsiClassType): PsiElement = ???
 
-  def createTypeParameterList(): PsiTypeParameterList = ???
+  override def createTypeParameterList(): PsiTypeParameterList = ???
 
-  def createTypeParameter(name: String, superTypes: Array[PsiClassType]): PsiTypeParameter = ???
+  override def createTypeParameter(name: String, superTypes: Array[PsiClassType]): PsiTypeParameter = ???
 
-  def createType(aClass: PsiClass): PsiClassType = ???
+  override def createType(aClass: PsiClass): PsiClassType = ???
 
-  def createAnnotationType(name: String): PsiClass = ???
+  override def createAnnotationType(name: String): PsiClass = ???
 
-  def createType(resolve: PsiClass, substitutor: PsiSubstitutor): PsiClassType = ???
+  override def createType(resolve: PsiClass, substitutor: PsiSubstitutor): PsiClassType = ???
 
-  def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel): PsiClassType = ???
+  override def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel): PsiClassType = ???
 
-  def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel, annotations: Array[PsiAnnotation]): PsiClassType = ???
+  /*
+    This function is deprecated and will be removed in the next version.
+    I added the override so that we will be informed when it is actually removed.
+    So if you are updating the idea version and the compiler gives you an error that this
+    doesn't override anything, just remove this function and everything should be fine.
+   */
+  override def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel, annotations: Array[PsiAnnotation]): PsiClassType = ???
 
-  def createType(aClass: PsiClass, parameters: PsiType): PsiClassType = ???
+  override def createType(aClass: PsiClass, parameters: PsiType): PsiClassType = ???
 
-  def createRawSubstitutor(owner: PsiTypeParameterListOwner): PsiSubstitutor = ???
+  override def createRawSubstitutor(owner: PsiTypeParameterListOwner): PsiSubstitutor = ???
 
-  def createSubstitutor(map: ju.Map[PsiTypeParameter, PsiType]): PsiSubstitutor = ???
+  override def createSubstitutor(map: ju.Map[PsiTypeParameter, PsiType]): PsiSubstitutor = ???
 
-  def createPrimitiveType(text: String): PsiPrimitiveType = ???
+  override def createPrimitiveType(text: String): PsiPrimitiveType = ???
 
-  def createTypeByFQClassName(qName: String): PsiClassType = ???
+  override def createTypeByFQClassName(qName: String): PsiClassType = ???
 
-  def createTypeByFQClassName(qName: String, resolveScope: GlobalSearchScope): PsiClassType = ???
+  override def createTypeByFQClassName(qName: String, resolveScope: GlobalSearchScope): PsiClassType = ???
 
-  def createType(aClass: PsiClass, parameters: PsiType*): PsiClassType = ???
+  override def createType(aClass: PsiClass, parameters: PsiType*): PsiClassType = ???
 
-  def createExpressionFromText(text: String, context: PsiElement): PsiElement =
+  override def createExpressionFromText(text: String, context: PsiElement): PsiElement =
     ScalaPsiElementFactory.createExpressionFromText(text, context)
 }
 
