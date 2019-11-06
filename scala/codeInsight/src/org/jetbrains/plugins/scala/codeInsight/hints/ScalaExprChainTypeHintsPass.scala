@@ -11,10 +11,12 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsSche
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Expression
@@ -135,7 +137,7 @@ private object ScalaExprChainTypeHintsPass {
     private def collectChain(expr: ScExpression): List[ScExpression] = {
       @tailrec
       def collectChainAcc(expr: ScExpression, acc: List[ScExpression]): List[ScExpression] = {
-        val newAcc = expr :: acc
+        val newAcc = if (!expr.parent.exists(_.is[ScMethodCall])) expr :: acc else acc
         expr match {
           case ChainCall(inner) => collectChainAcc(inner, newAcc)
           case _ => newAcc
@@ -155,16 +157,43 @@ private object ScalaExprChainTypeHintsPass {
   }
 
   @tailrec
-  def isFollowedByLineEnd(elem: PsiElement): Boolean =
+  def isFollowedByLineEnd(elem: PsiElement): Boolean = {
+    def hasLineBreak(@Nullable elem: PsiElement): Boolean =
+      elem.asOptionOf[PsiWhiteSpace].exists(_.textContains('\n'))
+
     elem.getNextSibling match {
-      case ws: PsiWhiteSpace => ws.textContains('\n')
       case null =>
         elem.getParent match {
           case null => true
           case parent => isFollowedByLineEnd(parent)
         }
-      case _ => false
+
+      case ws: PsiWhiteSpace if hasLineBreak(ws) =>
+        true
+
+      case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) =>
+        /*
+         * Check if we have a situation like
+         *
+         *  something
+         *   .func {         // <- don't add type here
+         *
+         *   }.func {        // <- add type here
+         *
+         *   }.func { x =>   // <- don't add type here
+         *
+         *   }
+         */
+        if (hasLineBreak(ref.getNextSibling)) true
+        else mc.args.getFirstChild match {
+          case blk: ScBlockExpr => blk.getLBrace.exists(lb => hasLineBreak(lb.getNextSibling))
+          case x if x.elementType == ScalaTokenTypes.tLPARENTHESIS => hasLineBreak(x.getNextSibling)
+          case _ => false
+        }
+      case _ =>
+        false
     }
+  }
 
   private def removeConsecutiveDuplicates(exprsWithTypes: Seq[(ScExpression, ScType)]): Seq[(ScExpression, ScType)] =
     exprsWithTypes.foldLeft(List.empty[(ScExpression, ScType)]) {
