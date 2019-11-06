@@ -13,9 +13,17 @@ trait ScalaSdkOwner extends Test {
   import ScalaSdkOwner._
 
   implicit final def version: ScalaVersion = {
-    val allSupportedVersions = allTestVersions.filter(supportedIn)
-    selectVersion(configuredScalaVersion.getOrElse(defaultSdkVersion), allSupportedVersions)
+    val supportedVersions = allTestVersions.filter(supportedIn)
+    selectVersion(configuredScalaVersion.getOrElse(defaultSdkVersion), supportedVersions)
   }
+
+  private var _injectedScalaVersion: Option[ScalaVersion] = None
+  def injectedScalaVersion: Option[ScalaVersion] =_injectedScalaVersion
+  def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Some(version)
+
+  protected def localConfiguredScalaVersion: Option[ScalaVersion] = injectedScalaVersion
+
+  protected def configuredScalaVersion: Option[ScalaVersion] = localConfiguredScalaVersion.orElse(globalConfiguredScalaVersion)
 
   protected def supportedIn(version: ScalaVersion): Boolean = true
 
@@ -36,10 +44,9 @@ trait ScalaSdkOwner extends Test {
     myLoaders.clear()
   }
 
-  abstract override def run(result: TestResult): Unit = {
-    val skip =
-      ScalaSdkOwner.configuredScalaVersion.exists(!supportedIn(_))
+  def skip: Boolean = configuredScalaVersion.exists(!supportedIn(_))
 
+  abstract override def run(result: TestResult): Unit = {
     if (!skip) {
       super.run(result)
     }
@@ -55,7 +62,7 @@ object ScalaSdkOwner {
   def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
     possibleVersions.iteratorFrom(wantedVersion).toStream.headOption.getOrElse(possibleVersions.last)
 
-  lazy val configuredScalaVersion: Option[ScalaVersion] = {
+  lazy val globalConfiguredScalaVersion: Option[ScalaVersion] = {
     val property = scala.util.Properties.propOrNone("scala.sdk.test.version")
       .orElse(scala.util.Properties.envOrNone("SCALA_SDK_TEST_VERSION"))
     property.map(

@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWishScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -15,25 +16,33 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /*
-  TODO 1: run in TeamCity multiple times against different scala versions
   TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
   TODO 3: test clean action
   TODO 4: test Repl iterative evaluation
   TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
 */
+@RunWishScalaVersions(Array(
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+))
+@RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[WorksheetEvaluationTests]))
-abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase
-  with WorksheetItEditorPreparations
-  with WorksheetItEvaluations
-  with WorksheetItAssertions {
+abstract class WorksheetIntegrationBaseTest
+  extends ScalaCompilerTestBase
+    with WorksheetItEditorPreparations
+    with WorksheetItEvaluations
+    with WorksheetItAssertions {
   self: WorksheetRunTestSettings =>
 
-  protected val (foldStart, foldEnd) = ("<folding>", "</folding>")
+  protected val (foldStart, foldEnd)                 = ("<folding>", "</folding>")
   protected val (foldStartExpanded, foldEndExpanded) = ("<foldingExpanded>", "</foldingExpanded>")
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_10
@@ -48,7 +57,7 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase
 
   protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
 
-  protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit  = {
+  protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit = {
     settings.setRunType(self.runType)
     settings.setInteractive(false) // TODO: test these values?
     settings.setMakeBeforeRun(false)
@@ -59,7 +68,7 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase
 
     ScalaProjectSettings.getInstance(project).setInProcessMode(self.runInCompileServerProcess)
 
-    if (useCompileServer){
+    if (useCompileServer) {
       println("initializing compiler server")
       val result = CompileServerLauncher.ensureServerRunning(project)
       assertTrue("compile server is expected to be running", result)
@@ -150,8 +159,8 @@ abstract class WorksheetIntegrationBaseTest extends ScalaCompilerTestBase
       case Some(ViewerEditorData(_, text, foldings)) =>
         fail(
           s"""no output is expected in viewer editor, but got:
-            |text: $text
-            |foldings: $foldings""".stripMargin
+             |text: $text
+             |foldings: $foldings""".stripMargin
         )
       case None =>
     }

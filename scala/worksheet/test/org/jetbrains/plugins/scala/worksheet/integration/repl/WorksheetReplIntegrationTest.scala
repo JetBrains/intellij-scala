@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
+import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
@@ -117,7 +118,51 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     testDisplayFirstRuntimeException(left, right, errorMessage)
   }
 
-  def testCompilationErrorsAndWarnings_ComplexTst(): Unit = {
+  @NotSupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
+  def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
+    baseTestCompilationErrorsAndWarnings_ComplexTest(
+      """Warning:(2, 7) match may not be exhaustive.
+        |It would fail on the following inputs: None, Some((x: Int forSome x not in 42))
+        |Option(42) match {
+        |
+        |Error:(11, 13) not found: value Sum
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 17) not found: value Product
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 25) class java.lang.Number is not a value
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(12, 5) class java.lang.Number is not a value
+        |Number(3)))
+        |""".stripMargin.trim
+
+    )
+
+  @SupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
+  def testCompilationErrorsAndWarnings_ComplexTest_2_11(): Unit =
+    baseTestCompilationErrorsAndWarnings_ComplexTest(
+      """Warning:(2, 7) match may not be exhaustive.
+        |It would fail on the following inputs: None, Some((x: Int forSome x not in 42))
+        |Option(42) match {
+        |
+        |Error:(11, 13) not found: value Sum
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 17) not found: value Product
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 25) object java.lang.Number is not a value
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(12, 5) object java.lang.Number is not a value
+        |Number(3)))
+        |""".stripMargin.trim
+
+    )
+
+  private def baseTestCompilationErrorsAndWarnings_ComplexTest(expectedCompilerOutput: String): Unit = {
     val before =
       """
         |Option(42) match {
@@ -150,24 +195,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
 
     assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
 
-    assertCompilerMessages(editor)(
-      """Warning:(2, 7) match may not be exhaustive.
-        |It would fail on the following inputs: None, Some((x: Int forSome x not in 42))
-        |Option(42) match {
-        |
-        |Error:(11, 13) not found: value Sum
-        |def foo = Sum(Product(Number(2),
-        |
-        |Error:(11, 17) not found: value Product
-        |def foo = Sum(Product(Number(2),
-        |
-        |Error:(11, 25) class java.lang.Number is not a value
-        |def foo = Sum(Product(Number(2),
-        |
-        |Error:(12, 5) class java.lang.Number is not a value
-        |Number(3)))
-        |""".stripMargin.trim
-    )
+    assertCompilerMessages(editor)(expectedCompilerOutput)
   }
 
   def testArrayRender(): Unit = {
