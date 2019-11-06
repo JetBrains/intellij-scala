@@ -142,11 +142,14 @@ final class ScProjectionType private(val projected: ScType,
 
 
       val processor = new ResolveProcessor(kinds, resolvePlace, element.name) {
+        doNotCheckAccessibility()
+
         override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
           candidatesSet ++= results
           true
         }
       }
+
       processor.processType(projected, resolvePlace, ScalaResolveState.empty, updateWithProjectionSubst)
 
       processor.candidates match {
