@@ -4,7 +4,6 @@ package psi
 package api
 package expr
 
-import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.TokenSet
@@ -90,10 +89,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   def hasRBrace: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)).length == 1
 
-  def getRBrace: Option[ASTNode] = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)) match {
-    case Array(node) => Some(node)
+  def getRBrace: Option[PsiElement] = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)) match {
+    case Array(node) => Some(node.getPsi)
     case _ => None
   }
+
+  def getLBrace: Option[PsiElement] =
+    this.findFirstChildByType(ScalaTokenTypes.tLBRACE).toOption
 
   def resultExpression: Option[ScExpression] = findLastChild(classOf[ScBlockStatement]).flatMap(_.asOptionOf[ScExpression])
   def lastStatement: Option[ScBlockStatement] = findLastChild(classOf[ScBlockStatement])

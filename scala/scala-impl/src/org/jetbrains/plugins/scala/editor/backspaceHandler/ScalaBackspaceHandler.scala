@@ -133,7 +133,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       if element.isInstanceOf[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
       if canRemoveClosingBrace(block)
-      rBrace <- block.getRBrace.map(_.getPsi())
+      rBrace <- block.getRBrace
       project = file.getProject
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
       if IndentUtil.compare(rBrace, parent, tabSize) >= 0

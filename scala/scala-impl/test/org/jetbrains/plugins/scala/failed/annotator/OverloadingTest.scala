@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaLightCodeInsightFixtureTestAdapter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
@@ -57,12 +57,12 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Asser
 
   // TODO Why do we have this custom _implementation_ in a _test_?
   // TODO Use TypeMismatchError.register
-  private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
+  private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {
         val expr = expression match {
-          case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
+          case b: ScBlockExpr => b.getRBrace.getOrElse(b)
           case _ => expression
         }
         val (actualText, expText) = ScTypePresentation.different(actual, expected)(expr)
