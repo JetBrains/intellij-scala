@@ -1,8 +1,8 @@
 package org.jetbrains.bsp.project.resolver
 
 import java.io.{File, PrintWriter, StringWriter}
+import java.util.Collections
 import java.util.concurrent.CompletableFuture
-import java.util.{Collections, UUID}
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.events.MessageEvent
@@ -56,14 +56,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onStatusChange(event)
     }
 
-    def requests(implicit server: BspServer): CompletableFuture[DataNode[ProjectData]] = {
+    def requests(implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[DataNode[ProjectData]] = {
       val targetsRequest = server.workspaceBuildTargets()
 
       val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
         targetsRequest.thenCompose { targetsResponse =>
-          val targets = targetsResponse.getTargets.asScala
-          val targetIds = targets.map(_.getId).toList
-          val td = targetData(targetIds, isPreviewMode)
+          val targets = targetsResponse.getTargets.asScala.toList
+          val td = targetData(targets, isPreviewMode)
           td.thenApply { data =>
 
             val sources = data.sources.map(_.getItems.asScala).getOrElse {
@@ -72,15 +71,15 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             }
 
             val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/dependencySources", MessageEvent.Kind.INFO)
+              buildEvent("request failed: buildTarget/dependencySources", MessageEvent.Kind.WARNING)
               List.empty[DependencySourcesItem]
             }
             val resources = data.resources.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/resources", MessageEvent.Kind.INFO)
+              buildEvent("request failed: buildTarget/resources", MessageEvent.Kind.WARNING)
               List.empty[ResourcesItem]
             }
             val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {
-              buildEvent("request failed: buildTarget/scalacOptions", MessageEvent.Kind.INFO)
+              buildEvent("request failed: buildTarget/scalacOptions", MessageEvent.Kind.WARNING)
               List.empty[ScalacOptionsItem]
             }
 
@@ -109,7 +108,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     val projectJob =
-      communication.run(requests(_), notifications, processLogger)
+      communication.run(requests(_,_), notifications, processLogger)
 
     listener.onStart(id, workspaceCreationPath)
     statusUpdate("BSP import started") // TODO remove in favor of build toolwindow nodes
@@ -181,7 +180,8 @@ object BspProjectResolver {
   private case class Active(communication: BspCommunication) extends ImportState
   private case object Inactive extends ImportState
 
-  private[resolver] def targetData(targetIds: List[BuildTargetIdentifier], isPreview: Boolean)(implicit bsp: BspServer):
+  private[resolver] def targetData(targets: List[BuildTarget], isPreview: Boolean)
+                                  (implicit bsp: BspServer, capabilities: BuildServerCapabilities):
   CompletableFuture[TargetData] =
     if (isPreview) {
       val emptySources = Success(new SourcesResult(Collections.emptyList()))
@@ -191,22 +191,42 @@ object BspProjectResolver {
 
       CompletableFuture.completedFuture(TargetData(emptySources, emptyDepSources, emptyResources, emptyScalacOpts))
     } else {
-      val targets = targetIds.asJava
+      val targetIds = targets.map(_.getId).asJava
 
-      val sourcesParams = new SourcesParams(targets)
+      val sourcesParams = new SourcesParams(targetIds)
       val sources = bsp.buildTargetSources(sourcesParams).catchBspErrors
 
-      val depSourcesParams = new DependencySourcesParams(targets)
-      val depSources = bsp.buildTargetDependencySources(depSourcesParams).catchBspErrors
+      val depSources = if (isDependencySourcesProvider) {
+        val depSourcesParams = new DependencySourcesParams(targetIds)
+        bsp.buildTargetDependencySources(depSourcesParams).catchBspErrors
+      } else {
+        val emptyResult = new DependencySourcesResult(Collections.emptyList())
+        CompletableFuture.completedFuture[Try[DependencySourcesResult]](Success(emptyResult))
+      }
 
-      val resourcesParams = new ResourcesParams(targets)
-      val resources = bsp.buildTargetResources(resourcesParams).catchBspErrors
+      val resources = if (isResourcesProvider) {
+        val resourcesParams = new ResourcesParams(targetIds)
+        bsp.buildTargetResources(resourcesParams).catchBspErrors
+      } else {
+        val emptyResult = new ResourcesResult(Collections.emptyList())
+        CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
+      }
 
-      val scalacOptionsParams = new ScalacOptionsParams(targets)
+      val scalaTargetIds = targets
+        .filter(_.getLanguageIds.contains("scala"))
+        .map(_.getId).asJava
+      val scalacOptionsParams = new ScalacOptionsParams(scalaTargetIds)
       val scalacOptions = bsp.buildTargetScalacOptions(scalacOptionsParams).catchBspErrors
 
       CompletableFuture
         .allOf(sources, depSources, resources, scalacOptions)
         .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get))
     }
+
+  private def isDependencySourcesProvider(implicit capabilities: BuildServerCapabilities) =
+    Option(capabilities.getDependencySourcesProvider).exists(_.booleanValue())
+
+  private def isResourcesProvider(implicit capabilities: BuildServerCapabilities) =
+    Option(capabilities.getResourcesProvider).exists(_.booleanValue())
+
 }

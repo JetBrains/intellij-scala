@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 
 import ch.epfl.scala.bsp4j
+import ch.epfl.scala.bsp4j.BuildServerCapabilities
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
@@ -59,23 +60,26 @@ class BspSession private(bspIn: InputStream,
     notificationCallbacks.foreach(_.apply(notification))
 
   private def nextQueuedCommand= {
-    try {
-      waitForSession(sessionTimeout)
+    val initResult = try {
+      Try(waitForSession(sessionTimeout))
     } catch {
       case to : TimeoutException =>
         val error = BspConnectionError("bsp server is not responding", to)
         logger.warn(error)
         shutdown(Some(error))
+        Failure(error)
       case NonFatal(error) =>
         val msg = s"problem connecting to bsp server: ${error.getMessage}. See IDE log for details."
         val bspError = BspException(msg, error)
         logger.warn(bspError)
         shutdown(Some(bspError))
+        Failure(error)
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
     try {
-      currentJob.run(serverConnection.server) // in case not yet running
+      val capabilities = initResult.get.getCapabilities // throw will be handled
+      currentJob.run(serverConnection.server, capabilities) // in case not yet running
       val currentIgnoringErrors = currentJob.future
         .recover { case NonFatal(_) => () }
         .andThen { case _ => lastActivity = System.currentTimeMillis()}
@@ -85,7 +89,7 @@ class BspSession private(bspIn: InputStream,
       val next = jobs.poll(queueTimeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
         currentJob = next
-        currentJob.run(serverConnection.server)
+        currentJob.run(serverConnection.server, capabilities)
       }
     } catch {
       case _: TimeoutException => // just carry on
@@ -330,7 +334,7 @@ object BspSession {
   type ProcessLogger = String => Unit
   type NotificationAggregator[A] = (A, BspNotification) => A
   type NotificationCallback = BspNotification => Unit
-  type BspSessionTask[T] = BspServer => CompletableFuture[T]
+  type BspSessionTask[T] = (BspServer, BuildServerCapabilities) => CompletableFuture[T]
 
   trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer
   trait BspClient extends bsp4j.BuildClient

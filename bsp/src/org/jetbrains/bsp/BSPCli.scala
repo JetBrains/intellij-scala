@@ -105,7 +105,10 @@ object BSPCli extends App {
     targets.getTargets.forEach(x => println(x.getId.getUri))
     targets
   }
-  val targetIds = targets.getTargets.asScala.map(_.getId).toList
+  private val targetIdToTarget =
+    targets.getTargets.asScala.map { t => (t.getId, t)}.toMap
+  private val targetIds =
+    targetIdToTarget.keys.toList
   repl()
 
   type BuildIds = util.List[BuildTargetIdentifier]
@@ -148,22 +151,23 @@ object BSPCli extends App {
     result
   }
 
-  def buildTargets(server: BspServer): CompletableFuture[WorkspaceBuildTargetsResult] = server.workspaceBuildTargets()
+  def buildTargets(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[WorkspaceBuildTargetsResult] =
+    server.workspaceBuildTargets()
 
-  def compileRequest(targets: BuildIds)(server: BspServer): CompletableFuture[CompileResult] = {
+  def compileRequest(targets: BuildIds)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[CompileResult] = {
     val params = new bsp4j.CompileParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetCompile(params)
   }
 
-  def testAllRequest(targets: BuildIds)(server: BspServer): CompletableFuture[TestResult] = {
+  def testAllRequest(targets: BuildIds)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
     val params = new bsp4j.TestParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetTest(params)
   }
 
 
-  def testSingleRequest(targets: BuildIds, clasId: String, buildTargetUri: String)(server: BspServer): CompletableFuture[TestResult] = {
+  def testSingleRequest(targets: BuildIds, clasId: String, buildTargetUri: String)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
     val params = new bsp4j.TestParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     params.setDataKind("scala-test")
@@ -180,7 +184,7 @@ object BSPCli extends App {
   }
 
 
-  def testClasses(targets: BuildIds)(server: BspServer): CompletableFuture[ScalaTestClassesResult] = {
+  def testClasses(targets: BuildIds)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[ScalaTestClassesResult] = {
     val params = new bsp4j.ScalaTestClassesParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetScalaTestClasses(params)

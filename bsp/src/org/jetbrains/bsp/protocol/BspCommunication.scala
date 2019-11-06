@@ -60,7 +60,8 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
         log.warn("bsp connection failed", error)
         Left(error)
       case Right(newSessionBuilder) =>
-        newSessionBuilder.withInitialJob(job)
+        newSessionBuilder
+          .withInitialJob(job)
           .addNotificationCallback(projectCallback)
           .withTraceLogPredicate(() => BspExecutionSettings.executionSettingsFor(base).traceBsp)
         val newSession = newSessionBuilder.create
@@ -133,11 +134,6 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) exte
 
 
 object BspCommunication {
-
-  // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
-  //      BspCommunication instances per base path: https://youtrack.jetbrains.com/issue/SCL-14876
-//  def forProject(project: Project): BspCommunication =
-//    BspCommunicationService.getInstance.communicate(new File(project.getBasePath))
 
   def forWorkspace(baseDir: File): BspCommunication = {
     if (!baseDir.isDirectory)

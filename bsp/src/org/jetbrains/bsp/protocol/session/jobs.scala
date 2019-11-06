@@ -3,6 +3,7 @@ package org.jetbrains.bsp.protocol.session
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
+import ch.epfl.scala.bsp4j.BuildServerCapabilities
 import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask, NotificationAggregator, ProcessLogger}
@@ -34,7 +35,7 @@ object jobs {
     /** Starts the job with given bspServer instance.
       * Idempotent: returns the same CompletableFuture if invoked more than once.
       */
-    private[session] def run(bspServer: BspServer): CompletableFuture[(T, A)]
+    private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)]
 
     /** Cancel and abort this job with given error. */
     private[session] def cancelWithError(error: BspError)
@@ -46,7 +47,7 @@ private[session] class FailedBspSessionJob[T,A](problem: BspError) extends BspSe
 
   override private[protocol] def log(message: String): Unit = ()
   override private[session] def notification(bspNotification: BspNotification): Unit = ()
-  override private[session] def run(bspServer: BspServer): CompletableFuture[(T, A)] = {
+  override private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] = {
     val cf = new CompletableFuture[(T, A)]()
     cf.completeExceptionally(problem)
     cf
@@ -77,8 +78,8 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
     processLogger(message)
   }
 
-  private def doRun(bspServer: BspServer): CompletableFuture[(T,A)] = {
-    task(bspServer).thenApply[(T,A)]((t:T) => (t,a))
+  private def doRun(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T,A)] = {
+    task(bspServer, capabilities).thenApply[(T,A)]((t:T) => (t,a))
       .whenComplete((result: (T,A), error: Throwable) => {
         if (error != null) error match {
           case cancel: CancellationException =>
@@ -91,16 +92,17 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       })
   }
 
-  private[session] def run(bspServer: BspServer): CompletableFuture[(T, A)] = runningTask.synchronized {
-    runningTask.get match {
-      case Some(running) =>
-        running
-      case None =>
-        val running = doRun(bspServer)
-        runningTask.set(Some(running))
-        running
+  private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] =
+    runningTask.synchronized {
+      runningTask.get match {
+        case Some(running) =>
+          running
+        case None =>
+          val running = doRun(bspServer, capabilities)
+          runningTask.set(Some(running))
+          running
+      }
     }
-  }
 
   override def future: Future[(T, A)] = promise.future
 
@@ -126,7 +128,8 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
 private[session] object DummyJob extends BspSessionJob[Unit,Unit] {
   override private[protocol] def log(message: String): Unit = ()
   override private[session] def notification(bspNotification: BspNotification): Unit = ()
-  override private[session] def run(bspServer: BspServer): CompletableFuture[(Unit, Unit)] = CompletableFuture.completedFuture(((),()))
+  override private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(Unit, Unit)] =
+    CompletableFuture.completedFuture(((),()))
   override private[session] def cancelWithError(error: BspError): Unit = ()
   override def future: Future[(Unit,Unit)] = Future.successful(((),()))
   override def cancel(): Unit = ()

@@ -83,7 +83,7 @@ class BspTask[T](project: Project,
       val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
       val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
       communication.run(
-        buildRequests(targets, targetsToClean)(_),
+        buildRequests(targets, targetsToClean)(_,_),
         BuildMessages.empty,
         notifications(report),
         processLog(report))
@@ -181,7 +181,8 @@ class BspTask[T](project: Project,
         Failure(cancel)
     }
 
-  private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])(implicit server: BspServer) = {
+  private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])
+                           (implicit server: BspServer, capabilities: BuildServerCapabilities) = {
     if (targetsToClean.isEmpty) compileRequest(targets)
     else {
       cleanRequest(targetsToClean)
@@ -201,13 +202,15 @@ class BspTask[T](project: Project,
     }
   }
 
-  private def cleanRequest(targetsToClean: Iterable[BspTarget])(implicit server: BspServer): CompletableFuture[CleanCacheResult] = {
+  private def cleanRequest(targetsToClean: Iterable[BspTarget])
+                          (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[CleanCacheResult] = {
     val targetIds = targetsToClean.map(target => new bsp4j.BuildTargetIdentifier(target.target.toString))
     val params = new bsp4j.CleanCacheParams(targetIds.toList.asJava)
     server.buildTargetCleanCache(params)
   }
 
-  private def compileRequest(targets: Iterable[BspTarget])(implicit server: BspServer): CompletableFuture[CompileResult] = {
+  private def compileRequest(targets: Iterable[BspTarget])
+                            (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(target => new bsp4j.BuildTargetIdentifier(target.target.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
     params.setOriginId(bspTaskId.id)

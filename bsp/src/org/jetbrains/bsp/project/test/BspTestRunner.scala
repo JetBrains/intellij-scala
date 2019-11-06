@@ -18,6 +18,7 @@ import com.intellij.execution.{DefaultExecutionResult, ExecutionResult, Executor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import jetbrains.buildServer.messages.serviceMessages._
+import org.jetbrains.bsp.BspErrorMessage
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
@@ -55,24 +56,33 @@ class BspTestRunner(
       .flatMap(x => x.targetIds.asScala.toList)
   }
 
-  private def testRequest(server: BspServer): CompletableFuture[TestResult] = {
-    val targetIds = targets().map(uri => new BuildTargetIdentifier(uri.toString))
-    val params = new TestParams(targetIds.toList.asJava)
-    params.setOriginId(UUID.randomUUID().toString)
-    testClasses match {
-      case Some(m) =>
-        val scalaTestClasses = m
-          .map { case (uri, classes) => new ScalaTestClassesItem(new BuildTargetIdentifier(uri.toString), classes.asJava) }
-          .toList
-        params.setDataKind("scala-test")
-        params.setData({
-          val p = new ScalaTestParams
-          p.setTestClasses(scalaTestClasses.asJava)
-          p
-        })
-      case None =>
+  private def testRequest(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
+    // TODO should we check for intersection of language ids in individual targets, and whether targets are testable?
+    val testsSupported = ! capabilities.getTestProvider.getLanguageIds.isEmpty
+    if (testsSupported) {
+      val targetIds = targets().map(uri => new BuildTargetIdentifier(uri.toString))
+      val params = new TestParams(targetIds.toList.asJava)
+      params.setOriginId(UUID.randomUUID().toString)
+      testClasses match {
+        case Some(m) =>
+          val scalaTestClasses = m
+            .map { case (uri, classes) =>
+              new ScalaTestClassesItem(new BuildTargetIdentifier(uri.toString), classes.asJava) }
+            .toList
+          params.setDataKind("scala-test")
+          params.setData({
+            val p = new ScalaTestParams
+            p.setTestClasses(scalaTestClasses.asJava)
+            p
+          })
+        case None =>
+      }
+      server.buildTargetTest(params)
+    } else {
+      val result = new CompletableFuture[TestResult]()
+      result.completeExceptionally(BspErrorMessage("The build server does not support testing"))
+      result
     }
-    server.buildTargetTest(params)
   }
 
 
