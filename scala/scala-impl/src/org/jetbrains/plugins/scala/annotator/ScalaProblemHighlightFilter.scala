@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
-import com.intellij.ide.scratch.ScratchFileType
+import com.intellij.ide.scratch.ScratchFileService
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
@@ -18,8 +18,8 @@ class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
   def shouldHighlight(file: PsiFile): Boolean = {
     file match {
       case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.INSTANCE && !AmmoniteUtil.isAmmoniteFile(scalaFile) => // can be for example sbt file type
-        !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) || 
-          scalaFile.getViewProvider.getFileType == ScratchFileType.INSTANCE || 
+        !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) ||
+          ScratchFileService.isInScratchRoot(scalaFile.getVirtualFile) ||
           scalaFile.isScriptFile || ScalaConsoleInfo.isConsole(file)
       case _ => true
     }
