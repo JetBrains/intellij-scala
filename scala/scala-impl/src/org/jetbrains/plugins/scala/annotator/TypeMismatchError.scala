@@ -70,13 +70,13 @@ private object TypeMismatchError {
   private def elementAt(element: PsiElement, blockLevel: Int) = blockLevel match {
     case 2 =>
       (element, element.getParent) match {
-        case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(element)
-        case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(element)
+        case (b: ScBlockExpr, _) => b.getRBrace.getOrElse(element)
+        case (_, b: ScBlockExpr) => b.getRBrace.getOrElse(element)
         case _ => element
       }
     case 1 =>
       element match {
-        case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
+        case b: ScBlockExpr => b.getRBrace.getOrElse(b)
         case _ => element
       }
     case 0 => element
