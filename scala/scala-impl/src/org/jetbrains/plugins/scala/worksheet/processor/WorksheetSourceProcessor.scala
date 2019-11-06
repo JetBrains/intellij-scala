@@ -44,17 +44,23 @@ object WorksheetSourceProcessor {
   private val PRINT_ARRAY_NAME = "print$$$Worksheet$$$Array$$$"
   private val runPrinterName = "worksheet$$run$$printer"
 
-  private val PRINT_ARRAY_TEXT =
+  private def printArrayText(scalaLanguageLevel: ScalaLanguageLevel) = {
+    val arrayWrapperClass =
+      if (scalaLanguageLevel < ScalaLanguageLevel.Scala_2_13)
+        "WrappedArray"
+      else
+        "ArraySeq"
     s"""
-      |def $PRINT_ARRAY_NAME(an: Any): String = {
-      |  an match {
-      |    case arr: Array[_] =>
-      |      val a = scala.collection.mutable.WrappedArray.make(arr)
-      |      a.toString.stripPrefix("Wrapped")
-      |    case null => "null"
-      |    case other => other.toString
-      |  }}
+       |def $PRINT_ARRAY_NAME(an: Any): String = {
+       |  an match {
+       |    case arr: Array[_] =>
+       |      val a = scala.collection.mutable.$arrayWrapperClass.make(arr)
+       |      "Array" + a.toString.stripPrefix("$arrayWrapperClass")
+       |    case null => "null"
+       |    case other => other.toString
+       |  }}
     """.stripMargin
+  }
 
   private val genericPrintMethodName = "println"
 
@@ -116,9 +122,10 @@ object WorksheetSourceProcessor {
 
     val packStmt = packOpt.map("package " + _ + " ; ").getOrElse("")
 
+    val languageLevel = moduleOpt.flatMap(_.scalaLanguageLevel)
     @inline
     def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, default: => T) =
-      moduleOpt.flatMap(_.scalaLanguageLevel).collect {
+      languageLevel.collect {
         case ScalaLanguageLevel.Scala_2_10 => if210
         case ScalaLanguageLevel.Scala_2_11 => if211
         case ScalaLanguageLevel.Scala_2_13 => if213
@@ -175,7 +182,7 @@ object WorksheetSourceProcessor {
       case other         => other.getNode.getChildren(null).map(_.getPsi)
     }
 
-    sourceBuilder.process(rootChildren.toIterator, preDeclarations, postDeclarations)
+    sourceBuilder.process(rootChildren.toIterator, preDeclarations, postDeclarations, languageLevel.getOrElse(ScalaLanguageLevel.getDefault))
   }
 
   private def isForObject(file: ScalaFile): Boolean = {
@@ -427,7 +434,8 @@ object WorksheetSourceProcessor {
 
     def process(elements: Iterator[PsiElement],
                 preDeclarations: Iterable[PsiElement],
-                postDeclarations: Iterable[PsiElement]): Either[PsiErrorElement, (String, String)] = {
+                postDeclarations: Iterable[PsiElement],
+                languageLevel: ScalaLanguageLevel): Either[PsiErrorElement, (String, String)] = {
       insertUntouched(preDeclarations)
 
       for (e <- elements) e match {
@@ -454,7 +462,7 @@ object WorksheetSourceProcessor {
       objectBuilder.append(
         s"""$getPrintMethodName("$END_OUTPUT_MARKER")
            |}
-           |$PRINT_ARRAY_TEXT
+           |${printArrayText(languageLevel)}
            |}""".stripMargin
       )
 

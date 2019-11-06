@@ -150,4 +150,15 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |""".stripMargin.trim
     )
   }
+
+  def testArrayRender(): Unit = {
+    doRenderTest(
+      """var a1 = new Array[Int](3)
+        |val a2 = Array(1, 2, 3)""".stripMargin,
+      """a1: Array[Int] = Array(0, 0, 0)
+        |a2: Array[Int] = Array(1, 2, 3)
+        |""".stripMargin
+    )
+  }
+
 }
