@@ -46,6 +46,10 @@ class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
   override def testPartialFunctions(): Unit = {
     checkGetAllClasses("PartialFunctions$$anonfun$foo$2")
   }
+
+  override def testLocalObject(): Unit = {
+    checkGetAllClasses("LocalObject$A$1$")
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -181,7 +185,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
        |}
     """.stripMargin.trim)
   def testLocalObject(): Unit = {
-    checkGetAllClasses("LocalObject$A$1$")
+    checkGetAllClasses("LocalObject$A$2$")
   }
 
   setupFile("LocalClassSymbolicName.scala",

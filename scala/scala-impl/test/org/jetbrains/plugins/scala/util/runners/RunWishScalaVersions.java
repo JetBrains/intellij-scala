@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.CONSTRUCTOR)
 public @interface RunWishScalaVersions {
 
-    TestScalaVersion[] value();
+    TestScalaVersion[] value() default {};
+    TestScalaVersion[] extra() default {};
 }

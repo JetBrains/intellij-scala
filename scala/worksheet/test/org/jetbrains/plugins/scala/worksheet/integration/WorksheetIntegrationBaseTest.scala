@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_9, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -45,7 +45,7 @@ abstract class WorksheetIntegrationBaseTest
   protected val (foldStart, foldEnd)                 = ("<folding>", "</folding>")
   protected val (foldStartExpanded, foldEndExpanded) = ("<foldingExpanded>", "</foldingExpanded>")
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_9
 
   protected def evaluationTimeout: Duration = 60 seconds
 

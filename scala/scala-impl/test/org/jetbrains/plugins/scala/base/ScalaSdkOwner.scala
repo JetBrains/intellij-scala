@@ -12,17 +12,10 @@ import scala.collection.mutable.ListBuffer
 trait ScalaSdkOwner extends Test {
   import ScalaSdkOwner._
 
-  private var versionReported = false
-
   implicit final def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
     val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
-    val result = selectVersion(configuredVersion, supportedVersions)
-    if (!versionReported) {
-      println(s"### Scala version used: ${result.minor} ###")
-      versionReported = true
-    }
-    result
+    selectVersion(configuredVersion, supportedVersions)
   }
 
   private var _injectedScalaVersion: Option[ScalaVersion] = None
@@ -56,7 +49,13 @@ trait ScalaSdkOwner extends Test {
 
   abstract override def run(result: TestResult): Unit = {
     if (!skip) {
-      super.run(result)
+      try {
+        super.run(result)
+      } catch {
+        case ex: AssertionError =>
+          System.err.println(s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion) ###")
+          throw ex
+      }
     }
   }
 }
@@ -68,10 +67,10 @@ object ScalaSdkOwner {
   val allTestVersions: SortedSet[ScalaVersion] = {
     val allScalaMinorVersions = for {
       latestVersion <- ScalaVersion.allScalaVersions.filterNot(_ == Scala_3_0)
-      minor <- 1 to latestVersion.minorSuffix.toInt
+      minor <- 0 to latestVersion.minorSuffix.toInt
     } yield latestVersion.withMinor(minor)
 
-    SortedSet(allScalaMinorVersions: _*)
+    SortedSet(allScalaMinorVersions :+ Scala_3_0: _*)
   }
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
