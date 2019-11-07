@@ -29,7 +29,7 @@
         <editorAppearanceConfigurable
                 instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
 
-        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaMethodChainInlayHintsSettingsProvider" />
+        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsSettingsProvider" />
 
         <defaultLiveTemplatesProvider
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>

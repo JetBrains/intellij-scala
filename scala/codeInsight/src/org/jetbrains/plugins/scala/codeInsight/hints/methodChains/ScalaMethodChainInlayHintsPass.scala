@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package hints
+package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import java.awt.{Graphics, Insets, Rectangle}
 
@@ -12,7 +10,8 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.hints.ScalaMethodChainInlayHintsPass._
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
+import org.jetbrains.plugins.scala.codeInsight.hints.textPartsOf
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -22,6 +21,8 @@ import org.jetbrains.plugins.scala.settings.annotations.Expression
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
+
+import ScalaMethodChainInlayHintsPass._
 
 private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
