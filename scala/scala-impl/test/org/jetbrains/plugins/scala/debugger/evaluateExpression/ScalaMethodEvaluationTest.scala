@@ -4,10 +4,19 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-
+// !!! NOTE: some of these methods are failing: SCL-16528
+// TODO: cleanup running against different versions
+//  separate supported in and actual running versions
+//  looks like "supported in" should generally use the lowers minor version (language level in other words)
+//  and "run with" can run with various minor versions
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaMethodEvaluationTest_2_12_3 extends ScalaMethodEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_12.withMinor(3)
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -16,8 +25,13 @@ class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
-  
+class ScalaMethodEvaluationTest_2_13 extends ScalaMethodEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
+
   addFileWithBreakpoints("SmartBoxing.scala",
    s"""
       |object SmartBoxing {
@@ -119,7 +133,7 @@ class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       evalEquals("Array(\"a\", \"b\")", "[a,b]")
     }
   }
-  
+
   addFileWithBreakpoints("CurriedFunction.scala",
    s"""
       |object CurriedFunction {
@@ -297,7 +311,7 @@ class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       evalEquals("a.bar(\"hi\")", "hi")
     }
   }
-  
+
   addFileWithBreakpoints("NonStaticFunction.scala",
    s"""
       |object NonStaticFunction {
@@ -689,6 +703,70 @@ class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       }
       atNextBreakpoint {
         evalEquals("foo()", "4")
+      }
+    }
+  }
+
+  addFileWithBreakpoints("LocalMethodsWithSameName1.scala",
+    s"""
+       |object LocalMethodsWithSameName1 {
+       |  def main(args: Array[String]) {
+       |    def foo(i: Int = 1, u: Int = 10, v: Long = 100) = {
+       |      def foo(j: Int = 2) = 20 + j
+       |      1000 + i + u + v$bp
+       |    }
+       |    ""$bp
+       |    def other() {
+       |      def foo(i: Int = 3, u: Int = 30, v: Long = 300) = 3000 + i + u + v
+       |      ""$bp
+       |    }
+       |    def third() {
+       |      def foo(i: Int, u: Int = 40, v: Long = 400) = 4000 + i + u + v
+       |      ""$bp
+       |    }
+       |    foo()
+       |    other()
+       |    third()
+       |  }
+       |}
+    """.stripMargin.trim())
+
+  def testLocalMethodsWithSameName1() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("foo()", "1111")
+      atNextBreakpoint {
+        evalEquals("foo()", "22")
+      }
+      atNextBreakpoint {
+        evalEquals("foo()", "3333")
+      }
+      atNextBreakpoint {
+        evalEquals("foo(4)", "4444")
+      }
+    }
+  }
+
+  addFileWithBreakpoints("LocalMethodsWithSameName2.scala",
+    s"""
+       |object LocalMethodsWithSameName2 {
+       |  def main(args: Array[String]) {
+       |    def foo(i: Int = 1, u: Int = 10, v: Long = 100) = {
+       |      def foo(j: Int = 2, u: Int = 20) = 200 + j + u
+       |      1000 + i + u + v$bp
+       |    }
+       |    ""$bp
+       |    foo()
+       |  }
+       |}
+    """.stripMargin.trim())
+
+  def testLocalMethodsWithSameName2() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("foo()", "1111")
+      atNextBreakpoint {
+        evalEquals("foo()", "222")
       }
     }
   }

@@ -12,9 +12,17 @@ import scala.collection.mutable.ListBuffer
 trait ScalaSdkOwner extends Test {
   import ScalaSdkOwner._
 
+  private var versionReported = false
+
   implicit final def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
-    selectVersion(configuredScalaVersion.getOrElse(defaultSdkVersion), supportedVersions)
+    val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
+    val result = selectVersion(configuredVersion, supportedVersions)
+    if (!versionReported) {
+      println(s"### Scala version used: ${result.minor} ###")
+      versionReported = true
+    }
+    result
   }
 
   private var _injectedScalaVersion: Option[ScalaVersion] = None
@@ -57,9 +65,16 @@ object ScalaSdkOwner {
   // todo: eventually move to version Scala_2_13
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
   val defaultSdkVersion: ScalaVersion = Scala_2_10 // ScalaVersion.default
-  val allTestVersions: SortedSet[ScalaVersion] = SortedSet(ScalaVersion.allScalaVersions: _*)
+  val allTestVersions: SortedSet[ScalaVersion] = {
+    val allScalaMinorVersions = for {
+      latestVersion <- ScalaVersion.allScalaVersions.filterNot(_ == Scala_3_0)
+      minor <- 1 to latestVersion.minorSuffix.toInt
+    } yield latestVersion.withMinor(minor)
 
-  def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
+    SortedSet(allScalaMinorVersions: _*)
+  }
+
+  private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
     possibleVersions.iteratorFrom(wantedVersion).toStream.headOption.getOrElse(possibleVersions.last)
 
   lazy val globalConfiguredScalaVersion: Option[ScalaVersion] = {
