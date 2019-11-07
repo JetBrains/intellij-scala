@@ -26,9 +26,9 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showFunctionReturnType = true;
     public boolean showPropertyType = false;
     public boolean showLocalVariableType = false;
-    public boolean showExpressionChainType = true;
-    public boolean alignExpressionChain = false;
-    public boolean hideIdenticalTypesInExpressionChain = false;
+    public boolean showMethodChainInlayHints = true;
+    public boolean alignMethodChainInlayHints = false;
+    public boolean hideIdenticalTypesInMethodChains = false;
 
     public int presentationLength = 45;
 
@@ -58,28 +58,28 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return value -> showLocalVariableType = value;
     }
 
-    public Getter<Boolean> showExpressionChainTypeGetter() {
-        return () -> showExpressionChainType;
+    public Getter<Boolean> showMethodChainInlayHintsGetter() {
+        return () -> showMethodChainInlayHints;
     }
 
-    public Setter<Boolean> showExpressionChainTypeSetter() {
-        return value -> showExpressionChainType = value;
+    public Setter<Boolean> showMethodChainInlayHintsSetter() {
+        return value -> showMethodChainInlayHints = value;
     }
 
-    public Getter<Boolean> alignExpressionChainGetter() {
-        return () -> alignExpressionChain;
+    public Getter<Boolean> alignMethodChainInlayHintsGetter() {
+        return () -> alignMethodChainInlayHints;
     }
 
-    public Setter<Boolean> alignExpressionChainSetter() {
-        return value -> alignExpressionChain = value;
+    public Setter<Boolean> alignMethodChainInlayHintsSetter() {
+        return value -> alignMethodChainInlayHints = value;
     }
 
-    public Getter<Boolean> hideIdenticalTypesInExpressionChainGetter() {
-        return () -> hideIdenticalTypesInExpressionChain;
+    public Getter<Boolean> hideIdenticalTypesInMethodChainsGetter() {
+        return () -> hideIdenticalTypesInMethodChains;
     }
 
-    public Setter<Boolean> hideIdenticalTypesInExpressionChainSetter() {
-        return value -> hideIdenticalTypesInExpressionChain = value;
+    public Setter<Boolean> hideIdenticalTypesInMethodChainsSetter() {
+        return value -> hideIdenticalTypesInMethodChains = value;
     }
 
     public Getter<Integer> presentationLengthGetter() {

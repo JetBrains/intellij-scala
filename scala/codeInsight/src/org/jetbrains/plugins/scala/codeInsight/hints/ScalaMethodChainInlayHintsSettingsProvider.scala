@@ -7,9 +7,9 @@ import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaLanguage
 
-class ScalaExprChainTypeHintsSettingsProvider extends InlaySettingsProvider {
+class ScalaMethodChainInlayHintsSettingsProvider extends InlaySettingsProvider {
   override def createModels(project: Project, language: Language): ju.List[InlayProviderSettingsModel] =
-    if (language == ScalaLanguage.INSTANCE) ju.Collections.singletonList(new ScalaExprChainTypeHintSettingsModel)
+    if (language == ScalaLanguage.INSTANCE) ju.Collections.singletonList(new ScalaMethodChainInlayHintsSettingsModel)
     else ju.Collections.emptyList()
 
   override def getSupportedLanguages(project: Project): ju.Collection[Language] =

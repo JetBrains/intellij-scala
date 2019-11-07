@@ -4,7 +4,7 @@ package hints
 
 import com.intellij.openapi.util.Setter
 
-class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
+class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
 
   import Hint.{End => E, Start => S}
   import ScalaCodeInsightSettings.{getInstance => settings}
@@ -140,7 +140,7 @@ class InlayExprChainTypeHintsTest extends InlayHintsTestBase {
        |  .toSet
        |  .toString
      """.stripMargin,
-    options = settings.showExpressionChainTypeSetter() -> false
+    options = settings.showMethodChainInlayHintsSetter() -> false
   )
 
   def testBoringChainHasNoHints(): Unit = doTest(
