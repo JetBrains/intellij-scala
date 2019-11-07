@@ -14,7 +14,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.hints._
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaExprChainTypeHintsPass, ScalaTypeHintsPass}
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass
+import org.jetbrains.plugins.scala.codeInsight.hints.chain.ScalaExprChainTypeHintsPass
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
