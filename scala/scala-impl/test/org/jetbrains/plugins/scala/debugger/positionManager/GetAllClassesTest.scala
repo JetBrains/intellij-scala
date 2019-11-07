@@ -181,7 +181,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
        |}
     """.stripMargin.trim)
   def testLocalObject(): Unit = {
-    checkGetAllClasses("LocalObject$A$2$")
+    checkGetAllClasses("LocalObject$A$1$")
   }
 
   setupFile("LocalClassSymbolicName.scala",
