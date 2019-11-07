@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor._
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
@@ -26,24 +27,36 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
     if (editor == null) return
 
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
-    if (psiFile == null) return
+    val resultText = CopyWorksheetAction.prepareCopiableText(editor, project).getOrElse(return)
 
-    val resultText = createMerged2(editor, viewer, psiFile).withNormalizedSeparator
     val contents: StringSelection = new StringSelection(resultText)
     CopyPasteManager.getInstance.setContents(contents)
   }
-  
+}
+
+object CopyWorksheetAction {
+
+  private val COPY_BORDER = 80
+  private val FILL_SYMBOL = " "
+
+  def prepareCopiableText(editor: Editor, project: Project): Option[String] = {
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+    if (psiFile == null) return None
+
+    Some(CopyWorksheetAction.createMerged2(editor, viewer, psiFile).withNormalizedSeparator)
+  }
+
   private def createMerged2(editor: Editor, viewer: Editor, psiFile: PsiFile): String = {
     val leftDocument = editor.getDocument
     if (viewer == null) return leftDocument.getText
     val rightDocument = viewer.getDocument
-    
+    if (rightDocument.getTextLength == 0) return leftDocument.getText
+
     val result = new StringBuilder
     val fullShift = StringUtil.repeat(" ", CopyWorksheetAction.COPY_BORDER)
     val lineSeparator = "\n"
-    
+
     val mappings = WorksheetFoldGroup.computeMappings(viewer, editor, psiFile)
 
     def getFromDoc(lineNumber: Int, document: Document): CharSequence =
@@ -53,16 +66,16 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
         document.getImmutableCharSequence.subSequence(start, end)
       }
 
-    def getLinesFrom(f: Int, t: Int, document: Document) = 
+    def getLinesFrom(f: Int, t: Int, document: Document) =
       for (i <- f until t) yield getFromDoc(i, document)
-    
+
     def getLines(doc: Document) = getLinesFrom(0, doc.getLineCount, doc)
-    
+
     def append2Result(leftLines: Seq[CharSequence], rightLines: Seq[CharSequence]) {
       leftLines.zipAll(rightLines, "", fullShift).foreach {
         case (textLeft, textRight) =>
           result.append(StringUtil.trimTrailing(textLeft))
-          
+
           if (textRight.length() > 0) {
             for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) {
               result.append(CopyWorksheetAction.FILL_SYMBOL)
@@ -70,11 +83,11 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
             result.append(" //")
             result.append(textRight)
           }
-          
+
           result.append(lineSeparator)
       }
     }
-    
+
     if (mappings.length < 2) {
       append2Result(getLines(leftDocument), getLines(rightDocument))
     } else {
@@ -84,12 +97,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
           (l, r)
       }
     }
-    
+
     result.toString()
   }
-}
-
-object CopyWorksheetAction {
-  private val COPY_BORDER = 80
-  private val FILL_SYMBOL = " "
 }
