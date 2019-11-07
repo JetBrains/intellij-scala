@@ -32,22 +32,6 @@ final class ScalaTypeHintsConfigurable
       settings.showLocalVariableTypeSetter
     )
 
-    checkBox(
-      "Show expression chain type hints (Scala)",
-      settings.showExpressionChainTypeGetter,
-      settings.showExpressionChainTypeSetter
-    )
-    checkBox(
-      "Align type hints in expression chains (Scala)",
-      settings.alignExpressionChainGetter,
-      settings.alignExpressionChainSetter
-    )
-    checkBox(
-      "Hide identical types in expression chains (Scala)",
-      settings.hideIdenticalTypesInExpressionChainGetter(),
-      settings.hideIdenticalTypesInExpressionChainSetter()
-    )
-
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
       settingsPanel.getPanel,

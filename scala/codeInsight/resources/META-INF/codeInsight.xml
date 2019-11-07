@@ -23,6 +23,8 @@
         <editorAppearanceConfigurable
                 instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
 
+        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsSettingsProvider" />
+
         <defaultLiveTemplatesProvider
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
         <liveTemplatePreprocessor

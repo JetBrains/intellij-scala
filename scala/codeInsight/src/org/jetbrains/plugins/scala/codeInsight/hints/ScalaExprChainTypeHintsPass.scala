@@ -27,11 +27,15 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
 
   private val settings = ScalaCodeInsightSettings.getInstance
 
+  protected def showExpressionChainType: Boolean = settings.showExpressionChainType
+  protected def alignExpressionChain: Boolean = settings.alignExpressionChain
+  protected def hideIdenticalTypesInExpressionChain: Boolean = settings.hideIdenticalTypesInExpressionChain
+
   private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
 
   def collectExpressionChainTypeHints(editor: Editor, root: PsiElement): Unit = {
     collectedHintTemplates =
-      if (editor.isOneLineMode || !settings.showExpressionChainType) Seq.empty
+      if (editor.isOneLineMode || !showExpressionChainType) Seq.empty
       else (
         for {
           ExprChain(exprChain) <- root.elements
@@ -53,7 +57,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           if types.toSet.size >= 2
 
           exprsAndTypes =
-            if (!settings.hideIdenticalTypesInExpressionChain) exprs.zip(types)
+            if (!hideIdenticalTypesInExpressionChain) exprs.zip(types)
             else removeConsecutiveDuplicates(exprs.zip(types))
         } yield {
           for ((expr, ty) <- exprsAndTypes)
@@ -90,7 +94,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       for (hints <- collectedHintTemplates; hint <- hints) {
         inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
       }
-    } else if (settings.alignExpressionChain) {
+    } else if (alignExpressionChain) {
       collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
     } else {
       for (hints <- collectedHintTemplates; hint <- hints) {
