@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.{DefaultBoundedRangeModel, Icon}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -34,13 +35,13 @@ class CleanWorksheetAction extends AnAction with TopComponentAction {
 
     if (editor == null || file == null) return
 
-    CleanWorksheetAction.cleanAll(editor, file, project)
+    CleanWorksheetAction.cleanAll(editor, project)
   }
 }
 
 object CleanWorksheetAction {
 
-  def cleanAll(editor: Editor, file: VirtualFile, project: Project): Unit = {
+  def cleanAll(editor: Editor, project: Project): Unit = {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
 
@@ -49,7 +50,7 @@ object CleanWorksheetAction {
     val splitPane = viewer.getComponent.getParent
     if (splitPane == null) return
     val parent = splitPane.getParent
-    if (parent == null) return
+    if (parent == null && !ApplicationManager.getApplication.isUnitTestMode) return
 
     invokeLater {
       inWriteAction {
@@ -57,8 +58,11 @@ object CleanWorksheetAction {
         WorksheetCache.getInstance(project).removePrinter(editor)
         cleanWorksheet(psiFile.getNode, editor, viewer, project)
 
-        parent.remove(splitPane)
-        parent.add(editor.getComponent, BorderLayout.CENTER)
+        if (!ApplicationManager.getApplication.isUnitTestMode) {
+          parent.remove(splitPane)
+          parent.add(editor.getComponent, BorderLayout.CENTER)
+        }
+
         editor.getSettings.setFoldingOutlineShown(true)
         editor.getContentComponent.requestFocus() //  properly repaints editor SCL-16073
       }
@@ -84,11 +88,9 @@ object CleanWorksheetAction {
     WorksheetEditorPrinterFactory.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
 
     if (rightDocument != null && !project.isDisposed) {
-      ApplicationManager.getApplication runWriteAction new Runnable {
-        override def run() {
-          rightDocument.setText("")
-          PsiDocumentManager.getInstance(project).commitDocument(rightDocument)
-        }
+      inWriteAction {
+        rightDocument.setText("")
+        rightDocument.commit(project)
       }
     }
   }

@@ -133,8 +133,6 @@ final class WorksheetFoldGroup(
     true
   }
 
-  private def offset2Line(offset: Int) = originalDocument.getLineNumber(offset)
-
   @Measure
   private def traverseRegions(target: FoldRegion): (Iterable[DiffMapping], FoldRegionInfo, Int) = {
     val emptyResult: (Seq[DiffMapping], FoldRegionInfo, Int) = (Seq.empty, null, 0)
@@ -142,7 +140,7 @@ final class WorksheetFoldGroup(
 
     def numbers(reg: FoldRegionInfo, stored: Int): DiffMapping = {
       val leftEndOffset = reg.leftEndOffset - 1
-      val leftEndLine   = offset2Line(leftEndOffset)
+      val leftEndLine   = originalDocument.getLineNumber(leftEndOffset)
       val leftStartLine = leftEndLine - reg.leftContentLines + 1
 
       DiffMapping(leftStartLine, leftEndLine, leftEndLine + stored, reg.spaces)
@@ -167,7 +165,7 @@ final class WorksheetFoldGroup(
   }
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
-    val line = offset2Line(target.leftEndOffset - 1)
+    val line = originalDocument.getLineNumber(target.leftEndOffset - 1)
     val key = unfolded floorKey line
 
     val spaces = target.spaces
@@ -237,7 +235,7 @@ object WorksheetFoldGroup {
   private def extractMappings(parsedRegions: Seq[ParsedRegion],
                               originalDocument: Document,
                               viewerDocument: Document): Seq[(Int, Int)] = {
-    if (parsedRegions.isEmpty) return Seq()
+    if (parsedRegions.isEmpty || viewerDocument.getLineCount == 0) return Seq()
 
     val result = ArrayBuffer[(Int, Int)]()
 
@@ -245,12 +243,12 @@ object WorksheetFoldGroup {
     val regionsEffective = parsedTail :+ fakeEndFoldRegion(originalDocument, viewerDocument)
 
     regionsEffective.foldLeft(parsedHead) { case (prevFolding, currFolding) =>
-      val prevLeftEndLine = originalDocument.getLineNumber(prevFolding.leftEndOffset - 1)
+      val prevLeftEndLine = safeLineNumber(originalDocument, prevFolding.leftEndOffset - 1)
       val prevRightStartLine = viewerDocument.getLineNumber(prevFolding.foldStartOffset)
 
       result += ((prevLeftEndLine, prevRightStartLine))
 
-      val currLeftEndLine = originalDocument.getLineNumber(currFolding.leftEndOffset - 1)
+      val currLeftEndLine = safeLineNumber(originalDocument, currFolding.leftEndOffset - 1)
       val currLeftStartLine = currLeftEndLine - currFolding.leftSideLength + 1
       val linesBetween = currLeftStartLine - prevLeftEndLine - 1
       if (linesBetween > 0) {
@@ -279,6 +277,9 @@ object WorksheetFoldGroup {
       leftSideLength = 1
     )
   }
+
+  private def safeLineNumber(document: Document, offset: Int): Int =
+    document.getLineNumber(offset.min(document.getTextLength))
 
   def save(file: ScalaFile, group: WorksheetFoldGroup): Unit = {
     val virtualFile = file.getVirtualFile
