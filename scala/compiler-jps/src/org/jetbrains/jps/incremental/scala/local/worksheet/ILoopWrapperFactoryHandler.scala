@@ -62,19 +62,26 @@ class ILoopWrapperFactoryHandler {
 
   protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Client): File = {
     val version = findScalaVersionIn(scalaInstance)
-    val is213 = version.startsWith("2.13")
-    val iLoopWrapperClass = if (is213) "ILoopWrapper213Impl" else "ILoopWrapperImpl"
+    val iLoopWrapperClass =
+      if (version.startsWith("2.13.0")) ILoopWrapper213_0Impl
+      else if (version.startsWith("2.13")) ILoopWrapper213Impl
+      else ILoopWrapperImpl
     val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION-$iLoopWrapperClass.jar"
     val targetFile = new File(sbtData.interfacesHome, replLabel)
 
     if (!targetFile.exists()) {
-      compileReplLoopFile(scalaInstance, sbtData, is213, replLabel, targetFile, client)
+      compileReplLoopFile(scalaInstance, sbtData, iLoopWrapperClass, replLabel, targetFile, client)
     }
 
     targetFile
   }
 
-  private def compileReplLoopFile(scalaInstance: ScalaInstance, sbtData: SbtData, is213: Boolean, replLabel: String, targetFile: File, client: Client): Unit = {
+  private def compileReplLoopFile(scalaInstance: ScalaInstance,
+                                  sbtData: SbtData,
+                                  iLoopWrapperClass: String,
+                                  replLabel: String,
+                                  targetFile: File,
+                                  client: Client): Unit = {
     // sources containing ILoopWrapper213Impl.scala and ILoopWrapperImpl.scala
     val sourceJar = {
       val jpsJarsFolder = sbtData.sourceJars._2_11.getParent
@@ -96,10 +103,8 @@ class ILoopWrapperFactoryHandler {
     val logger = NullLogger
     sbtData.interfacesHome.mkdirs()
 
-    def filter(file: File): Boolean = {
-      val is213Impl = file.getName.endsWith("213Impl.scala")
-      if (is213) is213Impl else !is213Impl
-    }
+    def filter(file: File): Boolean =
+      file.getName.endsWith(s"$iLoopWrapperClass.scala")
 
     val rawCompiler = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), logger) {
       override def apply(sources: Seq[File], classpath: Seq[File], outputDirectory: File, options: Seq[String]): Unit = {
@@ -120,6 +125,10 @@ class ILoopWrapperFactoryHandler {
 object ILoopWrapperFactoryHandler {
   // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
   private val WRAPPER_VERSION = 3
+
+  private val ILoopWrapperImpl      = "ILoopWrapperImpl"
+  private val ILoopWrapper213_0Impl = "ILoopWrapper213_0Impl"
+  private val ILoopWrapper213Impl   = "ILoopWrapper213Impl"
 
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String =
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
