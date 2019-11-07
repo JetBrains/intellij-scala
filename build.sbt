@@ -117,6 +117,7 @@ lazy val scalaImpl: sbt.Project =
       ),
       packageFileMappings ++= Seq(
         baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" -> "lib/jps/repl-interface-sources.jar",
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213_0Impl.scala" -> "lib/jps/repl-interface-sources.jar",
         baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213Impl.scala" -> "lib/jps/repl-interface-sources.jar"
       ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
