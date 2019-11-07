@@ -10,8 +10,7 @@ import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.annotations.Nullable
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
@@ -56,14 +55,16 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           exprsAndTypes =
             if (!settings.hideIdenticalTypesInExpressionChain) exprs.zip(types)
             else removeConsecutiveDuplicates(exprs.zip(types))
-        } yield for ((expr, ty) <- exprsAndTypes)
+        } yield {
+          for ((expr, ty) <- exprsAndTypes)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
+        }
       ).toList
   }
 
   def regenerateExprChainHints(editor: Editor, inlayModel: InlayModel, rootElement: PsiElement): Unit = {
     inlayModel
-      .getAfterLineEndElementsInRange(rootElement.getTextRange.getStartOffset, rootElement.getTextRange.getEndOffset)
+      .getAfterLineEndElementsInRange(rootElement.startOffset, rootElement.endOffset)
       .asScala
       .filter(ScalaExprChainKey.isIn)
       .foreach { inlay =>
@@ -87,14 +88,14 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       // this is ok to test the recognition of expression chain types
       // there is no need to unit test the other alternatives because they need ui tests anyway
       for (hints <- collectedHintTemplates; hint <- hints) {
-        inlayModel.addInlineElement(hint.expr.getTextRange.getEndOffset, false, new TextPartsHintRenderer(hint.textParts, None))
+        inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
       }
     } else if (settings.alignExpressionChain) {
       collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
     } else {
       for (hints <- collectedHintTemplates; hint <- hints) {
         val inlay = inlayModel.addAfterLineEndElement(
-          hint.expr.getTextRange.getEndOffset,
+          hint.expr.endOffset,
           false,
           new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
             override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
@@ -156,19 +157,9 @@ private object ScalaExprChainTypeHintsPass {
     }
   }
 
-  @tailrec
   def isFollowedByLineEnd(elem: PsiElement): Boolean = {
-    def hasLineBreak(@Nullable elem: PsiElement): Boolean =
-      elem.asOptionOf[PsiWhiteSpace].exists(_.textContains('\n'))
-
-    elem.getNextSibling match {
-      case null =>
-        elem.getParent match {
-          case null => true
-          case parent => isFollowedByLineEnd(parent)
-        }
-
-      case ws: PsiWhiteSpace if hasLineBreak(ws) =>
+    elem match {
+      case elem if elem.followedByNewLine(ignoreComments = false) =>
         true
 
       case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) =>
@@ -178,18 +169,23 @@ private object ScalaExprChainTypeHintsPass {
          *  something
          *   .func {         // <- don't add type here
          *
-         *   }.func {        // <- add type here
+         *   }.func {        // <- add type here (return type of `something.func{...}`)
          *
          *   }.func { x =>   // <- don't add type here
          *
          *   }
          */
-        if (hasLineBreak(ref.getNextSibling)) true
-        else mc.args.getFirstChild match {
-          case blk: ScBlockExpr => blk.getLBrace.exists(lb => hasLineBreak(lb.getNextSibling))
-          case x if x.elementType == ScalaTokenTypes.tLPARENTHESIS => hasLineBreak(x.getNextSibling)
-          case _ => false
+        def isArgumentBegin = mc.args.getFirstChild match {
+          case blk: ScBlockExpr =>
+            blk.getLBrace.exists(_.followedByNewLine(ignoreComments = false))
+          case firstElem if firstElem.elementType == ScalaTokenTypes.tLPARENTHESIS =>
+            firstElem.followedByNewLine(ignoreComments = false)
+          case _ =>
+            false
         }
+
+        ref.followedByNewLine(ignoreComments = false) || isArgumentBegin
+
       case _ =>
         false
     }
@@ -212,7 +208,7 @@ private object ScalaExprChainTypeHintsPass {
     private val maxMarginInPixel = maxMargin * charWidthInPixel
 
     private val alignmentLines: Seq[AlignmentLine] = {
-      def lineOf(expr: ScExpression): Int = document.getLineNumber(expr.getTextRange.getEndOffset)
+      def lineOf(expr: ScExpression): Int = document.getLineNumber(expr.endOffset)
       val lineToHintMapping = hints.groupBy(hint => lineOf(hint.expr)).mapValues(_.head)
       val lineHasHint = lineToHintMapping.contains _
 
@@ -222,7 +218,7 @@ private object ScalaExprChainTypeHintsPass {
       (firstLine to lastLine).flatMap { line =>
         val maybeHint = lineToHintMapping.get(line)
         val maybeOffset = maybeHint match {
-          case Some(hint) => Some(hint.expr.getTextRange.getEndOffset)
+          case Some(hint) => Some(hint.expr.endOffset)
           case _ if lineHasHint(line - 1) || lineHasHint(line + 1) => Some(document.getLineEndOffset(line))
           case _ => None
         }
@@ -233,7 +229,7 @@ private object ScalaExprChainTypeHintsPass {
     private val inlays: Seq[Inlay[AlignedInlayRenderer]] =
       for(line <- alignmentLines; hint <- line.maybeHint) yield {
         val inlay = inlayModel.addAfterLineEndElement(
-          hint.expr.getTextRange.getEndOffset,
+          hint.expr.endOffset,
           false,
           new AlignedInlayRenderer(line, hint.textParts)
         )
