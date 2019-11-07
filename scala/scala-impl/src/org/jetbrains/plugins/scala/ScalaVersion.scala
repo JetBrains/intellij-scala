@@ -30,7 +30,7 @@ class ScalaVersion protected(val languageLevel: ScalaLanguageLevel,
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  override def toString: String = s"ScalaVersion($languageLevel, $minor)"
+  override def toString: String = s"ScalaVersion($minor)"
 }
 
 object ScalaVersion {

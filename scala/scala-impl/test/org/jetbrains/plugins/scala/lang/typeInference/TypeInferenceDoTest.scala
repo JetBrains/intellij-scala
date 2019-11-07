@@ -79,18 +79,33 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
     expr
   }
 
+  private val VersionPrefixRegex = """^\[Scala_([\w\d_]*)\](.*)""".r
+
+  // formats:
+  // 2_12 => 2.12.MAX_VERSION,
+  // 2_12_7 => 2.12.7
+  private def selectVersion(versionStr: String): Option[ScalaVersion] = {
+    val versionStrWithDots = versionStr.replace('_', '.')
+    ScalaSdkOwner.allTestVersions.find(_.minor == versionStrWithDots)
+      .orElse(ScalaSdkOwner.allTestVersions.filter(_.major == versionStrWithDots).lastOption)
+  }
+
   private def extractTextForCurrentVersion(text: String, version: ScalaVersion): String = {
-    val ((lastVer, lastText), resultListWithoutLast) = text
-      .split('\n')
+    val lines = text.split('\n')
+    val ((lastVer, lastText), resultListWithoutLast) = lines
       .foldLeft(((Option.empty[ScalaVersion], ""), Seq.empty[(Option[ScalaVersion], String)])) {
         case (((curver, curtext), result), line) =>
-          ScalaSdkOwner.allTestVersions.find(v => line.startsWith(s"[$v]")) match {
-            case Some(v) =>(Some(v), line.substring(v.toString.length + 2)) -> (result :+ (curver -> curtext))
-            case None => (curver, if (curtext.isEmpty) line else curtext + "\n" + line) -> result
+          val foundVersion = line match {
+            case VersionPrefixRegex(versionStr, tail) => selectVersion(versionStr.trim).map((_, tail))
+            case _                                    => None
+          }
+          foundVersion match {
+            case Some((v, lineTail)) => (Some(v), lineTail) -> (result :+ (curver -> curtext))
+            case None                => (curver, if (curtext.isEmpty) line else curtext + "\n" + line) -> result
           }
       }
-    val resultList = resultListWithoutLast :+ (lastVer -> lastText)
 
+    val resultList = resultListWithoutLast :+ (lastVer -> lastText)
     if (resultList.length == 1) {
       resultList.head._2
     } else {

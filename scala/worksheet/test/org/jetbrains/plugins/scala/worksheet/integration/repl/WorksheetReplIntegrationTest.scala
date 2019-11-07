@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -18,8 +18,15 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   // FIXME: fails for scala 2.10:
   //  sbt.internal.inc.CompileFailed: Error compiling the sbt component 'repl-wrapper-2.10.7-55.0-2-ILoopWrapperImpl.jar'
   //  https://youtrack.jetbrains.com/issue/SCL-16175
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_10
 
+  // with some health check runs
+  @RunWishScalaVersions(extra = Array(
+    //TestScalaVersion.Scala_2_10_0
+    TestScalaVersion.Scala_2_11_0,
+    TestScalaVersion.Scala_2_12_0,
+    TestScalaVersion.Scala_2_13_0,
+  ))
   def testSimpleDeclaration(): Unit = {
     val left =
       """val a = 1
