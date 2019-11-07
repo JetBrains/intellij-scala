@@ -22,9 +22,9 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
   override def secondFileAfterName(testName: String) = testName + "_after.scala"
 
   override def processor(newVisibility: String,
-                newName: String,
-                newReturnType: String,
-                newParams: => Seq[Seq[ParameterInfo]]): ChangeSignatureProcessorBase = {
+                         newName: String,
+                         newReturnType: String,
+                         newParams: => Seq[Seq[ParameterInfo]]): ChangeSignatureProcessorBase = {
     javaProcessor(newVisibility, newName, newReturnType, newParams)
   }
 
@@ -146,7 +146,12 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
-  def testDifferentParamNames(): Unit = {
+  def testDifferentParamNames0(): Unit = {
+    val params = Seq(new ParameterInfoImpl(0, "newName", PsiType.INT))
+    doTest(null, "foo", null, Seq(params))
+  }
+
+  def testDifferentParamNames1(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "newName", PsiType.INT))
     doTest(null, "foo", null, Seq(params))
   }
