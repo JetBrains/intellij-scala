@@ -31,6 +31,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
   protected def showMethodChainInlayHints: Boolean = settings.showMethodChainInlayHints
   protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
   protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
+  protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
 
   private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
 
@@ -40,10 +41,10 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       else (
         for {
           MethodChain(methodChain) <- root.elements
-          if methodChain.length >= 3
+          if methodChain.length >= uniqueTypesToShowMethodChains
 
           methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
-          if methodsAtLineEnd.length >= 3
+          if methodsAtLineEnd.length >= uniqueTypesToShowMethodChains
 
           methods =
             if (Expression(methodsAtLineEnd.head).hasStableType) methodsAtLineEnd.tail
@@ -55,7 +56,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
               _.isRight
             }
             .map(_.right.get.tryExtractDesignatorSingleton)
-          if types.toSet.size >= 2
+          if types.map(_.presentableText(methodChain.head)).toSet.size >= uniqueTypesToShowMethodChains
 
           exprsAndTypes =
             if (!hideIdenticalTypesInMethodChains) methods.zip(types)
@@ -197,11 +198,13 @@ private object ScalaMethodChainInlayHintsPass {
   }
 
   private def removeConsecutiveDuplicates(exprsWithTypes: Seq[(ScExpression, ScType)]): Seq[(ScExpression, ScType)] =
-    exprsWithTypes.foldLeft(List.empty[(ScExpression, ScType)]) {
-      case (Nil, ewt) => List(ewt)
-      case (ls, ewt) if ls.head._2 == ewt._2 => ls
-      case (ls, ewt) => ewt :: ls
-    }.reverse
+    exprsWithTypes
+      .map { case t@(expr, ty) => t -> ty.presentableText(expr) }
+      .foldLeft((null: String, List.empty[(ScExpression, ScType)])) {
+        case ((_,    Nil), (ewt, tytext))                   => tytext -> List(ewt)
+        case ((last, ls),  (_,   tytext)) if last == tytext => last -> ls
+        case ((last, ls),  (ewt, tytext))                   => tytext -> (ewt :: ls)
+      }._2.reverse
 
   private case class AlignedHintTemplate(textParts: Seq[Text], expr: ScExpression)
 

@@ -29,6 +29,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showMethodChainInlayHints = true;
     public boolean alignMethodChainInlayHints = false;
     public boolean hideIdenticalTypesInMethodChains = false;
+    public int uniqueTypesToShowMethodChains = 3;
 
     public int presentationLength = 45;
 
