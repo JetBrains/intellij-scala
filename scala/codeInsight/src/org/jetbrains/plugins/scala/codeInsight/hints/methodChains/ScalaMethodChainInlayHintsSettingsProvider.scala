@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import java.{util => ju}
 

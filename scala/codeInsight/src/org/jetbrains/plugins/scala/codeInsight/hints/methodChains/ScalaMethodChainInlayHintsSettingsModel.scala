@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import java.util
-import kotlin.Unit.{INSTANCE => kUnit}
 
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import javax.swing.JComponent
+import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 
