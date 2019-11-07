@@ -12,7 +12,7 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.hints.ScalaExprChainTypeHintsPass._
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaMethodChainInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,33 +23,33 @@ import org.jetbrains.plugins.scala.settings.annotations.Expression
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
-private[codeInsight] trait ScalaExprChainTypeHintsPass {
+private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
   private val settings = ScalaCodeInsightSettings.getInstance
 
-  protected def showExpressionChainType: Boolean = settings.showExpressionChainType
-  protected def alignExpressionChain: Boolean = settings.alignExpressionChain
-  protected def hideIdenticalTypesInExpressionChain: Boolean = settings.hideIdenticalTypesInExpressionChain
+  protected def showMethodChainInlayHints: Boolean = settings.showMethodChainInlayHints
+  protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
+  protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
 
   private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
 
-  def collectExpressionChainTypeHints(editor: Editor, root: PsiElement): Unit = {
+  def collectMethodChainHints(editor: Editor, root: PsiElement): Unit = {
     collectedHintTemplates =
-      if (editor.isOneLineMode || !showExpressionChainType) Seq.empty
+      if (editor.isOneLineMode || !showMethodChainInlayHints) Seq.empty
       else (
         for {
-          ExprChain(exprChain) <- root.elements
-          if exprChain.length >= 3
+          MethodChain(methodChain) <- root.elements
+          if methodChain.length >= 3
 
-          exprsAtLineEnd = exprChain.filter(isFollowedByLineEnd)
-          if exprsAtLineEnd.length >= 3
+          methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
+          if methodsAtLineEnd.length >= 3
 
-          exprs =
-            if (Expression(exprsAtLineEnd.head).hasStableType) exprsAtLineEnd.tail
-            else exprsAtLineEnd
+          methods =
+            if (Expression(methodsAtLineEnd.head).hasStableType) methodsAtLineEnd.tail
+            else methodsAtLineEnd
 
-          types = exprs
-            .map(e => e.`type`())
+          types = methods
+            .map(m => m.`type`())
             .takeWhile {
               _.isRight
             }
@@ -57,8 +57,8 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
           if types.toSet.size >= 2
 
           exprsAndTypes =
-            if (!hideIdenticalTypesInExpressionChain) exprs.zip(types)
-            else removeConsecutiveDuplicates(exprs.zip(types))
+            if (!hideIdenticalTypesInMethodChains) methods.zip(types)
+            else removeConsecutiveDuplicates(methods.zip(types))
         } yield {
           for ((expr, ty) <- exprsAndTypes)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
@@ -66,14 +66,14 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
       ).toList
   }
 
-  def regenerateExprChainHints(editor: Editor, inlayModel: InlayModel, rootElement: PsiElement): Unit = {
+  def regenerateMethodChainHints(editor: Editor, inlayModel: InlayModel, rootElement: PsiElement): Unit = {
     inlayModel
       .getAfterLineEndElementsInRange(rootElement.startOffset, rootElement.endOffset)
       .asScala
-      .filter(ScalaExprChainKey.isIn)
+      .filter(ScalaMethodChainKey.isIn)
       .foreach { inlay =>
         inlay
-          .getUserData(ScalaExprChainDisposableKey)
+          .getUserData(ScalaMethodChainDisposableKey)
           .toOption
           .foreach(Disposer.dispose)
         Disposer.dispose(inlay)
@@ -89,12 +89,12 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       // there is no way to check for AfterLineEndElements in the test framework
       // so we create normal inline elements here
-      // this is ok to test the recognition of expression chain types
+      // this is ok to test the recognition of method chain inlay hints
       // there is no need to unit test the other alternatives because they need ui tests anyway
       for (hints <- collectedHintTemplates; hint <- hints) {
         inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
       }
-    } else if (alignExpressionChain) {
+    } else if (alignMethodChainInlayHints) {
       collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
     } else {
       for (hints <- collectedHintTemplates; hint <- hints) {
@@ -105,7 +105,7 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
             override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
           }
         )
-        inlay.putUserData(ScalaExprChainKey, true)
+        inlay.putUserData(ScalaMethodChainKey, true)
       }
     }
   }
@@ -118,12 +118,12 @@ private[codeInsight] trait ScalaExprChainTypeHintsPass {
   }
 }
 
-private object ScalaExprChainTypeHintsPass {
-  private val ScalaExprChainKey = Key.create[Boolean]("SCALA_EXPR_CHAIN_KEY")
-  private val ScalaExprChainDisposableKey = Key.create[Disposable]("SCALA_EXPR_CHAIN_DISPOSABLE_KEY")
+private object ScalaMethodChainInlayHintsPass {
+  private val ScalaMethodChainKey = Key.create[Boolean]("SCALA_METHOD_CHAIN_KEY")
+  private val ScalaMethodChainDisposableKey = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
   private val typeHintsMenu = Some("TypeHintsMenu")
 
-  object ExprChain {
+  object MethodChain {
     def unapply(element: PsiElement): Option[Seq[ScExpression]] = {
       element match {
         case expr: ScExpression if isMostOuterExpression(expr) =>
@@ -237,12 +237,12 @@ private object ScalaExprChainTypeHintsPass {
           false,
           new AlignedInlayRenderer(line, hint.textParts)
         )
-        inlay.putUserData(ScalaExprChainKey, true)
+        inlay.putUserData(ScalaMethodChainKey, true)
         inlay
       }
 
     locally {
-      inlays.head.putUserData(ScalaExprChainDisposableKey, this)
+      inlays.head.putUserData(ScalaMethodChainDisposableKey, this)
     }
 
     private def recalculateGroupsOffsets(editor: Editor): Unit = {

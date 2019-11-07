@@ -14,7 +14,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.hints._
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaExprChainTypeHintsPass, ScalaTypeHintsPass}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaMethodChainInlayHintsPass, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false)
-    with ScalaTypeHintsPass with ScalaExprChainTypeHintsPass {
+    with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass {
 
   import annotator.hints._
 
@@ -43,7 +43,7 @@ private class ImplicitHintsPass(private val editor: Editor, private val rootElem
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       hints ++= collectTypeHints(editor, rootElement)
       collectConversionsAndArguments()
-      collectExpressionChainTypeHints(editor, rootElement)
+      collectMethodChainHints(editor, rootElement)
     }
   }
 
@@ -131,7 +131,7 @@ private class ImplicitHintsPass(private val editor: Editor, private val rootElem
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
       hints.foreach(inlayModel.add(_))
-      regenerateExprChainHints(myEditor, inlayModel, rootElement)
+      regenerateMethodChainHints(myEditor, inlayModel, rootElement)
     })
   }
 }

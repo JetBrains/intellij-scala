@@ -92,18 +92,18 @@ object ScalaTypeHintsConfigurable {
     ScalaCodeInsightSettings.showObviousTypeSetter
   )
 
-  class ToggleExpressionChainTypeAction extends ToogleTypeAction(
-    ScalaCodeInsightSettings.showExpressionChainTypeGetter,
-    ScalaCodeInsightSettings.showExpressionChainTypeSetter
+  class ToggleMethodChainInlayHintsAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.showMethodChainInlayHintsGetter(),
+    ScalaCodeInsightSettings.showMethodChainInlayHintsSetter()
   )
 
-  class ToggleAlignExpressionChainAction extends ToogleTypeAction(
-    ScalaCodeInsightSettings.alignExpressionChainGetter,
-    ScalaCodeInsightSettings.alignExpressionChainSetter
+  class ToggleAlignMethodChainInlayHintsAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.alignMethodChainInlayHintsGetter(),
+    ScalaCodeInsightSettings.alignMethodChainInlayHintsSetter()
   )
 
-  class ToggleHideIdenticalTypeInExpressionChainChainAction extends ToogleTypeAction(
-    ScalaCodeInsightSettings.hideIdenticalTypesInExpressionChainGetter,
-    ScalaCodeInsightSettings.hideIdenticalTypesInExpressionChainSetter
+  class ToggleHideIdenticalTypesInMethodChainsAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.hideIdenticalTypesInMethodChainsGetter(),
+    ScalaCodeInsightSettings.hideIdenticalTypesInMethodChainsSetter()
   )
 }
