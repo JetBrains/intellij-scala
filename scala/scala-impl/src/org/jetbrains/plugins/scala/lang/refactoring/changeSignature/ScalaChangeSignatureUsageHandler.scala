@@ -106,17 +106,20 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
 
     UsageUtil.returnType(change, usage).foreach { substType =>
-  
-      if (!change.isReturnTypeChanged)
+
+      if (!change.isReturnTypeChanged) {
         addTypeAnnotationOption.foreach { addTypeAnnotation =>
           if (addTypeAnnotation) {
-            if (oldTypeElem.isEmpty) addType(element, None, substType)
+            if (oldTypeElem.isEmpty) {
+              addType(element, None, substType)
+            }
           } else {
             oldTypeElem.foreach(AddOrRemoveStrategy.removeTypeAnnotation)
           }
         }
-      else
+      } else {
         addType(element, oldTypeElem, substType)
+      }
     }
   }
 

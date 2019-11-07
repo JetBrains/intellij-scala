@@ -5,6 +5,7 @@ package psi
 import java.{util => ju}
 
 import com.intellij.application.options.CodeStyle
+
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.java.JavaLanguage
@@ -1415,23 +1416,27 @@ object ScalaPsiUtil {
     addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
-  def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
+  def changeVisibility(member: ScModifierListOwner,
+                       @PsiModifier.ModifierConstant
+                       newVisibility: String): Unit = {
     implicit val projectContext: ProjectContext = member.projectContext
     val modifierList = member.getModifierList
-    if (newVisibility == "" || newVisibility == "public") {
-      modifierList.accessModifier.foreach(_.delete())
-      return
-    }
-    val newElem = createModifierFromText(newVisibility)
-    modifierList.accessModifier match {
-      case Some(mod) => mod.replace(newElem)
-      case None =>
-        if (modifierList.children.isEmpty) {
-          modifierList.add(newElem)
-        } else {
-          val mod = modifierList.getFirstChild
-          modifierList.addBefore(newElem, mod)
-          modifierList.addBefore(createWhitespace, mod)
+    newVisibility match {
+      case "" | PsiModifier.PUBLIC | PsiModifier.PACKAGE_LOCAL =>
+        modifierList.accessModifier.foreach(_.delete())
+      case _ =>
+        val newElem = createModifierFromText(newVisibility)
+        modifierList.accessModifier match {
+          case Some(mod) =>
+            mod.replace(newElem)
+          case None =>
+            if (modifierList.children.isEmpty) {
+              modifierList.add(newElem)
+            } else {
+              val mod = modifierList.getFirstChild
+              modifierList.addBefore(newElem, mod)
+              modifierList.addBefore(createWhitespace, mod)
+            }
         }
     }
   }

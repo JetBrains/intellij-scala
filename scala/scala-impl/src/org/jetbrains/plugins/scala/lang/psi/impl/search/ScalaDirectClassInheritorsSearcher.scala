@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
+package org.jetbrains.plugins.scala.lang
 package psi
 package impl
 package search
@@ -27,7 +26,8 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectClassInheritorsSearch.SearchParameters] {
-  def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[_ >: PsiClass]): Boolean = {
+
+  override def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[_ >: PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
 
     val scope = inReadAction {
@@ -79,9 +79,8 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
 
     for (candidate <- candidates if inReadAction { candidate.showAsInheritor }) {
       ProgressManager.checkCanceled()
-      if (inReadAction {
-        candidate.isInheritor(clazz, false)
-      }) add(candidate)
+      if (inReadAction(candidate.isInheritor(clazz, false)))
+        add(candidate)
     }
 
     if (map.nonEmpty) {
