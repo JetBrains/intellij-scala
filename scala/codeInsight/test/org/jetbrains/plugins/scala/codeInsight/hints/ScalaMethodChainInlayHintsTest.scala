@@ -44,8 +44,8 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
     s"""
        |val x = List(1, 2, 3)
        |  .toSet$S: Set[Int]$E
-       |  .filter(_ > 2)$S: Set[Int]$E
-       |  .toSeq$S: Seq[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
+       |  .toSeq$S: Seq[String]$E
        |  .toString + ""
      """.stripMargin
   )
@@ -75,7 +75,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
        |(List(1, 2, 3)
        |  .map(_ + "")$S: List[String]$E
        |  .toSet)$S: Set[String]$E
-       |  .toSet$S: Set[String]$E
+       |  .toSeq$S: Seq[String]$E
      """.stripMargin
   )
 
@@ -180,14 +180,14 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
        |    def ccc: CCC = new CCC
        |  }
        |  class CCC {
-       |    def bbb: BBB = new BBB
+       |    def a: A = new A
        |  }
        |  def newB: BBB = new BBB
        |
        |  val b =
        |    (new BBB)$S: BBB$E
        |      .ccc$S: CCC$E
-       |      .bbb$S: BBB$E
+       |      .a$S: A$E
        |}
        |""".stripMargin
   )

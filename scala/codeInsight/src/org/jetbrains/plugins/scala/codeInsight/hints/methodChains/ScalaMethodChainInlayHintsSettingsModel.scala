@@ -19,6 +19,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
     private val global = ScalaCodeInsightSettings.getInstance()
     var alignMethodChainInlayHints: Boolean = _
     var hideIdenticalTypesInMethodChains: Boolean = _
+    var uniqueTypesToShowMethodChains: Int = _
 
     reset()
 
@@ -26,18 +27,21 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
       setEnabled(global.showMethodChainInlayHints)
       alignMethodChainInlayHints = global.alignMethodChainInlayHints
       hideIdenticalTypesInMethodChains = global.hideIdenticalTypesInMethodChains
+      uniqueTypesToShowMethodChains = global.uniqueTypesToShowMethodChains
     }
 
     def apply(): Unit = {
       global.showMethodChainInlayHints = isEnabled
       global.alignMethodChainInlayHints = alignMethodChainInlayHints
       global.hideIdenticalTypesInMethodChains = hideIdenticalTypesInMethodChains
+      global.uniqueTypesToShowMethodChains = uniqueTypesToShowMethodChains
     }
 
     def isModified: Boolean =
       global.showMethodChainInlayHints != isEnabled ||
         global.alignMethodChainInlayHints != alignMethodChainInlayHints ||
-        global.hideIdenticalTypesInMethodChains != hideIdenticalTypesInMethodChains
+        global.hideIdenticalTypesInMethodChains != hideIdenticalTypesInMethodChains ||
+        global.uniqueTypesToShowMethodChains != uniqueTypesToShowMethodChains
   }
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
@@ -62,7 +66,14 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
       null)
   ).asJava
 
-  override def getComponent: JComponent = null
+  private val settingsPanel = new ScalaMethodChainInlaySettingsPanel(
+    () => settings.uniqueTypesToShowMethodChains,
+    i => {
+      settings.uniqueTypesToShowMethodChains = i
+      getOnChangeListener.settingsChanged()
+    }
+  )
+  override def getComponent: JComponent = settingsPanel.getPanel
 
   override def getMainCheckBoxLabel: String = "Show method chain hints"
 
@@ -70,6 +81,12 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   override def getPreviewText: String =
     """
+      |Seq(1, 2, 3).foreach(println)
+      |
+      |Seq(1, 2, 3)
+      |  .map(_.toString)
+      |  .toSet
+      |
       |val str = Seq(1, 2)
       |  .map(_.toDouble)
       |  .filter(_ > 0.0)
@@ -81,6 +98,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
       |  .groupBy(_.toLower)
       |  .mapValues("chars: " + _.mkString(", "))
       |  .values
+      |  .toSeq
       |""".stripMargin
 
   override def apply(): Unit = {
@@ -93,7 +111,9 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
     protected override def showMethodChainInlayHints: Boolean = isEnabled
     override protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
+    override protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
   }
+
   override def collectAndApply(editor: Editor, psiFile: PsiFile): Unit = {
     previewPass.collectMethodChainHints(editor, psiFile)
     previewPass.regenerateMethodChainHints(editor, editor.getInlayModel, psiFile)
