@@ -16,7 +16,7 @@ import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Computable, Disposer, Ref, TextRange, ThrowableComputable}
+import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -645,8 +645,8 @@ package object extensions {
       @tailrec
       def inner(el: PsiElement): Boolean = el match {
         case null => false
-        case Whitespace(ws) =>
-          if (ws.contains("\n")) true
+        case ws: PsiWhiteSpace =>
+          if (ws.textContains('\n')) true
           else inner(PsiTreeUtil.nextLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.nextLeaf(el))
