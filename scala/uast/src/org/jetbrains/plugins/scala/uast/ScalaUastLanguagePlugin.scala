@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package uast
 
-import com.intellij.lang.Language
+import com.intellij.lang.{DependentLanguage, Language}
 import com.intellij.openapi.application.{ApplicationManager, Experiments}
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
 import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
@@ -131,7 +131,7 @@ object ScalaUastLanguagePlugin {
     ApplicationManager.getApplication.isUnitTestMode ||
       Experiments.getInstance().isFeatureEnabled("scala.uast.enabled")
 
-  private object DummyDialect extends Language(ScalaLanguage.INSTANCE, "DummyDialect")
+  private object DummyDialect extends Language(ScalaLanguage.INSTANCE, "DummyDialect") with DependentLanguage
 
   private def toClassTag(@Nullable requiredType: Class[_ <: UElement]) =
     reflect.ClassTag[UElement](if (requiredType == null) classOf[UElement] else requiredType)
