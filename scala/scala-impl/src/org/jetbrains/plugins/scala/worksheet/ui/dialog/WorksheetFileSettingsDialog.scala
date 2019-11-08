@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.ui.dialog
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
@@ -20,6 +21,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   override def doOKAction(): Unit = {
     applyFileSettings(myPanel.getFileSettings)
     applyDefaultSettings(myPanel.getDefaultSettings)
+    DaemonCodeAnalyzer.getInstance(worksheetFile.getProject).restart(worksheetFile)
     super.doOKAction()
   }
   
