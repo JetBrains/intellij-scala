@@ -282,12 +282,6 @@
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
         </action>
 
-        <action id="Scala.ToggleMethodChainInlayHints"
-                class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction"
-                text="Show Method Chain Inlay Hints">
-            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ExpandImplicits"/>
-        </action>
-
 
 
 
@@ -327,11 +321,13 @@
                     class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"
                     text="Type mismatch hints"/>
             <separator />
-            <reference ref="Scala.ToggleMethodChainInlayHints" />
+
+            <action id="Scala.ToggleMethodChainInlayHints"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction"
+                    text="Show method chain inlay hints" />
             <action id="Scala.ToggleAlignMethodChainInlayHints"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleAlignMethodChainInlayHintsAction"
                     text="Align method chain inlay hints"/>
-
             <action id="Scala.ToggleHideIdenticalTypesInMethodChains"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleHideIdenticalTypesInMethodChainsAction"
                     text="Hide identical types in method chains"/>
