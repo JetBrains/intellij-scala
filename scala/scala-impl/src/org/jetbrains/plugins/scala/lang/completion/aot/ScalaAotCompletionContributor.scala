@@ -148,8 +148,8 @@ object ScalaAotCompletionContributor {
       ScalaPsiElementFactory.createParamClausesWithContext(text.parenthesize(), context, child)
         .params.head
 
-    override protected def findTypeElement(parameter: ScParameter): Option[ScParameterType] =
-      parameter.paramType
+    override protected def findTypeElement(parameter: ScParameter): Option[ScTypeElement] =
+      parameter.paramType.map(_.typeElement)
   }
 
 }

@@ -7,6 +7,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private[completion] trait CompletionProvider[E <: ScalaPsiElement] extends DelegatingCompletionProvider[E] {
@@ -32,7 +33,7 @@ private[completion] trait CompletionProvider[E <: ScalaPsiElement] extends Deleg
     case _ =>
   }
 
-  protected def findTypeElement(element: E): Option[ScalaPsiElement]
+  protected def findTypeElement(element: E): Option[ScTypeElement]
 
   protected def findContext(element: E): PsiElement = element.getContext.getContext
 
