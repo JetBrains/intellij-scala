@@ -112,6 +112,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
     override protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
     override protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
+    override protected def showObviousTypes: Boolean = true // always show obvious types in the preview
   }
 
   override def collectAndApply(editor: Editor, psiFile: PsiFile): Unit = {
