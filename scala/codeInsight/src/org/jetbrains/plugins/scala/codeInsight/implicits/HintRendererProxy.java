@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits;
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.Inlay;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -18,14 +19,21 @@ abstract class HintRendererProxy extends HintRenderer {
         super(text);
     }
 
+    public abstract int calcWidthInPixels0(@NotNull Editor editor);
+
+    public abstract void paint0(@NotNull Editor editor, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes);
+
+    @Nullable
+    public abstract String getContextMenuGroupId0();
+
     @Override
     public int calcWidthInPixels(@NotNull Inlay inlay) {
-        return calcWidthInPixels(inlay.getEditor());
+        return calcWidthInPixels0(inlay.getEditor());
     }
 
     @Override
     public void paint(@NotNull Inlay inlay, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes) {
-        paint(inlay.getEditor(), g, r, textAttributes);
+        paint0(inlay.getEditor(), g, r, textAttributes);
     }
 
     @Nullable

@@ -18,20 +18,20 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
 
   private val originalParts = parts
 
-  override def getContextMenuGroupId: String = menu.orNull
+  override def getContextMenuGroupId0: String = menu.orNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
 
   protected def getPadding(editor: Editor): Insets = DefaultPadding
 
-  override protected def calcWidthInPixels(editor: Editor): Int = {
+  override protected def calcWidthInPixels0(editor: Editor): Int = {
     val m = getMargin(editor)
     val p = getPadding(editor)
     val metrics = getFontMetrics0(editor).getMetrics
     metrics.stringWidth(getText) + m.left + p.left + p.right + m.right
   }
 
-  override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
+  override def paint0(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
     if (!editor.isInstanceOf[EditorImpl]) return
     val editorImpl = editor.asInstanceOf[EditorImpl]
 
@@ -194,3 +194,25 @@ private object TextPartsHintRenderer {
   private final val ExpansionLevel = 5
 }
 
+class long_expression_chains {
+  val votes = Seq(("scala", 1), ("java", 4), ("scala", 10), ("scala", 1), ("python", 10))
+  val orderedVotes = votes
+    .groupBy(_._1)
+    .map { case (which, counts) =>
+      (which, counts.foldLeft(0)(_ + _._2))
+    }.toSeq
+    .sortBy(_._2)
+    .reverse
+}
+class twitter_sample {
+  val votes = Seq(("scala", 1), ("java", 4), ("scala", 10), ("scala", 1), ("python", 10))
+  val votesByLang = votes groupBy { case (lang, _) => lang }
+  val sumByLang = votesByLang map {
+    case (lang, counts) =>
+      val countsOnly = counts map { case (_, count) => count }
+      (lang, countsOnly.sum)
+  }
+  val orderedVotes = sumByLang.toSeq
+    .sortBy { case (_, count) => count }
+    .reverse
+}
