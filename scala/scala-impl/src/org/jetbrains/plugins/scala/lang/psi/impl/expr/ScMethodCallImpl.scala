@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   */
 class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScMethodCall {
 
-  def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
+  override def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 
-  def argumentExpressions: Seq[ScExpression] = if (args != null) args.exprs else Nil
+  override def argumentExpressions: Seq[ScExpression] = if (args != null) args.exprs else Nil
 
   override def getEffectiveInvokedExpr: ScExpression = {
     findChildByClassScala(classOf[ScExpression]) match {
