@@ -375,15 +375,6 @@ object ResolveUtils {
     processor
   }
 
-  def getPlacePackage(place: PsiElement): String = {
-    val pack: ScPackaging = getContextOfType(place, true, classOf[ScPackaging]) match {
-      case pack: ScPackaging => pack
-      case _ => null
-    }
-    if (pack == null) return ""
-    pack.fullPackageName
-  }
-
   private def isInheritorOrSame(tp: ScType, cl: PsiClass): Boolean = tp match {
     case ScCompoundType(comps, _, _) =>
       comps.exists(isInheritorOrSame(_, cl))
