@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.openapi.util.Setter
-
-class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
+class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsSettingsTestHelper {
 
   import Hint.{End => E, Start => S}
-  import ScalaCodeInsightSettings.{getInstance => settings}
 
   def testChain(): Unit = doTest(
     s"""
@@ -140,7 +137,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
        |  .toSet
        |  .toString
      """.stripMargin,
-    options = settings.showMethodChainInlayHintsSetter() -> false
+    settings = showMethodChainInlayHintsSetting(false)
   )
 
   def testBoringChainHasNoHints(): Unit = doTest(
@@ -202,15 +199,11 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
      """.stripMargin
   )
 
-  private def doTest(text: String, options: (Setter[java.lang.Boolean], Boolean)*): Unit = {
-    def setOptions(reset: Boolean): Unit = options.foreach { case (opt, value) => opt.set(if(reset) !value else value) }
+  private def doTest(text: String, settings: Setting[_]*): Unit = {
+    val allSettings = showObviousTypeSetting(true) +: settings
 
-    try {
-      setOptions(false)
-
+    withSettings(allSettings) {
       doInlayTest(text)
-    } finally {
-      setOptions(true)
     }
   }
 }
