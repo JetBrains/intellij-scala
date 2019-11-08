@@ -659,8 +659,6 @@
 
         <patterns.patternClass className="org.jetbrains.plugins.scala.patterns.ScalaPatterns" alias="scala"/>
 
-        <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.internal.ScalaInternalInspectionsProvider"/>
-
         <!-- inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.infiniteCycle.LoopVariableNotUpdatedInspection"
                          displayName="Loop variable not updated inside loop" groupPath="Scala" groupName="General" shortName="LoopVariableNotUpdated" id="LoopVariableNotUpdatedInspection" level="WARNING"
@@ -856,10 +854,15 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection"
                          displayName="Unnecessary Partial Function" groupPath="Scala" groupName="General" shortName="UnnecessaryPartialFunction"
                          id="UnnecessaryPartialFunction" level="WARNING" enabledByDefault="true" language="Scala"/>
+
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection"
-                        displayName="Annotator Based Error Inspection" groupPath="Scala" groupName="Internal" isInternal="true"
-                        shortName="AnnotatorBasedErrorInspection" level="ERROR"
-                        enabledByDefault="false" language="Scala"/>
+                         displayName="Annotator based error inspection"
+                         language="Scala" groupPath="Scala" groupName="Internal"
+                         isInternal="true" level="ERROR" enabledByDefault="false" />
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaWrongPlatformMethodsUsageInspection"
+                         displayName="Wrong platform method usage"
+                         language="Scala" groupPath="Scala" groupName="Internal"
+                         isInternal="true" level="WARNING" enabledByDefault="true" />
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection"
                          displayName="Scala bundled inspections runner" groupPath="Scala" groupName="General"

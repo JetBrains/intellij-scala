@@ -20,12 +20,6 @@ final class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
   import AnnotatorBasedErrorInspection._
 
-  override def getGroupDisplayName: String = "Internal"
-
-  override def getGroupPath: Array[String] = Array("Scala", "Internal")
-
-  override def getDisplayName: String = "Annotator Based Error Inspection"
-
   //noinspection TypeAnnotation
   override def buildVisitor(holder: ProblemsHolder,
                             isOnTheFly: Boolean) = new PsiElementVisitor {

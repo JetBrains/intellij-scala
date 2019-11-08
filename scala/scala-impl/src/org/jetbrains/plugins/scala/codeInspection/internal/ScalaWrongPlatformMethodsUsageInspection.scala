@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
@@ -14,28 +12,20 @@ import scala.collection.mutable
 
 
 /**
-  * @author Alefas
-  * @since 02.04.12
-  */
-
-class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
-  override def isEnabledByDefault: Boolean = true
-
-  override def getID: String = "ScalaWrongMethodsUsage"
-
-  override def getGroupDisplayName: String = "Internal"
-
-  override def getGroupPath: Array[String] = Array("Scala", "Internal")
-
-  override def getDefaultLevel: HighlightDisplayLevel = HighlightDisplayLevel.WARNING
-
-  override def getDisplayName: String = "Wrong method usage"
+ * @author Alefas
+ * @since 02.04.12
+ *
+ * TODO 1: refactor and add method that SHOULD be used instead of deprecated
+ * TODO 2: move to DevKit module
+ */
+class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
     new ScalaElementVisitor {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         val resolve = ref.resolve()
+
         val map = new mutable.HashMap[String, Seq[String]]()
         map += (("getContainingClass", Seq("com.intellij.psi.PsiMember")))
         map += (("getQualifiedName", Seq("com.intellij.psi.PsiClass")))
@@ -43,6 +33,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
         map += (("getClasses", Seq("com.intellij.psi.PsiClassOwner")))
         map += (("getClassNames", Seq("com.intellij.psi.PsiClassOwnerEx")))
         map += (("hasModifierProperty", Seq("com.intellij.psi.PsiModifierListOwner")))
+
         resolve match {
           case m: PsiMethod =>
             map.get(m.name) match {
