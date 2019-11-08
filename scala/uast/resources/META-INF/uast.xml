@@ -8,7 +8,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <experimentalFeature id="scala.uast.enabled" percentOfUsers="0" requireRestart="true">
+        <experimentalFeature id="scala.uast.enabled" percentOfUsers="100" requireRestart="true">
             <description>Enables UAST support for Scala</description>
         </experimentalFeature>
     </extensions>
