@@ -13,7 +13,7 @@ import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.shell.{ILoop, ReplReporterImpl, ShellConfig}
 import scala.tools.nsc.interpreter.{IMain, Results}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * ATTENTION: when editing ensure to increase the ILoopWrapperFactoryHandler.WRAPPER_VERSION
@@ -22,9 +22,7 @@ class ILoopWrapper213_0Impl(
   myOut: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,
   projectFullCp: java.util.List[String]
-) extends  {
-  val myConfig = new DummyConfig
-} with ILoop(myConfig, out = myOut)
+) extends ILoop(new DummyConfig, out = myOut)
   with ILoopWrapper {
 
   override def init(): Unit = {
@@ -39,11 +37,10 @@ class ILoopWrapper213_0Impl(
     val itp = intp.asInstanceOf[IMain]
     itp.initializeCompiler()
     itp.quietBind(new Typed[IMain]("$intp", itp)(tagOfIMain, classTag[IMain]))
-    itp.setContextClassLoader()
   }
 
   override def createInterpreter(interpreterSettings: Settings): Unit = {
-    val reporter = new ReplReporterImpl(myConfig, interpreterSettings, out) {
+    val reporter = new ReplReporterImpl(new DummyConfig, interpreterSettings, out) {
       override def print(pos: Position, msg: String, severity: Severity): Unit =
         wrapperReporter.report(severity.toString, pos.line, pos.column, pos.lineContent, msg)
     }
