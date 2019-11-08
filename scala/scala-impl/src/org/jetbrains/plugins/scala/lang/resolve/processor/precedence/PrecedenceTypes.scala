@@ -13,17 +13,19 @@ object PrecedenceTypes {
   val WILDCARD_IMPORT_PACKAGE: Int = 5
   val IMPORT_PACKAGE: Int          = 6
 
-  val WILDCARD_IMPORT_TOP: Int     = 7
-  val IMPORT_TOP: Int              = 8
+  val PACKAGING: Int               = 7
+
+  val WILDCARD_IMPORT_TOP: Int     = 8
+  val IMPORT_TOP: Int              = 9
 
   //declarations available by packaging clause, but in another file
-  val PACKAGE_LOCAL: Int           = 9
+  val SAME_PACKAGE: Int            = 10
 
-  val WILDCARD_IMPORT: Int         = 10
-  val IMPORT: Int                  = 11
+  val WILDCARD_IMPORT: Int         = 11
+  val IMPORT: Int                  = 12
 
   //declarations that are local, inherited, or in the same file and available by packaging clause
-  val OTHER_MEMBERS: Int           = 12
+  val OTHER_MEMBERS: Int           = 13
 
   def importPrecedence(place: PsiElement)
                       (isPackage: Boolean, isWildcard: Boolean, isTopLevel: Boolean): Int = {
