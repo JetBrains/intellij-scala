@@ -192,6 +192,16 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase {
        |""".stripMargin
   )
 
+  def testWithTypeMismatch(): Unit = doTest(
+    s"""
+       |val i: Int = List(1, 2, 3)
+       |  .toSet$S: Set[Int]$E
+       |  .filter(_ > 2)$S: Set[Int]$E
+       |  .toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
   private def doTest(text: String, options: (Setter[java.lang.Boolean], Boolean)*): Unit = {
     def setOptions(reset: Boolean): Unit = options.foreach { case (opt, value) => opt.set(if(reset) !value else value) }
 

@@ -7,9 +7,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.util.{Disposer, Key}
+import com.intellij.openapi.util.{Disposer, Key, TextRange}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.codeInsight.hints.textPartsOf
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.settings.annotations.Expression
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-
 import ScalaMethodChainInlayHintsPass._
 
 private[codeInsight] trait ScalaMethodChainInlayHintsPass {
@@ -82,6 +81,16 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       }
 
     assert(collectedHintTemplates.forall(_.nonEmpty))
+
+    // don't show inlay behind the outer most expression when it has an error
+    val hintTemplates = collectedHintTemplates
+      .map { tmpls =>
+        val outermostExpr = tmpls.last.expr
+        if (AnnotatorHints.in(outermostExpr).isEmpty) tmpls
+        else tmpls.init
+      }
+      .filter(_.nonEmpty)
+
     val document = editor.getDocument
     val charWidth = editor
       .getComponent
@@ -93,13 +102,13 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       // so we create normal inline elements here
       // this is ok to test the recognition of method chain inlay hints
       // there is no need to unit test the other alternatives because they need ui tests anyway
-      for (hints <- collectedHintTemplates; hint <- hints) {
+      for (hints <- hintTemplates; hint <- hints) {
         inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
       }
     } else if (alignMethodChainInlayHints) {
-      collectedHintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
+      hintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
     } else {
-      for (hints <- collectedHintTemplates; hint <- hints) {
+      for (hints <- hintTemplates; hint <- hints) {
         val inlay = inlayModel.addAfterLineEndElement(
           hint.expr.endOffset,
           false,
