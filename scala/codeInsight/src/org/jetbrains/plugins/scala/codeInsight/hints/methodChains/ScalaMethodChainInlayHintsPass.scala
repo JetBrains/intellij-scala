@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
+package org.jetbrains.plugins.scala.codeInsight.hints
+package methodChains
 
 import java.awt.{Graphics, Insets, Rectangle}
 
@@ -7,11 +8,11 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.util.{Disposer, Key, TextRange}
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
-import org.jetbrains.plugins.scala.codeInsight.hints.textPartsOf
+import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -21,7 +22,6 @@ import org.jetbrains.plugins.scala.settings.annotations.Expression
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import ScalaMethodChainInlayHintsPass._
 
 private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
@@ -31,6 +31,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
   protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
   protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
   protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
+  protected def showObviousTypes: Boolean = settings.showObviousType
 
   private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
 
@@ -49,19 +50,25 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
             if (Expression(methodsAtLineEnd.head).hasStableType) methodsAtLineEnd.tail
             else methodsAtLineEnd
 
-          types = methods
-            .map(m => m.`type`())
+          methodAndTypes = methods
+            .map(m => m -> m.`type`())
             .takeWhile {
-              _.isRight
+              _._2.isRight
             }
-            .map(_.right.get.tryExtractDesignatorSingleton)
-          if types.map(_.presentableText(methodChain.head)).toSet.size >= uniqueTypesToShowMethodChains
+            .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
 
-          exprsAndTypes =
-            if (!hideIdenticalTypesInMethodChains) methods.zip(types)
-            else removeConsecutiveDuplicates(methods.zip(types))
+          methodAnyTypesWithoutDuplicates =
+            if (!hideIdenticalTypesInMethodChains) methodAndTypes
+            else removeConsecutiveDuplicates(methodAndTypes)
+
+          methodAndTypesWithout =
+            if (showObviousTypes) methodAnyTypesWithoutDuplicates
+            else methodAnyTypesWithoutDuplicates.filterNot(hasObviousReturnType)
+
+          uniqueTypeCount = methodAndTypesWithout.map { case (m, ty) => ty.presentableText(m) }.toSet.size
+          if uniqueTypeCount >= uniqueTypesToShowMethodChains
         } yield {
-          for ((expr, ty) <- exprsAndTypes)
+          for ((expr, ty) <- methodAndTypesWithout)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
         }
       ).toList
@@ -165,7 +172,7 @@ private object ScalaMethodChainInlayHintsPass {
     private object ChainCall {
       def unapply(element: PsiElement): Option[ScExpression] = element match {
         case ScReferenceExpression.withQualifier(inner) => Some(inner)
-        case MethodInvocation(inner, _) => Some(inner)
+        case invoc: MethodInvocation => Some(invoc.getEffectiveInvokedExpr)
         case ScParenthesisedExpr(inner) => Some(inner)
         case _ => None
       }
@@ -204,6 +211,19 @@ private object ScalaMethodChainInlayHintsPass {
       case _ =>
         false
     }
+  }
+
+  def hasObviousReturnType(methodAndTypes: (ScExpression, ScType)): Boolean = {
+    @tailrec
+    def methodName(expr: ScExpression): String = expr match {
+      case ref: ScReferenceExpression => ref.refName
+      case invoc: MethodInvocation => methodName(invoc.getEffectiveInvokedExpr)
+      case ScParenthesisedExpr(inner) => methodName(inner)
+      case _ => ""
+    }
+
+    val (expr, ty) = methodAndTypes
+    isTypeObvious("", ty.presentableText(expr), methodName(expr))
   }
 
   private def removeConsecutiveDuplicates(exprsWithTypes: Seq[(ScExpression, ScType)]): Seq[(ScExpression, ScType)] =
