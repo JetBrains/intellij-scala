@@ -12,6 +12,7 @@ import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
@@ -158,7 +159,7 @@ object CaseClauseCompletionContributor {
 
   private final object AotCompletionProvider extends aot.CompletionProvider[ScTypedPattern] {
 
-    override protected def findTypeElement(pattern: ScTypedPattern): Option[ScalaPsiElement] =
+    override protected def findTypeElement(pattern: ScTypedPattern): Option[ScTypeElement] =
       pattern.typePattern.map(_.typeElement)
 
     override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): aot.Consumer = new aot.TypedConsumer(resultSet)
