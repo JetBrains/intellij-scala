@@ -151,13 +151,13 @@ class ScalaResolveResult(val element: PsiNamedElement,
       return None
 
     //noinspection ScalaWrongMethodsUsage
-    qualifier(clazz.getQualifiedName)
+    Some(qualifier(clazz.getQualifiedName))
   }
 
-  private def qualifier(fqn: String): Option[String] = {
+  private def qualifier(fqn: String): String = {
     val lastDot = Option(fqn).map(_.lastIndexOf('.'))
 
-    lastDot.filter(_ > 0).map(fqn.substring(0, _))
+    lastDot.filter(_ > 0).map(fqn.substring(0, _)).getOrElse("")
   }
 
 
@@ -169,21 +169,23 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
     def getPackagePrecedence(packageFqn: String): Int = {
       qualifier(packageFqn) match {
-        case Some("java.lang") => JAVA_LANG
-        case Some("scala") => SCALA
-        case _ => PACKAGE_LOCAL_PACKAGE
+        case "java.lang" => JAVA_LANG
+        case "scala"     => SCALA
+        case _           => PACKAGE_LOCAL_PACKAGE
       }
     }
 
     def getClazzPrecedence(clazz: PsiClass): Int = {
       containingPackageName(clazz) match {
         case Some("java.lang") => JAVA_LANG
-        case Some("scala") => SCALA
-        case _ =>
+        case Some("scala")     => SCALA
+        case None              => OTHER_MEMBERS //is local or inherited
+        case Some(pckg)        =>
           val sameFile = ScalaPsiUtil.fileContext(clazz) == ScalaPsiUtil.fileContext(place)
 
           if (sameFile) OTHER_MEMBERS
-          else PACKAGE_LOCAL
+          else if (pckg == placePackageName) SAME_PACKAGE
+          else PACKAGING
       }
     }
 
@@ -219,7 +221,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                       val packageSuffix: String = ".`package`"
                       if (q.endsWith(packageSuffix)) q = q.substring(0, q.length - packageSuffix.length)
                       if (q == placePackageName) return OTHER_MEMBERS
-                      else return PACKAGE_LOCAL
+                      else return PACKAGING
                     case _ => return OTHER_MEMBERS
                   }
               }
