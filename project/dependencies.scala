@@ -13,7 +13,6 @@ object Versions {
   val sbtIdeaCompilerIndicesVersion = "0.1.3"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M11"
-  val scalazVersion = "7.1.0"
 
   object Scala {
     val binary_2_9 = "2.9.2"
