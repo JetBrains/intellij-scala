@@ -122,5 +122,8 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   override def isModified: Boolean = settings.isModified
 
-  override def reset(): Unit = ()
+  override def reset(): Unit = {
+    settings.reset()
+    settingsPanel.reset()
+  }
 }

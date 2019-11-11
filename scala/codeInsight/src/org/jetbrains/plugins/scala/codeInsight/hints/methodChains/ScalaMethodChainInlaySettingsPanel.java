@@ -12,20 +12,26 @@ import java.util.function.Supplier;
 public class ScalaMethodChainInlaySettingsPanel {
     private JPanel panel;
     private JSpinner typeCountSpinner;
-    private SpinnerNumberModel typeCountModel;
+    private final SpinnerNumberModel typeCountModel;
+    private final Supplier<Integer> typeCountGetter;
 
     public ScalaMethodChainInlaySettingsPanel(Supplier<Integer> typeCountGetter, Consumer<Integer> typeCountSetter) {
+        this.typeCountGetter = typeCountGetter;
         typeCountModel = new SpinnerNumberModel();
         $$$setupUI$$$();
         typeCountModel.setMinimum(1);
         typeCountModel.setMaximum(500);
         typeCountModel.setStepSize(1);
-        typeCountModel.setValue(typeCountGetter.get());
+        reset();
         typeCountModel.addChangeListener((e) -> typeCountSetter.accept(typeCountModel.getNumber().intValue()));
     }
 
     public JPanel getPanel() {
         return panel;
+    }
+
+    public void reset() {
+        typeCountModel.setValue(typeCountGetter.get());
     }
 
     private void createUIComponents() {
