@@ -69,7 +69,6 @@ abstract class WorksheetIntegrationBaseTest
     ScalaProjectSettings.getInstance(project).setInProcessMode(self.runInCompileServerProcess)
 
     if (useCompileServer) {
-      println("initializing compiler server")
       val result = CompileServerLauncher.ensureServerRunning(project)
       assertTrue("compile server is expected to be running", result)
     }
