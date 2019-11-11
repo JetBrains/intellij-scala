@@ -61,16 +61,20 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
             if (!hideIdenticalTypesInMethodChains) methodAndTypes
             else removeConsecutiveDuplicates(methodAndTypes)
 
-          methodAndTypesWithout =
+          methodAndTypesWithoutObviousReturns =
             if (showObviousTypes || alignMethodChainInlayHints) methodAnyTypesWithoutDuplicates
             else methodAnyTypesWithoutDuplicates.filterNot(hasObviousReturnType)
 
-          if methodAndTypesWithout.length >= 2
+          methodsWithoutLast =
+            if (alignMethodChainInlayHints || methodAndTypesWithoutObviousReturns.last._1 != methodChain.last) methodAndTypesWithoutObviousReturns
+            else methodAndTypesWithoutObviousReturns.init
 
-          uniqueTypeCount = methodAndTypesWithout.map { case (m, ty) => ty.presentableText(m) }.toSet.size
+          if methodsWithoutLast.length >= 2
+
+          uniqueTypeCount = methodsWithoutLast.map { case (m, ty) => ty.presentableText(m) }.toSet.size
           if uniqueTypeCount >= uniqueTypesToShowMethodChains
         } yield {
-          for ((expr, ty) <- methodAndTypesWithout)
+          for ((expr, ty) <- methodsWithoutLast)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
         }
       ).toList
