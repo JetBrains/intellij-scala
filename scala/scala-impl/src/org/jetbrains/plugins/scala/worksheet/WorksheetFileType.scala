@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.lang.psi.ScFileViewProvider
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 //noinspection TypeAnnotation
@@ -26,13 +26,9 @@ object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE
       hasScratchRootType(file) && canBeTreatedAsWorksheet(file)
   }
 
-  // not using matching or isInstanceOf because we do not want all ScalaFileImpl inheritors to inherit this property
-  // NOTE: this is not the best decision if we want to extract worksheet module and only depend on Scala API
-  // But it a necessity in current state, when ScalaFileImpl is a base parent for other file types
-  // To workaround that we could probably create separate psi elements: ScalaFileBase and ScalaFile?
   private def canBeTreatedAsWorksheet(vFile: VirtualFile)(implicit project: Project): Boolean = {
     val psiFile = PsiManager.getInstance(project).findFile(vFile)
-    if (psiFile != null && psiFile.getClass == classOf[ScalaFileImpl]) {
+    if (psiFile != null && psiFile.getViewProvider.isInstanceOf[ScFileViewProvider]) {
       treatScratchFileAsWorksheet(project)
     } else {
       false
