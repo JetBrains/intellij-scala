@@ -25,11 +25,12 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
     file match {
       case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         if (file.isScriptFile) return null
+        if (file.isWorksheetFile) return null
         if (file.typeDefinitions.isEmpty) return null
 
         val dir = file.getContainingDirectory
         if (dir == null) return null
-        val pack = JavaDirectoryService.getInstance().getPackage(dir)
+        val pack = JavaDirectoryService.getInstance.getPackage(dir)
         if (pack == null) return null
 
         val packName = cleanKeywords(file.getPackageName)
@@ -41,7 +42,8 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
           manager.createProblemDescriptor(file, range,
             "Package names doesn't correspond to directories structure, this may cause " +
-                    "problems with resolve to classes from this file", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+              "problems with resolve to classes from this file",
+            ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
         }
 
