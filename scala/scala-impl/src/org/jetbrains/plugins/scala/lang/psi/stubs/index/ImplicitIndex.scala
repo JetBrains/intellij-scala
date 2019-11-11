@@ -4,12 +4,9 @@ package psi
 package stubs
 package index
 
-import java.{util => ju}
-
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
-import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -26,7 +23,7 @@ trait ImplicitIndex {
   def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
                  (implicit project: Project): collection.Set[ScMember] = {
     val stubIndex = StubIndex.getInstance
-    val collectProcessor = new CollectMembersProcessor
+    val collectProcessor = new extensions.CollectUniquesProcessorEx[ScMember]
 
     for {
       segments <- ScalaNamesUtil.splitName(qualifiedName).tails
@@ -43,17 +40,5 @@ trait ImplicitIndex {
     )
 
     collectProcessor.results
-  }
-
-  //noinspection TypeAnnotation
-  private final class CollectMembersProcessor extends CollectUniquesProcessor[ScMember] {
-
-    def results = {
-      import collection.JavaConverters._
-      getResults.asScala
-    }
-
-    override def getResults =
-      super.getResults.asInstanceOf[ju.Set[ScMember]]
   }
 }

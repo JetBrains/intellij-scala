@@ -15,9 +15,8 @@ import com.intellij.openapi.util.io.JarUtil._
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
-import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{CollectUniquesProcessorEx, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -105,13 +104,13 @@ package object project {
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
 
-    def libraries: Set[Library] = {
-      val collector = new CollectProcessor[Library]()
+    def libraries: collection.Set[Library] = {
+      val processor = new CollectUniquesProcessorEx[Library]()
       OrderEnumerator.orderEntries(module)
         .librariesOnly()
-        .forEachLibrary(collector)
+        .forEachLibrary(processor)
 
-      collector.getResults.asScala.toSet
+      processor.results
     }
 
     def sbtVersion: Option[Version] =

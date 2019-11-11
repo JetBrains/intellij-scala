@@ -4,8 +4,9 @@ import java.io.Closeable
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit}
+import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
+import java.util.{Arrays, Set => JSet}
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.Disposable
@@ -15,8 +16,8 @@ import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, W
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util._
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -25,6 +26,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
@@ -52,9 +54,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.{JavaConverters, Seq}
 import scala.concurrent.{Future, Promise}
 import scala.io.Source
 import scala.language.higherKinds
@@ -409,7 +411,6 @@ package object extensions {
 
   //noinspection ReferenceMustBePrefixed
   implicit class IntArrayExt(private val array: Array[Int]) extends AnyVal {
-    import java.util.Arrays
 
     def ===(other: Array[Int]): Boolean = Arrays.equals(array, other)
 
@@ -999,7 +1000,7 @@ package object extensions {
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
   }
 
-  implicit class ConcurrentMapExt[K, V](private val map: java.util.concurrent.ConcurrentMap[K, V]) extends AnyVal {
+  implicit class ConcurrentMapExt[K, V](private val map: JConcurrentMap[K, V]) extends AnyVal {
 
     //getOrElseUpdate in JConcurrentMapWrapper is not atomic!
     def atomicGetOrElseUpdate(key: K, update: => V): V = {
@@ -1096,7 +1097,7 @@ package object extensions {
     }
   }
 
-  def executeOnPooledThread[T](body: => T): java.util.concurrent.Future[T] =
+  def executeOnPooledThread[T](body: => T): JFuture[T] =
     ApplicationManager.getApplication.executeOnPooledThread(body)
 
   def scheduleOnPooledThread[T](time: Long, unit: TimeUnit)(body: => T): ScheduledFuture[T] =
@@ -1326,6 +1327,18 @@ package object extensions {
   def applyTo[T](v: T)(fs: (T => Any)*): T = {
     fs.foreach(_.apply(v))
     v
+  }
+
+  //noinspection TypeAnnotation
+  final class CollectUniquesProcessorEx[T] extends CollectUniquesProcessor[T] {
+
+    def results = {
+      import JavaConverters._
+      getResults.asScala
+    }
+
+    override def getResults =
+      super.getResults.asInstanceOf[JSet[T]]
   }
 
   val ChildOf: Parent.type = Parent
