@@ -65,6 +65,8 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
             if (showObviousTypes || alignMethodChainInlayHints) methodAnyTypesWithoutDuplicates
             else methodAnyTypesWithoutDuplicates.filterNot(hasObviousReturnType)
 
+          if methodAndTypesWithout.length >= 2
+
           uniqueTypeCount = methodAndTypesWithout.map { case (m, ty) => ty.presentableText(m) }.toSet.size
           if uniqueTypeCount >= uniqueTypesToShowMethodChains
         } yield {
