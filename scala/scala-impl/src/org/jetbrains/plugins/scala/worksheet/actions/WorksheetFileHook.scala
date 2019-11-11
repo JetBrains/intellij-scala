@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet
 package actions
 
-import java.lang.ref.WeakReference
 import java.{util => ju}
 
 import com.intellij.openapi.actionSystem.AnAction
@@ -16,6 +15,7 @@ import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.UIUtil
 import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetUiConstructor}
-import org.jetbrains.sbt.RichOption
 
 import scala.util.control.NonFatal
 
@@ -196,11 +195,11 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 object WorksheetFileHook {
 
   private val WorksheetHookActions: Seq[AnAction] = Array(WorksheetReplRunAction.ACTION_INSTANCE)
-  private val file2panel = new ju.WeakHashMap[VirtualFile, WeakReference[MyPanel]]()
+  private val file2panel = ContainerUtil.createWeakValueMap[VirtualFile, MyPanel]()
 
   private class MyPanel(file: VirtualFile) extends JPanel {
 
-    file2panel.put(file, new WeakReference[MyPanel](this))
+    file2panel.put(file, this)
 
     override def equals(obj: Any): Boolean = obj.isInstanceOf[MyPanel]
 
@@ -208,10 +207,10 @@ object WorksheetFileHook {
   }
 
   private def getAndRemovePanel(file: VirtualFile): Option[MyPanel] =
-    Option(file2panel.remove(file)).safeMap(_.get)
+    Option(file2panel.remove(file))
 
   private def getPanel(file: VirtualFile): Option[MyPanel] =
-    Option(file2panel.get(file)).safeMap(_.get)
+    Option(file2panel.get(file))
 
   private def plugWorksheetActions(file: VirtualFile, project: Project): Unit =
     inReadAction {
