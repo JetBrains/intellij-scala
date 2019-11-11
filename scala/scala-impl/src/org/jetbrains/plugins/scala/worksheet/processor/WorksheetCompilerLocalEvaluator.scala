@@ -94,7 +94,6 @@ private object WorksheetCompilerLocalEvaluator {
       }
 
       override def processTerminated(event: ProcessEvent): Unit = {
-        println(event)
         worksheetPrinter.flushBuffer()
         val result = event.getExitCode match {
           case 0  => WorksheetCompilerResult.CompiledAndEvaluated
