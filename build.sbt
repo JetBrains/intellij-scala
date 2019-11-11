@@ -7,7 +7,7 @@ import sbtide.Keys.ideSkipProject
 
 intellijPluginName in ThisBuild := "Scala"
 
-intellijBuild in ThisBuild := Versions.ideaVersion
+intellijBuild in ThisBuild := Versions.intellijVersion
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
@@ -34,7 +34,7 @@ lazy val scalaCommunity: sbt.Project =
       javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
+      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
