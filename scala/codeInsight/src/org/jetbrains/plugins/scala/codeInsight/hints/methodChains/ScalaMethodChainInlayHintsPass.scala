@@ -62,7 +62,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
             else removeConsecutiveDuplicates(methodAndTypes)
 
           methodAndTypesWithout =
-            if (showObviousTypes) methodAnyTypesWithoutDuplicates
+            if (showObviousTypes || alignMethodChainInlayHints) methodAnyTypesWithoutDuplicates
             else methodAnyTypesWithoutDuplicates.filterNot(hasObviousReturnType)
 
           uniqueTypeCount = methodAndTypesWithout.map { case (m, ty) => ty.presentableText(m) }.toSet.size
