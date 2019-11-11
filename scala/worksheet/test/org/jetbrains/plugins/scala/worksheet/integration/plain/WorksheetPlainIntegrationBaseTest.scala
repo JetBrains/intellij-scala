@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
-import org.jetbrains.plugins.scala.util.runners.{RunWishScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
@@ -18,7 +18,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 
   // with some health check runs
-  @RunWishScalaVersions(extra = Array(
+  @RunWithScalaVersions(extra = Array(
     TestScalaVersion.Scala_2_11_0,
     TestScalaVersion.Scala_2_12_0,
     TestScalaVersion.Scala_2_13_0,

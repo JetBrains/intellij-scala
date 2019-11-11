@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
-import org.jetbrains.plugins.scala.util.runners.{RunWishScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.PreconditionError
 import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
-@RunWishScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplCompileLocallyRunLocallyIntegrationTest extends WorksheetReplIntegrationBaseTest {
 

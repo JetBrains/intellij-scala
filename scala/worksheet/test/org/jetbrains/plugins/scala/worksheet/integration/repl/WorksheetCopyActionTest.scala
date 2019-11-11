@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category
 import scala.language.postfixOps
 
 // no need in exhaustive check
-@RunWishScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
 

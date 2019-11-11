@@ -21,7 +21,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_10
 
   // with some health check runs
-  @RunWishScalaVersions(extra = Array(
+  @RunWithScalaVersions(extra = Array(
     //TestScalaVersion.Scala_2_10_0
     TestScalaVersion.Scala_2_11_0,
     TestScalaVersion.Scala_2_12_0,

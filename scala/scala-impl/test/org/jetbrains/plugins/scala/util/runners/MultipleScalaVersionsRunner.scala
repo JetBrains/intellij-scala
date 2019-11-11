@@ -84,7 +84,7 @@ private object MultipleScalaVersionsRunner {
   }
 
   private def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[ScalaVersion] = {
-    val annotation = findAnnotation(klass, classOf[RunWishScalaVersions])
+    val annotation = findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
       .map(_.value.map(_.toProductionVersion).toSeq)
       .getOrElse(DefaultRunScalaVersionsToRun)

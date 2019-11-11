@@ -96,7 +96,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase], classScalaVer
   }
 
   private def methodEffectiveScalaVersions(method: Method, classVersions: Seq[ScalaVersion]): Seq[ScalaVersion] =
-    method.getAnnotation(classOf[RunWishScalaVersions]) match {
+    method.getAnnotation(classOf[RunWithScalaVersions]) match {
       case null =>
         classScalaVersion
       case annotation =>
