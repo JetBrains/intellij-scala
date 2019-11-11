@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWishScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -27,7 +27,7 @@ import scala.language.postfixOps
   TODO 4: test Repl iterative evaluation
   TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
 */
-@RunWishScalaVersions(Array(
+@RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,

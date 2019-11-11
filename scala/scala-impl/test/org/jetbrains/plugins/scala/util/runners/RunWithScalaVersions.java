@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
-public @interface RunWishScalaVersions {
+public @interface RunWithScalaVersions {
 
     TestScalaVersion[] value() default {};
     TestScalaVersion[] extra() default {};
