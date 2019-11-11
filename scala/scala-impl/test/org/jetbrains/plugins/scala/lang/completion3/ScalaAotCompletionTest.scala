@@ -131,15 +131,13 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
 
   def testLambdaParameter(): Unit = doAotCompletionTest(
     fileText =
-      s"""Seq(42).foreach { i$CARET =>
-         |}
-       """.stripMargin,
+      s"""List.empty[String].foreach { s$CARET =>
+         |}""".stripMargin,
     resultText =
-      s"""Seq(42).foreach { int$CARET =>
-         |}
-       """.stripMargin,
-    lookupString = "Int",
-    itemText = "int",
+      s"""List.empty[String].foreach { string$CARET =>
+         |}""".stripMargin,
+    lookupString = "String",
+    itemText = "string",
     tailText = null
   )
 
