@@ -8,63 +8,55 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
-import scala.collection.mutable
-
 
 /**
  * @author Alefas
  * @since 02.04.12
  *
- * TODO 1: refactor and add method that SHOULD be used instead of deprecated
- * TODO 2: move to DevKit module
+ * TODO: move to DevKit module
  */
 class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
 
+  import ScalaWrongPlatformMethodsUsageInspection._
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
+
     new ScalaElementVisitor {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         val resolve = ref.resolve()
 
-        val map = new mutable.HashMap[String, Seq[String]]()
-        map += (("getContainingClass", Seq("com.intellij.psi.PsiMember")))
-        map += (("getQualifiedName", Seq("com.intellij.psi.PsiClass")))
-        map += (("getName", Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement")))
-        map += (("getClasses", Seq("com.intellij.psi.PsiClassOwner")))
-        map += (("getClassNames", Seq("com.intellij.psi.PsiClassOwnerEx")))
-        map += (("hasModifierProperty", Seq("com.intellij.psi.PsiModifierListOwner")))
-
         resolve match {
           case m: PsiMethod =>
-            map.get(m.name) match {
-              case Some(classes) =>
+            methodNameToClasses.get(m.name) match {
+              case Some((classes, properMethod)) =>
                 val containingClass = m.containingClass
-                classes.find {
-                  case clazz =>
-                    val instance = ScalaPsiManager.instance(holder.getProject)
-                    val cachedClass = instance.getCachedClass(m.resolveScope, clazz).orNull
-                    if (cachedClass != null && containingClass != null) {
-                      if (cachedClass.sameOrInheritor(containingClass)) {
-                        true
-                      } else false
-                    } else false
-                } match {
+                val fondClass = classes.find { clazz =>
+                  val instance = ScalaPsiManager.instance(holder.getProject)
+                  val cachedClass = instance.getCachedClass(m.resolveScope, clazz).orNull
+                  cachedClass != null && containingClass != null &&
+                    cachedClass.sameOrInheritor(containingClass)
+                }
+                fondClass match {
                   case Some(_) =>
-                    var parent: PsiElement = ref.getParent
-                    while (parent != null) {
-                      parent match {
-                        case f: ScDocCommentOwner =>
-                          f.docComment match {
-                            case Some(d) => if (d.getText.contains("for Java only")) return
-                            case _ =>
-                          }
-                        case _ =>
+                    val isForJavaOnly = ref.parents.find(_.isInstanceOf[ScDocCommentOwner])
+                      .flatMap(_.asInstanceOf[ScDocCommentOwner].docComment)
+                      .exists(_.getText.contains("for Java only"))
+
+                    if (!isForJavaOnly) {
+                      val properMethodText = properMethod match {
+                        case Some(m) => "\n" + s"""Proper scala method: <a href="psi_element://$m">$m</a>""".stripMargin
+                        case None    => ""
                       }
-                      parent = parent.getParent
+
+                      val message = "" +
+                        "<html>" +
+                        "Don't use this method, use appropriate method implemented for Scala, " +
+                        "or use \"for Java only\" text in bounded doc comment owner ScalaDoc." +
+                        properMethodText +
+                        "</html>"
+                      holder.registerProblem(ref.nameId, message, ProblemHighlightType.LIKE_DEPRECATED)
                     }
-                    holder.registerProblem(ref.nameId, "Don't use this method, use appropriate method implemented for Scala, or use " +
-                      "\"for Java only\" text in bounded doc comment owner ScalaDoc",
-                      ProblemHighlightType.LIKE_DEPRECATED)
                   case _ =>
                 }
               case _ =>
@@ -74,4 +66,24 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
       }
     }
   }
+}
+
+private object ScalaWrongPlatformMethodsUsageInspection {
+
+  private val methodNameToClasses: Map[String, (Seq[String], Option[String])] = Map(
+    ("getContainingClass", (Seq("com.intellij.psi.PsiMember"),
+      Some("org.jetbrains.plugins.scala.extensions.PsiMemberExt.containingClass")
+    )),
+    ("getQualifiedName", (Seq("com.intellij.psi.PsiClass"),
+      Some("org.jetbrains.plugins.scala.extensions.PsiClassExt.qualifiedName"))
+    ),
+    ("getName", (Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement"),
+      Some("org.jetbrains.plugins.scala.extensions.PsiNamedElementExt.name"))
+    ),
+    ("hasModifierProperty", (Seq("com.intellij.psi.PsiModifierListOwner"),
+      Some("org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt._")
+    )),
+    ("getClasses", (Seq("com.intellij.psi.PsiClassOwner"), None)),
+    ("getClassNames", (Seq("com.intellij.psi.PsiClassOwnerEx"), None)),
+  )
 }
