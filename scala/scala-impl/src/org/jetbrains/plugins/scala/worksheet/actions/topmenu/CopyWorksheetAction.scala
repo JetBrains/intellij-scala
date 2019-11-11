@@ -44,7 +44,7 @@ object CopyWorksheetAction {
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     if (psiFile == null) return None
 
-    Some(CopyWorksheetAction.createMerged2(editor, viewer, psiFile).withNormalizedSeparator)
+    Some(createMerged2(editor, viewer, psiFile).withNormalizedSeparator)
   }
 
   private def createMerged2(editor: Editor, viewer: Editor, psiFile: PsiFile): String = {
@@ -54,7 +54,7 @@ object CopyWorksheetAction {
     if (rightDocument.getTextLength == 0) return leftDocument.getText
 
     val result = new StringBuilder
-    val fullShift = StringUtil.repeat(" ", CopyWorksheetAction.COPY_BORDER)
+    val fullShift = StringUtil.repeat(" ", COPY_BORDER)
     val lineSeparator = "\n"
 
     val mappings = WorksheetFoldGroup.computeMappings(viewer, editor, psiFile)
@@ -77,8 +77,8 @@ object CopyWorksheetAction {
           result.append(StringUtil.trimTrailing(textLeft))
 
           if (textRight.length() > 0) {
-            for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) {
-              result.append(CopyWorksheetAction.FILL_SYMBOL)
+            for (_ <- 1 to (COPY_BORDER - textLeft.length)) {
+              result.append(FILL_SYMBOL)
             }
             result.append(" //")
             result.append(textRight)

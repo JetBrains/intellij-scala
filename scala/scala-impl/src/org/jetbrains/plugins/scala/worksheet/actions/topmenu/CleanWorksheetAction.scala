@@ -54,7 +54,7 @@ object CleanWorksheetAction {
 
     invokeLater {
       inWriteAction {
-        CleanWorksheetAction.resetScrollModel(viewer)
+        resetScrollModel(viewer)
         WorksheetCache.getInstance(project).removePrinter(editor)
         cleanWorksheet(psiFile.getNode, editor, viewer, project)
 

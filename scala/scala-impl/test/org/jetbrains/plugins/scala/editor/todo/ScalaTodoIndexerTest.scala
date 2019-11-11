@@ -134,7 +134,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
        | */
        |val x =  42
        |""".stripMargin
-  )(WorksheetFileType)
+  )("sc")
 
   def testTodo_ScaladocComment_InSbt_HealthCheck(): Unit = testTodos(
     s"""/**
@@ -143,5 +143,5 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
        | */
        |val x =  42
        |""".stripMargin
-  )(SbtFileType)
+  )("sbt")
 }
