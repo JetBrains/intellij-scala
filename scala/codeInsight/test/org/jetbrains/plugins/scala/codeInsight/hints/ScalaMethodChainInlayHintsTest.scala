@@ -199,6 +199,28 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
      """.stripMargin
   )
 
+  def testDontShowLastTypeInUnalignedMode(): Unit = doTest(
+    s"""
+      |List(1, 2, 3)
+      |  .toSet$S: Set[Int]$E
+      |  .map(_.toString)$S: Set[String]$E
+      |  .toSeq$S: Seq[String]$E
+      |  .toString
+      |""".stripMargin,
+    alignMethodChainInlayHints(false)
+  )
+
+  def testShowLastTypeInAlignedMode(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
+       |  .toSeq$S: Seq[String]$E
+       |  .toString$S: String$E
+       |""".stripMargin,
+    alignMethodChainInlayHints(true)
+  )
+
   private def doTest(text: String, settings: Setting[_]*): Unit = {
     val allSettings = showObviousTypeSetting(true) +: settings
 

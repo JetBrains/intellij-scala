@@ -25,6 +25,10 @@ trait InlayHintsSettingsTestHelper {
     Setting(codeInsightSettings.showMethodChainInlayHintsGetter(), codeInsightSettings.showMethodChainInlayHintsSetter())
   val showObviousTypeSetting: lang.Boolean => Setting[lang.Boolean] =
     Setting(codeInsightSettings.showObviousTypeGetter(), codeInsightSettings.showObviousTypeSetter())
+  val alignMethodChainInlayHints: lang.Boolean => Setting[lang.Boolean] =
+    Setting(codeInsightSettings.alignMethodChainInlayHintsGetter(), codeInsightSettings.alignMethodChainInlayHintsSetter())
+  val uniqueTypesToShowMethodChains: lang.Integer => Setting[lang.Integer] =
+    Setting(codeInsightSettings.uniqueTypesToShowMethodChainsGetter(), codeInsightSettings.uniqueTypesToShowMethodChainsSetter())
 
   final def withSettings(settings: Seq[Setting[_]])(body: => Unit): Unit = settings match {
     case head +: rest =>

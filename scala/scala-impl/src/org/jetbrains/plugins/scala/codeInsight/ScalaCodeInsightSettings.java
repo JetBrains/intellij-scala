@@ -27,7 +27,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showPropertyType = false;
     public boolean showLocalVariableType = false;
     public boolean showMethodChainInlayHints = true;
-    public boolean alignMethodChainInlayHints = false;
+    public boolean alignMethodChainInlayHints = true;
     public boolean hideIdenticalTypesInMethodChains = false;
     public int uniqueTypesToShowMethodChains = 3;
 
@@ -81,6 +81,14 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Boolean> hideIdenticalTypesInMethodChainsSetter() {
         return value -> hideIdenticalTypesInMethodChains = value;
+    }
+
+    public Getter<Integer> uniqueTypesToShowMethodChainsGetter() {
+        return () -> uniqueTypesToShowMethodChains;
+    }
+
+    public Setter<Integer> uniqueTypesToShowMethodChainsSetter() {
+        return value -> uniqueTypesToShowMethodChains = value;
     }
 
     public Getter<Integer> presentationLengthGetter() {
