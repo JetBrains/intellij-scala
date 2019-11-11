@@ -284,17 +284,19 @@ val localRepoArtifacts =
   ("sbt-idea-compiler-indices", Versions.sbtIdeaCompilerIndicesVersion) :: Nil
 val localRepoPaths = LocalRepoPackager.localPluginRepoPaths(localRepoArtifacts)
 
-lazy val sbtRuntimeDependencies =
+lazy val runtimeDependencies =
   (project in file("target/tools/sbt-runtime-dependencies"))
     .settings(
-      libraryDependencies := DependencyGroups.sbtRuntime,
-      managedScalaInstance := false,
+      scalaVersion := Versions.scalaVersion,
+      libraryDependencies := DependencyGroups.runtime,
+      managedScalaInstance := true,
       conflictManager := ConflictManager.all,
       conflictWarning := ConflictWarning.disable,
       resolvers += sbt.Classpaths.sbtPluginReleases,
       ideSkipProject := true,
       packageMethod := PackagingMethod.DepsOnly(),
       packageLibraryMappings ++= Seq(
+        Dependencies.bloopLauncher -> Some("launcher/bloop-launcher.jar"),
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),

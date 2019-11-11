@@ -198,7 +198,7 @@ object SbtUtil {
     s"{$uri}$id"
   }
 
-  def getSbtLauncherDir: File =
+  def getLauncherDir: File =
     getDirInPlugin("launcher")
 
   def getSbtStructureJar(sbtVersion: Version): Option[File] = {
@@ -217,7 +217,7 @@ object SbtUtil {
 
   def getRepoDir: File = getDirInPlugin("repo")
 
-  def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
+  def getDefaultLauncher: File = getLauncherDir / "sbt-launch.jar"
 
   /** Normalizes pathname so that backslashes don't get interpreted as escape characters in interpolated strings. */
   def normalizePath(file: File): String = file.getAbsolutePath.replace('\\', '/')
