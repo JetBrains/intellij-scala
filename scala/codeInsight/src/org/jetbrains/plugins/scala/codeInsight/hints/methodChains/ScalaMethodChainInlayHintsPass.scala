@@ -34,6 +34,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
   private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
 
   def collectMethodChainHints(editor: Editor, root: PsiElement): Unit = {
+    val minChainCount = math.max(2, uniqueTypesToShowMethodChains)
     collectedHintTemplates =
       if (editor.isOneLineMode || !showMethodChainInlayHints) Seq.empty
       else (
@@ -42,37 +43,41 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
           if methodChain.length >= uniqueTypesToShowMethodChains
 
           methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
-          if methodsAtLineEnd.length >= uniqueTypesToShowMethodChains
 
-          methods =
-            if (Expression(methodsAtLineEnd.head).hasStableType) methodsAtLineEnd.tail
-            else methodsAtLineEnd
+          if methodsAtLineEnd.length >= minChainCount
 
-          methodAndTypes = methods
+          methodsWithoutLast =
+            if (alignMethodChainInlayHints || methodsAtLineEnd.last != methodChain.last) methodsAtLineEnd
+            else methodsAtLineEnd.init
+
+          methodsWithoutFirst = {
+            val dontShowFirst = isSimpleReference(methodsWithoutLast.head) || hasStableType(methodsAtLineEnd.head)
+
+            if (alignMethodChainInlayHints || !dontShowFirst) methodsWithoutLast
+            else methodsWithoutLast.tail
+          }
+
+          methodAndTypes = methodsWithoutFirst
             .map(m => m -> m.`type`())
             .takeWhile {
               _._2.isRight
             }
             .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
 
-          methodAnyTypesWithoutDuplicates =
+          methodAndTypesWithoutDuplicates =
             if (!hideIdenticalTypesInMethodChains) methodAndTypes
             else removeConsecutiveDuplicates(methodAndTypes)
 
           methodAndTypesWithoutObviousReturns =
-            if (showObviousTypes || alignMethodChainInlayHints) methodAnyTypesWithoutDuplicates
-            else methodAnyTypesWithoutDuplicates.filterNot(hasObviousReturnType)
+            if (alignMethodChainInlayHints || showObviousTypes) methodAndTypesWithoutDuplicates
+            else methodAndTypesWithoutDuplicates.filterNot(hasObviousReturnType)
 
-          methodsWithoutLast =
-            if (alignMethodChainInlayHints || methodAndTypesWithoutObviousReturns.last._1 != methodChain.last) methodAndTypesWithoutObviousReturns
-            else methodAndTypesWithoutObviousReturns.init
+          if methodAndTypesWithoutObviousReturns.length >= minChainCount
 
-          if methodsWithoutLast.length >= 2
-
-          uniqueTypeCount = methodsWithoutLast.map { case (m, ty) => ty.presentableText(m) }.toSet.size
+          uniqueTypeCount = methodAndTypesWithoutObviousReturns.map { case (m, ty) => ty.presentableText(m) }.toSet.size
           if uniqueTypeCount >= uniqueTypesToShowMethodChains
         } yield {
-          for ((expr, ty) <- methodsWithoutLast)
+          for ((expr, ty) <- methodAndTypesWithoutObviousReturns)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
         }
       ).toList
@@ -207,4 +212,17 @@ private object ScalaMethodChainInlayHintsPass {
   }
 
   private def hasTypeMismatch(expr: ScExpression): Boolean = AnnotatorHints.in(expr).nonEmpty
+
+  @tailrec
+  private def isSimpleReference(expr: ScExpression): Boolean = expr match {
+    case ref: ScReferenceExpression => !ref.isQualified
+    case ScParenthesisedExpr(inner) => isSimpleReference(inner)
+    case _ => false
+  }
+
+  @tailrec
+  private def hasStableType(expr: ScExpression): Boolean = expr match {
+    case ScParenthesisedExpr(inner) => hasStableType(inner)
+    case _ => Expression(expr).hasStableType
+  }
 }

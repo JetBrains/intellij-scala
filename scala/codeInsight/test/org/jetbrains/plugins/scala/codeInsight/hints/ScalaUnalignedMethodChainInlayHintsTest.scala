@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package hints
+package org.jetbrains.plugins.scala.codeInsight.hints
 
-class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsSettingsTestHelper {
+
+class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTestBase {
 
   import Hint.{End => E, Start => S}
+
+  override protected def doTest(text: String, settings: Setting[_]*): Unit = {
+    super.doTest(text, uniqueTypesToShowMethodChains(2) +: alignMethodChainInlayHints(false) +: settings: _*)
+  }
 
   def testChain(): Unit = doTest(
     s"""
@@ -12,7 +15,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -22,7 +25,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -33,7 +36,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -53,7 +56,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  .toSet)$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -63,7 +66,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
-       |  .toString)$S: String$E
+       |  .toString)
      """.stripMargin
   )
 
@@ -72,7 +75,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |(List(1, 2, 3)
        |  .map(_ + "")$S: List[String]$E
        |  .toSet)$S: Set[String]$E
-       |  .toSeq$S: Seq[String]$E
+       |  .toSeq
      """.stripMargin
   )
 
@@ -85,7 +88,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  }$S: Set[Int]$E.collect {
        |    case a => a
        |  }.toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -99,7 +102,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  {
        |    case a => a
        |  }.toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -112,7 +115,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  }$S: Set[Int]$E.filter(
        |    _ > 3
        |  ).toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -125,7 +128,7 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  }.map { e =>
        |    e + 3
        |  }.toSeq$S: Seq[Int]$E
-       |  .toString$S: String$E
+       |  .toString
      """.stripMargin
   )
 
@@ -142,11 +145,11 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
 
   def testBoringChainHasNoHints(): Unit = doTest(
     s"""
-      |List(1, 2, 3)
-      |  .filter(_ > 2)
-      |  .filter(_ == 39)
-      |  .map(_ + 3)
-      |  .filter(_ < 2)
+       |List(1, 2, 3)
+       |  .filter(_ > 2)
+       |  .filter(_ == 39)
+       |  .map(_ + 3)
+       |  .filter(_ < 2)
     """.stripMargin
   )
 
@@ -182,9 +185,10 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
        |  def newB: BBB = new BBB
        |
        |  val b =
-       |    (new BBB)$S: BBB$E
+       |    (new BBB)
        |      .ccc$S: CCC$E
        |      .a$S: A$E
+       |      .newB
        |}
        |""".stripMargin
   )
@@ -201,31 +205,23 @@ class ScalaMethodChainInlayHintsTest extends InlayHintsTestBase with InlayHintsS
 
   def testDontShowLastTypeInUnalignedMode(): Unit = doTest(
     s"""
-      |List(1, 2, 3)
-      |  .toSet$S: Set[Int]$E
-      |  .map(_.toString)$S: Set[String]$E
-      |  .toSeq$S: Seq[String]$E
-      |  .toString
-      |""".stripMargin,
-    alignMethodChainInlayHints(false)
-  )
-
-  def testShowLastTypeInAlignedMode(): Unit = doTest(
-    s"""
        |List(1, 2, 3)
        |  .toSet$S: Set[Int]$E
        |  .map(_.toString)$S: Set[String]$E
        |  .toSeq$S: Seq[String]$E
-       |  .toString$S: String$E
-       |""".stripMargin,
-    alignMethodChainInlayHints(true)
+       |  .toString
+       |""".stripMargin
   )
 
-  private def doTest(text: String, settings: Setting[_]*): Unit = {
-    val allSettings = showObviousTypeSetting(true) +: settings
-
-    withSettings(allSettings) {
-      doInlayTest(text)
-    }
-  }
+  // SCL-16547
+  def testFirstNonCallInUnalignedMode(): Unit = doTest(
+    s"""
+       |val list = List(1, 2, 3)
+       |list
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
+       |  .toSeq$S: Seq[String]$E
+       |  .toString
+       |""".stripMargin
+  )
 }
