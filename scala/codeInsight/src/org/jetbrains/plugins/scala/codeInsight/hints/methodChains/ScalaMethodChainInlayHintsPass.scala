@@ -145,7 +145,6 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 private object ScalaMethodChainInlayHintsPass {
   private val ScalaMethodChainKey = Key.create[Boolean]("SCALA_METHOD_CHAIN_KEY")
   private val ScalaMethodChainDisposableKey = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
-  private val typeHintsMenu = Some("TypeHintsMenu")
 
   object MethodChain {
     def unapply(element: PsiElement): Option[Seq[ScExpression]] = {
