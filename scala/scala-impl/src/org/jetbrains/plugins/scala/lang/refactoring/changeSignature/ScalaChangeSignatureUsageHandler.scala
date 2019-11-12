@@ -67,7 +67,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => return
     }
 
-    ScalaPsiUtil.changeVisibility(member, visibility)
+    ScalaChangeSignatureUsageHandler.changeVisibility(member, visibility)
   }
 
   protected def handleReturnTypeChange(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
@@ -493,5 +493,33 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     case p: ScalaParameterInfo => p.isRepeatedParameter
     case p: JavaParameterInfo => p.isVarargType
     case _ => false
+  }
+}
+
+private object ScalaChangeSignatureUsageHandler {
+
+  def changeVisibility(member: ScModifierListOwner,
+                       @PsiModifier.ModifierConstant
+                       newVisibility: String): Unit = {
+    implicit val projectContext: ProjectContext = member.projectContext
+    val modifierList = member.getModifierList
+    newVisibility match {
+      case "" | PsiModifier.PUBLIC | PsiModifier.PACKAGE_LOCAL =>
+        modifierList.accessModifier.foreach(_.delete())
+      case _ =>
+        val newElem = createModifierFromText(newVisibility)
+        modifierList.accessModifier match {
+          case Some(mod) =>
+            mod.replace(newElem)
+          case None =>
+            if (modifierList.children.isEmpty) {
+              modifierList.add(newElem)
+            } else {
+              val mod = modifierList.getFirstChild
+              modifierList.addBefore(newElem, mod)
+              modifierList.addBefore(createWhitespace, mod)
+            }
+        }
+    }
   }
 }

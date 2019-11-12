@@ -36,9 +36,7 @@ class ScalaVersion protected(val languageLevel: ScalaLanguageLevel,
 object ScalaVersion {
 
   implicit val scalaVersionOrdering: Ordering[ScalaVersion] =
-    Ordering[(ScalaLanguageLevel, Int, String)].on[ScalaVersion] { v =>
-      (v.languageLevel, v.minorSuffix.length, v.minorSuffix)
-    }
+    Ordering[project.Version].on[ScalaVersion] { v => project.Version(v.minor) }
 
   val allScalaVersions: Seq[ScalaVersion] = Seq(
     Scala_2_9,
