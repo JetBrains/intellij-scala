@@ -2,20 +2,30 @@ package org.jetbrains.plugins.scala.util.runners
 
 import java.lang.annotation.Annotation
 
+import junit.extensions.TestDecorator
 import junit.framework
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, Scala_2_12, Scala_2_13}
+import org.junit.experimental.categories.Category
 import org.junit.internal.runners.JUnit38ClassRunner
+import org.junit.runner.{Describable, Description}
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, enumerationAsScalaIteratorConverter}
 
-class MultipleScalaVersionsRunner(klass: Class[_])
-  extends JUnit38ClassRunner(
-    MultipleScalaVersionsRunner.testSuite(
-      klass.asSubclass(classOf[TestCase])
-    )
+class MultipleScalaVersionsRunner(klass: Class[_])extends {
+  private val myTest = MultipleScalaVersionsRunner.testSuite(
+    klass.asSubclass(classOf[TestCase])
   )
+} with JUnit38ClassRunner(myTest) {
+
+  override def getDescription: Description = {
+    val description = MultipleScalaVersionsRunner.makeDescription(klass, myTest)
+    //debugLog(description)
+    description
+  }
+}
 
 private object MultipleScalaVersionsRunner {
 
@@ -26,7 +36,12 @@ private object MultipleScalaVersionsRunner {
     Scala_2_13,
   )
 
-  private def testSuite(klass: Class[_ <: TestCase]): TestSuite = {
+  private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
+    def this() = this(null: String)
+    def this(version: ScalaVersion) = this(sanitize(s"(scala ${version.minor})"))
+  }
+
+  def testSuite(klass: Class[_ <: TestCase]): TestSuite = {
     assert(classOf[ScalaSdkOwner].isAssignableFrom(klass))
 
     val suite = new TestSuite
@@ -75,8 +90,7 @@ private object MultipleScalaVersionsRunner {
         (version, tests) <- versionToTests.toSeq.sortBy(_._1)
         if tests.nonEmpty
       } yield {
-        val suite = new framework.TestSuite()
-        suite.setName(sanitize(s"(scala ${version.minor})"))
+        val suite = new ScalaVersionTestSuite(version)
         tests.foreach(suite.addTest)
         suite
       }
@@ -90,7 +104,7 @@ private object MultipleScalaVersionsRunner {
       .getOrElse(DefaultRunScalaVersionsToRun)
   }
 
-  private def findAnnotation[T <: Annotation](klass: Class[_ <: TestCase], annotationClass: Class[T]): Option[T] = {
+  private def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
     @tailrec
     def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
       case null =>
@@ -102,6 +116,42 @@ private object MultipleScalaVersionsRunner {
     }
 
     Option(inner(klass).asInstanceOf[T])
+  }
+
+  private def debugLog(d: Description, deep: Int = 0): Unit = {
+    val annotations = d.getAnnotations.asScala.map(_.annotationType.getName).mkString(",")
+    val details = s"${d.getMethodName}, ${d.getClassName}, ${d.getTestClass}, $annotations"
+    val prefix = "##" + "    " * deep
+    System.out.println(s"$prefix ${d.toString} ($details)")
+    d.getChildren.forEach(debugLog(_, deep + 1))
+  }
+
+  // Copied from JUnit38ClassRunner, added "Category" annotation propagation for ScalaVersionTestSuite
+  private def makeDescription(klass: Class[_], test: Test): Description = test match {
+    case ts: TestSuite =>
+      val name = Option(ts.getName).getOrElse(createSuiteDescriptionName(ts))
+      val annotations = ts match {
+        case _: ScalaVersionTestSuite => findAnnotation(klass, classOf[Category]).toSeq
+        case _                        => Seq()
+      }
+      val description = Description.createSuiteDescription(name, annotations: _*)
+      ts.tests.asScala.foreach { childTest =>
+        // compiler fails on TeamCity without this case, no idea why
+        //noinspection ScalaRedundantCast
+        val childDescription = makeDescription(klass, childTest.asInstanceOf[Test])
+        description.addChild(childDescription)
+      }
+      description
+    case tc: TestCase             => Description.createTestDescription(tc.getClass, tc.getName)
+    case adapter: Describable     => adapter.getDescription
+    case decorator: TestDecorator => makeDescription(klass, decorator.getTest)
+    case _                        => Description.createSuiteDescription(test.getClass)
+  }
+
+  private def createSuiteDescriptionName(ts: TestSuite): String = {
+    val count = ts.countTestCases
+    val example = if (count == 0) "" else " [example: %s]".format(ts.testAt(0))
+    "TestSuite with %s tests%s".format(count, example)
   }
 
   // dot is treated as a package separator by IntelliJ which causes broken rendering in tests tree
