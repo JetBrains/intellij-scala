@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 package object hints {
+  private[hints] val typeHintsMenu: Option[Name] = Some("TypeHintsMenu")
 
   private[hints] object ReferenceName {
 

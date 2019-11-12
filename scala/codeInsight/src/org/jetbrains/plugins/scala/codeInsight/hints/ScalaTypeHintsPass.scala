@@ -58,5 +58,5 @@ private[codeInsight] trait ScalaTypeHintsPass {
       case _ => Seq.empty
     }
     text = Text(": ") +: (textPartsOf(returnType, presentationLength) ++ suffix)
-  } yield Hint(text, anchor, suffix = true, menu = Some("TypeHintsMenu"), relatesToPrecedingElement = true)
+  } yield Hint(text, anchor, suffix = true, menu = typeHintsMenu, relatesToPrecedingElement = true)
 }
