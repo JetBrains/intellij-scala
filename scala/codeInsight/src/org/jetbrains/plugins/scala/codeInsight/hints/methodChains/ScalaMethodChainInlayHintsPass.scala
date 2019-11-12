@@ -92,12 +92,8 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
     // don't show inlay behind the outer most expression when it has an error
     val hintTemplates = collectedHintTemplates
-      .map { tmpls =>
-        val outermostExpr = tmpls.last.expr
-        if (AnnotatorHints.in(outermostExpr).isEmpty) tmpls
-        else tmpls.init
-      }
-      .filter(_.nonEmpty)
+      .map(removeLastIfHasTypeMismatch)
+      .filter(_.length >= 2)
 
     val document = editor.getDocument
     val charWidth = editor
@@ -138,7 +134,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 }
 
 private object ScalaMethodChainInlayHintsPass {
-  def isFollowedByLineEnd(elem: PsiElement): Boolean = {
+  private def isFollowedByLineEnd(elem: PsiElement): Boolean = {
     elem match {
       case elem if elem.followedByNewLine(ignoreComments = false) =>
         true
@@ -172,7 +168,7 @@ private object ScalaMethodChainInlayHintsPass {
     }
   }
 
-  def hasObviousReturnType(methodAndTypes: (ScExpression, ScType)): Boolean = {
+  private def hasObviousReturnType(methodAndTypes: (ScExpression, ScType)): Boolean = {
     @tailrec
     def methodName(expr: ScExpression): String = expr match {
       case ref: ScReferenceExpression => ref.refName
@@ -191,6 +187,15 @@ private object ScalaMethodChainInlayHintsPass {
       .foldLeft((null: String, List.empty[(ScExpression, ScType)])) {
         case ((_,    Nil), (ewt, tytext))                   => tytext -> List(ewt)
         case ((last, ls),  (_,   tytext)) if last == tytext => last -> ls
-        case ((last, ls),  (ewt, tytext))                   => tytext -> (ewt :: ls)
+        case ((_,    ls),  (ewt, tytext))                   => tytext -> (ewt :: ls)
       }._2.reverse
+
+
+  private def removeLastIfHasTypeMismatch(methodsWithTypes: Seq[AlignedHintTemplate]): Seq[AlignedHintTemplate] = {
+    val outermostExpr = methodsWithTypes.last.expr
+    if (hasTypeMismatch(outermostExpr)) methodsWithTypes.init
+    else methodsWithTypes
+  }
+
+  private def hasTypeMismatch(expr: ScExpression): Boolean = AnnotatorHints.in(expr).nonEmpty
 }
