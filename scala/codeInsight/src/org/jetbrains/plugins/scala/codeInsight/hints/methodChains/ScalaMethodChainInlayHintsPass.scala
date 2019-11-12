@@ -106,24 +106,33 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       // so we create normal inline elements here
       // this is ok to test the recognition of method chain inlay hints
       // there is no need to unit test the other alternatives because they need ui tests anyway
-      for (hints <- hintTemplates; hint <- hints) {
-        inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
-      }
+      generateInlineHints(hintTemplates, inlayModel)
     } else if (alignMethodChainInlayHints) {
-      hintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
+      generateAlignedHints(hintTemplates, document, charWidth, inlayModel)
     } else {
-      for (hints <- hintTemplates; hint <- hints) {
-        val inlay = inlayModel.addAfterLineEndElement(
-          hint.expr.endOffset,
-          false,
-          new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
-            override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
-          }
-        )
-        inlay.putUserData(ScalaMethodChainKey, true)
-      }
+      generateUnalignedHints(hintTemplates, charWidth, inlayModel)
     }
   }
+
+  private def generateInlineHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
+    for (hints <- hintTemplates; hint <- hints) {
+      inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
+    }
+
+  private def generateAlignedHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], document: Document, charWidth: Int, inlayModel: InlayModel): Unit =
+    hintTemplates.foreach(new AlignedInlayGroup(_)(inlayModel, document, charWidth))
+
+  private def generateUnalignedHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], charWidth: Int, inlayModel: InlayModel): Unit =
+    for (hints <- hintTemplates; hint <- hints) {
+      val inlay = inlayModel.addAfterLineEndElement(
+        hint.expr.endOffset,
+        false,
+        new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
+          override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
+        }
+      )
+      inlay.putUserData(ScalaMethodChainKey, true)
+    }
 
   private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
