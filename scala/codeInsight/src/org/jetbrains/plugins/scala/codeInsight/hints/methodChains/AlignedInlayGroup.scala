@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
+package org.jetbrains.plugins.scala.codeInsight
+package hints
+package methodChains
 
 import java.awt.{Graphics, Insets, Rectangle}
 
