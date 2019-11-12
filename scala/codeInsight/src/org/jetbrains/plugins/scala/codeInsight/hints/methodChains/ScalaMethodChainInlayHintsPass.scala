@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 package methodChains
 
-import java.awt.{Graphics, Insets, Rectangle}
+import java.awt.Insets
 
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.util.{Disposer, Key}
+import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
@@ -86,10 +84,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       .asScala
       .filter(ScalaMethodChainKey.isIn)
       .foreach { inlay =>
-        inlay
-          .getUserData(ScalaMethodChainDisposableKey)
-          .toOption
-          .foreach(Disposer.dispose)
+        AlignedInlayGroup.dispose(inlay)
         Disposer.dispose(inlay)
       }
 
@@ -143,9 +138,6 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 }
 
 private object ScalaMethodChainInlayHintsPass {
-  private val ScalaMethodChainKey = Key.create[Boolean]("SCALA_METHOD_CHAIN_KEY")
-  private val ScalaMethodChainDisposableKey = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
-
   def isFollowedByLineEnd(elem: PsiElement): Boolean = {
     elem match {
       case elem if elem.followedByNewLine(ignoreComments = false) =>
@@ -201,114 +193,4 @@ private object ScalaMethodChainInlayHintsPass {
         case ((last, ls),  (_,   tytext)) if last == tytext => last -> ls
         case ((last, ls),  (ewt, tytext))                   => tytext -> (ewt :: ls)
       }._2.reverse
-
-  private case class AlignedHintTemplate(textParts: Seq[Text], expr: ScExpression)
-
-  private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
-                                  minMargin: Int = 1,
-                                  maxMargin: Int = 6)
-                                 (inlayModel: InlayModel, document: Document, charWidthInPixel: Int) extends Disposable {
-    private val minMarginInPixel = minMargin * charWidthInPixel
-    private val maxMarginInPixel = maxMargin * charWidthInPixel
-
-    private val alignmentLines: Seq[AlignmentLine] = {
-      def lineOf(expr: ScExpression): Int = document.getLineNumber(expr.endOffset)
-      val lineToHintMapping = hints.groupBy(hint => lineOf(hint.expr)).mapValues(_.head)
-      val lineHasHint = lineToHintMapping.contains _
-
-      val firstLine = 0 max (lineOf(hints.head.expr) - 1)
-      val lastLine = document.getLineCount min (lineOf(hints.last.expr) + 1)
-
-      (firstLine to lastLine).flatMap { line =>
-        val maybeHint = lineToHintMapping.get(line)
-        val maybeOffset = maybeHint match {
-          case Some(hint) => Some(hint.expr.endOffset)
-          case _ if lineHasHint(line - 1) || lineHasHint(line + 1) => Some(document.getLineEndOffset(line))
-          case _ => None
-        }
-        maybeOffset.map(new AlignmentLine(_, maybeHint)(document))
-      }
-    }
-
-    private val inlays: Seq[Inlay[AlignedInlayRenderer]] =
-      for(line <- alignmentLines; hint <- line.maybeHint) yield {
-        val inlay = inlayModel.addAfterLineEndElement(
-          hint.expr.endOffset,
-          false,
-          new AlignedInlayRenderer(line, hint.textParts)
-        )
-        inlay.putUserData(ScalaMethodChainKey, true)
-        inlay
-      }
-
-    locally {
-      inlays.head.putUserData(ScalaMethodChainDisposableKey, this)
-    }
-
-    private def recalculateGroupsOffsets(editor: Editor): Unit = {
-      // unfortunately `AlignedHintsRenderer.getMargin -> recalculateGroupsOffsets`
-      // is called by `inlayModel.addAfterLineEndElement` before inlays is actually set
-      if (inlays == null)
-        return
-
-      val allEndXs = alignmentLines.map(_.lineEndX(editor))
-      val actualEndXs = alignmentLines.withFilter(_.hasHint).map(_.lineEndX(editor))
-      val max = allEndXs.max
-      val avg = actualEndXs.sum / actualEndXs.length
-      var targetMaxX = max + math.max(minMarginInPixel, maxMarginInPixel - (max - avg) / 3)
-
-      // this makes the group more stable and less flickery
-      targetMaxX -= targetMaxX % charWidthInPixel
-
-      for (inlay <- inlays) {
-        val renderer = inlay.getRenderer
-        val endX = renderer.line.lineEndX(editor)
-        renderer.setMargin(endX, targetMaxX - endX, inlay)
-      }
-    }
-
-    override def dispose(): Unit = alignmentLines.foreach(_.dispose())
-
-    private class AlignmentLine(offset: Int, val maybeHint: Option[AlignedHintTemplate])(document: Document) extends Disposable {
-      private val marker: RangeMarker = document.createRangeMarker(offset, offset)
-
-      def hasHint: Boolean = maybeHint.isDefined
-
-      def lineEndX(editor: Editor): Int = {
-        editor.offsetToXY(document.getLineEndOffset(document.getLineNumber(marker.getEndOffset)), true, false).x
-      }
-
-      override def dispose(): Unit = marker.dispose()
-    }
-
-    private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text])
-      extends TextPartsHintRenderer(textParts, typeHintsMenu) {
-
-      private case class Cached(lineEndX: Int, margin: Int)
-      private var cached: Cached = Cached(0, 0)
-
-      def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_]): Unit = {
-        if (cached.margin != margin) {
-          cached = Cached(lineEndX, margin)
-
-          inlay.updateSize()
-        }
-      }
-
-      override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
-        if (cached.lineEndX != line.lineEndX(editor)) {
-          val oldMargin = cached.margin
-          recalculateGroupsOffsets(editor)
-          // after recalculating the offset, r has the wrong width, so we fix that here
-          r.width += cached.margin - oldMargin
-        }
-
-        super.paint(editor, g, r, textAttributes)
-      }
-
-      override def getMargin(editor: Editor): Insets = {
-        new Insets(0, cached.margin, 0, 0)
-      }
-    }
-  }
 }
