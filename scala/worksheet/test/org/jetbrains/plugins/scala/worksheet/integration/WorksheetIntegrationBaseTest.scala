@@ -33,7 +33,6 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
 ))
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetIntegrationBaseTest
   extends ScalaCompilerTestBase
