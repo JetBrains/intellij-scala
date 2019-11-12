@@ -1416,31 +1416,6 @@ object ScalaPsiUtil {
     addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
-  def changeVisibility(member: ScModifierListOwner,
-                       @PsiModifier.ModifierConstant
-                       newVisibility: String): Unit = {
-    implicit val projectContext: ProjectContext = member.projectContext
-    val modifierList = member.getModifierList
-    newVisibility match {
-      case "" | PsiModifier.PUBLIC | PsiModifier.PACKAGE_LOCAL =>
-        modifierList.accessModifier.foreach(_.delete())
-      case _ =>
-        val newElem = createModifierFromText(newVisibility)
-        modifierList.accessModifier match {
-          case Some(mod) =>
-            mod.replace(newElem)
-          case None =>
-            if (modifierList.children.isEmpty) {
-              modifierList.add(newElem)
-            } else {
-              val mod = modifierList.getFirstChild
-              modifierList.addBefore(newElem, mod)
-              modifierList.addBefore(createWhitespace, mod)
-            }
-        }
-    }
-  }
-
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
     namedElement match {
       case Implicit0Binding()                        => true /** See [[org.jetbrains.plugins.scala.util.BetterMonadicForSupport]] */
