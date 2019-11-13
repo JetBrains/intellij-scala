@@ -109,7 +109,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   // create a dedicated pass for the preview
   private lazy val previewPass = new ScalaMethodChainInlayHintsPass {
-    protected override def showMethodChainInlayHints: Boolean = isEnabled
+    protected override def showMethodChainInlayHints: Boolean = true
     override protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
     override protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
