@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScULambdaParameter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.util.SAMUtil._
+import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast.{UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
 
 import scala.collection.JavaConverters._
@@ -55,18 +55,15 @@ trait ScUGenLambda
 
 trait ScULambdaCommon extends ScUGenLambda with ScUExpression {
   @Nullable
-  override def getFunctionalInterfaceType: PsiType =
-    scExpression.samTypeParent
-      .map(
-        cls =>
-          //noinspection ScalaWrongMethodsUsage
-          PsiType.getTypeByName(
-            cls.getQualifiedName,
-            scExpression.getProject,
-            scExpression.getResolveScope
-        )
-      )
-      .orNull
+  override def getFunctionalInterfaceType: PsiType = {
+    if (scExpression.isSAMEnabled) {
+      scExpression.`type`().toOption
+        .flatMap(SAMUtil.toSAMType(_, scExpression))
+        .map(_.toPsiType)
+        .orNull
+    }
+    else null
+  }
 }
 
 /**
