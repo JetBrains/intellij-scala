@@ -10,6 +10,7 @@ import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.extensions.StringExt
 
 import scala.collection.JavaConverters._
 
@@ -99,7 +100,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
       |  .mapValues("chars: " + _.mkString(", "))
       |  .values
       |  .toSeq
-      |""".stripMargin
+      |""".stripMargin.withNormalizedSeparator
 
   override def apply(): Unit = {
     settings.apply()
