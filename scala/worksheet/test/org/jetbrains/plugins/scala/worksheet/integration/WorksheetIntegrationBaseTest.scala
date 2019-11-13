@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
-import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
@@ -33,6 +32,7 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
 ))
+@RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetIntegrationBaseTest
   extends ScalaCompilerTestBase
@@ -65,7 +65,9 @@ abstract class WorksheetIntegrationBaseTest
   override def setUp(): Unit = {
     super.setUp()
 
-    ScalaProjectSettings.getInstance(project).setInProcessMode(self.runInCompileServerProcess)
+    val settings = ScalaProjectSettings.getInstance(project)
+    settings.setInProcessMode(self.runInCompileServerProcess)
+    settings.setAutoRunDelay(300)
 
     if (useCompileServer) {
       val result = CompileServerLauncher.ensureServerRunning(project)
@@ -88,8 +90,8 @@ abstract class WorksheetIntegrationBaseTest
 
     assertEquals(RunWorksheetActionResult.Done, evaluationResult)
 
-    assertCompiledWithoutErrors(editor)
-    assertCompiledWithoutWarnings(editor)
+    assertNoErrorMessages(editor)
+    assertNoWarningMessages(editor)
 
     editor
   }
@@ -133,12 +135,6 @@ abstract class WorksheetIntegrationBaseTest
       Folding(startOffset, endOffset, textFixed.substring(startOffset, endOffset), isExpanded = markerType == 1)
     }
     (textFixed, foldings)
-  }
-
-  protected def collectedCompilerMessages(editor: Editor): Seq[CompilerMessageImpl] = {
-    val collector = worksheetCache.getCompilerMessagesCollector(editor).orNull
-    assertNotNull(collector)
-    collector.collectedMessages.map(_.asInstanceOf[CompilerMessageImpl])
   }
 
   protected def viewerEditorData(worksheetEditor: Editor): ViewerEditorData =

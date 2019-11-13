@@ -98,7 +98,8 @@ class WorksheetCompiler(
 
     val task = createCompilerTask
     val printer = createWorksheetPrinter
-    val consumer = new CompilerInterfaceImpl(task, printer)
+    // do not show error messages in Plain mode on auto-run
+    val consumer = new CompilerInterfaceImpl(task, printer, auto && request.isInstanceOf[RunCompile])
     printer match {
       case replPrinter: WorksheetEditorPrinterRepl =>
         replPrinter.updateMessagesConsumer(consumer)
@@ -198,7 +199,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   class CompilerInterfaceImpl(
     task: CompilerTask,
     worksheetPrinter: WorksheetEditorPrinter,
-    auto: Boolean = false
+    auto: Boolean
   ) extends CompilerInterface
     with CompilerMessagesConsumer
     with CompilerMessagesCollector {
@@ -214,14 +215,14 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
     override def message(message: CompilerMessage): Unit = {
       // for now we only need the compiler messages in unit tests
-      if (isUnitTestMode) {
-        messages += message
-      }
       if (message.getCategory == CompilerMessageCategory.ERROR) {
         hasCompilationErrors = true
       }
       if (!auto) {
         task.addMessage(message)
+        if (isUnitTestMode) {
+          messages += message
+        }
       }
     }
 

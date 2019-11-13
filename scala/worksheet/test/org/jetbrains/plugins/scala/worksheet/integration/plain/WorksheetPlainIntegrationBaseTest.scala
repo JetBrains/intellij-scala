@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
+import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
+import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetExternalRunType}
 import org.junit.experimental.categories.Category
 
+import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 @Category(Array(classOf[WorksheetEvaluationTests]))
@@ -168,4 +171,53 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     )
   }
 
+  def testInteractive(): Unit = {
+    val editor = doRenderTest(
+      """42""",
+      """res0: Int = 42
+        |""".stripMargin
+    )
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    WorksheetCommonSettings(file).setInteractive(true)
+
+    val robot = new EditorRobot(editor)
+    robot.moveToEnd()
+    robot.typeString("\n23\n")
+
+    // TODO: this is not the best way of testing, cause it relies on lucky threading conditions,
+    //  but current architecture doesn't allow us do it some other way, think how this can be improved
+    val stamp = editor.getDocument.getModificationStamp
+    MyUiUtils.waitConditioned(5 seconds) { () =>
+      editor.getDocument.getModificationStamp != stamp
+    }
+
+    assertViewerEditorText(editor)(
+      """res0: Int = 42
+        |res1: Int = 23
+        |""".stripMargin
+    )
+    assertNoErrorMessages(editor)
+  }
+
+  def testInteractive_WithError(): Unit = {
+    val editor = doRenderTest(
+      """42""",
+      """res0: Int = 42
+        |""".stripMargin
+    )
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    WorksheetCommonSettings(file).setInteractive(true)
+
+    val robot = new EditorRobot(editor)
+    robot.moveToEnd()
+    robot.typeString("\n2 + unknownRef + 4\n")
+
+    MyUiUtils.wait(5 seconds)
+
+    assertViewerEditorText(editor)(
+      """res0: Int = 42
+        |""".stripMargin
+    )
+    assertNoErrorMessages(editor)
+  }
 }
