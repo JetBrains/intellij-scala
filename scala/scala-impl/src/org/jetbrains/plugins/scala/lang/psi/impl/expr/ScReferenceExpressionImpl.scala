@@ -222,10 +222,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case Some(downer: DesignatorOwner)     => downer.isStable
       case Some(other) if !t.conforms(other) =>
         other match {
-          case Aliased(AliasType(_, Right(lower: DesignatorOwner), _))                   => lower.isStable
-          case Aliased(AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _)) => isRefinement(c)
-          case c: ScCompoundType                                                         => isRefinement(c)
-          case _                                                                         => false
+          case AliasType(_, Right(lower: DesignatorOwner), _)                   => lower.isStable
+          case AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _) => isRefinement(c)
+          case c: ScCompoundType                                                => isRefinement(c)
+          case _                                                                => false
         }
       case _ => false
     }

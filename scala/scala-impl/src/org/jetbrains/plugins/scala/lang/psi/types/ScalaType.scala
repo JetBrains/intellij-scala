@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.extensions.&&
 
 /**
   * @author adkozlov
@@ -44,11 +45,9 @@ object ScalaType {
       case ScDesignatorType(ta: ScTypeAliasDefinition) => expandAliases(ta.aliasedType.getOrNothing, visited + tp)
       case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
         t.upperBound.flatMap(expandAliases(_, visited + tp))
-      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
-        t.aliasedType
-      case pt: ScParameterizedType if pt.isAliasType.isDefined =>
-        val aliasType: AliasType = pt.isAliasType.get
-        aliasType.upper.flatMap(expandAliases(_, visited + tp))
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty => t.aliasedType
+      case (_: ScParameterizedType) && AliasType(_, upper, _) =>
+        upper.flatMap(expandAliases(_, visited + tp))
       case _ => Right(tp)
     }
   }

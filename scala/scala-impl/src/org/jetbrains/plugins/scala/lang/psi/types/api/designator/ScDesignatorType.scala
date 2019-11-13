@@ -25,7 +25,7 @@ final case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOw
   private def setStatic(): Unit = static = true
   def isStatic: Boolean = static
 
-  override protected def isAliasTypeInner: Option[AliasType] = {
+  override protected def calculateAliasType: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))

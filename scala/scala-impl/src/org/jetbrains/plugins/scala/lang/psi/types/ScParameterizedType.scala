@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 final class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
 
-  override protected def isAliasTypeInner: Option[AliasType] = {
+  override protected def calculateAliasType: Option[AliasType] = {
     designator match {
       case ScDesignatorType(ta: ScTypeAlias) =>
         computeAliasType(ta, ScSubstitutor.empty)
@@ -84,20 +84,20 @@ final class ScParameterizedType private(val designator: ScType, val typeArgument
 
         conformance
       case (ParameterizedType(proj@ScProjectionType(_, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
+        this match {
+          case AliasType(_: ScTypeAliasDefinition, lower, _) =>
             (lower match {
               case Right(tp) => tp
-              case _ => return ConstraintsResult.Left
+              case _         => return ConstraintsResult.Left
             }).equiv(r, constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }
       case (ParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _), _) =>
-        isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
+        this match {
+          case AliasType(_: ScTypeAliasDefinition, lower, _) =>
             (lower match {
               case Right(tp) => tp
-              case _ => return ConstraintsResult.Left
+              case _         => return ConstraintsResult.Left
             }).equiv(r, constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }

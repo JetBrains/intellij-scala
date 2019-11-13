@@ -144,9 +144,9 @@ trait ScalaBounds extends api.Bounds {
     private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] = {
       tp.extractClassType match {
         case None =>
-          tp.isAliasType match {
-            case Some(AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
-            case _ => None
+          tp match {
+            case AliasType(ta, _, _) => Some(ta, ScSubstitutor.empty)
+            case _                   => None
           }
         case some => some
       }
@@ -188,7 +188,7 @@ trait ScalaBounds extends api.Bounds {
         case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst(tp))).filter(!_.isEmpty)
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
-          val upperType: ScType = tp.isAliasType.get.upper.getOrAny
+          val upperType: ScType = tp.aliasType.get.upper.getOrAny
           val classes: Seq[ClassLike] = {
             upperType match {
               case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))

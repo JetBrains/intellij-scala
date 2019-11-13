@@ -198,9 +198,10 @@ object ImplicitProcessor {
       ProgressManager.checkCanceled()
       if (visited.contains(tp)) return
       visited += tp
-      tp.isAliasType match {
-        case Some(AliasType(_, _, Right(t))) => collectParts(t)
-        case _ =>
+
+      tp match {
+        case AliasType(_, _, Right(t)) => collectParts(t)
+        case _                         =>
       }
 
       def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {

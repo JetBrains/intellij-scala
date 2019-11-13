@@ -31,17 +31,17 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
   override def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
 
   def annotations(qualifiedName: String): Seq[ScAnnotation] = {
+    @scala.annotation.tailrec
     def acceptType(scType: ScType): Boolean = scType match {
       case ScDesignatorType(clazz: PsiClass) =>
         clazz.qualifiedName == qualifiedName
       case ParameterizedType(designator@ScDesignatorType(_: PsiClass), _) =>
         acceptType(designator)
       case tp =>
-        tp.isAliasType collect {
+        tp match {
           case AliasType(definition: ScTypeAliasDefinition, _, _) =>
-            definition.aliasedType.getOrAny
-        } exists {
-          acceptType
+            acceptType(definition.aliasedType.getOrAny)
+          case _ => false
         }
     }
 

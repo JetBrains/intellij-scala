@@ -401,11 +401,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ParameterizedType): Unit = {
-        p.isAliasType match {
-          case Some(AliasType(_, _, upper)) =>
+        p match {
+          case AliasType(_, _, upper) =>
             result = upper match {
               case Right(value) => conformsInner(l, value, visited, constraints)
-              case _ => ConstraintsResult.Left
+              case _            => ConstraintsResult.Left
             }
           case _ =>
         }
@@ -416,8 +416,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       def stopDesignatorAliasOnFailure: Boolean = false
 
       override def visitDesignatorType(des: ScDesignatorType) {
-        des.isAliasType match {
-          case Some(AliasType(_, _, Right(value))) =>
+        des match {
+          case AliasType(_, _, Right(value)) =>
             val res = conformsInner(l, value, visited, constraints)
             if (stopDesignatorAliasOnFailure || res.isRight) result = res
           case _ =>
@@ -452,8 +452,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           return
         }
 
-        result = l.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, Right(lower), _)) =>
+        result = l match {
+          case AliasType(_: ScTypeAliasDefinition, Right(lower), _) =>
             conformsInner(lower, c, HashSet.empty, constraints)
           case _ => ConstraintsResult.Left
         }
@@ -470,9 +470,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       def stopProjectionAliasOnFailure: Boolean = false
 
       override def visitProjectionType(proj2: ScProjectionType): Unit = {
-        proj2.isAliasType match {
-          case Some(AliasType(_, _, Left(_))) =>
-          case Some(AliasType(_, _, Right(value))) =>
+        proj2 match {
+          case AliasType(_, _, Left(_)) =>
+          case AliasType(_, _, Right(value)) =>
             val res = conformsInner(l, value, visited, constraints)
             if (stopProjectionAliasOnFailure || res.isRight) result = res
           case _ =>
@@ -728,8 +728,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      proj.isAliasType match {
-        case Some(AliasType(_, Right(lower), _)) =>
+      proj match {
+        case AliasType(_, Right(lower), _) =>
           val conforms = conformsInner(lower, r, visited, constraints)
           if (conforms.isRight) result = conforms
         case _ =>
@@ -887,11 +887,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       //todo: looks like this code can be simplified and unified.
       //todo: what if left is type alias declaration, right is type alias definition, which is alias to that declaration?
-      p.isAliasType match {
-        case Some(AliasType(ta, lower, _)) =>
+      p match {
+        case AliasType(ta, lower, _) =>
           if (ta.isInstanceOf[ScTypeAliasDeclaration])
             r match {
-              case ParameterizedType(proj, args2) if r.isAliasType.isDefined && (proj equiv p.designator) =>
+              case ParameterizedType(proj, args2) if r.isAliasType && (proj equiv p.designator) =>
                 processEquivalentDesignators(args2)
                 return
               case _ =>
@@ -976,12 +976,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       if (result != null) {
         //sometimes when the above part has failed, we still have to check for alias
-        if (!result.isRight) r.isAliasType match {
-          case Some(_) =>
-            rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
-            r.visitType(rightVisitor)
-          case _ =>
+        if (!result.isRight && r.isAliasType) {
+          rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
+          r.visitType(rightVisitor)
         }
+
         return
       }
 
@@ -1139,11 +1138,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      des.isAliasType match {
-        case Some(AliasType(_, lower, _)) =>
+      des match {
+        case AliasType(_, lower, _) =>
           result = lower match {
             case Right(value) => conformsInner(value, r, visited, constraints)
-            case _ => ConstraintsResult.Left
+            case _            => ConstraintsResult.Left
           }
         case _ =>
           rightVisitor = new CompoundTypeVisitor with ExistentialVisitor {}

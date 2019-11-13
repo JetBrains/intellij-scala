@@ -451,8 +451,8 @@ object MixinNodes {
       var tp = iterator.next()
       @tailrec
       def updateTp(tp: ScType, depth: Int = 0): ScType = {
-        tp.isAliasType match {
-          case Some(AliasType(_, _, Right(upper))) =>
+        tp match {
+          case AliasType(_, _, Right(upper)) =>
             if (tp != upper && depth < 100) updateTp(upper, depth + 1)
             else tp
           case _ =>
@@ -490,9 +490,9 @@ object MixinNodes {
     buffer
   }
 
-  private def dealias(tp: ScType) = tp.isAliasType match {
-    case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
-    case _ => tp
+  private def dealias(tp: ScType) = tp match {
+    case AliasType(_: ScTypeAliasDefinition, lower, _) => lower.getOrElse(tp)
+    case _                                             => tp
   }
 
   private def extractClassOrUpperBoundClass(tp: ScType) = {

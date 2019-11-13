@@ -57,10 +57,10 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
               //here we should actually construct existential type for partial application
               in
             }
-          case t => t.isAliasType match {
-            case Some(AliasType(_: ScTypeAliasDefinition, Right(lower), _)) if isLower => extractBound(lower, isLower)
-            case Some(AliasType(_: ScTypeAliasDefinition, _, Right(upper))) if !isLower => extractBound(upper, isLower)
-            case None => t
+          case t => t match {
+            case AliasType(_: ScTypeAliasDefinition, Right(lower), _) if isLower  => extractBound(lower, isLower)
+            case AliasType(_: ScTypeAliasDefinition, _, Right(upper)) if !isLower => extractBound(upper, isLower)
+            case _ => t
           }
         }
       case _ => in

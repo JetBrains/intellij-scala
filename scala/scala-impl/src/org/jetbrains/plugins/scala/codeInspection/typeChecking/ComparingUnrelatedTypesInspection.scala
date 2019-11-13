@@ -60,15 +60,15 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType.exists {
+  private def undefinedTypeAlias(`type`: ScType) = `type` match {
     case AliasType(_, Right(lower), Right(upper)) => !lower.equiv(upper)
-    case _ => false
+    case _                                        => false
   }
 
   @tailrec
-  private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
-    case Some(AliasType(_, Right(rhs), _)) => extractActualType(rhs)
-    case _ => `type`.tryExtractDesignatorSingleton
+  private def extractActualType(`type`: ScType): ScType = `type` match {
+    case AliasType(_, Right(rhs), _) => extractActualType(rhs)
+    case _                           => `type`.tryExtractDesignatorSingleton
   }
 }
 
