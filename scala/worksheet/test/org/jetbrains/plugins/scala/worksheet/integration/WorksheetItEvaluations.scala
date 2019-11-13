@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import javax.swing.SwingUtilities
@@ -19,22 +18,20 @@ trait WorksheetItEvaluations {
 
   protected def runWorksheetEvaluation(text: String): TestRunResult = {
     val worksheetEditor = prepareWorksheetEditor(text.withNormalizedSeparator)
+    // NOTE: worksheet backend / frontend initialization is done under the hood on calling action
+    val future = RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
+    val evaluationResult = waitForEvaluationEnd(future)
+    TestRunResult(worksheetEditor, evaluationResult)
+  }
 
-    val evaluationResult = evaluateWorksheetAndWait(worksheetEditor) match {
+  protected def waitForEvaluationEnd(future: Future[RunWorksheetAction.RunWorksheetActionResult]): RunWorksheetAction.RunWorksheetActionResult = {
+    val result = WorksheetItEvaluations.await(future, evaluationTimeout)
+    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+    result match {
       case Some(Success(result))    => result
       case Some(Failure(exception)) => throw exception
       case None                     => fail("Timeout period was exceeded while waiting for worksheet evaluation").asInstanceOf[Nothing]
     }
-
-    TestRunResult( worksheetEditor, evaluationResult)
-  }
-
-  private def evaluateWorksheetAndWait(worksheetEditor: Editor): Option[Try[RunWorksheetAction.RunWorksheetActionResult]] = {
-    // NOTE: worksheet backend / frontend initialization is done under the hood on calling action
-    val future = RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
-    val result = WorksheetItEvaluations.await(future, 60 seconds)
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-    result
   }
 }
 

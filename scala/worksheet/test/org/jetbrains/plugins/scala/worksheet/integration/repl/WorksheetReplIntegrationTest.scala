@@ -1,14 +1,18 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
+import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
+import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, Scala_2_11, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
+import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 @Category(Array(classOf[WorksheetEvaluationTests]))
@@ -211,6 +215,56 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |val a2 = Array(1, 2, 3)""".stripMargin,
       """a1: Array[Int] = Array(0, 0, 0)
         |a2: Array[Int] = Array(1, 2, 3)""".stripMargin
+    )
+  }
+
+  def testInteractive(): Unit = {
+    val editor = doRenderTest(
+      """42""",
+      """res0: Int = 42"""
+    )
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    WorksheetCommonSettings(file).setInteractive(true)
+
+    val robot = new EditorRobot(editor)
+    robot.moveToEnd()
+    robot.typeString("\n23\n")
+
+    val stamp = editor.getDocument.getModificationStamp
+    MyUiUtils.waitConditioned(5 seconds) { () =>
+      editor.getDocument.getModificationStamp != stamp
+    }
+
+    assertViewerEditorText(editor)(
+      """res0: Int = 42
+        |res1: Int = 23""".stripMargin
+    )
+
+    assertNoErrorMessages(editor)
+  }
+
+  def testInteractive_WithError(): Unit = {
+    val editor = doRenderTest(
+      """42""",
+      """res0: Int = 42"""
+    )
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    WorksheetCommonSettings(file).setInteractive(true)
+
+    val robot = new EditorRobot(editor)
+    robot.moveToEnd()
+    robot.typeString("\n2 + unknownRef + 4\n")
+
+    MyUiUtils.wait(5 seconds)
+
+    assertViewerEditorText(editor)(
+      """res0: Int = 42
+        |""".stripMargin
+    )
+
+    assertCompilerMessages(editor)(
+      """Error:(2, 5) not found: value unknownRef
+        |2 + unknownRef + 4""".stripMargin
     )
   }
 }

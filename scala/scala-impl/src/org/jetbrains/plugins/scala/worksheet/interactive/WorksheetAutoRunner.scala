@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
 import com.intellij.util.Alarm
@@ -115,27 +116,34 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
         length == 0 || fragment.charAt(length - 1) != '\n'
       }
 
-      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.isRunning(virtualFile) || isReplWrongChar)
+      def isValid(vFile: VirtualFile): Boolean =
+        !woof.hasSyntaxErrors(vFile) && !WorksheetProcessManager.isRunning(vFile)
+
+      if (!isValid(virtualFile) || isReplWrongChar)
         return
 
       val requestDelay = if (isRepl) getAutoRunDelay / 2 else getAutoRunDelay
-      val request: Runnable = new Runnable {
-        override def run() {
-          if (psiFile.isValid) {
-            if (isRepl) {
-              psiFile.findElementAt(offset) match {
-                case null => //it means caret is at the end
-                case ws: PsiWhiteSpace if ws.getParent == psiFile => // continue
-                case _ => return
-              }
-            }
 
-            if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.isRunning(virtualFile))
-              RunWorksheetAction.runCompiler(project, auto = true)
+      def needToRunWorksheet: Boolean = {
+        if (psiFile.isValid) {
+          if (isRepl) {
+            psiFile.findElementAt(offset) match {
+              case null => //it means caret is at the end
+              case ws: PsiWhiteSpace if ws.getParent == psiFile => // continue
+              case _ => return false
+            }
           }
+          isValid(virtualFile)
+        } else {
+          false
         }
       }
-      myAlarm.addRequest(request, requestDelay, true)
+
+      myAlarm.addRequest(() => {
+        if (needToRunWorksheet) {
+          RunWorksheetAction.runCompiler(project, auto = true)
+        }
+      }, requestDelay, true)
     }
   }
 }

@@ -5,10 +5,17 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.Folding
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 trait WorksheetItAssertions {
   self: WorksheetIntegrationBaseTest =>
+
+  def assertViewerEditorText(editor: Editor)(expectedText: String): Unit = {
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+    val actualText = viewer.getDocument.getText
+    assertEquals(expectedText.withNormalizedSeparator, actualText)
+  }
 
   def assertFoldings(expectedFoldings: Seq[Folding], actualFoldings: Seq[Folding]): Unit =
     expectedFoldings.zipAll(actualFoldings, null, null).toList.foreach { case (expected, actual) =>
@@ -46,14 +53,13 @@ trait WorksheetItAssertions {
     )
   }
 
+  def assertNoErrorMessages(editor: Editor): Unit =
+    assertNoMessages(editor, CompilerMessageCategory.ERROR)
 
-  def assertCompiledWithoutErrors(editor: Editor): Unit =
-    assertCompiledWithoutMessages(editor, CompilerMessageCategory.ERROR)
+  def assertNoWarningMessages(editor: Editor): Unit =
+    assertNoMessages(editor, CompilerMessageCategory.WARNING)
 
-  def assertCompiledWithoutWarnings(editor: Editor): Unit =
-    assertCompiledWithoutMessages(editor, CompilerMessageCategory.WARNING)
-
-  def assertCompiledWithoutMessages(editor: Editor, category: CompilerMessageCategory): Unit = {
+  def assertNoMessages(editor: Editor, category: CompilerMessageCategory): Unit = {
     val messages = collectedCompilerMessages(editor).filter(_.getCategory == category)
     if (messages.nonEmpty) {
       val messagesRenders = messages.map { err =>
@@ -67,5 +73,11 @@ trait WorksheetItAssertions {
       }
       fail(s"Unexpected compilation $typ occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
     }
+  }
+
+  protected def collectedCompilerMessages(editor: Editor): Seq[CompilerMessageImpl] = {
+    val collector = worksheetCache.getCompilerMessagesCollector(editor).orNull
+    assertNotNull(collector)
+    collector.collectedMessages.map(_.asInstanceOf[CompilerMessageImpl])
   }
 }
