@@ -442,6 +442,24 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "(str, str1)"
   )
 
+  def testCompleteFirstClauseInPartialFunction(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |case class Bar() extends Foo
+         |
+         |val collector: PartialFunction[Foo, Unit] = {
+         |  ca$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |case class Bar() extends Foo
+         |
+         |val collector: PartialFunction[Foo, Unit] = {
+         |  case Bar() => $CARET
+         |}""".stripMargin,
+    itemText = "Bar()"
+  )
+
   def testCompleteSecondClauseInInfix(): Unit = doClauseCompletionTest(
     fileText =
       s"""Option.empty[(String, String)] foreach {
