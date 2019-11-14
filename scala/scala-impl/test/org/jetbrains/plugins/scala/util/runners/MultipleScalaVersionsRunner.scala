@@ -14,11 +14,10 @@ import org.junit.runner.{Describable, Description}
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, enumerationAsScalaIteratorConverter}
 
-class MultipleScalaVersionsRunner(klass: Class[_])extends {
-  private val myTest = MultipleScalaVersionsRunner.testSuite(
-    klass.asSubclass(classOf[TestCase])
-  )
-} with JUnit38ClassRunner(myTest) {
+class MultipleScalaVersionsRunner(myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
+
+  def this(klass: Class[_]) =
+    this(MultipleScalaVersionsRunner.testSuite(klass.asSubclass(classOf[TestCase])), klass)
 
   override def getDescription: Description = {
     val description = MultipleScalaVersionsRunner.makeDescription(klass, myTest)
