@@ -58,9 +58,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
           methodAndTypes = methodsWithoutFirst
             .map(m => m -> m.`type`())
-            .takeWhile {
-              _._2.isRight
-            }
+            .takeWhile(_._2.isRight)
             .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
 
           methodAndTypesWithoutObviousReturns =
@@ -151,14 +149,10 @@ private object ScalaMethodChainInlayHintsPass {
       case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) =>
         /*
          * Check if we have a situation like
-         *
          *  something
          *   .func {         // <- don't add type here
-         *
          *   }.func {        // <- add type here (return type of `something.func{...}`)
-         *
          *   }.func { x =>   // <- don't add type here
-         *
          *   }
          */
         def isArgumentBegin = mc.args.getFirstChild match {
