@@ -101,9 +101,4 @@ object ScalaTypeHintsConfigurable {
     ScalaCodeInsightSettings.alignMethodChainInlayHintsGetter(),
     ScalaCodeInsightSettings.alignMethodChainInlayHintsSetter()
   )
-
-  class ToggleHideIdenticalTypesInMethodChainsAction extends ToogleTypeAction(
-    ScalaCodeInsightSettings.hideIdenticalTypesInMethodChainsGetter(),
-    ScalaCodeInsightSettings.hideIdenticalTypesInMethodChainsSetter()
-  )
 }

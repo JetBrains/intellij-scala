@@ -27,7 +27,6 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
   protected def showMethodChainInlayHints: Boolean = settings.showMethodChainInlayHints
   protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-  protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
   protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
   protected def showObviousTypes: Boolean = settings.showObviousType
 
@@ -64,13 +63,9 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
             }
             .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
 
-          methodAndTypesWithoutDuplicates =
-            if (!hideIdenticalTypesInMethodChains) methodAndTypes
-            else removeConsecutiveDuplicates(methodAndTypes)
-
           methodAndTypesWithoutObviousReturns =
-            if (alignMethodChainInlayHints || showObviousTypes) methodAndTypesWithoutDuplicates
-            else methodAndTypesWithoutDuplicates.filterNot(hasObviousReturnType)
+            if (alignMethodChainInlayHints || showObviousTypes) methodAndTypes
+            else methodAndTypes.filterNot(hasObviousReturnType)
 
           if methodAndTypesWithoutObviousReturns.length >= minChainCount
 
@@ -194,16 +189,6 @@ private object ScalaMethodChainInlayHintsPass {
     val (expr, ty) = methodAndTypes
     isTypeObvious("", ty.presentableText(expr), methodName(expr))
   }
-
-  private def removeConsecutiveDuplicates(exprsWithTypes: Seq[(ScExpression, ScType)]): Seq[(ScExpression, ScType)] =
-    exprsWithTypes
-      .map { case t@(expr, ty) => t -> ty.presentableText(expr) }
-      .foldLeft((null: String, List.empty[(ScExpression, ScType)])) {
-        case ((_,    Nil), (ewt, tytext))                   => tytext -> List(ewt)
-        case ((last, ls),  (_,   tytext)) if last == tytext => last -> ls
-        case ((_,    ls),  (ewt, tytext))                   => tytext -> (ewt :: ls)
-      }._2.reverse
-
 
   private def removeLastIfHasTypeMismatch(methodsWithTypes: Seq[AlignedHintTemplate]): Seq[AlignedHintTemplate] = {
     val outermostExpr = methodsWithTypes.last.expr

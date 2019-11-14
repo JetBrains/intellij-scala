@@ -334,9 +334,6 @@
             <action id="Scala.ToggleAlignMethodChainInlayHints"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleAlignMethodChainInlayHintsAction"
                     text="Align method chain inlay hints"/>
-            <action id="Scala.ToggleHideIdenticalTypesInMethodChains"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleHideIdenticalTypesInMethodChainsAction"
-                    text="Hide identical types in method chains"/>
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"

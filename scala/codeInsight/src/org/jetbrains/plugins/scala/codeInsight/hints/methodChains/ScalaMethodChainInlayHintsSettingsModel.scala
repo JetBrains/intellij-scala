@@ -19,7 +19,6 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
     var alignMethodChainInlayHints: Boolean = _
-    var hideIdenticalTypesInMethodChains: Boolean = _
     var uniqueTypesToShowMethodChains: Int = _
 
     reset()
@@ -27,21 +26,18 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
     def reset(): Unit = {
       setEnabled(global.showMethodChainInlayHints)
       alignMethodChainInlayHints = global.alignMethodChainInlayHints
-      hideIdenticalTypesInMethodChains = global.hideIdenticalTypesInMethodChains
       uniqueTypesToShowMethodChains = global.uniqueTypesToShowMethodChains
     }
 
     def apply(): Unit = {
       global.showMethodChainInlayHints = isEnabled
       global.alignMethodChainInlayHints = alignMethodChainInlayHints
-      global.hideIdenticalTypesInMethodChains = hideIdenticalTypesInMethodChains
       global.uniqueTypesToShowMethodChains = uniqueTypesToShowMethodChains
     }
 
     def isModified: Boolean =
       global.showMethodChainInlayHints != isEnabled ||
         global.alignMethodChainInlayHints != alignMethodChainInlayHints ||
-        global.hideIdenticalTypesInMethodChains != hideIdenticalTypesInMethodChains ||
         global.uniqueTypesToShowMethodChains != uniqueTypesToShowMethodChains
   }
 
@@ -52,16 +48,6 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
       () => settings.alignMethodChainInlayHints,
       b => {
         settings.alignMethodChainInlayHints = b
-        kUnit
-      },
-      null),
-
-    new ImmediateConfigurable.Case(
-      "Hide identical types in method chains",
-      "Scala.ScalaMethodChainInlayHintsSettingsModel.hideIdenticalTypesInMethodChains",
-      () => settings.hideIdenticalTypesInMethodChains,
-      b => {
-        settings.hideIdenticalTypesInMethodChains = b
         kUnit
       },
       null)
@@ -111,7 +97,6 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
   private lazy val previewPass = new ScalaMethodChainInlayHintsPass {
     protected override def showMethodChainInlayHints: Boolean = true
     override protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-    override protected def hideIdenticalTypesInMethodChains: Boolean = settings.hideIdenticalTypesInMethodChains
     override protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
     override protected def showObviousTypes: Boolean = true // always show obvious types in the preview
   }
