@@ -18,7 +18,7 @@ trait SubstitutablePrecedenceHelper extends PrecedenceHelper {
   }
 
   protected def isPredefPriority: Boolean =
-    knownPriority.contains(PrecedenceTypes.SCALA_PREDEF)
+    knownPriority == precedenceTypes.defaultImportPrecedence("scala.Predef")
 
   override protected def precedence(result: ScalaResolveResult): Int =
     knownPriority.getOrElse(super.precedence(result))

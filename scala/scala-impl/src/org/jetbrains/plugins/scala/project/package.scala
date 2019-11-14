@@ -19,6 +19,8 @@ import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
@@ -229,6 +231,14 @@ package object project {
         _.plugins.exists(isMetaParadiseJar)
       }
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def customDefaultImports: Option[Map[String, Int]] =
+      compilerConfiguration
+        .settingsForHighlighting(module)
+        .flatMap(_.additionalCompilerOptions)
+        .reverseIterator
+        .collectFirst { case RootImportSetting(imports) => imports }
+
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
 
@@ -242,6 +252,30 @@ package object project {
         hasAttribute("Vendor", "org.scalameta") &&
           hasAttribute("Title", "paradise")
       case _ => false
+    }
+  }
+
+  private object RootImportSetting {
+    private val Yimports   = "-Yimports:"
+    private val Ynopredef  = "-Yno-predef"
+    private val Ynoimports = "-Yno-imports"
+
+    private[this] val importSettingsPrefixes = Seq(Yimports, Ynopredef, Ynoimports)
+
+    def unapply(setting: String): Option[Map[String, Int]] = {
+      val prefix = importSettingsPrefixes.find(setting.startsWith)
+
+      prefix.collect {
+        case Yimports =>
+          setting
+            .substring(Yimports.length)
+            .split(",")
+            .map(_.trim)
+            .zipWithIndex
+            .toMap
+        case Ynopredef  => Seq("java.lang", "scala").zipWithIndex.toMap
+        case Ynoimports => Map.empty
+      }
     }
   }
 
@@ -335,6 +369,8 @@ package object project {
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
 
+    def fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(element.getProject)
+
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
     def isInScala3Module: Boolean = module.exists(_.hasScala3)
@@ -362,6 +398,21 @@ package object project {
         case _ => false
       })
 
+    final def isInLibrary: Boolean =
+      (for {
+        psiFile <- element.getContainingFile.toOption
+        vfile   <- psiFile.getVirtualFile.toOption
+      } yield fileIndex.isInLibrary(vfile)).getOrElse(false)
+
+    def defaultImports: Map[String, Int] = {
+      val customDefaultImports =
+        if (isInLibrary) None
+        else             inThisModuleOrProject(_.customDefaultImports).flatten
+
+      customDefaultImports
+        .getOrElse(FileDeclarationsHolder.defaultImplicitlyImportedSymbols.zipWithIndex.toMap)
+    }
+
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
 
@@ -374,6 +425,7 @@ package object project {
     private def worksheetModule: Option[Module] =
       element.getContainingFile.toOption
         .flatMap(_.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE).toOption)
+
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {

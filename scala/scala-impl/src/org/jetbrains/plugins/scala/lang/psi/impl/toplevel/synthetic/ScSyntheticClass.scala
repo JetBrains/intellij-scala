@@ -470,7 +470,7 @@ object Unit
 
   def registerClass(t: StdType, name: String) = {
     val clazz = new ScSyntheticClass(name, t) {
-      override def getQualifiedName = "scala." + name
+      override def getQualifiedName: String = "scala." + name
     }
 
     all += ((name, clazz)); clazz

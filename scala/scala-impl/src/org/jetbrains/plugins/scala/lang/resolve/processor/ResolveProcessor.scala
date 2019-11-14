@@ -43,7 +43,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   @volatile
-  private var resolveScope: GlobalSearchScope = null
+  private var resolveScope: GlobalSearchScope = _
 
   private val history = new ArrayBuffer[HistoryEvent]
   private var fromHistory: Boolean = false
@@ -59,9 +59,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def getPlace: PsiElement = ref
 
-  val isThisOrSuperResolve = ref.getParent match {
+  private[this] val isThisOrSuperResolve = ref.getParent match {
     case _: ScThisReference | _: ScSuperReference => true
-    case _ => false
+    case _                                        => false
   }
 
   def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
@@ -76,13 +76,14 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     */
   def resetPrecedence(): Unit = holder.reset()
 
-  import PrecedenceTypes._
+  import precedenceTypes._
 
   def checkImports(): Boolean = checkPrecedence(IMPORT)
 
   def checkWildcardImports(): Boolean = checkPrecedence(WILDCARD_IMPORT)
 
-  def checkPredefinedClassesAndPackages(): Boolean = checkPrecedence(SCALA_PREDEF)
+  def checkPredefinedClassesAndPackages(): Boolean =
+    checkPrecedence(precedenceTypes.defaultImportMaxPrecedence)
 
   private def checkPrecedence(i: Int) =
     holder.currentPrecedence <= i
