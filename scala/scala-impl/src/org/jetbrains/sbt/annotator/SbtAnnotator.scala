@@ -2,15 +2,13 @@ package org.jetbrains.sbt
 package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.{ModuleExt, Version}
 import org.jetbrains.sbt.language.SbtFileImpl
 
 /**
@@ -20,9 +18,11 @@ final class SbtAnnotator extends Annotator {
 
   import SbtAnnotator._
 
-  def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
     case file: SbtFileImpl =>
-      val sbtVersion = sbtVersionFor(file)
+      val sbtVersion = file.module
+        .flatMap(_.sbtVersion)
+        .getOrElse(Sbt.LatestVersion)
 
       val less_13_6 = sbtVersion < Version("0.13.6")
       val allowedTypes =
@@ -93,23 +93,9 @@ object SbtAnnotator {
     }
   }
 
-  private def sbtVersionFor(file: SbtFileImpl): Version =
-    findSbtVersion(file)(file.getProject).fold(Sbt.LatestVersion) {
-      Version(_)
-    }
-
   private def missingBlankLines(elements: Seq[PsiElement]) =
     elements.sliding(3).flatMap {
       case Seq(_: ScExpression, space: PsiWhiteSpace, expression: ScExpression) if space.getText.count(_ == '\n') == 1 => Some(expression)
       case _ => None
     }
-
-  private[this] def findSbtVersion(file: SbtFileImpl)
-                                  (implicit project: Project): Option[String] =
-    for {
-      virtualFile <- Option(file.getVirtualFile)
-      module <- Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
-      projectSettings <- settings.SbtSettings.getInstance(project).getLinkedProjectSettings(module)
-      version <- Option(projectSettings.sbtVersion)
-    } yield version
 }
