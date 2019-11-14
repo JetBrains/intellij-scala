@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
@@ -145,57 +146,45 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   private var precedence = -1
 
-  @tailrec
-  private def getPackageName(element: PsiElement): String = element match {
-    case null => ""
-    case o: ScObject if o.isPackageObject =>
-      val qualifier = o.qualifiedName
-      val packageSuffix: String = ".`package`"
-      if (qualifier.endsWith(packageSuffix))
-        qualifier.substring(0, qualifier.length - packageSuffix.length)
-      else qualifier
-    case p: ScPackaging => p.fullPackageName
-    case _              => getPackageName(element.getParent)
+  private def containingPackageName(clazz: PsiClass): Option[String] = {
+    if (clazz.containingClass != null)
+      return None
+
+    //noinspection ScalaWrongMethodsUsage
+    qualifier(clazz.getQualifiedName)
   }
+
+  private def qualifier(fqn: String): Option[String] = {
+    val lastDot = Option(fqn).map(_.lastIndexOf('.'))
+
+    lastDot.filter(_ > 0).map(fqn.substring(0, _))
+  }
+
 
   /**
     * See [[org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes]]
     */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
-    import PrecedenceTypes.{OTHER_MEMBERS => _, _}
-    lazy val OTHER_MEMBERS: Int = PrecedenceTypes.OTHER_MEMBERS(element, place)
+    import PrecedenceTypes._
 
-    def getPackagePrecedence(qualifier: String): Int = {
-      if (qualifier == null) return OTHER_MEMBERS
-      val index: Int = qualifier.lastIndexOf('.')
-      if (index == -1) return PACKAGE_LOCAL_PACKAGE
-      val q = qualifier.substring(0, index)
-
-      if (q == "java.lang")           JAVA_LANG
-      else if (q == "scala")          SCALA
-      else if (q == placePackageName) OTHER_MEMBERS
-      else                            PACKAGE_LOCAL_PACKAGE
+    def getPackagePrecedence(packageFqn: String): Int = {
+      qualifier(packageFqn) match {
+        case Some("java.lang") => JAVA_LANG
+        case Some("scala") => SCALA
+        case _ => PACKAGE_LOCAL_PACKAGE
+      }
     }
 
     def getClazzPrecedence(clazz: PsiClass): Int = {
-      val q = clazz match {
-        case td: ScTypeDefinition =>
-          if (td.containingClass != null) return OTHER_MEMBERS
-          getPackageName(td)
-        case p: PsiClass =>
-          if (p.getContainingClass != null) return OTHER_MEMBERS
-          val qualifier = p.getQualifiedName
-          if (qualifier == null) return OTHER_MEMBERS
-          val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return OTHER_MEMBERS
-          qualifier.substring(0, index)
+      containingPackageName(clazz) match {
+        case Some("java.lang") => JAVA_LANG
+        case Some("scala") => SCALA
         case _ =>
-      }
+          val sameFile = ScalaPsiUtil.fileContext(clazz) == ScalaPsiUtil.fileContext(place)
 
-      if (q == "java.lang")           JAVA_LANG
-      else if (q == "scala")          SCALA
-      else if (q == placePackageName) OTHER_MEMBERS
-      else                            PACKAGE_LOCAL
+          if (sameFile) OTHER_MEMBERS
+          else PACKAGE_LOCAL
+      }
     }
 
     def getPrecedenceInner: Int = {
@@ -241,37 +230,25 @@ class ScalaResolveResult(val element: PsiNamedElement,
       }
       val importsUsedSeq = importsUsed.toSeq
       val importUsed: ImportUsed = importsUsedSeq.last
+      val importStmt = importUsed.importExpr.map(_.getParent).filterByType[ScImportStmt]
+      val isTopLevel = importStmt.exists(_.getParent.is[ScPackaging, PsiFile])
+
       // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
       //      these separately.
-      importUsed match {
-        case _: ImportWildcardSelectorUsed =>
-          getActualElement match {
-            case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
-            case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
-            case _ => WILDCARD_IMPORT
-          }
-        case _: ImportSelectorUsed =>
-          getActualElement match {
-            case _: PsiPackage => IMPORT_PACKAGE
-            case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
-            case _ => IMPORT
-          }
-        case ImportExprUsed(expr) =>
-          if (expr.isSingleWildcard) {
-            getActualElement match {
-              case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
-              case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
-              case _ => WILDCARD_IMPORT
-            }
-          } else {
-            getActualElement match {
-              case _: PsiPackage => IMPORT_PACKAGE
-              case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
-              case _ => IMPORT
-            }
-          }
+      val isWildcard = importUsed match {
+        case _: ImportWildcardSelectorUsed => true
+        case ImportExprUsed(expr) => expr.isSingleWildcard
+        case _ => false
       }
+      val isPackage = getActualElement match {
+        case _: PsiPackage => true
+        case o: ScObject => o.isPackageObject
+        case _ => false
+      }
+
+      importPrecedence(place)(isPackage, isWildcard, isTopLevel)
     }
+
     if (precedence == -1) {
       precedence = getPrecedenceInner
     }
