@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModuleType
+import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -113,11 +114,24 @@ package object project {
       collector.getResults.asScala.toSet
     }
 
+    def sbtVersion: Option[Version] =
+      SbtSettings.getInstance(module.getProject)
+        .getLinkedProjectSettings(module)
+        .flatMap { projectSettings =>
+          Option(projectSettings.sbtVersion)
+        }.map {
+        Version(_)
+      }
+
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def isTrailingCommasEnabled: Boolean = scalaSdk.flatMap {
       _.compilerVersion
-    }.exists { presentation =>
-      Version(presentation) >= Version("2.12.2")
+    }.map {
+      Version(_)
+    }.exists {
+      _ >= Version("2.12.2")
+    } || sbtVersion.exists {
+      _ >= Version("1.0")
     }
 
     def scalaCompilerSettings: ScalaCompilerSettings =
