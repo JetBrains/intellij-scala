@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiPackage}
 import com.intellij.util.containers.SmartHashSet
 import gnu.trove.TObjectHashingStrategy
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -38,7 +39,7 @@ trait PrecedenceHelper {
       left.nameInScope == right.nameInScope
   }
 
-  protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
+  protected lazy val placePackageName: String = getPlacePackage(getPlace)
 
   protected val holder: TopPrecedenceHolder
 
@@ -171,4 +172,15 @@ object PrecedenceHelper {
         Some(importExpression.qualifier)
       case _ => None
     }
+
+  @tailrec
+  private def getPlacePackage(place: PsiElement): String = {
+    getContextOfType(place, true, classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile]) match {
+      case pack: ScPackaging                    => pack.fullPackageName
+      case obj: ScObject if obj.isPackageObject => obj.qualifiedName
+      case obj: ScObject                        => getPlacePackage(obj)
+      case null | _: ScalaFile                  => ""
+    }
+  }
+
 }
