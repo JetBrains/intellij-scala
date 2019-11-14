@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -272,7 +273,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       firstPsi = psi
       lastPsi = psi
     }
-     
+
     for (child <- holder.getNode.getChildren(null)) {
       child.getPsi match {
         case _: PsiWhiteSpace =>
@@ -664,10 +665,10 @@ object ScalaImportOptimizer {
   private def mergeImportInfos(buffer: ArrayBuffer[ImportInfo]): ArrayBuffer[ImportInfo] = {
     def canBeMergedAt(i: Int): Boolean =
       i > -1 && i < buffer.length && !ScalaScriptImportsUtil.preventMerging(buffer(i))
-    
+
     def samePrefixAfter(i: Int): Int = {
       if (!canBeMergedAt(i)) return -1
-      
+
       var j = i + 1
       while (j < buffer.length) {
         if (buffer(j).prefixQualifier == buffer(i).prefixQualifier) return j
@@ -675,7 +676,7 @@ object ScalaImportOptimizer {
       }
       -1
     }
-    
+
     var i = 0
     while (i < buffer.length - 1) {
       val prefixIndex: Int = samePrefixAfter(i)
@@ -763,19 +764,20 @@ object ScalaImportOptimizer {
   }
 
   private def collectImportsUsed(element: PsiElement, imports: util.Set[ImportUsed], names: util.Set[UsedName]): Unit = {
-    def fromDefaultImport(srr: ScalaResolveResult) = {
+    val defaultImportsSet = element.defaultImports
+
+    def fromDefaultImport(srr: ScalaResolveResult): Boolean =
       srr.element match {
         case c: PsiClass =>
-          val qName = c.qualifiedName
-          val name = c.name
-          qName == s"scala.$name" || qName == s"java.lang.$name"
-        case ContainingClass(o: ScObject) =>
-          o.isPackageObject && Set("scala", "scala.Predef").contains(o.qualifiedName)
-        case _ => false
+          val qName   = c.qualifiedName
+          val name    = c.name
+          val pkgName = qName.substring(0, qName.length - name.length)
+          defaultImportsSet.contains(pkgName)
+        case ContainingClass(o: ScObject) => defaultImportsSet.contains(o.qualifiedName)
+        case _                            => false
       }
-    }
 
-    def addResult(srr: ScalaResolveResult, fromElem: PsiElement) = {
+    def addResult(srr: ScalaResolveResult, fromElem: PsiElement): Unit = {
       val importsUsed = srr.importsUsed
       if (importsUsed.nonEmpty || fromDefaultImport(srr)) {
         imports.addAll(importsUsed.asJava)

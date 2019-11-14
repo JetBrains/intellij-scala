@@ -29,6 +29,8 @@ trait PrecedenceHelper {
 
   def getPlace: PsiElement
 
+  protected val precedenceTypes = new PrecedenceTypes(getPlace)
+
   protected abstract class NameUniquenessStrategy extends TObjectHashingStrategy[ScalaResolveResult] {
 
     def isValid(result: ScalaResolveResult): Boolean = true
@@ -132,12 +134,11 @@ trait PrecedenceHelper {
   }
 
   protected def precedence(result: ScalaResolveResult): Int =
-    if (result.prefixCompletion) PrecedenceTypes.PREFIX_COMPLETION
-    else result.getPrecedence(getPlace, placePackageName)
+    if (result.prefixCompletion) precedenceTypes.PREFIX_COMPLETION
+    else                         result.getPrecedence(getPlace, placePackageName)
 }
 
 object PrecedenceHelper {
-
   private val IgnoredPackages: Set[String] =
     Set("java.lang", "scala", "scala.Predef")
 

@@ -6,12 +6,13 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
@@ -22,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Resolv
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.{BetterMonadicForSupport, KindProjectorUtil}
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
-
-import scala.collection.mutable
 
 /**
   * User: Dmitry Naydanov
@@ -102,92 +101,79 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       _.processAdditionalDeclarations(processor, this, state)
     )
 
+
     val checkPredefinedClassesAndPackages = processor match {
       case r: ResolveProcessor => r.checkPredefinedClassesAndPackages()
-      case _ => true
+      case _                   => true
     }
-
-    val checkWildcardImports = processor match {
-      case r: ResolveProcessor => r.checkWildcardImports()
-      case _ => true
-    }
-
-    def checkObjects(priority: Int,
-                     objects: Set[String] = Set.empty): Boolean = {
-      val attachedQualifiers = mutable.HashSet.empty[String]
-
-      val implObjects = mutable.ArrayBuffer.empty[PsiClass]
-      for (obj <- objects) {
-        implObjects ++= ScalaPsiManager.instance(getProject).getCachedClasses(scope, obj)
-      }
-
-      val implObjIter = implObjects.iterator
-
-      updateProcessor(processor, priority) {
-        while (implObjIter.hasNext) {
-          val clazz = implObjIter.next()
-          if (!attachedQualifiers.contains(clazz.qualifiedName)) {
-            attachedQualifiers += clazz.qualifiedName
-            ProgressManager.checkCanceled()
-
-            clazz match {
-              case td: ScTypeDefinition if !isScalaPredefinedClass =>
-                val newState = state.withFromType(td.`type`().toOption)
-                if (!clazz.processDeclarations(processor, newState, null, place)) return false
-              case _ =>
-            }
-          }
-        }
-      }
-      true
-    }
-
-    def checkPackages(): Boolean = {
-      val iterator = DefaultImplicitlyImportedPackages.iterator
-      while (iterator.hasNext) {
-        ProgressManager.checkCanceled()
-
-        manager.getCachedPackage(iterator.next()) match {
-          case Some(pack) if !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place) => return false
-          case _ =>
-        }
-      }
-
-      true
-    }
-
-    if (checkWildcardImports &&
-      !checkObjects(PrecedenceTypes.WILDCARD_IMPORT)) return false
 
     if (checkPredefinedClassesAndPackages) {
-      if (!checkObjects(PrecedenceTypes.SCALA_PREDEF, DefaultImplicitlyImportedObjects)) return false
-
-      val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
-      val namesSet =
-        if (scalaPack != null) ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(scalaPack, scope)
-        else Set.empty[String]
-
-      def alreadyContains(className: String) = namesSet.contains(className)
-
-      val classes = SyntheticClasses.get(getProject)
-      val synthIterator = classes.getAll.iterator
-      while (synthIterator.hasNext) {
-        val synth = synthIterator.next()
-        ProgressManager.checkCanceled()
-        if (!alreadyContains(synth.getName) && !processor.execute(synth, state)) return false
-      }
-
-      val synthObjectsIterator = classes.syntheticObjects.valuesIterator
-      while (synthObjectsIterator.hasNext) {
-        val synth = synthObjectsIterator.next()
-        ProgressManager.checkCanceled()
-        if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
-      }
-
-      if (!checkPackages()) return false
+      if (!processImplicitImports(processor, scope, state, place)) return false
     }
 
-    if (isProcessLocalClasses(lastParent) && !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+    if (isProcessLocalClasses(lastParent) &&
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+
+    true
+  }
+
+  def processScalaPackage(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    psiManager: ScalaPsiManager,
+    scope:      GlobalSearchScope
+  ): Boolean = {
+    val scalaPkg = psiManager.getCachedPackage("scala")
+
+    val namesSet = scalaPkg.fold(Set.empty[String])(
+      ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(_, scope)
+    )
+
+    val syntheticClasses = SyntheticClasses.get(getProject)
+    val iterator         = syntheticClasses.getAll.iterator ++ syntheticClasses.syntheticObjects.valuesIterator
+
+    iterator.foreach { syntheticSym =>
+      ProgressManager.checkCanceled()
+      if (!namesSet.contains(syntheticSym.getName) && processor.execute(syntheticSym, state))
+        return false
+    }
+
+    true
+  }
+
+  def processImplicitImports(
+    processor: PsiScopeProcessor,
+    scope:     GlobalSearchScope,
+    state:     ResolveState,
+    place:     PsiElement
+  ): Boolean = {
+    val precedenceTypes = new PrecedenceTypes(this)
+    val importedSymbols = precedenceTypes.defaultImportsWithPrecedence
+    val psiManager      = ScalaPsiManager.instance(getProject)
+
+    importedSymbols.foreach { case (fqn, precedence) =>
+      ProgressManager.checkCanceled()
+
+      /* scala package requires special treatment to process synthetic classes/objects */
+      if (fqn == "scala") processScalaPackage(processor, state, psiManager, scope)
+
+      val maybeObject = psiManager.getCachedClass(scope, fqn)
+
+      updateProcessor(processor, precedence) {
+        maybeObject.collect { case obj: ScObject =>
+          if (!isScalaPredefinedClass) {
+            val newState = state.withFromType(obj.`type`().toOption)
+            if (!obj.processDeclarations(processor, newState, null, place)) return false
+          }
+        }
+
+        val maybePackage = psiManager.getCachedPackage(fqn)
+        maybePackage.foreach(pkg =>
+          if (!ResolveUtils.packageProcessDeclarations(pkg, processor, state, null, place))
+            return false
+        )
+      }
+    }
 
     true
   }
@@ -197,16 +183,14 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
-
-  private[psi] val DefaultImplicitlyImportedPackages = Set("scala", "java.lang")
-  private[psi] val DefaultImplicitlyImportedObjects = Set("scala.Predef", "scala" /* package object*/)
+  val defaultImplicitlyImportedSymbols: Seq[String] = Seq("java.lang", "scala", "scala.Predef")
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
                              (body: => Unit): Unit =
     processor match {
       case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
-      case _ => body
+      case _                                                   => body
     }
 
   /**
