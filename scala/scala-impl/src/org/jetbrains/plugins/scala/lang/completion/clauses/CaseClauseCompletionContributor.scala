@@ -41,7 +41,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
   extend(
     leafWithParent {
       nonQualifiedReference.withParent {
-        psiElement(classOf[ScBlockExpr]).withParent(psiElement(classOf[ScArgumentExprList]) || psiElement(classOf[ScInfixExpr])) ||
+        psiElement(classOf[ScBlockExpr]) ||
           psiElement(classOf[ScBlock]).withParent(classOf[ScCaseClause])
       }
     }
