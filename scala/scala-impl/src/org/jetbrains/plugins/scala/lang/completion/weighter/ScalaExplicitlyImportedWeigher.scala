@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -87,12 +87,11 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         }
       }
     }
-    if (qualNoPoint != null && qualNoPoint == "scala" ||
-      qualNoPoint == "java.lang" || qualNoPoint == "scala.Predef") {
-      if (qualNoPoint == "java.lang") return Some(1)
-      else return Some(2)
-    }
-    None
+
+    val defaultImports = position.defaultImports
+
+    if (defaultImports.contains(qualNoPoint)) Some(2)
+    else                                      None
   }
 
   def applyToMember(member: ScMember, position: PsiElement): Option[Integer] = {

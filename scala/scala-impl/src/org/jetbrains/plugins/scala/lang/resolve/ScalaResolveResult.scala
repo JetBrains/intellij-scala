@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -27,8 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
-
-import scala.annotation.tailrec
 
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor = ScSubstitutor.empty,
@@ -165,34 +162,28 @@ class ScalaResolveResult(val element: PsiNamedElement,
     * See [[org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes]]
     */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
-    import PrecedenceTypes._
+    val precedenceTypes = new PrecedenceTypes(place)
+    import precedenceTypes._
 
-    def getPackagePrecedence(packageFqn: String): Int = {
-      qualifier(packageFqn) match {
-        case "java.lang" => JAVA_LANG
-        case "scala"     => SCALA
-        case _           => PACKAGE_LOCAL_PACKAGE
-      }
-    }
+    def getPackagePrecedence(packageFqn: String): Int =
+      defaultImportPrecedence(packageFqn).getOrElse(PACKAGE_LOCAL_PACKAGE)
 
-    def getClazzPrecedence(clazz: PsiClass): Int = {
+    def getClazzPrecedence(clazz: PsiClass): Int =
       containingPackageName(clazz) match {
-        case Some("java.lang") => JAVA_LANG
-        case Some("scala")     => SCALA
-        case None              => OTHER_MEMBERS //is local or inherited
-        case Some(pckg)        =>
-          val sameFile = ScalaPsiUtil.fileContext(clazz) == ScalaPsiUtil.fileContext(place)
+        case None => OTHER_MEMBERS //is local or inherited
+        case Some(pckg) =>
+          defaultImportPrecedence(pckg).getOrElse {
+            val sameFile = ScalaPsiUtil.fileContext(clazz) == ScalaPsiUtil.fileContext(place)
 
-          if (sameFile) OTHER_MEMBERS
-          else if (pckg == placePackageName) SAME_PACKAGE
-          else PACKAGING
+            if (sameFile) OTHER_MEMBERS
+            else if (pckg == placePackageName) SAME_PACKAGE
+            else PACKAGING
+          }
       }
-    }
 
     def getPrecedenceInner: Int = {
       if (importsUsed.isEmpty) {
         ScalaPsiUtil.nameContext(getActualElement) match {
-          case _: ScSyntheticClass => return SCALA //like scala.Int
           case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
             return getPackagePrecedence(qualifier)
@@ -203,20 +194,25 @@ class ScalaResolveResult(val element: PsiNamedElement,
             return getClazzPrecedence(clazz)
           case _: ScBindingPattern | _: PsiMember =>
             val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
+
             val clazz: PsiClass = clazzStub match {
               case clazz: PsiClass => clazz
-              case _ => null
+              case _               => null
             }
+
             //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
             if (clazz == null) return OTHER_MEMBERS
             else {
-              clazz.qualifiedName match {
-                case "scala.Predef" => return SCALA_PREDEF
-                case "scala.LowPriorityImplicits" => return SCALA_PREDEF
-                case "scala" => return SCALA
+              val fqn = clazz.qualifiedName
+              fqn match {
+                case "scala.Predef" =>
+                  return defaultImportPrecedence("scala.Predef").getOrElse(OTHER_MEMBERS)
+                case "scala.LowPriorityImplicits" =>
+                  return defaultImportPrecedence("scala.Predef").getOrElse(OTHER_MEMBERS)
+                case "scala" => return defaultImportPrecedence("scala").getOrElse(OTHER_MEMBERS)
                 case _ =>
                   clazz match {
-                    case o: ScObject if o.isPackageObject  && !PsiTreeUtil.isContextAncestor(o, place, false) =>
+                    case o: ScObject if o.isPackageObject && !PsiTreeUtil.isContextAncestor(o, place, false) =>
                       var q = o.qualifiedName
                       val packageSuffix: String = ".`package`"
                       if (q.endsWith(packageSuffix)) q = q.substring(0, q.length - packageSuffix.length)
@@ -230,25 +226,27 @@ class ScalaResolveResult(val element: PsiNamedElement,
         }
         return OTHER_MEMBERS
       }
+
       val importsUsedSeq = importsUsed.toSeq
-      val importUsed: ImportUsed = importsUsedSeq.last
-      val importStmt = importUsed.importExpr.map(_.getParent).filterByType[ScImportStmt]
-      val isTopLevel = importStmt.exists(_.getParent.is[ScPackaging, PsiFile])
+      val importUsed     = importsUsedSeq.last
+      val importStmt     = importUsed.importExpr.map(_.getParent).filterByType[ScImportStmt]
+      val isTopLevel     = importStmt.exists(_.getParent.is[ScPackaging, PsiFile])
 
       // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
       //      these separately.
       val isWildcard = importUsed match {
         case _: ImportWildcardSelectorUsed => true
-        case ImportExprUsed(expr) => expr.isSingleWildcard
-        case _ => false
-      }
-      val isPackage = getActualElement match {
-        case _: PsiPackage => true
-        case o: ScObject => o.isPackageObject
-        case _ => false
+        case ImportExprUsed(expr)          => expr.isSingleWildcard
+        case _                             => false
       }
 
-      importPrecedence(place)(isPackage, isWildcard, isTopLevel)
+      val isPackage = getActualElement match {
+        case _: PsiPackage => true
+        case o: ScObject   => o.isPackageObject
+        case _             => false
+      }
+
+      importPrecedence(isPackage, isWildcard, isTopLevel)
     }
 
     if (precedence == -1) {

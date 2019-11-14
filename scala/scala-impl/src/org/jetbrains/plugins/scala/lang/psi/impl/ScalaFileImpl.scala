@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
-import org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsHolder.DefaultImplicitlyImportedObjects
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
@@ -341,8 +340,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
   protected final def isScalaPredefinedClass: Boolean = typeDefinitions match {
-    case Seq(head) => DefaultImplicitlyImportedObjects(head.qualifiedName)
-    case _ => false
+    case Seq(head) => FileDeclarationsHolder.defaultImplicitlyImportedSymbols.contains(head.qualifiedName)
+    case _         => false
   }
 }
 
