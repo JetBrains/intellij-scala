@@ -97,8 +97,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected def checkHasErrorAroundCaret(text: String): Unit = {
-    myFixture.configureByText("dummy.scala", text)
-    val caretIndex = text.indexOf(CARET)
+    val normalizedText = normalize(text)
+    myFixture.configureByText("dummy.scala", normalizedText)
+    val caretIndex = normalizedText.indexOf(CARET)
 
     def isAroundCaret(info: HighlightInfo) = caretIndex == -1 || new TextRange(info.getStartOffset, info.getEndOffset).contains(caretIndex)
     val infos = myFixture.doHighlighting().asScala
