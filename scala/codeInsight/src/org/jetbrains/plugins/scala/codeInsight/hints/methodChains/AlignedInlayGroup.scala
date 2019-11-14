@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.AlignedInlayGroup._
-import org.jetbrains.plugins.scala.codeInsight.hints.typeHintsMenu
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -43,27 +42,26 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     }
   }
 
-  private val inlays: Seq[Inlay[AlignedInlayRenderer]] =
-    for(line <- alignmentLines; hint <- line.maybeHint) yield {
-      val inlay = inlayModel.addAfterLineEndElement(
-        hint.expr.endOffset,
-        false,
-        new AlignedInlayRenderer(line, hint.textParts)
-      )
-      inlay.putUserData(ScalaMethodChainKey, true)
-      inlay
-    }
+  // unfortunately `AlignedHintsRenderer.getMargin -> recalculateGroupsOffsets`
+  // is called by `inlayModel.addAfterLineEndElement`
+  // so we set it to empty first, so it is not null while the inlays are being build
+  private var inlays: Seq[Inlay[AlignedInlayRenderer]] = Seq.empty
 
   locally {
+    inlays =
+      for(line <- alignmentLines; hint <- line.maybeHint) yield {
+        val inlay = inlayModel.addAfterLineEndElement(
+          hint.expr.endOffset,
+          false,
+          new AlignedInlayRenderer(line, hint.textParts, recalculateGroupsOffsets)
+        )
+        inlay.putUserData(ScalaMethodChainKey, true)
+        inlay
+      }
     inlays.head.putUserData(ScalaMethodChainDisposableKey, this)
   }
 
   private def recalculateGroupsOffsets(editor: Editor): Unit = {
-    // unfortunately `AlignedHintsRenderer.getMargin -> recalculateGroupsOffsets`
-    // is called by `inlayModel.addAfterLineEndElement` before inlays is actually set
-    if (inlays == null)
-      return
-
     val allEndXs = alignmentLines.map(_.lineEndX(editor))
     val actualEndXs = alignmentLines.withFilter(_.hasHint).map(_.lineEndX(editor))
     val max = allEndXs.max
@@ -81,6 +79,16 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
   }
 
   override def dispose(): Unit = alignmentLines.foreach(_.dispose())
+}
+private object AlignedInlayGroup {
+  private val ScalaMethodChainDisposableKey: Key[Disposable] = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
+
+  def dispose(inlay: Inlay[_]): Unit = {
+    inlay
+      .getUserData(ScalaMethodChainDisposableKey)
+      .nullSafe
+      .foreach(Disposer.dispose)
+  }
 
   private class AlignmentLine(offset: Int, val maybeHint: Option[AlignedHintTemplate])(document: Document) extends Disposable {
     private val marker: RangeMarker = document.createRangeMarker(offset, offset)
@@ -94,11 +102,13 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     override def dispose(): Unit = marker.dispose()
   }
 
-  private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text])
+
+  private case class Cached(lineEndX: Int, margin: Int)
+
+  private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text], recalculateGroupsOffsets: Editor => Unit)
     extends TextPartsHintRenderer(textParts, typeHintsMenu) {
 
-    private case class Cached(lineEndX: Int, margin: Int)
-    private var cached: Cached = Cached(0, 0)
+    private var cached: Cached = Cached(lineEndX = 0, margin = 0)
 
     def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_]): Unit = {
       if (cached.margin != margin) {
@@ -119,18 +129,6 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
       super.paint(editor, g, r, textAttributes)
     }
 
-    override def getMargin(editor: Editor): Insets = {
-      new Insets(0, cached.margin, 0, 0)
-    }
-  }
-}
-private object AlignedInlayGroup {
-  private val ScalaMethodChainDisposableKey: Key[Disposable] = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
-
-  def dispose(inlay: Inlay[_]): Unit = {
-    inlay
-      .getUserData(ScalaMethodChainDisposableKey)
-      .nullSafe
-      .foreach(Disposer.dispose)
+    override def getMargin(editor: Editor): Insets = new Insets(0, cached.margin, 0, 0)
   }
 }
