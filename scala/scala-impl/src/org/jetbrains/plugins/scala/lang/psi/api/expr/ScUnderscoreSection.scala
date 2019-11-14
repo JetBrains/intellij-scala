@@ -4,8 +4,8 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
 
@@ -60,12 +60,6 @@ trait ScUnderscoreSection extends ScExpression {
         case x: ScExpression if calcArguments => Some(x)
         case x: ScMatch if !calcArguments => Some(x)
         case x: ScTypedExpression if !calcArguments => Some(x)
-        case _: ScExpression if !calcArguments =>
-          expr match {
-            case _: ScUnderscoreSection => None
-            case expr: ScExpression => Some(expr)
-            case _ => None
-          }
         case _ => expr match {
           case _: ScUnderscoreSection => None
           case x: ScExpression => Some(x)
@@ -116,24 +110,28 @@ object ScUnderScoreSectionUtil {
 
   def isUnderscoreFunction(expr: ScExpression): Boolean = underscores(expr).nonEmpty
 
+  /**Collects parameters of anonymous functions in placeholder syntax*/
   def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = {
-    if (expr.getText.indexOf('_') == -1) return Seq.empty
-    def inner(innerExpr: PsiElement): Seq[ScUnderscoreSection] = {
-      innerExpr match {
-        case under: ScUnderscoreSection =>
-          under.bindingExpr match {
-            case Some(_) => return Seq.empty
-            case _ =>
-          }
-          under.overExpr match {
-            case Some(e) if expr == e =>
-              Seq(under)
-            case _ => Seq.empty
-          }
+    if (!expr.isValid)
+      return Nil
+
+    val expressionText = expr.getText
+    val file = expr.getContainingFile
+    val start = expr.startOffset
+
+    var index = expressionText.lastIndexOf('_')
+    var found: List[ScUnderscoreSection] = Nil
+
+    while (index >= 0) {
+      val leaf = file.findElementAt(start + index)
+      leaf.getParent match {
+        case u: ScUnderscoreSection if u.bindingExpr.isEmpty && u.overExpr.contains(expr) =>
+          found = u :: found
         case _ =>
-          innerExpr.getChildren.flatMap(inner)
       }
+      index = expressionText.lastIndexOf('_', index - 1)
     }
-    inner(expr)
+
+    found
   }
 }
