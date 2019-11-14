@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
+
 /**
   * @author Pavel Fatin
   */
@@ -26,16 +28,22 @@ sealed abstract class Implementation {
     case _ => false
   }
 
-  final def hasStableType: Boolean = bodyCandidate.exists {
-    case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
-    case definition: ScNewTemplateDefinition => definition.extendsBlock.templateBody.isEmpty
-    case _: ScUnitExpr |
-         _: ScThrow |
-         ScReferenceExpression(_: PsiEnumConstant) |
-         StableApplyCall() |
-         ScMethodCall(StableApplyCall(), _) |
-         EmptyCollectionFactoryCall(_) => true
-    case _ => false
+  final def hasStableType: Boolean = {
+    @tailrec
+    def hasStableTypeInner(expr: ScExpression): Boolean = expr match {
+      case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
+      case definition: ScNewTemplateDefinition => definition.extendsBlock.templateBody.isEmpty
+      case ScParenthesisedExpr(inner) => hasStableTypeInner(inner)
+      case _: ScUnitExpr |
+           _: ScThrow |
+           ScReferenceExpression(_: PsiEnumConstant) |
+           StableApplyCall() |
+           ScMethodCall(StableApplyCall(), _) |
+           EmptyCollectionFactoryCall(_) => true
+      case _ => false
+    }
+
+    bodyCandidate.exists(hasStableTypeInner)
   }
 
   protected def returnCandidates: Iterator[PsiElement]
@@ -49,9 +57,9 @@ sealed abstract class Definition extends Implementation {
 
   def parameterList: Option[ScalaPsiElement] = None
 
-  def bodyCandidate: Option[ScExpression] = None
+  override def bodyCandidate: Option[ScExpression] = None
 
-  protected def returnCandidates: Iterator[PsiElement] = Iterator.empty
+  override protected def returnCandidates: Iterator[PsiElement] = Iterator.empty
 }
 
 object Definition {
@@ -91,7 +99,7 @@ object Definition {
 
   case class FunctionDefinition(function: ScFunctionDefinition) extends Definition {
 
-    override def name = Some(function.name)
+    override def name: Option[String] = Some(function.name)
 
     override def parameterList: Option[ScalaPsiElement] =
       if (function.hasExplicitType || function.isConstructor) None
@@ -109,7 +117,7 @@ object Definition {
 
 case class Expression(expression: ScExpression) extends Implementation {
 
-  protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst()
+  override protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst()
 
   override protected def bodyCandidate: Option[ScExpression] = Some(expression)
 }
