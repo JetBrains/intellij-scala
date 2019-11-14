@@ -50,7 +50,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
             else methodsAtLineEnd.init
 
           methodsWithoutFirst = {
-            val dontShowFirst = isSimpleReference(methodsWithoutLast.head) || hasStableType(methodsAtLineEnd.head)
+            val dontShowFirst = isSimpleReference(methodsWithoutLast.head) || Expression(methodsAtLineEnd.head).hasStableType
 
             if (alignMethodChainInlayHints || !dontShowFirst) methodsWithoutLast
             else methodsWithoutLast.tail
@@ -203,11 +203,5 @@ private object ScalaMethodChainInlayHintsPass {
     case ref: ScReferenceExpression => !ref.isQualified
     case ScParenthesisedExpr(inner) => isSimpleReference(inner)
     case _ => false
-  }
-
-  @tailrec
-  private def hasStableType(expr: ScExpression): Boolean = expr match {
-    case ScParenthesisedExpr(inner) => hasStableType(inner)
-    case _ => Expression(expr).hasStableType
   }
 }
