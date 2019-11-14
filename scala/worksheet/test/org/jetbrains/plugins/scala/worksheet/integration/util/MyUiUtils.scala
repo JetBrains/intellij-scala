@@ -7,18 +7,18 @@ import scala.concurrent.duration.Duration
 
 private[integration] object MyUiUtils {
 
-  def wait(duration: Duration, attempts: Int = 100)(implicit d: DummyImplicit) : Unit =
+  def wait(duration: Duration, attempts: Int = 100) : Unit =
     waitConditioned(duration, attempts)()
 
   def waitConditioned(duration: Duration, attempts: Int = 100)(earlyBreakCondition: () => Boolean = () => false) : Unit = {
     val timeout = duration.toMillis
-    (1 to attempts)
-      .takeWhile(_ => !earlyBreakCondition())
-      .foreach { _ =>
-        UIUtil.dispatchAllInvocationEvents()
-        Thread.sleep(timeout / attempts)
-      }
-
+    var idx = 0
+    val sleepTime = timeout / attempts
+    while (idx < attempts && !earlyBreakCondition()) {
+      UIUtil.dispatchAllInvocationEvents()
+      Thread.sleep(sleepTime)
+      idx += 1
+    }
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
   }
 }

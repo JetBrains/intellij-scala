@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.editor.todo
 
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
-import org.jetbrains.sbt.language.SbtFileType
-
 /** tests [[ScalaIndexPatternBuilder]] */
 class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
 
@@ -133,8 +130,9 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
        | * unrelated comment line
        | */
        |val x =  42
-       |""".stripMargin
-  )("sc")
+       |""".stripMargin,
+    fileType = "sc"
+  )
 
   def testTodo_ScaladocComment_InSbt_HealthCheck(): Unit = testTodos(
     s"""/**
@@ -142,6 +140,7 @@ class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
        | * unrelated comment line
        | */
        |val x =  42
-       |""".stripMargin
-  )("sbt")
+       |""".stripMargin,
+    fileType = "sbt"
+  )
 }
