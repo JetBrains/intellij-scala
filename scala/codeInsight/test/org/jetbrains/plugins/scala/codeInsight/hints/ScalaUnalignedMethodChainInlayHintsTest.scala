@@ -11,7 +11,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testChain(): Unit = doTest(
     s"""
-       |List(1, 2, 3)
+       |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
@@ -21,7 +21,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testChainInValDef(): Unit = doTest(
     s"""
-       |val x = List(1, 2, 3)
+       |val x = List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
@@ -42,7 +42,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testChainWithInfixCall(): Unit = doTest(
     s"""
-       |val x = List(1, 2, 3)
+       |val x = List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .map(_.toString)$S: Set[String]$E
        |  .toSeq$S: Seq[String]$E
@@ -52,7 +52,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testChainInParenthesis_1(): Unit = doTest(
     s"""
-       |(List(1, 2, 3)
+       |(List(1, 2, 3)$S: List[Int]$E
        |  .toSet)$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
@@ -62,7 +62,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testChainInParenthesis_3(): Unit = doTest(
     s"""
-       |(List(1, 2, 3)
+       |(List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
@@ -72,7 +72,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testChainInParenthesis_2(): Unit = doTest(
     s"""
-       |(List(1, 2, 3)
+       |(List(1, 2, 3)$S: List[Int]$E
        |  .map(_ + "")$S: List[String]$E
        |  .toSet)$S: Set[String]$E
        |  .toSeq
@@ -81,7 +81,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testWithArgumentBlock(): Unit = doTest(
     s"""
-       |List(1, 2, 3)
+       |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter {
        |    _ > 2
@@ -94,7 +94,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testWithArgumentBlock_withNewline(): Unit = doTest(
     s"""
-       |List(1, 2, 3)
+       |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter {
        |    _ > 2
@@ -108,7 +108,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testWithArguments(): Unit = doTest(
     s"""
-       |List(1, 2, 3)
+       |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter {
        |    _ > 2
@@ -121,7 +121,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testWithArgumentBlock_withMoreOnTheSameLine(): Unit = doTest(
     s"""
-       |List(1, 2, 3)
+       |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter {
        |    _ > 2
@@ -185,7 +185,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
        |  def newB: BBB = new BBB
        |
        |  val b =
-       |    (new BBB)
+       |    (new BBB)$S: BBB$E
        |      .ccc$S: CCC$E
        |      .a$S: A$E
        |      .newB
@@ -195,7 +195,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testWithTypeMismatch(): Unit = doTest(
     s"""
-       |val i: Int = List(1, 2, 3)
+       |val i: Int = List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter(_ > 2)$S: Set[Int]$E
        |  .toSeq$S: Seq[Int]$E
@@ -205,7 +205,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   def testDontShowLastTypeInUnalignedMode(): Unit = doTest(
     s"""
-       |List(1, 2, 3)
+       |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .map(_.toString)$S: Set[String]$E
        |  .toSeq$S: Seq[String]$E
@@ -221,6 +221,48 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
        |  .toSet$S: Set[Int]$E
        |  .map(_.toString)$S: Set[String]$E
        |  .toSeq$S: Seq[String]$E
+       |  .toString
+       |""".stripMargin
+  )
+
+  // SCL-16592
+  def testNoHintsForPackages(): Unit = doTest(
+    s"""
+       |scala
+       |  .collection
+       |  .immutable
+       |  .Seq(1, 2, 3)$S: Seq[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)
+       |""".stripMargin
+  )
+
+  // SCL-16580
+  def testNoHintsForSingletons(): Unit = doTest(
+    s"""
+       |scala
+       |  .collection
+       |  .immutable
+       |  .Seq
+       |  .empty[Int]$S: Seq[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
+       |  .toString
+       |""".stripMargin
+  )
+
+  def testNoHintsForMultipleObjects(): Unit = doTest(
+    s"""
+       |object A {
+       |  object B {
+       |    val seq = Seq(1, 2)
+       |  }
+       |}
+       |A
+       |  .B
+       |  .seq$S: Seq[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
        |  .toString
        |""".stripMargin
   )

@@ -8,7 +8,7 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
   import Hint.{End => E, Start => S}
 
   override protected def doTest(text: String, settings: Setting[_]*): Unit = {
-    super.doTest(text, alignMethodChainInlayHints(true) +: settings: _*)
+    super.doTest(text, alignMethodChainInlayHints(true) +: uniqueTypesToShowMethodChains(2) +: settings: _*)
   }
 
   def testChain(): Unit = doTest(
@@ -190,6 +190,7 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
        |    (new BBB)$S: BBB$E
        |      .ccc$S: CCC$E
        |      .a$S: A$E
+       |      .newB$S: BBB$E
        |}
        |""".stripMargin
   )
@@ -210,6 +211,45 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
        |  .toSet$S: Set[Int]$E
        |  .map(_.toString)$S: Set[String]$E
        |  .toSeq$S: Seq[String]$E
+       |  .toString$S: String$E
+       |""".stripMargin
+  )
+
+  def testNoHintsForPackages(): Unit = doTest(
+    s"""
+       |scala
+       |  .collection
+       |  .immutable
+       |  .Seq(1, 2, 3)$S: Seq[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
+       |""".stripMargin
+  )
+
+  def testNoHintsForSingletons(): Unit = doTest(
+    s"""
+       |scala
+       |  .collection
+       |  .immutable
+       |  .Seq
+       |  .empty[Int]$S: Seq[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
+       |""".stripMargin
+  )
+
+  def testNoHintsForMultipleObjects(): Unit = doTest(
+    s"""
+       |object A {
+       |  object B {
+       |    val seq = Seq(1, 2)
+       |  }
+       |}
+       |A
+       |  .B
+       |  .seq$S: Seq[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .map(_.toString)$S: Set[String]$E
        |  .toString$S: String$E
        |""".stripMargin
   )
