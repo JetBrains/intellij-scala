@@ -107,8 +107,8 @@ abstract class WorksheetIntegrationBaseTest
     after: String,
     foldings: Seq[Folding]
   ): TestRunResult = {
-    val result = runWorksheetEvaluation(before)
-    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorData(result.worksheetEditor)
+    val result = runWorksheetEvaluationAndWait(before)
+    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(result.worksheetEditor)
 
     assertEquals(after, actualText)
 
@@ -121,7 +121,7 @@ abstract class WorksheetIntegrationBaseTest
     doResultTest(text, expectedError)
 
   protected def doResultTest(text: String, expectedError: RunWorksheetActionResult): Editor = {
-    val TestRunResult(editor, actualResult) = runWorksheetEvaluation(text)
+    val TestRunResult(editor, actualResult) = runWorksheetEvaluationAndWait(text)
     assertEquals(expectedError, actualResult)
     editor
   }
@@ -137,27 +137,16 @@ abstract class WorksheetIntegrationBaseTest
     (textFixed, foldings)
   }
 
-  protected def viewerEditorData(worksheetEditor: Editor): ViewerEditorData =
-    viewerEditorDataOpt(worksheetEditor)
-      .getOrElse(fail("Viewer editor is empty").asInstanceOf[Nothing])
+  protected def viewerEditorDataFromLeftEditor(worksheetEditor: Editor): ViewerEditorData = {
+    val data = Option(worksheetCache.getViewer(worksheetEditor)).map(viewerEditorData)
+    data.getOrElse(fail("Viewer editor is empty").asInstanceOf[Nothing])
+  }
 
-  protected def viewerEditorDataOpt(worksheetEditor: Editor): Option[ViewerEditorData] =
-    Option(worksheetCache.getViewer(worksheetEditor)).map { editor =>
-      val renderedText = editor.getDocument.getText
-      val foldings = editor.getFoldingModel.getAllFoldRegions.map(Folding.apply)
-      ViewerEditorData(editor, renderedText, foldings)
-    }
-
-  protected def assertNoViewerEditorOutput(worksheetEditor: Editor): Unit =
-    viewerEditorDataOpt(worksheetEditor) match {
-      case Some(ViewerEditorData(_, text, foldings)) =>
-        fail(
-          s"""no output is expected in viewer editor, but got:
-             |text: $text
-             |foldings: $foldings""".stripMargin
-        )
-      case None =>
-    }
+  protected def viewerEditorData(viewer: Editor): ViewerEditorData = {
+    val renderedText = viewer.getDocument.getText
+    val foldings = viewer.getFoldingModel.getAllFoldRegions.map(Folding.apply)
+    ViewerEditorData(viewer, renderedText, foldings)
+  }
 }
 
 object WorksheetIntegrationBaseTest {

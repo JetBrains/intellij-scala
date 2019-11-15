@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.ui.printers
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.text.StringUtil
 import javax.swing.Timer
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
@@ -30,6 +32,9 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   private var cutoffPrinted = false
   @volatile private var terminated = false
   @volatile private var buffed = 0
+
+  @TestOnly
+  lazy val viewerEditorStates: ArrayBuffer[ViewerEditorState] = ArrayBuffer.empty
 
   originalEditor.asInstanceOf[EditorImpl].setScrollToCaret(false)
   worksheetViewer.asInstanceOf[EditorImpl].setScrollToCaret(false)
@@ -88,14 +93,35 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
 
     stopTimer()
 
-    val lastChunk = buildIncompleteLastChunkOpt
-    val expandedIndexes = (foldGroup.expandedRegionsIndexes.toIterator ++ lastChunk.map(_ => evaluatedChunks.size)).toSet
-    val (text, foldings) = renderText(evaluatedChunks ++ lastChunk, expandedIndexes)
-    updateWithPersistentScroll(viewerDocument, text, foldings)
+    flushContent()
 
     invokeLater {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
     }
+  }
+
+  // currently we re-render text on each mid-flush (~once per 1 second for long processes),
+  // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
+  private def midFlush(): Unit = {
+    println(s"midFlush: ${terminated || buffed  == 0}")
+    if (terminated || buffed  == 0) return
+
+    buffed = 0
+
+    flushContent()
+  }
+
+  private def flushContent(): Unit = {
+    val lastChunkOpt = buildIncompleteLastChunkOpt
+    val (text, foldings) = renderText(evaluatedChunks ++ lastChunkOpt)
+
+    val expandedFoldingsIds  = foldGroup.expandedRegionsIndexes
+    foldings.iterator.zipWithIndex.foreach { case (folding, idx) =>
+      if (expandedFoldingsIds.contains(idx))
+        folding.isExpanded = true
+    }
+
+    updateWithPersistentScroll(viewerDocument, text, foldings)
   }
 
   override def close(): Unit =
@@ -117,18 +143,6 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
     }
   }
 
-  // currently we re-render text on each mid-flush (~once per 1 second for long processes),
-  // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
-  private def midFlush(): Unit = {
-    if (terminated || buffed  == 0) return
-
-    buffed = 0
-
-    val expandedIndexes = foldGroup.expandedRegionsIndexes.toSet
-    val (text, foldings) = renderText(evaluatedChunks, expandedIndexes)
-    updateWithPersistentScroll(viewerDocument, text, foldings)
-  }
-
   private def isTerminationLine(line: String): Boolean =
     line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER
 
@@ -141,18 +155,26 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[FoldingOffsets]): Unit =
     invokeLater {
       inWriteAction {
-        val scroll          = originalEditor.getScrollingModel.getVerticalScrollOffset
-        val worksheetScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
+        val editorScroll = originalEditor.getScrollingModel.getVerticalScrollOffset
+        val viewerScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
 
         simpleUpdate(text, document)
 
-        originalEditor.getScrollingModel.scrollVertically(scroll)
-        worksheetViewer.getScrollingModel.scrollHorizontally(worksheetScroll)
+        originalEditor.getScrollingModel.scrollVertically(editorScroll)
+        worksheetViewer.getScrollingModel.scrollHorizontally(viewerScroll)
 
         // NOTE: if a folding already exists in a folding group it will note be duplicated
         // see FoldingModelImpl.createFoldRegion
+        cleanFoldings()
         updateFoldings(foldings)
         foldGroup.initMappings()
+
+        if (ApplicationManager.getApplication.isUnitTestMode) {
+          val actualFoldings = viewer.getFoldingModel.getAllFoldRegions.map { f =>
+            (f.getStartOffset, f.getEndOffset, f.getPlaceholderText, f.isExpanded)
+          }
+          viewerEditorStates += ViewerEditorState(document.getText, actualFoldings)
+        }
       }
     }
 }
@@ -201,14 +223,14 @@ object WorksheetEditorPrinterPlain {
 
 
   @Measure
-  private def renderText(chunks: Seq[EvaluationChunk], expandedIndexes: Set[Int]): (CharSequence, Seq[FoldingOffsets]) = {
+  private def renderText(chunks: Seq[EvaluationChunk]): (CharSequence, Seq[FoldingOffsets]) = {
     val resultText = StringBuilder.newBuilder
     val resultFoldings = ArrayBuffer.empty[FoldingOffsets]
 
     val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
-    var foldedLines                              = 0
+    var foldedLines = 0
 
-    for { (group, groupIdx) <- chunksGrouped.iterator.zipWithIndex } {
+    for { group <- chunksGrouped.iterator } {
       val inputStartLine   = group.head.inputStartLine
       val inputEndLine     = group.last.inputEndLine
       val inputLinesCount  = inputEndLine - inputStartLine + 1
@@ -248,8 +270,7 @@ object WorksheetEditorPrinterPlain {
           outputStartLine,
           outputEndOffset,
           inputLinesCount,
-          inputEndLine,
-          isExpanded = expandedIndexes.contains(groupIdx)
+          inputEndLine
         )
 
         foldedLines += diffLocal
@@ -266,4 +287,7 @@ object WorksheetEditorPrinterPlain {
 
     (resultText, resultFoldings)
   }
+
+  @TestOnly
+  case class ViewerEditorState(documentText: String, foldings: Seq[(Int, Int, String, Boolean)])
 }

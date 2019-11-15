@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBas
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
@@ -230,9 +231,10 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     robot.moveToEnd()
     robot.typeString("\n23\n")
 
-    val stamp = editor.getDocument.getModificationStamp
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+    val stamp = viewer.getDocument.getModificationStamp
     MyUiUtils.waitConditioned(5 seconds) { () =>
-      editor.getDocument.getModificationStamp != stamp
+      viewer.getDocument.getModificationStamp != stamp
     }
 
     assertViewerEditorText(editor)(

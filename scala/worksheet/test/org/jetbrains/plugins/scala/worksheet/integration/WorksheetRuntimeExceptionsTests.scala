@@ -23,7 +23,7 @@ trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
   ): Unit = {
     val leftEditor = doResultTest(leftText, RunWorksheetActionResult.Done)
 
-    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorData(leftEditor)
+    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(leftEditor)
 
     val (expectedTextStart, expectedFoldingsStart) = preprocessViewerText(expectedRightTextStart)
 
