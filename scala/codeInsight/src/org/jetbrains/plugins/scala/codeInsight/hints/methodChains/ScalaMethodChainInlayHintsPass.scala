@@ -7,7 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.util.Disposer
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Expression
 
@@ -45,32 +46,23 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
           if methodsAtLineEnd.length >= minChainCount
 
-          methodsWithoutLast =
-            if (alignMethodChainInlayHints || methodsAtLineEnd.last != methodChain.last) methodsAtLineEnd
-            else methodsAtLineEnd.init
-
-          methodsWithoutFirst = {
-            val dontShowFirst = isSimpleReference(methodsWithoutLast.head) || Expression(methodsAtLineEnd.head).hasStableType
-
-            if (alignMethodChainInlayHints || !dontShowFirst) methodsWithoutLast
-            else methodsWithoutLast.tail
-          }
-
-          methodAndTypes = methodsWithoutFirst
+          methodAndTypes = methodsAtLineEnd
             .map(m => m -> m.`type`())
             .takeWhile(_._2.isRight)
             .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
 
-          methodAndTypesWithoutObviousReturns =
-            if (alignMethodChainInlayHints || showObviousTypes) methodAndTypes
-            else methodAndTypes.filterNot(hasObviousReturnType)
+          withoutPackagesAndSingletons = dropPackagesAndSingletons(methodAndTypes)
 
-          if methodAndTypesWithoutObviousReturns.length >= minChainCount
+          if withoutPackagesAndSingletons.length >= minChainCount
 
-          uniqueTypeCount = methodAndTypesWithoutObviousReturns.map { case (m, ty) => ty.presentableText(m) }.toSet.size
+          filteredMethodAndTypes = filterMethodsForUnalignedMode(withoutPackagesAndSingletons, methodChain)
+
+          if filteredMethodAndTypes.length >= minChainCount
+
+          uniqueTypeCount = filteredMethodAndTypes.map { case (m, ty) => ty.presentableText(m) }.toSet.size
           if uniqueTypeCount >= uniqueTypesToShowMethodChains
         } yield {
-          for ((expr, ty) <- methodAndTypesWithoutObviousReturns)
+          for ((expr, ty) <- if (alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes)
             yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
         }
       ).toList
@@ -110,6 +102,34 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     } else {
       generateUnalignedHints(hintTemplates, charWidth, inlayModel)
     }
+  }
+
+  private def dropPackagesAndSingletons(methodChain: Seq[(ScExpression, ScType)]): Seq[(ScExpression, ScType)] = methodChain.dropWhile {
+    case (_, ty) =>
+      ty match {
+        case designated: DesignatorOwner => designated.element.is[PsiPackage] || designated.isSingleton
+        case _ => false
+      }
+
+  }
+
+  private def filterMethodsForUnalignedMode(methodAndTypes: Seq[(ScExpression, ScType)],
+                                            methodChain: Seq[ScExpression]): Seq[(ScExpression, ScType)] = {
+
+    val (firstExpr, _) = methodAndTypes.head
+    val withoutFirst =
+      if (firstExpr == methodChain.head && isUnqualifiedReference(firstExpr)) methodAndTypes.tail
+      else methodAndTypes
+
+    val withoutLast =
+      if (methodAndTypes.last._1 != methodChain.last) withoutFirst
+      else withoutFirst.init
+
+    val withoutObvious =
+      if (showObviousTypes) withoutLast
+      else withoutLast.filterNot(hasObviousReturnType)
+
+    withoutObvious
   }
 
   private def generateInlineHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
@@ -181,7 +201,8 @@ private object ScalaMethodChainInlayHintsPass {
     }
 
     val (expr, ty) = methodAndTypes
-    isTypeObvious("", ty.presentableText(expr), methodName(expr))
+    Expression(expr).hasStableType ||
+      isTypeObvious("", ty.presentableText(expr), methodName(expr))
   }
 
   private def removeLastIfHasTypeMismatch(methodsWithTypes: Seq[AlignedHintTemplate]): Seq[AlignedHintTemplate] = {
@@ -193,9 +214,9 @@ private object ScalaMethodChainInlayHintsPass {
   private def hasTypeMismatch(expr: ScExpression): Boolean = AnnotatorHints.in(expr).nonEmpty
 
   @tailrec
-  private def isSimpleReference(expr: ScExpression): Boolean = expr match {
+  private def isUnqualifiedReference(expr: ScExpression): Boolean = expr match {
     case ref: ScReferenceExpression => !ref.isQualified
-    case ScParenthesisedExpr(inner) => isSimpleReference(inner)
+    case ScParenthesisedExpr(inner) => isUnqualifiedReference(inner)
     case _ => false
   }
 }

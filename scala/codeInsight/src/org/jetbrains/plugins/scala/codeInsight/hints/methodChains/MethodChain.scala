@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import scala.annotation.tailrec
 
@@ -18,7 +18,7 @@ private object MethodChain {
 
   private def isMostOuterExpression(expr: PsiElement): Boolean = {
     expr.getParent match {
-      case _: ScReferenceExpression | _: ScMethodCall | _: ScParenthesisedExpr => false
+      case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall | _: ScParenthesisedExpr => false
       case _ => true
     }
   }
@@ -39,6 +39,7 @@ private object MethodChain {
     def unapply(element: PsiElement): Option[ScExpression] = element match {
       case ScReferenceExpression.withQualifier(inner) => Some(inner)
       case invoc: MethodInvocation => Some(invoc.getEffectiveInvokedExpr)
+      case genericCall: ScGenericCall => Some(genericCall.referencedExpr)
       case ScParenthesisedExpr(inner) => Some(inner)
       case _ => None
     }
