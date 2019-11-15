@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
+import com.intellij.openapi.editor.Editor
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import javax.swing.SwingUtilities
-import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.junit.Assert.fail
@@ -16,13 +16,15 @@ import scala.util.{Failure, Success, Try}
 trait WorksheetItEvaluations {
   self: WorksheetIntegrationBaseTest =>
 
-  protected def runWorksheetEvaluation(text: String): TestRunResult = {
-    val worksheetEditor = prepareWorksheetEditor(text.withNormalizedSeparator)
-    // NOTE: worksheet backend / frontend initialization is done under the hood on calling action
-    val future = RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
+  protected def runWorksheetEvaluationAndWait(text: String): TestRunResult = {
+    val worksheetEditor = prepareWorksheetEditor(text)
+    val future = runWorksheetEvaluation(worksheetEditor)
     val evaluationResult = waitForEvaluationEnd(future)
     TestRunResult(worksheetEditor, evaluationResult)
   }
+
+  protected def runWorksheetEvaluation(worksheetEditor: Editor): Future[RunWorksheetAction.RunWorksheetActionResult] =
+    RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
 
   protected def waitForEvaluationEnd(future: Future[RunWorksheetAction.RunWorksheetActionResult]): RunWorksheetAction.RunWorksheetActionResult = {
     val result = WorksheetItEvaluations.await(future, evaluationTimeout)

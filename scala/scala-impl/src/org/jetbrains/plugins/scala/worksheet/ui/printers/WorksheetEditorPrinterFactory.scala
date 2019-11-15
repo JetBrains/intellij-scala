@@ -174,7 +174,8 @@ object WorksheetEditorPrinterFactory {
   }
 
   private def newDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterPlain = {
-    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor))
+    val viewerEditor = getOrCreateViewerEditorFor(editor)
+    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, viewerEditor)
     new WorksheetEditorPrinterPlain(editor, sideViewer, scalaFile)
   }
 
@@ -253,7 +254,7 @@ object WorksheetEditorPrinterFactory {
 
   private def getOrCreateViewerEditorFor(editor: Editor): Editor = {
     val project = editor.getProject
-    val viewer  = WorksheetCache.getInstance(project).getViewer(editor)
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     viewer match {
       case editor: EditorImpl => editor
       case _                  => createBlankEditor(project)
@@ -273,16 +274,6 @@ object WorksheetEditorPrinterFactory {
         jComp.putClientProperty(DataManager.CLIENT_PROPERTY_DATA_PROVIDER, dataProvider)
       case _ =>
     }
-    editor
-  }
-
-  private def createBlankEditorWithLang(project: Project, lang: Language, fileType: LanguageFileType): Editor = {
-    val file = PsiFileFactory.getInstance(project).createFileFromText("dummy_" + Random.nextString(10), lang, "")
-    val editor = EditorFactory.getInstance.createViewer(PsiDocumentManager.getInstance(project).getDocument(file), project)
-    val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, fileType)
-
-    editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
-    editor.setBorder(null)
     editor
   }
 }

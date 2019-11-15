@@ -133,13 +133,13 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   private def scalaSettings = ScalaProjectSettings.getInstance(project)
 }
 
-object WorksheetEditorPrinterBase {
+private object WorksheetEditorPrinterBase {
 
   case class FoldingOffsets(
     outputStartLine: Int,
     outputEndOffset: Int,
     inputLinesCount: Int,
     inputEndLine: Int,
-    isExpanded: Boolean = false
+    var isExpanded: Boolean = false
   )
 }

@@ -2,12 +2,19 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetExternalRunType}
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.ViewerEditorState
+import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
@@ -83,7 +90,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
   override def stackTraceLineStart = "\tat"
 
-  override def exceptionOutputShouldBeExpanded = true
+  // TODO: fix within SCL-16585
+  override def exceptionOutputShouldBeExpanded = false
 
   def testDisplayFirstRuntimeException(): Unit = {
     val left =
@@ -96,10 +104,10 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     val right  =
       s"""${foldStart}1
-        |2
-        |res0: Unit = ()$foldEnd
-        |
-        |""".stripMargin
+         |2
+         |res0: Unit = ()$foldEnd
+         |
+         |""".stripMargin
 
     val errorMessage = "java.lang.ArithmeticException: / by zero"
     testDisplayFirstRuntimeException(left, right, errorMessage)
@@ -177,6 +185,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       """res0: Int = 42
         |""".stripMargin
     )
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     WorksheetCommonSettings(file).setInteractive(true)
 
@@ -186,9 +195,9 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     // TODO: this is not the best way of testing, cause it relies on lucky threading conditions,
     //  but current architecture doesn't allow us do it some other way, think how this can be improved
-    val stamp = editor.getDocument.getModificationStamp
+    val stamp = viewer.getDocument.getModificationStamp
     MyUiUtils.waitConditioned(5 seconds) { () =>
-      editor.getDocument.getModificationStamp != stamp
+      viewer.getDocument.getModificationStamp != stamp
     }
 
     assertViewerEditorText(editor)(
@@ -219,5 +228,104 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |""".stripMargin
     )
     assertNoErrorMessages(editor)
+  }
+
+  def testAutoFlushOnLongEvaluation(): Unit = {
+    val sleepTime = 1000
+    val leftText =
+      s"""println("a\\nb\\nc")
+         |
+         |def foo() = {
+         |  for (i <- 1 to 3) {
+         |    println(s"Hello $$i")
+         |    Thread.sleep($sleepTime)
+         |  }
+         |}
+         |
+         |foo()
+         |foo()
+         |""".stripMargin
+
+    val rightCommonText =
+      s"""${foldStart}a
+         |b
+         |c
+         |res0: Unit = ()$foldEnd
+         |
+         |foo: foo[]() => Unit
+         |
+         |
+         |
+         |
+         |
+         |
+         |""".stripMargin
+
+    //noinspection RedundantBlock
+    val rightExtraMidFlushes = Array(
+      s"Hello 1\n",
+      s"${foldStart}Hello 1\nHello 2${foldEnd}\n",
+      s"${foldStart}Hello 1\nHello 2\nHello 3${foldEnd}\n",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\nHello 1\n",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd\n",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd\n",
+      s"${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd\n",
+    )
+
+    val rightTextStates: Array[String] = rightExtraMidFlushes.map(rightCommonText + _)
+
+    val viewerStates = runLongEvaluation(leftText)
+
+    viewerStates.zipAll(rightTextStates, null, null).zipWithIndex
+      .foreach { case ((actualViewerState, expectedTextWithFoldings), idx) =>
+        if (actualViewerState == null)
+          fail(s"expected too many intermediate flushed:\n$expectedTextWithFoldings")
+        if (expectedTextWithFoldings == null)
+          fail(s"unexpected intermediate flush:\n$actualViewerState")
+
+        val actualTextWithFoldings = renderViewerData(actualViewerState)
+        assertEquals(s"Worksheet output at step $idx differs from expected",
+          expectedTextWithFoldings.withNormalizedSeparator,
+          actualTextWithFoldings
+        )
+      }
+  }
+
+  private def renderViewerData(viewerData: ViewerEditorData): String = {
+    val text = viewerData.text
+    val foldings = viewerData.foldings
+    val builder = new java.lang.StringBuilder()
+
+    val foldingsWithHelpers = Folding(0, 0, "") +: foldings :+ Folding(text.length, text.length, "")
+    foldingsWithHelpers.sliding(2).foreach { case Seq(prev, Folding(startOffset, endOffset, placeholder, isExpanded)) =>
+      builder.append(text, prev.endOffset, startOffset)
+      val isHelperFolding = startOffset == endOffset && startOffset == text.length
+      if (!isHelperFolding) {
+        builder.append(if (isExpanded) foldStartExpanded else foldStart)
+          .append(placeholder)
+          //.append(text, startOffset, endOffset)
+          .append(if (isExpanded) foldEndExpanded else foldEnd)
+      }
+    }
+    builder.toString
+  }
+
+  private def runLongEvaluation(leftText: String): Seq[ViewerEditorData] = {
+    val editor = prepareWorksheetEditor(leftText)
+
+    val evaluationResult = waitForEvaluationEnd(runWorksheetEvaluation(editor))
+    assertEquals(RunWorksheetActionResult.Done, evaluationResult)
+
+    val printer = WorksheetCache.getInstance(project).getPrinter(editor)
+      .getOrElse(fail("no printer found").asInstanceOf[Nothing]).asInstanceOf[WorksheetEditorPrinterPlain]
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+
+    val viewerStates: Seq[ViewerEditorData] =
+      printer.viewerEditorStates.map { case ViewerEditorState(text, foldings) =>
+        val foldingsConverted = foldings.map { case (start, end, placeholder, expanded) => Folding(start, end, placeholder, expanded) }
+        ViewerEditorData(viewer, text, foldingsConverted)
+      }
+
+    viewerStates
   }
 }

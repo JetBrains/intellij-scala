@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager, TextEdito
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.junit.Assert.{assertNotNull, fail}
 
@@ -12,7 +13,7 @@ trait WorksheetItEditorPreparations {
   self: WorksheetIntegrationBaseTest =>
 
   protected def prepareWorksheetEditor(before: String): Editor = {
-    val (vFile, psiFile) = createWorksheetFile(before)
+    val (vFile, psiFile) = createWorksheetFile(before.withNormalizedSeparator)
 
     val settings = WorksheetCommonSettings(psiFile)
     setupWorksheetSettings(settings)

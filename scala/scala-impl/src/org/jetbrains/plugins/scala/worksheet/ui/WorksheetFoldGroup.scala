@@ -72,11 +72,8 @@ final class WorksheetFoldGroup(
     if (region == null) return //something went wrong
 
     region.setExpanded(isExpanded)
-    addRegion(region, leftEndOffset, leftContentLines, spaces)
-  }
-
-  private def addRegion(region: FoldRegion, leftEndOffset: Int, leftContentLines: Int, spaces: Int): Unit =
     _regions += FoldRegionInfo(region, leftEndOffset, leftContentLines, spaces, region.isExpanded)
+  }
 
   def clearRegions(): Unit = {
     _regions.clear()
