@@ -5,6 +5,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class ImplicitHintsPassFactory(project: Project, registrar: TextEditorHighlightingPassRegistrar)
@@ -15,7 +16,9 @@ class ImplicitHintsPassFactory(project: Project, registrar: TextEditorHighlighti
   registrar.registerTextEditorHighlightingPass(this, runAfterAnnotator, null, false, -1)
 
   override def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
-    case file: ScalaFile if !ImplicitHints.isUpToDate(editor, file) => new ImplicitHintsPass(editor, file)
-    case _ => null
+    case file: ScalaFile if !ImplicitHints.isUpToDate(editor, file) =>
+      new ImplicitHintsPass(editor, file, new ScalaHintsSettings.CodeInsightSettingsAdapter)
+    case _ =>
+      null
   }
 }

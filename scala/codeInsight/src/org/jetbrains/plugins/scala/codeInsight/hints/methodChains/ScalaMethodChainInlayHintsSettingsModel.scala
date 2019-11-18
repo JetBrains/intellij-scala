@@ -8,8 +8,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import scala.collection.JavaConverters._
@@ -95,10 +96,12 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   // create a dedicated pass for the preview
   private lazy val previewPass = new ScalaMethodChainInlayHintsPass {
-    protected override def showMethodChainInlayHints: Boolean = true
-    override protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-    override protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
-    override protected def showObviousTypes: Boolean = true // always show obvious types in the preview
+    override val hintsSettings: ScalaHintsSettings = new hints.ScalaHintsSettings.Defaults {
+      override def showMethodChainInlayHints: Boolean = true
+      override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
+      override def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
+      override def showObviousType: Boolean = true // always show obvious types in the preview
+    }
   }
 
   override def collectAndApply(editor: Editor, psiFile: PsiFile): Unit = {
