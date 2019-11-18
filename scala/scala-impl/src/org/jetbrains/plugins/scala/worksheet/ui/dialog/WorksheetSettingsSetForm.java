@@ -74,7 +74,8 @@ public class WorksheetSettingsSetForm {
         return new WorksheetSettingsData(
                 interactiveModeCheckBox.isSelected(),
                 makeProjectBeforeRunCheckBox.isSelected(),
-                (WorksheetExternalRunType) runTypeComboBox.getSelectedItem(), moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
+                (WorksheetExternalRunType) runTypeComboBox.getSelectedItem(),
+                moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
                 (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem(),
                 null
         );
@@ -92,8 +93,8 @@ public class WorksheetSettingsSetForm {
         Module defaultModule = settings.getModuleFor();
         if (defaultModule != null) {
             moduleComboBox.setSelectedModule(defaultModule);
-            if (myFile != null && !WorksheetFileSettings.isScratchWorksheet(myFile.getVirtualFile(), myFile.getProject()))
-                moduleComboBox.setEnabled(false);
+            boolean enabled = myFile == null || WorksheetFileSettings.isScratchWorksheet(myFile.getVirtualFile(), myFile.getProject());
+            moduleComboBox.setEnabled(enabled);
         }
 
         openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(this).getActionButton();

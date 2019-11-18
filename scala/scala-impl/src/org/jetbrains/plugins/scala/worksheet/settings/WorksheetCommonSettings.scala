@@ -5,6 +5,7 @@ package settings
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 
@@ -49,5 +50,9 @@ object WorksheetCommonSettings {
 
   def apply(implicit project: Project): WorksheetCommonSettings = new WorksheetProjectSettings(project)
 
-  def apply(file: PsiFile): WorksheetCommonSettings = new WorksheetFileSettings(file)
+  def apply(file: PsiFile): WorksheetCommonSettings = {
+    val settings = new WorksheetFileSettings(file)
+    file.module.map(_.getName).foreach(settings.setModuleName)
+    settings
+  }
 }

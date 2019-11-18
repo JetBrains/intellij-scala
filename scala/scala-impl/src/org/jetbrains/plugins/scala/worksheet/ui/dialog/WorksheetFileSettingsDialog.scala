@@ -35,11 +35,14 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
     if (settings.isMakeBeforeRun != settingsData.isMakeBeforeRun) settings.setMakeBeforeRun(settingsData.isMakeBeforeRun)
     if (settings.getRunType != settingsData.runType) settings.setRunType(settingsData.runType)
     if (settings.isInteractive != settingsData.isInteractive) settings.setInteractive(settingsData.isInteractive)
-    
-    if (settingsData.cpModule != null && settingsData.cpModule.getName != settings.getModuleName) 
-      settings.setModuleName(settingsData.cpModule.getName)
-    if (settingsData.compilerProfile != null && settingsData.compilerProfile.getName != settings.getCompilerProfileName) 
-      settings.setCompilerProfileName(settingsData.compilerProfile.getName)
+
+    Option(settingsData.cpModule).map(_.getName)
+      .filter(_ != settings.getModuleName)
+      .foreach(settings.setModuleName)
+
+    Option(settingsData.compilerProfile).map(_.getName)
+      .filter(_ != settings.getCompilerProfileName)
+      .foreach(settings.setCompilerProfileName)
   }
   
   private def getFileSettingsData: WorksheetSettingsData = getSettingsData(fileSettings)
