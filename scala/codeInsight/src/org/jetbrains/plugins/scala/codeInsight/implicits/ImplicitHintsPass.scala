@@ -5,7 +5,7 @@ package implicits
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
+import com.intellij.openapi.editor.ex.util.EditorScrollingPositionKeeper
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
@@ -114,9 +114,7 @@ private class ImplicitHintsPass(private val editor: Editor, private val rootElem
   }
 
   override def doApplyInformationToEditor(): Unit = {
-    val caretKeeper = new CaretVisualPositionKeeper(myEditor)
-    regenerateHints()
-    caretKeeper.restoreOriginalLocation(false)
+    EditorScrollingPositionKeeper.perform(myEditor, false, regenerateHints _)
 
     if (rootElement == myFile) {
       ImplicitHints.setUpToDate(myEditor, myFile)
