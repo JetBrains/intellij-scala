@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.openapi.module.Module
-import junit.framework.{Test, TestResult}
+import junit.framework.{AssertionFailedError, Test, TestListener, TestResult}
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 
 import scala.collection.immutable.SortedSet
@@ -19,10 +19,10 @@ trait ScalaSdkOwner extends Test {
   }
 
   private var _injectedScalaVersion: Option[ScalaVersion] = None
-  def injectedScalaVersion: Option[ScalaVersion] =_injectedScalaVersion
+  def injectedScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
   def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Some(version)
 
-  protected def localConfiguredScalaVersion: Option[ScalaVersion] = injectedScalaVersion
+  protected def localConfiguredScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
 
   protected def configuredScalaVersion: Option[ScalaVersion] = localConfiguredScalaVersion.orElse(globalConfiguredScalaVersion)
 
@@ -49,13 +49,18 @@ trait ScalaSdkOwner extends Test {
 
   abstract override def run(result: TestResult): Unit = {
     if (!skip) {
-      try {
-        super.run(result)
-      } catch {
-        case ex: AssertionError =>
-          System.err.println(s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion) ###")
-          throw ex
-      }
+      // Need to initialize before test is run because all tests fields can be reset to null
+      // (including injectedScalaVersion) after test is finished
+      // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
+      val scalaVersionMessage = s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion) ###"
+      def logVersion(): Unit = System.err.println(scalaVersionMessage)
+      result.addListener(new TestListener {
+        override def addError(test: Test, t: Throwable): Unit = logVersion()
+        override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion()
+        override def endTest(test: Test): Unit = ()
+        override def startTest(test: Test): Unit = ()
+      })
+      super.run(result)
     }
   }
 }

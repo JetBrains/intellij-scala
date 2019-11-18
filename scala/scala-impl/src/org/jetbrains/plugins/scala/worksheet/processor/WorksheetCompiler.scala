@@ -109,13 +109,16 @@ class WorksheetCompiler(
     // TODO: this is needed to close the timer of printer in one place
     //  the solution is quite ugly when we use raw callbacks, consider using some lightweight streaming/reactive library
     val callback: EvaluationCallback = result => {
+      if (!consumer.isCompiledWithErrors) {
+        printer.flushBuffer()
+      }
       printer.close()
       originalCallback(result)
     }
 
     val afterCompileCallback: RemoteServerConnectorResult => Unit = {
       case RemoteServerConnectorResult.Compiled(className, outputDir) =>
-        if (runType.isReplRunType){
+        if (runType.isReplRunType) {
           val error = new AssertionError("Worksheet is expected to be evaluated in REPL mode")
           callback(WorksheetCompilerResult.EvaluationError(error))
         } else {
@@ -242,12 +245,6 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     override def trace(ex: Throwable): Unit = {
       val message = "\n" + ex.stackTraceText // stacktrace already contains thr.toString which contains message
       worksheetPrinter.internalError(message)
-    }
-
-    override def finish(): Unit = {
-      if (!hasCompilationErrors) {
-        worksheetPrinter.flushBuffer()
-      }
     }
   }
 }

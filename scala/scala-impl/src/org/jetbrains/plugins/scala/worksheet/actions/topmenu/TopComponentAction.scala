@@ -7,10 +7,12 @@ import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import javax.swing.{Icon, JPanel}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetAction
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiUtils
 
 trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
   this: AnAction =>
+
+  private lazy val actionButton: ActionButton = createActionButton
 
   def genericText: String
 
@@ -23,19 +25,21 @@ trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
     updateInner(e)
   }
 
+  override def setEnabled(flag: Boolean): Unit = actionButton.setEnabled(flag)
+
+  override def setVisible(flag: Boolean): Unit = actionButton.setVisible(flag)
+
   override def init(panel: JPanel): Unit = {
     val presentation = getTemplatePresentation
 
     presentation.setIcon(actionIcon)
     presentation.setText(displayText)
-
-    val actionButton = createActionButton
-    WorksheetUiConstructor.fixUnboundMaxSize(actionButton)
+    WorksheetUiUtils.fixUnboundMaxSize(actionButton)
 
     invokeAndWait(ModalityState.any()) {
-      panel.add(actionButton, 0)
+      panel.add(actionButton)
       actionButton.setEnabled(true)
-      presentation setEnabled true
+      presentation.setEnabled(true)
     }
   }
 

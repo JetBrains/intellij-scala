@@ -71,7 +71,6 @@ class RemoteServerConnector(
                     callback: RemoteServerConnectorResult => Unit): Unit = {
 
     val project = module.getProject
-    val worksheetHook = WorksheetFileHook.instance(project)
 
     val client = new MyTranslatingClient(project, originalFile, consumer)
 
@@ -105,9 +104,10 @@ class RemoteServerConnector(
         case _ => None
       }
 
-      worksheetHook.disableRun(originalFile, Some(worksheetProcess))
+      val worksheetHook = WorksheetFileHook.instance(project)
+      worksheetHook.updateStoppableProcess(originalFile, Some(() => worksheetProcess.stop()))
       worksheetProcess.addTerminationCallback { exception =>
-        worksheetHook.enableRun(originalFile, consumer.isCompiledWithErrors)
+        worksheetHook.updateStoppableProcess(originalFile, None)
 
         fileToReHighlight.foreach(WorksheetEditorPrinterRepl.rehighlight)
 
@@ -216,11 +216,6 @@ object RemoteServerConnector {
 
     override def worksheetOutput(text: String): Unit =
       consumer.worksheetOutput(text)
-
-    override def processingEnd(): Unit = {
-      super.processingEnd()
-      consumer.finish()
-    }
   }
 
   // Worksheet Integration Tests rely on that this is the main entry point for all compiler messages
@@ -230,7 +225,6 @@ object RemoteServerConnector {
 
   trait CompilerInterface extends CompilerMessagesConsumer {
     def progress(text: String, done: Option[Float])
-    def finish()
 
     def worksheetOutput(text: String)
     def trace(thr: Throwable)

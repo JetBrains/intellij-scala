@@ -103,7 +103,6 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   // currently we re-render text on each mid-flush (~once per 1 second for long processes),
   // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
   private def midFlush(): Unit = {
-    println(s"midFlush: ${terminated || buffed  == 0}")
     if (terminated || buffed  == 0) return
 
     buffed = 0
