@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
@@ -87,7 +88,8 @@ object RunWorksheetAction {
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
 
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetProcessManager.stop(psiFile.getVirtualFile)
+    val vFile = psiFile.getVirtualFile
+    WorksheetProcessManager.stop(vFile)
 
     val file: ScalaFile = psiFile match {
       case file: ScalaFile if file.isWorksheetFile => file
@@ -116,10 +118,19 @@ object RunWorksheetAction {
       }
     }
 
+
+    val worksheetHook = WorksheetFileHook.instance(project)
+    worksheetHook.disableRun(vFile, None)
     def runnable(): Unit = {
-      val callback: WorksheetCompilerResult => Unit = {
-        case WorksheetCompilerResult.CompiledAndEvaluated => promise.success(RunWorksheetActionResult.Done)
-        case error: WorksheetCompilerError                => promise.success(RunWorksheetActionResult.WorksheetRunError(error))
+      val callback: WorksheetCompilerResult => Unit = result => {
+        val resultTransformed = result match {
+          case WorksheetCompilerResult.CompiledAndEvaluated => RunWorksheetActionResult.Done
+          case error: WorksheetCompilerError => RunWorksheetActionResult.WorksheetRunError(error)
+        }
+        promise.success(resultTransformed)
+
+        val hasErrors = resultTransformed != RunWorksheetActionResult.Done
+        worksheetHook.enableRun(vFile, hasErrors)
       }
       val compiler = new WorksheetCompiler(module, editor, file, callback, auto)
       compiler.compileAndRunFile()

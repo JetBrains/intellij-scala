@@ -2,11 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet
 package actions
 
-import java.{util => ju}
-
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Document, Editor}
@@ -16,24 +12,19 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.ui.UIUtil
-import javax.swing._
-import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.extensions.{OptionExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.UserDataKeys
-import org.jetbrains.plugins.scala.worksheet.actions.repl._
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook.file2panel
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetUiConstructor}
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetFoldGroup}
 
 import scala.util.control.NonFatal
 
 class WorksheetFileHook(private val project: Project) extends ProjectComponent  {
-
-  private var statusDisplay: Option[InteractiveStatusDisplay] = None
 
   override def getComponentName: String = "Clean worksheet on editor close"
 
@@ -53,16 +44,15 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       panel  <- WorksheetFileHook.getPanel(vFile)
     } notifyButtons(panel)
 
-  private def notifyButtons(panel: WorksheetFileHook.MyPanel): Unit =
+  private def notifyButtons(panel: WorksheetControlPanel): Unit =
     panel.getComponents.foreach {
       case button: ActionButton =>
         button.addNotify()
       case _ =>
     }
 
-  private def initWorksheetComponents(file: VirtualFile, run: Boolean, exec: Option[CompilationProcess] = None): Unit = {
+  private def initWorksheetComponents(file: VirtualFile): Unit = {
     if (project.isDisposed) return
-    if (ApplicationManager.getApplication.isUnitTestMode) return
 
     val myFileEditorManager = FileEditorManager.getInstance(project)
     val editors = myFileEditorManager.getAllEditors(file)
@@ -74,51 +64,25 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         }
       }
 
-      val panel = new WorksheetFileHook.MyPanel(file)
-      val constructor = new WorksheetUiConstructor(panel, project)
-
-      inReadAction {
-        statusDisplay = Some(constructor.initTopPanel(panel, file, run, exec))
-        WorksheetFileHook.plugWorksheetActions(editor)
-      }
-
-      myFileEditorManager.addTopComponent(editor, panel)
+      val controlPanel = new WorksheetControlPanel(file)
+      file2panel.put(file, controlPanel)
+      myFileEditorManager.addTopComponent(editor, controlPanel)
     }
   }
 
-  def disableRun(file: VirtualFile, exec: Option[CompilationProcess]): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-
+  def disableRun(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
     invokeLater {
-      WorksheetFileHook.unplugWorksheetActions(file, project)
-      cleanAndAdd(file, exec.map(new StopWorksheetAction(_)))
-      statusDisplay.foreach(_.onStartCompiling())
+      WorksheetFileHook.getPanel(file).foreach(_.disableRun(exec))
     }
-  }
 
-  // TODO: rethink how we enable/disable run, try to avoid as much UI blocking as possible
-  //  currently there are read actions in EDT which can lead to freezes
-  def enableRun(file: VirtualFile, hasErrors: Boolean): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-
+  def enableRun(file: VirtualFile, hasErrors: Boolean): Unit =
     invokeLater {
-      WorksheetFileHook.plugWorksheetActions(file, project)
-      cleanAndAdd(file, Some(new RunWorksheetAction))
-      statusDisplay.foreach { display =>
-        if (hasErrors) {
-          display.onFailedCompiling()
-        } else {
-          display.onSuccessfulCompiling()
-        }
-      }
+      WorksheetFileHook.getPanel(file).foreach(_.enableRun(hasErrors))
     }
-  }
 
-  private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentDisplayable]): Unit =
-    for { panel <- WorksheetFileHook.getPanel(file) } {
-      val c = panel.getComponent(0)
-      if (c != null) panel.remove(c)
-      action.foreach(_.init(panel))
+  def updateStoppableProcess(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
+    invokeLater {
+      WorksheetFileHook.getPanel(file).foreach(_.updateStoppableProcess(exec))
     }
 
   private object WorksheetEditorListener extends FileEditorManagerListener {
@@ -138,7 +102,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
     override def fileOpened(source: FileEditorManager, file: VirtualFile): Unit = {
       if (!isPluggable(file)) return
 
-      WorksheetFileHook.this.initWorksheetComponents(file, run = true)
+      WorksheetFileHook.this.initWorksheetComponents(file)
       loadEvaluationResult(source, file)
       val document = WorksheetFileHook.getDocumentFrom(source.getProject, file)
       document.foreach(WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
@@ -158,8 +122,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
     private def editorWithFile(source: FileEditorManager, file: VirtualFile): Option[EditorEx] =
       Option(source.getSelectedEditor(file))
-          .collect { case te: TextEditor => te.getEditor }
-          .collect { case e: EditorEx => e }
+        .collect { case te: TextEditor => te.getEditor }
+        .collect { case e: EditorEx => e }
 
     private def loadEvaluationResult(scalaFile: ScalaFile, vFile: VirtualFile, editor: EditorEx): Unit = {
       ensureWorksheetModuleIsSet(scalaFile)
@@ -194,68 +158,13 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
 
 object WorksheetFileHook {
 
-  private val WorksheetHookActions: Seq[AnAction] = Array(WorksheetReplRunAction.ACTION_INSTANCE)
-  private val file2panel = ContainerUtil.createWeakValueMap[VirtualFile, MyPanel]()
+  private val file2panel = ContainerUtil.createWeakValueMap[VirtualFile, WorksheetControlPanel]
 
-  private class MyPanel(file: VirtualFile) extends JPanel {
-
-    file2panel.put(file, this)
-
-    override def equals(obj: Any): Boolean = obj.isInstanceOf[MyPanel]
-
-    override def hashCode(): Int = Integer.MAX_VALUE
-  }
-
-  private def getAndRemovePanel(file: VirtualFile): Option[MyPanel] =
+  private def getAndRemovePanel(file: VirtualFile): Option[WorksheetControlPanel] =
     Option(file2panel.remove(file))
 
-  private def getPanel(file: VirtualFile): Option[MyPanel] =
+  private def getPanel(file: VirtualFile): Option[WorksheetControlPanel] =
     Option(file2panel.get(file))
-
-  private def plugWorksheetActions(file: VirtualFile, project: Project): Unit =
-    inReadAction {
-      val editors = FileEditorManager.getInstance(project).getAllEditors(file)
-      editors.foreach(plugWorksheetActions)
-    }
-
-  private def plugWorksheetActions(editor: FileEditor): Unit =
-    patchComponentActions(editor) { oldActions =>
-      if (oldActions == null) {
-        ju.Arrays.asList(WorksheetHookActions: _*)
-      } else {
-        val newActions = new ju.ArrayList(oldActions)
-        WorksheetHookActions.foreach { action =>
-          if (!newActions.contains(action))
-            newActions.add(action)
-        }
-        newActions
-      }
-    }
-
-  private def unplugWorksheetActions(file: VirtualFile, project: Project): Unit =
-    inReadAction {
-      val editors = FileEditorManager.getInstance(project).getAllEditors(file)
-      editors.foreach(unplugWorksheetActions)
-    }
-
-  private def unplugWorksheetActions(editor: FileEditor): Unit =
-    patchComponentActions(editor) { oldActions =>
-      if (oldActions == null) null else {
-        val newActions = new ju.ArrayList(oldActions)
-        WorksheetHookActions.foreach(newActions.remove)
-        newActions
-      }
-    }
-
-  private def patchComponentActions(editor: FileEditor)
-                                   (patcher: ju.List[AnAction] => ju.List[AnAction]): Unit = {
-    val component = editor.getComponent
-    val currentActions = UIUtil.getClientProperty(component, AnAction.ACTIONS_KEY)
-    val patchedActions = patcher(currentActions)
-    if (patchedActions != null) {
-      UIUtil.putClientProperty(component, AnAction.ACTIONS_KEY, patchedActions)
-    }
-  }
 
   def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])
 

@@ -6,7 +6,7 @@ import com.intellij.ui.roots.ScalableIconComponent
 import com.intellij.util.ui.{AsyncProcessIcon, EmptyIcon}
 import javax.swing.{Icon, JPanel}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentDisplayable
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiUtils
 
 class InteractiveStatusDisplay extends TopComponentDisplayable {
   import InteractiveStatusDisplay._
@@ -20,8 +20,8 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
 
   override def init(panel: JPanel): Unit = {
     myPanel.add(createIconWrapper(MyEmptyIcon), 0)
-    panel.add(myPanel, 0)
-    WorksheetUiConstructor.fixUnboundMaxSize(myPanel)
+    panel.add(myPanel)
+    WorksheetUiUtils.fixUnboundMaxSize(myPanel)
   }
 
   def onStartCompiling(): Unit = {
