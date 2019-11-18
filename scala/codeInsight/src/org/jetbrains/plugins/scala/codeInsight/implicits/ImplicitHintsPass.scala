@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement, override val hintsSettings: ScalaHintsSettings)
+private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement, override val hintsSettings: ScalaHintsSettings)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false)
     with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass {
 
@@ -114,7 +114,7 @@ private class ImplicitHintsPass(private val editor: Editor, private val rootElem
   }
 
   override def doApplyInformationToEditor(): Unit = {
-    EditorScrollingPositionKeeper.perform(myEditor, false, regenerateHints _)
+    EditorScrollingPositionKeeper.perform(myEditor, false, regenerateHints())
 
     if (rootElement == myFile) {
       ImplicitHints.setUpToDate(myEditor, myFile)

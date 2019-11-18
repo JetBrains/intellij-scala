@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodCha
 
 class ScalaTypeHintsSettingsProvider extends InlaySettingsProvider {
   override def createModels(project: Project, language: Language): ju.List[InlayProviderSettingsModel] =
-    if (language == ScalaLanguage.INSTANCE) ju.Collections.singletonList(new ScalaMethodChainInlayHintsSettingsModel)
+    if (language == ScalaLanguage.INSTANCE) ju.Arrays.asList(
+      new ScalaMethodChainInlayHintsSettingsModel,
+      new ScalaTypeHintsSettingsModel
+    )
     else ju.Collections.emptyList()
 
   override def getSupportedLanguages(project: Project): ju.Collection[Language] =
