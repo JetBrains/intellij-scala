@@ -14,9 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
 
-private[codeInsight] trait ScalaTypeHintsPass {
-  private val settings = ScalaCodeInsightSettings.getInstance
-  import settings._
+private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
+  import hintsSettings._
 
   protected def collectTypeHints(editor: Editor, root: PsiElement): Seq[Hint] = {
     if (editor.isOneLineMode || !(showFunctionReturnType || showPropertyType || showLocalVariableType)) Seq.empty

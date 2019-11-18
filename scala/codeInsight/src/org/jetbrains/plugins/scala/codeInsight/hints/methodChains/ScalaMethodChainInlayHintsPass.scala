@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsSche
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
@@ -22,14 +21,8 @@ import org.jetbrains.plugins.scala.settings.annotations.Expression
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
-private[codeInsight] trait ScalaMethodChainInlayHintsPass {
-
-  private val settings = ScalaCodeInsightSettings.getInstance
-
-  protected def showMethodChainInlayHints: Boolean = settings.showMethodChainInlayHints
-  protected def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-  protected def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
-  protected def showObviousTypes: Boolean = settings.showObviousType
+private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSettingsHolder {
+  import hintsSettings._
 
   private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
 
@@ -126,7 +119,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       else withoutFirst.init
 
     val withoutObvious =
-      if (showObviousTypes) withoutLast
+      if (showObviousType) withoutLast
       else withoutLast.filterNot(hasObviousReturnType)
 
     withoutObvious
@@ -156,7 +149,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
-    Text(": ") +: textPartsOf(ty, settings.presentationLength)
+    Text(": ") +: textPartsOf(ty, presentationLength)
   }
 }
 

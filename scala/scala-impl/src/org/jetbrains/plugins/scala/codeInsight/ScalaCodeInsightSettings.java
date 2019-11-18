@@ -15,6 +15,15 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
+    public static final boolean SHOW_FUNCTION_RETURN_TYPE_DEFAULT = true;
+    public static final boolean SHOW_PROPERTY_TYPE_DEFAULT = false;
+    public static final boolean SHOW_LOCAL_VARIABLE_TYPE_DEFAULT = false;
+    public static final boolean SHOW_METHOD_CHAIN_INLAY_HINTS_DEFAULT = true;
+    public static final boolean ALIGN_METHOD_CHAIN_INLAY_HINTS_DEFAULT = true;
+    public static final int UNIQUE_TYPES_TO_SHOW_METHOD_CHAINS_DEFAULT = 3;
+    public static final int PRESENTATION_LENGTH_DEFAULT = 45;
+    public static final boolean SHOW_OBVIOUS_TYPE_DEFAULT = false;
+
     public static final int MIN_PRESENTATION_LENGTH = 1;
     public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE;
 
@@ -23,16 +32,14 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     }
 
     //private fields are not serialized
-    public boolean showFunctionReturnType = true;
-    public boolean showPropertyType = false;
-    public boolean showLocalVariableType = false;
-    public boolean showMethodChainInlayHints = true;
-    public boolean alignMethodChainInlayHints = true;
-    public int uniqueTypesToShowMethodChains = 3;
-
-    public int presentationLength = 45;
-
-    public boolean showObviousType = false;
+    public boolean showFunctionReturnType = SHOW_FUNCTION_RETURN_TYPE_DEFAULT;
+    public boolean showPropertyType = SHOW_PROPERTY_TYPE_DEFAULT;
+    public boolean showLocalVariableType = SHOW_LOCAL_VARIABLE_TYPE_DEFAULT;
+    public boolean showMethodChainInlayHints = SHOW_METHOD_CHAIN_INLAY_HINTS_DEFAULT;
+    public boolean alignMethodChainInlayHints = ALIGN_METHOD_CHAIN_INLAY_HINTS_DEFAULT;
+    public int uniqueTypesToShowMethodChains = UNIQUE_TYPES_TO_SHOW_METHOD_CHAINS_DEFAULT;
+    public int presentationLength = PRESENTATION_LENGTH_DEFAULT;
+    public boolean showObviousType = SHOW_OBVIOUS_TYPE_DEFAULT;
 
     public Getter<Boolean> showFunctionReturnTypeGetter() {
         return () -> showFunctionReturnType;
