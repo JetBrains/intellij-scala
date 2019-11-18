@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.debugger.{Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 
 abstract class ResolvePrecedenceTest extends ScalaLightCodeInsightFixtureTestAdapter
   with SimpleResolveTestBase {
