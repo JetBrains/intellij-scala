@@ -96,7 +96,9 @@ private object AlignedInlayGroup {
     def hasHint: Boolean = maybeHint.isDefined
 
     def lineEndX(editor: Editor): Int = {
-      editor.offsetToXY(document.getLineEndOffset(document.getLineNumber(marker.getEndOffset)), true, false).x
+      val endOffset = marker.getEndOffset
+      if (endOffset < 0 || endOffset >= document.getTextLength) 0
+      else editor.offsetToXY(document.getLineEndOffset(document.getLineNumber(marker.getEndOffset)), true, false).x
     }
 
     override def dispose(): Unit = marker.dispose()

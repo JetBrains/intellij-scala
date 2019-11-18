@@ -16,22 +16,6 @@ final class ScalaTypeHintsConfigurable
   {
     val settings = getInstance
 
-    checkBox(
-      "Show function return type hints (Scala)",
-      settings.showFunctionReturnTypeGetter,
-      settings.showFunctionReturnTypeSetter
-    )
-    checkBox(
-      "Show property type hints (Scala)",
-      settings.showPropertyTypeGetter,
-      settings.showPropertyTypeSetter
-    )
-    checkBox(
-      "Show local variable type hints (Scala)",
-      settings.showLocalVariableTypeGetter,
-      settings.showLocalVariableTypeSetter
-    )
-
     val settingsPanel = new ScalaTypeHintsSettingsPanel
     component(
       settingsPanel.getPanel,

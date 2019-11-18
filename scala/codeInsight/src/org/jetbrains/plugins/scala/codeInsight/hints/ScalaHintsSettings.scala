@@ -27,9 +27,9 @@ object ScalaHintsSettings {
   class CodeInsightSettingsAdapter extends ScalaHintsSettings {
     private val settings = ScalaCodeInsightSettings.getInstance()
 
-    override def showFunctionReturnType: Boolean = settings.showFunctionReturnType
-    override def showPropertyType: Boolean = settings.showPropertyType
-    override def showLocalVariableType: Boolean = settings.showLocalVariableType
+    override def showFunctionReturnType: Boolean = settings.showTypeHints && settings.showFunctionReturnType
+    override def showPropertyType: Boolean = settings.showTypeHints && settings.showPropertyType
+    override def showLocalVariableType: Boolean = settings.showTypeHints && settings.showLocalVariableType
     override def showMethodChainInlayHints: Boolean = settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains

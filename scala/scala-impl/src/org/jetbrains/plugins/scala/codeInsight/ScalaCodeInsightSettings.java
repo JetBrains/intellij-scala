@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
+    public static final boolean SHOW_TYPE_HINTS_DEFAULT = true;
     public static final boolean SHOW_FUNCTION_RETURN_TYPE_DEFAULT = true;
     public static final boolean SHOW_PROPERTY_TYPE_DEFAULT = false;
     public static final boolean SHOW_LOCAL_VARIABLE_TYPE_DEFAULT = false;
@@ -32,6 +33,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     }
 
     //private fields are not serialized
+    public boolean showTypeHints = SHOW_TYPE_HINTS_DEFAULT;
     public boolean showFunctionReturnType = SHOW_FUNCTION_RETURN_TYPE_DEFAULT;
     public boolean showPropertyType = SHOW_PROPERTY_TYPE_DEFAULT;
     public boolean showLocalVariableType = SHOW_LOCAL_VARIABLE_TYPE_DEFAULT;
