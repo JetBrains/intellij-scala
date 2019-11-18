@@ -145,10 +145,11 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     prevResult: Option[Seq[PsiElement]],
     prevResultsTimestamp: Long = 0L
   ): Unit = {
+    val project = definition.getProject
     definition.putUserData(TestPositionsCalculationStateKey, Calculating(prevResult))
 
     debounce(prevResultsTimestamp, Math.max(0, TestPositionsCalculationDebounceMs)) {
-      DumbService.getInstance(definition.getProject).runWhenSmart {
+      DumbService.getInstance(project).runWhenSmart {
         executeOnPooledThread {
           inReadAction {
             doCalculateTestLocationsAndRestart(definition)
