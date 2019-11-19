@@ -15,7 +15,7 @@ object ScalaTypeHintsConfigurable {
     ImplicitHints.updateInAllEditors()
   }
 
-  sealed abstract class ToogleTypeAction(getter: Getter[JBoolean],
+  sealed abstract class ToggleTypeAction(getter: Getter[JBoolean],
                                          setter: Setter[JBoolean]) extends ToggleAction {
 
     override def isSelected(event: AnActionEvent): Boolean = getter.get()
@@ -26,36 +26,36 @@ object ScalaTypeHintsConfigurable {
     }
   }
 
-  class ToggleTypeHintsAction extends ToogleTypeAction(
+  class ToggleTypeHintsAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showTypeHintsGetter,
     ScalaCodeInsightSettings.showTypeHintsSetter
   )
 
-  class ToogleFunctionReturnTypeAction extends ToogleTypeAction(
+  class ToggleFunctionReturnTypeAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showFunctionReturnTypeGetter,
     ScalaCodeInsightSettings.showFunctionReturnTypeSetter
   )
 
-  class TooglePropertyTypeAction extends ToogleTypeAction(
+  class TogglePropertyTypeAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showPropertyTypeGetter,
     ScalaCodeInsightSettings.showPropertyTypeSetter
   )
 
-  class ToogleLocalVariableTypeAction extends ToogleTypeAction(
+  class ToggleLocalVariableTypeAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showLocalVariableTypeGetter,
     ScalaCodeInsightSettings.showLocalVariableTypeSetter
   )
-  class ToogleObviousTypeAction extends ToogleTypeAction(
+  class ToggleObviousTypeAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showObviousTypeGetter,
     ScalaCodeInsightSettings.showObviousTypeSetter
   )
 
-  class ToggleMethodChainInlayHintsAction extends ToogleTypeAction(
+  class ToggleMethodChainInlayHintsAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showMethodChainInlayHintsGetter(),
     ScalaCodeInsightSettings.showMethodChainInlayHintsSetter()
   )
 
-  class ToggleAlignMethodChainInlayHintsAction extends ToogleTypeAction(
+  class ToggleAlignMethodChainInlayHintsAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.alignMethodChainInlayHintsGetter(),
     ScalaCodeInsightSettings.alignMethodChainInlayHintsSetter()
   )
