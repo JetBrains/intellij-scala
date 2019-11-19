@@ -301,30 +301,12 @@
         </group>
 
         <group id="TypeHintsMenu">
-            <action id="ToogleFunctionReturnType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleFunctionReturnTypeAction"
-                    text="Function return type hints"/>
-            <action id="TooglePropertyType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$TooglePropertyTypeAction"
-                    text="Property type hints"/>
-            <action id="ToogleLocalVariableType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleLocalVariableTypeAction"
-                    text="Local variable type hints"/>
-            <action id="ToogleForObviousType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleObviousTypeAction"
-                    text="Obvious types hints"/>
-            <separator />
             <action id="ToggleTypeMismatchHints"
                     class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"
                     text="Type mismatch hints"/>
-            <separator />
-
             <action id="Scala.ToggleMethodChainInlayHints"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction"
                     text="Show method chain inlay hints" />
-            <action id="Scala.ToggleAlignMethodChainInlayHints"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleAlignMethodChainInlayHintsAction"
-                    text="Align method chain inlay hints"/>
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"
