@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 // TODO experimental feature (SCL-15250)
-private object TypeMismatchHints {
-  def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): AnnotatorHints = {
+object TypeMismatchHints {
+  private[annotator] def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): AnnotatorHints = {
     val needsParentheses = element.is[ScInfixExpr, ScPostfixExpr]
 
     val prefix =
@@ -64,7 +64,7 @@ private object TypeMismatchHints {
       .map(_.copy(errorTooltip = Some(message)))
   }
 
-  def tooltipFor(expectedType: ScType, actualType: ScType)(implicit context: TypePresentationContext): String = {
+  private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit context: TypePresentationContext): String = {
     def format(diff: Tree[TypeDiff], f: String => String) = {
       val parts = diff.flatten.map {
         case Leaf(Match(text, _)) => text
