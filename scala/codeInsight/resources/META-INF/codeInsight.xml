@@ -26,9 +26,6 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
                                  order="first"/>
 
-        <editorAppearanceConfigurable
-                instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
-
         <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsSettingsProvider" />
 
         <defaultLiveTemplatesProvider

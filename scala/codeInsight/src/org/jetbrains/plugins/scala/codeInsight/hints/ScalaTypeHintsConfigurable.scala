@@ -2,41 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.application.options.editor.CodeFoldingOptionsProvider
 import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
-import com.intellij.openapi.options.BeanConfigurable
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
-
-final class ScalaTypeHintsConfigurable
-  extends BeanConfigurable[ScalaCodeInsightSettings](ScalaCodeInsightSettings)
-    with CodeFoldingOptionsProvider {
-
-  {
-    val settings = getInstance
-
-    val settingsPanel = new ScalaTypeHintsSettingsPanel
-    component(
-      settingsPanel.getPanel,
-      settings.presentationLengthGetter,
-      settings.presentationLengthSetter,
-      settingsPanel.presentationLengthGetter,
-      settingsPanel.presentationLengthSetter
-    )
-
-    checkBox(
-      "Show obvious types (Scala)",
-      settings.showObviousTypeGetter,
-      settings.showObviousTypeSetter
-    )
-  }
-
-  override def apply(): Unit = {
-    super.apply()
-    ScalaTypeHintsConfigurable.forceHintsUpdateOnNextPass()
-  }
-}
 
 object ScalaTypeHintsConfigurable {
 
