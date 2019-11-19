@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
+import com.intellij.codeInsight.hints.settings.InlayHintsConfigurable
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, ToggleAction}
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.extensions._
 
 object ScalaTypeHintsConfigurable {
 
@@ -59,4 +62,13 @@ object ScalaTypeHintsConfigurable {
     ScalaCodeInsightSettings.alignMethodChainInlayHintsGetter(),
     ScalaCodeInsightSettings.alignMethodChainInlayHintsSetter()
   )
+
+  class ConfigureTypeHintActions extends AnAction {
+    override def actionPerformed(e: AnActionEvent): Unit = {
+      def defaultProject = ProjectManager.getInstance().getDefaultProject
+      val project = e.getProject.nullSafe.getOrElse(defaultProject)
+
+      InlayHintsConfigurable.showSettingsDialogForLanguage(project, ScalaLanguage.INSTANCE)
+    }
+  }
 }
