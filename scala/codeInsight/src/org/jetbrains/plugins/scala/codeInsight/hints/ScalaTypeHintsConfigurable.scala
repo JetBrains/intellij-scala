@@ -26,6 +26,11 @@ object ScalaTypeHintsConfigurable {
     }
   }
 
+  class ToggleTypeHintsAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.showTypeHintsGetter,
+    ScalaCodeInsightSettings.showTypeHintsSetter
+  )
+
   class ToogleFunctionReturnTypeAction extends ToogleTypeAction(
     ScalaCodeInsightSettings.showFunctionReturnTypeGetter,
     ScalaCodeInsightSettings.showFunctionReturnTypeSetter

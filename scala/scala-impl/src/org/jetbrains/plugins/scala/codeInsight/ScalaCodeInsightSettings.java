@@ -43,6 +43,15 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public int presentationLength = PRESENTATION_LENGTH_DEFAULT;
     public boolean showObviousType = SHOW_OBVIOUS_TYPE_DEFAULT;
 
+
+    public Getter<Boolean> showTypeHintsGetter() {
+        return () -> showTypeHints;
+    }
+
+    public Setter<Boolean> showTypeHintsSetter() {
+        return value -> showTypeHints = value;
+    }
+
     public Getter<Boolean> showFunctionReturnTypeGetter() {
         return () -> showFunctionReturnType;
     }
