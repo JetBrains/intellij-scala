@@ -310,6 +310,11 @@
             <action id="Scala.ToggleMethodChainInlayHints"
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction"
                     text="Method chain hints" />
+            <separator />
+            <action id="Scala.ConfigureTypeHints"
+
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ConfigureTypeHintActions"
+                    text="Configure..." />
         </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit"
