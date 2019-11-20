@@ -33,36 +33,38 @@ object ScClassFileDecompiler {
 
     override val getStubVersion = 326
 
-    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] = content match {
-      case ScClsStubBuilder(scalaFile) =>
-        LanguageParserDefinitions.INSTANCE
-          .forLanguage(ScalaLanguage.INSTANCE)
-          .asInstanceOf[parser.ScalaParserDefinition]
-          .getFileNodeType
-          .getBuilder
-          .buildStubTree(scalaFile)
-      case _ => null
-    }
+    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] =
+      decompiledScalaFile(content)
+        .map(stubBuilder.buildStubTree)
+        .orNull
 
-    private def unapply(content: FileContent): Option[PsiFile] = content.getFile match {
-      case original if isTopLevelScalaClass(original) =>
-        sourceNameAndText(original, content.getContent).map {
-          case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
-            sourceName,
-            ScalaLanguage.INSTANCE,
-            sourceText,
-            true,
-            false,
-            false,
-            original
-          )
-        }
-      case _ => None
-    }
+    private def stubBuilder =
+      LanguageParserDefinitions.INSTANCE
+        .forLanguage(ScalaLanguage.INSTANCE)
+        .asInstanceOf[parser.ScalaParserDefinition]
+        .getFileNodeType
+        .getBuilder
   }
 
-  private def createFileViewProviderImpl(manager: PsiManager, file: VirtualFile,
-                                         eventSystemEnabled: Boolean, language: Language) =
+  private def decompiledScalaFile(content: FileContent): Option[PsiFile] = content.getFile match {
+    case original if isTopLevelScalaClass(original) =>
+      sourceNameAndText(original, content.getContent).map {
+        case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
+          sourceName,
+          ScalaLanguage.INSTANCE,
+          sourceText,
+          true,
+          false,
+          false,
+          original
+        )
+      }
+    case _ => None
+  }
+
+
+  private[compiled] def createFileViewProviderImpl(manager: PsiManager, file: VirtualFile,
+                                                   eventSystemEnabled: Boolean, language: Language) =
     tryDecompile(file) match {
       case Some(decompilationResult) =>
         new ScClsFileViewProvider(decompilationResult)(manager, file, eventSystemEnabled, language)
@@ -91,6 +93,7 @@ object ScClassFileDecompiler {
     val classFileExtension = JavaClassFileType.INSTANCE.getDefaultExtension
 
     extension match {
+      case "sig" => Some(file.getNameWithoutExtension)
       case `classFileExtension` =>
         file.getParent match {
           case null => None

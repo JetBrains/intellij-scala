@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -54,7 +55,7 @@ final class ScalaFilterScope private(scope: GlobalSearchScope)
 
   override protected def isValid(file: VirtualFile): Boolean =
     FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
-      case _: JavaClassFileType =>
+      case _: JavaClassFileType | SigFileType =>
         isInLibraryClasses(file)
       case fileType: LanguageFileType if isInSourceContent(file) =>
         fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) ||

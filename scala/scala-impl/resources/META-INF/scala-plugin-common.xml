@@ -487,6 +487,14 @@
 
         <psi.classFileDecompiler implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler"/>
 
+        <fileType name="SIG" extensions="sig"
+                  implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType$"
+                  fieldName="MODULE$"/>
+        <fileType.fileViewProviderFactory filetype="SIG"
+                                          implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileViewProviderFactory"/>
+        <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
+        <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
+
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
 

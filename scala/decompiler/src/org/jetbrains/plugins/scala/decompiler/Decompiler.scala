@@ -24,6 +24,16 @@ object Decompiler {
   private val ScalaSigBytes = "ScalaSig".getBytes(UTF_8)
 
   def sourceNameAndText(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
+
+    if (fileName.endsWith(".sig")) {
+      val scalaSig = Parser.parseScalaSig(bytes, fileName)
+      val isPackageObject = fileName == "package.sig"
+      val sourceNameGuess = fileName.stripSuffix(".sig") + ".scala"
+
+      return decompiledText(scalaSig, fileName, isPackageObject)
+        .map((sourceNameGuess, _))
+    }
+
     if (!containsMarker(bytes)) return None
 
     val parsed = new ClassParser(new ByteArrayInputStream(bytes), fileName).parse()
