@@ -34,13 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.*;
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.07.2008
  */
 @SuppressWarnings(value = "unchecked")
 public class ScalaProjectSettingsPanel {
-  public final static String INJECTION_SETTINGS_NAME = "DependencyAwareInjectionSettings";
   private final LibExtensionsSettingsPanelWrapper extensionsPanel;
 
   private JPanel myPanel;
@@ -86,8 +87,9 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox showNotFoundImplicitArgumentsCheckBox;
   private JCheckBox myGroupPackageObjectWithPackage;
   private JComboBox ivy2IndexingModeCBB;
-  private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
+
+  private final List<ComponentWithSettings> extraSettings = new ArrayList<>();
 
   public ScalaProjectSettingsPanel(Project project) {
     myProject = project;
@@ -109,14 +111,9 @@ public class ScalaProjectSettingsPanel {
     extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
     extensionsPanel.build();
 
-    ScalaUiWithDependency[] deps = ScalaUiWithDependency.EP_NAME.getExtensions();
-    for (ScalaUiWithDependency uiWithDependency : deps) {
-      if (INJECTION_SETTINGS_NAME.equals(uiWithDependency.getName())) {
-        injectionPrefixTable = uiWithDependency.createComponent(injectionJPanel);
-        break;
-      }
+    for (ScalaUiWithDependency uiWithDependency : EP_NAME.getExtensionList()) {
+      extraSettings.add(uiWithDependency.createComponent(injectionJPanel));
     }
-    if (injectionPrefixTable == null) injectionPrefixTable = new ScalaUiWithDependency.NullComponentWithSettings();
 
     trailingCommasComboBox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.TrailingCommasMode.class));
 
@@ -226,7 +223,7 @@ public class ScalaProjectSettingsPanel {
 
     scalaProjectSettings.setEnableLibraryExtensions(extensionsPanel.enabledCB().isSelected());
 
-    injectionPrefixTable.saveSettings(scalaProjectSettings);
+    extraSettings.forEach(s -> s.saveSettings(scalaProjectSettings));
   }
 
   private List<String> getBasePackages() {
@@ -322,7 +319,9 @@ public class ScalaProjectSettingsPanel {
 
     if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
-    if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
+    for (ComponentWithSettings setting : extraSettings) {
+      if (setting.isModified(scalaProjectSettings)) return true;
+    }
 
     if (scalaProjectSettings.isBundledMigratorsSearchEnabled() != migratorsEnabledCheckBox.isSelected())
       return true;
@@ -407,7 +406,9 @@ public class ScalaProjectSettingsPanel {
     scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
     trailingCommasComboBox.setSelectedItem(scalaProjectSettings.getTrailingCommasMode());
 
-    injectionPrefixTable.loadSettings(scalaProjectSettings);
+    for (ComponentWithSettings setting : extraSettings) {
+      setting.loadSettings(scalaProjectSettings);
+    }
 
     scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
     setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());

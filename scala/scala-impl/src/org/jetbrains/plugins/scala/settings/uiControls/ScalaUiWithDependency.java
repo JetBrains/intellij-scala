@@ -21,10 +21,4 @@ public abstract class ScalaUiWithDependency {
     void saveSettings(ScalaProjectSettings settings);
     boolean isModified(ScalaProjectSettings settings);
   }
-  
-  public static class NullComponentWithSettings implements ComponentWithSettings {
-    public void loadSettings(ScalaProjectSettings settings) { }
-    public void saveSettings(ScalaProjectSettings settings) { }
-    public boolean isModified(ScalaProjectSettings settings) { return false; }
-  }
 }
