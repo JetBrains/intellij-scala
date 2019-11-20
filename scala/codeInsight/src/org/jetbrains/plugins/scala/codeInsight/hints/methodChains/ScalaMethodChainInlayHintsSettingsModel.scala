@@ -44,7 +44,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
     new ImmediateConfigurable.Case(
-      "Align type hints in method chains",
+      "Align hints",
       "Scala.ScalaMethodChainInlayHintsSettingsModel.alignMethodChainInlayHints",
       () => settings.alignMethodChainInlayHints,
       b => {
@@ -65,7 +65,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   override def getMainCheckBoxLabel: String = "Show method chain hints"
 
-  override def getName: String = "Method chains"
+  override def getName: String = "Method chain hints"
 
   override def getPreviewText: String =
     """

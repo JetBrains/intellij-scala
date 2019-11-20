@@ -44,7 +44,7 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true
 
   override def getMainCheckBoxLabel: String = "Show types even when they are obvious"
 
-  override def getName: String = "General type hint settings"
+  override def getName: String = "General settings"
 
   override def getPreviewText: String = null
 

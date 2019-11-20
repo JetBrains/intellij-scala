@@ -33,9 +33,9 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
 
   override def getComponent: JComponent = null
 
-  override def getMainCheckBoxLabel: String = "Show type mismatch error with inlay hints"
+  override def getMainCheckBoxLabel: String = "Show type mismatch errors with inlay hints"
 
-  override def getName: String = "Type mismatches"
+  override def getName: String = "Type mismatch hints"
 
   override def getPreviewText: String = null
 
