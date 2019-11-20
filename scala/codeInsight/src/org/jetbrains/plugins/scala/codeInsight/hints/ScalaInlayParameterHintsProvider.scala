@@ -49,6 +49,8 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
 
   override final def getInlayPresentation(inlayText: String): String = inlayText
 
+  override def getMainCheckboxText: String = "Show parameter hints:"
+
   override final def getSupportedOptions: ju.List[hints.Option] = ju.Arrays.asList(
     applyUpdateParameterNames,
     referenceParameterNames
@@ -70,7 +72,7 @@ object ScalaInlayParameterHintsProvider {
 
     def apply(nameSuffix: String, idSegments: String*): hints.Option = {
       val id = "scala" +: idSegments :+ "hint"
-      new hints.Option(id.mkString("."), s"<html><body>Show for $nameSuffix</body></html>", false)
+      new hints.Option(id.mkString("."), s"<html><body>Even for $nameSuffix</body></html>", false)
     }
   }
 

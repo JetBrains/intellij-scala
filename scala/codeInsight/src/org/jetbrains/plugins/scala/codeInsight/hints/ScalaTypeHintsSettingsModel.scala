@@ -49,7 +49,7 @@ class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scal
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
     new ImmediateConfigurable.Case(
-      "Member variable types",
+      "Member variables",
       "Scala.ScalaTypeHintsSettingsModel.showPropertyType",
       () => settings.showPropertyType,
       b => {
@@ -58,7 +58,7 @@ class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scal
       },
       null),
     new ImmediateConfigurable.Case(
-      "Method result types",
+      "Method results",
       "Scala.ScalaTypeHintsSettingsModel.showFunctionReturnType",
       () => settings.showFunctionReturnType,
       b => {
@@ -67,7 +67,7 @@ class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scal
       },
       null),
     new ImmediateConfigurable.Case(
-      "Local variable types",
+      "Local variables",
       "Scala.ScalaTypeHintsSettingsModel.showLocalVariableType",
       () => settings.showLocalVariableType,
       b => {
@@ -79,7 +79,7 @@ class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scal
 
   override def getComponent: JComponent = null
 
-  override def getMainCheckBoxLabel: String = "Show type hints"
+  override def getMainCheckBoxLabel: String = "Show type hints for:"
 
   override def getName: String = "Type hints"
 
