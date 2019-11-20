@@ -11,7 +11,7 @@ import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.openapi.updateSettings.impl.UpdateSettings;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.ListCellRendererWrapper;
+import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.*;
+import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.ComponentWithSettings;
+import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency.EP_NAME;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -118,7 +119,7 @@ public class ScalaProjectSettingsPanel {
     trailingCommasComboBox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.TrailingCommasMode.class));
 
     scTypeSelectionCombobox.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScFileMode.class));
-    scTypeSelectionCombobox.setRenderer(new ListCellRendererWrapper() {
+    scTypeSelectionCombobox.setRenderer(new SimpleListCellRenderer() {
       @Override
       public void customize(JList jList, Object o, int i, boolean b, boolean b1) {
         if (!(o instanceof ScalaProjectSettings.ScFileMode)) return;
