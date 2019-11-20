@@ -9,6 +9,8 @@ import javax.swing.*;
  * Date: 2/18/13
  */
 public class DependencyAwareInjectionSettings extends ScalaUiWithDependency {
+  private final static String INJECTION_SETTINGS_NAME = "DependencyAwareInjectionSettings";
+
   @Override
   public ComponentWithSettings createComponent(JPanel uiPlace) {
     ScalaInterpolatedPrefixMappingTable uiComponent = new ScalaInterpolatedPrefixMappingTable();
@@ -18,6 +20,6 @@ public class DependencyAwareInjectionSettings extends ScalaUiWithDependency {
 
   @Override
   public String getName() {
-    return ScalaProjectSettingsPanel.INJECTION_SETTINGS_NAME;
+    return INJECTION_SETTINGS_NAME;
   }
 }
