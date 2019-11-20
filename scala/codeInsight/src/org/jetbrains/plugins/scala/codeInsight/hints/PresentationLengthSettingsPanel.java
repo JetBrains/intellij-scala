@@ -12,14 +12,14 @@ import java.util.function.Supplier;
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.MAX_PRESENTATION_LENGTH;
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.MIN_PRESENTATION_LENGTH;
 
-public final class ScalaTypeHintsSettingsPanel {
+public final class PresentationLengthSettingsPanel {
 
     private JPanel panel;
     private SpinnerNumberModel presentationLengthModel;
     private JSpinner presentationLengthSpinner;
     private final Supplier<Integer> presentationLengthGetter;
 
-    public ScalaTypeHintsSettingsPanel(Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
+    public PresentationLengthSettingsPanel(Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
         this.presentationLengthGetter = presentationLengthGetter;
         presentationLengthModel = new SpinnerNumberModel();
         $$$setupUI$$$();
@@ -54,7 +54,7 @@ public final class ScalaTypeHintsSettingsPanel {
         panel = new JPanel();
         panel.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
-        label1.setText("Show type hints up to:");
+        label1.setText("Shrink type hints to maximal");
         panel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panel.add(presentationLengthSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
