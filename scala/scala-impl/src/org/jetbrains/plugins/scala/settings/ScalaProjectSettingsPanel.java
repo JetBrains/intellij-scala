@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -43,6 +44,9 @@ import static org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDepende
  */
 @SuppressWarnings(value = "unchecked")
 public class ScalaProjectSettingsPanel {
+
+  private static final String LAST_SELECTED_TAB_INDEX = "scala_project_settings_configurable.last_selected_tab_index";
+
   private final LibExtensionsSettingsPanelWrapper extensionsPanel;
 
   private JPanel myPanel;
@@ -89,6 +93,8 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myGroupPackageObjectWithPackage;
   private JComboBox ivy2IndexingModeCBB;
   private Project myProject;
+
+  private JTabbedPane tabbedPane;
 
   private final List<ComponentWithSettings> extraSettings = new ArrayList<>();
 
@@ -141,6 +147,8 @@ public class ScalaProjectSettingsPanel {
     autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());
 
     setSettings();
+
+    initSelectedTab();
   }
 
   @NotNull
@@ -351,6 +359,22 @@ public class ScalaProjectSettingsPanel {
     return myPanel;
   }
 
+  void dispose() {
+    int tabIdx = tabbedPane.getSelectedIndex();
+    PropertiesComponent.getInstance(myProject).setValue(LAST_SELECTED_TAB_INDEX, tabIdx, -1);
+  }
+
+  private void initSelectedTab() {
+    int tabIdx = PropertiesComponent.getInstance(myProject).getInt(LAST_SELECTED_TAB_INDEX, -1);
+    setSelectedTabIndex(tabIdx);
+  }
+
+  private void setSelectedTabIndex(int index) {
+    if (0 <= index && index < tabbedPane.getTabCount()) {
+      tabbedPane.setSelectedIndex(index);
+    }
+  }
+
   protected void resetImpl() {
     setSettings();
   }
@@ -460,11 +484,11 @@ public class ScalaProjectSettingsPanel {
     createUIComponents();
     myPanel = new JPanel();
     myPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-    final JTabbedPane tabbedPane1 = new JTabbedPane();
-    myPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
+    tabbedPane = new JTabbedPane();
+    myPanel.add(tabbedPane, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(17, 2, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Editor", panel1);
+    tabbedPane.addTab("Editor", panel1);
     final Spacer spacer1 = new Spacer();
     panel1.add(spacer1, new GridConstraints(16, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     showImplicitConversionsInCheckBox = new JCheckBox();
@@ -542,7 +566,7 @@ public class ScalaProjectSettingsPanel {
     panel3.add(collectionHighlightingChooser, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel4 = new JPanel();
     panel4.setLayout(new GridLayoutManager(3, 1, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Project View", panel4);
+    tabbedPane.addTab("Project View", panel4);
     myProjectViewHighlighting = new JCheckBox();
     myProjectViewHighlighting.setText("Highlight nodes with errors");
     myProjectViewHighlighting.setMnemonic('H');
@@ -557,7 +581,7 @@ public class ScalaProjectSettingsPanel {
     panel4.add(myGroupPackageObjectWithPackage, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel5 = new JPanel();
     panel5.setLayout(new GridLayoutManager(10, 2, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Performance", panel5);
+    tabbedPane.addTab("Performance", panel5);
     final Spacer spacer3 = new Spacer();
     panel5.add(spacer3, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label2 = new JLabel();
@@ -610,12 +634,12 @@ public class ScalaProjectSettingsPanel {
     panel5.add(label4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel6 = new JPanel();
     panel6.setLayout(new GridLayoutManager(8, 6, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Worksheet", panel6);
+    tabbedPane.addTab("Worksheet", panel6);
     final Spacer spacer4 = new Spacer();
     panel6.add(spacer4, new GridConstraints(7, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     runWorksheetInTheCheckBox = new JCheckBox();
     runWorksheetInTheCheckBox.setSelected(true);
-    runWorksheetInTheCheckBox.setText("Run worksheet in the compiler process");
+    runWorksheetInTheCheckBox.setText("Run worksheet in the compiler process (Plain mode only)");
     panel6.add(runWorksheetInTheCheckBox, new GridConstraints(2, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label5 = new JLabel();
     label5.setText("Output cutoff limit, lines: ");
@@ -649,7 +673,7 @@ public class ScalaProjectSettingsPanel {
     panel6.add(outputSpinner, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(50, -1), null, null, 0, false));
     final JPanel panel7 = new JPanel();
     panel7.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Base packages", panel7);
+    tabbedPane.addTab("Base packages", panel7);
     final Spacer spacer6 = new Spacer();
     panel7.add(spacer6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JScrollPane scrollPane1 = new JScrollPane();
@@ -662,7 +686,7 @@ public class ScalaProjectSettingsPanel {
     panel7.add(spacer7, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     final JPanel panel8 = new JPanel();
     panel8.setLayout(new GridLayoutManager(4, 3, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Misc", panel8);
+    tabbedPane.addTab("Misc", panel8);
     panel8.add(injectionJPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label8 = new JLabel();
     label8.setText("ScalaTest default super class:");
@@ -681,7 +705,7 @@ public class ScalaProjectSettingsPanel {
     panel8.add(spacer9, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     final JPanel panel9 = new JPanel();
     panel9.setLayout(new GridLayoutManager(2, 3, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Updates", panel9);
+    tabbedPane.addTab("Updates", panel9);
     final Spacer spacer10 = new Spacer();
     panel9.add(spacer10, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label10 = new JLabel();
@@ -700,13 +724,13 @@ public class ScalaProjectSettingsPanel {
     panel9.add(updateNowButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel10 = new JPanel();
     panel10.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
-    tabbedPane1.addTab("Extensions", panel10);
+    tabbedPane.addTab("Extensions", panel10);
     librariesPanel = new JPanel();
     librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     panel10.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
     final JPanel panel11 = new JPanel();
     panel11.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
-    tabbedPane1.addTab("Migrators", panel11);
+    tabbedPane.addTab("Migrators", panel11);
     migratorsEnabledCheckBox = new JCheckBox();
     migratorsEnabledCheckBox.setText("Migrators enabled");
     panel11.add(migratorsEnabledCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

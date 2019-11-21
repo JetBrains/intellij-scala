@@ -36,10 +36,9 @@ class RemoteServerConnector(
   output: File,
   worksheetClassName: String,
   replArgs: Option[ReplModeArgs],
+  makeType: WorksheetMakeType,
   needsCheck: Boolean
 ) extends RemoteServerConnectorBase(module, Seq(worksheet), output, needsCheck) {
-
-  private val runType: WorksheetMakeType = WorksheetProjectSettings.getMakeType(module.getProject)
 
   override protected def compilerSettings: ScalaCompilerSettings =
     WorksheetCommonSettings(worksheetPsiFile).getCompilerProfile.getSettings
@@ -55,7 +54,7 @@ class RemoteServerConnector(
     * 6. "replenabled" - iff/if REPL mode enabled
     */
   override val worksheetArgs: Array[String] =
-    runType match {
+    makeType match {
       case OutOfProcessServer =>
         Array.empty[String]
       case _ =>
@@ -75,7 +74,7 @@ class RemoteServerConnector(
     val client = new MyTranslatingClient(project, originalFile, consumer)
 
     val process = try {
-      val worksheetProcess = runType match {
+      val worksheetProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
           val argumentsFinal = arguments
@@ -117,7 +116,7 @@ class RemoteServerConnector(
           case _ if consumer.isCompiledWithErrors =>
             RemoteServerConnectorResult.CompilationError
           case _ =>
-            runType match {
+            makeType match {
               case OutOfProcessServer => RemoteServerConnectorResult.Compiled(worksheetClassName, output)
               case _                  => RemoteServerConnectorResult.CompiledAndEvaluated
             }

@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, WorksheetMakeType}
 
 /**
   * User: Dmitry.Naydanov
@@ -46,18 +43,4 @@ class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSett
     case null => project.anyScalaModule.orNull
     case module => module
   }
-}
-
-object WorksheetProjectSettings {
-
-  def getMakeType(project: Project): WorksheetMakeType =
-    if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED) {
-      if (ScalaProjectSettings.getInstance(project).isInProcessMode) {
-        InProcessServer
-      } else {
-        OutOfProcessServer
-      }
-    } else {
-      NonServer
-    }
 }
