@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  * @author Eugene Platonov
  *         04/07/13
  */
-class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention("asScala") {
+class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention {
 
   val targetCollections = Set(
     "java.lang.Iterable",
@@ -24,6 +24,9 @@ class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention(
   override def getText: String = ScalaBundle.message("convert.java.to.scala.collection.hint")
 
   def getFamilyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
+
+  override val importPath: String = "scala.collection.JavaConverters._"
+  override val maybeReplaceAsMethod: Option[String] = Some("asScala")
 }
 
 object ConvertJavaToScalaCollectionIntention {
