@@ -20,7 +20,7 @@ public class ScalaMethodChainInlaySettingsPanel {
         typeCountModel = new SpinnerNumberModel();
         $$$setupUI$$$();
         typeCountModel.setMinimum(1);
-        typeCountModel.setMaximum(500);
+        typeCountModel.setMaximum(99);
         typeCountModel.setStepSize(1);
         reset();
         typeCountModel.addChangeListener((e) -> typeCountSetter.accept(typeCountModel.getNumber().intValue()));
@@ -36,6 +36,7 @@ public class ScalaMethodChainInlaySettingsPanel {
 
     private void createUIComponents() {
         typeCountSpinner = new JSpinner(typeCountModel);
+        ((JSpinner.DefaultEditor) typeCountSpinner.getEditor()).getTextField().setColumns(2);
     }
 
     /**
@@ -48,16 +49,20 @@ public class ScalaMethodChainInlaySettingsPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         panel = new JPanel();
-        panel.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
-        label1.setText("Minimal unique type count to show method chains");
+        label1.setText("Only when there are at least");
         panel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panel.add(typeCountSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("unique types");
+        panel.add(label2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(typeCountSpinner);
+        label2.setLabelFor(typeCountSpinner);
     }
 
     /**

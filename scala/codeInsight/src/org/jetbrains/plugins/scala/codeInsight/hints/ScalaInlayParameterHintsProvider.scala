@@ -49,7 +49,7 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
 
   override final def getInlayPresentation(inlayText: String): String = inlayText
 
-  override def getMainCheckboxText: String = "Show parameter hints:"
+  override def getMainCheckboxText: String = "Show parameter hints"
 
   override final def getSupportedOptions: ju.List[hints.Option] = ju.Arrays.asList(
     applyUpdateParameterNames,
@@ -65,7 +65,7 @@ object ScalaInlayParameterHintsProvider {
 
   import CommonNames.{Apply, Update}
 
-  private[hints] val applyUpdateParameterNames = HintOption(s"<code>$Apply</code>, <code>$Update</code> methods", Apply, Update)
+  private[hints] val applyUpdateParameterNames = HintOption(s"<code>$Apply</code> and <code>$Update</code> methods", Apply, Update)
   private[hints] val referenceParameterNames = HintOption(s"non-literal expressions", "references", "names")
 
   private[this] object HintOption {
