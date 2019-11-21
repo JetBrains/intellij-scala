@@ -25,13 +25,14 @@ object NotificationUtil  {
     private var handler: Handler = IdHandler
     private val actions: mutable.Buffer[NotificationAction] = mutable.Buffer()
 
-    def setGroup(group: String): NotificationBuilder = {this.group = group; this}
-    def setTitle(title: String): NotificationBuilder = {this.title = title; this}
-    def setNotificationType(notificationType: NotificationType): NotificationBuilder = {this.notificationType = notificationType; this}
+    def setGroup(group: String): this.type = {this.group = group; this}
+    def setTitle(title: String): this.type = {this.title = title; this}
+    def removeTitle(): this.type = {this.title = null; this}
+    def setNotificationType(notificationType: NotificationType): this.type = {this.notificationType = notificationType; this}
     @deprecated
-    def setDisplayType(displayType: NotificationDisplayType): NotificationBuilder = {this.displayType = displayType; this}
-    def setHandler(handler: Handler): NotificationBuilder = {this.handler = handler; this}
-    def addAction(action: NotificationAction): NotificationBuilder = {actions += action; this}
+    def setDisplayType(displayType: NotificationDisplayType): this.type = {this.displayType = displayType; this}
+    def setHandler(handler: Handler): this.type = {this.handler = handler; this}
+    def addAction(action: NotificationAction): this.type = {actions += action; this}
 
     def notification: Notification = {
       //note that only this Notification constructor accepts null title

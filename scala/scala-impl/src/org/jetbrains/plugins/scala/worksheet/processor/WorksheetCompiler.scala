@@ -4,7 +4,8 @@ package worksheet.processor
 import java.io.File
 
 import com.intellij.compiler.progress.CompilerTask
-import com.intellij.notification.NotificationType
+import com.intellij.notification.{Notification, NotificationAction, NotificationType}
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
@@ -12,9 +13,10 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompileServerManager, ScalaCompileServerForm, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions.ThrowableExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.EvaluationCallback
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.PreconditionError
@@ -40,16 +42,19 @@ class WorksheetCompiler(
 
   private implicit val project: Project = worksheetFile.getProject
 
-  private val makeType = WorksheetProjectSettings.getMakeType(project)
   private val runType = WorksheetFileSettings.getRunType(worksheetFile)
+  private val makeType = WorksheetCompiler.getMakeType(project, runType)
   private val worksheetVirtual = worksheetFile.getVirtualFile
 
   private def showErrorNotification(msg: String): Unit =
+    errorNotification(msg).show()
+
+  private def errorNotification(msg: String): NotificationUtil.NotificationBuilder = {
     NotificationUtil.builder(project, msg)
       .setGroup("Scala")
       .setNotificationType(NotificationType.ERROR)
       .setTitle(ConfigErrorHeader)
-      .show()
+  }
 
   private def createCompilerTask: CompilerTask =
     new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
@@ -64,11 +69,12 @@ class WorksheetCompiler(
     FileUtil.writeToFile(tempFile, code)
 
     val compileWork: Runnable = () => try {
-      val connector = new RemoteServerConnector(module, worksheetFile, tempFile, outputDir, className, None, true)
+      val connector = new RemoteServerConnector(module, worksheetFile, tempFile, outputDir, className, None, makeType, true)
       connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
     } catch {
       case ex: IllegalArgumentException =>
         showErrorNotification(ex.getMessage)
+        afterCompileCallback(RemoteServerConnectorResult.UnknownError(ex))
     }
     task.start(compileWork, EmptyRunnable)
   }
@@ -78,11 +84,12 @@ class WorksheetCompiler(
                                   afterCompileCallback: RemoteServerConnectorResult => Unit,
                                   consumer: RemoteServerConnector.CompilerInterface): Unit = {
     val compileWork: Runnable = () => try {
-      val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), false)
+      val connector = new RemoteServerConnector(module, worksheetFile, new File(""), new File(""), "", Some(replModeArgs), makeType, false)
       connector.compileAndRun(worksheetVirtual, consumer, afterCompileCallback)
     } catch {
       case ex: IllegalArgumentException =>
         showErrorNotification(ex.getMessage)
+        afterCompileCallback(RemoteServerConnectorResult.UnknownError(ex))
     }
     task.start(compileWork, EmptyRunnable)
   }
@@ -145,10 +152,28 @@ class WorksheetCompiler(
     }
   }
 
+  private def showReplRequiresCompileServerNotification(message: String): Unit =
+    errorNotification(message)
+      .removeTitle()
+      .addAction(new NotificationAction("Enable compile server") {
+        override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+          notification.expire()
+          CompileServerManager.enableCompileServer(project)
+        }
+      })
+      .addAction(new NotificationAction("Configure compile server") {
+        override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+          notification.expire()
+          val filter = ScalaCompileServerForm.SearchFilter.USE_COMPILE_SERVER_FOR_SCALA
+          CompileServerManager.showCompileServerSettingsDialog(project, filter)
+        }
+      })
+      .show()
+
   def compileAndRunFile(): Unit = {
     if (runType.isReplRunType && makeType != InProcessServer) {
-      val error = PreconditionError("Worksheet can be executed in REPL mode only in compile server process")
-      showCompilationError(error.message, new LogicalPosition(0, 0))
+      val error = PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
+      showReplRequiresCompileServerNotification(error.message)
       originalCallback(error)
     } else {
       runType.process(worksheetFile, editor) match {
@@ -174,7 +199,7 @@ private[worksheet]
 object WorksheetCompiler extends WorksheetPerFileConfig {
 
   private val EmptyRunnable: Runnable = () => {}
-  private val ConfigErrorHeader = "Worksheet configuration error:"
+  private val ConfigErrorHeader = "Worksheet configuration error"
 
   type EvaluationCallback = WorksheetCompilerResult => Unit
 
@@ -250,4 +275,15 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
       }
     }
   }
+
+  private def getMakeType(project: Project, runType: WorksheetExternalRunType): WorksheetMakeType =
+    if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED) {
+      if (ScalaProjectSettings.getInstance(project).isInProcessMode || runType == WorksheetExternalRunType.ReplRunType) {
+        InProcessServer
+      } else {
+        OutOfProcessServer
+      }
+    } else {
+      NonServer
+    }
 }

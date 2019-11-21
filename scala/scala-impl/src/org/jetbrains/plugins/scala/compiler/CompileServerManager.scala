@@ -22,6 +22,7 @@ import javax.swing.{Icon, Timer}
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 
 /**
  * @author Pavel Fatin
@@ -190,7 +191,11 @@ object CompileServerManager {
     }
   }
 
-  def showCompileServerSettingsDialog(project: Project): Unit = {
-    ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compile Server")
+  def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
+    ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)
+
+  def enableCompileServer(project: Project): Unit = {
+    val settings = ScalaCompileServerSettings.getInstance()
+    settings.COMPILE_SERVER_ENABLED = true
   }
 }

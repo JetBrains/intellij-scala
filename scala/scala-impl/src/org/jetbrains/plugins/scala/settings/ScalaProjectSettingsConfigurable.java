@@ -4,7 +4,6 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
 
@@ -24,10 +23,6 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
   @Nls
   public String getDisplayName() {
     return "Scala";
-  }
-
-  public Icon getIcon() {
-    return Icons.SCALA_SMALL_LOGO;
   }
 
   public String getHelpTopic() {
@@ -51,6 +46,7 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
   }
 
   public void disposeUIResources() {
+    myPanel.dispose();
     myPanel = null;
     myComponent = null;
   }

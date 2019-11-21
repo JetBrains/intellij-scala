@@ -38,6 +38,10 @@ public class ScalaCompileServerForm implements Configurable {
     private ScalaCompileServerSettings mySettings;
     private ProjectSdksModelWithDefault sdkModel;
 
+    public static final class SearchFilter {
+        public static String USE_COMPILE_SERVER_FOR_SCALA = "use scala compile server";
+    }
+
     public ScalaCompileServerForm(ScalaCompileServerSettings settings) {
         mySettings = settings;
 
