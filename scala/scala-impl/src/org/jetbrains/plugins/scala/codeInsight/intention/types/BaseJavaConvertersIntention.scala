@@ -21,7 +21,11 @@ import scala.annotation.tailrec
  * @author Eugene Platonov
  *         23/07/13
  */
-abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElementBaseIntentionAction {
+abstract class BaseJavaConvertersIntention extends PsiElementBaseIntentionAction {
+
+  val importPath: String
+
+  val maybeReplaceAsMethod: Option[String]
 
   val targetCollections: Set[String]
 
@@ -61,17 +65,16 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     def addImport() {
       val importsHolder: ScImportsHolder = Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging])).
               getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
-      val path = "scala.collection.JavaConverters._"
-      importsHolder.addImportForPath(path)
+      importsHolder.addImportForPath(importPath)
     }
-    def appendAsMethod() {
+    def appendAsMethod(methodName: String) {
       val expression: ScExpression = getTargetExpression(element)
       val replacement = createExpressionFromText(s"${expression.getText}.$methodName")(expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }
     inWriteAction {
       addImport()
-      appendAsMethod()
+      maybeReplaceAsMethod.map(appendAsMethod)
     }
   }
 

@@ -502,6 +502,16 @@
 
         <intentionAction>
             <category>Scala/Type</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ImplicitConvertJavaToScalaCollectionIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Type</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ImplicitConvertScalaToJavaCollectionIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Type</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
         </intentionAction>
 
