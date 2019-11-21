@@ -90,15 +90,10 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
 
     """
       |class Person {
-      |  // member variable
       |  val birthYear = 5 + 5
       |
-      |  // method result
       |  def ageInYear(year: Int) = {
-      |
-      |    // local variable
       |    val diff = year - birthYear
-      |
       |    math.max(0, diff)
       |  }
       |}
