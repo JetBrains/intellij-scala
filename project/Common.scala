@@ -21,8 +21,8 @@ object Common {
       unmanagedResourceDirectories in Test += baseDirectory.value / "testResources",
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
-      ideaMainJars := ideaMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
-      ideaInternalPlugins += "java",
+      intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
+      intellijInternalPlugins += "java",
       pathExcludeFilter := excludePathsFromPackage,
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
