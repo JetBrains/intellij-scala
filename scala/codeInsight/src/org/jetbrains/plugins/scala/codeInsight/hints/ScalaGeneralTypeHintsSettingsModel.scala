@@ -42,7 +42,7 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true
 
   override def getComponent: JComponent = presentationLengthPanel.getPanel
 
-  override def getMainCheckBoxLabel: String = "Show types even when they are obvious"
+  override def getMainCheckBoxLabel: String = "Show types even if they are obvious"
 
   override def getName: String = "General settings"
 
