@@ -1137,7 +1137,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         leftNode.getTreePrev.getTreePrev != null &&
         leftNode.getTreePrev.getTreePrev.getElementType == ScalaTokenTypes.kPACKAGE => ON_NEW_LINE
       //case for covariant or contrvariant type params
-      case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementType.TYPE_PARAM, ScalaElementType.TYPE_PARAM) => NO_SPACING
+      case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER, ScalaElementType.TYPE_PARAM, ScalaElementType.TYPE_PARAM) =>
+        NO_SPACING
 
       //class params
       case (ScalaTokenTypes.tIDENTIFIER | ScalaElementType.TYPE_PARAM_CLAUSE, ScalaElementType.PRIMARY_CONSTRUCTOR, _, _)

@@ -179,7 +179,8 @@ object WorksheetEditorPrinterFactory {
   }
 
   private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterRepl = {
-    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor))
+    val viewerEditor = getOrCreateViewerEditorFor(editor)
+    val sideViewer = setupRightSideViewer(editor, scalaFile.getVirtualFile, viewerEditor)
     new WorksheetEditorPrinterRepl(editor, sideViewer, scalaFile)
   }
 
@@ -187,11 +188,11 @@ object WorksheetEditorPrinterFactory {
     val editorComponent = editor.getComponent
     val editorContentComponent = editor.getContentComponent
 
-    val viewerSettings = rightSideEditor.getSettings
+    val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
+
+    val viewerSettings = worksheetViewer.getSettings
     viewerSettings.setLineMarkerAreaShown(false)
     viewerSettings.setLineNumbersShown(false)
-
-    val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
     val prop = editorComponent.components.headOption
       .collect { case splitter: JBSplitter => splitter.getProportion }
@@ -204,7 +205,8 @@ object WorksheetEditorPrinterFactory {
 
     worksheetViewer.getComponent.setPreferredSize(prefDim)
 
-    if (modelSync) synch(editor, worksheetViewer)
+    if (modelSync)
+      synch(editor, worksheetViewer)
     editorContentComponent.setPreferredSize(prefDim)
 
     val child = editorComponent.getParent
