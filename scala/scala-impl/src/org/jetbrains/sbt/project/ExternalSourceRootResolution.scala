@@ -59,15 +59,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       }
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
-        //add representative project itself as a dependency for shared source module
-        val node = new ModuleDependencyNode(moduleNode, reprProjectModule)
-        node.setExported(true)
-        moduleNode.add(node)
-
         //put source module to the same module group
         moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup)
       }
 
+      //put source module to the same module group
       moduleNode
     }
 
