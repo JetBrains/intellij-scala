@@ -5,6 +5,7 @@ import java.io.{File, IOException}
 import java.util
 import java.util.Collections
 
+import org.jetbrains.jps.builders.BuildTargetIndex
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaModuleBuildTargetType}
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, CompilerSettings}
@@ -194,23 +195,33 @@ abstract class BaseCompilationData extends CompilationDataFactory {
   }
 
   private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
-    def isExcluded(target: ModuleBuildTarget): Boolean = {
-      val chunk = new ModuleChunk(Collections.singleton(target))
-      ChunkExclusionService.isExcluded(chunk)
-    }
+    def isExcluded(target: ModuleBuildTarget): Boolean =
+      ChunkExclusionService.isExcluded(chunk(target))
 
     def isProductionTargetOfTestModule(target: ModuleBuildTarget): Boolean = {
       target.getTargetType == JavaModuleBuildTargetType.PRODUCTION &&
         JpsJavaExtensionService.getInstance.getTestModuleProperties(target.getModule) != null
     }
 
+    //BuildTargetIndex.isDummy checks if module target has no source roots
+    //but it doesn't know about source dependencies
+    def isDummy(target: ModuleBuildTarget, index: BuildTargetIndex) = {
+      val hasSharedSourceDependencies =
+        SourceDependenciesProviderService.getSourceDependenciesFor(chunk(target)).nonEmpty
+
+      index.isDummy(target) && !hasSharedSourceDependencies
+    }
+
     val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
     val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
 
     targets.distinct.filterNot { target =>
-      buildTargetIndex.isDummy(target) || isExcluded(target) || isProductionTargetOfTestModule(target)
+      isDummy(target, buildTargetIndex) || isExcluded(target) || isProductionTargetOfTestModule(target)
     }
   }
+  
+  private def chunk(target: ModuleBuildTarget): ModuleChunk =
+    new ModuleChunk(Collections.singleton(target))
 
   private def outputClashesIn(targetToOutput: Seq[(ModuleBuildTarget, File)]): Option[String] = {
     val outputToTargetsMap = targetToOutput.groupBy(_._2).mapValues(_.map(_._1))
