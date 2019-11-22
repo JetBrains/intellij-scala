@@ -149,4 +149,18 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
       """class Test[M   <:   A   <%   B   <%   C   :   D   :  E]""",
       """class Test[M <: A <% B <% C : D : E]"""
     )
+
+  def testTypeParamVariance(): Unit =
+    doTextTest(
+      """def foo[F[+A]] = ???
+        |def foo[F[-A]] = ???
+        |""".stripMargin
+    )
+
+  def testTypeParamVarianceWithUnderscore(): Unit =
+    doTextTest(
+      """def foo[F[+_]] = ???
+        |def foo[F[-_]] = ???
+        |""".stripMargin
+    )
 }
