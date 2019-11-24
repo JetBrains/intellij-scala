@@ -18,7 +18,7 @@ class WorksheetReplCompileLocallyRunLocallyIntegrationTest extends WorksheetRepl
 
   def testSimpleDeclaration(): Unit = {
     val left = "val a = 1"
-    val compilerError = PreconditionError("Worksheet can be executed in REPL mode only in compile server process")
+    val compilerError = PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
     doFailingTest(left, RunWorksheetActionResult.WorksheetRunError(compilerError))
   }
 }
