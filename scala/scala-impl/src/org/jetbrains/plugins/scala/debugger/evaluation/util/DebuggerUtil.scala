@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName, JVMNameUtil}
-import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.{DebuggerBundle, NoDataException, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi._
-import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.sun.jdi.{Field, ObjectReference, ReferenceType, Value}
+import com.sun.jdi.{Field, ObjectReference, ReferenceType}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
@@ -31,6 +30,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -411,7 +412,7 @@ object DebuggerUtil {
       case _ => false
     }
 
-    val buf = mutable.Set.empty[ScTypedDefinition]
+    val buf = ArrayBuffer.empty[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReference) {
         if (ref.qualifier.isDefined || isArgName(ref)) {
@@ -437,8 +438,15 @@ object DebuggerUtil {
         }
       }
     })
-    buf.toSeq.sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
+
+    if (isAtLeast212(block))
+      buf.distinct.sortBy(e => e.isInstanceOf[ScObject])
+    else
+      buf.distinct.sortBy(e => (e.isInstanceOf[ScObject], e.startOffset))
   }
+
+  def isAtLeast212(element: PsiElement): Boolean =
+    element.module.flatMap(_.scalaLanguageLevel).forall(_ >= Scala_2_12)
 
   def isLocalV(resolve: PsiElement): Boolean = {
     resolve match {

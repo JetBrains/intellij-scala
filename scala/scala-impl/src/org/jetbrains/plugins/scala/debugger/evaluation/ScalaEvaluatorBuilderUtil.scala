@@ -8,15 +8,16 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.CachedValueProvider.Result
-import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.isAtLeast212
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -414,11 +415,15 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def repeatedArgEvaluator(exprsForP: Seq[ScExpression], expectedType: ScType, context: PsiElement): Evaluator = {
     def seqEvaluator: Evaluator = {
       val argTypes = exprsForP.map(_.`type`().getOrAny)
-      val argTypeText =
-        if (argTypes.isEmpty) expectedType.canonicalText
-        else argTypes.lub().canonicalText
-      val argsText = if (exprsForP.nonEmpty) exprsForP.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
-      val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText"
+      val argType =
+        if (argTypes.isEmpty) expectedType else argTypes.lub()
+      val argTypeText = argType.canonicalText
+
+      val argsText =
+        if (exprsForP.nonEmpty) exprsForP.sortBy(_.startOffset).map(_.getText).mkString(".+=(", ").+=(", ")")
+        else ""
+
+      val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText.result()"
       val newExpr = createExpressionWithContextFromText(exprText, context, context)
       evaluatorFor(newExpr)
     }
@@ -589,7 +594,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head)
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
-              val paramIndex = parameters.indexOf(p) + 1
+              val paramIndex = parameters.indexOf(p)
               val methodName = defaultParameterMethodName(fun, paramIndex)
               val localParams = p.paramInCode.toSeq.flatMap(DebuggerUtil.localParamsForDefaultParam(_))
               val localParamRefs =
@@ -1536,41 +1541,69 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def localFunctionIndex(named: PsiNamedElement): Int = {
+  private def localFunctionIndex(named: PsiNamedElement): Int = {
     elementsWithSameNameIndex(named, {
-      case f: ScFunction if f.isLocal && f.name == named.name => true
-      case ScalaPsiUtil.inNameContext(LazyVal(_)) && (lzy: ScBindingPattern) if lzy.name == named.name => true
+      case f: ScFunction if f.isLocal => true
+      case ScalaPsiUtil.inNameContext(LazyVal(_)) => true
       case _ => false
     })
   }
 
-  def lazyValIndex(named: PsiNamedElement): Int = {
+  private def lazyValIndex(named: PsiNamedElement): Int = {
     elementsWithSameNameIndex(named, {
-      case ScalaPsiUtil.inNameContext(LazyVal(_)) && (lzy: ScBindingPattern) if lzy.name == named.name => true
+      case ScalaPsiUtil.inNameContext(LazyVal(_)) => true
       case _ => false
     })
   }
 
-  def defaultParameterMethodName(method: ScMethodLike, paramIndex: Int): String = {
+  private def defaultParameterMethodName(method: ScMethodLike, paramIndex: Int): String = {
     method match {
       case fun: ScFunction if !fun.isConstructor =>
-        val suffix: String = if (!fun.isLocal) "" else "$" + localFunctionIndex(fun)
-        fun.name + "$default$" + paramIndex + suffix
-      case _ if method.isConstructor =>  "$lessinit$greater$default$" + paramIndex + "()"
+        def hasDefaultParamAtIndex(f: ScFunction, paramIndex: Int): Boolean = {
+          val paramAtIndex = f.effectiveParameterClauses
+            .flatMap(_.effectiveParameters)
+            .lift(paramIndex)
+
+          paramAtIndex.exists(_.isDefaultParam)
+        }
+
+        def localFunctionSuffix: String = {
+          if (!fun.isLocal) ""
+          else "$" + elementsWithSameNameIndex(fun, {
+            case f: ScFunction if f.isLocal && hasDefaultParamAtIndex(f, paramIndex) => true
+            case _ => false
+          })
+        }
+
+        fun.name + "$default$" + (paramIndex + 1) + localFunctionSuffix
+      case _ if method.isConstructor =>  "$lessinit$greater$default$" + (paramIndex + 1) + "()"
     }
   }
 
-  def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
+  private def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
     val containingClass = getContextClass(named)
     if (containingClass == null) return -1
 
-    val depthFirstIterator = containingClass.depthFirst {
-      case `containingClass` => true
-      case elem if isGenerateClass(elem) => false
-      case _ => true
+    val name = named.name
+
+    val traverser = SyntaxTraverser.psiTraverser(containingClass).forceIgnore {
+      case `containingClass` => false
+      case elem if isGenerateClass(elem) => true
+      case _ => false
     }
-    val sameNameElements = depthFirstIterator.filter(condition).toList
-    sameNameElements.indexOf(named) + 1
+    val sameNameCondition: Condition[PsiNamedElement] = {
+      n => n.name == name && condition(n)
+    }
+    val traversal =
+      if (isAtLeast212(named)) traverser.postOrderDfsTraversal()
+      else traverser.preOrderDfsTraversal()
+
+    val sameNameElements =
+      traversal
+        .filter(classOf[PsiNamedElement])
+        .filter(sameNameCondition)
+
+    sameNameElements.indexOf(_ == named) + 1
   }
 
   def traitImplementation(elem: PsiElement): Option[JVMName] = {

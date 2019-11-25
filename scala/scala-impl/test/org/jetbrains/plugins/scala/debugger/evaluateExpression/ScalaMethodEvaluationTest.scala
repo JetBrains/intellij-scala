@@ -11,17 +11,12 @@ import org.junit.experimental.categories.Category
 //  and "run with" can run with various minor versions
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
-}
-
-@Category(Array(classOf[DebuggerTests]))
-class ScalaMethodEvaluationTest_2_12_3 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_12.withMinor(3)
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -275,7 +270,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   def testLibraryFunctions() {
     runDebugger() {
       waitForBreakpoint()
-      evalStartsWith("scala.collection.mutable.ArrayBuffer.newBuilder", "ArrayBuffer()")
+      evalStartsWith("scala.collection.mutable.ArrayBuffer.empty", "ArrayBuffer()")
       evalStartsWith("\"test\".substring(0, 2)", "te")
       evalStartsWith("\"test\".substring(2)", "st")
       evalEquals("List[Int](1, 2)", "List(1, 2)")
