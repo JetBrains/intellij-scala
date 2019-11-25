@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
-import org.jetbrains.plugins.scala.worksheet.server.InProcessServer
 
 /**
   * User: Dmitry.Naydanov
@@ -52,7 +51,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   override def setModuleName(value: String): Unit = {
     setSetting(CP_MODULE_NAME, value)
-    file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, getModuleFor)
+    Option(getModuleFor).foreach(file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, _))
     DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
   }
 
