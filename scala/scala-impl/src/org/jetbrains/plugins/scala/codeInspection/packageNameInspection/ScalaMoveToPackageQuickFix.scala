@@ -46,11 +46,10 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
       false,
       null)
 
-    invokeLater {
-      //shouldn't be started inside write action
-      processor.run()
-    }
+    processor.run()
   }
+
+  override def startInWriteAction(): Boolean = false
 
   override def getFamilyName: String = "Move File To Package"
 }
