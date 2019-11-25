@@ -6,6 +6,7 @@ import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.DumbProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.JavaConverters._
 
-class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scala.ScalaTypeHintsSettingsModel") {
+class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.ScalaTypeHintsSettingsModel") {
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -83,7 +84,10 @@ class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scal
 
   override def getName: String = "Type hints"
 
-  override def getPreviewText: String =
+  override def getPreviewText: String = {
+    if (project.isDefault)
+      return null
+
     """
       |class Person {
       |  // member variable
@@ -99,6 +103,7 @@ class ScalaTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scal
       |  }
       |}
       |""".stripMargin.withNormalizedSeparator
+  }
 
   override def apply(): Unit = {
     settings.apply()
