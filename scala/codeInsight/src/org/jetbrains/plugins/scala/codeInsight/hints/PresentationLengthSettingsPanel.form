@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="ae674"/>
-          <text value="Restrict hint lenght to"/>
+          <text value="Limit hint length to"/>
         </properties>
       </component>
       <component id="ae674" class="javax.swing.JSpinner" binding="presentationLengthSpinner" custom-create="true">
