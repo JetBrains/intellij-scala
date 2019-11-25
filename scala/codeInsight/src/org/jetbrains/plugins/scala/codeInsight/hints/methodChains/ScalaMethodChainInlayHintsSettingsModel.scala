@@ -43,7 +43,7 @@ class ScalaMethodChainInlayHintsSettingsModel extends InlayProviderSettingsModel
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
     new ImmediateConfigurable.Case(
-      "Align left",
+      "In a separate column",
       "Scala.ScalaMethodChainInlayHintsSettingsModel.alignMethodChainInlayHints",
       () => settings.alignMethodChainInlayHints,
       b => {
