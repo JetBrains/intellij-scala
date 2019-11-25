@@ -61,6 +61,10 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
   def normalIntentionText: String = "Change access modifier"
   def specificIntentionText(name: String, newModifier: String): String = s"Make '$name' $newModifier"
 
+  def test_intention_is_not_named_as_the_java_version_of_the_intention(): Unit = {
+    assert(familyName != "Change access modifier")
+  }
+
   def test_make_top_level_private(): Unit = {
     doTest(s"c${CARET}lass Example", "private class Example", Some(specificIntentionText("Example", "private")))
   }

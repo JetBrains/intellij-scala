@@ -71,7 +71,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       .collectFirst { case member: ScMember => member}
   }
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val availableOpt = for {
       member <- findMember(element)
       description <- getMemberDescription(member)
@@ -83,7 +83,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
           setText(ScalaCodeInsightBundle.message("make.0.1", description, one))
         case _ =>
           targetModifier = None
-          setText(getFamilyName)
+          setText(actionName)
       }
       available
     }
@@ -129,10 +129,10 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
     model.moveToOffset(modifierRange.getStartOffset)
 
     val markAction =
-      try StartMarkAction.start(editor, project, getFamilyName())
+      try StartMarkAction.start(editor, project, actionName)
       catch {
         case e: StartMarkAction.AlreadyStartedException =>
-          Messages.showErrorDialog(project, e.getMessage, StringUtil.toTitleCase(getFamilyName()))
+          Messages.showErrorDialog(project, e.getMessage, StringUtil.toTitleCase(actionName))
           return
       }
 
@@ -143,7 +143,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
     )
     highlighter.setGreedyToRight(true)
     highlighter.setGreedyToLeft(true)
-    val updater = new ModifierTextUpdater(file, document, modifierRange, getFamilyName)
+    val updater = new ModifierTextUpdater(file, document, modifierRange, actionName)
     val memberPointer = SmartPointerManager.createPointer(member)
     JBPopupFactory.getInstance
       .createPopupChooserBuilder(possibleModifiers.asJava)
@@ -299,8 +299,15 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
 }
 
 object ChangeAccessModifierIntention {
-  def familyName: String =
+  val actionName: String =
     ScalaCodeInsightBundle.message("change.access.modifier.intention")
+
+  // we cannot have the same familyName as the java equivalent
+  // so for now we just use the same name but with an s at the end to make modifier plural
+  // for text that is shown when pressing alt+enter we still use the singular variant (because plural makes no sense there)
+  // use `actionName` for that.
+  val familyName: String =
+    ScalaCodeInsightBundle.message("change.access.modifier.intention.family")
 
   private def availableModifiers(member: ScMember): Seq[String] = {
     if (member.isLocal)
