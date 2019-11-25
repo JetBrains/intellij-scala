@@ -102,7 +102,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
     object Presentation extends StatusBarWidget.IconPresentation {
       override def getIcon: Icon = if(running) IconRunning else IconStopped
 
-      override def getClickConsumer: ClickConsumer.type = ClickConsumer
+      override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
       override def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
 

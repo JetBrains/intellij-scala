@@ -17,13 +17,8 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
-/**
- * User: Dmitry.Naydanov
- * Date: 01.04.14.
- */
 object WorksheetAutoRunner extends WorksheetPerFileConfig {
   val RUN_DELAY_MS_MAXIMUM = 3000
   val RUN_DELAY_MS_MINIMUM = 700
@@ -117,7 +112,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       }
 
       def isValid(vFile: VirtualFile): Boolean =
-        !woof.hasSyntaxErrors(vFile) && !WorksheetProcessManager.isRunning(vFile)
+        !woof.hasSyntaxErrors(vFile) && !WorksheetFileHook.isRunning(vFile)
 
       if (!isValid(virtualFile) || isReplWrongChar)
         return
