@@ -73,24 +73,20 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
       return null
 
     """
-      |Seq(1, 2, 3).foreach(println)
+      |readSettings()
+      |  .server
+      |  .connect()
+      |  .withHandshakeUpgrade
+      |  .ping()
       |
-      |Seq(1, 2, 3)
-      |  .map(_.toString)
-      |  .toSet
+      |def readSettings(): Configuration = ???
       |
-      |val str = Seq(1, 2)
-      |  .map(_.toDouble)
-      |  .filter(_ > 0.0)
-      |  .map(_.toString)
-      |  .mkString
-      |
-      |str
-      |  .filter(_ != '2')
-      |  .groupBy(_.toLower)
-      |  .mapValues("chars: " + _.mkString(", "))
-      |  .values
-      |  .toSeq
+      |class Configuration(val server: IPAddress)
+      |trait IPAddress { def connect(): Connection }
+      |trait Connection {
+      |  def withHandshakeUpgrade: Connection
+      |  def ping(): Int
+      |}
       |""".stripMargin.withNormalizedSeparator
   }
 
