@@ -37,7 +37,9 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
   override val getComponent: JComponent = {
     val linePanel = {
       val link = new LinkLabel[Any]("more info", null)
-      link.setListener((_, _) => DesktopUtils.browse("https://blog.jetbrains.com/scala/2019/07/02/functional-highlighting-for-functional-programming/"), null)
+      val url = "https://blog.jetbrains.com/scala/2019/07/02/functional-highlighting-for-functional-programming/"
+      link.setToolTipText(url)
+      link.setListener((_, _) => DesktopUtils.browse(url), null)
       val linePanel = {
         val layout = new FlowLayout()
         layout.setHgap(0)
