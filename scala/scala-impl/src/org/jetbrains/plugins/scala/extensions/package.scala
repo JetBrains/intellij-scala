@@ -12,6 +12,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -1329,4 +1330,12 @@ package object extensions {
   }
 
   val ChildOf: Parent.type = Parent
+
+  implicit final class LoggerExt(private val logger: Logger) extends AnyVal {
+
+    def debugSafe(message: => String): Unit =
+      if (logger.isDebugEnabled) {
+        logger.debug(message)
+      }
+  }
 }

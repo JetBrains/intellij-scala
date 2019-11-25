@@ -103,10 +103,9 @@ class RemoteServerConnector(
         case _ => None
       }
 
-      val worksheetHook = WorksheetFileHook.instance(project)
-      worksheetHook.updateStoppableProcess(originalFile, Some(() => worksheetProcess.stop()))
+      WorksheetFileHook.updateStoppableProcess(originalFile, Some(() => worksheetProcess.stop()))
       worksheetProcess.addTerminationCallback { exception =>
-        worksheetHook.updateStoppableProcess(originalFile, None)
+        WorksheetFileHook.updateStoppableProcess(originalFile, None)
 
         fileToReHighlight.foreach(WorksheetEditorPrinterRepl.rehighlight)
 
@@ -125,7 +124,6 @@ class RemoteServerConnector(
         callback.apply(result)
       }
 
-      WorksheetProcessManager.add(originalFile, worksheetProcess)
       worksheetProcess
     } catch {
       case NonFatal(ex) =>

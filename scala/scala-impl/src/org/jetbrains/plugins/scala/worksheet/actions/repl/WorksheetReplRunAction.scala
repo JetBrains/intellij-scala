@@ -20,8 +20,3 @@ final class WorksheetReplRunAction extends AnAction with WorksheetAction {
   override def acceptFile(file: ScalaFile): Boolean =
     WorksheetFileSettings.getRunType(file).isReplRunType
 }
-
-object WorksheetReplRunAction {
-
-  val ACTION_INSTANCE = new WorksheetReplRunAction
-}

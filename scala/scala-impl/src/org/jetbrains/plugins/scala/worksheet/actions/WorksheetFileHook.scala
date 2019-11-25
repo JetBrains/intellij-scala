@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala
 package worksheet
 package actions
 
+import java.{util => ju}
+
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
@@ -12,10 +15,13 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.{OptionExt, invokeLater}
+import com.intellij.util.ui.UIUtil
+import org.jetbrains.annotations.CalledInAwt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.UserDataKeys
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook.file2panel
+import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
@@ -65,25 +71,12 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       }
 
       val controlPanel = new WorksheetControlPanel(file)
+      val actions: ju.List[AnAction] = ContainerUtil.immutableSingletonList(new WorksheetReplRunAction)
+      UIUtil.putClientProperty(editor.getComponent, AnAction.ACTIONS_KEY, actions)
       file2panel.put(file, controlPanel)
       myFileEditorManager.addTopComponent(editor, controlPanel)
     }
   }
-
-  def disableRun(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
-    invokeLater {
-      WorksheetFileHook.getPanel(file).foreach(_.disableRun(exec))
-    }
-
-  def enableRun(file: VirtualFile, hasErrors: Boolean): Unit =
-    invokeLater {
-      WorksheetFileHook.getPanel(file).foreach(_.enableRun(hasErrors))
-    }
-
-  def updateStoppableProcess(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
-    invokeLater {
-      WorksheetFileHook.getPanel(file).foreach(_.updateStoppableProcess(exec))
-    }
 
   private object WorksheetEditorListener extends FileEditorManagerListener {
 
@@ -183,4 +176,20 @@ object WorksheetFileHook {
       PsiDocumentManager.getInstance(project).getCachedDocument(file)
     }
   }
+
+  @CalledInAwt()
+  def disableRun(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
+    WorksheetFileHook.getPanel(file).foreach(_.disableRun(exec))
+
+  @CalledInAwt()
+  def enableRun(file: VirtualFile, hasErrors: Boolean): Unit =
+    WorksheetFileHook.getPanel(file).foreach(_.enableRun(hasErrors))
+
+  def updateStoppableProcess(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
+    invokeLater {
+      WorksheetFileHook.getPanel(file).foreach(_.updateStoppableProcess(exec))
+    }
+
+  def isRunning(file: VirtualFile): Boolean =
+    WorksheetFileHook.getPanel(file).exists(!_.isRunEnabled)
 }

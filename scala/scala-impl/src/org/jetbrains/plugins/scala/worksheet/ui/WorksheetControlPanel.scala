@@ -19,6 +19,8 @@ class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
   private val copyAction = new CopyWorksheetAction()
   private val settingsAction = new ShowWorksheetSettingsAction()
 
+  private var runEnabled = false
+
   init()
 
   private def init(): Unit = {
@@ -55,16 +57,14 @@ class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
       statusDisplay.init(panel)
       statusDisplay.onSuccessfulCompiling()
 
-      enableRun(false)
+      enableRun(hasErrors = false)
     }
   }
 
   def enableRun(hasErrors: Boolean): Unit = {
-    stopAction.setEnabled(false)
-    stopAction.setVisible(false)
+    runEnabled = true
     stopAction.setStoppableProcess(None)
-    runAction.setEnabled(true)
-    runAction.setVisible(true)
+    updateView()
 
     if (hasErrors) {
       statusDisplay.onFailedCompiling()
@@ -74,14 +74,21 @@ class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
   }
 
   def disableRun(exec: Option[StoppableProcess]): Unit = {
-    runAction.setEnabled(false)
-    runAction.setVisible(false)
-    stopAction.setEnabled(true)
-    stopAction.setVisible(true)
+    runEnabled = false
     stopAction.setStoppableProcess(exec)
+    updateView()
 
     statusDisplay.onStartCompiling()
   }
+
+  private def updateView(): Unit = {
+    stopAction.setEnabled(!runEnabled)
+    stopAction.setVisible(!runEnabled)
+    runAction.setEnabled(runEnabled)
+    runAction.setVisible(runEnabled)
+  }
+
+  def isRunEnabled: Boolean = runEnabled
 
   def updateStoppableProcess(exec: Option[StoppableProcess]): Unit =
     stopAction.setStoppableProcess(exec)

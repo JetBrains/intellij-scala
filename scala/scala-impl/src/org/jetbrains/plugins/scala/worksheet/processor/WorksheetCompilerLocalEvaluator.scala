@@ -34,11 +34,10 @@ private object WorksheetCompilerLocalEvaluator {
         val params: JavaParameters = createDefaultParameters(scalaFile, mainClassName, addToCp)
         val processHandler = params.createOSProcessHandler()
 
-        val worksheetHook = WorksheetFileHook.instance(module.getProject)
-        worksheetHook.updateStoppableProcess(scalaFile.getVirtualFile, Some(() => processHandler.destroyProcess()))
+        WorksheetFileHook.updateStoppableProcess(scalaFile.getVirtualFile, Some(() => processHandler.destroyProcess()))
         processHandler.addProcessListener(new ProcessAdapter {
           override def processTerminated(event: ProcessEvent): Unit =
-            worksheetHook.updateStoppableProcess(scalaFile.getVirtualFile, None)
+            WorksheetFileHook.updateStoppableProcess(scalaFile.getVirtualFile, None)
         })
 
         processHandler.addProcessListener(processListener(callback, worksheetPrinter))
