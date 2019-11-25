@@ -24,41 +24,76 @@ import scala.collection.JavaConverters._
 private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSettingsHolder {
   import hintsSettings._
 
-  private var collectedHintTemplates = Seq.empty[Seq[AlignedHintTemplate]]
+  private var collectedHintTemplates = Seq.empty[(Seq[AlignedHintTemplate], ScExpression)]
 
-  def collectMethodChainHints(editor: Editor, root: PsiElement): Unit = {
-    val minChainCount = math.max(2, uniqueTypesToShowMethodChains)
+  def collectMethodChainHints(editor: Editor, root: PsiElement): Unit =
     collectedHintTemplates =
       if (editor.isOneLineMode || !showMethodChainInlayHints) Seq.empty
-      else (
-        for {
-          MethodChain(methodChain) <- root.elements
-          if methodChain.length >= uniqueTypesToShowMethodChains
+      else gatherMethodChainHints(editor, root)
 
-          methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
+  private def gatherMethodChainHints(editor: Editor, root: PsiElement): Seq[(Seq[AlignedHintTemplate], ScExpression)] = {
+    val document = editor.getDocument
+    val minChainCount = math.max(2, uniqueTypesToShowMethodChains)
+    val builder = Seq.newBuilder[(Seq[AlignedHintTemplate], ScExpression)]
 
-          if methodsAtLineEnd.length >= minChainCount
+    def gatherFor(elem: PsiElement): Set[Int] = {
+      var occupiedLines = Set.empty[Int]
+      for (child <- elem.children)
+        occupiedLines |= gatherFor(child)
 
-          methodAndTypes = methodsAtLineEnd
-            .map(m => m -> m.`type`())
-            .takeWhile(_._2.isRight)
-            .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
+      val isAlreadyOccupied = occupiedLines
+      for {
+        MethodChain(methodChain) <- Some(elem)
+        if methodChain.length >= uniqueTypesToShowMethodChains
 
-          withoutPackagesAndSingletons = dropPackagesAndSingletons(methodAndTypes)
+        methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
 
-          if withoutPackagesAndSingletons.length >= minChainCount
+        if methodsAtLineEnd.length >= minChainCount
 
-          filteredMethodAndTypes = filterMethodsForUnalignedMode(withoutPackagesAndSingletons, methodChain)
+        methodAndTypes = methodsAtLineEnd
+          .map(m => m -> m.`type`())
+          .takeWhile(_._2.isRight)
+          .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
 
-          if filteredMethodAndTypes.length >= minChainCount
+        withoutPackagesAndSingletons = dropPackagesAndSingletons(methodAndTypes)
 
-          uniqueTypeCount = filteredMethodAndTypes.map { case (m, ty) => ty.presentableText(m) }.toSet.size
-          if uniqueTypeCount >= uniqueTypesToShowMethodChains
-        } yield {
-          for ((expr, ty) <- if (alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes)
-            yield AlignedHintTemplate(textFor(expr, ty, editor), expr)
-        }
-      ).toList
+        if withoutPackagesAndSingletons.length >= minChainCount
+
+        filteredMethodAndTypes = filterMethodsForUnalignedMode(withoutPackagesAndSingletons, methodChain)
+
+        if filteredMethodAndTypes.length >= minChainCount
+
+        uniqueTypeCount = filteredMethodAndTypes.map { case (m, ty) => ty.presentableText(m) }.toSet.size
+        if uniqueTypeCount >= uniqueTypesToShowMethodChains
+      } {
+        val finalSelection = if (alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes
+        val group = for ((expr, ty) <- finalSelection)
+          yield new AlignedHintTemplate(textFor(expr, ty, editor)) {
+            override def endOffset: Int = expr.endOffset
+          }
+
+        val all = if (alignMethodChainInlayHints) {
+          val begin = document.getLineNumber(group.head.endOffset)
+          val end = document.getLineNumber(group.last.endOffset)
+          val grouped = group.groupBy(tmpl => tmpl.line(document)).mapValues(_.head)
+          occupiedLines ++= begin to end
+          for (curLine <- begin to end if !isAlreadyOccupied(curLine)) yield
+            grouped.getOrElse(
+              curLine,
+              new AlignedHintTemplate(Text("  ") :: Nil) {
+                override val endOffset: Int = document.getLineEndOffset(curLine)
+              }
+            )
+        } else group
+
+        builder += all -> finalSelection.last._1
+      }
+
+      occupiedLines
+    }
+
+    gatherFor(root)
+    builder.result()
   }
 
   def regenerateMethodChainHints(editor: Editor, inlayModel: InlayModel, rootElement: PsiElement): Unit = {
@@ -71,11 +106,11 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
         Disposer.dispose(inlay)
       }
 
-    assert(collectedHintTemplates.forall(_.nonEmpty))
+    assert(collectedHintTemplates.forall(_._1.nonEmpty))
 
     // don't show inlay behind the outer most expression when it has an error
     val hintTemplates = collectedHintTemplates
-      .map(removeLastIfHasTypeMismatch)
+      .map { case (group, outerExpr) => removeLastIfHasTypeMismatch(group, outerExpr) }
       .filter(_.length >= 2)
 
     val document = editor.getDocument
@@ -127,7 +162,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
 
   private def generateInlineHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
     for (hints <- hintTemplates; hint <- hints) {
-      inlayModel.addInlineElement(hint.expr.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
+      inlayModel.addInlineElement(hint.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
     }
 
   private def generateAlignedHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], document: Document, charWidth: Int, inlayModel: InlayModel): Unit =
@@ -136,7 +171,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
   private def generateUnalignedHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], charWidth: Int, inlayModel: InlayModel): Unit =
     for (hints <- hintTemplates; hint <- hints) {
       val inlay = inlayModel.addAfterLineEndElement(
-        hint.expr.endOffset,
+        hint.endOffset,
         false,
         new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
           override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
@@ -198,11 +233,10 @@ private object ScalaMethodChainInlayHintsPass {
       isTypeObvious("", ty.presentableText(expr), methodName(expr))
   }
 
-  private def removeLastIfHasTypeMismatch(methodsWithTypes: Seq[AlignedHintTemplate]): Seq[AlignedHintTemplate] = {
-    val outermostExpr = methodsWithTypes.last.expr
+  private def removeLastIfHasTypeMismatch(methodsWithTypes: Seq[AlignedHintTemplate],
+                                          outermostExpr: ScExpression): Seq[AlignedHintTemplate] =
     if (hasTypeMismatch(outermostExpr)) methodsWithTypes.init
     else methodsWithTypes
-  }
 
   private def hasTypeMismatch(expr: ScExpression): Boolean = AnnotatorHints.in(expr).nonEmpty
 

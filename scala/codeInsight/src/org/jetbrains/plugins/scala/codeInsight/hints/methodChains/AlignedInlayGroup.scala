@@ -12,9 +12,11 @@ import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.AlignedInlayGroup._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
-private case class AlignedHintTemplate(textParts: Seq[Text], expr: ScExpression)
+private abstract class AlignedHintTemplate(val textParts: Seq[Text]) {
+  def line(document: Document): Int = document.getLineNumber(endOffset)
+  def endOffset: Int
+}
 
 private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
                                 minMargin: Int = 1,
@@ -24,17 +26,16 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
   private val maxMarginInPixel = maxMargin * charWidthInPixel
 
   private val alignmentLines: Seq[AlignmentLine] = {
-    def lineOf(expr: ScExpression): Int = document.getLineNumber(expr.endOffset)
-    val lineToHintMapping = hints.groupBy(hint => lineOf(hint.expr)).mapValues(_.head)
+    val lineToHintMapping = hints.groupBy(_.line(document)).mapValues(_.head)
     val lineHasHint = lineToHintMapping.contains _
 
-    val firstLine = 0 max (lineOf(hints.head.expr) - 1)
-    val lastLine = document.getLineCount min (lineOf(hints.last.expr) + 1)
+    val firstLine = 0 max (hints.head.line(document) - 1)
+    val lastLine = document.getLineCount min (hints.last.line(document) + 1)
 
     (firstLine to lastLine).flatMap { line =>
       val maybeHint = lineToHintMapping.get(line)
       val maybeOffset = maybeHint match {
-        case Some(hint) => Some(hint.expr.endOffset)
+        case Some(hint) => Some(hint.endOffset)
         case _ if lineHasHint(line - 1) || lineHasHint(line + 1) => Some(document.getLineEndOffset(line))
         case _ => None
       }
@@ -51,7 +52,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     inlays =
       for(line <- alignmentLines; hint <- line.maybeHint) yield {
         val inlay = inlayModel.addAfterLineEndElement(
-          hint.expr.endOffset,
+          hint.endOffset,
           false,
           new AlignedInlayRenderer(line, hint.textParts, recalculateGroupsOffsets)
         )

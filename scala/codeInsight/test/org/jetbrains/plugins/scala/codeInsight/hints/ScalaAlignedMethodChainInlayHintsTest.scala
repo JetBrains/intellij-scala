@@ -6,6 +6,7 @@ package hints
 class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTestBase {
 
   import Hint.{End => E, Start => S}
+  val empty: String = S + "  " + E
 
   override protected def doTest(text: String, settings: Setting[_]*): Unit = {
     super.doTest(text, alignMethodChainInlayHints(true) +: uniqueTypesToShowMethodChains(2) +: settings: _*)
@@ -85,10 +86,10 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
     s"""
        |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
-       |  .filter {
-       |    _ > 2
+       |  .filter {$empty
+       |    _ > 2$empty
        |  }$S: Set[Int]$E.collect {
-       |    case a => a
+       |    case a => a$empty
        |  }.toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -98,11 +99,11 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
     s"""
        |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
-       |  .filter {
-       |    _ > 2
+       |  .filter {$empty
+       |    _ > 2$empty
        |  }$S: Set[Int]$E.collect
-       |  {
-       |    case a => a
+       |  {$empty
+       |    case a => a$empty
        |  }.toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -112,10 +113,10 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
     s"""
        |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
-       |  .filter {
-       |    _ > 2
+       |  .filter {$empty
+       |    _ > 2$empty
        |  }$S: Set[Int]$E.filter(
-       |    _ > 3
+       |    _ > 3$empty
        |  ).toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
@@ -125,10 +126,10 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
     s"""
        |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
-       |  .filter {
-       |    _ > 2
-       |  }.map { e =>
-       |    e + 3
+       |  .filter {$empty
+       |    _ > 2$empty
+       |  }.map { e =>$empty
+       |    e + 3$empty
        |  }.toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin
