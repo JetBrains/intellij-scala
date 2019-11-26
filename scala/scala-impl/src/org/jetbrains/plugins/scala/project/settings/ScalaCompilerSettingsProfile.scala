@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import java.util
-import java.util.Collections
+import java.util.concurrent.atomic.AtomicReference
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -10,7 +12,7 @@ import java.util.Collections
 // TODO It's better to replace it with immutable case classes later.
 class ScalaCompilerSettingsProfile(name: String) {
   private var myName: String = name
-  private var myModuleNames = new util.ArrayList[String]
+  private val myModuleNames: AtomicReference[List[String]] = new AtomicReference(Nil)
   private var mySettings = new ScalaCompilerSettings
 
   def getName: String = myName
@@ -19,26 +21,28 @@ class ScalaCompilerSettingsProfile(name: String) {
     ScalaCompilerConfiguration.incModificationCount()
     myName = profile.getName
     mySettings = profile.getSettings
-    myModuleNames = new util.ArrayList[String](profile.getModuleNames)
+    myModuleNames.set(profile.moduleNames)
   }
 
-  def getModuleNames: util.List[String] = Collections.unmodifiableList(myModuleNames)
+  def moduleNames: List[String] = myModuleNames.get()
+
+  def getModuleNames: util.List[String] = moduleNames.asJava
 
   def addModuleName(name: String): Unit = {
     ScalaCompilerConfiguration.incModificationCount()
-    myModuleNames.add(name)
+    myModuleNames.getAndUpdate(list => name :: list)
   }
 
   def removeModuleName(name: String): Unit = {
     ScalaCompilerConfiguration.incModificationCount()
-    myModuleNames.remove(name)
+    myModuleNames.getAndUpdate(list => list.filter(_ != name))
   }
 
   def getSettings: ScalaCompilerSettings = mySettings
 
-  def setSettings(settigns: ScalaCompilerSettings): Unit = {
+  def setSettings(settings: ScalaCompilerSettings): Unit = {
     ScalaCompilerConfiguration.incModificationCount()
-    mySettings = settigns
+    mySettings = settings
   }
 
   override def toString: String = myName

@@ -91,7 +91,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       val profileElement = XmlSerializer.serialize(profile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
       profileElement.setName("profile")
       profileElement.setAttribute("name", profile.getName)
-      profileElement.setAttribute("modules", profile.getModuleNames.asScala.sorted.mkString(","))
+      profileElement.setAttribute("modules", profile.moduleNames.sorted.mkString(","))
 
       configurationElement.addContent(profileElement)
     }
