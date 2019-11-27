@@ -7,7 +7,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.3.5"
   val zincVersion = "1.1.1"
-  val intellijVersion = "201.268"
+  val intellijVersion = "201.1748"
   val bspVersion = "2.0.0-M4"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
@@ -122,7 +122,7 @@ object Dependencies {
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
 
   /** The filtering function returns true for jars to be removed.
-    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
+   * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
     file.getName.contains("lsp4j") // version conflict with bsp4j in ultimate platform
   }
