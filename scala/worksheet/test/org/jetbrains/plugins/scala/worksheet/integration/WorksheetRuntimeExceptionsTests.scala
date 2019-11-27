@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
+import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStartsWith
@@ -20,9 +21,17 @@ trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
     leftText: String,
     expectedRightTextStart: String,
     expectedExceptionMessage: String
-  ): Unit = {
+  ): Editor = {
     val leftEditor = doResultTest(leftText, RunWorksheetActionResult.Done)
+    testDisplayFirstRuntimeException(leftEditor, expectedRightTextStart, expectedExceptionMessage)
+    leftEditor
+  }
 
+  def testDisplayFirstRuntimeException(
+    leftEditor: Editor,
+    expectedRightTextStart: String,
+    expectedExceptionMessage: String
+  ): Unit = {
     val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(leftEditor)
 
     val (expectedTextStart, expectedFoldingsStart) = preprocessViewerText(expectedRightTextStart)

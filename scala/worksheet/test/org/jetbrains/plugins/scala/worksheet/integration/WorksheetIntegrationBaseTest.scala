@@ -108,12 +108,7 @@ abstract class WorksheetIntegrationBaseTest
     foldings: Seq[Folding]
   ): TestRunResult = {
     val result = runWorksheetEvaluationAndWait(before)
-    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(result.worksheetEditor)
-
-    assertEquals(after, actualText)
-
-    assertFoldings(foldings, actualFoldings)
-
+    assertViewerOutput(result.worksheetEditor)(after, foldings)
     result
   }
 
@@ -124,6 +119,11 @@ abstract class WorksheetIntegrationBaseTest
     val TestRunResult(editor, actualResult) = runWorksheetEvaluationAndWait(text)
     assertEquals(expectedError, actualResult)
     editor
+  }
+
+  protected def doResultTest(editor: Editor, expectedError: RunWorksheetActionResult): Unit = {
+    val actualResult = runWorksheetEvaluationAndWait(editor)
+    assertEquals(expectedError, actualResult)
   }
 
   protected def preprocessViewerText(text: String): (String, Seq[Folding]) = {

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUi
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_10, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -116,7 +117,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |
         |println(1 / 0)
         |
-        |println(2 / 0)
+        |throw new RuntimeException
         |""".stripMargin
 
     val right =
@@ -127,7 +128,18 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
 
     val errorMessage = "java.lang.ArithmeticException: / by zero"
 
-    testDisplayFirstRuntimeException(left, right, errorMessage)
+    val editor = testDisplayFirstRuntimeException(left, right, errorMessage)
+
+    val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
+    def assertLastLine(): Unit = assertEquals(
+      "last processed line should point to last successfully evaluated line",
+      Some(0), printer.getLastProcessedLine
+    )
+
+    assertLastLine()
+    // run again with same editor, the output should be the same between these runs
+    testDisplayFirstRuntimeException(editor, right, errorMessage)
+    assertLastLine()
   }
 
   @NotSupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
@@ -149,7 +161,6 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |Error:(12, 5) class java.lang.Number is not a value
         |Number(3)))
         |""".stripMargin.trim
-
     )
 
   @SupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
@@ -208,6 +219,12 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
 
     assertCompilerMessages(editor)(expectedCompilerOutput)
+
+    val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
+    assertEquals(
+      "last processed line should point to last successfully-compiled and evaluated line",
+      Some(1), printer.getLastProcessedLine
+    )
   }
 
   def testArrayRender(): Unit = {

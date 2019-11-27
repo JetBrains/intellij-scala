@@ -18,9 +18,13 @@ trait WorksheetItEvaluations {
 
   protected def runWorksheetEvaluationAndWait(text: String): TestRunResult = {
     val worksheetEditor = prepareWorksheetEditor(text)
+    val result = runWorksheetEvaluationAndWait(worksheetEditor)
+    TestRunResult(worksheetEditor, result)
+  }
+
+  protected def runWorksheetEvaluationAndWait(worksheetEditor: Editor): RunWorksheetAction.RunWorksheetActionResult = {
     val future = runWorksheetEvaluation(worksheetEditor)
-    val evaluationResult = waitForEvaluationEnd(future)
-    TestRunResult(worksheetEditor, evaluationResult)
+    waitForEvaluationEnd(future)
   }
 
   protected def runWorksheetEvaluation(worksheetEditor: Editor): Future[RunWorksheetAction.RunWorksheetActionResult] =

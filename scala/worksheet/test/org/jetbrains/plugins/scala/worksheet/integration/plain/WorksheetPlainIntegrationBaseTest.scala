@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBa
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetExternalRunType}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain
+import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterPlain, WorksheetEditorPrinterRepl}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.ViewerEditorState
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -110,7 +110,9 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |""".stripMargin
 
     val errorMessage = "java.lang.ArithmeticException: / by zero"
-    testDisplayFirstRuntimeException(left, right, errorMessage)
+    val editor = testDisplayFirstRuntimeException(left, right, errorMessage)
+    // run again with same editor, the output should be the same between these runs
+    testDisplayFirstRuntimeException(editor, right, errorMessage)
   }
 
   def testCompilationError(): Unit = {

@@ -4,7 +4,7 @@ import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.Folding
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
@@ -12,9 +12,14 @@ trait WorksheetItAssertions {
   self: WorksheetIntegrationBaseTest =>
 
   def assertViewerEditorText(editor: Editor)(expectedText: String): Unit = {
-    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
-    val actualText = viewer.getDocument.getText
+    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(editor)
     assertEquals(expectedText.withNormalizedSeparator, actualText)
+  }
+
+  def assertViewerOutput(editor: Editor)(expectedText: String, expectedFoldings: Seq[Folding]): Unit = {
+    val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(editor)
+    assertEquals(expectedText.withNormalizedSeparator, actualText)
+    assertFoldings(expectedFoldings, actualFoldings)
   }
 
   def assertFoldings(expectedFoldings: Seq[Folding], actualFoldings: Seq[Folding]): Unit =
