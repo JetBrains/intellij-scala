@@ -12,7 +12,7 @@ import scala.language.postfixOps
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplCompileLocallyRunLocallyIntegrationTest extends WorksheetReplIntegrationBaseTest {
 
-  override def compileInCompileServerProcess: Boolean = false
+  override def useCompileServer: Boolean = false
 
   override def runInCompileServerProcess: Boolean = false
 

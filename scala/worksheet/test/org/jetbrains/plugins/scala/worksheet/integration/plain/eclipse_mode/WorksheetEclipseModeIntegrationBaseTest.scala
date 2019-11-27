@@ -14,7 +14,7 @@ class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTe
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 
-  override def compileInCompileServerProcess = true
+  override def useCompileServer = true
 
   override def runInCompileServerProcess = true
 

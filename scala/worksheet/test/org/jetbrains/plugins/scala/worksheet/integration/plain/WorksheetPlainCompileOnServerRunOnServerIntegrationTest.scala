@@ -6,7 +6,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest extends WorksheetPlainIntegrationBaseTest {
 
-  override def compileInCompileServerProcess = true
+  override def useCompileServer = true
 
   override def runInCompileServerProcess = true
 }
