@@ -5,6 +5,9 @@ package navigation
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction.findAllTargetElements
 import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Apply
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.junit.Assert._
 
 /**
@@ -21,7 +24,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  def apply(boolean: Boolean) = ${CARET}Test(0)
        |}
       """,
-    expected = (isClass, "Test")
+    expected = (is[ScClass], "Test")
   )
 
   def testSyntheticUnapply(): Unit = doTest(
@@ -34,7 +37,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  }
        |}
       """,
-    expected = (isClass, "Test")
+    expected = (is[ScClass], "Test")
   )
 
   def testSyntheticCopy(): Unit = doTest(
@@ -45,7 +48,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  Test(1).${CARET}copy(i = 2)
        |}
       """,
-    expected = (isClass, "Test")
+    expected = (is[ScClass], "Test")
   )
 
   def testApply(): Unit = doTest(
@@ -58,7 +61,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  ${CARET}Test(false)
        |}
       """,
-    expected = (isObject, "Test"), (isFunction, Apply)
+    expected = (is[ScObject], "Test"), (is[ScFunction], Apply)
   )
 
   def testPackageObjectOnly(): Unit = doTest(
@@ -130,7 +133,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  } yield x
        |}
      """.stripMargin,
-    expected = (isFunction, "map")
+    expected = (is[ScFunction], "map")
   )
 
   def testGenerator_foreach(): Unit = doTest(
@@ -141,7 +144,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  } x
        |}
      """.stripMargin,
-    expected = (isFunction, "foreach")
+    expected = (is[ScFunction], "foreach")
   )
 
   def testGuard(): Unit = doTest(
@@ -153,7 +156,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |  } x
        |}
      """.stripMargin,
-    expected = (isFunction, "withFilter")
+    expected = (is[ScFunction], "withFilter")
   )
 
   def testForBinding_none(): Unit = doTest(
@@ -177,18 +180,76 @@ class GoToDeclarationTest extends GoToTestBase {
        |  } yield y
        |}
      """.stripMargin,
-    expected = (isFunction, "map")
+    expected = (is[ScFunction], "map")
+  )
+
+  def testLibraryClassParam(): Unit = doTestFromLibrarySource(
+    s"""import scala.util.Failure
+      |
+      |object Test {
+      |  val f: Failure[Unit] = ???
+      |  f.${CARET}exception
+      |}
+      |""".stripMargin,
+    expected = (is[ScClassParameter], "exception")
+  )
+
+  def testLibraryClass(): Unit = doTestFromLibrarySource(
+    s"""object TestLibraryClass {
+       |  val option: ${CARET}Option[Int] = ???
+       |}
+       |""".stripMargin,
+    (is[ScClass], "scala.Option")
+    
+  )
+
+  def testLibraryObject(): Unit = doTestFromLibrarySource(
+    s"""object TestLibraryObject {
+       |  ${CARET}None
+       |}
+       |""".stripMargin,
+    (is[ScObject], "scala.None")
+  )
+
+  def testLibraryTypeAlias(): Unit = doTestFromLibrarySource(
+    s"""object TestLibraryTypeAlias {
+       |  val seq: ${CARET}Seq[Int] = ???
+       |}""".stripMargin,
+    (is[ScTypeAlias], "Seq")
+  )
+
+  def testLibraryVal(): Unit = doTestFromLibrarySource(
+    s"""object TestLibraryVal {
+       |  Predef.${CARET}Map
+       |}
+       |""".stripMargin,
+    (isVal, "Map")
+  )
+
+  def testLibraryFunction(): Unit = doTestFromLibrarySource(
+    s"""object TestLibraryFunction {
+       |  None.${CARET}get
+       |}
+       |""".stripMargin,
+    (is[ScFunction], "get")
+  )
+
+  def testLibraryFunctionParam(): Unit = doTestFromLibrarySource(
+    s"""object TestLibraryFunctionParam {
+       |  Nil.mkString(${CARET}start = "(", sep = ",", end = "")
+       |}
+       |""".stripMargin,
+    (is[ScParameter], "start")
   )
 
   private def doTest(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
     configureFromFileText(fileText)
 
     val editor = getEditor
-    val targets = findAllTargetElements(
-      getProject,
-      editor,
-      editor.getCaretModel.getOffset
-    ).toSet
+    val targets =
+      findAllTargetElements(getProject, editor, editor.getCaretModel.getOffset)
+        .map(_.getNavigationElement)
+        .toSet
 
     assertEquals("Wrong number of targets: ", expected.size, targets.size)
 
@@ -199,5 +260,12 @@ class GoToDeclarationTest extends GoToTestBase {
     } yield actualElement
 
     assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)
+  }
+  
+  private def doTestFromLibrarySource(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
+    val conditionsWithSourceCheck = expected.map {
+      case (condition, name) => ((element: PsiElement) => isFromScalaSource(element) && condition(element), name)
+    }
+    doTest(fileText, conditionsWithSourceCheck: _*)
   }
 }

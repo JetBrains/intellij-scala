@@ -7,6 +7,8 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.junit.Assert._
 
 import scala.collection.JavaConverters._
@@ -78,7 +80,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GoToClassS")
 
-    checkContainExpected(elements, (isTrait, "GoToClassSimpleTrait"))
+    checkContainExpected(elements, (is[ScTrait], "GoToClassSimpleTrait"))
     checkSize(elements, 1)
   }
 
@@ -87,7 +89,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GTCS")
 
-    checkContainExpected(elements, (isTrait, "GoToClassSimpleTrait"))
+    checkContainExpected(elements, (is[ScTrait], "GoToClassSimpleTrait"))
     checkSize(elements, 1)
   }
 
@@ -96,7 +98,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("GoToClassS")
 
-    checkContainExpected(elements, (isObject, "GoToClassSimpleObject"))
+    checkContainExpected(elements, (is[ScObject], "GoToClassSimpleObject"))
     checkSize(elements, 1)
   }
 
@@ -127,10 +129,10 @@ class GoToClassAndSymbolTest extends GoToTestBase {
     val elements = gotoSymbolElements("foo")
     checkContainExpected(
       elements,
-      (isClass, "FooClass"),
-      (isTrait, "FooTrait"),
-      (isFunction, "fooMethod"),
-      (isFunction, "fooMethod")
+      (is[ScClass], "FooClass"),
+      (is[ScTrait], "FooTrait"),
+      (is[ScFunction], "fooMethod"),
+      (is[ScFunction], "fooMethod")
     )
   }
 
@@ -139,7 +141,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoClassElements("::")
 
-    checkContainExpected(elements, (isClass, ":::"))
+    checkContainExpected(elements, (is[ScClass], ":::"))
     checkSize(elements, 1)
   }
 
@@ -148,7 +150,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoSymbolElements("::")
 
-    checkContainExpected(elements, (isClass, ":::"), (isFunction, ":::"))
+    checkContainExpected(elements, (is[ScClass], ":::"), (is[ScFunction], ":::"))
     checkSize(elements, 2)
   }
 
@@ -160,7 +162,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
     val elements = gotoSymbolElements("::")
 
-    checkContainExpected(elements, (isClass, "test.:::"), (isFunction, ":::"))
+    checkContainExpected(elements, (is[ScClass], "test.:::"), (is[ScFunction], ":::"))
     checkSize(elements, 2)
   }
 

@@ -9,9 +9,9 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.extensions.StubBasedExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
@@ -155,6 +155,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
             case Some(constr) => constr
             case _ => this
           }
+        case _ => this
+      }
+    case _: ScParameterClause =>
+      this match {
+        case cp: ScClassParameter =>
+          Option(cp.containingClass)
+            .flatMap(_.getNavigationElement.asOptionOf[ScConstructorOwner])
+            .flatMap(_.parameters.find(_.name == cp.name))
+            .getOrElse(this)
         case _ => this
       }
     case _ => this
