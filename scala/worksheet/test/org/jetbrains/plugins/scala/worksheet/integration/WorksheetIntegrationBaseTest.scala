@@ -48,8 +48,6 @@ abstract class WorksheetIntegrationBaseTest
 
   protected def evaluationTimeout: Duration = 60 seconds
 
-  override protected def useCompileServer: Boolean = self.compileInCompileServerProcess
-
   protected implicit def project: Project = getProject
 
   protected def worksheetCache = WorksheetCache.getInstance(project)

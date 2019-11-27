@@ -12,13 +12,11 @@ import scala.language.postfixOps
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplCompileOnServerRunLocallyIntegrationTest extends WorksheetReplIntegrationBaseTest {
 
-  override def compileInCompileServerProcess: Boolean = true
+  override def useCompileServer: Boolean = true
 
   override def runInCompileServerProcess: Boolean = false
 
-  def testSimpleDeclaration(): Unit = {
-    val left = "val a = 1"
-    val compilerError = PreconditionError("Worksheet in REPL mode can only be executed in compile server process")
-    doFailingTest(left, RunWorksheetActionResult.WorksheetRunError(compilerError))
-  }
+  // if compile server is enabled we still use it regarding of what is the value of runInCompileServerProcess setting
+  def testSimpleDeclaration(): Unit =
+    doRenderTest("42", "res0: Int = 42")
 }
