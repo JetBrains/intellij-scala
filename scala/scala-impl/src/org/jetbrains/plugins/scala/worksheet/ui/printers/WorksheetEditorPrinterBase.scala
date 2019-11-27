@@ -122,7 +122,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     commitDocument(document)
   }
 
-  protected def simpleAppend(text: String, document: Document): Unit =
+  protected def simpleAppend(text: CharSequence, document: Document): Unit =
     executeUndoTransparentAction {
       document.insertString(document.getTextLength, text)
       commitDocument(document)

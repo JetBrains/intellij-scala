@@ -34,6 +34,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 
   private var lastProcessedLine: Option[Int] = None
   private var currentFile: ScalaFile = file
+  private var hasErrors = false
 
   /* we have to inject this interface because we have to restore the original error positions in worksheet editor
    * and for now this can only be done in this printer  */
@@ -54,8 +55,8 @@ final class WorksheetEditorPrinterRepl private[printers](
       }
     } else {
       inWriteCommandAction {
-        val start = viewerDocument.getLineStartOffset(lineIdx)
-        val end   = viewerDocument.getLineEndOffset(viewerDocument.getLineCount - 1)
+        val start = (viewerDocument.getLineStartOffset(lineIdx) - 1).max(0) // capture previous new line as well
+        val end   = viewerDocument.getTextLength
         viewerDocument.deleteString(start, end)
       }
     }
@@ -67,7 +68,7 @@ final class WorksheetEditorPrinterRepl private[printers](
         inputToOutputMapping.lastWhere(_._1 == inputLine) match {
           case Some((_, outputLine)) =>
             if (outputLine + 1 < viewerDocument.getLineCount) {
-              cleanViewerFromLine(outputLine + 1)
+              cleanViewerFromLine(outputLine)
             }
             if (inputToOutputMapping.length > outputLine + 1) {
               inputToOutputMapping.remove(outputLine + 1, inputToOutputMapping.length - outputLine - 1)
@@ -101,6 +102,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 
     line.trim match {
       case REPL_START =>
+        hasErrors = false
         fetchNewPsi()
         if (lastProcessedLine.isEmpty)
           cleanFoldingsLater()
@@ -117,7 +119,7 @@ final class WorksheetEditorPrinterRepl private[printers](
         flushBuffer()
         false
       case REPL_CHUNK_COMPILATION_ERROR =>
-        refreshLastMarker()
+        hasErrors = true
         flushBuffer()
         true
 
@@ -154,7 +156,8 @@ final class WorksheetEditorPrinterRepl private[printers](
     val processedStartEndLine = originalLine(queuedPsi.getLastProcessedOffset)
     val processedEndLine      = originalLine(originalTextRange.getEndOffset)
 
-    lastProcessedLine = Some(processedStartEndLine)
+    if (!hasErrors)
+      lastProcessedLine = Some(processedStartEndLine)
 
     WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
 
@@ -172,7 +175,8 @@ final class WorksheetEditorPrinterRepl private[printers](
         val blankLinesBase = (processedStartLine - viewerDocumentLastVisibleLine).max(0)
 
         val prefix = buildNewLines(blankLinesBase)
-        simpleAppend(prefix, viewerDocument)
+        val currentOutput = new mutable.StringBuilder(prefix.length)
+        currentOutput.append(prefix)
 
         // 2) append current queuedPsi evaluation output
 
@@ -185,8 +189,10 @@ final class WorksheetEditorPrinterRepl private[printers](
         }
         outputTextWithNewLinesOffset.foreach { case (chunkText, newLinesOffset) =>
           val prefix = buildNewLines(newLinesOffset)
-          simpleAppend(prefix + chunkText, viewerDocument)
+          currentOutput.append(prefix + chunkText)
         }
+
+        simpleAppend(currentOutput, viewerDocument)
 
         val blankLinesFromOutput = outputTextWithNewLinesOffset.foldLeft(0)(_ + _._2)
 
