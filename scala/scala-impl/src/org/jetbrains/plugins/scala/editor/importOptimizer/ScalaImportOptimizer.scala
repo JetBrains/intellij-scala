@@ -769,10 +769,14 @@ object ScalaImportOptimizer {
     def fromDefaultImport(srr: ScalaResolveResult): Boolean =
       srr.element match {
         case c: PsiClass =>
-          val qName   = c.qualifiedName
-          val name    = c.name
-          val pkgName = qName.substring(0, qName.length - name.length)
-          defaultImportsSet.contains(pkgName)
+          val qName = c.qualifiedName
+
+          if (qName == null) false
+          else {
+            val name    = c.name
+            val pkgName = qName.substring(0, qName.length - name.length)
+            defaultImportsSet.contains(pkgName)
+          }
         case ContainingClass(o: ScObject) => defaultImportsSet.contains(o.qualifiedName)
         case _                            => false
       }

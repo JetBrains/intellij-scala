@@ -135,7 +135,7 @@ trait PrecedenceHelper {
 
   protected def precedence(result: ScalaResolveResult): Int =
     if (result.prefixCompletion) precedenceTypes.PREFIX_COMPLETION
-    else                         result.getPrecedence(getPlace, placePackageName)
+    else                         result.getPrecedence(getPlace, placePackageName, precedenceTypes)
 }
 
 object PrecedenceHelper {

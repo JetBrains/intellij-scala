@@ -229,7 +229,7 @@ package object project {
       }
 
     @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def customDefaultImports: Option[Map[String, Int]] =
+    def customDefaultImports: Option[Seq[String]] =
       compilerConfiguration
         .settingsForHighlighting(module)
         .flatMap(_.additionalCompilerOptions)
@@ -259,19 +259,13 @@ package object project {
 
     private[this] val importSettingsPrefixes = Seq(Yimports, Ynopredef, Ynoimports)
 
-    def unapply(setting: String): Option[Map[String, Int]] = {
+    def unapply(setting: String): Option[Seq[String]] = {
       val prefix = importSettingsPrefixes.find(setting.startsWith)
 
       prefix.collect {
-        case Yimports =>
-          setting
-            .substring(Yimports.length)
-            .split(",")
-            .map(_.trim)
-            .zipWithIndex
-            .toMap
-        case Ynopredef  => Seq("java.lang", "scala").zipWithIndex.toMap
-        case Ynoimports => Map.empty
+        case Yimports   => setting.substring(Yimports.length).split(",").map(_.trim)
+        case Ynopredef  => Seq("java.lang", "scala")
+        case Ynoimports => Seq.empty
       }
     }
   }
@@ -395,19 +389,27 @@ package object project {
         case _ => false
       })
 
-    final def isInLibrary: Boolean =
-      (for {
-        psiFile <- element.getContainingFile.toOption
-        vfile   <- psiFile.getVirtualFile.toOption
-      } yield fileIndex.isInLibrary(vfile)).getOrElse(false)
+    /**
+     * Check if the containing file of the [[element]] may have custom default imports.
+     */
+    @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
+    private def isEligibleForDefaultImportCustomisation(file: PsiFile): Boolean =
+      file match {
+        case sfile: ScalaFile =>
+          if (sfile.isWorksheetFile) true
+          else sfile.getVirtualFile.toOption
+                    .fold(false)(fileIndex.isInSourceContent)
+        case _ => false
+      }
 
-    def defaultImports: Map[String, Int] = {
+    def defaultImports: Seq[String] = {
+      val file = element.getContainingFile.toOption
       val customDefaultImports =
-        if (isInLibrary) None
-        else             inThisModuleOrProject(_.customDefaultImports).flatten
+        if (!file.exists(isEligibleForDefaultImportCustomisation)) None
+        else inThisModuleOrProject(_.customDefaultImports).flatten
 
       customDefaultImports
-        .getOrElse(FileDeclarationsHolder.defaultImplicitlyImportedSymbols.zipWithIndex.toMap)
+        .getOrElse(FileDeclarationsHolder.defaultImplicitlyImportedSymbols)
     }
 
     private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =

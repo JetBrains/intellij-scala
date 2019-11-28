@@ -87,7 +87,8 @@ trait SimpleResolveTestBase {
        else           Assert.assertFalse(failingPassed, tgt == result)
   }
 
-  protected def testNoResolve(sources: (String, String)*) = doResolveTest(None, shouldResolve = false, sources: _*)
+  protected def testNoResolve(sources: (String, String)*): Unit =
+    doResolveTest(None, shouldResolve = false, sources: _*)
 
   protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit =
     doResolveTest(source -> fileName)
