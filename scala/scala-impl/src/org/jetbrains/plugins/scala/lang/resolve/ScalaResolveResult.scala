@@ -161,12 +161,15 @@ class ScalaResolveResult(val element: PsiNamedElement,
   /**
     * See [[org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes]]
     */
-  def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
-    val precedenceTypes = new PrecedenceTypes(place)
+  def getPrecedence(
+    place:            PsiElement,
+    placePackageName: =>String,
+    precedenceTypes:  PrecedenceTypes
+  ): Int = {
     import precedenceTypes._
 
     def getPackagePrecedence(packageFqn: String): Int =
-      defaultImportPrecedence(packageFqn).getOrElse(PACKAGE_LOCAL_PACKAGE)
+      defaultImportPrecedence(qualifier(packageFqn)).getOrElse(PACKAGE_LOCAL_PACKAGE)
 
     def getClazzPrecedence(clazz: PsiClass): Int =
       containingPackageName(clazz) match {
@@ -205,11 +208,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
             else {
               val fqn = clazz.qualifiedName
               fqn match {
-                case "scala.Predef" =>
-                  return defaultImportPrecedence("scala.Predef").getOrElse(OTHER_MEMBERS)
                 case "scala.LowPriorityImplicits" =>
                   return defaultImportPrecedence("scala.Predef").getOrElse(OTHER_MEMBERS)
-                case "scala" => return defaultImportPrecedence("scala").getOrElse(OTHER_MEMBERS)
                 case _ =>
                   clazz match {
                     case o: ScObject if o.isPackageObject && !PsiTreeUtil.isContextAncestor(o, place, false) =>
@@ -218,7 +218,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                       if (q.endsWith(packageSuffix)) q = q.substring(0, q.length - packageSuffix.length)
                       if (q == placePackageName) return OTHER_MEMBERS
                       else return PACKAGING
-                    case _ => return OTHER_MEMBERS
+                    case _ => return defaultImportPrecedence(fqn).getOrElse(OTHER_MEMBERS)
                   }
               }
             }
