@@ -339,10 +339,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override val allowsForwardReferences: Boolean = false
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  protected final def isScalaPredefinedClass: Boolean = typeDefinitions match {
-    case Seq(head) => FileDeclarationsHolder.defaultImplicitlyImportedSymbols.contains(head.qualifiedName)
-    case _         => false
-  }
+  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean =
+    typeDefinitions match {
+      case Seq(head) => head.qualifiedName == fqn
+      case _         => false
+    }
 }
 
 object ScalaFileImpl {

@@ -5,7 +5,8 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project._
 
 class PrecedenceTypes(place: PsiElement) {
-  private[this] val defaultImports = place.defaultImports.mapValues(_ + 1)
+  private[this] val defaultImports =
+    place.defaultImports.zipWithIndex.toMap.mapValues(_ + 1)
 
   val defaultImportsFqns: Set[String] = defaultImports.keySet
   val defaultImportMaxPrecedence: Int = defaultImports.size
