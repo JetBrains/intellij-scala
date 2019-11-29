@@ -132,7 +132,7 @@ object InternalProfilerToolWindowFactory {
         ApplicationManager.getApplication.invokeLater(() =>
           tableModel.refresh(dataSource.getCurrentData)
         )
-      }, refreshRateMs, refreshRateMs, TimeUnit.MILLISECONDS)
+      }, 0, refreshRateMs, TimeUnit.MILLISECONDS)
   }
 
   // Executes `startOp` if the component becomes visible
