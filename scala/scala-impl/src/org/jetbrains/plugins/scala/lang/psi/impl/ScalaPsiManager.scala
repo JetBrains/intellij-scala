@@ -19,6 +19,7 @@ import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, 
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
@@ -28,13 +29,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ImplicitCollectorCacheCapabilities
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{TermNodes, StableNodes, TypeNodes}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -67,6 +69,12 @@ class ScalaPsiManager(implicit val project: Project) {
     ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
   val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
+  CacheTracker.alwaysTrack(
+    "ScalaPsiManager.implicitCollectorCache",
+    "ScalaPsiManager.implicitCollectorCache",
+    implicitCollectorCache,
+    ImplicitCollectorCacheCapabilities
+  )
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
@@ -484,6 +492,11 @@ object ScalaPsiManager {
   }
 
   object AnyScalaPsiModificationTracker extends SimpleModificationTracker
+
+  object ImplicitCollectorCacheCapabilities extends CacheCapabilities[ImplicitCollectorCache] {
+    override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
+    override def clear(cache: CacheType): Unit = cache.clear()
+  }
 }
 
 class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {

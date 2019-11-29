@@ -3,10 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.{Seq, Set}
@@ -31,6 +29,8 @@ class ImplicitCollectorCache(project: Project) {
     val scope = ImplicitSearchScope.forElement(place)
     map.put((scope, tp), value)
   }
+
+  def size(): Int = map.size() + typeParametersOwnersCache.size()
 
   def clear(): Unit = {
     map.clear()

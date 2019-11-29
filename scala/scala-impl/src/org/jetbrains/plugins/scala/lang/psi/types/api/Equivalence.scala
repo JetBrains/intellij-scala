@@ -6,8 +6,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.Tracer
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
 import org.jetbrains.plugins.scala.extensions.NullSafe
+import org.jetbrains.plugins.scala.lang.psi.types.api.Equivalence._
 
 import scala.util.DynamicVariable
 
@@ -17,12 +18,16 @@ import scala.util.DynamicVariable
 trait Equivalence {
   typeSystem: TypeSystem =>
 
-  import TypeSystem._
   import ConstraintsResult.Left
+  import TypeSystem._
 
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
 
-  private val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
+  private val cache = {
+    val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
+    CacheTracker.alwaysTrack(equivInnerTraceId, equivInnerTraceId, this, EquivInnerCacheCapabilities)
+    cache
+  }
 
   private val eval = new DynamicVariable(false)
 
@@ -48,7 +53,7 @@ trait Equivalence {
   protected def equivComputable(key: Key): Computable[ConstraintsResult]
 
   private def equivInner(key: Key): ConstraintsResult = {
-    val tracer = Tracer("Equivalence.equivInner", "Equivalence.equivInner")
+    val tracer = Tracer(equivInnerTraceId, equivInnerTraceId)
 
     tracer.invocation()
     val nowEval = eval.value
@@ -76,5 +81,14 @@ trait Equivalence {
         result
       }.getOrElse(NullSafe.empty)
     ).getOrElse(Left)
+  }
+}
+
+object Equivalence {
+  val equivInnerTraceId: String = "Equivalence.equivInner"
+
+  object EquivInnerCacheCapabilities extends CacheCapabilities[Equivalence] {
+    override def cachedEntitiesCount(cache: CacheType): Int = cache.cache.size()
+    override def clear(cache: CacheType): Unit = cache.clearCache()
   }
 }
