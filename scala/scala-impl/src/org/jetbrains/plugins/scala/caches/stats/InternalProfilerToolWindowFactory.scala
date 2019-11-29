@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.awt.{BorderLayout, Component}
 import java.awt.event.{HierarchyEvent, HierarchyListener}
+import java.awt.{BorderLayout, Component}
 import java.util.concurrent.{Future, TimeUnit}
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.icons.AllIcons
+import com.intellij.notification.{NotificationGroup, NotificationType}
 import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -22,7 +23,7 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
   }
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
-    InternalProfilerToolWindowFactory.createContent().foreach {
+    InternalProfilerToolWindowFactory.createContent(project).foreach {
       toolWindow.getContentManager.addContent
     }
   }
@@ -35,6 +36,7 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
 
 object InternalProfilerToolWindowFactory {
   val ID = "internal-profiler"
+  val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scala Cache Profiler")
 
   lazy val timingsModel: DataByIdTableModel[TracerData] = {
     val dataById = new DataById[TracerData](_.id)
@@ -60,6 +62,16 @@ object InternalProfilerToolWindowFactory {
     )(preferredWidths = Seq(6, 1, 1, 12))
   }
 
+  lazy val memoryModel: DataByIdTableModel[MemoryData] = {
+    val dataById = new DataById[MemoryData](_.id)
+    new DataByIdTableModel(
+      dataById,
+      dataById.stringColumn("Computation", _.name),
+      dataById.numColumn("Tracked caches", _.trackedCaches),
+      dataById.numColumn("Tracked cache entries", _.trackedCacheEntries)
+    )(preferredWidths = Seq(5, 1, 1))
+  }
+
   private def parentCallsText(data: TracerData): String = {
     val parentCalls = data.parentCalls
     val sorted = parentCalls.asScala.sortBy(_._2).reverse
@@ -72,20 +84,26 @@ object InternalProfilerToolWindowFactory {
   }
 
 
-  def createContent(): Seq[Content] = {
-    val timingsTable = createTableWithToolbarPanel(ScalaCacheTracerDataSource, timingsModel)
-    val parentCalls = createTableWithToolbarPanel(ScalaCacheTracerDataSource, parentCallsModel)
+  def createContent(project: Project): Seq[Content] = {
+    val timingsTable = createTableWithToolbarPanel(ScalaCacheTracerDataSource, timingsModel, project)
+    val parentCalls = createTableWithToolbarPanel(ScalaCacheTracerDataSource, parentCallsModel, project)
+    val memory = createTableWithToolbarPanel(ScalaCacheMemoryDataSource, memoryModel, project)
 
     val factory = ContentFactory.SERVICE.getInstance()
     Seq(
       factory.createContent(timingsTable, "Timings", false),
-      factory.createContent(parentCalls, "Parent Calls", false)
+      factory.createContent(parentCalls, "Parent Calls", false),
+      factory.createContent(memory, "Memory", false)
     )
   }
 
-  def createTableWithToolbarPanel[Data](dataSource: DataSource[Data], tableModel: DataByIdTableModel[Data]): JPanel = {
+  def createTableWithToolbarPanel[Data](dataSource: DataSource[Data], tableModel: DataByIdTableModel[Data], project: Project): JPanel = {
     val actionToolbarPanel = new JPanel
-    val actionGroup = new DefaultActionGroup(new RunPauseAction(dataSource), new ClearAction(dataSource, tableModel))
+    val actionGroup = new DefaultActionGroup(
+      new RunPauseAction(dataSource),
+      new ClearAction(dataSource, tableModel),
+      new CacheContentClearAction(project)
+    )
     val actionToolBar = ActionManager.getInstance().createActionToolbar(ID, actionGroup, false)
     actionToolbarPanel.setLayout(new BorderLayout)
     actionToolbarPanel.add(actionToolBar.getComponent)
@@ -159,6 +177,51 @@ object InternalProfilerToolWindowFactory {
     override def actionPerformed(e: AnActionEvent): Unit = {
       dataSource.clear()
       tableModel.clear()
+    }
+  }
+
+  class CacheContentClearAction(project: Project) extends AnAction with DumbAware {
+    getTemplatePresentation.setIcon(AllIcons.Actions.Uninstall)
+    getTemplatePresentation.setText("Clear Cache Contents")
+    // AllIcons.Actions.Uninstall
+    // AllIcons.Actions.Unselectall
+
+    override def actionPerformed(e: AnActionEvent): Unit = {
+      def toMB(bytes: Double) = bytes / (1024.0 * 1024.0)
+      def toPercent(d: Double) = d * 100.0
+      val runtime = Runtime.getRuntime
+      def usedMemory() = toMB(runtime.totalMemory - runtime.freeMemory)
+
+      val memoryBeforePrepare = usedMemory()
+      System.gc()
+      val cacheEntityCount = CacheTracker.tracked.values.foldLeft(0)(_ + _.cachedEntityCount)
+      val memoryBeforeCacheFreeing = usedMemory()
+      CacheTracker.clearAllCaches()
+      System.gc()
+      val memoryAfter = usedMemory()
+
+      val preFreed = memoryBeforePrepare - memoryBeforeCacheFreeing
+      val cacheFreed = memoryBeforeCacheFreeing - memoryAfter
+      val totalFreed = preFreed + cacheFreed
+      val total = toMB(runtime.totalMemory)
+
+      notificationGroup.createNotification(
+        s"Cache cleared ($cacheEntityCount entities)",
+        f"""<html>
+           |<body>
+           |<table>
+           |<tr><td>Pre GC: </td><td>$preFreed%1.1f MB</td><td>(${toPercent(preFreed/memoryBeforePrepare)}%1.1f%%)</td></tr>
+           |<tr><td>Cache GC: </td><td>$cacheFreed%1.1f MB</td><td>(${toPercent(cacheFreed/memoryBeforePrepare)}%1.1f%%)</td></tr>
+           |<tr><td>Total GC: </td><td>$totalFreed%1.1f MB</td><td>(${toPercent(totalFreed / memoryBeforePrepare)}%1.1f%%)</td></tr>
+           |<tr><td>Used before: </td><td>$memoryBeforePrepare%1.1f MB</td><td></td></tr>
+           |<tr><td>Used after: </td><td>$memoryAfter%1.1f MB</td><td></td></tr>
+           |<tr><td>Available: </td><td>$total%1.1f MB</td><td></td></tr>
+           |</table>
+           |</body>
+           |</html>""".stripMargin,
+        NotificationType.INFORMATION,
+        null
+      ).notify(project)
     }
   }
 }
