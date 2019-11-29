@@ -63,9 +63,9 @@ object CachedInUserData {
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =
           if (hasParams)
-            q"$cachesUtilFQN.getOrCreateCachedMap[$elemName.type, $dataType, $resultType]($elemName, $keyVarName, () => $modTracker)"
+            q"$cachesUtilFQN.getOrCreateCachedMap[$elemName.type, $dataType, $resultType]($elemName, $keyVarName, $keyId, $cacheName, () => $modTracker)"
           else
-            q"$cachesUtilFQN.getOrCreateCachedRef[$elemName.type, $resultType]($elemName, $keyVarName, () => $modTracker)"
+            q"$cachesUtilFQN.getOrCreateCachedRef[$elemName.type, $resultType]($elemName, $keyVarName, $keyId, $cacheName, () => $modTracker)"
 
         val getFromHolder =
           if (hasParams) q"$holderName.get($dataName)"

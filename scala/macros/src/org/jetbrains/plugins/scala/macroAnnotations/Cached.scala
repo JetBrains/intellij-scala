@@ -72,6 +72,7 @@ object Cached {
               new _root_.scala.volatile()
               private val $mapAndCounterRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$mapType]] =
                 new $atomicReferenceTypeFQN($timestampedFQN(null, -1L))
+              $cacheTrackerFQN.track($keyId, $cacheName, $mapAndCounterRef, $timestampedMapCacheCapabilitiesFQN[$mapType])
             """
 
           val getOrUpdateMapDef = q"""
@@ -126,6 +127,7 @@ object Cached {
               new _root_.scala.volatile()
               private val $timestampedDataRef: $atomicReferenceTypeFQN[$timestampedTypeFQN[$retTp]] =
                 new $atomicReferenceTypeFQN($timestampedFQN(${defaultValue(c)(retTp)}, -1L))
+              $cacheTrackerFQN.track($keyId, $cacheName, $timestampedDataRef, $timestampedSingleValueCacheCapabilitiesFQN[$retTp])
             """
 
           val updatedRhs =

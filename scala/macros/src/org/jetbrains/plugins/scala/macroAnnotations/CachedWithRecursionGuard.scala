@@ -66,9 +66,9 @@ object CachedWithRecursionGuard {
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =
           if (hasParams)
-            q"$cachesUtilFQN.getOrCreateCachedMap[$elementType, $dataType, $resultType]($elemName, $keyVarName, () => $modTracker)"
+            q"$cachesUtilFQN.getOrCreateCachedMap[$elementType, $dataType, $resultType]($elemName, $keyVarName, $keyId, $cacheName, () => $modTracker)"
           else
-            q"$cachesUtilFQN.getOrCreateCachedRef[$elementType, $resultType]($elemName, $keyVarName, () => $modTracker)"
+            q"$cachesUtilFQN.getOrCreateCachedRef[$elementType, $resultType]($elemName, $keyVarName, $keyId, $cacheName, () => $modTracker)"
 
         val getFromHolder =
           if (hasParams) q"$holderName.get($dataName)"

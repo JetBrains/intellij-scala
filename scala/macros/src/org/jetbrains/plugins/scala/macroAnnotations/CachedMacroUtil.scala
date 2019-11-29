@@ -42,6 +42,21 @@ object CachedMacroUtil {
     tq"_root_.java.util.concurrent.atomic.AtomicReference"
   }
 
+  def cacheTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.caches.stats.CacheTracker"
+  }
+
+  def timestampedMapCacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.timestampedMapCacheCapabilities"
+  }
+
+  def timestampedSingleValueCacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.timestampedSingleValueCacheCapabilities"
+  }
+
   def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {

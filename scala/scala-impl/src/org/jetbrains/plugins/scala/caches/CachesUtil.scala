@@ -13,6 +13,8 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -81,16 +83,22 @@ object CachesUtil {
   //used in caching macro annotations
   def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
                                                                      key: Key[CachedMap[Data, Result]],
+                                                                     cacheTypeId: String,
+                                                                     cacheTypeName: String,
                                                                      dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
 
     val cachedValue = elem.getUserData(key) match {
       case null =>
         val manager = CachedValuesManager.getManager(elem.getProject)
         val provider = new CachedValueProvider[ConcurrentMap[Data, Result]] {
-          def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
+          override def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
             new CachedValueProvider.Result(ContainerUtil.newConcurrentMap(), dependencyItem())
         }
         val newValue = manager.createCachedValue(provider, false)
+        CacheTracker.track(cacheTypeId, cacheTypeName, newValue, new CacheCapabilities[CachedValue[ConcurrentMap[Data, Result]]] {
+          override def cachedEntitiesCount(cache: CacheType): Int = cache.getValue.size()
+          override def clear(cache: CacheType): Unit = cache.getValue.clear()
+        })
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
@@ -98,17 +106,23 @@ object CachesUtil {
   }
 
   //used in caching macro annotations
-  def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result](elem: Dom,
-                                                               key: Key[CachedRef[Result]],
-                                                               dependencyItem: () => Object): AtomicReference[Result] = {
+  def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result >: Null](elem: Dom,
+                                                                       key: Key[CachedRef[Result]],
+                                                                       cacheTypeId: String,
+                                                                       cacheTypeName: String,
+                                                                       dependencyItem: () => Object): AtomicReference[Result] = {
     val cachedValue = elem.getUserData(key) match {
       case null =>
         val manager = CachedValuesManager.getManager(elem.getProject)
         val provider = new CachedValueProvider[AtomicReference[Result]] {
-          def compute(): CachedValueProvider.Result[AtomicReference[Result]] =
+          override def compute(): CachedValueProvider.Result[AtomicReference[Result]] =
             new CachedValueProvider.Result(new AtomicReference[Result](), dependencyItem())
         }
         val newValue = manager.createCachedValue(provider, false)
+        CacheTracker.track(cacheTypeId, cacheTypeName, newValue, new CacheCapabilities[CachedValue[AtomicReference[Result]]] {
+          override def cachedEntitiesCount(cache: CacheType): Int = if(cache.getValue.get() == null) 0 else 1
+          override def clear(cache: CacheType): Unit = cache.getValue.set(null)
+        })
         elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
@@ -142,4 +156,16 @@ object CachesUtil {
   def scalaTopLevelModTracker(project: Project): ModificationTracker =
     ScalaPsiManager.instance(project).TopLevelModificationTracker
 
+
+  def timestampedMapCacheCapabilities[M >: Null <: ConcurrentMap[_, _]]: CacheCapabilities[AtomicReference[Timestamped[M]]] =
+    new CacheCapabilities[AtomicReference[Timestamped[M]]] {
+      override def cachedEntitiesCount(cache: CacheType): Int = cache.get().data.nullSafe.fold(0)(_.size())
+      override def clear(cache: CacheType): Unit = cache.set(Timestamped(null.asInstanceOf[M], -1))
+    }
+
+  def timestampedSingleValueCacheCapabilities[T]: CacheCapabilities[AtomicReference[Timestamped[T]]] =
+    new CacheCapabilities[AtomicReference[Timestamped[T]]] {
+      override def cachedEntitiesCount(cache: CacheType): Int = if (cache.get().data == null) 0 else 1
+      override def clear(cache: CacheType): Unit = cache.set(Timestamped(null.asInstanceOf[T], -1))
+    }
 }
