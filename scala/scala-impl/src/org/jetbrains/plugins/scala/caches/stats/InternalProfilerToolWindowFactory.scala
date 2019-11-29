@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.awt.BorderLayout
-import java.util.concurrent.TimeUnit
+import java.awt.{BorderLayout, Component}
+import java.awt.event.{HierarchyEvent, HierarchyListener}
+import java.util.concurrent.{Future, TimeUnit}
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.icons.AllIcons
@@ -91,7 +92,6 @@ object InternalProfilerToolWindowFactory {
 
     val table = tableModel.createTable()
     tableModel.registerSpeedSearch(table)
-    scheduleRefresh(tableModel, dataSource)
 
     val scrollPane = new JScrollPane
     scrollPane.setViewportView(table)
@@ -101,10 +101,12 @@ object InternalProfilerToolWindowFactory {
     mainPanel.add(actionToolbarPanel, BorderLayout.WEST)
     mainPanel.add(scrollPane, BorderLayout.CENTER)
 
+    bindExecutionToVisibility(mainPanel, () => scheduleRefresh(tableModel, dataSource))
+
     mainPanel
   }
 
-  def scheduleRefresh[Data](tableModel: DataByIdTableModel[Data], dataSource: DataSource[Data]): Unit = {
+  def scheduleRefresh[Data](tableModel: DataByIdTableModel[Data], dataSource: DataSource[Data]): Future[_] = {
     val refreshRateMs = 500L
 
     JobScheduler.getScheduler
@@ -115,6 +117,22 @@ object InternalProfilerToolWindowFactory {
       }, refreshRateMs, refreshRateMs, TimeUnit.MILLISECONDS)
   }
 
+  // Executes `startOp` if the component becomes visible
+  // Cancels the created future when the component is hidden
+  def bindExecutionToVisibility(component: Component, startOp: () => Future[_]): Unit =
+    component.addHierarchyListener(new HierarchyListener {
+      private var refreshFeature = Option.empty[Future[_]]
+      override def hierarchyChanged(e: HierarchyEvent): Unit = {
+        if (HierarchyEvent.SHOWING_CHANGED == (e.getChangeFlags & HierarchyEvent.SHOWING_CHANGED)) {
+          if (component.isShowing) {
+            refreshFeature = refreshFeature.orElse(Option(startOp()))
+          } else {
+            refreshFeature.foreach(_.cancel(true))
+            refreshFeature = None
+          }
+        }
+      }
+    })
 
   class RunPauseAction(dataSource: DataSource[_]) extends AnAction with DumbAware {
 
@@ -128,7 +146,7 @@ object InternalProfilerToolWindowFactory {
       e.getPresentation.setIcon(currentIcon())
     }
 
-    def actionPerformed(e: AnActionEvent): Unit = {
+    override def actionPerformed(e: AnActionEvent): Unit = {
       if (dataSource.isActive) dataSource.stop()
       else dataSource.resume()
     }
@@ -138,7 +156,7 @@ object InternalProfilerToolWindowFactory {
   class ClearAction(dataSource: DataSource[_], tableModel: DataByIdTableModel[_]) extends AnAction with DumbAware {
     getTemplatePresentation.setIcon(AllIcons.Actions.GC)
 
-    def actionPerformed(e: AnActionEvent): Unit = {
+    override def actionPerformed(e: AnActionEvent): Unit = {
       dataSource.clear()
       tableModel.clear()
     }
