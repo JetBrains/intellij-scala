@@ -9,7 +9,7 @@ import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.TextEditor
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import com.intellij.openapi.util.text.StringUtil
@@ -20,6 +20,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import javax.swing.ListCellRenderer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData, TestConfigurationData}
@@ -95,7 +96,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   private def prepareRunConfigurationForPackage(configuration: T, location: Location[_ <: PsiElement], testPackage: PsiPackage, displayName: String): Unit = {
     if (configuration.getModule == null) {
-      configuration.setModule(location.getModule)
+      prepareModule(configuration, location)
     }
     configuration.setGeneratedName(displayName)
 
@@ -109,7 +110,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
   protected def prepareRunConfiguration(configuration: T, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {
     if (configuration.getModule == null) {
-      configuration.setModule(location.getModule)
+      prepareModule(configuration, location)
     }
 
     val testDataOld = configuration.testConfigurationData
@@ -119,6 +120,12 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
     configuration.testConfigurationData = testDataNew
   }
+
+  private def prepareModule(configuration: T, location: Location[_ <: PsiElement]): Unit =
+    for {
+      module <- Option(location.getModule)
+      jvmModule <- module.findJVMModule
+    } configuration.setModule(jvmModule)
 
   // do not display backticks in test class/package name
   private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
@@ -287,13 +294,14 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   }
 
   protected def isRunPossibleFor(configuration: T, testElement: PsiElement): Boolean = {
+    val module = configuration.getModule
     // We check `hasTestSuitesInModuleDependencies` once again because configuration is only created when classpath
     // of the module from the context contains test suite class.
     // However the created configuration can contain another module, defined in the template.
     // For that case we do not want to hide  'Create Test Configuration' item in context menu.
     // Instead, we allow opening "create configuration" dialog and show the error there, in the bottom of the dialog.
     testElement match {
-      case cl: PsiClass if hasTestSuitesInModuleDependencies(configuration.getModule) =>
+      case cl: PsiClass if module != null && hasTestSuitesInModuleDependencies(module) =>
         configuration.isValidSuite(cl) ||
           ClassInheritorsSearch
             .search(cl)
