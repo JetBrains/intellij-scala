@@ -19,7 +19,8 @@ import java.util.*;
 
 import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner.getClassByFqn;
 
-public class UTestSuiteReflectionRunner extends UTestSuiteRunner {
+public final class UTestSuiteReflectionRunner extends UTestSuiteRunner {
+
   private final Method runAsyncMethod;
   private final Class treeSeqClass;
   private final Method testNameMethod;
@@ -43,14 +44,15 @@ public class UTestSuiteReflectionRunner extends UTestSuiteRunner {
     }
   }
 
-  public void runTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
+  @Override
+  protected String doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
     Class clazz;
     try {
       clazz = Class.forName(className);
     } catch (ClassNotFoundException e) {
-      System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
-      return;
+      return "ClassNotFoundException for " + className + ": " + e.getMessage();
     }
+
     Class treeClass = getTreeClass();
     Collection<UTestPath> testsToRun;
     if (!tests.isEmpty()) {
@@ -68,8 +70,7 @@ public class UTestSuiteReflectionRunner extends UTestSuiteRunner {
     Set<Method> testMethods = new HashSet<Method>();
     List<UTestPath> leafTests = new LinkedList<UTestPath>();
     Map<UTestPath, Integer> childrenCount = new HashMap<UTestPath, Integer>();
-    Map<UTestPath, scala.Tuple2<Buffer<Object>, ?>> pathToResolvedTests =
-      new HashMap<UTestPath, scala.Tuple2<Buffer<Object>, ?>>();
+    Map<UTestPath, scala.Tuple2<Buffer<Object>, ?>> pathToResolvedTests = new HashMap<UTestPath, scala.Tuple2<Buffer<Object>, ?>>();
     Object treeSeq;
 
     //collect test data required to perform test launch without scope duplication
@@ -81,27 +82,22 @@ public class UTestSuiteReflectionRunner extends UTestSuiteRunner {
         testTree = ((Modifier.isStatic(test.getModifiers())) ? test.invoke(null) :
           test.invoke(clazz.getField("MODULE$").get(null)));
       } catch (NoSuchFieldException e) {
-        System.out.println("Instance field not found for object " + clazz.getName() + ": " + e.getMessage());
-        return;
+        return "Instance field not found for object " + clazz.getName() + ": " + e.getMessage();
       } catch (IllegalAccessException e) {
-        System.out.println("IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage());
-        return;
+        return "IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage();
       } catch (InvocationTargetException e) {
-        System.out.println("InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage());
         e.printStackTrace();
-        return;
+        return "InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage();
       }
 
       treeSeq = constructTreeSeq(testTree, treeClass, treeSeqClass);
       if (treeSeq == null) {
-        System.out.println("Failed to instantiate TestTreeSeq");
-        return;
+        return "Failed to instantiate TestTreeSeq";
       }
 
       scala.Tuple2<Buffer<Object>, ?> resolveResult = resolve(treeSeq, testPath, treeSeqClass);
       if (resolveResult == null) {
-        System.out.println("Failed to resolve tests tree");
-        return;
+        return "Failed to resolve tests tree";
       }
       Method getChildren = null;
 
@@ -110,8 +106,7 @@ public class UTestSuiteReflectionRunner extends UTestSuiteRunner {
         Method getValue = treeClass.getMethod("value");
         traverseTestTreeDown(resolveResult._2(), testPath, leafTests, getChildren, getValue);
       } catch (NoSuchMethodException e) {
-        System.out.println("NoSuchMethodExcepton when invokng uTest Tree methods: " + e.getMessage());
-        return;
+        return "NoSuchMethodExcepton when invokng uTest Tree methods: " + e.getMessage();
       }
       pathToResolvedTests.put(testPath, resolveResult);
     }
@@ -131,13 +126,13 @@ public class UTestSuiteReflectionRunner extends UTestSuiteRunner {
 
       treeSeq = constructTreeSeq(resolveResult._2(), treeClass, treeSeqClass);
       if (treeSeq == null) {
-        System.out.println("Faled to instantiate treeSeq");
-        return;
+        return "Faled to instantiate treeSeq";
       }
 
-      invokeRunAsync(treeSeq, resolveResult._1(), runAsyncMethod, reporter, testPath, leafTests,
-        childrenCount);
+      invokeRunAsync(treeSeq, resolveResult._1(), runAsyncMethod, reporter, testPath, leafTests, childrenCount);
     }
+
+    return null;
   }
 
   private Method getTestNameMethod() {

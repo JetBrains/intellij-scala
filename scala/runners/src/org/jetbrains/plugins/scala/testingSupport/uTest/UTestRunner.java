@@ -15,7 +15,9 @@ public class UTestRunner {
     for (String fqn: options) {
       try {
         return Class.forName(fqn);
-      } catch (ClassNotFoundException ignored) {}
+      } catch (ClassNotFoundException ignored) {
+        // ignore
+      }
     }
     throw new RuntimeException(errorMessage);
   }
@@ -45,10 +47,14 @@ public class UTestRunner {
   private static Method getRunAsynchMethod(Class<?> treeSeqClass) {
     try {
       return treeSeqClass.getMethod("runFuture", scala.Function2.class, Seq.class, Seq.class, scala.concurrent.Future.class, scala.concurrent.ExecutionContext.class);
-    } catch (NoSuchMethodException ignored) {}
+    } catch (NoSuchMethodException ignored) {
+      // ignore
+    }
     try {
       return treeSeqClass.getMethod("runFuture", scala.Function2.class, Seq.class, Seq.class, scala.Function1.class, scala.concurrent.Future.class, scala.concurrent.ExecutionContext.class);
-    } catch (NoSuchMethodException ignored) {}
+    } catch (NoSuchMethodException ignored) {
+      // ignore
+    }
     return null;
   }
 
@@ -103,10 +109,15 @@ public class UTestRunner {
     try {
       treeSeqClass = Class.forName("utest.framework.TestTreeSeq");
       runAsyncMethod = getRunAsynchMethod(treeSeqClass);
-    } catch (ClassNotFoundException ignored) { }
+    } catch (ClassNotFoundException ignored) {
+      // ignore
+    }
+
     Map<String, Set<UTestPath>> suitesAndTests = failedUsed ? failedTestMap : classesToTests;
     UTestReporter reporter = new UTestReporter(suitesAndTests.size());
-    UTestSuiteRunner runner = runAsyncMethod != null ? new UTestSuiteReflectionRunner(runAsyncMethod, treeSeqClass) : new UTestSuite540Runner();
+    UTestSuiteRunner runner = runAsyncMethod != null
+        ? new UTestSuiteReflectionRunner(runAsyncMethod, treeSeqClass)
+        : new UTestSuite540Runner();
     for (String className : suitesAndTests.keySet()) {
       runner.runTestSuites(className, suitesAndTests.get(className), reporter);
     }
