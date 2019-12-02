@@ -444,10 +444,10 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     this.IMPORT_LAYOUT = importLayout;
   }
 
-  public static String EXCLUDE_PREFIX = "exclude:";
+  public static final String EXCLUDE_PREFIX = "exclude:";
 
-  public static String BLANK_LINE = "_______ blank line _______";
-  public static String ALL_OTHER_IMPORTS = "all other imports";
+  public static final String BLANK_LINE = "_______ blank line _______";
+  public static final String ALL_OTHER_IMPORTS = "all other imports";
 
   public static ScalaCodeStyleSettings getInstance(Project project) {
     return CodeStyle.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
