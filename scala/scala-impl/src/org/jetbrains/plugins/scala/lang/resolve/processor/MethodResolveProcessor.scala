@@ -8,7 +8,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -501,8 +500,13 @@ object MethodResolveProcessor {
     }
   }
 
-  def candidates(proc: MethodResolveProcessor, _input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
-    import proc._
+  @scala.annotation.tailrec
+  def candidates(
+    proc:            MethodResolveProcessor,
+    _input:          Set[ScalaResolveResult],
+    useExpectedType: Boolean = true
+  ): Set[ScalaResolveResult] = {
+    import proc.{candidates => _, _}
 
     //We want to leave only fields and properties from inherited classes, this is important, because
     //field in base class is shadowed by private field from inherited class
@@ -536,62 +540,7 @@ object MethodResolveProcessor {
         }
     }
 
-    def expand(r: ScalaResolveResult): Set[(ScalaResolveResult, Boolean)] = {
-      def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
-        val (substitutor: ScSubstitutor, cleanTypeArguments) = {
-            r.element match {
-              case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-                (undefinedSubstitutor(owner, r.substitutor, false, typeArgElements), true)
-              case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
-                (undefinedSubstitutor(owner, r.substitutor, false, typeArgElements), true)
-              case _ => (r.substitutor, false)
-            }
-        }
-
-        val processor = new CollectMethodsProcessor(ref, "apply")
-        processor.processType(substitutor(tp), ref.asInstanceOf[ScalaPsiElement])
-        val cands = processor.candidatesS.map(rr => (r.copy(innerResolveResult = Some(rr)), cleanTypeArguments))
-        if (cands.isEmpty) Set((r, false)) else cands
-      }
-
-      if (argumentClauses.isEmpty) Set((r, false))
-      else {
-        r.element match {
-          case f: ScFunction if f.hasParameterClause => Set((r, false))
-          case b: ScTypedDefinition if argumentClauses.nonEmpty =>
-            val tpe = b.`type`().toOption
-            tpe.map(applyMethodsFor).getOrElse(Set.empty)
-          case b: PsiField => // See SCL-3055
-            applyMethodsFor(b.getType.toScType())
-          case _ => Set((r, false))
-        }
-      }
-    }
-
-    def mapper(applicationImplicits: Boolean): Set[ScalaResolveResult] = {
-      val expanded = input.flatMap(expand).iterator
-      var results = ArrayBuffer.empty[ScalaResolveResult]
-
-      //problemsFor make all the work, wrapping it in scala collection API adds 9 unnecessary methods to the stacktrace
-      while (expanded.hasNext) {
-        val (r, cleanTypeArguments) = expanded.next()
-        val typeArgElems = if (cleanTypeArguments) Seq.empty else typeArgElements
-        val pr = problemsFor(r, applicationImplicits, ref, argumentClauses, typeArgElems, selfConstructorResolve,
-          prevTypeInfo, expectedOption, isUnderscore, isShapeResolve)
-
-        val result = r.innerResolveResult match {
-          case Some(rr) if argumentClauses.nonEmpty =>
-            val innerCopy = rr.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
-            r.copy(innerResolveResult = Some(innerCopy))
-          case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.constraints))
-        }
-        results += result
-      }
-
-      results.toSet
-    }
-
-    var mapped = mapper(applicationImplicits = false)
+    var mapped   = checkResultsApplicability(proc, input, checkWithImplicits = false, useExpectedType)
     var filtered = mapped.filter(_.isApplicableInternal(withExpectedType = true))
 
     // filter to check for wrong parameter names
@@ -613,7 +562,7 @@ object MethodResolveProcessor {
 
     if (filtered.isEmpty && !noImplicitsForArgs) {
       //check with implicits
-      mapped = mapper(applicationImplicits = true)
+      mapped = checkResultsApplicability(proc, input, checkWithImplicits = true, useExpectedType)
       filtered = mapped.filter(_.isApplicableInternal(withExpectedType = true))
       if (filtered.isEmpty) filtered = mapped.filter(_.isApplicableInternal(withExpectedType = false))
     }
@@ -621,32 +570,38 @@ object MethodResolveProcessor {
     val onlyValues = mapped.forall { r =>
       r.element match {
         case _: ScFunction => false
-        case _: ScReferencePattern if r.innerResolveResult.exists(_.element.getName == "apply") => true
+        case _: ScReferencePattern if r.innerResolveResult.exists(_.element.getName == "apply") =>
+          true
         case _: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
-        case _ => false
+        case _                    => false
       }
     }
+
     if (filtered.isEmpty && onlyValues) {
       //possible implicit conversions in ScMethodCall
       return input.map(_.copy(notCheckedResolveResult = true))
     } else if (!onlyValues) {
       //in this case all values are not applicable
-      mapped = mapped.map(r => {
-        if (r.isApplicable()) {
-          r.innerResolveResult match {
-            case Some(rr) => r.copy(problems = rr.problems)
-            case _ => r
-          }
-        }
-        else r
-      })
+      mapped = mapped.map(
+        r =>
+          if (r.isApplicable())
+            r.innerResolveResult match {
+              case Some(rr) => r.copy(problems = rr.problems)
+              case _        => r
+            }
+          else r
+      )
     }
 
     //remove default parameters alternatives
-    if (filtered.size > 1 && !isShapeResolve) filtered = filtered.filter(r => r.innerResolveResult match {
-      case Some(rr) => !rr.defaultParameterUsed
-      case None => !r.defaultParameterUsed
-    })
+    if (filtered.size > 1 && !isShapeResolve)
+      filtered = filtered.filter(
+        r =>
+          r.innerResolveResult match {
+            case Some(rr) => !rr.defaultParameterUsed
+            case None     => !r.defaultParameterUsed
+          }
+      )
 
     if (isShapeResolve) {
       if (filtered.isEmpty) {
@@ -672,15 +627,115 @@ object MethodResolveProcessor {
     }
 
     if (filtered.isEmpty && mapped.isEmpty) input.map(r => r.copy(notCheckedResolveResult = true))
-    else if (filtered.isEmpty) mapped
+    else if (filtered.isEmpty)
+      if (useExpectedType) candidates(proc, _input, useExpectedType = false)
+      else                 mapped
     else {
-      val len = if (argumentClauses.isEmpty) 0 else argumentClauses.head.length
-      if (filtered.size == 1) return filtered
-      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered, hasTypeParametersCall = typeArgElements.nonEmpty) match {
-        case Some(r) => Set(r)
-        case None    => filtered
-      }
+      val len =
+        if (argumentClauses.isEmpty) 0
+        else                         argumentClauses.head.length
+
+      if (filtered.size == 1) filtered
+      else
+        MostSpecificUtil(ref, len).mostSpecificForResolveResult(
+          filtered,
+          hasTypeParametersCall = typeArgElements.nonEmpty
+        ) match {
+          case Some(r) => Set(r)
+          case None    => filtered
+        }
     }
+  }
+
+  private def expandApplyMethod(
+    r:    ScalaResolveResult,
+    proc: MethodResolveProcessor
+  ): Set[(ScalaResolveResult, Boolean)] = {
+    import proc._
+
+    def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
+      val (substitutor, cleanTypeArguments) =
+        r.element match {
+          case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
+            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements), true)
+          case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
+            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements), true)
+          case _ => (r.substitutor, false)
+        }
+
+      val processor = new CollectMethodsProcessor(ref, "apply")
+      processor.processType(substitutor(tp), ref)
+
+      val cands =
+        processor.candidatesS.map(rr => (r.copy(innerResolveResult = Some(rr)), cleanTypeArguments))
+
+      if (cands.isEmpty) Set((r, false))
+      else               cands
+    }
+
+    if (argumentClauses.isEmpty) Set((r, false))
+    else
+      r.element match {
+        case f: ScFunction if f.hasParameterClause => Set((r, false))
+        case b: ScTypedDefinition =>
+          val tpe = b.`type`().toOption
+          tpe.map(applyMethodsFor).getOrElse(Set.empty)
+        case b: PsiField => // See SCL-3055
+          applyMethodsFor(b.getType.toScType())
+        case _ => Set((r, false))
+      }
+  }
+
+  private def checkResultsApplicability(
+    proc:               MethodResolveProcessor,
+    input:              Set[ScalaResolveResult],
+    checkWithImplicits: Boolean,
+    useExpectedType:    Boolean
+  ): Set[ScalaResolveResult] = {
+    import proc._
+
+    val expanded = input.flatMap(expandApplyMethod(_, proc)).iterator
+    var results  = ArrayBuffer.empty[ScalaResolveResult]
+
+    //problemsFor make all the work, wrapping it in scala collection API adds 9 unnecessary methods to the stacktrace
+    while (expanded.hasNext) {
+      val (r, undefineTypeParams) = expanded.next()
+      val typeArgElems =
+        if (undefineTypeParams) Seq.empty
+        else                    typeArgElements
+
+      val conformanceResult = problemsFor(
+        r,
+        checkWithImplicits,
+        ref,
+        argumentClauses,
+        typeArgElems,
+        selfConstructorResolve,
+        prevTypeInfo,
+        if (useExpectedType) expectedOption else () => None,
+        isUnderscore,
+        isShapeResolve
+      )
+
+      val result = r.innerResolveResult match {
+        case Some(rr) if argumentClauses.nonEmpty =>
+          val innerCopy = rr.copy(
+            problems             = conformanceResult.problems,
+            defaultParameterUsed = conformanceResult.defaultParameterUsed
+          )
+          r.copy(innerResolveResult = Some(innerCopy))
+        case _ =>
+          r.copy(
+            problems             = conformanceResult.problems,
+            defaultParameterUsed = conformanceResult.defaultParameterUsed,
+            resultUndef          = Some(conformanceResult.constraints)
+          )
+      }
+
+      results += result
+    }
+
+    results.toSet
   }
 
   //Signature has repeated param, which is not the last one
