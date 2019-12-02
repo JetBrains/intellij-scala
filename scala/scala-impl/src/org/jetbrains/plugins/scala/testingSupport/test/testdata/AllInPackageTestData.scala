@@ -22,8 +22,9 @@ import scala.collection.mutable.ArrayBuffer
 
 class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
-  @BeanProperty var testPackagePath: String = ""
+  override type SelfType = AllInPackageTestData
 
+  @BeanProperty var testPackagePath: String = ""
   @BeanProperty var classBuf: java.util.List[String] = new util.ArrayList[String]()
 
   override def getKind: TestKind = TestKind.ALL_IN_PACKAGE
@@ -94,6 +95,17 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
     testPackagePath = form.getTestPackagePath
+  }
+
+  override protected def apply(data: AllInPackageTestData): Unit = {
+    super.apply(data)
+    data.classBuf = new util.ArrayList(classBuf)
+  }
+
+  override def copy(config: AbstractTestRunConfiguration): AllInPackageTestData = {
+    val data = AllInPackageTestData(config, this.testPackagePath)
+    data.apply(this)
+    data
   }
 
   override def readExternal(element: Element): Unit = {

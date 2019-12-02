@@ -18,6 +18,8 @@ import scala.beans.BeanProperty
 
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
 
+  type SelfType <: TestConfigurationData
+
   def getKind: TestKind
   def checkSuiteAndTestName: CheckResult
   def getTestMap: Map[String, Set[String]]
@@ -65,6 +67,20 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
     setWorkingDirectory(form.getWorkingDirectory)
     envs = form.getEnvironmentVariables
   }
+
+  protected def apply(data: SelfType): Unit = {
+    setSearchTest(data.getSearchTest)
+    setJavaOptions(data.getJavaOptions)
+    setTestArgs(data.getTestArgs)
+    setJrePath(data.getJrePath)
+    setShowProgressMessages(data.getShowProgressMessages)
+    setUseSbt(data.getUseSbt)
+    setUseUiWithSbt(data.getUseUiWithSbt)
+    setWorkingDirectory(data.getWorkingDirectory)
+    envs = new java.util.HashMap(data.envs)
+  }
+
+  def copy(config: AbstractTestRunConfiguration): TestConfigurationData
 
   def writeExternal(element: Element): Unit =
     XmlSerializer.serializeInto(this, element)

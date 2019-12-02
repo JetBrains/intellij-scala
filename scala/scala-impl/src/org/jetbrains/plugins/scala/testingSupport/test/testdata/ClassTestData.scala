@@ -14,6 +14,8 @@ import scala.beans.BeanProperty
 
 class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
+  override type SelfType = ClassTestData
+
   @BeanProperty var testClassPath: String = ""
 
   override def getKind: TestKind = TestKind.CLASS
@@ -52,6 +54,17 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
     testClassPath = form.getTestClassPath
   }
 
+  override protected def apply(data: ClassTestData): Unit = {
+    super.apply(data)
+    testClassPath = data.testClassPath
+  }
+
+  override def copy(config: AbstractTestRunConfiguration): ClassTestData = {
+    val data = new ClassTestData(config)
+    data.apply(this)
+    data
+  }
+
   override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     JdomExternalizerMigrationHelper(element) { helper =>
@@ -62,8 +75,11 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 
 object ClassTestData {
 
-  def apply(config: AbstractTestRunConfiguration, className: String): ClassTestData =
-    apply(config, className, null)
+  def apply(config: AbstractTestRunConfiguration, className: String): ClassTestData = {
+    val res = new ClassTestData(config)
+    res.setTestClassPath(className)
+    res
+  }
 
   def apply(config: AbstractTestRunConfiguration, className: String, testName: String): ClassTestData = {
     if (StringUtils.isNotBlank(testName)) {
@@ -72,9 +88,7 @@ object ClassTestData {
       res.setTestName(testName)
       res
     } else {
-      val res = new ClassTestData(config)
-      res.setTestClassPath(className)
-      res
+      apply(config, className)
     }
   }
 }

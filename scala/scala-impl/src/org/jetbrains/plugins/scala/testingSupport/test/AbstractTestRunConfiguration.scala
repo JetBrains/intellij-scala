@@ -161,11 +161,8 @@ abstract class AbstractTestRunConfiguration(project: Project,
     path
   }
 
-  def getModule: Module = {
-    Option(getConfigurationModule.getModule)
-      .flatMap(_.findJVMModule)
-      .orNull
-  }
+  final def getModule: Module =
+    getConfigurationModule.getModule
 
   def getValidModules: java.util.List[Module] =
     getProject.modulesWithScala.asJava

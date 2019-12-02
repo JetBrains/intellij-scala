@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.ExecutionException
-import com.intellij.execution.configurations.RuntimeConfigurationException
 import org.jdom.Element
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm, testdata}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
@@ -33,6 +32,20 @@ class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData
   override def apply(form: TestRunConfigurationForm): Unit = {
     super.apply(form)
     testName = form.getTestName
+  }
+
+  override protected def apply(data: ClassTestData): Unit = {
+    super.apply(data)
+    data match {
+      case d: SingleTestData => testName = d.testName
+      case _ =>
+    }
+  }
+
+  override def copy(config: AbstractTestRunConfiguration): SingleTestData = {
+    val data = new SingleTestData(config)
+    data.apply(this)
+    data
   }
 
   override def readExternal(element: Element): Unit = {

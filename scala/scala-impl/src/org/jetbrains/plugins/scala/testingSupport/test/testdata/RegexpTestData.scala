@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import java.util
+import java.{util => ju}
 import java.util.regex.{Pattern, PatternSyntaxException}
 
 import com.intellij.execution.ExecutionException
@@ -22,11 +22,13 @@ import scala.collection.mutable
 
 class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
+  override type SelfType = RegexpTestData
+
   override def getKind: TestKind = TestKind.REGEXP
 
   @BeanProperty var classRegexps: Array[String] = Array.empty
   @BeanProperty var testRegexps: Array[String]  = Array.empty
-  @BeanProperty var testsBuf: java.util.Map[String, java.util.Set[String]] = new util.HashMap()
+  @BeanProperty var testsBuf: ju.Map[String, ju.Set[String]] = new ju.HashMap()
 
   protected[test] def zippedRegexps: Array[(String, String)] = classRegexps.zipAll(testRegexps, "", "")
 
@@ -126,6 +128,18 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     super.apply(form)
     classRegexps = form.getClassRegexps
     testRegexps = form.getTestRegexps
+  }
+
+  override protected def apply(data: RegexpTestData): Unit = {
+    super.apply(data)
+    data.testsBuf = new ju.HashMap(testsBuf.size())
+    testsBuf.asScala.foreach { case (k, v) => data.testsBuf.put(k, new ju.HashSet[String](v)) }
+  }
+
+  override def copy(config: AbstractTestRunConfiguration): RegexpTestData = {
+    val data = new RegexpTestData(config)
+    data.apply(this)
+    data
   }
 
   override def readExternal(element: Element): Unit = {
