@@ -11,7 +11,15 @@ import java.util.Map;
 import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner.getClassByFqn;
 
 public abstract class UTestSuiteRunner {
-  abstract void runTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter);
+
+  final void runTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
+    String errorMessage = doRunTestSuites(className, tests, reporter);
+    if (errorMessage != null) {
+      reporter.reportError(errorMessage);
+    }
+  };
+
+  abstract protected String doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter);
 
   static Class getTreeClass() {
     return getClassByFqn("Failed to load Tree class from uTest libary.", "utest.util.Tree", "utest.framework.Tree");

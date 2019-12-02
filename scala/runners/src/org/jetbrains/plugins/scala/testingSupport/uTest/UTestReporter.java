@@ -16,7 +16,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
  * @author Roman.Shein
  * @since 12.08.2015.
  */
-public class UTestReporter {
+public final class UTestReporter {
 
   private static final long NO_DURATION = -1;
   private final CountDownLatch myLatch;
@@ -186,5 +186,10 @@ public class UTestReporter {
     } catch (InterruptedException e) {
       System.out.println("Reporter awaiting for test execution to finish has been interrupted: " + e);
     }
+  }
+
+  public void reportError(String errorMessage) {
+    System.err.println(errorMessage);
+    myLatch.countDown();
   }
 }

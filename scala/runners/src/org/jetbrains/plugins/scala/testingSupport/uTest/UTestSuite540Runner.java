@@ -12,8 +12,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-public class UTestSuite540Runner extends UTestSuiteRunner {
-  public void runTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
+public final class UTestSuite540Runner extends UTestSuiteRunner {
+
+  @Override
+  public String doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
     Collection<UTestPath> testsToRun;
     Class clazz;
     Object testObject;
@@ -22,15 +24,13 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
       Class testObjClass = Class.forName(className + "$");
       testObject = testObjClass.getField("MODULE$").get(null);
     } catch (ClassNotFoundException e) {
-      System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
-      return;
+      return "ClassNotFoundException for " + className + ": " + e.getMessage();
     } catch (IllegalAccessException e) {
-      System.out.println("IllegalAccessException for instance field of " + className + ": " + e.getMessage());
-      return;
+      return "IllegalAccessException for instance field of " + className + ": " + e.getMessage();
     } catch (NoSuchFieldException e) {
-      System.out.println("ClassNotFoundException for instance field of  " + className + ": " + e.getMessage());
-      return;
+      return "ClassNotFoundException for instance field of  " + className + ": " + e.getMessage();
     }
+
     if (!tests.isEmpty()) {
       testsToRun = tests;
     } else {
@@ -46,8 +46,7 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
     Set<Method> testMethods = new HashSet<Method>();
     List<UTestPath> leafTests = new LinkedList<UTestPath>();
     Map<UTestPath, Integer> childrenCount = new HashMap<UTestPath, Integer>();
-    Map<UTestPath, Tests> pathToResolvedTests =
-      new HashMap<UTestPath, Tests>();
+    Map<UTestPath, Tests> pathToResolvedTests = new HashMap<UTestPath, Tests>();
 
     //collect test data required to perform test launch without scope duplication
     for (UTestPath testPath : testsToRun) {
@@ -58,13 +57,12 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
         assert(Modifier.isStatic(test.getModifiers()));
         testTree = (Tests) test.invoke(null);
       } catch (IllegalAccessException e) {
-        System.out.println("IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage());
-        return;
+        return "IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage();
       } catch (InvocationTargetException e) {
-        System.out.println("InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage());
         e.printStackTrace();
-        return;
+        return "InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage();
       }
+
 
       //first, descend to the current path
       Tree<String> current = testTree.nameTree();
@@ -106,14 +104,17 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
       if (subtree != null) {
         treeList.add(subtree);
       }
-        TestRunner.runAsync(
-            resolveResult,
-            reportFunction,
-            MyJavaConverters.toScala(treeList),
-            (Executor) testObject,
-            ExecutionContext.RunNow$.MODULE$
-        );
+
+      TestRunner.runAsync(
+          resolveResult,
+          reportFunction,
+          MyJavaConverters.toScala(treeList),
+          (Executor) testObject,
+          ExecutionContext.RunNow$.MODULE$
+      );
     }
+
+    return null;
   }
 
   private Tree<String> findSubtree(Tree<String> root, UTestPath path) {
