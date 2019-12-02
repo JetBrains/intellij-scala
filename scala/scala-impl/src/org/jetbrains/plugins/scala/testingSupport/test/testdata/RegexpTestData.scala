@@ -48,8 +48,7 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
         Pattern.compile(testString)
       } catch {
         case e: PatternSyntaxException =>
-          // TODO: should be testString
-          return Left(compileException(e, classString))
+          return Left(compileException(e, testString))
       }
     }
     Right(())
