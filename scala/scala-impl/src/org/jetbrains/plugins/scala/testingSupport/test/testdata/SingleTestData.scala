@@ -17,10 +17,11 @@ class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData
 
   private def splitTests: Array[String] = testName.split("\n").filter(!_.isEmpty)
 
-  override def checkSuiteAndTestName(): Unit = {
-    super.checkSuiteAndTestName()
-    if (testName == null) throw new RuntimeConfigurationException("Test Name is not specified")
-  }
+  override def checkSuiteAndTestName: CheckResult =
+    for {
+      _ <- super.checkSuiteAndTestName
+      _ <- check(testName != null, exception("Test Name is not specified"))
+    } yield ()
 
   override def getTestMap: Map[String, Set[String]] = {
     if (isDumb) return Map(testClassPath -> Set(testName))

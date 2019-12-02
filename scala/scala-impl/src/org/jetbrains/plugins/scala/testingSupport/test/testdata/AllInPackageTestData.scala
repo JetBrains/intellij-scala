@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.testingSupport.test.testdata
 import java.util
 
 import com.intellij.execution.ExecutionException
-import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
@@ -39,15 +38,16 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     }
   }
 
-  override def checkSuiteAndTestName(): Unit = {
-    searchTest match {
-      case SearchForTest.IN_WHOLE_PROJECT =>
-      case SearchForTest.IN_SINGLE_MODULE | SearchForTest.ACCROSS_MODULE_DEPENDENCIES => checkModule()
-    }
-    val pack = JavaPsiFacade.getInstance(getProject).findPackage(getTestPackagePath)
-    if (pack == null) {
-      throw new RuntimeConfigurationException("Package doesn't exist")
-    }
+  override def checkSuiteAndTestName: CheckResult =
+    for {
+      _ <- myCheckModule
+      pack = JavaPsiFacade.getInstance(getProject).findPackage(getTestPackagePath)
+      _ <- check(pack != null, exception("Package doesn't exist"))
+    } yield ()
+
+  private def myCheckModule: CheckResult = searchTest match {
+    case SearchForTest.IN_WHOLE_PROJECT                                             => Right(())
+    case SearchForTest.IN_SINGLE_MODULE | SearchForTest.ACCROSS_MODULE_DEPENDENCIES => checkModule
   }
 
   protected[test] def getPackage(path: String): PsiPackage = {

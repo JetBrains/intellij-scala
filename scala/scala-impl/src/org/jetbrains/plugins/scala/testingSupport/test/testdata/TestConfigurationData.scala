@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.ExternalizablePath
-import com.intellij.execution.configurations.RuntimeConfigurationException
+import com.intellij.execution.configurations.{RuntimeConfigurationError, RuntimeConfigurationException}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
@@ -19,12 +19,20 @@ import scala.beans.BeanProperty
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration) {
 
   def getKind: TestKind
-  def checkSuiteAndTestName(): Unit
+  def checkSuiteAndTestName: CheckResult
   def getTestMap: Map[String, Set[String]]
+
+  type CheckResult = Either[RuntimeConfigurationException, Unit]
 
   protected final def getModule: Module = config.getModule
   protected final def getProject: Project = config.getProject
-  protected final def checkModule(): Unit = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
+  protected final def checkModule: CheckResult =
+    if (getModule != null) Right(())
+    else Left(new RuntimeConfigurationException("Module is not specified"))
+
+  protected final def check(condition: Boolean, exception: => RuntimeConfigurationException): CheckResult = Either.cond(condition, (), exception)
+  protected final def exception(message: String) = new RuntimeConfigurationException(message)
+  protected final def error(message: String) = new RuntimeConfigurationError(message)
 
   protected final def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
     if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)

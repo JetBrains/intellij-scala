@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
 import com.intellij.execution.ExecutionException
-import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.PsiClass
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
@@ -21,29 +20,24 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 
   protected[test] def getClassPathClazz: PsiClass = config.getClazz(getTestClassPath, withDependencies = false)
 
-  override def checkSuiteAndTestName(): Unit = {
-    checkModule()
-
-    if (getTestClassPath == "") {
-      throw new RuntimeConfigurationException("Test Class is not specified")
-    }
-
-    val testClass = getClassPathClazz
-    if (testClass == null) {
-      throw new RuntimeConfigurationException("Test Class '%s' not found in module '%s'".format(getTestClassPath, getModule.getName))
-    }
-
-    //TODO: config.isInvalidSuite calls config.getSuiteClass and we call config.getSuiteClass again on the next line
-    //  we should refactor how isInvalidSuite is currently implemented to avoid this
-    if (config.isInvalidSuite(testClass)) {
-      val suiteClass = config.getSuiteClass.toTry.get
-      if (ScalaPsiUtil.isInheritorDeep(testClass, suiteClass)) {
-        throw new RuntimeConfigurationException("No Suite Class is found for Class '%s' in module '%s'".format(getTestClassPath, getModule.getName))
-      } else {
-        throw new RuntimeConfigurationException("Class '%s' is not inheritor of Suite trait".format(getTestClassPath))
-      }
-    }
-  }
+  override def checkSuiteAndTestName: CheckResult =
+    for {
+      _ <- checkModule
+      _ <- check(StringUtils.isNotBlank(getTestClassPath), exception("Test Class is not specified"))
+      testClass = getClassPathClazz
+      _ <- check(testClass != null, exception("Test Class '%s' not found in module '%s'".format(getTestClassPath, getModule.getName)))
+      //TODO: config.isInvalidSuite calls config.getSuiteClass and we call config.getSuiteClass again on the next line
+      //  we should refactor how isInvalidSuite is currently implemented to avoid this
+      _ <- check(config.isValidSuite(testClass), {
+        val suiteClass = config.getSuiteClass.toTry.get
+        val message = if (ScalaPsiUtil.isInheritorDeep(testClass, suiteClass)) {
+          "No Suite Class is found for Class '%s' in module '%s'".format(getTestClassPath, getModule.getName)
+        } else {
+          "Class '%s' is not inheritor of Suite trait".format(getTestClassPath)
+        }
+        exception(message)
+      })
+    } yield ()
 
   override def getTestMap: Map[String, Set[String]] = {
     if (isDumb) return Map(testClassPath -> Set[String]())

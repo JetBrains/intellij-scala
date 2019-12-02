@@ -254,8 +254,11 @@ abstract class AbstractTestRunConfiguration(project: Project,
     }
   }
 
-  override def checkConfiguration() {
-    testConfigurationData.checkSuiteAndTestName()
+  override def checkConfiguration(): Unit = {
+    testConfigurationData.checkSuiteAndTestName match {
+      case Left(ex) => throw ex
+      case Right(_) =>
+    }
     JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
   }
 

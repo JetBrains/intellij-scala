@@ -30,21 +30,27 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
 
   protected[test] def zippedRegexps: Array[(String, String)] = classRegexps.zipAll(testRegexps, "", "")
 
-  private def checkRegexps(compileException: (PatternSyntaxException, String) => Exception, noPatternException: Exception): Unit = {
+  private def checkRegexps(compileException: (PatternSyntaxException, String) => RuntimeConfigurationException,
+                           noPatternException: RuntimeConfigurationException): CheckResult = {
     val patterns = zippedRegexps
-    if (patterns.isEmpty) throw noPatternException
+    if (patterns.isEmpty) return Left(noPatternException)
+
     for ((classString, testString) <- patterns) {
       try {
         Pattern.compile(classString)
       } catch {
-        case e: PatternSyntaxException => throw compileException(e, classString)
+        case e: PatternSyntaxException =>
+          return Left(compileException(e, classString))
       }
       try {
         Pattern.compile(testString)
       } catch {
-        case e: PatternSyntaxException => throw compileException(e, classString)
+        case e: PatternSyntaxException =>
+          // TODO: should be testString
+          return Left(compileException(e, classString))
       }
     }
+    Right(())
   }
 
   private def findTestsByFqnCondition(classCondition: String => Boolean, testCondition: String => Boolean,
@@ -76,10 +82,11 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     }
   }
 
-  override def checkSuiteAndTestName(): Unit = {
-    checkModule()
-    checkRegexps((_, p) => new RuntimeConfigurationException(s"Failed to compile pattern $p"), new RuntimeConfigurationException("No patterns detected"))
-  }
+  override def checkSuiteAndTestName: CheckResult =
+    for {
+      _ <- checkModule
+      _ <- checkRegexps((_, p) => exception(s"Failed to compile pattern $p"), exception("No patterns detected"))
+    } yield ()
 
   override def getTestMap: Map[String, Set[String]] = {
     val patterns = zippedRegexps
