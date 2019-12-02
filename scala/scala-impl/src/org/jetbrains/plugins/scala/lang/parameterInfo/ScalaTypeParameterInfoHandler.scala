@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * User: Alexander Podkhalyuzin
  * Date: 22.02.2009
  */
-class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, ScTypeElement] {
+class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs, Any, ScTypeElement] {
   def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
@@ -45,14 +45,6 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     set.add(classOf[ScParameterizedTypeElement])
     set.add(classOf[ScGenericCall])
     set
-  }
-
-  def findElementForParameterInfo(context: CreateParameterInfoContext): ScTypeArgs = {
-    findCall(context)
-  }
-
-  def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): ScTypeArgs = {
-    findCall(context)
   }
 
   def couldShowInLookup: Boolean = true
@@ -165,24 +157,9 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     }
   }
 
-  def showParameterInfo(element: ScTypeArgs, context: CreateParameterInfoContext): Unit = {
-    context.showHint(element, element.getTextRange.getStartOffset, this)
-  }
-
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
-  def updateParameterInfo(o: ScTypeArgs, context: UpdateParameterInfoContext): Unit = {
-    //todo: join all this methods in all handlers to remove duplicates
-    if (context.getParameterOwner != o) context.removeHint()
-    val offset = context.getOffset
-    var child = o.getNode.getFirstChildNode
-    var i = 0
-    while (child != null && child.getStartOffset < offset) {
-      if (child.getElementType == ScalaTokenTypes.tCOMMA) i = i + 1
-      child = child.getTreeNext
-    }
-    context.setCurrentParameter(i)
-  }
+
 
   private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
     ref.bind() match {
@@ -197,7 +174,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     }
   }
 
-  private def findCall(context: ParameterInfoContext): ScTypeArgs = {
+  override protected def findCall(context: ParameterInfoContext): ScTypeArgs = {
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null

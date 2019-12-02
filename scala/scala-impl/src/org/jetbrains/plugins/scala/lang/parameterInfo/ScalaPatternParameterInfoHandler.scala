@@ -31,7 +31,7 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 22.02.2009
  */
 
-class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ScPattern] {
+class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatternArgumentList, Any, ScPattern] {
   def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
@@ -50,14 +50,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val set = new java.util.HashSet[Class[_]]()
     set.add(classOf[ScConstructorPattern])
     set
-  }
-
-  def findElementForParameterInfo(context: CreateParameterInfoContext): ScPatternArgumentList = {
-    findCall(context)
-  }
-
-  def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): ScPatternArgumentList = {
-    findCall(context)
   }
 
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
@@ -171,23 +163,9 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     } else paramTypeText
   }
 
-  def showParameterInfo(element: ScPatternArgumentList, context: CreateParameterInfoContext): Unit = {
-    context.showHint(element, element.getTextRange.getStartOffset, this)
-  }
 
-  def updateParameterInfo(o: ScPatternArgumentList, context: UpdateParameterInfoContext): Unit = {
-    if (context.getParameterOwner != o) context.removeHint()
-    val offset = context.getOffset
-    var child = o.getNode.getFirstChildNode
-    var i = 0
-    while (child != null && child.getStartOffset < offset) {
-      if (child.getElementType == ScalaTokenTypes.tCOMMA) i = i + 1
-      child = child.getTreeNext
-    }
-    context.setCurrentParameter(i)
-  }
 
-  private def findCall(context: ParameterInfoContext): ScPatternArgumentList = {
+  override protected def findCall(context: ParameterInfoContext): ScPatternArgumentList = {
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null

@@ -43,7 +43,7 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 18.01.2009
  */
 
-class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[PsiElement, Any, ScExpression] {
+class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiElement, Any, ScExpression] {
   def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod])
   }
@@ -78,18 +78,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     set
   }
 
-  def findElementForParameterInfo(context: CreateParameterInfoContext): PsiElement = {
-    findCall(context)
-  }
-
-  def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): PsiElement = {
-    findCall(context)
-  }
-
-  def showParameterInfo(element: PsiElement, context: CreateParameterInfoContext) {
-    context.showHint(element, element.getTextRange.getStartOffset, this)
-  }
-
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
     if (!item.isInstanceOf[LookupItem[_]]) return null
     val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem[_]])
@@ -102,17 +90,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     null
   }
 
-  def updateParameterInfo(o: PsiElement, context: UpdateParameterInfoContext) {
-    if (context.getParameterOwner != o) context.removeHint()
-    val offset = context.getOffset
-    var child = o.getNode.getFirstChildNode
-    var i = 0
-    while (child != null && child.getStartOffset < offset) {
-      if (child.getElementType == ScalaTokenTypes.tCOMMA) i = i + 1
-      child = child.getTreeNext
-    }
-    context.setCurrentParameter(i)
-  }
+
 
 
   def updateUI(p: Any, context: ParameterInfoUIContext) {
@@ -696,7 +674,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
    * @param context current context
    * @return context's argument expression
    */
-  private def findCall(context: ParameterInfoContext): PsiElement = {
+  override protected def findCall(context: ParameterInfoContext): PsiElement = {
     val file = context.getFile
     val offset = context.getEditor.getCaretModel.getOffset
     val element = file.findElementAt(offset)
