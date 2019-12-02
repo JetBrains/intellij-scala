@@ -77,12 +77,11 @@ class ScalaResolveResult(val element: PsiNamedElement,
     if (withExpectedType) problems.isEmpty
     else problems.forall(_ == ExpectedTypeMismatch)
 
-  def isApplicableInternal(withExpectedType: Boolean): Boolean = {
+  def isApplicableInternal(withExpectedType: Boolean): Boolean =
     innerResolveResult match {
       case Some(r) => r.isApplicable(withExpectedType)
-      case None => isApplicable(withExpectedType)
+      case None    => isApplicable(withExpectedType)
     }
-  }
 
   def isValidResult: Boolean = isAccessible && isApplicable()
 
