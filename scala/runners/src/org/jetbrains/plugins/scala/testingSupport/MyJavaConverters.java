@@ -14,7 +14,7 @@ import java.util.Arrays;
  */
 public class MyJavaConverters {
 
-  public static <T> java.util.List<T> toJava(scala.collection.immutable.Seq<T> seq) {
+  public static <T> java.util.List<T> toJava(scala.collection.Seq<T> seq) {
     ArrayList<T> list = new ArrayList<>(seq.size());
     Iterator<T> iterator = seq.iterator();
     while (iterator.hasNext()) {

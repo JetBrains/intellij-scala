@@ -45,12 +45,12 @@ public final class UTestSuiteReflectionRunner extends UTestSuiteRunner {
   }
 
   @Override
-  protected String doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
+  protected void doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) throws UTestRunExpectedError {
     Class clazz;
     try {
       clazz = Class.forName(className);
     } catch (ClassNotFoundException e) {
-      return "ClassNotFoundException for " + className + ": " + e.getMessage();
+      throw expectedError("ClassNotFoundException for " + className + ": " + e.getMessage());
     }
 
     Class treeClass = getTreeClass();
@@ -82,22 +82,22 @@ public final class UTestSuiteReflectionRunner extends UTestSuiteRunner {
         testTree = ((Modifier.isStatic(test.getModifiers())) ? test.invoke(null) :
           test.invoke(clazz.getField("MODULE$").get(null)));
       } catch (NoSuchFieldException e) {
-        return "Instance field not found for object " + clazz.getName() + ": " + e.getMessage();
+        throw expectedError("Instance field not found for object " + clazz.getName() + ": " + e.getMessage());
       } catch (IllegalAccessException e) {
-        return "IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage();
+        throw expectedError("IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage());
       } catch (InvocationTargetException e) {
         e.printStackTrace();
-        return "InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage();
+        throw expectedError("InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage());
       }
 
       treeSeq = constructTreeSeq(testTree, treeClass, treeSeqClass);
       if (treeSeq == null) {
-        return "Failed to instantiate TestTreeSeq";
+        throw expectedError("Failed to instantiate TestTreeSeq");
       }
 
       scala.Tuple2<Buffer<Object>, ?> resolveResult = resolve(treeSeq, testPath, treeSeqClass);
       if (resolveResult == null) {
-        return "Failed to resolve tests tree";
+        throw expectedError("Failed to resolve tests tree");
       }
       Method getChildren = null;
 
@@ -106,7 +106,7 @@ public final class UTestSuiteReflectionRunner extends UTestSuiteRunner {
         Method getValue = treeClass.getMethod("value");
         traverseTestTreeDown(resolveResult._2(), testPath, leafTests, getChildren, getValue);
       } catch (NoSuchMethodException e) {
-        return "NoSuchMethodExcepton when invokng uTest Tree methods: " + e.getMessage();
+        throw expectedError("NoSuchMethodExcepton when invokng uTest Tree methods: " + e.getMessage());
       }
       pathToResolvedTests.put(testPath, resolveResult);
     }
@@ -126,13 +126,11 @@ public final class UTestSuiteReflectionRunner extends UTestSuiteRunner {
 
       treeSeq = constructTreeSeq(resolveResult._2(), treeClass, treeSeqClass);
       if (treeSeq == null) {
-        return "Faled to instantiate treeSeq";
+        throw expectedError("Faled to instantiate treeSeq");
       }
 
       invokeRunAsync(treeSeq, resolveResult._1(), runAsyncMethod, reporter, testPath, leafTests, childrenCount);
     }
-
-    return null;
   }
 
   private Method getTestNameMethod() {
