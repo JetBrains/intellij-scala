@@ -132,4 +132,10 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
 
   //to call as static method from java
   override def incModificationCount(): Unit = super.incModificationCount()
+
+  def hasCompilerPlugin(module: Module, pattern: String): Boolean = {
+    val config = instanceIn(module.getProject)
+    val settings = config.getSettingsForModule(module)
+    settings.plugins.exists(_.contains(pattern))
+  }
 }
