@@ -9,8 +9,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiMethodUtil, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -36,6 +37,12 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     configuration.setName(configuration.suggestedName())
     setupConfigurationModule(context, configuration)
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
+  }
+
+  override def findModule(configuration: T, contextModule: Module): Module = {
+    Option(super.findModule(configuration, contextModule))
+      .flatMap(_.findJVMModule)
+      .orNull
   }
 
   private def hasClassAncestorWithName(element: PsiElement, name: String): Boolean = {

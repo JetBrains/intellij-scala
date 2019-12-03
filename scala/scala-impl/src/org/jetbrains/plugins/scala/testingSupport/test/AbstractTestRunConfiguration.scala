@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.GlobalSearchScope.{EMPTY_SCOPE, moduleScope}
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
@@ -121,12 +122,19 @@ abstract class AbstractTestRunConfiguration(project: Project,
 
   def mScope(module: Module, withDependencies: Boolean): GlobalSearchScope = {
     if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
-    else GlobalSearchScope.moduleScope(module)
+    else {
+      val sharedSourceScope =
+        module.sharedSourceDependency
+          .map(moduleScope)
+          .getOrElse(EMPTY_SCOPE)
+
+      sharedSourceScope.union(moduleScope(module))
+    }
   }
 
   def unionScope(moduleGuard: Module => Boolean, withDependencies: Boolean): GlobalSearchScope = {
     var scope: GlobalSearchScope = getModule match {
-      case null   => GlobalSearchScope.EMPTY_SCOPE
+      case null   => EMPTY_SCOPE
       case module => mScope(module, withDependencies)
     }
     val projectModules = ModuleManager.getInstance(getProject).getModules
@@ -154,7 +162,9 @@ abstract class AbstractTestRunConfiguration(project: Project,
   }
 
   def getModule: Module = {
-    getConfigurationModule.getModule
+    Option(getConfigurationModule.getModule)
+      .flatMap(_.findJVMModule)
+      .orNull
   }
 
   def getValidModules: java.util.List[Module] =
