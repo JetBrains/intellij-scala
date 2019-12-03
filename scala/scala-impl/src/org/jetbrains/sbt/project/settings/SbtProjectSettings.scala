@@ -16,8 +16,6 @@ import scala.beans.BeanProperty
  */
 class SbtProjectSettings extends ExternalProjectSettings {
 
-  super.setUseAutoImport(false)
-
   def jdkName: Option[String] = Option(jdk)
 
   override def getExternalProjectPath: String =
