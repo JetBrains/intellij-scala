@@ -53,14 +53,16 @@ trait ScalaSdkOwner extends Test {
       // (including injectedScalaVersion) after test is finished
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
       val scalaVersionMessage = s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion) ###"
-      def logVersion(): Unit = System.err.println(scalaVersionMessage)
-      result.addListener(new TestListener {
-        override def addError(test: Test, t: Throwable): Unit = logVersion()
-        override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion()
+      lazy val logVersion: Unit = System.err.println(scalaVersionMessage) // lazy val to log only once
+      val listener = new TestListener {
+        override def addError(test: Test, t: Throwable): Unit = logVersion
+        override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion
         override def endTest(test: Test): Unit = ()
         override def startTest(test: Test): Unit = ()
-      })
+      }
+      result.addListener(listener)
       super.run(result)
+      result.removeListener(listener)
     }
   }
 }
