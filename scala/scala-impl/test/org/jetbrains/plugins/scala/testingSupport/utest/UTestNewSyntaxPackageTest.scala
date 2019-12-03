@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.utest
 
 import com.intellij.execution.testframework.AbstractTestProxy
 
-/**
-  * @author Roman.Shein
-  * @since 05.09.2015.
-  */
-trait UTestPackageTest extends UTestTestCase {
+trait UTestNewSyntaxPackageTest extends UTestTestCase {
+
   val packageName = "myPackage"
   val secondPackageName = "otherPackage"
 
@@ -14,47 +11,44 @@ trait UTestPackageTest extends UTestTestCase {
     s"""
        |package myPackage
        |
-       |$testSuiteSecondPrefix
        |import utest._
        |
        |object Test1 extends TestSuite {
-       |  val tests = TestSuite {
-       |    "test1" - {}
+       |  val tests = Tests {
+       |    test("test1") {}
        |
-       |    "test2" - {}
+       |    test("test2") {}
        |  }
        |}
-      """.stripMargin.trim())
+       |""".stripMargin.trim())
 
   addSourceFile(packageName + "/Test2.scala",
     s"""
        |package myPackage
        |
-       |$testSuiteSecondPrefix
        |import utest._
        |
        |object Test2 extends TestSuite {
-       |  val tests = TestSuite {
-       |    "test1" - {}
+       |  val tests = Tests {
+       |    test("test1") {}
        |
-       |    "test2" - {}
+       |    test("test2") {}
        |  }
        |}
-      """.stripMargin.trim())
+       |""".stripMargin.trim())
 
   addSourceFile(secondPackageName + "/Test1.scala",
     s"""
        |package otherPackage
        |
-       |$testSuiteSecondPrefix
        |import utest._
        |
        |object Test2 extends TestSuite {
-       |  val tests = TestSuite {
-       |    "test" - {}
+       |  val tests = Tests {
+       |    test("test") {}
        |  }
        |}
-      """.stripMargin.trim())
+       |""".stripMargin.trim())
 
   def testPackageTestRun(): Unit = {
     runTestByConfig2(createTestFromPackage(packageName),

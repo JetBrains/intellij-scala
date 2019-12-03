@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_1_old_syntax
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_1
 
-class UTestBeforeAfterTest_2_13_0_7_1_old_syntax extends UTestTestBase_2_13_0_7_1 {
+class UTestBeforeAfterTest_2_13_0_7_1 extends UTestTestBase_2_13_0_7_1 {
 
   val beforeAfterTestName = "BeforeAfterTest"
   val beforeAfterFileName = beforeAfterTestName + ".scala"
@@ -11,24 +11,26 @@ class UTestBeforeAfterTest_2_13_0_7_1_old_syntax extends UTestTestBase_2_13_0_7_
        |
        |object $beforeAfterTestName extends TestSuite {
        |  val tests = Tests {
-       |    "test1" - {}
+       |    test("test1") {}
        |  }
        |
        |  override def utestBeforeEach(path: Seq[String]): Unit = { println(">>TEST: BEFORE <<") }
        |
        |  override def utestAfterEach(path: Seq[String]): Unit = { println(">>TEST: AFTER <<") }
        |}
-      """.stripMargin.trim())
+       |""".stripMargin.trim())
 
   def testBefore(): Unit = {
-    runTestByLocation(4, 10, beforeAfterFileName,
-      checkConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
+
+
+    runTestByLocation2(4, 10, beforeAfterFileName,
+      assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
       _ => true, expectedText = "BEFORE", checkOutputs = true)
   }
 
   def testAfter(): Unit = {
-    runTestByLocation(4, 10, beforeAfterFileName,
-      checkConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
+    runTestByLocation2(4, 10, beforeAfterFileName,
+      assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
       _ => true, expectedText = "AFTER", checkOutputs = true)
   }
 }
