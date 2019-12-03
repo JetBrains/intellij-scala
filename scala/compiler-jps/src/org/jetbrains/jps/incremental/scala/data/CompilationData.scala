@@ -5,7 +5,6 @@ import java.io.{File, IOException}
 import java.util
 import java.util.Collections
 
-import org.jetbrains.jps.builders.BuildTargetIndex
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaModuleBuildTargetType}
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, CompilerSettings}
@@ -203,20 +202,11 @@ abstract class BaseCompilationData extends CompilationDataFactory {
         JpsJavaExtensionService.getInstance.getTestModuleProperties(target.getModule) != null
     }
 
-    //BuildTargetIndex.isDummy checks if module target has no source roots
-    //but it doesn't know about source dependencies
-    def isDummy(target: ModuleBuildTarget, index: BuildTargetIndex) = {
-      val hasSharedSourceDependencies =
-        SourceDependenciesProviderService.getSourceDependenciesFor(chunk(target)).nonEmpty
-
-      index.isDummy(target) && !hasSharedSourceDependencies
-    }
-
     val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
     val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
 
     targets.distinct.filterNot { target =>
-      isDummy(target, buildTargetIndex) || isExcluded(target) || isProductionTargetOfTestModule(target)
+      buildTargetIndex.isDummy(target) || isExcluded(target) || isProductionTargetOfTestModule(target)
     }
   }
   
