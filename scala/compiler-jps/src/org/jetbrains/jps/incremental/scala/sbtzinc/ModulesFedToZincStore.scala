@@ -1,15 +1,11 @@
 package org.jetbrains.jps.incremental.scala.sbtzinc
 
-import java.util
-
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.scala.SourceDependenciesProviderService
 import org.jetbrains.jps.model.module.{JpsDependencyElement, JpsModule, JpsModuleDependency, JpsModuleSourceDependency}
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 /**
   * Keep track of dirty modules and dirty dependant modules for a single build

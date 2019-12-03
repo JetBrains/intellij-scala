@@ -2,9 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import _root_.java.util
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java._
@@ -19,8 +17,6 @@ import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, ModulesFedToZincStore}
-import org.jetbrains.jps.incremental.scala.sources.SharedSourcesModuleType
-import org.jetbrains.jps.model.module.JpsModule
 
 import _root_.scala.collection.JavaConverters._
 import _root_.scala.collection.mutable
@@ -44,15 +40,6 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val modules = chunk.getModules.asScala.toSet
 
-    //DirtyFilesHolder is invalidated after build of the chunk is finished,
-    //so we have to collect and store dirty files for shared source modules
-    val dirtyFilesStorage = dirtyFilesMap(context, chunk)
-    if (isSharedSource(chunk)) {
-      modules.foreach {
-        dirtyFilesStorage.put(_, collectDirtyFiles(dirtyFilesHolder))
-      }
-    }
-
     if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
 
@@ -60,8 +47,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
 
-    val dirtyFilesFromIntellij =
-      collectDirtyFiles(dirtyFilesHolder) ++ sourceDependenciesDirtyFiles(chunk, dirtyFilesStorage)
+    val dirtyFilesFromIntellij = collectDirtyFiles(dirtyFilesHolder)
 
     val moduleNames = modules.map(_.getName).toSeq
 
@@ -112,6 +98,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 object SbtBuilder {
 
   // TODO Mirror file deletion (either via the outputConsumer or a custom index)
+  // TODO use AdditionalRootsProviderService?
   private def updateSharedResources(context: CompileContext, chunk: ModuleChunk) {
     val project = context.getProjectDescriptor
 
@@ -143,12 +130,6 @@ object SbtBuilder {
         true
       })
     }
-  }
-
-  private def sourceDependenciesDirtyFiles(chunk: ModuleChunk,
-                                           dirtyFilesStorage: util.Map[JpsModule, Seq[File]]): Seq[File] = {
-    val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
-    sourceDependencies.flatMap(dirtyFilesStorage.getOrDefault(_, Seq.empty))
   }
 
   //in current chunk only
@@ -184,12 +165,9 @@ object SbtBuilder {
 
   private def collectCompilableFiles(context: CompileContext,
                                      chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
-
-    val sourceTargets = sourceDependencyTargets(chunk)
-
     val fileToTarget =
       for {
-        target <- chunk.getTargets.asScala ++ sourceTargets
+        target <- chunk.getTargets.asScala
         file <- compilableFiles(context, target)
       } yield {
         file -> target
@@ -197,41 +175,11 @@ object SbtBuilder {
     fileToTarget.toMap
   }
 
-  private def sourceDependencyTargets(chunk: ModuleChunk): Seq[ModuleBuildTarget] = {
-    val sourceModules = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
-    val targetType = chunk.representativeTarget.getTargetType match {
-      case javaBuildTarget: JavaModuleBuildTargetType => javaBuildTarget
-      case _ => JavaModuleBuildTargetType.PRODUCTION
-    }
-    sourceModules.map(new ModuleBuildTarget(_, targetType))
-  }
-
   private def logCustomSbtIncOptions(context: CompileContext, chunk: ModuleChunk, client: Client): Unit = {
     val settings = projectSettings(context).getCompilerSettings(chunk)
     val options = settings.getSbtIncrementalOptions
     client.debug(s"Custom sbt incremental compiler options for ${chunk.getPresentableShortName}: ${options.nonDefault}")
   }
-
-  private def isSharedSource(chunk: ModuleChunk): Boolean =
-    chunk.getModules.asScala.exists {
-      _.getModuleType == SharedSourcesModuleType.INSTANCE
-    }
-
-  private def dirtyFilesMap(context: CompileContext, chunk: ModuleChunk) = {
-    val key = if (chunk.containsTests()) dirtyFilesTestKey else dirtyFilesProductionKey
-
-    Option(context.getUserData(key)).getOrElse {
-      val result = new ConcurrentHashMap[JpsModule, Seq[File]]()
-      context.putUserData(key, result)
-      result
-    }
-  }
-
-  private val dirtyFilesProductionKey: Key[util.Map[JpsModule, Seq[File]]] =
-    Key.create("source.dep.production.dirty.files")
-
-  private val dirtyFilesTestKey: Key[util.Map[JpsModule, Seq[File]]] =
-    Key.create("source.dep.test.dirty.files")
 
   private type DirtyFilesHolder =
     org.jetbrains.jps.builders.DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]
