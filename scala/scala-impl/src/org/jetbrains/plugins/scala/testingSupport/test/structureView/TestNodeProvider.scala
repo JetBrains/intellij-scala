@@ -11,7 +11,7 @@ import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
@@ -466,17 +466,31 @@ object TestNodeProvider {
     case _ => false
   }
 
+  // `testName - {}
   def isUTestApplyCall(psiElement: PsiElement): Boolean = psiElement match {
     case methodCall: ScMethodCall =>
-      val literal = methodCall.getEffectiveInvokedExpr
-      literal.isInstanceOf[ScLiteral] && {
-        literal.implicitElement().collect {
-          case definition: ScFunctionDefinition => definition
-        }.filter { definition =>
-          definition.getName == "TestableSymbol" && definition.isSynthetic
-        }.exists { funDef =>
-          checkClauses(funDef.getParameterList.clauses, List("scala.Symbol"))
-        }
+      methodCall.getEffectiveInvokedExpr match {
+        case literal: ScLiteral =>
+          literal.implicitElement()
+            .collect { case definition: ScFunctionDefinition => definition }
+            .filter(definition => definition.getName == "TestableSymbol" && definition.isSynthetic)
+            .exists(definition => checkClauses(definition.getParameterList.clauses, List("scala.Symbol")))
+        case _ => false
+      }
+    case _ => false
+  }
+
+  // test("testName") {}
+  def isUTestObjectApplyCall(psiElement: PsiElement): Boolean = psiElement match {
+    case methodCall: ScMethodCall =>
+      methodCall.getEffectiveInvokedExpr match {
+        case methodCall2: ScMethodCall =>
+          methodCall2.getEffectiveInvokedExpr match {
+            case ScReferenceExpression(d@ScFunctionDefinition.withName("apply") /*&& Parent(???))*/)  =>
+              d.containingClass.qualifiedName == "utest.test"
+            case _ => false
+          }
+        case _ => false
       }
     case _ => false
   }
