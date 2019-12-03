@@ -5,6 +5,7 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
+import com.intellij.openapi.util.io.FileUtilRt
 import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.structure.ProjectData
@@ -63,7 +64,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
         moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup)
       }
 
-      //put source module to the same module group
       moduleNode
     }
 
@@ -107,7 +107,32 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
     moduleNode.add(contentRootNode)
 
+    setupOutputDirectories(moduleNode, contentRootNode)
+
     moduleNode
+  }
+
+  //target directory are expected by jps compiler:
+  //if they are missing all sources are marked dirty and there is no incremental compilation
+  private def setupOutputDirectories(moduleNode: ModuleNode, contentRootNode: ContentRootNode): Unit = {
+    moduleNode.setInheritProjectCompileOutputPath(false)
+
+    val contentRoot = contentRootNode.data.getRootPath
+
+    contentRootNode.data.storePath(ExternalSystemSourceType.EXCLUDED, getOrCreateTargetDir(contentRoot, "target").getAbsolutePath)
+
+    moduleNode.setCompileOutputPath(ExternalSystemSourceType.SOURCE, getOrCreateTargetDir(contentRoot, "target/classes").getAbsolutePath)
+    moduleNode.setCompileOutputPath(ExternalSystemSourceType.TEST, getOrCreateTargetDir(contentRoot, "target/test-classes").getAbsolutePath)
+  }
+
+  private def getOrCreateTargetDir(root: String, relPath: String): File = {
+    val file = new File(root, relPath)
+
+    if (!file.exists()) {
+      FileUtilRt.createDirectory(file)
+    }
+
+    file
   }
 
   private def scopeAndKindToSourceType(scope: Root.Scope, kind: Root.Kind): ExternalSystemSourceType =
