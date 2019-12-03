@@ -10,7 +10,7 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
   addSourceFile(uTestFileName,
     s"""import utest._
        |
-       |object UTestTest extends TestSuite {
+       |object $uTestTestName extends TestSuite {
        |  val tests = Tests {
        |
        |    test("outer1") {}
@@ -112,5 +112,41 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
     runFileStructureViewTest(uTestTestName, "\"sameName\"", Some("\"sameName\""))
     runFileStructureViewTest(uTestTestName, "\"outer2\"", Some("tests"))
     runFileStructureViewTest(uTestTestName, "\"inner2_1\"", Some("\"outer2\""))
+  }
+
+  protected val uTestTestName1 = "UTestTest1"
+  protected val uTestFileName1 = uTestTestName1 + ".scala"
+
+  addSourceFile(uTestFileName1,
+    s"""import utest._
+       |
+       |object $uTestTestName1 extends TestSuite {
+       |  val tests = Tests {
+       |    test("test1") {
+       |      throw new RuntimeException("message")
+       |    }
+       |    test("test2") {
+       |      throw new RuntimeException // null message
+       |    }
+       |  }
+       |}
+       |""".stripMargin.trim())
+
+  def testFailing(): Unit = {
+    runTestByLocation2(4, 10, uTestFileName1,
+      assertConfigAndSettings(_, uTestTestName1, "tests\\test1"),
+      assertFromCheck { root =>
+        checkResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test1"))
+      }
+    )
+  }
+
+  def testFailingWithNullMessage(): Unit = {
+    runTestByLocation2(7, 10, uTestFileName1,
+      assertConfigAndSettings(_, uTestTestName1, "tests\\test2"),
+      assertFromCheck { root =>
+        checkResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test2"))
+      }
+    )
   }
 }

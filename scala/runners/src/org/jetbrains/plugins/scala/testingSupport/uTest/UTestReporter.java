@@ -189,7 +189,9 @@ public final class UTestReporter {
   }
 
   public void reportError(String errorMessage) {
-    System.err.println(errorMessage);
+    if (errorMessage != null) {
+      System.err.println(errorMessage);
+    }
     myLatch.countDown();
   }
 }

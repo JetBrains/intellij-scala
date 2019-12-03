@@ -39,6 +39,7 @@ public class TestRunnerUtil {
   private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(FORMAT_WITHOUT_TZ);
 
   public static String escapeString(String str) {
+    if (str == null) return "";
     return str
         .replaceAll("[|]", "||")
         .replaceAll("[']", "|'")
