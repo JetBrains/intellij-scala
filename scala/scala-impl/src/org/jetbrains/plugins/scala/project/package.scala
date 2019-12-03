@@ -6,7 +6,7 @@ import java.util.jar.Attributes
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleType, ModuleUtilCore}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
@@ -101,6 +101,32 @@ package object project {
     def scalaSdk: Option[LibraryEx] = Option {
       ScalaSdkCache(module.getProject)(module)
     }
+
+    def isSharedSourceModule: Boolean = ModuleType.get(module).getId == "SHARED_SOURCES_MODULE"
+
+    def isScalaJs: Boolean = ScalaCompilerConfiguration.hasCompilerPlugin(module, "scala-js")
+
+    def isScalaNative: Boolean = ScalaCompilerConfiguration.hasCompilerPlugin(module, "scala-native")
+
+    def isJvmModule: Boolean = !isScalaJs && !isScalaNative && !isSharedSourceModule
+
+    def findJVMModule: Option[Module] = {
+      if (isJvmModule) {
+        Some(module)
+      }
+      else if (isSharedSourceModule) {
+        val moduleManager = ModuleManager.getInstance(module.getProject)
+        val dependents = moduleManager.getModuleDependentModules(module).asScala
+        dependents.find(_.isJvmModule)
+      }
+      else {
+        sharedSourceDependency.flatMap(_.findJVMModule)
+      }
+    }
+
+    def sharedSourceDependency: Option[Module] =
+      ModuleRootManager.getInstance(module).getDependencies
+        .find(_.isSharedSourceModule)
 
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
