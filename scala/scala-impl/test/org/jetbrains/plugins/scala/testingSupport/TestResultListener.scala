@@ -3,12 +3,17 @@ package testingSupport
 
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.testingSupport.TestResultListener._
+import org.junit.Assert._
 
-/**
-  * @author Roman.Shein
-  *         Date: 03.03.14
-  */
+
 class TestResultListener(private val testConfigurationName: String) extends ProcessListener {
+
+  private val outputTextAll = new StringBuilder
+  private val outputTextProgress = new StringBuilder
+
+  private def terminated = exitCodeOpt.isDefined
+  private var exitCodeOpt: Option[Int] = None
 
   def waitForTestEnd(duration: Int): String = {
     var i = 0
@@ -17,40 +22,44 @@ class TestResultListener(private val testConfigurationName: String) extends Proc
       i += 10
     }
 
-    assert(terminated, s"test $testConfigurationName did not terminate correctly after $duration ms; captured outputs:\n${builder.toString}")
-    builder.toString
+    exitCodeOpt match {
+      case Some(0) =>
+      case Some(exitCode) =>
+        fail(
+          s"""test $testConfigurationName terminated with error exit code: $exitCode; captured outputs:
+             |${outputTextAll.toString}""".stripMargin
+        )
+      case None =>
+        fail(
+          s"""test $testConfigurationName did not terminate correctly after $duration ms; captured outputs:
+             |${outputTextAll.toString}""".stripMargin
+        )
+    }
+    outputTextProgress.toString
   }
-
-  private val builder = new StringBuilder
-
-  private var terminated = false
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
     val text = event.getText
-    import TestResultListener._
+    outputTextAll.append(text)
+
     if (text.contains(testResultPrefix) && text.contains(testResultSuffix)) {
       val from = text.indexOf(testResultPrefix)
       val to = text.indexOf(testResultSuffix)
       if (from != -1 && to != -1) {
-        builder.append(text.substring(from + testResultPrefix.length, to))
+        outputTextProgress.append(text.substring(from + testResultPrefix.length, to))
       }
     }
   }
 
-  override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {
-    //TODO: implement me
-  }
+  override def startNotified(event: ProcessEvent): Unit = ()
 
-  override def processTerminated(event: ProcessEvent): Unit = {
-    terminated = true
-  }
+  override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = ()
 
-  override def startNotified(event: ProcessEvent): Unit = {
-    //TODO: implement me
-  }
+  override def processTerminated(event: ProcessEvent): Unit =
+    exitCodeOpt = Some(event.getExitCode)
 }
 
-object TestResultListener {
-  val testResultPrefix = ">>TEST: "
-  val testResultSuffix = "<<"
+private object TestResultListener {
+  private val testResultPrefix = ">>TEST: "
+  private val testResultSuffix = "<<"
 }
