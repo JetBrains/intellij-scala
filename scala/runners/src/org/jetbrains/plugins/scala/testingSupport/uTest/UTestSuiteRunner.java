@@ -18,6 +18,10 @@ public abstract class UTestSuiteRunner {
       doRunTestSuites(className, tests, reporter);
     } catch (UTestRunExpectedError expectedError) {
       reporter.reportError(expectedError.getMessage());
+    } catch (Throwable ex) {
+      reporter.reportError(ex.getMessage());
+      ex.printStackTrace();
+      throw ex;
     }
   }
 
