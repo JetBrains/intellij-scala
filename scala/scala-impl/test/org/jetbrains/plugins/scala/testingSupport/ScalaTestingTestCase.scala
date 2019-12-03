@@ -159,13 +159,13 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
       case _ => throw new RuntimeException(failedConfigMessage(directory.getName))
     }
 
-  override protected def runTestFromConfig(configurationCheck: RunnerAndConfigurationSettings => Boolean,
+  override protected def runTestFromConfig(configurationAssert: RunnerAndConfigurationSettings => Unit,
                                            runConfig: RunnerAndConfigurationSettings,
                                            checkOutputs: Boolean = false,
                                            duration: Int = 3000,
                                            debug: Boolean = false
                                           ): (String, Option[AbstractTestProxy]) = {
-    assertTrue(s"config check failed for ${runConfig.getName}", configurationCheck(runConfig))
+    configurationAssert(runConfig)
     assertTrue("runConfig not instance of AbstractRunConfiguration", runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)

@@ -42,7 +42,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
     )
     val testNames = testPaths.map(_.drop(2).mkString(" "))
 
-    runTestByLocation(
+    runTestByLocation2(
       3, 1,
       fileName,
       configAndSettings => {

@@ -11,13 +11,15 @@ import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert
 import org.junit.Assert._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
  * @author Roman.Shein
@@ -26,7 +28,7 @@ import scala.collection.JavaConverters._
 trait IntegrationTest {
 
   protected def runTestFromConfig(
-    configurationCheck: RunnerAndConfigurationSettings => Boolean,
+    configurationAssert: RunnerAndConfigurationSettings => Unit,
     runConfig: RunnerAndConfigurationSettings,
     checkOutputs: Boolean = false,
     duration: Int = 3000,
@@ -78,23 +80,19 @@ trait IntegrationTest {
     assertConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
   }
 
-  protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Boolean = {
-    val config = configAndSettings.getConfiguration
-    val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
-    testConfig.testConfigurationData match {
-      case packageData: AllInPackageTestData => packageData.getTestPackagePath == packageName
-      case _ => false
-    }
+  protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Boolean = checkFromAssert {
+    assertPackageConfigAndSettings(configAndSettings, packageName, generatedName)
   }
 
-  private def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
-    config.getTestClassPath == testClass && (config.testConfigurationData match {
-      case testData: SingleTestData =>
-        val configTests = parseTestName(testData.testName)
-        configTests.size == testNames.size && ((configTests zip testNames) forall { case (actual, required) => actual == required })
-      case _: ClassTestData =>
-        testNames.isEmpty
-    })
+  protected def assertPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Unit = {
+    val config = configAndSettings.getConfiguration
+    val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
+    val packageData = assertIsA[AllInPackageTestData](testConfig.testConfigurationData)
+    assertEquals("package name are not equal", packageName, packageData.getTestPackagePath)
+  }
+
+  private def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = checkFromAssert {
+    assertConfig(testClass, testNames, config)
   }
 
   private def assertConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Unit = {
@@ -168,23 +166,50 @@ trait IntegrationTest {
                                        allowTail: Boolean = false): Boolean =
     getPathFromResultTree(root, conditions, allowTail).isDefined
 
+  // TODO: remove methods using configurationCheck, it does not provide detailed error message
   def runTestByLocation(lineNumber: Int, offset: Int, fileName: String,
                         configurationCheck: RunnerAndConfigurationSettings => Boolean,
                         testTreeCheck: AbstractTestProxy => Boolean,
-                        expectedText: String = "OK", debug: Boolean = false, duration: Int = 10000,
-                        checkOutputs: Boolean = false): Unit = {
+                        expectedText: String = "OK",
+                        debug: Boolean = false,
+                        duration: Int = 10000,
+                        checkOutputs: Boolean = false): Unit =
+    runTestByLocation2(
+      lineNumber, offset, fileName,
+      assertFromCheck(configurationCheck),
+      assertFromCheck(testTreeCheck),
+      expectedText, debug, duration, checkOutputs
+    )
 
+  def runTestByLocation2(lineNumber: Int, offset: Int, fileName: String,
+                         configurationAssert: RunnerAndConfigurationSettings => Unit,
+                         testTreeAssert: AbstractTestProxy => Unit,
+                         expectedText: String = "OK",
+                         debug: Boolean = false,
+                         duration: Int = 10000,
+                         checkOutputs: Boolean = false): Unit = {
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
-
-    runTestByConfig(runConfig, configurationCheck, testTreeCheck, expectedText, debug, duration, checkOutputs)
+    runTestByConfig2(runConfig, configurationAssert, testTreeAssert, expectedText, debug, duration, checkOutputs)
   }
 
   def runTestByConfig(runConfig: RunnerAndConfigurationSettings,
                       configurationCheck: RunnerAndConfigurationSettings => Boolean,
                       testTreeCheck: AbstractTestProxy => Boolean,
                       expectedText: String = "OK", debug: Boolean = false, duration: Int = 10000,
-                      checkOutputs: Boolean = false): Unit = {
-    val (res, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig, checkOutputs, duration, debug)
+                      checkOutputs: Boolean = false): Unit =
+    runTestByConfig2(
+      runConfig,
+      assertFromCheck(configurationCheck),
+      assertFromCheck(testTreeCheck),
+      expectedText, checkOutputs
+    )
+
+  def runTestByConfig2(runConfig: RunnerAndConfigurationSettings,
+                       configurationAssert: RunnerAndConfigurationSettings => Unit,
+                       testTreeAssert: AbstractTestProxy => Unit,
+                       expectedText: String = "OK", debug: Boolean = false, duration: Int = 10000,
+                       checkOutputs: Boolean = false): Unit = {
+    val (res, testTreeRoot) = runTestFromConfig(configurationAssert, runConfig, checkOutputs, duration, debug)
 
     val semaphore = new Semaphore
     semaphore.down()
@@ -194,11 +219,24 @@ trait IntegrationTest {
     semaphore.waitFor()
 
     assertTrue(s"testTreeRoot not defined", testTreeRoot.isDefined)
-    assertTrue(s"testTreeCheck failed for root ${testTreeRoot.get}", testTreeCheck(testTreeRoot.get))
+    testTreeAssert(testTreeRoot.get)
 
     if (checkOutputs) {
       assertTrue(s"output was '$res' expected to contain '$expectedText'", res.contains(expectedText))
     }
+  }
+
+  protected def checkFromAssert(assertBody: => Unit): Boolean =
+    Try(assertBody).map(_ => true)
+      .recover { case _: AssertionError => false }
+      .get
+
+  protected def assertFromCheck(configurationCheck: RunnerAndConfigurationSettings => Boolean): RunnerAndConfigurationSettings => Unit = { runConfig =>
+    assertTrue(s"config check failed for ${runConfig.getName}", configurationCheck(runConfig))
+  }
+
+  protected def assertFromCheck(testTreeCheck: AbstractTestProxy => Boolean)(implicit d: DummyImplicit): AbstractTestProxy => Unit = { testTreeRoot =>
+    assertTrue(s"testTreeCheck failed for root ${testTreeRoot}", testTreeCheck(testTreeRoot))
   }
 
   def runDuplicateConfigTest(lineNumber: Int, offset: Int, fileName: String,
@@ -218,7 +256,7 @@ trait IntegrationTest {
                         sourceLine: Int): Unit = {
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
 
-    val (_, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig)
+    val (_, testTreeRoot) = runTestFromConfig(assertFromCheck(configurationCheck), runConfig)
 
     assertTrue("testTreeRoot not defined", testTreeRoot.isDefined)
     EdtTestUtil.runInEdtAndWait(() => checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine))

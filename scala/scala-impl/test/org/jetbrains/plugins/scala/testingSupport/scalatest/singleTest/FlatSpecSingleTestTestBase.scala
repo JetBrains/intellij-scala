@@ -8,7 +8,7 @@ trait FlatSpecSingleTestTestBase extends ScalaTestTestCase {
   protected def doTest(fileName: String, testClassName: String)
                       (lineNumber: Int, offset: Int)
                       (expectedTestName: String, expectedTestPath: Seq[String]): Unit = {
-    runTestByLocation(
+    runTestByLocation2(
       lineNumber, offset, fileName,
       configAndSettings => {
         assertConfigAndSettings(configAndSettings, testClassName, expectedTestName)
