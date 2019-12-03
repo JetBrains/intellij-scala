@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.testingSupport.uTest;
 
 import org.jetbrains.plugins.scala.testingSupport.MyJavaConverters;
+import scala.Function2;
 import scala.collection.Seq;
 import scala.runtime.BoxedUnit;
 import utest.TestRunner;
+import utest.TestRunner$;
 import utest.Tests;
 import utest.framework.*;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,7 +18,7 @@ import java.util.*;
 public final class UTestSuite540Runner extends UTestSuiteRunner {
 
   @Override
-  public String doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
+  public void doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) throws UTestRunExpectedError {
     Collection<UTestPath> testsToRun;
     Class clazz;
     Object testObject;
@@ -24,11 +27,11 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
       Class testObjClass = Class.forName(className + "$");
       testObject = testObjClass.getField("MODULE$").get(null);
     } catch (ClassNotFoundException e) {
-      return "ClassNotFoundException for " + className + ": " + e.getMessage();
+      throw expectedError(e.getClass().getSimpleName() + " for " + className + ": " + e.getMessage());
     } catch (IllegalAccessException e) {
-      return "IllegalAccessException for instance field of " + className + ": " + e.getMessage();
+      throw expectedError(e.getClass().getSimpleName() + " for instance field of " + className + ": " + e.getMessage());
     } catch (NoSuchFieldException e) {
-      return "ClassNotFoundException for instance field of  " + className + ": " + e.getMessage();
+      throw expectedError(e.getClass().getSimpleName() + " for instance field of  " + className + ": " + e.getMessage());
     }
 
     if (!tests.isEmpty()) {
@@ -57,10 +60,10 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
         assert(Modifier.isStatic(test.getModifiers()));
         testTree = (Tests) test.invoke(null);
       } catch (IllegalAccessException e) {
-        return "IllegalAccessException on test initialization for " + clazz.getName() + ": " + e.getMessage();
+        throw expectedError(e.getClass().getSimpleName() + " on test initialization for " + clazz.getName() + ": " + e.getMessage());
       } catch (InvocationTargetException e) {
         e.printStackTrace();
-        return "InvocationTargetException on test initialization for " + clazz.getName() + ": " + e.getMessage();
+        throw expectedError(e.getClass().getSimpleName() + " on test initialization for " + clazz.getName() + ": " + e.getMessage());
       }
 
 
@@ -68,7 +71,7 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
       Tree<String> current = testTree.nameTree();
       for (String name : testPath.getPath()) {
         boolean changed = false;
-        for (scala.collection.Iterator<Tree<String>> it = current.children().iterator(); it.hasNext();) {
+        for (scala.collection.Iterator<Tree<String>> it =getChildren(current).iterator(); it.hasNext();) {
           Tree<String> child = it.next();
           if (child.value().equals(name)) {
             current = child;
@@ -97,7 +100,8 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
         }
       }
 
-      scala.Function2<Seq<String>, Result, BoxedUnit> reportFunction = getReportFunction(reporter, testPath.getMethodPath(), leafTests, childrenCount);
+      scala.Function2<scala.collection.Seq<String>, Result, BoxedUnit> reportFunction =
+          getReportFunction(reporter, testPath.getMethodPath(), leafTests, childrenCount);
 
       Tree<String> subtree = findSubtree(resolveResult.nameTree(), testPath);
       List<Tree<String>> treeList = new LinkedList<Tree<String>>();
@@ -105,6 +109,12 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
         treeList.add(subtree);
       }
 
+      runAsync(testObject, resolveResult, reportFunction, treeList);
+    }
+  }
+
+  private void runAsync(Object testObject, Tests resolveResult, Function2<Seq<String>, Result, BoxedUnit> reportFunction, List<Tree<String>> treeList) throws UTestRunExpectedError {
+    try {
       TestRunner.runAsync(
           resolveResult,
           reportFunction,
@@ -112,17 +122,43 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
           (Executor) testObject,
           ExecutionContext.RunNow$.MODULE$
       );
+    } catch (NoSuchMethodError error) {
+      runAsync_13(testObject, resolveResult, reportFunction, treeList);
     }
-
-    return null;
   }
 
-  private Tree<String> findSubtree(Tree<String> root, UTestPath path) {
+  @SuppressWarnings({"JavaReflectionMemberAccess", "JavaReflectionInvocation"})
+  private void runAsync_13(Object testObject, Tests resolveResult, Function2<scala.collection.Seq<String>, Result, BoxedUnit> reportFunction, List<Tree<String>> treeList) throws UTestRunExpectedError {
+    try {
+      Class<? extends TestRunner$> runnerClazz = TestRunner$.MODULE$.getClass();
+      Class<?>[] paramTypes = {
+          Tests.class,
+          Function2.class,
+          scala.collection.immutable.Seq.class,
+          Executor.class,
+          scala.concurrent.ExecutionContext.class
+      };
+      Object[] paramValues = {
+        resolveResult,
+          reportFunction,
+          MyJavaConverters.toScala(treeList),
+          testObject,
+          ExecutionContext.RunNow$.MODULE$
+      };
+      Method method = runnerClazz.getDeclaredMethod("runAsync", paramTypes);
+      method.invoke(TestRunner$.MODULE$, paramValues);
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+      throw expectedError(errorMessage(e));
+    }
+  }
+
+  private Tree<String> findSubtree(Tree<String> root, UTestPath path) throws UTestRunExpectedError {
     Tree<String> current = root;
     List<String> walkupNodes = new LinkedList<String>();
     if (path.getPath().isEmpty()) return null;
     for (String node: path.getPath()) {
-      scala.collection.Seq<Tree<String>> children = current.children();
+      scala.collection.Seq<Tree<String>> children = getChildren(current);
       boolean changed = false;
       for (scala.collection.Iterator<Tree<String>> it = children.iterator(); it.hasNext();) {
         Tree<String> check = it.next();
@@ -141,14 +177,37 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
     for (String walkup : walkupNodes) {
       List<Tree<String>> dummyList = new LinkedList<Tree<String>>();
       dummyList.add(current);
-      current = new Tree<>(walkup, MyJavaConverters.toScala(dummyList));
+      current = newTree(walkup, dummyList);
     }
     return current;
   }
 
-  private void traverseTestTreeDown(Tree<String> names, UTestPath currentPath, List<UTestPath> leafTests) {
-    //TODO fix this highlighting error
-    scala.collection.Seq<Tree<String>> children = names.children();
+  private Tree<String> newTree(String walkup, List<Tree<String>> children) throws UTestRunExpectedError {
+    scala.collection.immutable.List<Tree<String>> childrenScala = MyJavaConverters.toScala(children);
+    Tree<String> tree;
+    try {
+      tree = new Tree<>(walkup, childrenScala);
+    } catch (NoSuchMethodError error) {
+      tree = newTree_213(walkup, childrenScala);
+    }
+    return tree;
+  }
+
+  @SuppressWarnings({"rawtypes", "JavaReflectionMemberAccess", "unchecked"})
+  private <T> Tree<T> newTree_213(T walkup, scala.collection.immutable.List<Tree<String>> childrenScala) throws UTestRunExpectedError {
+    try {
+      Class<Tree> clazz = Tree.class;
+      Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.immutable.Seq.class);
+      return (Tree<T>) constructor.newInstance(walkup, childrenScala);
+    } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      e.printStackTrace();
+      throw expectedError(errorMessage(e));
+    }
+  }
+
+  private void traverseTestTreeDown(Tree<String> names, UTestPath currentPath, List<UTestPath> leafTests) throws UTestRunExpectedError {
+    scala.collection.Seq<Tree<String>> children = getChildren(names);
+
     if (children.isEmpty()) {
       leafTests.add(currentPath);
     } else {
@@ -157,5 +216,33 @@ public final class UTestSuite540Runner extends UTestSuiteRunner {
         traverseTestTreeDown(child, currentPath.append(child.value()), leafTests);
       }
     }
+  }
+
+  private scala.collection.Seq<Tree<String>> getChildren(Tree<String> names) throws UTestRunExpectedError {
+    scala.collection.Seq<Tree<String>> children;
+    try {
+      children = names.children();
+    } catch (NoSuchMethodError error) {
+      children = getChildren_2_13(names);
+    }
+    return children;
+  }
+
+  @SuppressWarnings("unchecked")
+  private scala.collection.Seq<Tree<String>> getChildren_2_13(Tree<String> names) throws UTestRunExpectedError {
+    scala.collection.Seq<Tree<String>> children;
+    try {
+      Class<?> clazz = names.getClass();
+      Method method = clazz.getMethod("children");
+      children = (scala.collection.Seq<Tree<String>>) method.invoke(names);
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+      throw expectedError(errorMessage(e));
+    }
+    return children;
+  }
+
+  private String errorMessage(ReflectiveOperationException e) {
+    return e.getClass().getSimpleName() + ": " + e.getMessage();
   }
 }

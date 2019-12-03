@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.uTest;
 
+import org.jetbrains.plugins.scala.testingSupport.MyJavaConverters;
 import scala.collection.Seq;
 import scala.runtime.BoxedUnit;
 import utest.framework.Result;
@@ -13,13 +14,18 @@ import static org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner.getCl
 public abstract class UTestSuiteRunner {
 
   final void runTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
-    String errorMessage = doRunTestSuites(className, tests, reporter);
-    if (errorMessage != null) {
-      reporter.reportError(errorMessage);
+    try {
+      doRunTestSuites(className, tests, reporter);
+    } catch (UTestRunExpectedError expectedError) {
+      reporter.reportError(expectedError.getMessage());
     }
-  };
+  }
 
-  abstract protected String doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter);
+  protected UTestRunExpectedError expectedError(String message) {
+    return new UTestRunExpectedError(message);
+  }
+
+  abstract protected void doRunTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) throws UTestRunExpectedError;
 
   static Class getTreeClass() {
     return getClassByFqn("Failed to load Tree class from uTest libary.", "utest.util.Tree", "utest.framework.Tree");
@@ -52,7 +58,7 @@ public abstract class UTestSuiteRunner {
       public BoxedUnit apply(Seq < String > seq, Result result) {
         synchronized(reporter) {
           //this is a temporary implementation
-          List<String> resSeq = scala.collection.JavaConversions.seqAsJavaList(seq);
+          List<String> resSeq = MyJavaConverters.toJava(seq);
           UTestPath resTestPath = testPath.append(resSeq);
           boolean isLeafTest = leafTests.contains(resTestPath);
 
