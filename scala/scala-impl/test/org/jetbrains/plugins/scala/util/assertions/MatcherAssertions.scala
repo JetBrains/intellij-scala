@@ -4,6 +4,8 @@ import org.jetbrains.plugins.scala.annotator.Message
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.junit.Assert
 
+import scala.reflect.ClassTag
+
 trait MatcherAssertions extends FailableTest {
 
   def assertNothing[T](actual: Option[T]): Unit =
@@ -29,4 +31,13 @@ trait MatcherAssertions extends FailableTest {
 
   def assertMessagesSorted(actual: List[Message])(expected: Message*): Unit =
     assertMessages(actual.sorted)(expected.sorted: _*)
+
+  def assertIsA[T](obj: Object)(implicit classTag: ClassTag[T]): T =
+    if (classTag.runtimeClass.isInstance(obj)) {
+      obj.asInstanceOf[T]
+    } else {
+      Assert.fail(s"wrong object class\nexpected ${classTag.runtimeClass.getName}\nactual:${obj.getClass.getName}").asInstanceOf[Nothing]
+    }
 }
+
+object MatcherAssertions extends MatcherAssertions
