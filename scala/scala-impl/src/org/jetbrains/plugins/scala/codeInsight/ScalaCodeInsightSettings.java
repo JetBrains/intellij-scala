@@ -16,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
     public static final boolean SHOW_TYPE_HINTS_DEFAULT = true;
-    public static final boolean SHOW_FUNCTION_RETURN_TYPE_DEFAULT = true;
-    public static final boolean SHOW_PROPERTY_TYPE_DEFAULT = false;
+    public static final boolean SHOW_METHOD_RESULT_TYPE_DEFAULT = true;
+    public static final boolean SHOW_MEMBER_VARIABLE_TYPE_DEFAULT = false;
     public static final boolean SHOW_LOCAL_VARIABLE_TYPE_DEFAULT = false;
     public static final boolean SHOW_METHOD_CHAIN_INLAY_HINTS_DEFAULT = true;
     public static final boolean ALIGN_METHOD_CHAIN_INLAY_HINTS_DEFAULT = true;
@@ -35,8 +35,10 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     //private fields are not serialized
     public boolean showTypeHints = SHOW_TYPE_HINTS_DEFAULT;
-    public boolean showFunctionReturnType = SHOW_FUNCTION_RETURN_TYPE_DEFAULT;
-    public boolean showPropertyType = SHOW_PROPERTY_TYPE_DEFAULT;
+    // TODO Rename to "showMethodResultType" (setting format upgrade is required)
+    public boolean showFunctionReturnType = SHOW_METHOD_RESULT_TYPE_DEFAULT;
+    // TODO Rename to "showMemberVariableType" (setting format upgrade is required)
+    public boolean showPropertyType = SHOW_MEMBER_VARIABLE_TYPE_DEFAULT;
     public boolean showLocalVariableType = SHOW_LOCAL_VARIABLE_TYPE_DEFAULT;
     public boolean showMethodChainInlayHints = SHOW_METHOD_CHAIN_INLAY_HINTS_DEFAULT;
     public boolean alignMethodChainInlayHints = ALIGN_METHOD_CHAIN_INLAY_HINTS_DEFAULT;
@@ -54,19 +56,19 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return value -> showTypeHints = value;
     }
 
-    public Getter<Boolean> showFunctionReturnTypeGetter() {
+    public Getter<Boolean> showMethodResultTypeGetter() {
         return () -> showFunctionReturnType;
     }
 
-    public Setter<Boolean> showFunctionReturnTypeSetter() {
+    public Setter<Boolean> showMethodResultTypeSetter() {
         return value -> showFunctionReturnType = value;
     }
 
-    public Getter<Boolean> showPropertyTypeGetter() {
+    public Getter<Boolean> showMemberVariableTypeGetter() {
         return () -> showPropertyType;
     }
 
-    public Setter<Boolean> showPropertyTypeSetter() {
+    public Setter<Boolean> showMemberVariableSetter() {
         return value -> showPropertyType = value;
     }
 

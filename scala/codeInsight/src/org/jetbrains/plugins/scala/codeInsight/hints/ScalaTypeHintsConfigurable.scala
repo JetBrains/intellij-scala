@@ -34,14 +34,14 @@ object ScalaTypeHintsConfigurable {
     ScalaCodeInsightSettings.showTypeHintsSetter
   )
 
-  class ToggleFunctionReturnTypeAction extends ToggleTypeAction(
-    ScalaCodeInsightSettings.showFunctionReturnTypeGetter,
-    ScalaCodeInsightSettings.showFunctionReturnTypeSetter
+  class ToggleMethodResultTypeAction extends ToggleTypeAction(
+    ScalaCodeInsightSettings.showMethodResultTypeGetter,
+    ScalaCodeInsightSettings.showMethodResultTypeSetter
   )
 
-  class TogglePropertyTypeAction extends ToggleTypeAction(
-    ScalaCodeInsightSettings.showPropertyTypeGetter,
-    ScalaCodeInsightSettings.showPropertyTypeSetter
+  class ToggleMemberVariableTypeAction extends ToggleTypeAction(
+    ScalaCodeInsightSettings.showMemberVariableTypeGetter,
+    ScalaCodeInsightSettings.showMemberVariableSetter
   )
 
   class ToggleLocalVariableTypeAction extends ToggleTypeAction(

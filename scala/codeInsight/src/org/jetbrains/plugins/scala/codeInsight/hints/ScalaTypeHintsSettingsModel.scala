@@ -21,49 +21,49 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
-    var showFunctionReturnType: Boolean = _
-    var showPropertyType: Boolean = _
+    var showMethodResultType: Boolean = _
+    var showMemberVariableType: Boolean = _
     var showLocalVariableType: Boolean = _
 
     reset()
 
     def reset(): Unit = {
       setEnabled(global.showTypeHints)
-      showFunctionReturnType = global.showFunctionReturnType
-      showPropertyType = global.showPropertyType
+      showMethodResultType = global.showFunctionReturnType
+      showMemberVariableType = global.showPropertyType
       showLocalVariableType = global.showLocalVariableType
     }
 
     def apply(): Unit = {
       global.showTypeHints = isEnabled
-      global.showFunctionReturnType = showFunctionReturnType
-      global.showPropertyType = showPropertyType
+      global.showFunctionReturnType = showMethodResultType
+      global.showPropertyType = showMemberVariableType
       global.showLocalVariableType = showLocalVariableType
     }
 
     def isModified: Boolean =
       global.showTypeHints != isEnabled ||
-        global.showFunctionReturnType != showFunctionReturnType ||
-        global.showPropertyType != showPropertyType ||
+        global.showFunctionReturnType != showMethodResultType ||
+        global.showPropertyType != showMemberVariableType ||
         global.showLocalVariableType != showLocalVariableType
   }
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
     new ImmediateConfigurable.Case(
       "Member variables",
-      "Scala.ScalaTypeHintsSettingsModel.showPropertyType",
-      () => settings.showPropertyType,
+      "Scala.ScalaTypeHintsSettingsModel.showMemberVariableType",
+      () => settings.showMemberVariableType,
       b => {
-        settings.showPropertyType = b
+        settings.showMemberVariableType = b
         kUnit
       },
       null),
     new ImmediateConfigurable.Case(
       "Method results",
-      "Scala.ScalaTypeHintsSettingsModel.showFunctionReturnType",
-      () => settings.showFunctionReturnType,
+      "Scala.ScalaTypeHintsSettingsModel.showMethodResultType",
+      () => settings.showMethodResultType,
       b => {
-        settings.showFunctionReturnType = b
+        settings.showMethodResultType = b
         kUnit
       },
       null),
@@ -107,8 +107,8 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
 
   override def collectAndApply(editor: Editor, psiFile: PsiFile): Unit = {
     val previewPass = new ImplicitHintsPass(editor, psiFile.asInstanceOf[ScalaFile], new hints.ScalaHintsSettings.Defaults {
-      override def showFunctionReturnType: Boolean = settings.showFunctionReturnType
-      override def showPropertyType: Boolean = settings.showPropertyType
+      override def showMethodResultType: Boolean = settings.showMethodResultType
+      override def showMemberVariableType: Boolean = settings.showMemberVariableType
       override def showLocalVariableType: Boolean = settings.showLocalVariableType
       override def showMethodChainInlayHints: Boolean = false
       override def showObviousType: Boolean = true // always show obvious types in the preview

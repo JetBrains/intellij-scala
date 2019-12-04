@@ -18,7 +18,7 @@ private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
   import hintsSettings._
 
   protected def collectTypeHints(editor: Editor, root: PsiElement): Seq[Hint] = {
-    if (editor.isOneLineMode || !(showFunctionReturnType || showPropertyType || showLocalVariableType)) Seq.empty
+    if (editor.isOneLineMode || !(showMethodResultType || showMemberVariableType || showLocalVariableType)) Seq.empty
     else {
       for {
         element <- root.elements
@@ -26,7 +26,7 @@ private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
         (tpe, body) <- typeAndBodyOf(definition)
         if !ScMethodType.hasMethodType(body)
         if showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
-        info <- inlayInfoFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element))
+        info <- hintFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element))
       } yield info
     }.toSeq
   }
@@ -42,15 +42,15 @@ private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
   } yield (tpe, body)
 
   private def typeOf(member: ScValueOrVariable): Option[ScType] = {
-    val flag = if (member.isLocal) showLocalVariableType else showPropertyType
+    val flag = if (member.isLocal) showLocalVariableType else showMemberVariableType
     if (flag) member.`type`().toOption else None
   }
 
   private def typeOf(member: ScFunction): Option[ScType] =
-    if (showFunctionReturnType) member.returnType.toOption else None
+    if (showMethodResultType) member.returnType.toOption else None
 
 
-  private def inlayInfoFor(definition: Definition, returnType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Option[Hint] = for {
+  private def hintFor(definition: Definition, returnType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Option[Hint] = for {
     anchor <- definition.parameterList
     suffix = definition match {
       case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => Seq(Text(" ="))
