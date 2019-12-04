@@ -39,12 +39,12 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true
 
   override def getCases: util.List[ImmediateConfigurable.Case] = util.Collections.emptyList()
 
-  private lazy val presentationLengthPanel = new PresentationLengthSettingsPanel(
+  private lazy val generalSettingsPanel = new GeneralSettingsPanel(
     () => settings.preserveIndents, settings.preserveIndents = _,
     () => settings.presentationLength, settings.presentationLength = _
   )
 
-  override def getComponent: JComponent = presentationLengthPanel.getPanel
+  override def getComponent: JComponent = generalSettingsPanel.getPanel
 
   override def getMainCheckBoxLabel: String = "Show types even if they are obvious"
 
@@ -63,6 +63,6 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true
 
   override def reset(): Unit = {
     settings.reset()
-    presentationLengthPanel.reset()
+    generalSettingsPanel.reset()
   }
 }

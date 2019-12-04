@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.MAX_PRESENTATION_LENGTH;
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.MIN_PRESENTATION_LENGTH;
 
-public final class PresentationLengthSettingsPanel {
+final class GeneralSettingsPanel {
 
     private JCheckBox preserveIndentsCheckBox;
     private JPanel panel;
@@ -22,8 +22,9 @@ public final class PresentationLengthSettingsPanel {
     private final Supplier<Boolean> preserveIndentsGetter;
     private final Supplier<Integer> presentationLengthGetter;
 
-    public PresentationLengthSettingsPanel(Supplier<Boolean> preserveIndentsGetter, Consumer<Boolean> preserveIndentsSetter,
-                                           Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
+    // TODO Just use public fields?
+    public GeneralSettingsPanel(Supplier<Boolean> preserveIndentsGetter, Consumer<Boolean> preserveIndentsSetter,
+                                Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
         this.preserveIndentsGetter = preserveIndentsGetter;
         this.presentationLengthGetter = presentationLengthGetter;
         presentationLengthModel = new SpinnerNumberModel();
