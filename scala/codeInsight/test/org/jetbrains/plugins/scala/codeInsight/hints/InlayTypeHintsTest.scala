@@ -68,6 +68,26 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
     s"""  def foo() = List.empty[String]"""
   )
 
+  def testPreserveIndentSingleWhitespaces(): Unit = doTest(
+    s"  val v$S: Int$E = 1",
+    options = settings.showPropertyTypeSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentNoWhitespaces(): Unit = doTest(
+    s"  val v$S: Int$E=1",
+    options = settings.showPropertyTypeSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentAdditionalWhitespacesBeforeEquals(): Unit = doTest(
+    s"  val v  = 123",
+    options = settings.showPropertyTypeSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentAdditionalWhitespacesAfterEquals(): Unit = doTest(
+    s"  val v =  123",
+    options = settings.showPropertyTypeSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
   private def doTest(text: String, options: Setter[java.lang.Boolean]*): Unit = {
     def setOptions(value: Boolean): Unit = options.foreach(_.set(value))
 

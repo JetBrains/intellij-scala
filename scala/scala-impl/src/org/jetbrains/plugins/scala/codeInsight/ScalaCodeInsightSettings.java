@@ -24,6 +24,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public static final int UNIQUE_TYPES_TO_SHOW_METHOD_CHAINS_DEFAULT = 3;
     public static final int PRESENTATION_LENGTH_DEFAULT = 45;
     public static final boolean SHOW_OBVIOUS_TYPE_DEFAULT = false;
+    public static final boolean PRESERVE_INDENTS_DEFAULT = true;
 
     public static final int MIN_PRESENTATION_LENGTH = 1;
     public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE;
@@ -42,6 +43,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public int uniqueTypesToShowMethodChains = UNIQUE_TYPES_TO_SHOW_METHOD_CHAINS_DEFAULT;
     public int presentationLength = PRESENTATION_LENGTH_DEFAULT;
     public boolean showObviousType = SHOW_OBVIOUS_TYPE_DEFAULT;
+    public boolean preserveIndents = PRESERVE_INDENTS_DEFAULT;
 
 
     public Getter<Boolean> showTypeHintsGetter() {
@@ -114,6 +116,14 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Boolean> showObviousTypeSetter() {
         return value -> showObviousType = value;
+    }
+
+    public Getter<Boolean> preserveIndentsGetter() {
+        return () -> preserveIndents;
+    }
+
+    public Setter<Boolean> preserveIndentsSetter() {
+        return value -> preserveIndents = value;
     }
 
     @NotNull

@@ -10,6 +10,7 @@ trait ScalaHintsSettings {
   def uniqueTypesToShowMethodChains: Int
   def presentationLength: Int
   def showObviousType: Boolean
+  def preserveIndents: Boolean
 }
 
 object ScalaHintsSettings {
@@ -22,6 +23,7 @@ object ScalaHintsSettings {
     override def uniqueTypesToShowMethodChains: Int = ScalaCodeInsightSettings.UNIQUE_TYPES_TO_SHOW_METHOD_CHAINS_DEFAULT
     override def presentationLength: Int = ScalaCodeInsightSettings.PRESENTATION_LENGTH_DEFAULT
     override def showObviousType: Boolean = ScalaCodeInsightSettings.SHOW_OBVIOUS_TYPE_DEFAULT
+    override def preserveIndents: Boolean = ScalaCodeInsightSettings.PRESERVE_INDENTS_DEFAULT
   }
 
   class CodeInsightSettingsAdapter extends ScalaHintsSettings {
@@ -35,5 +37,6 @@ object ScalaHintsSettings {
     override def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
     override def presentationLength: Int = settings.presentationLength
     override def showObviousType: Boolean = settings.showObviousType
+    override def preserveIndents: Boolean = settings.preserveIndents
   }
 }

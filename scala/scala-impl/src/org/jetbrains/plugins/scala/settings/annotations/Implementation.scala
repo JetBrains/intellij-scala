@@ -60,6 +60,12 @@ sealed abstract class Definition extends Implementation {
   override def bodyCandidate: Option[ScExpression] = None
 
   override protected def returnCandidates: Iterator[PsiElement] = Iterator.empty
+
+  def hasCustomIndents: Boolean = assignment.exists { it =>
+    (it.prevSibling ++ it.nextSibling).exists(_.getText.count(_ == ' ') > 1)
+  }
+
+  protected def assignment: Option[PsiElement] = None
 }
 
 object Definition {
@@ -82,6 +88,8 @@ object Definition {
     override def parameterList: Option[ScalaPsiElement] =
       if (value.hasExplicitType) None
       else Some(value.pList)
+
+    override protected def assignment: Option[PsiElement] = value.assignment
   }
 
   case class VariableDefinition(variable: ScVariableDefinition) extends Definition {
@@ -95,6 +103,8 @@ object Definition {
     override def parameterList: Option[ScalaPsiElement] =
       if (variable.hasExplicitType) None
       else Some(variable.pList)
+
+    override protected def assignment: Option[PsiElement] = variable.assignment
   }
 
   case class FunctionDefinition(function: ScFunctionDefinition) extends Definition {
@@ -111,6 +121,8 @@ object Definition {
 
     override protected def returnCandidates: Iterator[PsiElement] =
       function.returnUsages.iterator
+
+    override protected def assignment: Option[PsiElement] = function.assignment
   }
 
 }

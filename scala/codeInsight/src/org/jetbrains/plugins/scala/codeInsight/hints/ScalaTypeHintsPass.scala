@@ -22,7 +22,7 @@ private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
     else {
       for {
         element <- root.elements
-        definition = Definition(element)
+        definition = Definition(element) if !(preserveIndents && definition.hasCustomIndents)
         (tpe, body) <- typeAndBodyOf(definition)
         if !ScMethodType.hasMethodType(body)
         if showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))

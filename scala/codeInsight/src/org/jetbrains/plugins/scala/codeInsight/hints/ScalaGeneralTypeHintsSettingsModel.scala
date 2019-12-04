@@ -14,30 +14,34 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
 
+    var preserveIndents: Boolean = _
     var presentationLength: Int = _
 
     reset()
 
     def reset(): Unit = {
       setEnabled(global.showObviousType)
+      preserveIndents = global.preserveIndents
       presentationLength = global.presentationLength
     }
 
     def apply(): Unit = {
       global.showObviousType = isEnabled
+      global.preserveIndents = preserveIndents
       global.presentationLength = presentationLength
     }
 
     def isModified: Boolean =
       global.showObviousType != isEnabled ||
+        global.preserveIndents != preserveIndents ||
         global.presentationLength != presentationLength
   }
 
   override def getCases: util.List[ImmediateConfigurable.Case] = util.Collections.emptyList()
 
   private lazy val presentationLengthPanel = new PresentationLengthSettingsPanel(
-    () => settings.presentationLength,
-    settings.presentationLength = _
+    () => settings.preserveIndents, settings.preserveIndents = _,
+    () => settings.presentationLength, settings.presentationLength = _
   )
 
   override def getComponent: JComponent = presentationLengthPanel.getPanel

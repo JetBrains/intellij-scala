@@ -14,12 +14,17 @@ import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.M
 
 public final class PresentationLengthSettingsPanel {
 
+    private JCheckBox preserveIndentsCheckBox;
     private JPanel panel;
     private SpinnerNumberModel presentationLengthModel;
     private JSpinner presentationLengthSpinner;
+
+    private final Supplier<Boolean> preserveIndentsGetter;
     private final Supplier<Integer> presentationLengthGetter;
 
-    public PresentationLengthSettingsPanel(Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
+    public PresentationLengthSettingsPanel(Supplier<Boolean> preserveIndentsGetter, Consumer<Boolean> preserveIndentsSetter,
+                                           Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
+        this.preserveIndentsGetter = preserveIndentsGetter;
         this.presentationLengthGetter = presentationLengthGetter;
         presentationLengthModel = new SpinnerNumberModel();
         $$$setupUI$$$();
@@ -27,10 +32,12 @@ public final class PresentationLengthSettingsPanel {
         presentationLengthModel.setMaximum(MAX_PRESENTATION_LENGTH);
         presentationLengthModel.setStepSize(1);
         reset();
+        preserveIndentsCheckBox.addActionListener((e) -> preserveIndentsSetter.accept(preserveIndentsCheckBox.isSelected()));
         presentationLengthModel.addChangeListener((e) -> presentationLengthSetter.accept(presentationLengthModel.getNumber().intValue()));
     }
 
     public void reset() {
+        preserveIndentsCheckBox.setSelected(preserveIndentsGetter.get());
         presentationLengthModel.setValue(presentationLengthGetter.get());
     }
 
@@ -53,18 +60,21 @@ public final class PresentationLengthSettingsPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         panel = new JPanel();
-        panel.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+        panel.setLayout(new GridLayoutManager(3, 4, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
         label1.setText("Limit hint length to");
-        panel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel.add(presentationLengthSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(presentationLengthSpinner, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("characters");
-        panel.add(label2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label2, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel.add(spacer1, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        panel.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel.add(spacer2, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        preserveIndentsCheckBox = new JCheckBox();
+        preserveIndentsCheckBox.setText("Preserve custom indents");
+        panel.add(preserveIndentsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(presentationLengthSpinner);
     }
 
