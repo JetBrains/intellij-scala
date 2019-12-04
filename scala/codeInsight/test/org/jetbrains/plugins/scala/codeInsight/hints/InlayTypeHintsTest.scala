@@ -88,6 +88,11 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
   )
 
+  def testPreserveIndentGroup(): Unit = doTest(
+    s"  val a$S: Int$E = 1\n  val b$S: Int$E = 2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
   def testPreserveIndentGroupBefore(): Unit = doTest(
     s"  val a =  1\n  val b = 2",
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
@@ -105,6 +110,16 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
 
   def testPreserveIndentEmptyLineAfter(): Unit = doTest(
     s"  val a$S: Int$E = 1\n\n  val b =  2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentSemicolonBefore(): Unit = doTest(
+    s"  val a =  1; val b$S: Int$E = 2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentSemicolonAfter(): Unit = doTest(
+    s"  val a$S: Int$E = 1; val b =  2",
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
   )
 

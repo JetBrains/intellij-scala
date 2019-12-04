@@ -74,7 +74,7 @@ final class GeneralSettingsPanel {
         final Spacer spacer2 = new Spacer();
         panel.add(spacer2, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         preserveIndentsCheckBox = new JCheckBox();
-        preserveIndentsCheckBox.setText("Preserve custom indents");
+        preserveIndentsCheckBox.setText("Respect vertical alignment");
         panel.add(preserveIndentsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(presentationLengthSpinner);
     }

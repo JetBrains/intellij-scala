@@ -37,13 +37,10 @@ private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
     adjacentDefinitions.exists(_.hasCustomIndents)
   }
 
-  private def adjacentDefinitionsFrom(it: Iterator[PsiElement]) = {
-    val isDefinition: PsiElement => Boolean = _.is[ScPatternDefinition, ScVariableDefinition, ScFunctionDefinition]
-    val isSingleLineSeparator: PsiElement => Boolean = e => e.is[PsiWhiteSpace] && e.getText.count(_ == '\n') <= 1
-
-    it.takeWhile(e => isDefinition(e) || isSingleLineSeparator(e))
-      .filter(isDefinition)
-      .map(Definition(_))
+  private def adjacentDefinitionsFrom(it: Iterator[PsiElement]) = it.grouped(2).collect {
+    case Seq(ws: PsiWhiteSpace, definition @(_: ScPatternDefinition | _: ScVariableDefinition | _: ScFunctionDefinition))
+      if ws.getText.count(_ == '\n') == 1 =>
+      Definition(definition)
   }
 
   private def typeAndBodyOf(definition: Definition): Option[(ScType, ScExpression)] = for {
