@@ -88,6 +88,26 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
   )
 
+  def testPreserveIndentGroupBefore(): Unit = doTest(
+    s"  val a =  1\n  val b = 2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentGroupAfter(): Unit = doTest(
+    s"  val a = 1\n  val b =  2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentEmptyLineBefore(): Unit = doTest(
+    s"  val a =  1\n\n  val b$S: Int$E = 2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
+  def testPreserveIndentEmptyLineAfter(): Unit = doTest(
+    s"  val a$S: Int$E = 1\n\n  val b =  2",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
   private def doTest(text: String, options: Setter[java.lang.Boolean]*): Unit = {
     def setOptions(value: Boolean): Unit = options.foreach(_.set(value))
 

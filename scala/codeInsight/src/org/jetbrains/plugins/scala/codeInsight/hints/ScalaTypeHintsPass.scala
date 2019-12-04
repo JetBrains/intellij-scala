@@ -4,11 +4,11 @@ package hints
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Definition
@@ -22,13 +22,28 @@ private[codeInsight] trait ScalaTypeHintsPass extends ScalaHintsSettingsHolder {
     else {
       for {
         element <- root.elements
-        definition = Definition(element) if !(preserveIndents && definition.hasCustomIndents)
+        definition = Definition(element) // NB: "definition" might be in fact _any_ PsiElement (e.g. ScalaFile)
         (tpe, body) <- typeAndBodyOf(definition)
+        if !(preserveIndents && (definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
         if !ScMethodType.hasMethodType(body)
         if showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- hintFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element))
       } yield info
     }.toSeq
+  }
+
+  private def adjacentDefinitionsHaveCustomIndent(definition: PsiElement): Boolean = {
+    val adjacentDefinitions = adjacentDefinitionsFrom(definition.prevSiblings) ++ adjacentDefinitionsFrom(definition.nextSiblings)
+    adjacentDefinitions.exists(_.hasCustomIndents)
+  }
+
+  private def adjacentDefinitionsFrom(it: Iterator[PsiElement]) = {
+    val isDefinition: PsiElement => Boolean = _.is[ScPatternDefinition, ScVariableDefinition, ScFunctionDefinition]
+    val isSingleLineSeparator: PsiElement => Boolean = e => e.is[PsiWhiteSpace] && e.getText.count(_ == '\n') <= 1
+
+    it.takeWhile(e => isDefinition(e) || isSingleLineSeparator(e))
+      .filter(isDefinition)
+      .map(Definition(_))
   }
 
   private def typeAndBodyOf(definition: Definition): Option[(ScType, ScExpression)] = for {
