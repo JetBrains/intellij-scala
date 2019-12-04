@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement, override val hintsSettings: ScalaHintsSettings)
+private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaPsiElement, override val settings: ScalaHintsSettings)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false)
     with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass {
 

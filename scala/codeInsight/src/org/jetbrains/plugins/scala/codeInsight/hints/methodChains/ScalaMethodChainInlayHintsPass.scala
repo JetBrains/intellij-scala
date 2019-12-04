@@ -21,19 +21,19 @@ import org.jetbrains.plugins.scala.settings.annotations.Expression
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
-private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSettingsHolder {
-  import hintsSettings._
-
+private[codeInsight] trait ScalaMethodChainInlayHintsPass {
   private var collectedHintTemplates = Seq.empty[(Seq[AlignedHintTemplate], ScExpression)]
+
+  protected def settings: ScalaHintsSettings
 
   def collectMethodChainHints(editor: Editor, root: PsiElement): Unit =
     collectedHintTemplates =
-      if (editor.isOneLineMode || !showMethodChainInlayHints) Seq.empty
+      if (editor.isOneLineMode || !settings.showMethodChainInlayHints) Seq.empty
       else gatherMethodChainHints(editor, root)
 
   private def gatherMethodChainHints(editor: Editor, root: PsiElement): Seq[(Seq[AlignedHintTemplate], ScExpression)] = {
     val document = editor.getDocument
-    val minChainCount = math.max(2, uniqueTypesToShowMethodChains)
+    val minChainCount = math.max(2, settings.uniqueTypesToShowMethodChains)
     val builder = Seq.newBuilder[(Seq[AlignedHintTemplate], ScExpression)]
 
     def gatherFor(elem: PsiElement): Set[Int] = {
@@ -44,7 +44,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
       val isAlreadyOccupied = occupiedLines
       for {
         MethodChain(methodChain) <- Some(elem)
-        if methodChain.length >= uniqueTypesToShowMethodChains
+        if methodChain.length >= settings.uniqueTypesToShowMethodChains
 
         methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
 
@@ -64,15 +64,15 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
         if filteredMethodAndTypes.length >= minChainCount
 
         uniqueTypeCount = filteredMethodAndTypes.map { case (m, ty) => ty.presentableText(m) }.toSet.size
-        if uniqueTypeCount >= uniqueTypesToShowMethodChains
+        if uniqueTypeCount >= settings.uniqueTypesToShowMethodChains
       } {
-        val finalSelection = if (alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes
+        val finalSelection = if (settings.alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes
         val group = for ((expr, ty) <- finalSelection)
           yield new AlignedHintTemplate(textFor(expr, ty, editor)) {
             override def endOffset: Int = expr.endOffset
           }
 
-        val all = if (alignMethodChainInlayHints) {
+        val all = if (settings.alignMethodChainInlayHints) {
           val begin = document.getLineNumber(group.head.endOffset)
           val end = document.getLineNumber(group.last.endOffset)
           val grouped = group.groupBy(tmpl => tmpl.line(document)).mapValues(_.head)
@@ -125,7 +125,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
       // this is ok to test the recognition of method chain inlay hints
       // there is no need to unit test the other alternatives because they need ui tests anyway
       generateInlineHints(hintTemplates, inlayModel)
-    } else if (alignMethodChainInlayHints) {
+    } else if (settings.alignMethodChainInlayHints) {
       generateAlignedHints(hintTemplates, document, charWidth, inlayModel)
     } else {
       generateUnalignedHints(hintTemplates, charWidth, inlayModel)
@@ -154,7 +154,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
       else withoutFirst.init
 
     val withoutObvious =
-      if (showObviousType) withoutLast
+      if (settings.showObviousType) withoutLast
       else withoutLast.filterNot(hasObviousReturnType)
 
     withoutObvious
@@ -184,7 +184,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass extends ScalaHintsSett
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
-    Text(": ") +: textPartsOf(ty, presentationLength)
+    Text(": ") +: textPartsOf(ty, settings.presentationLength)
   }
 }
 
