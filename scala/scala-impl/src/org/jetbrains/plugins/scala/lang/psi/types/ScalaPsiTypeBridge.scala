@@ -135,9 +135,10 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = toPsiTypeInner(`type`, noPrimitives)
 
   private def toPsiTypeInner(`type`: ScType,
-                             noPrimitives: Boolean = false,
-                             visitedAliases: Set[ScTypeAlias] = Set.empty)
-                            (implicit visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty): PsiType = {
+                             noPrimitives: Boolean = false)
+                            (implicit
+                             visitedAliases: Set[ScTypeAlias] = Set.empty,
+                             visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
@@ -181,7 +182,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound match {
             case Right(c: ScParameterizedType) =>
-              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + typeAlias.physical)
+              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs)
             case _ => javaObject
           }
         case _ => javaObject
@@ -195,7 +196,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           }
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound.toOption
-            .map(toPsiTypeInner(_, noPrimitives, visitedAliases + typeAlias.physical))
+            .map(toPsiTypeInner(_, noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs))
             .getOrElse(javaObject)
         case _ => javaObject
       }
@@ -209,12 +210,12 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)
           else {
-            val sup: PsiType = toPsiTypeInner(lower)(visitedExistentialArgs + argument)
+            val sup: PsiType = toPsiTypeInner(lower)(visitedAliases, visitedExistentialArgs + argument)
             if (sup.isInstanceOf[PsiWildcardType]) javaObject
             else PsiWildcardType.createSuper(manager, sup)
           }
         } else {
-          val psi = toPsiTypeInner(upper)(visitedExistentialArgs + argument)
+          val psi = toPsiTypeInner(upper)(visitedAliases, visitedExistentialArgs + argument)
           if (psi.isInstanceOf[PsiWildcardType]) javaObject
           else PsiWildcardType.createExtends(manager, psi)
         }
