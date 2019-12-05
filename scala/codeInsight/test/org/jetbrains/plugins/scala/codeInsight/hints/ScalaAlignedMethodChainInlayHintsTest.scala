@@ -95,6 +95,46 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
      """.stripMargin
   )
 
+  /*
+  def testWithArgumentBlock_withLambdaParams(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .filter {$empty
+       |    _ > 2$empty
+       |  }$S: Set[Int]$E.collect { a =>
+       |    a$empty
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+*/
+  def testWithArgumentBlock_withCases(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .filter {$empty
+       |    _ > 2$empty
+       |  }$S: Set[Int]$E.collect { case a =>
+       |    a$empty
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
+  def testWithArgumentBlock_withCasesWithGuard(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .filter {$empty
+       |    _ > 2$empty
+       |  }$S: Set[Int]$E.collect { case a if true =>
+       |    a$empty
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
   def testWithArgumentBlock_withNewline(): Unit = doTest(
     s"""
        |List(1, 2, 3)$S: List[Int]$E
@@ -122,14 +162,26 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
      """.stripMargin
   )
 
+  def testWithArguments_withAndLambdaParams(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .filter {$empty
+       |    _ > 2$empty
+       |  }$S: Set[Int]$E.filter(i =>
+       |    i > 3$empty
+       |  ).toSeq$S: Seq[Int]$E
+       |  .toString$S: String$E
+     """.stripMargin
+  )
+
   def testWithArgumentBlock_withMoreOnTheSameLine(): Unit = doTest(
     s"""
        |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter {$empty
        |    _ > 2$empty
-       |  }.map { e =>$empty
-       |    e + 3$empty
+       |  }.map { e => e + 3$empty
        |  }.toSeq$S: Seq[Int]$E
        |  .toString$S: String$E
      """.stripMargin

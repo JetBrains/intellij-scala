@@ -92,6 +92,19 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
      """.stripMargin
   )
 
+  def testWithArgumentBlock_withLambdaParams(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .filter {
+       |    _ > 2
+       |  }.collect { case a =>
+       |    a
+       |  }.toSeq$S: Seq[Int]$E
+       |  .toString
+     """.stripMargin
+  )
+
   def testWithArgumentBlock_withNewline(): Unit = doTest(
     s"""
        |List(1, 2, 3)$S: List[Int]$E
@@ -119,14 +132,26 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
      """.stripMargin
   )
 
+  def testWithArguments_withAndLambdaParams(): Unit = doTest(
+    s"""
+       |List(1, 2, 3)$S: List[Int]$E
+       |  .toSet$S: Set[Int]$E
+       |  .filter {
+       |    _ > 2
+       |  }.filter(i =>
+       |    i > 3
+       |  ).toSeq$S: Seq[Int]$E
+       |  .toString
+     """.stripMargin
+  )
+
   def testWithArgumentBlock_withMoreOnTheSameLine(): Unit = doTest(
     s"""
        |List(1, 2, 3)$S: List[Int]$E
        |  .toSet$S: Set[Int]$E
        |  .filter {
        |    _ > 2
-       |  }.map { e =>
-       |    e + 3
+       |  }.map { e => e + 3
        |  }.toSeq$S: Seq[Int]$E
        |  .toString
      """.stripMargin

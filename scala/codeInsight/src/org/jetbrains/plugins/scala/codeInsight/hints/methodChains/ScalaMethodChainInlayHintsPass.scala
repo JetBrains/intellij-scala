@@ -46,7 +46,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         MethodChain(methodChain) <- Some(elem)
         if methodChain.length >= settings.uniqueTypesToShowMethodChains
 
-        methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd)
+        methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd(_, alsoAfterLambdaArg = settings.alignMethodChainInlayHints))
 
         if methodsAtLineEnd.length >= minChainCount
 
@@ -138,7 +138,6 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         case designated: DesignatorOwner => designated.element.is[PsiPackage] || designated.isSingleton
         case _ => false
       }
-
   }
 
   private def filterMethodsForUnalignedMode(methodAndTypes: Seq[(ScExpression, ScType)],
@@ -189,7 +188,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 }
 
 private object ScalaMethodChainInlayHintsPass {
-  private def isFollowedByLineEnd(elem: PsiElement): Boolean = {
+  private def isFollowedByLineEnd(elem: PsiElement, alsoAfterLambdaArg: Boolean): Boolean = {
     elem match {
       case elem if elem.followedByNewLine(ignoreComments = false) =>
         true
@@ -198,25 +197,68 @@ private object ScalaMethodChainInlayHintsPass {
         /*
          * Check if we have a situation like
          *  something
-         *   .func {         // <- don't add type here
-         *   }.func {        // <- add type here (return type of `something.func{...}`)
-         *   }.func { x =>   // <- don't add type here
+         *   .func {             // <- don't add type here
+         *   }.func {            // <- add type here (return type of `something.func{...}`)
+         *   }.func { x =>       // <- add type here iff alsoAfterLambdaArg
+         *   }.func { case x =>  // <- add type here iff alsoAfterLambdaArg
          *   }
          */
+
+        // check for: x => \n
+        def checkLambdaStart(mayBeArg: ScExpression): Boolean =
+          mayBeArg.asOptionOf[ScFunctionExpr].exists { fExpr =>
+            val params = fExpr.params
+            !params.textContains('\n') &&
+              !params.followedByNewLine(ignoreComments = false) &&
+              params.getNextSiblingNotWhitespaceComment.nullSafe
+                .exists(arrow => isArrowToken(arrow) && arrow.followedByNewLine(ignoreComments = false))
+          }
+
+        // check }.func( x => \n
+        def checkLambdaInParen: Boolean =
+          mc.args.exprs.headOption.exists(checkLambdaStart)
+
+        // check }.func { x => \n
+        def checkLamdaInBlock(blk: ScBlockExpr): Boolean =
+          blk.asSimpleExpression.exists(checkLambdaStart)
+
+        // check }.func { case x if expr => \n
+        def checkClauseInBlock(blk: ScBlockExpr): Boolean =
+          blk.caseClauses.flatMap(_.caseClause.toOption).exists(
+            clause => clause.children
+              .dropWhile(e => !e.textContains('\n') && !isArrowToken(e))
+              .headOption
+              .filter(isArrowToken)
+              .exists(_.followedByNewLine(ignoreComments = false))
+          )
+
         def isArgumentBegin = mc.args.getFirstChild match {
           case blk: ScBlockExpr =>
-            blk.getLBrace.exists(_.followedByNewLine(ignoreComments = false))
+            // check }.func {
+            blk.getLBrace.exists(_.followedByNewLine(ignoreComments = false)) ||
+              // check }.func { param =>
+              // check }.func { case param =>
+              (alsoAfterLambdaArg &&
+                (checkLamdaInBlock(blk) || checkClauseInBlock(blk))
+              )
           case firstElem if firstElem.elementType == ScalaTokenTypes.tLPARENTHESIS =>
-            firstElem.followedByNewLine(ignoreComments = false)
+            // check }.func(
+            firstElem.followedByNewLine(ignoreComments = false) ||
+              // check }.func(param =>
+              (alsoAfterLambdaArg && checkLambdaInParen)
           case _ =>
             false
         }
 
         ref.followedByNewLine(ignoreComments = false) || isArgumentBegin
-
       case _ =>
         false
     }
+  }
+
+  private def isArrowToken(elem: PsiElement): Boolean = {
+    val tt = elem.elementType
+    tt == ScalaTokenTypes.tFUNTYPE || tt == ScalaTokenTypes.tFUNTYPE_ASCII
   }
 
   private def hasObviousReturnType(methodAndTypes: (ScExpression, ScType)): Boolean = {

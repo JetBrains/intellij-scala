@@ -85,7 +85,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
   }
 
   private def delegateHolderFor(target: PsiElement, session: AnnotationSession)
-                               (implicit holder: AnnotationHolder) =
+                               (implicit holder: AnnotationHolder): DelegateAnnotationHolder with ErrorIndication =
     new DelegateAnnotationHolder(session) with ErrorIndication {
 
       override protected val element: Some[PsiElement] = Some(target)
