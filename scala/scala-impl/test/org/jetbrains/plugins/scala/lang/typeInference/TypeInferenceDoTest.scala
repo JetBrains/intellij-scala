@@ -21,6 +21,7 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
   private val fewVariantsMarker = "Few variants:"
   private val ExpectedPattern = """expected: (.*)""".r
   private val SimplifiedPattern = """simplified: (.*)""".r
+  private val JavaTypePattern = """java type: (.*)""".r
 
   def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile
 
@@ -58,6 +59,8 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
             assertEqualsFailable(expectedExpectedTypeText, actualExpectedTypeText)
           case SimplifiedPattern(expectedText) =>
             assertEqualsFailable(expectedText, ScTypePresentation.withoutAliases(ttypez))
+          case JavaTypePattern(expectedText) =>
+            assertEqualsFailable(expectedText, expr.`type`().map(_.toPsiType.getPresentableText()).getOrElse("<none>"))
           case _ => assertEqualsFailable(output, res)
         }
       case Failure(msg) if shouldPass => fail(msg)
