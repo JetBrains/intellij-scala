@@ -14,7 +14,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait, invokeLater, LoggerExt}
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.util.control.NonFatal
 
 class RunWorksheetAction extends AnAction with TopComponentAction {
 
@@ -55,11 +56,11 @@ object RunWorksheetAction {
 
   sealed trait RunWorksheetActionResult
   object RunWorksheetActionResult {
-    object Done extends RunWorksheetActionResult
+    case object Done extends RunWorksheetActionResult
     sealed trait Error extends RunWorksheetActionResult
-    object NoModuleError extends Error
-    object NoWorksheetFileError extends Error
-    object AlreadyRunning extends Error
+    case object NoModuleError extends Error
+    case object NoWorksheetFileError extends Error
+    case object AlreadyRunning extends Error
     final case class ProjectCompilationError(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) extends Error
     final case class WorksheetRunError(error: WorksheetCompilerError) extends Error
   }
@@ -82,7 +83,7 @@ object RunWorksheetAction {
     try {
       doRunCompiler(project, editor, auto)(promise)
     } catch {
-      case ex: Exception =>
+      case NonFatal(ex) =>
         promise.failure(ex)
     }
     val runImmediatelyExecutionContext = new ExecutionContext {
