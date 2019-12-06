@@ -457,7 +457,12 @@ package object extensions {
       case _: NumberFormatException => None
     }
 
-    def trimRight: String = string.replaceAll("\\s+$", "")
+    def trimRight: String = StringExt.TrimRightRegex.replaceFirstIn(string, "")
+  }
+
+  object StringExt {
+
+    private val TrimRightRegex = "\\s+$".r
   }
 
   implicit class CharSeqExt(private val cs: CharSequence) extends AnyVal {

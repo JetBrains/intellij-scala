@@ -64,15 +64,15 @@ object WorksheetSourceProcessor {
 
   private val genericPrintMethodName = "println"
 
-  def extractLineInfoFromEnd(encoded: String): Option[(Int, Int)] =
-    extractLineInfoFrom(encoded, END_TOKEN_MARKER)
+  def inputLinesRangeFromEnd(encodedLine: String): Option[(Int, Int)] =
+    inputLinesRangeFrom(encodedLine, END_TOKEN_MARKER)
 
-  def extractLineInfoFromStart(encoded: String): Option[(Int, Int)] =
-    extractLineInfoFrom(encoded, START_TOKEN_MARKER)
+  def inputLinesRangeFromStart(encodedLine: String): Option[(Int, Int)] =
+    inputLinesRangeFrom(encodedLine, START_TOKEN_MARKER)
 
-  private def extractLineInfoFrom(encoded: String, marker: String): Option[(Int, Int)] = {
-    if (encoded.startsWith(marker)) {
-      val startWithEnd = encoded.stripPrefix(marker).stripSuffix("\n").split('|')
+  private def inputLinesRangeFrom(encodedLine: String, prefixMarker: String): Option[(Int, Int)] = {
+    if (encodedLine.startsWith(prefixMarker)) {
+      val startWithEnd = encodedLine.stripPrefix(prefixMarker).stripSuffix("\n").split('|')
       startWithEnd match {
         case Array(start, end) =>
           for {
@@ -225,19 +225,24 @@ object WorksheetSourceProcessor {
     protected val importStmts: ArrayBuffer[String] = mutable.ArrayBuffer[String]()
     protected val importsProcessed: mutable.HashSet[ScImportStmt] = mutable.HashSet[ScImportStmt]()
 
+    private var debugLogEnabled = false
+
     protected def getTypePrinterName: String = tpePrinterName
 
     protected def prettyPrintType(tpeString: String): String = s""": " + ${withTempVar(tpeString)}"""
 
-    // FIXME: it does nothing now
-    protected def logError(psiElement: PsiElement, message: Option[String] = None): Unit = {
-      def writeLog(ms: String): Unit = {}
+    // currently used for debug purposes only
+    protected def logError(psiElementOpt: Option[PsiElement], message: Option[String] = None): Unit = {
+      if (!debugLogEnabled) return
 
-      val logMessage = message match {
-        case Some(msg) if psiElement != null => s"$msg ${psiElement.getText} ${psiElement.getClass}"
-        case Some(msg)                       => s"$msg null"
-        case None if psiElement == null      => "PsiElement is null"
-        case _                               => s"Unknown element: $psiElement"
+      def writeLog(finalMessage: String): Unit = println(finalMessage)
+
+      val logMessage = (message, psiElementOpt) match {
+        case (Some(msg), Some(psiElement)) => s"$msg ${psiElement.getText} ${psiElement.getClass}"
+        case (Some(msg), None)             => s"$msg null"
+        case (None, Some(psiElement))      => s"Unknown element: $psiElement"
+        case (None, None)                  => "PsiElement is null"
+        case _                             => "???"
       }
       writeLog(logMessage)
     }
@@ -430,7 +435,7 @@ object WorksheetSourceProcessor {
       exprs.foreach(expr => classBuilder.append(expr.getText).append(insertNlsFromWs(expr)))
 
     protected def processUnknownElement(element: PsiElement): Unit =
-      logError(element)
+      logError(Option(element))
 
     def process(elements: Iterator[PsiElement],
                 preDeclarations: Iterable[PsiElement],
@@ -452,7 +457,7 @@ object WorksheetSourceProcessor {
         case otherExpr: ScExpression      => processOtherExpr(otherExpr)
         case _: PsiWhiteSpace             => //skip
         case error: PsiErrorElement       => return Left(error)
-        case null                         => logError(null)
+        case null                         => logError(None)
         case unknown                      => processUnknownElement(unknown)
       }
 

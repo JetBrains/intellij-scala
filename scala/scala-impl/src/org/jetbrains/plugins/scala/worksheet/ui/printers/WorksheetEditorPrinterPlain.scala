@@ -55,7 +55,7 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
     } else if (isResultEnd(line)) {
       if (!isInited) init()
 
-      WorksheetSourceProcessor.extractLineInfoFromEnd(line) match {
+      WorksheetSourceProcessor.inputLinesRangeFromEnd(line) match {
         case Some((inputStartLine, inputEndLine)) =>
           val output = currentOutputBuffer.mkString
           val chunk  = EvaluationChunk(inputStartLine, inputEndLine, output)
@@ -134,7 +134,7 @@ final class WorksheetEditorPrinterPlain private[printers](editor: Editor, viewer
   private def buildIncompleteLastChunkOpt: Option[EvaluationChunk] = {
     if (StringUtils.isNotBlank(currentOutputBuffer)) {
       val (inputStartLine, inputEndLine) =
-        currentResultStartLine.flatMap(WorksheetSourceProcessor.extractLineInfoFromStart).getOrElse(0, 0)
+        currentResultStartLine.flatMap(WorksheetSourceProcessor.inputLinesRangeFromStart).getOrElse(0, 0)
       val output = currentOutputBuffer.mkString
       Some(EvaluationChunk(inputStartLine, inputEndLine, output))
     } else {
