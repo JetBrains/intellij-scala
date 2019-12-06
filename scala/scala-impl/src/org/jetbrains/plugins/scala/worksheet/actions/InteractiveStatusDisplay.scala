@@ -5,28 +5,28 @@ import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.roots.ScalableIconComponent
 import com.intellij.util.ui.{AsyncProcessIcon, EmptyIcon}
 import javax.swing.{Icon, JPanel}
+import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay.{createAnimatedIcon, createIconWrapper}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentDisplayable
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiUtils
 
 class InteractiveStatusDisplay extends TopComponentDisplayable {
-  import InteractiveStatusDisplay._
 
-  private val myPanel = new JPanel()
+  private val iconPanel = new JPanel()
 
-  private var currentIcon: AsyncProcessIcon = _
+  private var currentIcon: Option[AsyncProcessIcon] = None
 
-  private val successIcon = createAnimatedIcon(MyOkIcon)
-  private val failureIcon = createAnimatedIcon(MyErrorIcon)
+  private val successIcon = createAnimatedIcon(AllIcons.General.InspectionsOK)
+  private val failureIcon = createAnimatedIcon(AllIcons.General.Error)
 
   override def init(panel: JPanel): Unit = {
-    myPanel.add(createIconWrapper(MyEmptyIcon), 0)
-    panel.add(myPanel)
-    WorksheetUiUtils.fixUnboundMaxSize(myPanel)
+    iconPanel.add(createIconWrapper(EmptyIcon.ICON_18), 0)
+    panel.add(iconPanel)
+    WorksheetUiUtils.fixUnboundMaxSize(iconPanel)
   }
 
   def onStartCompiling(): Unit = {
     setCurrentIcon(successIcon)
-    currentIcon.resume()
+    currentIcon.foreach(_.resume())
   }
 
   def onFailedCompiling(): Unit =
@@ -36,26 +36,22 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
     setCurrentIcon(successIcon)
 
   private def setCurrentIcon(icon: AsyncProcessIcon): Unit = {
-    if (currentIcon != icon) {
-      currentIcon = icon
-      myPanel.removeAll()
-      myPanel.add(icon, 0)
+    if (currentIcon.contains(icon)) {
+      currentIcon = Some(icon)
+      iconPanel.removeAll()
+      iconPanel.add(icon, 0)
     }
-    currentIcon.suspend()
+    currentIcon.foreach(_.suspend())
   }
+}
+
+private object InteractiveStatusDisplay {
+
+  private def createIconWrapper(icon: Icon): ScalableIconComponent =
+    new ScalableIconComponent(icon)
 
   private def createAnimatedIcon(passiveIcon: Icon): AsyncProcessIcon = {
     val frames = AnimatedIcon.Default.ICONS.toArray(Array.empty[Icon])
     new AsyncProcessIcon("Compiling...", frames, passiveIcon)
   }
-
-  private def createIconWrapper(icon: Icon): ScalableIconComponent =
-    new ScalableIconComponent(icon)
-}
-
-object InteractiveStatusDisplay {
-
-  private val MyOkIcon    = AllIcons.General.InspectionsOK
-  private val MyErrorIcon = AllIcons.General.Error
-  private val MyEmptyIcon = EmptyIcon.ICON_18
 }
