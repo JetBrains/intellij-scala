@@ -59,8 +59,12 @@ class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, ca
 
   private def connectUnixSocket(socketFile: File): Either[BspErrorMessage, (Process, UnixDomainSocket)] = {
 
-    val verboseParam = if (verbose) "--verbose" else ""
-    val bloopParams = s"bsp --protocol local --socket $socketFile $verboseParam"
+    val verboseParam = if (verbose) List("--verbose") else Nil
+    val bloopParams = List[String](
+      "bsp",
+      "--protocol", "local",
+      "--socket", socketFile.toString
+    ) ++ verboseParam
     val proc = runBloop(bloopParams)
 
     if (bspReady(socketFile)) {
@@ -86,8 +90,13 @@ class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, ca
   }
 
   private def connectTcp(host: URI, port: Int): Either[BspError, java.net.Socket] = {
-    val verboseParam = if (verbose) "--verbose" else ""
-    val bloopParams = s"bsp --protocol tcp --host ${host.toString} --port $port $verboseParam"
+    val verboseParam = if (verbose) List("--verbose") else Nil
+    val bloopParams = List[String](
+      "bsp",
+      "--protocol", "tcp",
+      "--host", host.toString,
+      "--port", port.toString
+   ) ++ verboseParam
 
     runBloop(bloopParams)
     Try(new java.net.Socket(host.toString, port))
@@ -99,8 +108,8 @@ class BloopConnector(bloopExecutable: File, base: File, compilerOutput: File, ca
     err => logger.warn(s"bloop: $err")
   )
 
-  private def runBloop(params: String) = {
-    val command = s"${bloopExecutable.getCanonicalPath} $params"
+  private def runBloop(params: List[String]) = {
+    val command = bloopExecutable.getCanonicalPath.toString :: params
     Process(command, base).run(proclog)
   }
 
