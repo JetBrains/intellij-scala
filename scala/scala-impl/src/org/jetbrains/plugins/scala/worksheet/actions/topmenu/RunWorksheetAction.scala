@@ -141,12 +141,12 @@ object RunWorksheetAction {
       }
     }
 
-    RunWorksheetAction.synchronized {
+    invokeAndWait {
       if (WorksheetFileHook.isRunning(vFile)) {
         promise.success(RunWorksheetActionResult.AlreadyRunning)
         return
       } else {
-        invokeAndWait(WorksheetFileHook.disableRun(vFile, None))
+        WorksheetFileHook.disableRun(vFile, None)
       }
     }
 
