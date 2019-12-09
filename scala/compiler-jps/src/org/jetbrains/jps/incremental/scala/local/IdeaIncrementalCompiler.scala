@@ -4,7 +4,7 @@ package local
 import java.io.File
 import java.nio.file.Path
 import java.util
-import java.util.{Collections, Optional}
+import java.util.Optional
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.data.CompilationData
@@ -65,8 +65,6 @@ private class ClientCallback(client: Client, output: Path) extends ClientCallbac
   }
 
   override def enabled(): Boolean = false
-
-  override def classesInOutputJar(): util.Set[String] = Collections.emptySet[String]()
 }
 
 abstract class ClientCallbackBase extends xsbti.AnalysisCallback {

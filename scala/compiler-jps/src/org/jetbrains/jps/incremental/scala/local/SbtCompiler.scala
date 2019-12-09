@@ -4,14 +4,14 @@ package local
 import java.io.File
 import java.util.Optional
 
-import scala.util.Try
-
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 import org.jetbrains.jps.incremental.scala.local.zinc.{BinaryToSource, _}
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
 import sbt.internal.inc._
 import xsbti.compile._
+
+import scala.util.Try
 
 /**
   * @author Pavel Fatin
@@ -77,9 +77,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       order,
       cs,
       setup,
-      previousResult,
-      Optional.empty()
-    )
+      previousResult)
 
     val compilationResult = Try {
       client.progress("Collecting incremental compiler data...")
