@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.{DefaultBoundedRangeModel, Icon}
+import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
@@ -69,19 +70,23 @@ object CleanWorksheetAction {
     }
   }
 
+  @CalledInAwt
   def resetScrollModel(viewer: Editor): Unit = {
     viewer match {
       case viewerEx: EditorImpl =>
-        val commonModel = viewerEx.getScrollPane.getVerticalScrollBar.getModel
-        viewerEx.getScrollPane.getVerticalScrollBar.setModel(
-          new DefaultBoundedRangeModel(
-            commonModel.getValue, commonModel.getExtent, commonModel.getMinimum, commonModel.getMaximum
-          )
+        val scrollbar = viewerEx.getScrollPane.getVerticalScrollBar
+        val commonModel = scrollbar.getModel
+        val newModel = new DefaultBoundedRangeModel(
+          commonModel.getValue, commonModel.getExtent, commonModel.getMinimum, commonModel.getMaximum
         )
+        inWriteAction {
+          scrollbar.setModel(newModel)
+        }
       case _ =>
     }
   }
 
+  @CalledInAwt
   def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project): Unit = {
     val rightDocument = rightEditor.getDocument
 
