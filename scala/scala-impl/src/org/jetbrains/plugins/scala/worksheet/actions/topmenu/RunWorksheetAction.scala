@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -114,14 +115,21 @@ object RunWorksheetAction {
     }
 
     val fileSettings = WorksheetCommonSettings(file)
-    implicit val module: Module = fileSettings.getModuleFor
-    if (module == null) {
-      promise.success(RunWorksheetActionResult.NoModuleError)
-      return
+
+    val module: Module = fileSettings.getModuleFor match {
+      case m: Module => m
+      case _ =>
+        promise.success(RunWorksheetActionResult.NoModuleError)
+        return
     }
 
-    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+    doRunCompiler(project, editor, auto, vFile, file, fileSettings.isMakeBeforeRun, module)(promise)
+  }
 
+  private def doRunCompiler(project: Project, editor: Editor, auto: Boolean,
+                            vFile: VirtualFile, file: ScalaFile, makeBeforeRun: Boolean, module: Module)
+                           (promise: Promise[RunWorksheetActionResult]): Unit = {
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     if (viewer != null && !WorksheetFileSettings.isRepl(file)) {
       invokeAndWait(ModalityState.any()) {
         inWriteAction {
@@ -146,21 +154,24 @@ object RunWorksheetAction {
       val callback: WorksheetCompilerResult => Unit = result => {
         val resultTransformed = result match {
           case WorksheetCompilerResult.CompiledAndEvaluated => RunWorksheetActionResult.Done
-          case error: WorksheetCompilerError => RunWorksheetActionResult.WorksheetRunError(error)
+          case error: WorksheetCompilerError                => RunWorksheetActionResult.WorksheetRunError(error)
         }
         promise.success(resultTransformed)
 
         val hasErrors = resultTransformed != RunWorksheetActionResult.Done
-        invokeLater(WorksheetFileHook.enableRun(vFile, hasErrors))
+        invokeLater {
+          WorksheetFileHook.enableRun(vFile, hasErrors)
+        }
       }
       val compiler = new WorksheetCompiler(module, editor, file, callback, auto)
       compiler.compileAndRunFile()
     }
 
-    if (fileSettings.isMakeBeforeRun) {
+    if (makeBeforeRun) {
       val compilerNotification: CompileStatusNotification =
         (aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) => {
-          if (!aborted && errors == 0) {
+          val finishedWithError = aborted && errors != 0
+          if (!finishedWithError) {
             runnable()
           } else {
             promise.success(RunWorksheetActionResult.ProjectCompilationError(aborted, errors, warnings, context))
