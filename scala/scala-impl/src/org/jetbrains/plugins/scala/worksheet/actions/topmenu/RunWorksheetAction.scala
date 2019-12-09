@@ -12,7 +12,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait, invokeLater, LoggerExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -35,7 +34,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
   override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
 
   override def actionPerformed(e: AnActionEvent): Unit =
-    RunWorksheetAction.runCompiler(e.getProject, auto = false)
+    RunWorksheetAction.runCompilerForSelectedEditor(e, auto = false)
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
@@ -64,19 +63,24 @@ object RunWorksheetAction {
     final case class WorksheetRunError(error: WorksheetCompilerError) extends Error
   }
 
-  def runCompiler(project: Project, auto: Boolean): Unit = {
+  def runCompilerForSelectedEditor(e: AnActionEvent, auto: Boolean): Unit = {
+    val project = e.getProject match {
+      case null    => return
+      case project => project
+    }
+    runCompilerForSelectedEditor(project, auto)
+  }
+
+  def runCompilerForSelectedEditor(project: Project, auto: Boolean): Unit = {
     Stats.trigger(FeatureKey.runWorksheet)
 
-    if (project == null) return
-
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-
     if (editor == null) return
 
     runCompiler(project, editor, auto)
   }
 
-  def runCompiler(@NotNull project: Project, @NotNull editor: Editor, auto: Boolean): Future[RunWorksheetActionResult] = {
+  def runCompiler(project: Project, editor: Editor, auto: Boolean): Future[RunWorksheetActionResult] = {
     Log.debugSafe(s"worksheet evaluation started")
     val promise = Promise[RunWorksheetActionResult]()
     try {
@@ -94,7 +98,7 @@ object RunWorksheetAction {
     future
   }
 
-  private def doRunCompiler(@NotNull project: Project, @NotNull editor: Editor, auto: Boolean)
+  private def doRunCompiler(project: Project, editor: Editor, auto: Boolean)
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
 
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)

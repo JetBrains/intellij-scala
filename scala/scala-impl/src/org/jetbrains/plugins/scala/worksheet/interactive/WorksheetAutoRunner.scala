@@ -136,7 +136,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
 
       myAlarm.addRequest(() => {
         if (needToRunWorksheet) {
-          RunWorksheetAction.runCompiler(project, auto = true)
+          RunWorksheetAction.runCompilerForSelectedEditor(project, auto = true)
         }
       }, requestDelay, true)
     }

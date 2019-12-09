@@ -15,7 +15,7 @@ final class WorksheetReplRunAction extends AnAction with WorksheetAction {
     updateInner(e)
 
   override def actionPerformed(e: AnActionEvent): Unit =
-    RunWorksheetAction.runCompiler(e.getProject, auto = false)
+    RunWorksheetAction.runCompilerForSelectedEditor(e, auto = false)
 
   override def acceptFile(file: ScalaFile): Boolean =
     WorksheetFileSettings.getRunType(file).isReplRunType
