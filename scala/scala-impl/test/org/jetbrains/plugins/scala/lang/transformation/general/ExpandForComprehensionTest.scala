@@ -81,12 +81,12 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
 
   def testMultipleForBindings(): Unit = check(
     before = "for (a <- List(A); (b, c) = a; d = c) yield d",
-    after = "List(A).map { a => val v$1@(b, c) = a; val d = c; d }"
+    after = "List(A).map { a => val v$1@(b, c) = a; (a, v$1) }.map { case (a, (b, c)) => val d = c; (a, (b, c), d) }.map { case (a, (b, c), d) => d }"
   )()
 
   def testMultipleGuards(): Unit = check(
     before = "for (a <- List(A); b = a if p(b); if p(a); c = b) c.v()",
-    after = "List(A).map { a => val b = a; (a, b) }.withFilter { case (a, b) => p(b) }.withFilter { case (a, b) => p(a) }.foreach { case (a, b) => val c = b; c.v() }"
+    after = "List(A).map { a => val b = a; (a, b) }.withFilter { case (a, b) => p(b) }.withFilter { case (a, b) => p(a) }.map { case (a, b) => val c = b; (a, b, c) }.foreach { case (a, b, c) => c.v() }"
   )()
 
   def testForWithMultipleUnderscores(): Unit = check(
@@ -101,7 +101,7 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
 
   def testWildcardPatternWithForBindings(): Unit = check(
     before = "for (_ <- Seq(A); a = 1; _ = 2; if true; _ = 3) yield 4",
-    after = "Seq(A).map { _ => val a = 1; val _ = 2; a }.withFilter(a => true).map { a => val _ = 3; 4 }"
+    after = "Seq(A).map { _ => val a = 1; a }.map { a => val _ = 2; a }.withFilter(a => true).map { a => val _ = 3; a }.map(a => 4)"
   )()
 
   def testForWithUnrelatedUnderscores(): Unit = check(
@@ -143,20 +143,16 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
           |${startMarker}Seq(1, 2, 3)
           |.map { x => val xx = x; (x, xx) }
           |.withFilter { case (x, xx) => x == xx }
-          |.flatMap { case (x, xx) =>$space
-          |val xxx = xx
-          |
+          |.map { case (x, xx) => val xxx = xx; (x, xx, xxx) }
+          |.flatMap { case (x, xx, xxx) =>$space
           |Seq("a", "b")
           |.map { y => val yy = y; (y, yy) }
           |.withFilter { case (y, yy) => y == yy }
-          |.map { case (y, yy) =>$space
-          |val yyy = yy
-          |
-          |{
+          |.map { case (y, yy) => val yyy = yy; (y, yy, yyy) }
+          |.map { case (y, yy, yyy) => {
           |  println(x + xx + xxx)
           |  println(y + yy + yyy)
-          |}
-          | }
+          |} }
           | }$endMarker
         """.stripMargin
     )()
@@ -207,12 +203,15 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
           |    println("3")
           |    true
           |  } }
-          |.foreach { case (x, y) =>$space
+          |.map { case (x, y) =>$space
           |val z = {
           |    println("4")
           |    4
           |  }
           |
+          |(x, y, z)
+          | }
+          |.foreach { case (x, y, z) =>$space
           |{
           |    println("5")
           |    Seq(5)

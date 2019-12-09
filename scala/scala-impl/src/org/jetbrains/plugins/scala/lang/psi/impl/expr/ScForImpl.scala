@@ -365,10 +365,16 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       val (forBindingsAndGuards, nextEnums) = restEnums.span(!_.isInstanceOf[ScGenerator])
 
       val (forBindingsInGenBody, generatorArgs) = {
-        // accumulate all ForBindings for the next guard or
+        // accumulate all ForBindings for the next guard
+        // (but not if we want to display it, because it changes semantic)
+        // see #SCL-16463
         forBindingsAndGuards.foldLeft[(Seq[ForBinding], Seq[Arg])]((Seq.empty, initialArg)) {
           case ((forBindings, args), forBinding: ScForBinding) =>
-            (forBindings :+ ForBinding(forBinding), args)
+            if (!forDisplay) (forBindings :+ ForBinding(forBinding), args)
+            else {
+              val argsWithBindings = printForBindingMap(Seq(ForBinding(forBinding)), args)
+              (Seq.empty, argsWithBindings)
+            }
 
           case ((forBindings, args), guard: ScGuard) =>
             val argsWithBindings = printForBindingMap(forBindings, args)
