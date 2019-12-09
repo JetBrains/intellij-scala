@@ -71,9 +71,9 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     }
   }
 
-  override def getLeftParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS))
+  override def getLeftParenthesis: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS))
 
-  override def getRightParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
+  override def getRightParenthesis: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
 
   override def getLeftBracket: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.LEFT_BRACE_OR_PAREN_TOKEN_SET))
 
@@ -475,7 +475,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         !found
       }
 
-      override protected val forName = Some(methodName)
+      override protected val forName: Some[String] = Some(methodName)
     }
     processor.processType(ty, this)
     found
