@@ -97,10 +97,12 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
 
   // create a dedicated pass for the preview
   private lazy val previewPass = new ScalaMethodChainInlayHintsPass {
-    override val settings: ScalaHintsSettings = new hints.ScalaHintsSettings.Defaults {
+    private def globalSettings = ScalaMethodChainInlayHintsSettingsModel.this.settings
+
+    override val settings: ScalaHintsSettings = new ScalaHintsSettings.Defaults {
       override def showMethodChainInlayHints: Boolean = true
-      override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-      override def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
+      override def alignMethodChainInlayHints: Boolean = globalSettings.alignMethodChainInlayHints
+      override def uniqueTypesToShowMethodChains: Int = globalSettings.uniqueTypesToShowMethodChains
       override def showObviousType: Boolean = true // always show obvious types in the preview
     }
   }
