@@ -1,70 +1,71 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.find.findUsages.FindUsagesOptions
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
-import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory, ScalaTypeDefinitionFindUsagesOptions}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-
-import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.util.Markers
 
 /**
   * Nikolay.Tropin
   * 21-Aug-17
   */
-class FindUsagesTest extends ScalaFixtureTestCase {
-  protected def doTest(fileText: String, usageCount: Int): Unit = {
-    myFixture.configureByText("dummy.scala", StringUtil.convertLineSeparators(fileText))
-    val elem = myFixture.getElementAtCaret
-    val named = PsiTreeUtil.getParentOfType(elem, classOf[ScNamedElement], false)
-    val coll = myFixture.findUsages(named)
-
-    def message = {
-      val usagesString =
-        coll.asScala.toSeq.sortBy(_.getSegment.getStartOffset)
-        .map(u => s"${u.getElement}, range: ${u.getSegment}").mkString("\n")
-      s"Expected $usageCount usages, found:\n$usagesString"
-    }
-
-    assert(coll.size() == usageCount, message)
-  }
-
+class FindUsagesTest extends ScalaFixtureTestCase with Markers {
   private def classWithMembersOptions: FindUsagesOptions = {
     val options = new ScalaTypeDefinitionFindUsagesOptions(getProject)
     options.isMembersUsages = true
     options
   }
 
-  private def doTestWithOptions(fileText: String, options: FindUsagesOptions): Unit = {
-    myFixture.configureByText("dummy.scala", StringUtil.convertLineSeparators(fileText))
+  private def defaultOptions = new ScalaTypeDefinitionFindUsagesOptions(getProject)
+
+  private def doTest(fileText: String, options: FindUsagesOptions = defaultOptions): Unit = {
+    val (source, expectedUsageRanges) = extractMarkers(StringUtil.convertLineSeparators(fileText))
+    myFixture.configureByText("dummy.scala", source)
     val elem = myFixture.getElementAtCaret
     val named = PsiTreeUtil.getParentOfType(elem, classOf[ScNamedElement], false)
     val handler = new ScalaFindUsagesHandler(named, ScalaFindUsagesHandlerFactory.getInstance(getProject))
-    val dummyProcessor: Processor[UsageInfo] = _ => true
-    handler.processElementUsages(named, dummyProcessor, options)
+
+    val foundUsages = {
+      val resultBuilder = Set.newBuilder[TextRange]
+      val dummyProcessor: Processor[UsageInfo] = (usage) => {
+        resultBuilder += usage.getElement.getTextRange
+        true
+      }
+      handler.processElementUsages(named, dummyProcessor, options)
+      resultBuilder.result()
+    }
+
+    val expectedButNotFound = expectedUsageRanges.filterNot(foundUsages.contains)
+    val foundButNotExpected = foundUsages.filterNot(expectedUsageRanges.contains)
+
+    assert(expectedButNotFound.isEmpty, s"Didn't find ${expectedButNotFound.mkString(", ")} but found ${foundButNotExpected.mkString(", ")}")
+    assert(foundButNotExpected.isEmpty, s"Found but didn't expect ${foundButNotExpected.mkString(", ")}")
   }
 
   def testFindObjectWithMembers(): Unit = {
-    doTestWithOptions(
-      """object <caret>Test {
+    doTest(
+      s"""object <caret>Test {
         |  def foo() = ???
         |
-        |  Test.foo
+        |  ${start(0)}${start(1)}Test${end(1)}.foo${end(0)}
         |}
-        |""".stripMargin, classWithMembersOptions)
+        |""".stripMargin,
+      classWithMembersOptions)
   }
 
   def testFindValOverriders(): Unit = {
     doTest(
-      """
+      s"""
         |trait FindMyMembers {
         |  val findMyVal<caret>: Int
         |  def methodInTrait(): Unit = {
-        |    println(findMyVal)
+        |    println(${start(0)}findMyVal${end(0)})
         |  }
         |}
         |
@@ -72,19 +73,19 @@ class FindUsagesTest extends ScalaFixtureTestCase {
         |  override val findMyVal: Int = 1
         |
         |  def methodInImpl(): Unit = {
-        |    println(findMyVal)
+        |    println(${start(1)}findMyVal${end(1)})
         |  }
         |}
-      """.stripMargin, 2)
+      """.stripMargin)
   }
 
   def testFindDefOverriders(): Unit = {
     doTest(
-      """
+      s"""
         |trait FindMyMembers {
         |  def findMyDef<caret>: Int
         |  def methodInTrait(): Unit = {
-        |    println(findMyDef)
+        |    println(${start(0)}findMyDef${end(0)})
         |  }
         |}
         |
@@ -92,7 +93,7 @@ class FindUsagesTest extends ScalaFixtureTestCase {
         |  override def findMyDef: Int = 1
         |
         |  def methodInImpl(): Unit = {
-        |    println(findMyDef)
+        |    println(${start(1)}findMyDef${end(1)})
         |  }
         |}
         |
@@ -100,7 +101,7 @@ class FindUsagesTest extends ScalaFixtureTestCase {
         |  override val findMyDef: Int = 2
         |
         |  def methodInImpl2(): Unit = {
-        |    println(findMyDef)
+        |    println(${start(2)}findMyDef${end(2)})
         |  }
         |}
         |
@@ -108,11 +109,11 @@ class FindUsagesTest extends ScalaFixtureTestCase {
         |  override var findMyDef: Int = 2
         |
         |  def methodInImpl2(): Unit = {
-        |    findMyDef = 3
-        |    println(findMyDef)
+        |    ${start(3)}findMyDef${end(3)} = 3
+        |    println(${start(4)}findMyDef${end(4)})
         |  }
         |}
-      """.stripMargin, 5)
+      """.stripMargin)
   }
 
 }
