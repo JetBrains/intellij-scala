@@ -8,6 +8,7 @@ import scala.collection.mutable
 
 trait Markers {
 
+  private[this] val caretText = "<caret>"
   def startMarker(i: Int) = s"/*start$i*/"
   def endMarker(i: Int) = s"/*end$i*/"
   val startMarker = "/*start*/"
@@ -25,13 +26,16 @@ trait Markers {
    */
   def extractMarkers(inputText: String): (String, Seq[TextRange]) = {
     var input = inputText
+    val caretPosition = inputText.indexOf(caretText)
+    def removeCaret(index: Int): Int =
+      if (caretPosition >= 0 && index > caretPosition) index - caretText.length else index
     val markerPositions = mutable.Map[String, Int]()
     val textRanges = mutable.Buffer.empty[TextRange]
 
     def detectMarker(start: String, end: String): Boolean = {
       input.contains(start) && input.contains(end) && {
-        markerPositions.put(start, input.indexOf(start))
-        markerPositions.put(end, input.indexOf(end))
+        markerPositions.put(start, removeCaret(input.indexOf(start)))
+        markerPositions.put(end, removeCaret(input.indexOf(end)))
         true
       }
     }
