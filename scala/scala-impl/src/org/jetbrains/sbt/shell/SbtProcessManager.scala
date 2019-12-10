@@ -133,7 +133,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
     vmParams.addAll(buildVMParameters(sbtSettings, workingDir).asJava)
-    // don't add runid when using addPluginFile command
+    // don't add runid when using addPluginSbtFile command
     if (! addPluginCommandSupported)
       vmParams.add(s"-Didea.runid=$runid")
     if (shouldUpgradeSbtVersion)
@@ -150,7 +150,7 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
       val sbtMajorVersion = binaryVersion(upgradedSbtVersion)
 
       val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion, commandLine.getParametersList)
-      // workaround: --addPluginsSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
+      // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
       globalPluginsDir.mkdirs()
 
       val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
@@ -163,8 +163,10 @@ final class SbtProcessManager(project: Project) extends ProjectComponent {
       val plugins = injectedPlugins(sbtMajorVersion.presentation)
       injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: plugins)
 
-      if (addPluginCommandSupported)
-        commandLine.addParameter(s"--addPluginSbtFile=${settingsFile.getAbsolutePath}")
+      if (addPluginCommandSupported) {
+        val settingsPath = settingsFile.getAbsolutePath
+        commandLine.addParameter("early(addPluginSbtFile=\"\"\"" + settingsPath + "\"\"\")")
+      }
 
       val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
       val ideaPort                    = SbtCompilationSupervisor().actualPort
