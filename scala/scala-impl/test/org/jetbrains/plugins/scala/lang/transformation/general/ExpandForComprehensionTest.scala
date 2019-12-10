@@ -222,6 +222,28 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
         .stripMargin
     )()
   }
+
+  //List((174,299))
+  // see #SCL-16463
+  def testMutationInForBinding(): Unit = check(
+    before =
+      """
+        |val xs = Array(1, 0, 0)
+        |for {
+        |  i <- 1 until xs.length
+        |  previous = xs(i - 1)
+        |} {
+        |  xs(i) = previous
+        |}
+        |""".stripMargin,
+    after=
+      s"""
+        |val xs = Array(1, 0, 0)
+        |$startMarker(1 until xs.length)
+        |.map { i => val previous = xs(i - 1); (i, previous) }
+        |.foreach { case (i, previous) => xs(i) = previous }$endMarker
+        |""".stripMargin
+  )()
 }
 
 class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehensionTestBase {
