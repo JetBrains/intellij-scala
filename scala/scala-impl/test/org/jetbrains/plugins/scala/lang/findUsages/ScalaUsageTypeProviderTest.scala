@@ -75,7 +75,7 @@ class ScalaUsageTypeProviderTest extends ScalaFixtureTestCase {
       |            reference pattern[x] -> Value read
       |          IntegerLiteral -> Value read
       |        assign statement -> Value read
-      |          Reference expression[x] -> Value read
+      |          Reference expression[x] -> Value write
       |          IntegerLiteral -> Value read
       |        function definition[method] -> Value read
       |          annotations -> Value read
@@ -88,7 +88,7 @@ class ScalaUsageTypeProviderTest extends ScalaFixtureTestCase {
       |            { -> Value read
       |            WHITE_SPACE -> Value read
       |            assign statement -> Value read
-      |              Reference expression[x] -> Value read
+      |              Reference expression[x] -> Value write
       |              IntegerLiteral -> Value read
       |            WHITE_SPACE -> Value read
       |            } -> Value read

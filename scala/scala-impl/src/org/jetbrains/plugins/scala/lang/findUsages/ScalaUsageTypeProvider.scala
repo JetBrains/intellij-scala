@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package findUsages
 
-import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
@@ -51,7 +51,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
           Some(ParameterInPattern)
         case _ =>
           element.withParentsInFile
-            .flatMap(usageType)
+            .flatMap(usageType(_, element))
             .headOption
       }
     }.orNull
@@ -125,16 +125,16 @@ object ScalaUsageTypeProvider {
   val UnresolvedImplicit: UsageType        = "Unresolved Implicit Conversion/Parameter"
   val SAMImplementation: UsageType         = "SAM interface implementation"
 
-  private def usageType(element: PsiElement): Option[UsageType] =
-    Option(nullableUsageType(element))
+  private def usageType(element: PsiElement, original: PsiElement): Option[UsageType] =
+    Option(nullableUsageType(element, original))
 
   private def isConstructorPatternReference(element: ScReference): Boolean = element.resolve() match {
     case pattern: ScBindingPattern => getParentOfType(pattern, classOf[ScConstructorPattern], classOf[ScInfixPattern]) != null
     case _ => false
   }
 
-  private[this] def nullableUsageType(element: PsiElement): UsageType = {
-    def isAppropriate(parent: PsiElement): Boolean = isAncestor(parent, element, false)
+  private[this] def nullableUsageType(element: PsiElement, original: PsiElement): UsageType = {
+    def isAppropriate(parent: PsiElement): Boolean = isAncestor(parent, original, false)
 
     def existsAppropriate(maybeParent: Option[PsiElement]): Boolean = maybeParent.exists(isAppropriate)
 
@@ -142,7 +142,7 @@ object ScalaUsageTypeProvider {
       case _: ScImportExpr => CLASS_IMPORT
       case typeArgs: ScTypeArgs => typeArgsUsageType(typeArgs)
       case templateParents: ScTemplateParents => templateParentsUsageType(templateParents)
-      case parameter: ScParameter if isAppropriate(parameter) => CLASS_METHOD_PARAMETER_DECLARATION
+      case _: ScParameter => CLASS_METHOD_PARAMETER_DECLARATION
       case pattern: ScPattern => patternUsageType(pattern)
       case typeElement: ScTypeElement => typeUsageType(typeElement)
       case _: ScInterpolatedExpressionPrefix => PrefixInterpolatedString
