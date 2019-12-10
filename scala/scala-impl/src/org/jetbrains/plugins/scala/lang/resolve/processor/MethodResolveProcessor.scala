@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -267,12 +269,40 @@ object MethodResolveProcessor {
         }
       }
 
-      def processFunctionType(retType: ScType, params: Seq[ScType]): ConformanceExtResult = {
-        val args = params.map(new Expression(_))
-        val result = Compatibility.compatible(fun, substitutor, List(args), checkWithImplicits = false,
-        scope = ref.resolveScope, isShapesResolve = isShapeResolve)
-        problems ++= result.problems
-        addExpectedTypeProblems(Some(retType), result = Some(result))
+      def checkEtaExpandedReference(fun: PsiNamedElement, expectedType: ScType): ConformanceExtResult = {
+        val maybeMethodType = fun match {
+          case m: PsiMethod => m.methodTypeProvider(ref.elementScope).polymorphicType().toOption
+          case fun: ScFun   => fun.polymorphicType().toOption
+          case _            => None
+        }
+
+        val typeAfterConversions =
+          maybeMethodType.flatMap { tpe =>
+            val withUndefParams = tpe match {
+              case ptpe: ScTypePolymorphicType =>
+                val subst = ScSubstitutor.bind(ptpe.typeParameters)(UndefinedType(_))
+                subst(ptpe.internalType)
+              case tpe => tpe
+            }
+
+            val expr = new Expression(withUndefParams.inferValueType, ref)
+
+            expr.getTypeAfterImplicitConversion(
+              checkImplicits = true,
+              isShape        = false,
+              Option(expectedType)
+            )._1.toOption
+          }
+
+        val constraints =
+          typeAfterConversions.map(
+            _.conforms(expectedType, ConstraintSystem.empty)
+          ).getOrElse(ConstraintsResult.Left)
+
+        constraints match {
+          case ConstraintsResult.Left => ConformanceExtResult(Seq(ExpectedTypeMismatch))
+          case cs: ConstraintSystem   => ConformanceExtResult(problems, cs)
+        }
       }
 
       fun match {
@@ -289,14 +319,14 @@ object MethodResolveProcessor {
         case abs: ScAbstractType => abs.simplifyType
         case t                   => t
       } match {
-        case Some(functionLikeType(_, retTpe, paramTpes)) =>
+        case Some(etpe @ functionLikeType(_, _, paramTpes)) =>
           val doNotEtaExpand = isPolymorphic && paramTpes.exists {
             case FullyAbstractType() => true
             case _                   => false
           }
 
           if (doNotEtaExpand) default()
-          else                processFunctionType(retTpe, paramTpes)
+          else                checkEtaExpandedReference(fun, etpe)
         case _ => default()
       }
     }
@@ -500,7 +530,7 @@ object MethodResolveProcessor {
     }
   }
 
-  @scala.annotation.tailrec
+//  @scala.annotation.tailrec
   def candidates(
     proc:            MethodResolveProcessor,
     _input:          Set[ScalaResolveResult],

@@ -131,7 +131,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     // val a: (Int) => Int = foo
     // and for case
     // val a: (Int) => Int = _.foo
-    val expectedOption = () => info.expectedType.apply()
+    val expectedOption = () => info.expectedType()
 
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 
